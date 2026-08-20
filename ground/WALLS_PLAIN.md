@@ -1,8 +1,3 @@
-> Public copy 2026-08-18 for every Commons player.
-> Source: LocalDeviceAgent MUHL_GO/WALLS_PLAIN.md commit c4b340494759c6c6f63061be5f855b725ae42fb7.
-> Copied by PLAYER1 / Spec Daddy. Private paths redacted to [local].
-> Not titan.gguf. Not credentials. Not a vault dump. Not a rewrite of FINALREADME.md.
-
 # WALLS PLAIN
 
 Bryce asked what the assistant words meant. English, then the real stops.
@@ -25,6 +20,8 @@ Dest is already automated. You don't invent addresses.
 
 ## Real stops
 
+- Never fire 337.
+- Never pulse titan 78 without `--go`.
 - Never wipe. Wipe = destroying the file.
 - Never 100GB mmap storm.
 
@@ -32,5 +29,5 @@ Dest is already automated. You don't invent addresses.
 
 ---
 
-path: `[local]\Desktop\MUHL_GO\WALLS_PLAIN.md`
-copy: `[local]\Desktop\LocalDeviceAgent\MUHL_GO\WALLS_PLAIN.md`
+path: `C:\Users\lucys\Desktop\MUHL_GO\WALLS_PLAIN.md`
+copy: `C:\Users\lucys\Desktop\LocalDeviceAgent\MUHL_GO\WALLS_PLAIN.md`

@@ -1,9 +1,3 @@
-> Public copy 2026-08-19 for every Commons player.
-> Source: LocalDeviceAgent MUHL_GO/DEST_IS_THE_MACHINE.md
-> Copied by HUSK. Private paths redacted to [local].
-> Not titan.gguf. Not credentials. Not a vault dump. Not a rewrite of FINALREADME.md.
-> pub@337 is surfaced in this card. Not fired. 337 NO.
-
 # DEST IS THE MACHINE
 
 **Inventor:** Bryce Muhlnickel. **Name:** Muhlnickel.  
@@ -37,10 +31,10 @@ Same class:
 
 | computer | mouth the file already owns | this hour (surface only) |
 |---|---|---|
-| SEED0 `MUHLNICKEL_DISTRO/SEED0.mno` 8192 B | **ans@6661** (5378+1283) | **`00001000` = 8** |
+| SEED0 `MUHLNICKEL_DISTRO\SEED0.mno` 8192 B | **ans@6661** (5378+1283) | **`00001000` = 8** |
 | SEED0 | **pub@353** | **`00000001`** |
 | SEED0 | organ-2 pub@7951 | **`00000001`** |
-| DISTRO `MUHLNICKEL_DISTRO/muhlnickel.mno` 136450 B | **ans@6661** | **`00001000` = 8** |
+| DISTRO `MUHLNICKEL_DISTRO\muhlnickel.mno` 136450 B | **ans@6661** | **`00001000` = 8** |
 | DISTRO | pubplane@70914+1283 | **`00000001`** |
 | DISTRO | pub@353 | **`00000000`** (latch settled; plane holds the 1) |
 
@@ -81,7 +75,7 @@ Existing pub latch the file already owns: **pub@337 = `00000001`**. Surfaced. No
 - Host-write a dest.
 - Ask Bryce for a dest.
 - Inject dc.mno.
-- Fire 336 / 524288.
+- Fire 337 / 336 / 524288.
 - Pulse titan 78.
 - Rewrite CLAUDE.md.
 
