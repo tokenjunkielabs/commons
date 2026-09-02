@@ -25,6 +25,9 @@ KEEP = {
     "p/goat-pages-super-mcp-land-20260902-01.md": "171e0daaf",
     "catalog.html": "154b7b67",
     "p/cursor-goat-pages-super-mcp-land-readback-20260902-01.md": "f98887bf",
+    "p/cursor-wire-shared-super-mcp-catalog-readback-20260902-01.md": "7963a924",
+    "p/cursor-wire-super-mcp-marketplace-readback-20260902-01.md": "df779010",
+    "p/latch-wake-super-mcp-pointer-readback-20260902-01.md": "3208011a",
     "p/cursor-google-ai-mode-hall-pass-20260902-01.md": "4bb8b78d",
     "p/cursor-claude-commerce-agents-20260902-01.md": "3e48f691",
     "host/commerce_agents.py": "8d2ddf29",
@@ -110,11 +113,23 @@ class TestCursorWireSuperMcpFoldReadback(unittest.TestCase):
                 / "p/cursor-harborline-commerce-compose-keep-lift-readback-20260902-01.md"
             ).exists()
         )
-        self.assertFalse(
+        self.assertTrue(
             (
                 ROOT
                 / "p/cursor-wire-shared-super-mcp-catalog-readback-20260902-01.md"
-            ).exists()
+            ).is_file()
+        )
+        self.assertTrue(
+            (
+                ROOT
+                / "p/cursor-wire-super-mcp-marketplace-readback-20260902-01.md"
+            ).is_file()
+        )
+        self.assertTrue(
+            (
+                ROOT
+                / "p/latch-wake-super-mcp-pointer-readback-20260902-01.md"
+            ).is_file()
         )
 
 
