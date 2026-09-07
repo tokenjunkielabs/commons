@@ -14,10 +14,17 @@ def build(arm, destination):
     # Arm wrappers normally reside one level below the archive root.
     main = main.replace('Path(__file__).resolve().parents[1]', 'Path(__file__).resolve().parent')
     files = {'main.py': main.encode(), 'controller.py': (HERE/'controller.py').read_bytes()}
+    if arm.startswith('carrot_cap_sell_'):
+        files['sell_adapter.py'] = (HERE/'sell_adapter.py').read_bytes()
+        if arm.endswith('dated'):
+            files['dated_sell_adapter.py'] = (HERE/'dated_sell_adapter.py').read_bytes()
+        if arm.endswith('conserved'):
+            files['conserved_sell_adapter.py'] = (HERE/'conserved_sell_adapter.py').read_bytes()
     for p in sorted((HERE/'vendor').rglob('*')):
         if p.is_file() and '__pycache__' not in str(p) and p.suffix != '.pyc':
             files[str(p.relative_to(HERE))] = p.read_bytes()
-    for name in ('README.md', 'SOURCE-PINS.json', 'NOTICE.md'):
+    for name in ('README.md', 'SOURCE-PINS.json', 'NOTICE.md',
+                 'SOURCE-FREEZE.json', 'SELECTION.json', 'RESULTS.md'):
         files[name] = (HERE/name).read_bytes()
     raw=io.BytesIO()
     with tarfile.open(fileobj=raw,mode='w') as tar:
