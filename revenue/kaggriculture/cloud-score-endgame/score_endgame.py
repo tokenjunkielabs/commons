@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 from copy import deepcopy
 from fractions import Fraction as F
+import hashlib
 import importlib.util
 import json
 from pathlib import Path
@@ -33,8 +34,10 @@ def embedding(table):
     return ((F(0),) * m,) + tuple(tuple(1 + x for x in row) for row in points)
 
 
-def _consume(table, rows, raw, verify_certificate):
+def _consume(table, rows, raw, verify_certificate, *, tie_break='baseline'):
     """Translate a completed existing certificate, retaining the raw result."""
+    if tie_break not in ('baseline', 'cash_pareto'):
+        raise ValueError('tie_break must be baseline or cash_pareto')
     raw = deepcopy(dict(raw))
     baseline = [F(int(i == 0)) for i in range(len(table['plan_ids']))]
     points = tuple(tuple(F(x) for x in row) for row in table['win_points'])
@@ -71,6 +74,32 @@ def _consume(table, rows, raw, verify_certificate):
                 result['status'] = 'selected'
             else:
                 result['status'] = 'baseline_optimal'
+                if value == baseline_floor and tie_break == 'cash_pareto':
+                    # No fitted scenario probabilities or mean-cash ranking.
+                    # Try real pure actions in the caller's original order.
+                    margins = tuple(tuple(F(x) for x in row) for row in table['cash_margins'])
+                    for index in range(1, len(points)):
+                        changes = tuple(a - b for a, b in zip(margins[index], margins[0]))
+                        if min(changes) < 0 or max(changes) <= 0:
+                            continue
+                        if min(points[index]) != value:
+                            raise ValueError('Cash-dominating tie action must retain the absolute optimum')
+                        selected = [F(int(i == index)) for i in range(len(points))]
+                        # Reuse the already-solved dual bound. This is another
+                        # primal witness for the SAME optimum, not a new solve.
+                        witness = deepcopy(raw)
+                        witness['weights'] = ['0'] + list(map(str, selected))
+                        witness['column_expectations'] = [str(1 + u) for u in points[index]]
+                        witness['support'] = [index + 1]
+                        verdict = verify_certificate(rows, witness)
+                        if verdict.get('valid') is not True:
+                            raise ValueError('Cash tie action lacks a valid absolute certificate')
+                        weights = selected
+                        result.update(status='selected', selection_reason='cash_pareto_tie',
+                                      cash_margin_change_by_scenario=list(map(str, changes)),
+                                      tie_break_certificate=witness,
+                                      tie_break_certificate_check=deepcopy(verdict))
+                        break
     columns = [sum(weights[i] * points[i][j] for i in range(len(points)))
                for j in range(len(points[0]))]
     result.update(weights=list(map(str, weights)), value=str(min(columns)),
@@ -82,13 +111,15 @@ def _consume(table, rows, raw, verify_certificate):
 
 
 def solve_absolute(document, build_table, solve_full_table, verify_certificate,
-                   *, max_pivots=128, max_bits=512):
+                   *, max_pivots=128, max_bits=512, tie_break='baseline'):
     """Consume raw PORT receipts. Missing/nonterminal cells never call a solver.
 
     Callers supply causally aligned, complete terminal rollouts of the SAME
     own plans against the SAME public-information-compatible rival scenarios.
     Receipt labels/hashes do not themselves establish rollout correctness.
     """
+    if tie_break not in ('baseline', 'cash_pareto'):
+        raise ValueError('tie_break must be baseline or cash_pareto')
     table = build_table(deepcopy(document))
     rows = embedding(table)
     if rows is None:
@@ -98,12 +129,41 @@ def solve_absolute(document, build_table, solve_full_table, verify_certificate,
                 'incomplete_cells': deepcopy(table['incomplete_cells']),
                 'nonterminal_cells': deepcopy(table['nonterminal_cells'])}
     raw = solve_full_table(rows, max_pivots=max_pivots, max_bits=max_bits)
-    return _consume(table, rows, raw, verify_certificate)
+    return _consume(table, rows, raw, verify_certificate, tie_break=tie_break)
+
+
+def _terminal_context(observation, configuration, table):
+    """Bind a terminal draw to its current facts and normalized paired evidence.
+
+    Keep native mapping order, which can matter to inventory operations. Do not
+    consume evaluator-only observation/configuration fields or diagnostic source
+    labels. This is continuity checking, not proof that receipts were produced
+    causally or that a first supplied table matches the real environment.
+    """
+    visible = {key: observation[key] for key in
+               ('player', 'step', 'farms', 'market', 'private', 'town')
+               if key in observation}
+    defaults = dict(episodeSteps=720, boardSize=10, turnsPerDay=24,
+                    shedCapacity=100, maxMarketOrdersPerTurn=10,
+                    farmHandCostMult=1)
+    cfg = {key: (configuration or {}).get(key, value)
+           for key, value in defaults.items()}
+    fields = ('plan', 'scenario', 'step', 'own_action', 'own_cash',
+              'rival_cash', 'done', 'plan_sha256', 'scenario_sha256',
+              'public_state_sha256')
+    receipts = [[None if receipt is None else
+                 {key: receipt.get(key) for key in fields}
+                 for receipt in row] for row in table['receipts']]
+    value = {'observation': visible, 'configuration': cfg,
+             'plan_ids': table['plan_ids'], 'scenario_ids': table['scenario_ids'],
+             'receipts': receipts}
+    return hashlib.sha256(json.dumps(value, ensure_ascii=True, allow_nan=False,
+                                    separators=(',', ':')).encode('ascii')).hexdigest()
 
 
 def make_score_selector(selector_type, weighted_factory, build_table,
                         solve_full_table, verify_certificate, *, rng=None,
-                        max_pivots=128, max_bits=512):
+                        max_pivots=128, max_bits=512, tie_break='baseline'):
     """Reuse PRISM sampling/persistence and T15's unchanged single-lot transform.
 
     This optional selector's window['deltas'] is a raw PORT receipt DOCUMENT,
@@ -117,15 +177,17 @@ def make_score_selector(selector_type, weighted_factory, build_table,
     the established continuation wrapper for ongoing feasibility/skipped dates.
     No new receipt table is consulted after commitment. No production call.
     """
+    if tie_break not in ('baseline', 'cash_pareto'):
+        raise ValueError('tie_break must be baseline or cash_pareto')
     context = {}
 
     def provider(rows):
         raw = solve_full_table(rows, max_pivots=max_pivots, max_bits=max_bits)
-        answer = _consume(context['table'], rows, raw, verify_certificate)
+        answer = _consume(context['table'], rows, raw, verify_certificate, tie_break=tie_break)
         context['answer'] = answer
         if answer['status'] != 'selected':
             return {'status': answer['status']}
-        return raw
+        return answer.get('tie_break_certificate', raw)
 
     weighted_type = type(weighted_factory(selector_type, provider, rng=rng,
                                          max_plans=9, max_streams=32))
@@ -198,16 +260,33 @@ def make_score_selector(selector_type, weighted_factory, build_table,
             receipts, never the actual hidden rival action. Full market-queue
             feasibility must be tested on current own state by the callback.
             Production fields and non-SELL slots remain exactly as supplied.
+            Same-key retries retain the draw only with unchanged current facts
+            and paired evidence; changed/unavailable context retires that key
+            and preserves the supplied fallback without solving or redrawing.
             Unlike inherited transform, this supports multiple products in one
             terminal market queue. Reuses the SAME choose/sampling operation.
             """
             fallback = deepcopy(base_action)
+            key = None
             try:
                 now = observation['step']
-                if type(now) is not int or now != int((configuration or {}).get('episodeSteps', 720)) - 2:
+                if type(now) is not int:
                     return fallback
                 key = ('terminal-score', observation['player'], now)
+                if now != int((configuration or {}).get('episodeSteps', 720)) - 2:
+                    if self.active is not None and self.active['key'] == key:
+                        self.active = None
+                        self.last_objective = None
+                        self._fallback(key, 'terminal_context_unavailable')
+                    return fallback
                 table = build_table(deepcopy(document))
+                binding = _terminal_context(observation, configuration, table)
+                if (self.active is not None and self.active['key'] == key
+                        and self.active.get('terminal_context_sha256') != binding):
+                    self.active = None
+                    self.last_objective = None
+                    self._fallback(key, 'terminal_context_changed')
+                    return fallback
                 if embedding(table) is None:
                     return fallback
                 plans = []
@@ -240,6 +319,7 @@ def make_score_selector(selector_type, weighted_factory, build_table,
                                        feasible=lambda plan: current_feasible(plan['action']))
                 if selected is None:
                     return fallback
+                self.active['terminal_context_sha256'] = binding
                 # Preserve the draw only while the complete committed action
                 # remains in the current parent-bound set of terminal plans.
                 committed = selected['plan']
@@ -254,6 +334,14 @@ def make_score_selector(selector_type, weighted_factory, build_table,
                     return fallback
                 return deepcopy(selected['plan']['action'])
             except Exception:
+                # An unavailable same-decision table cannot later revive its
+                # old draw. Other modes/keys and first incomplete calls retain
+                # their existing behavior; BaseException still propagates.
+                if (key is not None and self.active is not None
+                        and self.active['key'] == key):
+                    self.active = None
+                    self.last_objective = None
+                    self._fallback(key, 'terminal_context_unavailable')
                 return fallback
 
     return ScorePlanSelector()
@@ -276,13 +364,14 @@ def main(argv=None):
     parser.add_argument('--output', type=Path)
     parser.add_argument('--max-pivots', type=int, default=128)
     parser.add_argument('--max-bits', type=int, default=512)
+    parser.add_argument('--tie-break', choices=('baseline', 'cash_pareto'), default='baseline')
     args = parser.parse_args(argv)
     try:
         terminal = _load(args.terminal_file, 'score_terminal_dependency')
         solver = _load(args.solver_file, 'score_full_support_dependency')
         answer = solve_absolute(json.loads(args.input.read_text()), terminal.build_table,
                                 solver.solve_full_table, solver.verify_certificate,
-                                max_pivots=args.max_pivots, max_bits=args.max_bits)
+                                max_pivots=args.max_pivots, max_bits=args.max_bits, tie_break=args.tie_break)
         text = json.dumps(answer, indent=2, allow_nan=False) + '\n'
         if args.output:
             args.output.write_text(text, encoding='utf-8')
