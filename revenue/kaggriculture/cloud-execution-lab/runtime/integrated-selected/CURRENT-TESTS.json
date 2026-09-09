@@ -1,47 +1,58 @@
 {
   "candidate_archive": {
-    "bytes": 401937,
+    "bytes": 408621,
     "config": "TITAN-CONFIG.json",
     "entrypoint": "main.py::agent",
     "path": "exports/titan-current.tar.gz",
-    "runtime_files": 103,
-    "sha256": "fb292c5c323335acc7a9e31fdaace590b6f3bff9767c5495f1406c5211e32f23",
+    "runtime_files": 104,
+    "sha256": "6ac897241cb54baa205e4132fab1f83e7a21e4ae957e19e16c6c48a7ecbd8bc1",
     "source_manifest": "runtime/integrated-selected/CURRENT-SOURCE.json",
-    "source_manifest_sha256": "203675db8029df369fdf3677bae797a8d018d4a47370e188157ca660b8bf214d"
+    "source_manifest_sha256": "8f65a8b4c9c6c73a8080995731a954bdc963b72e29614961572f525eb10b8c17"
   },
-  "enabled": "Bounded joint selection in the current frozen seller; existing crop, idle fertilizer, operating stock and market pressure retained. Unsupported cases keep the single-product choice.",
+  "enabled": "Existing operating_stock=true also preserves at most two owned wheat units for reachable existing-animal feeds at the final selected-action boundary.",
   "exact_archive_validation": {
-    "methods": 81,
+    "errors": 0,
+    "failures": 0,
+    "methods": 134,
     "modules": [
+      "test_feed_stock",
+      "test_operating_stock",
       "test_joint_market_slots",
       "test_crop_release",
       "test_idle_fertilizer",
       "test_selected_pruning"
     ],
-    "passed": 81,
-    "runtime_member_hashes_verified": 103,
-    "seconds": 0.976
+    "passed": 134,
+    "runtime_member_hashes_verified": 104,
+    "seconds": 1.029914,
+    "skipped": 0
   },
-  "joint_source_intake": {
-    "changes": "Current canonical packaging plus prepaid fixed capital, no-sale shared capacity through end+1, actual duplicate-stock emitter, all retained plans and conservative mixed-scenario ranking.",
-    "donor_head": "d7445804acb9e5aea39ac51e9a98ef20a4e38f6d",
-    "pr": 11053
+  "limits": "Preserves inherited useful feed intent; does not acquire a missing animal or measure future cash or playing strength. Narrow unsupported windows retain the selected action.",
+  "original_observation_checks": {
+    "changed_actions": 0,
+    "independent_own_unit_phases": 6,
+    "new_games": 0,
+    "new_policy_trajectories": 0,
+    "note": "Actual historical own-unit rows; future position/input profiles are source requirements, not observed receipts or game gains."
   },
-  "limits": "No new game gain, hosted rank, universal forecast, or new simulation result claimed. Frozen submitted V2 e363 is unchanged.",
-  "scope": "Focused source and exact-archive contracts; zero new full games or interpreter panels. Historical provider observations are not new policy trajectories or measured score gains.",
+  "scope": "Focused source and exact-archive correctness contracts. No new simulation/game panel or Kaggle submission.",
   "source_validation": {
-    "methods": 144,
+    "errors": 0,
+    "failures": 0,
+    "methods": 168,
     "modules": [
+      "test_feed_stock",
+      "test_operating_stock",
       "test_joint_market_slots",
       "test_crop_release",
       "test_idle_fertilizer",
       "test_selected_pruning",
-      "test_operating_stock",
       "test_market_pressure_runtime",
       "test_route_recovery",
       "test_weed_continuation"
     ],
-    "passed": 144,
-    "seconds": 1.308
+    "passed": 168,
+    "seconds": 1.364862,
+    "skipped": 0
   }
 }
