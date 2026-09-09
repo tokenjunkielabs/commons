@@ -3,28 +3,31 @@
     "path": "exports/titan-current.tar.gz",
     "entrypoint": "main.py::agent",
     "config": "TITAN-CONFIG.json",
-    "sha256": "4ca5de6ba4b3f1d2ec63cece6abcd666a926daa4a783160736db2de5afcb5744",
-    "bytes": 375045,
+    "sha256": "e363125093463d1f7a63a01aecb70646344dae5b318952e13a1b1641e2043e58",
+    "bytes": 377624,
     "runtime_files": 100,
     "source_manifest": "runtime/integrated-selected/CURRENT-SOURCE.json",
-    "source_manifest_sha256": "5b30f38ef5e50cdc9deb928a4d4fd9ce17533054709ade7ab0f5370c7cfddbd6"
+    "source_manifest_sha256": "c5828d8173d1cf6bcf091d643ffcbb7aa9068c96a18d3390ff1b21119e7cdf4d"
   },
-  "source_suite_tests": 68,
-  "source_suite_passed": true,
   "exact_archive_tests": 27,
   "exact_archive_passed": true,
-  "output": "----------------------------------------------------------------------\nRan 27 tests in 0.387s\n\nOK\n",
-  "optimizer_comparisons": 50,
+  "output": "----------------------------------------------------------------------\nRan 27 tests in 0.693s\n\nOK\n",
   "new_full_games": 0,
   "game_interpreter_calls_in_new_contracts": 0,
+  "source_suite_tests": 94,
+  "source_suite_passed": true,
+  "source_suites": [
+    "test_idle_fertilizer",
+    "test_selected_pruning",
+    "test_operating_stock",
+    "test_market_pressure_runtime",
+    "test_route_recovery",
+    "test_weed_continuation"
+  ],
   "source_contracts": {
-    "test_idle_fertilizer.py": "be27dd17f6595b5df21e2a7ec7f5663cda2fd711574eb73153b9332d7d3ae6de",
-    "test_selected_pruning.py": "90886784fabbc9002b01d8edeeae8ed0ceabc1ffd678e56c6107806b72e580b9"
+    "test_idle_fertilizer.py": "234999794ae80b9e2e22a8c9c90db1b0a01c3c653cdb79b589d5ee557580a983"
   },
-  "recorded_window": {
-    "scope": "one original action window checked privately with native primitives",
-    "full_game_gain": null,
-    "private_originals": "not packaged"
-  },
-  "peer_review": "Four concrete countercases repaired; final targeted source review found no remaining blocker."
+  "new_focused_methods": 4,
+  "scope": "Source and native unit/market primitives with actual initialized producer/consumer; no whole-game evaluation.",
+  "peer_review": "Direct and delayed terminal outlet cases, actual selected economic barriers and input cases reviewed and repaired."
 }
