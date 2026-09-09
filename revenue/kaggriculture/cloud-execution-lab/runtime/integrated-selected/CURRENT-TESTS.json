@@ -1,33 +1,47 @@
 {
-  "archive": {
-    "path": "exports/titan-current.tar.gz",
-    "entrypoint": "main.py::agent",
+  "candidate_archive": {
+    "bytes": 401937,
     "config": "TITAN-CONFIG.json",
-    "sha256": "e363125093463d1f7a63a01aecb70646344dae5b318952e13a1b1641e2043e58",
-    "bytes": 377624,
-    "runtime_files": 100,
+    "entrypoint": "main.py::agent",
+    "path": "exports/titan-current.tar.gz",
+    "runtime_files": 103,
+    "sha256": "fb292c5c323335acc7a9e31fdaace590b6f3bff9767c5495f1406c5211e32f23",
     "source_manifest": "runtime/integrated-selected/CURRENT-SOURCE.json",
-    "source_manifest_sha256": "c5828d8173d1cf6bcf091d643ffcbb7aa9068c96a18d3390ff1b21119e7cdf4d"
+    "source_manifest_sha256": "203675db8029df369fdf3677bae797a8d018d4a47370e188157ca660b8bf214d"
   },
-  "exact_archive_tests": 27,
-  "exact_archive_passed": true,
-  "output": "----------------------------------------------------------------------\nRan 27 tests in 0.693s\n\nOK\n",
-  "new_full_games": 0,
-  "game_interpreter_calls_in_new_contracts": 0,
-  "source_suite_tests": 94,
-  "source_suite_passed": true,
-  "source_suites": [
-    "test_idle_fertilizer",
-    "test_selected_pruning",
-    "test_operating_stock",
-    "test_market_pressure_runtime",
-    "test_route_recovery",
-    "test_weed_continuation"
-  ],
-  "source_contracts": {
-    "test_idle_fertilizer.py": "234999794ae80b9e2e22a8c9c90db1b0a01c3c653cdb79b589d5ee557580a983"
+  "enabled": "Bounded joint selection in the current frozen seller; existing crop, idle fertilizer, operating stock and market pressure retained. Unsupported cases keep the single-product choice.",
+  "exact_archive_validation": {
+    "methods": 81,
+    "modules": [
+      "test_joint_market_slots",
+      "test_crop_release",
+      "test_idle_fertilizer",
+      "test_selected_pruning"
+    ],
+    "passed": 81,
+    "runtime_member_hashes_verified": 103,
+    "seconds": 0.976
   },
-  "new_focused_methods": 4,
-  "scope": "Source and native unit/market primitives with actual initialized producer/consumer; no whole-game evaluation.",
-  "peer_review": "Direct and delayed terminal outlet cases, actual selected economic barriers and input cases reviewed and repaired."
+  "joint_source_intake": {
+    "changes": "Current canonical packaging plus prepaid fixed capital, no-sale shared capacity through end+1, actual duplicate-stock emitter, all retained plans and conservative mixed-scenario ranking.",
+    "donor_head": "d7445804acb9e5aea39ac51e9a98ef20a4e38f6d",
+    "pr": 11053
+  },
+  "limits": "No new game gain, hosted rank, universal forecast, or new simulation result claimed. Frozen submitted V2 e363 is unchanged.",
+  "scope": "Focused source and exact-archive contracts; zero new full games or interpreter panels. Historical provider observations are not new policy trajectories or measured score gains.",
+  "source_validation": {
+    "methods": 144,
+    "modules": [
+      "test_joint_market_slots",
+      "test_crop_release",
+      "test_idle_fertilizer",
+      "test_selected_pruning",
+      "test_operating_stock",
+      "test_market_pressure_runtime",
+      "test_route_recovery",
+      "test_weed_continuation"
+    ],
+    "passed": 144,
+    "seconds": 1.308
+  }
 }
