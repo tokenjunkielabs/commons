@@ -1,5 +1,6 @@
 {
   "id": "salesforce-contact-preflight-20260831-01",
+  "version": 2,
   "buyer": "Salesforce operations owner / executive reporting owner",
   "input": "20 synthetic contact create, update, and merge events",
   "outputs": [
@@ -21,4 +22,5 @@
     "no live org write",
     "no approval or denial",
     "no authentication gate"
-  ]}
+  ]
+}
