@@ -121,3 +121,4 @@ Before using the URL on Devpost:
 - URL is copied into the submission manifest only after publication.
 
 Until those conditions are true, `public_demo_video` stays `HUMAN_PENDING`.
+
