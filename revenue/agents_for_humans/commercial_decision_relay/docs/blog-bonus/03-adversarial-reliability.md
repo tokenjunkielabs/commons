@@ -53,3 +53,4 @@ Use the model where flexible reasoning helps. Use deterministic code where exact
 That approach produces a less magical demo. It also produces an agent whose behavior a human can actually interrogate when the situation is no longer the happy path.
 
 Project source: https://github.com/woahwhattheheck/commons/tree/main/revenue/agents_for_humans/commercial_decision_relay
+
