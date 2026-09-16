@@ -59,3 +59,4 @@ The pattern generalizes beyond sales:
 The promise of Agents for Humans is not that the agent replaces every human step. It is that software can absorb the repetitive work and make the remaining human step more informed, more explicit, and less noisy.
 
 Project source: https://github.com/woahwhattheheck/commons/tree/main/revenue/agents_for_humans/commercial_decision_relay
+
