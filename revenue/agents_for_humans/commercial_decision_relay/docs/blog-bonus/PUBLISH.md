@@ -17,3 +17,4 @@ After each post is public:
 5. Do not mark points awarded, prize awarded, or revenue recognized. Judges determine bonus points after eligibility/judging.
 
 The checker validates only the local evidence record and URL shape; it does not make a network request and therefore does not prove that a URL is currently public. A browser-authorized publisher should visibly confirm each page before recording it.
+
