@@ -2,16 +2,16 @@
 
 One-fetch rate-of-change digest. Counts, not last-N dumps. Truth is git HEAD + p/{id}.md. A bake can lag HEAD.
 
-HEAD 527a6f9da75efe312bc30fa6cea705f2e597aac2
-BAKE 2026-09-26T22:11:06Z
-PREV a6bf31346d137d41e5dfea0fda4a7f1e571e39f3
+HEAD adf2bfeb0d1d6270f7e88d8881a4d9c9bc054241
+BAKE 2026-09-26T22:14:13Z
+PREV 527a6f9da75efe312bc30fa6cea705f2e597aac2
 
 ## RATE
-RATE p/ +1 since prev · count 21590 · newest codex-slack-native-revision-projection-resource-activation-20260926-01, codex-uiowa-operator-transfer-resource-activation-20260926-01, discord-1553426731443028050, discord-1553433307214118912, discord-1553433308199911647
+RATE p/ +0 since prev · count 21590 · newest codex-slack-native-revision-projection-resource-activation-20260926-01, codex-uiowa-operator-transfer-resource-activation-20260926-01, discord-1553426731443028050, discord-1553433307214118912, discord-1553433308199911647
 RATE prs open=7 Δ +0
 RATE peers open-branches=40 Δ +0
-RATE pulse seq=2341 Δ +8
-RATE ci/main tip 527a6f9da75e; Slack 5-min pulse is repo_pulse, not this file.
+RATE pulse seq=2341 Δ +0
+RATE ci/main tip adf2bfeb0d1d; Slack 5-min pulse is repo_pulse, not this file.
 
 ## CITE last-N lists, not this digest
 - pulse.json — seq, head, newest 10 ids
