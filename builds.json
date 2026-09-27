@@ -350,7 +350,7 @@
   }
  ],
  "pr_note": "Open GitHub PRs from public unauthenticated /pulls. PR-road work sits beside ntfy-road posts. Descriptive only. Not a merge gate. A PR is not main.",
- "n_open_prs": 7,
+ "n_open_prs": 6,
  "open_prs": [
   {
    "number": 30099,
@@ -359,7 +359,7 @@
    "html_url": "https://github.com/woahwhattheheck/commons/pull/30099",
    "base_freshness": {
     "base_sha": "2a6e821a3ff1c3aa19a6636a5341ec18e1ccf134",
-    "main_sha": "032e685d35acddb8505c2faff2511df1682872b2",
+    "main_sha": "1869587f910a14fc610eaa1140561a33c7a126ed",
     "ahead_by": null,
     "behind_by": null,
     "label": "STALE_BASE"
@@ -375,7 +375,7 @@
    "html_url": "https://github.com/woahwhattheheck/commons/pull/30100",
    "base_freshness": {
     "base_sha": "2a6e821a3ff1c3aa19a6636a5341ec18e1ccf134",
-    "main_sha": "032e685d35acddb8505c2faff2511df1682872b2",
+    "main_sha": "1869587f910a14fc610eaa1140561a33c7a126ed",
     "ahead_by": null,
     "behind_by": null,
     "label": "STALE_BASE"
@@ -391,23 +391,7 @@
    "html_url": "https://github.com/woahwhattheheck/commons/pull/30091",
    "base_freshness": {
     "base_sha": "027d3ae12599d84e92978549a61a15e65950276d",
-    "main_sha": "032e685d35acddb8505c2faff2511df1682872b2",
-    "ahead_by": null,
-    "behind_by": null,
-    "label": "STALE_BASE"
-   },
-   "status": "PR_OPEN",
-   "road": "pr",
-   "note": "PR-road work. A PR is not main. Not a merge gate."
-  },
-  {
-   "number": 30095,
-   "author": "woahwhattheheck",
-   "title": "fix: command-center contracts after resource-scoped GitHub limits",
-   "html_url": "https://github.com/woahwhattheheck/commons/pull/30095",
-   "base_freshness": {
-    "base_sha": "027d3ae12599d84e92978549a61a15e65950276d",
-    "main_sha": "032e685d35acddb8505c2faff2511df1682872b2",
+    "main_sha": "1869587f910a14fc610eaa1140561a33c7a126ed",
     "ahead_by": null,
     "behind_by": null,
     "label": "STALE_BASE"
@@ -423,7 +407,7 @@
    "html_url": "https://github.com/woahwhattheheck/commons/pull/30096",
    "base_freshness": {
     "base_sha": "027d3ae12599d84e92978549a61a15e65950276d",
-    "main_sha": "032e685d35acddb8505c2faff2511df1682872b2",
+    "main_sha": "1869587f910a14fc610eaa1140561a33c7a126ed",
     "ahead_by": null,
     "behind_by": null,
     "label": "STALE_BASE"
@@ -439,7 +423,7 @@
    "html_url": "https://github.com/woahwhattheheck/commons/pull/30101",
    "base_freshness": {
     "base_sha": "2a6e821a3ff1c3aa19a6636a5341ec18e1ccf134",
-    "main_sha": "032e685d35acddb8505c2faff2511df1682872b2",
+    "main_sha": "1869587f910a14fc610eaa1140561a33c7a126ed",
     "ahead_by": null,
     "behind_by": null,
     "label": "STALE_BASE"
@@ -449,13 +433,13 @@
    "note": "PR-road work. A PR is not main. Not a merge gate."
   },
   {
-   "number": 30120,
+   "number": 30095,
    "author": "woahwhattheheck",
-   "title": "Document V3.1 reupload rating reset and episode audit",
-   "html_url": "https://github.com/woahwhattheheck/commons/pull/30120",
+   "title": "fix: command-center contracts after resource-scoped GitHub limits",
+   "html_url": "https://github.com/woahwhattheheck/commons/pull/30095",
    "base_freshness": {
-    "base_sha": "b8ef108863487b2964b0185192bc3d61ec298b04",
-    "main_sha": "032e685d35acddb8505c2faff2511df1682872b2",
+    "base_sha": "027d3ae12599d84e92978549a61a15e65950276d",
+    "main_sha": "1869587f910a14fc610eaa1140561a33c7a126ed",
     "ahead_by": null,
     "behind_by": null,
     "label": "STALE_BASE"
