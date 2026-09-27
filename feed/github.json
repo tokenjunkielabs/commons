@@ -1,9 +1,9 @@
 {
   "counts": {
-    "open_issues": 8317,
+    "open_issues": 8279,
     "open_pull_requests": 6,
-    "runs_in_progress": 3,
-    "runs_queued": 70
+    "runs_in_progress": 5,
+    "runs_queued": 71
   },
   "counts_source": "graphql",
   "degraded": [],
@@ -143,8 +143,34 @@
   },
   "pulls_listed": 6,
   "pulls_listing": "COMPLETE",
-  "queue_depth_per_runner": 23.3,
+  "queue_depth_per_runner": 14.2,
   "recently_closed": [
+    {
+      "author": "woahwhattheheck",
+      "base": "main",
+      "branch": "titan/v31-rating-forensic-20260927",
+      "closed_at": "2026-09-27T19:07:08Z",
+      "head_sha": "e562360fef9058aed4108147ee50adfdc12cda4a",
+      "merge_commit_sha": "dff92371bdb9b9771d6826c51753cc87fb42665c",
+      "merged_at": "2026-09-27T19:07:08Z",
+      "number": 30120,
+      "state": "MERGED",
+      "title": "Document V3.1 reupload rating reset and episode audit",
+      "updated_at": "2026-09-27T19:07:18Z"
+    },
+    {
+      "author": "woahwhattheheck",
+      "base": "main",
+      "branch": "yz-cairn-927/immutable-shipping-checkpoints",
+      "closed_at": "2026-09-27T19:03:32Z",
+      "head_sha": "ea94d901a802c5b309e5a16d0aadbfbf71356039",
+      "merge_commit_sha": "272b6b7d3d61e8292cbf59d96eaf21f696ba8d4a",
+      "merged_at": "2026-09-27T19:03:32Z",
+      "number": 30121,
+      "state": "MERGED",
+      "title": "Shipping: keep the last complete checkpoint across interrupted publication",
+      "updated_at": "2026-09-27T19:03:43Z"
+    },
     {
       "author": "woahwhattheheck",
       "base": "main",
@@ -313,36 +339,10 @@
       "state": "MERGED",
       "title": "Activate UIOWA operator transfer bundle",
       "updated_at": "2026-09-26T19:11:22Z"
-    },
-    {
-      "author": "woahwhattheheck",
-      "base": "main",
-      "branch": "ci/workflow-surface-budget-70-20260926",
-      "closed_at": "2026-09-26T17:55:14Z",
-      "head_sha": "c5320bbf69b5463d1e9cedf05ab4bfa2f5647ff4",
-      "merge_commit_sha": "2a6e821a3ff1c3aa19a6636a5341ec18e1ccf134",
-      "merged_at": "2026-09-26T17:55:14Z",
-      "number": 30098,
-      "state": "MERGED",
-      "title": "ci: raise workflow-surface active budget to 70",
-      "updated_at": "2026-09-26T18:32:26Z"
-    },
-    {
-      "author": "woahwhattheheck",
-      "base": "main",
-      "branch": "fix/command-center-admission-contract-counts-20260926",
-      "closed_at": "2026-09-26T17:25:38Z",
-      "head_sha": "0295538e448d823ab52ef5eded0135477b76dfdd",
-      "merge_commit_sha": "321fb6a84fb62b6d0365787e2d916256293e57e8",
-      "merged_at": "2026-09-26T17:25:38Z",
-      "number": 30097,
-      "state": "MERGED",
-      "title": "align command-center contracts with admission and core quota scopes",
-      "updated_at": "2026-09-26T18:32:31Z"
     }
   ],
   "repository": "woahwhattheheck/commons",
   "schema": "commons-github-state/v1",
-  "unchanged_since": "2026-09-27T19:02:28Z",
+  "unchanged_since": "2026-09-27T19:09:39Z",
   "undatable_pulls": []
 }
