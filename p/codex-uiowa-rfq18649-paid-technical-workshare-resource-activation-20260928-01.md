@@ -31,3 +31,7 @@ The required Slack channels, current and recent GitHub work, claims, receipts, 4
 - Projected state is 113 resources and 85 producing, with 78 durable inventory records.
 
 The public CLI is inspection-only; a current READY assessment requires an independently retained trusted authority root. No source-package file, external message, schedule, submission, signature, contract, travel commitment, invoice, provider state, payment, settlement, payout, revenue or cash action is performed here. Prior call-prep artifacts, peer dirt and TITAN remain untouched.
+
+## Activation readback
+
+[Activation PR #30137](https://github.com/woahwhattheheck/commons/pull/30137) merged at [`d3eb3332779cccc787c8cb3e714197734ac73a33`](https://github.com/woahwhattheheck/commons/commit/d3eb3332779cccc787c8cb3e714197734ac73a33). Exact current-main readback matched all four activation blobs, the complete source tree and all seven pinned source blobs: 11/11 expected identities.
