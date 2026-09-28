@@ -105,6 +105,7 @@
   },
   "evidence": {
     "slack_claim": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1790557635080039",
+    "slack_terminal": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1790558377895189?thread_ts=1790557635.080039&cid=C0BRGMDQB6G",
     "source_sales_receipt": "https://tokenjunkielabs.slack.com/archives/C0BTTA66TK3/p1790554345273019?thread_ts=1790525194.173459&cid=C0BTTA66TK3",
     "activation_pr": "https://github.com/woahwhattheheck/commons/pull/30130",
     "activation_head_commit": "15446f0bdf4a8a33d767fccb33f7d201f9aaf704",
@@ -125,6 +126,7 @@
     "activation_base_main_sha": "d4a63e5405335c3f8633f112bc25b4224788c140",
     "current_main_sha": "c19778a48755e716a06b3efbe960581c5aad651f",
     "latest_external_delta_slack_ts": "1790554345.273019",
+    "latest_terminal_slack_ts": "1790558377.895189",
     "remote_branches_observed": 4565,
     "durable_record_count": 76
   },
