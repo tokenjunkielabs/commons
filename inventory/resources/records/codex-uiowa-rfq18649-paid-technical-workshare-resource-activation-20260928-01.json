@@ -84,8 +84,8 @@
     "latest_source_commit": "https://github.com/woahwhattheheck/commons/commit/83dff0b03d7161b63b1225ae8ba8dac7c85486e8",
     "activation_pull_request": "https://github.com/woahwhattheheck/commons/pull/30137",
     "activation_merge": "https://github.com/woahwhattheheck/commons/commit/d3eb3332779cccc787c8cb3e714197734ac73a33",
-    "readback_pull_request": "PENDING",
-    "terminal_slack": "PENDING"
+    "readback_pull_request": "https://github.com/woahwhattheheck/commons/pull/30138",
+    "terminal_slack": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1790633343534199"
   },
   "activation_readback": {
     "current_main_sha": "d3eb3332779cccc787c8cb3e714197734ac73a33",
@@ -103,9 +103,10 @@
   "next_watermark": {
     "observed_at": "2026-09-28T22:01:41Z",
     "activation_base_main_sha": "0dda9187c21af1e2f6784718fe457547b5a62195",
-    "current_main_sha": "PENDING_TERMINAL_WATERMARK",
-    "latest_observed_slack_ts": "1790632821.732219",
-    "terminal_slack_ts": "PENDING",
+    "current_main_sha": "b093bc36261b0a7ada8b157a36944d12027bdc78",
+    "latest_observed_slack_ts": "1790633343.534199",
+    "terminal_slack_ts": "1790633343.534199",
+    "terminal_observed_at": "2026-09-28T22:09:10Z",
     "inventory_record_id": "codex-uiowa-rfq18649-paid-technical-workshare-resource-activation-20260928-01",
     "remote_branches_observed": 4562
   },
