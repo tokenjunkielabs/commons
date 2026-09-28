@@ -81,7 +81,9 @@
     "credential_transfer_fixture_commit": "https://github.com/woahwhattheheck/commons/commit/c04563bb8e3f23ac0e090a9395b9c5b4a967d572",
     "body_only_404_commit": "https://github.com/woahwhattheheck/commons/commit/e7f2f9429ee5e7706c9bb37d15a6ddd5da281390",
     "activation_pull_request": "https://github.com/woahwhattheheck/commons/pull/30134",
-    "activation_merge": "https://github.com/woahwhattheheck/commons/commit/d0c008d6f066881f79d0db7058e51bbbc015d5e9"
+    "activation_merge": "https://github.com/woahwhattheheck/commons/commit/d0c008d6f066881f79d0db7058e51bbbc015d5e9",
+    "readback_pull_request": "https://github.com/woahwhattheheck/commons/pull/30135",
+    "terminal_slack": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1790622685096319"
   },
   "activation_readback": {
     "current_main_sha": "d0c008d6f066881f79d0db7058e51bbbc015d5e9",
@@ -98,8 +100,10 @@
   "next_watermark": {
     "observed_at": "2026-09-28T19:04:02Z",
     "activation_base_main_sha": "e7f2f9429ee5e7706c9bb37d15a6ddd5da281390",
-    "current_main_sha": "d0c008d6f066881f79d0db7058e51bbbc015d5e9",
-    "latest_observed_slack_ts": "1790621998.838989",
+    "current_main_sha": "4305f51b731d1a659bf210cd14889297201889b7",
+    "latest_observed_slack_ts": "1790622685.096319",
+    "terminal_slack_ts": "1790622685.096319",
+    "terminal_observed_at": "2026-09-28T19:11:49Z",
     "inventory_record_id": "codex-commons-operation-command-center-provider-fidelity-advancement-20260928-01",
     "remote_branches_observed": 4567
   },
