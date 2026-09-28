@@ -48,6 +48,7 @@ matched all four source blobs: README
 `a8e899e0aba9fa39b4a1b66435505bc448e5243a`, and fictional JSON
 `aea271cc349050f6dcdfcddeb22e88e7ace4d333`. Claim:
 [#commons](https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1790557635080039).
+Terminal handoff: [Slack `1790558377.895189`](https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1790558377895189?thread_ts=1790557635.080039&cid=C0BRGMDQB6G).
 
 ## Build-order decision
 
