@@ -35,3 +35,5 @@ The public CLI is inspection-only; a current READY assessment requires an indepe
 ## Activation readback
 
 [Activation PR #30137](https://github.com/woahwhattheheck/commons/pull/30137) merged at [`d3eb3332779cccc787c8cb3e714197734ac73a33`](https://github.com/woahwhattheheck/commons/commit/d3eb3332779cccc787c8cb3e714197734ac73a33). Exact current-main readback matched all four activation blobs, the complete source tree and all seven pinned source blobs: 11/11 expected identities.
+
+[Readback PR #30138](https://github.com/woahwhattheheck/commons/pull/30138) merged at current main `b093bc36261b0a7ada8b157a36944d12027bdc78`. [Slack terminal receipt](https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1790633343534199) is the exact next delta watermark.
