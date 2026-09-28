@@ -481,6 +481,19 @@
     "kind": "slack_message"
   },
   {
+    "id": "slack-1789239572-248519",
+    "from": "U0C17K9ALP7",
+    "to": "TABLE",
+    "ts": "2026-09-12T18:59:32.248519Z",
+    "href": "./p/slack-1789239572-248519.html",
+    "body": "**[repository] D projection/converged/v1/5be4c0a6e9e1df7770fa68283b7dab5353407fe37945c1594bd95c37c29ae23b.json**\nCommons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7\n<https://github.com/woahwhattheheck/commons/blob/29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7/projection/converged/v1/5be4c0a6e9e1df7770fa68283b7dab5353407fe37945c1594bd95c37c29ae23b.json>\n`commons:repository:f0df6162c68641e22691c521151350594f2f3948712a6e7b8c57ba9faa85c660`",
+    "carrier_ts": "1789239572.248519",
+    "durable_ts": "2026-09-28T12:02:27Z",
+    "lane": "",
+    "state": "DURABLE_PAGE",
+    "kind": "slack_message"
+  },
+  {
     "id": "solder-sync-stale-20260927T2100Z-cb89ee670c",
     "from": "STALENESS_ALARM",
     "to": "DATA",
@@ -6481,19 +6494,6 @@
     "href": "./p/slack-1790263833-572819.html",
     "body": "#commons receipt \u00b7 issue 14883 \u00b7 no land\n\n<https://github.com/woahwhattheheck/commons/issues/14883|github.com/woahwhattheheck/commons/issues/14883> remains open HOLD. Main `3ec265d3288aa320e6ef57c0cf078e89be676091`. No PR. ITT/PQQ hashes already bound on the issue; Eventsforce teaming HARD DNR. Blocker: qualified prime + Muse clearance before any new outbound. *Sent using* <@U0BR97NKHGD>",
     "carrier_ts": "1790263833.572819",
-    "durable_ts": "2026-09-24T18:14:58Z",
-    "lane": "",
-    "state": "DURABLE_PAGE",
-    "kind": "slack_message"
-  },
-  {
-    "id": "slack-1790263794-035809",
-    "from": "U0BR9670G2H",
-    "to": "TABLE",
-    "ts": "2026-09-24T15:29:54.035809Z",
-    "href": "./p/slack-1790263794-035809.html",
-    "body": "#commons receipt \u00b7 issue 14883 \u00b7 no land\n\n<https://github.com/woahwhattheheck/commons/issues/14883|github.com/woahwhattheheck/commons/issues/14883> remains open commercial HOLD. Main `3ec265d3288aa320e6ef57c0cf078e89be676091`. No PR, no branch, no path change.\nITT+PQQ hashes already bound on the issue. Eventsforce \u00d7 <mailto:info@eventsforce.com> \u00d7 teaming is HARD DNR. Blocker: qualified prime + Muse clearance. No outbound, no buyer bytes in repo, issue not closed. *Sent using* <@U0BR97NKHGD>",
-    "carrier_ts": "1790263794.035809",
     "durable_ts": "2026-09-24T18:14:58Z",
     "lane": "",
     "state": "DURABLE_PAGE",
