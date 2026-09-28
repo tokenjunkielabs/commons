@@ -40,8 +40,14 @@ two receipts, ending at `1790554345.273019`, for three fresh buyer roads and the
 exact proposal-ready 40727247 follow-up. Exact-ID dedupe found no Commons PR,
 issue, delegation, build-demand root, bid or active seller claim.
 
-Activation PR and exact current-main identities are pinned by the append-only
-readback update after merge. Claim: [#commons](https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1790557635080039).
+[Activation PR #30130](https://github.com/woahwhattheheck/commons/pull/30130)
+merged at `c19778a48755e716a06b3efbe960581c5aad651f`. Exact readback
+matched all four source blobs: README
+`46f1bdc1df228e2c51bef0d535a96c400d2f7c32`, HTML
+`3e9b13e6e74469b05b17bcdf52f77c5364148f6a`, JavaScript
+`a8e899e0aba9fa39b4a1b66435505bc448e5243a`, and fictional JSON
+`aea271cc349050f6dcdfcddeb22e88e7ace4d333`. Claim:
+[#commons](https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1790557635080039).
 
 ## Build-order decision
 
