@@ -2617,6 +2617,28 @@
       "last_used_at": "2026-09-26T13:24:25Z",
       "stale_after": "next planner, dependency-oracle composition, schema, phase-boundary, dependency-duration, CSV round-trip, source-reference, source-blob, authority or consumer change",
       "priority": 99
+    },
+    {
+      "name": "freelancer-40727247-react-erp-bid-road",
+      "kind": "LIVE_BUYER_ROAD_AND_INTERNAL_RESPONSIVE_ERP_DELIVERY_SAMPLE",
+      "capacity": "LIVE",
+      "stage": "PRODUCING",
+      "condition": "CONSTRAINED",
+      "holder": "Commons sales and delivery operators; external seller submission remains owner-only",
+      "authority": "SHARED_ALL_CARRIERS_PUBLIC_CURRENT_MAIN_READ_RUN_AND_ADAPT; EXACT_ACTIVATION_PR_AND_FOUR_SOURCE_BLOBS_REQUIRED; FICTIONAL_SAMPLE_DATA_ONLY; INTERNAL_BUILD_AND_EVIDENCE_SURFACE_ONLY; NO_COMMONS_OR_GITHUB_CUSTOMER_CTA; NO_BUYER_CONTACT; NO_PROVIDER_OR_ACCOUNT_MUTATION; NO_BID_OR_SUBMISSION; NO_PORTFOLIO_CLAIM; NO_PAID_ASSET; NO_BUYER_ACCEPTANCE; NO_PAYMENT; NO_REVENUE; NO_CASH",
+      "consumer": "An authorized seller preparing the exact bounded first-screen response for Freelancer project 40727247, and the cold-chain logistics buyer only after a separate owner-authorized provider submission and standalone delivery route.",
+      "value": "A working responsive request-history screen with fictional data, composed search/status/origin/date filters, summary cards, seven-day trend, status mix, detailed history, row drill-down and explicit loading, empty and data-load error states.",
+      "next_action": "Owner-authorized seller rechecks live project and account/bid readiness, adds only a real accessible non-GitHub portfolio sample if available, submits the scoped proposal once, and returns the provider bid ID/status; after buyer response, replace the file adapter only with the supplied endpoint shape.",
+      "source": "Slack #sales receipts 1790553633.170229 and 1790554345.273019; revenue/freelancer_40727247/ internal delivery sample; activation PR and merge pinned in the durable record",
+      "evidence_ts": "2026-09-28T01:11:10Z",
+      "auth_surface": "The internal sample is public current-main static HTML, CSS, JavaScript and fictional JSON and runs without login, token, paid library, provider call, customer data or repeated approval. Freelancer account readiness and submission are separate owner-only external actions.",
+      "exact_safe_probe": "A local HTTP run returned the 12-record JSON, the JSON parsed, and dashboard.js passed the Node syntax check. The runtime lacked the browser-verification executable and installed browser binary, so no rendered-browser or narrow-layout execution is claimed. Activation PR, merge, current-main SHA and exact source blobs are pinned in the durable record.",
+      "rate_plan_boundary": "The internal sample uses zero paid provider quota. The public buyer page was observed open at INR 400-750/hour with 14 proposals around 2026-09-28T00:07:00Z. Opportunity presence and a proposal-ready sample do not establish account readiness, eligibility, bid submission, buyer interest, award, acceptance, payment, revenue or cash.",
+      "assigned_backlog": "No new build order: the bounded screen is implemented in this activation. The smallest remaining dependency is an owner-only action-time Freelancer status/account/balance check and one provider submission, which is not an implementation gap.",
+      "last_receipt": "resource-master-freelancer-40727247-react-erp-road-activation-20260928-01",
+      "last_used_at": "2026-09-28T01:11:10Z",
+      "stale_after": "next project-status, buyer-scope, proposal-count, platform-fee, account-readiness, bid, provider-receipt, endpoint-shape, customer-surface, source-blob, authority or owner-policy change",
+      "priority": 100
     }
   ],
   "titan": "NOT_WRITTEN"
