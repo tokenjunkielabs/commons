@@ -16,7 +16,7 @@ Four substantive fixes landed before this activation. Provider admission verbs r
 - Body-only 404 commit [`e7f2f9429ee5e7706c9bb37d15a6ddd5da281390`](https://github.com/woahwhattheheck/commons/commit/e7f2f9429ee5e7706c9bb37d15a6ddd5da281390).
 - [Resource Master path claim](https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1790621998838989).
 
-The five exact source blobs are pinned in the durable JSON record. The activation PR, merge SHA and current-main readback are filled after merge rather than predicted.
+The [activation PR #30134](https://github.com/woahwhattheheck/commons/pull/30134) merged at [`d0c008d6f066881f79d0db7058e51bbbc015d5e9`](https://github.com/woahwhattheheck/commons/commit/d0c008d6f066881f79d0db7058e51bbbc015d5e9). Exact current-main readback matched all four activation blobs and all five source blobs; their nine Git blob identities are pinned in the durable JSON record.
 
 ## Delta and delegation decision
 
