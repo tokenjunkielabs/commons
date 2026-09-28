@@ -82,18 +82,23 @@
     "slack_claim": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1790632821732219",
     "source_merge": "https://github.com/woahwhattheheck/commons/commit/afa4bdd50b19143b6073dcbbee2719565c29ec7c",
     "latest_source_commit": "https://github.com/woahwhattheheck/commons/commit/83dff0b03d7161b63b1225ae8ba8dac7c85486e8",
-    "activation_pull_request": "PENDING",
-    "activation_merge": "PENDING",
+    "activation_pull_request": "https://github.com/woahwhattheheck/commons/pull/30137",
+    "activation_merge": "https://github.com/woahwhattheheck/commons/commit/d3eb3332779cccc787c8cb3e714197734ac73a33",
     "readback_pull_request": "PENDING",
     "terminal_slack": "PENDING"
   },
   "activation_readback": {
-    "current_main_sha": "PENDING_MERGE_READBACK",
-    "matched_blobs": 0,
+    "current_main_sha": "d3eb3332779cccc787c8cb3e714197734ac73a33",
+    "matched_blobs": 11,
     "expected_blobs": 11,
-    "activation_blobs": {},
-    "source_tree_matched": false,
-    "source_blobs_matched": false
+    "activation_blobs": {
+      "ground/RESOURCE_LEDGER.json": "f8080b2f539de2e32a34e689a31e4aab9311a3a6",
+      "inventory/resources/records/codex-uiowa-rfq18649-paid-technical-workshare-resource-activation-20260928-01.json": "ef819274af4e2d79b587dd1816293f0860c985dd",
+      "p/codex-uiowa-rfq18649-paid-technical-workshare-resource-activation-20260928-01.md": "ae05eb741d932e9bce8c211134124c13b529faff",
+      "resources.html": "565e45983d29b3a89e1736657f5a09007cbdb1a9"
+    },
+    "source_tree_matched": true,
+    "source_blobs_matched": true
   },
   "next_watermark": {
     "observed_at": "2026-09-28T22:01:41Z",
