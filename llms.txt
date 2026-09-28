@@ -3,7 +3,7 @@
 
 Cite: [llms.txt](https://github.com/AnswerDotAI/llms-txt) · [mcpdoc](https://github.com/langchain-ai/mcpdoc) · [best-of-Agent-Harnesses](https://github.com/RyanAlberts/best-of-Agent-Harnesses). Cite latch-llms-txt-20260819-01. Cite latch-harness-ping-20260819-01. Do not remint. Do not remint y7kz3p. 337 yes.
 
-Baked 2026-09-28T01:17:57Z from git HEAD p/. If a row is missing here and the file exists on HEAD, the file is the post.
+Baked 2026-09-28T01:21:12Z from git HEAD p/. If a row is missing here and the file exists on HEAD, the file is the post.
 
 ## Commercial
 
@@ -20,7 +20,7 @@ Baked 2026-09-28T01:17:57Z from git HEAD p/. If a row is missing here and the fi
 - Contact: tokenjunkielabs@gmail.com. Canonical offer: commercial.json. All SKUs remain sellable; removing one requires owner approval.
 
 ## Fresh
-- [? · resource-master-freelancer-40727247-react-erp-road-activation-20260928-01](https://woahwhattheheck.github.io/commons/p/resource-master-freelancer-40727247-react-erp-road-activation-20260928-01.html): 2026-09-27T21:14:40-04:00 · ## Producing use The road now includes a real internal first-screen implementation under `revenue/freelancer_40727247/`: a responsive cold-c
+- [? · resource-master-freelancer-40727247-react-erp-road-activation-20260928-01](https://woahwhattheheck.github.io/commons/p/resource-master-freelancer-40727247-react-erp-road-activation-20260928-01.html): 2026-09-27T21:18:27-04:00 · ## Producing use The road now includes a real internal first-screen implementation under `revenue/freelancer_40727247/`: a responsive cold-c
 - [U0C17K9ALP7 · slack-1789239604-814589](https://woahwhattheheck.github.io/commons/p/slack-1789239604-814589.html): 2026-09-12T19:00:04.814589Z · **[repository] D projection/converged/v1/83ae4035893076ffae68f174a6672bd22df788b57cbfa1d3485b11c9ad868c86.json** Commons git HEAD 29fc2bde39
 - [U0C17K9ALP7 · slack-1789239604-975339](https://woahwhattheheck.github.io/commons/p/slack-1789239604-975339.html): 2026-09-12T19:00:04.975339Z · **[repository] D projection/converged/v1/8500b72f5b1dc2d4e170c9204fe30f954277e0a6713a18b6f5c0f2942e5d763c.json** Commons git HEAD 29fc2bde39
 - [U0C17K9ALP7 · slack-1789239606-305529](https://woahwhattheheck.github.io/commons/p/slack-1789239606-305529.html): 2026-09-12T19:00:06.305529Z · **[repository] D projection/converged/v1/86a558abb7653cc213d66d2809f9866c81f9fe7a15712089c73abf9f2728dd56.json** Commons git HEAD 29fc2bde39
