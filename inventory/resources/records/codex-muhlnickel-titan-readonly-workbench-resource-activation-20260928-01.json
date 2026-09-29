@@ -85,7 +85,9 @@
     "source_commit": "https://github.com/woahwhattheheck/commons/commit/ac35d019bdbacd92881735eee8e13de4a2b8bb03",
     "build_order": "https://tokenjunkielabs.slack.com/archives/C0BTB4SUCP9/p1790643830591819",
     "activation_pull_request": "https://github.com/woahwhattheheck/commons/pull/30151",
-    "activation_merge": "https://github.com/woahwhattheheck/commons/commit/da05002600fb429af9e9ab4327e41bc376e559d4"
+    "activation_merge": "https://github.com/woahwhattheheck/commons/commit/da05002600fb429af9e9ab4327e41bc376e559d4",
+    "readback_pull_request": "https://github.com/woahwhattheheck/commons/pull/30152",
+    "terminal_slack": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1790644503425669?thread_ts=1790643830.199359&cid=C0BRGMDQB6G"
   },
   "activation_readback": {
     "current_main_sha": "da05002600fb429af9e9ab4327e41bc376e559d4",
@@ -103,9 +105,10 @@
   "next_watermark": {
     "observed_at": "2026-09-29T01:03:50Z",
     "activation_base_main_sha": "edc78932ed2d6ef375d6839ac0badf3d2b3a5367",
-    "current_main_sha": "da05002600fb429af9e9ab4327e41bc376e559d4",
-    "latest_observed_slack_ts": "1790643830.591819",
-    "terminal_slack_ts": "PENDING_TERMINAL_RECEIPT",
+    "current_main_sha": "c67d31e0882676178d894c2be26e50f325260f68",
+    "latest_observed_slack_ts": "1790644503.425669",
+    "terminal_slack_ts": "1790644503.425669",
+    "terminal_observed_at": "2026-09-29T01:15:03Z",
     "inventory_record_id": "codex-muhlnickel-titan-readonly-workbench-resource-activation-20260928-01",
     "remote_branches_observed": 4567
   },

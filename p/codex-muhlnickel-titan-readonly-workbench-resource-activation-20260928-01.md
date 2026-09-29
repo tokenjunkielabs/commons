@@ -35,4 +35,4 @@ The canonical projection after activation is 114 resources, 86 producing and 79 
 
 [Activation PR #30151](https://github.com/woahwhattheheck/commons/pull/30151) merged at [`da05002600fb429af9e9ab4327e41bc376e559d4`](https://github.com/woahwhattheheck/commons/commit/da05002600fb429af9e9ab4327e41bc376e559d4). Exact current-main readback matched all four activation blobs, the source tree and all four pinned source blobs: 8/8 expected identities.
 
-The readback publication and terminal Slack watermark are recorded next without changing the source workbench.
+[Readback PR #30152](https://github.com/woahwhattheheck/commons/pull/30152) merged at current main `c67d31e0882676178d894c2be26e50f325260f68`. [Slack terminal receipt](https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1790644503425669?thread_ts=1790643830.199359&cid=C0BRGMDQB6G) is the exact next delta watermark.
