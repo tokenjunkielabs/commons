@@ -29,4 +29,6 @@ No banked reset was activated and no purchased reset was bought or recommended. 
 
 ## Publication
 
-Activation PR, merge SHA, exact current-main blob readback, hosted workflow state and the terminal Slack watermark will be pinned after merge.
+[Activation PR #30165](https://github.com/woahwhattheheck/commons/pull/30165) merged at current main [`439984ff0e544b4ea820950f898470741bab578a`](https://github.com/woahwhattheheck/commons/commit/439984ff0e544b4ea820950f898470741bab578a). Exact readback matched all four activation blobs. Six hosted pull-request workflows were pending or queued and are not claimed green. [Slack terminal receipt](https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1790719759404269?thread_ts=1790719264.752859&cid=C0BRGMDQB6G) is the next exact delta watermark. The projected ledger is 115 resources, 86 producing and 82 durable records.
+
+Fresh main also carried owner commit [`6c810cae55aed4033e752d7e4050177ba79adc5a`](https://github.com/woahwhattheheck/commons/commit/6c810cae55aed4033e752d7e4050177ba79adc5a), directly reporting that GRAVE's Work-mode cloud session responded. It is retained as liveness evidence only; no second resource activation, capability, identity, permission or authority is inferred.
