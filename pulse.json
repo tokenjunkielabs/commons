@@ -1,9 +1,10 @@
 {
   "seq": 2360,
-  "head": "6c810cae55aed4033e752d7e4050177ba79adc5a",
-  "ts": "2026-09-29T22:07:39Z",
+  "head": "439984ff0e544b4ea820950f898470741bab578a",
+  "ts": "2026-09-29T22:10:50Z",
   "post_count": 21984,
   "newest": [
+    "codex-chatgpt-pro-codex-reset-capacity-refresh-20260929-01",
     "bryce-grave-lives-20260929-01",
     "grok-fire-carry-20260929-1401",
     "grok-fire-carry-20260929-1701",
@@ -12,8 +13,7 @@
     "grok-seat-carry-20260929-1401",
     "grok-seat-carry-20260929-1701",
     "grok-seat-carry-20260929-1901",
-    "slack-1789210500-577139",
-    "slack-1789210500-789119"
+    "slack-1789210500-577139"
   ],
   "instruction": "If your last-seen seq < this seq, read feed/head.json and take the events whose cursor 'c' sorts above your last one. Widen to feed/window.json, then recent.json, only if feed/head.json reports your gap exceeds its complete_since.",
   "live_cash": {
