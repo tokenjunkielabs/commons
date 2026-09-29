@@ -43,7 +43,8 @@
       "GitHub",
       "Automations"
     ],
-    "external_write_performed": false,
+    "commons_evidence_writes_performed": true,
+    "external_customer_or_provider_write_performed": false,
     "automation_lifecycle_mutated": false
   },
   "delta": {
@@ -61,7 +62,8 @@
     "github_state": "Current main added generated board/projection updates and four failed Grok action receipts with zero changed outputs. The TitanMCP setup branch is fully absorbed into main. No new deployable resource, buyer, payment or cash receipt was found.",
     "slack_state": "All required resource channels were swept from the prior terminal timestamp. New messages were duplicate or status-only receipts; no competing claim, new resource, buyer, cash or nonduplicate implementation gap survived reconciliation.",
     "automation_state": "Twenty-five visible automations and four enabled automations were observed. No lifecycle toggle or new enabled lane was found.",
-    "resource_evidence": "A direct owner report established a fresh Codex reset. The exact current tool and skill census materially supersedes the 2026-09-07 aggregate while connector use proves only the three exercised read surfaces."
+    "resource_evidence": "A direct owner report established a fresh Codex reset. The exact current tool and skill census materially supersedes the 2026-09-07 aggregate while connector use proves only the three exercised read surfaces.",
+    "fresh_main_reconciliation": "After the activation base, owner commit 6c810cae55aed4033e752d7e4050177ba79adc5a directly reported that GRAVE's Work-mode cloud session responded. The activation branch merged that fresh main non-force. This is retained as session-liveness evidence only; no second resource activation, capability, identity, permission or authority is inferred."
   },
   "verification": {
     "resource_ledger": "PASS_SELF_TEST_NORMAL_AND_OPTIMIZED_PLUS_INTEGRATED_115_RESOURCES_86_PRODUCING",
@@ -91,19 +93,25 @@
     "base_main": "https://github.com/woahwhattheheck/commons/commit/0f1b89e87c186eb91524f46fbdcc374338debb08"
   },
   "publication": {
-    "state": "BRANCH_PREPARED",
-    "pull_request": "PENDING",
-    "merge_sha": "PENDING",
-    "exact_current_main_readback": "PENDING",
-    "hosted_workflows": "PENDING"
+    "state": "MERGED_AND_READ_BACK",
+    "pull_request": "https://github.com/woahwhattheheck/commons/pull/30165",
+    "merge_sha": "439984ff0e544b4ea820950f898470741bab578a",
+    "exact_current_main_readback": "MATCHED_4_OF_4_ACTIVATION_BLOBS_AT_439984FF0E544B4EA820950F898470741BAB578A",
+    "activation_blobs": {
+      "ground/RESOURCE_LEDGER.json": "a2ec0a3b008bf48476dd253ed7c8fd0165a91d9a",
+      "inventory/resources/records/codex-chatgpt-pro-codex-reset-capacity-refresh-20260929-01.json": "2149fd731f69f57e9b893869f4f70da7387397db",
+      "p/codex-chatgpt-pro-codex-reset-capacity-refresh-20260929-01.md": "63b69e5fea850e072c303d03e5dc01fbb866e86f",
+      "resources.html": "407787316c18bf68cfb65f8229632c308f821371"
+    },
+    "hosted_workflows": "Six pull-request workflows were pending or queued at observation time; no asynchronous workflow is claimed green."
   },
   "next_watermark": {
     "observed_at": "2026-09-29T22:02:00Z",
     "activation_base_main_sha": "0f1b89e87c186eb91524f46fbdcc374338debb08",
-    "current_main_sha": "PENDING",
-    "latest_observed_slack_ts": "1790719264.752859",
-    "terminal_slack_ts": "PENDING",
-    "terminal_observed_at": "PENDING",
+    "current_main_sha": "439984ff0e544b4ea820950f898470741bab578a",
+    "latest_observed_slack_ts": "1790719759.404269",
+    "terminal_slack_ts": "1790719759.404269",
+    "terminal_observed_at": "2026-09-29T22:09:24Z",
     "inventory_record_id": "codex-chatgpt-pro-codex-reset-capacity-refresh-20260929-01",
     "remote_branches_observed": 4564
   },
