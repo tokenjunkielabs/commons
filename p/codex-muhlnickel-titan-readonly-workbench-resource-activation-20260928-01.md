@@ -33,4 +33,6 @@ The canonical projection after activation is 114 resources, 86 producing and 79 
 
 ## Publication
 
-Activation, exact current-main readback and the terminal Slack watermark are recorded in the machine-readable event after publication.
+[Activation PR #30151](https://github.com/woahwhattheheck/commons/pull/30151) merged at [`da05002600fb429af9e9ab4327e41bc376e559d4`](https://github.com/woahwhattheheck/commons/commit/da05002600fb429af9e9ab4327e41bc376e559d4). Exact current-main readback matched all four activation blobs, the source tree and all four pinned source blobs: 8/8 expected identities.
+
+The readback publication and terminal Slack watermark are recorded next without changing the source workbench.
