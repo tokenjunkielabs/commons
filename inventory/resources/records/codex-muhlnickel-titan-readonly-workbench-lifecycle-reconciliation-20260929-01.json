@@ -85,16 +85,23 @@
     "source_deletion_commit": "https://github.com/woahwhattheheck/commons/commit/84f3d7dd4cbab4a7b07e9b85534a16866aabc48b"
   },
   "publication": {
-    "pull_request": null,
-    "merge_sha": null,
-    "exact_current_main_readback": "PENDING"
+    "pull_request": "https://github.com/woahwhattheheck/commons/pull/30159",
+    "merge_sha": "e6351941a6c9c63df8a8a493fda3fd4dec754c44",
+    "exact_current_main_readback": "MATCHED_4_OF_4_OWNED_BLOBS_AND_0_OF_4_DELETED_SOURCE_PATHS_PRESENT",
+    "owned_blobs": {
+      "ground/RESOURCE_LEDGER.json": "4714f6dbfcbd2e4ca3571cf6a79a3b3a13ea022b",
+      "inventory/resources/records/codex-muhlnickel-titan-readonly-workbench-lifecycle-reconciliation-20260929-01.json": "64b5e2e06d496fe5de6e5a9fd3082d2571931415",
+      "p/codex-muhlnickel-titan-readonly-workbench-lifecycle-reconciliation-20260929-01.md": "ff69ce0ce9e9f9be99000cd078a7c01dc0394e78",
+      "resources.html": "dfd8c252b40d2a29af8e0474e7ea7c89cbb16c7d"
+    }
   },
   "next_watermark": {
     "observed_at": "2026-09-29T04:02:01Z",
     "reconciliation_base_main_sha": "c64cc1d7bd1290dd0463cc41ccc7b903beac606a",
-    "current_main_sha": null,
-    "latest_observed_slack_ts": "1790654476.018889",
-    "terminal_slack_ts": null,
+    "current_main_sha": "e6351941a6c9c63df8a8a493fda3fd4dec754c44",
+    "latest_observed_slack_ts": "1790654828.228819",
+    "terminal_slack_ts": "1790654828.228819",
+    "terminal_observed_at": "2026-09-29T04:07:08Z",
     "inventory_record_id": "codex-muhlnickel-titan-readonly-workbench-lifecycle-reconciliation-20260929-01",
     "remote_branches_observed": 4562
   },
