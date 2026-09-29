@@ -31,4 +31,4 @@ The corrected projection is 114 resources, 85 producing and 80 durable records. 
 
 ## Publication
 
-Publication and exact current-main readback are recorded in the machine-readable lifecycle event after merge.
+[Lifecycle PR #30159](https://github.com/woahwhattheheck/commons/pull/30159) merged at current main [`e6351941a6c9c63df8a8a493fda3fd4dec754c44`](https://github.com/woahwhattheheck/commons/commit/e6351941a6c9c63df8a8a493fda3fd4dec754c44). Exact current-main readback matched all four owned blobs, and all four deleted source paths remained absent. [Slack terminal receipt](https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1790654828228819?thread_ts=1790654476.018889&cid=C0BRGMDQB6G) is the exact next delta watermark.
