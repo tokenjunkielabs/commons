@@ -29,4 +29,4 @@ No provider send, Slack delivery, deployment, customer action, outreach, submiss
 
 ## Publication
 
-Activation PR, merge, exact current-main readback and terminal Slack lower bound are pending branch publication.
+[Activation PR #30170](https://github.com/woahwhattheheck/commons/pull/30170) merged at current main [`5d970f59f876dbab71e359253477e53db50e448b`](https://github.com/woahwhattheheck/commons/commit/5d970f59f876dbab71e359253477e53db50e448b). Exact readback matched all four activation blobs and all seven source blobs. No pull-request workflow run or commit status was present at readback, so no hosted check is claimed green. [Slack terminal receipt](https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1790763938566989?thread_ts=1790762911.985769&cid=C0BRGMDQB6G) at `1790763938.566989` is the next exact lower bound. The projected ledger is 116 resources and 87 producing, with 84 durable inventory records.
