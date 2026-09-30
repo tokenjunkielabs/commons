@@ -77,26 +77,34 @@
   "projection": {"resources": 116, "producing": 87, "inventory_records": 84},
   "evidence": {
     "slack_claim": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1790762911985769",
+    "slack_terminal_receipt": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1790763938566989?thread_ts=1790762911.985769&cid=C0BRGMDQB6G",
     "source_commit": "https://github.com/woahwhattheheck/commons/commit/7d69419631fbaafe8263448d68e6815e3e8f506d",
     "action_result_commit": "https://github.com/woahwhattheheck/commons/commit/73566c64e4f454091445f5d1c4b99cb5c4f145bf",
-    "activation_pull_request": "PENDING",
-    "activation_merge": "PENDING"
+    "activation_pull_request": "https://github.com/woahwhattheheck/commons/pull/30170",
+    "activation_merge": "5d970f59f876dbab71e359253477e53db50e448b"
   },
   "publication": {
-    "state": "BRANCH_READY",
+    "state": "MERGED_AND_READ_BACK",
     "branch": "codex/resource-master/slack-full-body-catalog-runtime-activation-20260930-01",
-    "pull_request": "PENDING",
-    "merge_sha": "PENDING",
-    "current_main_sha": "PENDING",
-    "exact_current_main_readback": "PENDING",
-    "hosted_workflows": "PENDING"
+    "pull_request": "https://github.com/woahwhattheheck/commons/pull/30170",
+    "merge_sha": "5d970f59f876dbab71e359253477e53db50e448b",
+    "current_main_sha": "5d970f59f876dbab71e359253477e53db50e448b",
+    "exact_current_main_readback": "MATCHED_4_OF_4_ACTIVATION_BLOBS_AND_7_OF_7_SOURCE_BLOBS",
+    "activation_blobs": {
+      "ground/RESOURCE_LEDGER.json": "cdae94258f0b36148ad30791a78a7e35bf6efca6",
+      "inventory/resources/records/codex-slack-full-body-catalog-runtime-resource-activation-20260930-01.json": "6ad7a25848ca394682da015fd715bb6356fcf911",
+      "p/codex-slack-full-body-catalog-runtime-resource-activation-20260930-01.md": "3dd52a8fbfb57ac00cf87c5be477e7176fc5c9ae",
+      "resources.html": "78f3417698a38a2bd7c939328badcf63bf4bcb54"
+    },
+    "hosted_workflows": "No pull-request workflow run or commit status was present at readback; no asynchronous workflow is claimed green."
   },
   "next_watermark": {
-    "observed_at": "2026-09-30T10:15:51Z",
+    "observed_at": "2026-09-30T10:26:49Z",
     "activation_base_main_sha": "c548620bc18a7a8cd3b14c8ac6ae2d6b8b4ce0e7",
-    "current_main_sha": "PENDING",
-    "latest_observed_slack_ts": "1790762911.985769",
-    "terminal_slack_ts": "PENDING",
+    "current_main_sha": "5d970f59f876dbab71e359253477e53db50e448b",
+    "latest_observed_slack_ts": "1790763938.566989",
+    "terminal_slack_ts": "1790763938.566989",
+    "terminal_observed_at": "2026-09-30T10:26:49Z",
     "inventory_record_id": "codex-slack-full-body-catalog-runtime-resource-activation-20260930-01",
     "remote_branches_observed": 4564
   },
