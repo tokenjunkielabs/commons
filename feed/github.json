@@ -1,18 +1,111 @@
 {
   "counts": {
-    "open_issues": 7616,
-    "open_pull_requests": 0,
-    "runs_in_progress": 1,
+    "open_issues": 7585,
+    "open_pull_requests": 1,
+    "runs_in_progress": 4,
     "runs_queued": 70
   },
   "counts_source": "graphql",
-  "degraded": [
-    "pulls"
+  "degraded": [],
+  "drafts": 0,
+  "longest_open": [
+    {
+      "author": "woahwhattheheck",
+      "base": "main",
+      "branch": "codex/resource-master-titanmcp-origin-pair-watermark-20261001-01",
+      "created_at": "2026-10-01T16:25:51Z",
+      "draft": false,
+      "head_sha": "0d81eb0b1e5122b2ed460802d8a79b01a7e185c9",
+      "number": 30190,
+      "title": "Reconcile TitanMCP Origin-pair activation watermark",
+      "updated_at": "2026-10-01T16:25:51Z"
+    }
   ],
-  "pulls_listed": "UNKNOWN",
-  "pulls_listing": "UNKNOWN",
-  "queue_depth_per_runner": 70.0,
+  "newest_pulls": [
+    {
+      "author": "woahwhattheheck",
+      "base": "main",
+      "branch": "codex/resource-master-titanmcp-origin-pair-watermark-20261001-01",
+      "created_at": "2026-10-01T16:25:51Z",
+      "draft": false,
+      "head_sha": "0d81eb0b1e5122b2ed460802d8a79b01a7e185c9",
+      "number": 30190,
+      "title": "Reconcile TitanMCP Origin-pair activation watermark",
+      "updated_at": "2026-10-01T16:25:51Z"
+    }
+  ],
+  "open_heads": {
+    "30190": "0d81eb0b1e5122b2ed460802d8a79b01a7e185c9"
+  },
+  "pulls_listed": 1,
+  "pulls_listing": "COMPLETE",
+  "queue_depth_per_runner": 17.5,
   "recently_closed": [
+    {
+      "author": "woahwhattheheck",
+      "base": "main",
+      "branch": "codex/resource-master-titanmcp-origin-pair-advancement-20261001-01",
+      "closed_at": "2026-10-01T16:24:39Z",
+      "head_sha": "9625328ca63cdee38274e630d7c2f1cb8f4a4e1e",
+      "merge_commit_sha": "1517d815c268aedd36208fb03509e5847db83b1c",
+      "merged_at": "2026-10-01T16:24:39Z",
+      "number": 30189,
+      "state": "MERGED",
+      "title": "Advance TitanMCP allowed-Origin pair resource",
+      "updated_at": "2026-10-01T16:24:51Z"
+    },
+    {
+      "author": "woahwhattheheck",
+      "base": "main",
+      "branch": "codex/resource-master-titanmcp-watermark-20261001-01",
+      "closed_at": "2026-10-01T13:29:08Z",
+      "head_sha": "a5f2a31daaf7287b80f3c4c0ac86cd5b24571d43",
+      "merge_commit_sha": "d79fd7d2fc837486c3b471febf86fbbf90297bde",
+      "merged_at": "2026-10-01T13:29:08Z",
+      "number": 30188,
+      "state": "MERGED",
+      "title": "Reconcile TitanMCP identity activation watermark",
+      "updated_at": "2026-10-01T13:29:54Z"
+    },
+    {
+      "author": "woahwhattheheck",
+      "base": "main",
+      "branch": "codex/resource-master-titanmcp-get-mcp-identity-20261001-01",
+      "closed_at": "2026-10-01T13:15:42Z",
+      "head_sha": "76fe6a7255ecefaab1b7706b3cad94ae5b8bfabb",
+      "merge_commit_sha": "a1e3c22db016057e1c0f30f972b4530a54b5966a",
+      "merged_at": "2026-10-01T13:15:42Z",
+      "number": 30187,
+      "state": "MERGED",
+      "title": "Advance TitanMCP GET /mcp identity resource",
+      "updated_at": "2026-10-01T13:15:55Z"
+    },
+    {
+      "author": "woahwhattheheck",
+      "base": "main",
+      "branch": "codex/resource-master-prego-hardening-receipt-20261001-01",
+      "closed_at": "2026-10-01T10:25:43Z",
+      "head_sha": "825a6ad378917e627ec3f9189917f0bdd4656baa",
+      "merge_commit_sha": "2a70dcd6ddad2094ecc3f823cb6171854f8b0791",
+      "merged_at": "2026-10-01T10:25:43Z",
+      "number": 30186,
+      "state": "MERGED",
+      "title": "Reconcile pre-GO hardening activation watermark",
+      "updated_at": "2026-10-01T10:25:54Z"
+    },
+    {
+      "author": "woahwhattheheck",
+      "base": "main",
+      "branch": "codex/resource-master-prego-hardening-assessment-20261001-01",
+      "closed_at": "2026-10-01T10:19:36Z",
+      "head_sha": "734606459aa27354bc1b26306bf22835de5c48c9",
+      "merge_commit_sha": "6aaf4829c24573f4e11cbf470b4be3aa0e80f4ef",
+      "merged_at": "2026-10-01T10:19:36Z",
+      "number": 30185,
+      "state": "MERGED",
+      "title": "Activate pre-GO hardening assessment resource",
+      "updated_at": "2026-10-01T10:20:07Z"
+    },
     {
       "author": "woahwhattheheck",
       "base": "main",
@@ -142,74 +235,10 @@
       "state": "MERGED",
       "title": "Add private chargeback defense desk and pricing scenarios",
       "updated_at": "2026-10-01T00:35:36Z"
-    },
-    {
-      "author": "woahwhattheheck",
-      "base": "main",
-      "branch": "codex/resource-master/slack-full-body-catalog-runtime-readback-20260930-01",
-      "closed_at": "2026-09-30T10:32:44Z",
-      "head_sha": "14c6c265d23a1e67c947692b3843ad4edc619149",
-      "merge_commit_sha": "f45abbfdda06be348394ca8b2a4bb35cd78fece5",
-      "merged_at": "2026-09-30T10:32:44Z",
-      "number": 30171,
-      "state": "MERGED",
-      "title": "Pin Slack catalog activation readback",
-      "updated_at": "2026-09-30T10:34:08Z"
-    },
-    {
-      "author": "woahwhattheheck",
-      "base": "main",
-      "branch": "codex/resource-master/slack-full-body-catalog-runtime-activation-20260930-01",
-      "closed_at": "2026-09-30T10:24:00Z",
-      "head_sha": "1200cbda058a1dcf67f8b54f26ff4c710be43396",
-      "merge_commit_sha": "5d970f59f876dbab71e359253477e53db50e448b",
-      "merged_at": "2026-09-30T10:24:00Z",
-      "number": 30170,
-      "state": "MERGED",
-      "title": "Activate Slack full-body catalog runtime resource",
-      "updated_at": "2026-09-30T10:24:10Z"
-    },
-    {
-      "author": "woahwhattheheck",
-      "base": "main",
-      "branch": "codex/resource-master/windows-credential-text-encoding-readback-20260930-01",
-      "closed_at": "2026-09-30T04:17:23Z",
-      "head_sha": "c611afb994de5e21245ca6cb078dec49ff047f50",
-      "merge_commit_sha": "ae5f5ccbb86827c4d632ca248cb6a014939078d5",
-      "merged_at": "2026-09-30T04:17:23Z",
-      "number": 30169,
-      "state": "MERGED",
-      "title": "Pin Windows credential text encoding activation readback",
-      "updated_at": "2026-09-30T04:18:04Z"
-    },
-    {
-      "author": "woahwhattheheck",
-      "base": "main",
-      "branch": "codex/resource-master/windows-credential-text-encoding-advancement-20260930-01",
-      "closed_at": "2026-09-30T04:15:10Z",
-      "head_sha": "b9db660abaa1f8eb56f8363ac6bc848716728df8",
-      "merge_commit_sha": "ba1f55fd7018c584539713568268f5fb91db9053",
-      "merged_at": "2026-09-30T04:15:10Z",
-      "number": 30168,
-      "state": "MERGED",
-      "title": "Advance command-center Windows credential text encoding",
-      "updated_at": "2026-09-30T04:15:20Z"
-    },
-    {
-      "author": "woahwhattheheck",
-      "base": "main",
-      "branch": "codex/resource-master/chatgpt-pro-codex-reset-refresh-readback-20260929-01",
-      "closed_at": "2026-09-29T22:12:01Z",
-      "head_sha": "af9030e2e44982b782b7b8090f24b47ee6219823",
-      "merge_commit_sha": "71a08ea829880b8946194dec255c3342f9e335b5",
-      "merged_at": "2026-09-29T22:12:01Z",
-      "number": 30166,
-      "state": "MERGED",
-      "title": "Pin ChatGPT/Codex reset activation readback",
-      "updated_at": "2026-09-29T22:14:29Z"
     }
   ],
   "repository": "woahwhattheheck/commons",
   "schema": "commons-github-state/v1",
-  "unchanged_since": "2026-10-01T09:24:52Z"
+  "unchanged_since": "2026-10-01T16:38:24Z",
+  "undatable_pulls": []
 }
