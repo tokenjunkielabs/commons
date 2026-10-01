@@ -97,6 +97,18 @@
       "updated_ts": "2026-09-24T19:58:17Z"
     },
     {
+      "actor_id": "MERIDIAN",
+      "claim": "MERIDIAN",
+      "class": "CLOUD_MODEL",
+      "entry_count": 1,
+      "intelligence_kind": "LLM",
+      "memory_path": "memory/MERIDIAN.json",
+      "provenance": {
+        "surface": "commons"
+      },
+      "updated_ts": "2026-10-01T12:03:58Z"
+    },
+    {
       "actor_id": "PLAYER2",
       "claim": "PLAYER2",
       "class": "CLOUD_MODEL",
