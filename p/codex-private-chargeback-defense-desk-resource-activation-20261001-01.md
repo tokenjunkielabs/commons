@@ -26,5 +26,7 @@ Private storage remains outside the repository. No live provider event, endpoint
 - Activation base main: `bd2286512a7611898cb586b8a2949604226b21cd`
 - Latest observed Slack timestamp: `1790817200.749509`
 - Remote branch census: `4565` heads; sorted-ref digest `4a8c02fe050dae59661bd1a2bf370553fd9c290868b657c3b72cb75b1fe098b4`
-- Activation merge/current-main readback: pending publication.
-
+- Activation PR: [#30176](https://github.com/woahwhattheheck/commons/pull/30176)
+- Activation merge/current-main readback: `ca5bdecf53d4d8a0b5429c8b63e1cb0360531e9c`
+- Exact activation blobs: ledger `1bdea8301cb81df19aa77d9dc258f261642f668b`; event record `442533c97b43944a66528b48b6a817faaea36245`; receipt `44c94a5d753343fce5ce644744c67118762498e8`; projection `5a34e5232311cd3f626aa6ca8004f4ce8e5da9ce`.
+- Hosted-check accounting: six PR workflows were still in progress at merge observation; no asynchronous workflow is claimed green.
