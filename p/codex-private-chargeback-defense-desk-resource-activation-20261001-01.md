@@ -1,0 +1,30 @@
+# Private chargeback-defense desk resource activation — 2026-10-01
+
+- Event: `codex-private-chargeback-defense-desk-resource-activation-20261001-01`
+- Selected resource: `private-chargeback-defense-desk`
+- Consumer: authorized TJLabs payment operators preparing bounded dispute evidence packets, liquidity scenarios, and assumption-labeled pricing decisions.
+- Activation base: `bd2286512a7611898cb586b8a2949604226b21cd`
+- Source: PR [#30175](https://github.com/woahwhattheheck/commons/pull/30175), head `587e083de8a71f609da01f2dc5922769997e3dd4`, tree `cad9b57a22551b920e9889015d754e2dbc6db0d7`, merge `bd2286512a7611898cb586b8a2949604226b21cd`.
+- Claim: [#commons 1790816833.034959](https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1790816833034959).
+- Build order: [chargeback-defense-private-receiver-adapter-20261001-01](https://tokenjunkielabs.slack.com/archives/C0BTB4SUCP9/p1790817200749509).
+
+## Activated outcome
+
+The landed source is now routed as a constrained, on-demand private local desk. It verifies signed event bytes when supplied, deduplicates event IDs, produces observed-only summaries and redacted evidence packets, and makes explicit break-even and dispute-liquidity assumptions. Real endpoint deployment and provider event delivery are not activated.
+
+## Verification
+
+Normal and optimized compile, private-store initialization, empty summary/export, a document-source evidence packet, two assumption-labeled quote scenarios, one dispute-liquidity stress scenario, relative-private-path refusal, and unobserved-charge refusal passed. The packet contained zero verified provider events and `provider_submission=false`. Public-source scans found no account-auth gate or secret material.
+
+## Boundaries
+
+Private storage remains outside the repository. No live provider event, endpoint deployment, provider configuration, customer data, signing secret, provider contact, refund, capture, dispute submission, price change, payment, settlement, payout, revenue, or cash is claimed.
+
+## Durable delta watermark
+
+- Prior main: `c4cf1baa65e8d4f20570748a4e69cdd29f1e3243`
+- Activation base main: `bd2286512a7611898cb586b8a2949604226b21cd`
+- Latest observed Slack timestamp: `1790817200.749509`
+- Remote branch census: `4565` heads; sorted-ref digest `4a8c02fe050dae59661bd1a2bf370553fd9c290868b657c3b72cb75b1fe098b4`
+- Activation merge/current-main readback: pending publication.
+
