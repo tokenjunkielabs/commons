@@ -27,6 +27,8 @@ No build order was created: the capability is implemented and landed, and every 
 - Latest external delta timestamp: `1790863762.151499`.
 - Claim timestamp: `1790870876.649739`.
 - Remote branches observed before claim: 4,575; open PRs: 0.
-- Activation PR, merge, hosted workflows, exact current-main blobs, and terminal Slack receipt will be written after merge/readback.
+- Activation PR: [#30189](https://github.com/woahwhattheheck/commons/pull/30189), head `9625328ca63cdee38274e630d7c2f1cb8f4a4e1e`, merge/readback `1517d815c268aedd36208fb03509e5847db83b1c`.
+- Hosted workflows at merge: four passed; Muhlnickel spec guard run `36890324508` and job watchdog run `36890324078` remained in progress at checkout and were explicitly accounted for rather than reported as passed or failed.
+- Exact activation blobs read back from main: ledger `ecae44dbceee392c145497d2211b89059d9b55ef`; event `c95de63139f8b3ec19ffb2ba211f9a09387c25a2`; receipt `b2b7a91263c3c4b3150d84ba2f16cc1ad0dfe24a`; projection `5e226924be2dc0b0a2b661c7280cb994df91a0fe`.
 
 **LOCK NOT SHIPPED / AWAITING BRYCE GO.**
