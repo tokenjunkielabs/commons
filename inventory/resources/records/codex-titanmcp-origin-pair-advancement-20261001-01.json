@@ -121,21 +121,26 @@
     "activation_base": "https://github.com/woahwhattheheck/commons/commit/a7e3e7c1e4926ca6bab546b4a0c0a0ddd05f1ff8"
   },
   "publication": {
-    "state": "PENDING_PR_MERGE_AND_EXACT_MAIN_READBACK",
-    "activation_pr": null,
-    "activation_head_sha": null,
-    "activation_merge_sha": null,
-    "hosted_checks": "PENDING",
+    "state": "ACTIVATION_MERGED_AND_EXACT_MAIN_BLOBS_READ_BACK",
+    "activation_pr": "https://github.com/woahwhattheheck/commons/pull/30189",
+    "activation_head_sha": "9625328ca63cdee38274e630d7c2f1cb8f4a4e1e",
+    "activation_merge_sha": "1517d815c268aedd36208fb03509e5847db83b1c",
+    "hosted_checks": "FOUR_SUCCESS_BEFORE_MERGE; MUHLNICKEL_SPEC_GUARD_36890324508_AND_JOB_WATCHDOG_36890324078_REMAINED_IN_PROGRESS_AT_CHECKOUT_AND_WERE_EXPLICITLY_ACCOUNTED_FOR",
     "source_blobs": {
       "host/titanmcp_origin_pair.py": "dfaa9b3ab933b16506b40e4d3305d43a9adb5a23",
       "p/cursor-titanmcp-origin-pair-20261001-01.md": "d7e9489042a7a4282237df26fb74fd7f2ccaa206"
     },
-    "activation_blobs_read_back_on_main": {}
+    "activation_blobs_read_back_on_main": {
+      "ground/RESOURCE_LEDGER.json": "ecae44dbceee392c145497d2211b89059d9b55ef",
+      "inventory/resources/records/codex-titanmcp-origin-pair-advancement-20261001-01.json": "c95de63139f8b3ec19ffb2ba211f9a09387c25a2",
+      "p/codex-titanmcp-origin-pair-advancement-20261001-01.md": "b2b7a91263c3c4b3150d84ba2f16cc1ad0dfe24a",
+      "resources.html": "5e226924be2dc0b0a2b661c7280cb994df91a0fe"
+    }
   },
   "next_watermark": {
     "observed_at": "2026-10-01T16:08:59Z",
     "activation_base_main_sha": "a7e3e7c1e4926ca6bab546b4a0c0a0ddd05f1ff8",
-    "current_main_sha": "PENDING_MERGE_AND_READBACK",
+    "current_main_sha": "1517d815c268aedd36208fb03509e5847db83b1c",
     "latest_external_delta_slack_ts": "1790863762.151499",
     "latest_commons_claim_slack_ts": "1790870876.649739",
     "latest_delegations_build_order_ts": "1790848932.160439",
