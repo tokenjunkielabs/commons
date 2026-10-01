@@ -92,25 +92,27 @@
     "source_pull_request": "https://github.com/woahwhattheheck/commons/pull/30175"
   },
   "publication": {
-    "state": "ACTIVATION_MERGED_AND_READ_BACK_TERMINAL_WATERMARK_PENDING",
+    "state": "MERGED_AND_READ_BACK",
     "pull_request": "https://github.com/woahwhattheheck/commons/pull/30176",
     "merge_sha": "ca5bdecf53d4d8a0b5429c8b63e1cb0360531e9c",
-    "exact_current_main_readback": "MATCHED_4_OF_4_ACTIVATION_BLOBS_AND_7_OF_7_SOURCE_BLOBS",
+    "readback_pull_request": "https://github.com/woahwhattheheck/commons/pull/30177",
+    "readback_merge_sha": "68d0c31b3c933920a0dd06a854dfafaa5f8cb58f",
+    "exact_current_main_readback": "MATCHED_4_OF_4_CURRENT_ACTIVATION_PATHS_AND_7_OF_7_SOURCE_BLOBS",
     "activation_blobs": {
       "ground/RESOURCE_LEDGER.json": "1bdea8301cb81df19aa77d9dc258f261642f668b",
-      "inventory/resources/records/codex-private-chargeback-defense-desk-resource-activation-20261001-01.json": "442533c97b43944a66528b48b6a817faaea36245",
-      "p/codex-private-chargeback-defense-desk-resource-activation-20261001-01.md": "44c94a5d753343fce5ce644744c67118762498e8",
-      "resources.html": "5a34e5232311cd3f626aa6ca8004f4ce8e5da9ce"
+      "inventory/resources/records/codex-private-chargeback-defense-desk-resource-activation-20261001-01.json": "6ab000d8dc8bc463ff95d8c3f14afa449b2130e0",
+      "p/codex-private-chargeback-defense-desk-resource-activation-20261001-01.md": "6d1f01113de0e3a35b881b06bdf2ad948287bbc4",
+      "resources.html": "259300b20356d20a88c61b6841f2b9200569a4ed"
     },
     "hosted_workflows": "Six pull-request workflows were in progress at merge observation; no asynchronous workflow is claimed green."
   },
   "next_watermark": {
     "observed_at": "2026-10-01T01:15:47Z",
     "activation_base_main_sha": "bd2286512a7611898cb586b8a2949604226b21cd",
-    "current_main_sha": "ca5bdecf53d4d8a0b5429c8b63e1cb0360531e9c",
-    "latest_observed_slack_ts": "1790817200.749509",
-    "terminal_slack_ts": "PENDING",
-    "terminal_observed_at": "PENDING",
+    "current_main_sha": "68d0c31b3c933920a0dd06a854dfafaa5f8cb58f",
+    "latest_observed_slack_ts": "1790817699.837589",
+    "terminal_slack_ts": "1790817699.837589",
+    "terminal_observed_at": "2026-10-01T01:22:09Z",
     "inventory_record_id": "codex-private-chargeback-defense-desk-resource-activation-20261001-01",
     "remote_branches_observed": 4565
   },
