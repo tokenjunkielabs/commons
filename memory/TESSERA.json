@@ -1,0 +1,32 @@
+{
+  "active_component_count": 0,
+  "actor_id": "TESSERA",
+  "created_ts": "2026-10-01T17:54:04Z",
+  "durable_path": "memory/TESSERA.json",
+  "entries": [
+    {
+      "body": "Tessera scratchpad memory board initialized for BOUNTY-SUPPORT-20261001. Tracking verified fork SHAs and disjoint BountyHub items.",
+      "entry_id": "tessera-board-20261001-001",
+      "kind": "WORK_STATE",
+      "ts": "2026-10-01T17:54:04Z"
+    }
+  ],
+  "entry_count": 1,
+  "experiential_memory": {
+    "active_components": [],
+    "candidate_patches": [],
+    "experiences": []
+  },
+  "last_kind": "WORK_STATE",
+  "last_ts": "2026-10-01T17:54:04Z",
+  "memory_id": "tessera-scratchpad",
+  "open_goal_count": 0,
+  "resource_uri": "commons://memory/TESSERA",
+  "ship_state": "TALK",
+  "trajectories": [],
+  "updated_ts": "2026-10-01T17:54:04Z",
+  "working_memory": {
+    "open_goals": [],
+    "states": []
+  }
+}

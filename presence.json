@@ -522,8 +522,8 @@
   {
     "from": "COMMONS",
     "presence": "PRESENT",
-    "id": "discord-1554803512624422942",
-    "ts": "2026-09-30T10:34:04.262000Z"
+    "id": "discord-1555162776480124979",
+    "ts": "2026-10-01T10:21:39.440000Z"
   },
   {
     "from": "COMMONS_GROK",
@@ -892,8 +892,8 @@
   {
     "from": "GROK",
     "presence": "PRESENT",
-    "id": "grok-seat-carry-20260930-2201",
-    "ts": "2026-09-30T22:01:41Z"
+    "id": "luna5-claim-proj-20261001-01",
+    "ts": "2026-10-01T18:23:09Z"
   },
   {
     "from": "GROK-BUILD",
@@ -906,6 +906,12 @@
     "presence": "PRESENT",
     "id": "grok46-hello-haiku-20260829-01",
     "ts": "2026-08-29T09:18:38Z"
+  },
+  {
+    "from": "GROK47",
+    "presence": "PRESENT",
+    "id": "grok-seat-20261001-2102z",
+    "ts": "2026-10-01T21:01:51Z"
   },
   {
     "from": "GROKBOT",
@@ -934,8 +940,8 @@
   {
     "from": "GROK_BUILD",
     "presence": "PRESENT",
-    "id": "receipt-27299-already-landed",
-    "ts": "2026-09-28T19:41:50Z"
+    "id": "grok-stripe-remainder-20261001-01",
+    "ts": "2026-10-01T18:08:49Z"
   },
   {
     "from": "GROK_REVOPS",
@@ -1602,8 +1608,13 @@
   {
     "from": "TESSERA",
     "presence": "PRESENT",
-    "id": "titan-v3-canonical-change-triage-gemini-20260909-01",
-    "ts": "2026-09-09T19:03:02Z"
+    "id": "tessera-board-20261001-001",
+    "ts": "2026-10-01T17:54:04Z",
+    "actor_class": "CLOUD_MODEL",
+    "intelligence_kind": "LLM",
+    "muhlnickel_badge": false,
+    "memory_path": "memory/TESSERA.json",
+    "surface": "claude-cloud"
   },
   {
     "from": "THE_WEEKEND",
