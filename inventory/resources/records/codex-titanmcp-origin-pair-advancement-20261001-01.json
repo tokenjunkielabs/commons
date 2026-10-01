@@ -1,0 +1,151 @@
+{
+  "schema": "commons-resource-event/v1",
+  "event_id": "codex-titanmcp-origin-pair-advancement-20261001-01",
+  "event_type": "RESOURCE_ADVANCEMENT",
+  "observed_at": "2026-10-01T16:08:59Z",
+  "actor": "Commons Resource Master / Codex",
+  "selected_resource": "titanmcp-setup-schema",
+  "concrete_consumer": "GPT and ChatGPT MCP integration operators who need the exact TitanMCP allowed-Origin pair and OPTIONS/GET/POST boundary before composing a bounded setup or handoff",
+  "measurable_outcome": "Advanced the existing producing resource with a pinned two-Origin allowlist, exact denied-Origin behavior across three methods, the Commons wildcard control, and a fail-closed no-mutation result.",
+  "before": {
+    "capacity": "LIVE",
+    "stage": "PRODUCING",
+    "condition": "CONSTRAINED",
+    "holder": "Commons / GPT and ChatGPT MCP integration operators",
+    "authority": "PINNED_SETUP_SCHEMA_PLUS_GET_MCP_IDENTITY_AND_ORIGIN_CLASSIFICATION",
+    "evidence_freshness": "2026-10-01T11:38:55Z"
+  },
+  "after": {
+    "capacity": "LIVE",
+    "stage": "PRODUCING",
+    "condition": "CONSTRAINED",
+    "holder": "Commons / GPT and ChatGPT MCP integration operators",
+    "authority": "PINNED_SETUP_SCHEMA_PLUS_GET_MCP_IDENTITY_PLUS_ALLOWED_ORIGIN_PAIR_AND_METHOD_CLASSIFICATION; READ_ONLY_MEASURE_ONLY; BAKE_DEPLOY_GO_AND_SUBMISSION_FALSE",
+    "evidence_freshness": "LANDED_LIVE_RECEIPT_2026-10-01T14:09:22Z_AND_ACTIVATION_BASE_A7E3E7C1"
+  },
+  "production_truth": {
+    "repository": "woahwhattheheck/commons",
+    "source_commit": "603d300152f132aafe738b7db20c7457ae4f486c",
+    "classifier_blob": "dfaa9b3ab933b16506b40e4d3305d43a9adb5a23",
+    "source_receipt_blob": "d7e9489042a7a4282237df26fb74fd7f2ccaa206",
+    "activation_base_main_sha": "a7e3e7c1e4926ca6bab546b4a0c0a0ddd05f1ff8",
+    "allowed_origins": {
+      "https://chatgpt.com": "OPTIONS_GET_POST_ALLOWED_WITH_EXACT_ACAO_AND_VARY_ORIGIN",
+      "https://webmcp-pad.vercel.app": "OPTIONS_GET_POST_ALLOWED_WITH_EXACT_ACAO_AND_VARY_ORIGIN"
+    },
+    "denied_origins": {
+      "https://chat.openai.com": "OPTIONS_GET_POST_HTTP_403_JSON_RPC_-32000_ORIGIN_NOT_ALLOWED",
+      "https://example.com": "OPTIONS_GET_POST_HTTP_403_JSON_RPC_-32000_ORIGIN_NOT_ALLOWED"
+    },
+    "commons_control": {
+      "methods": "OPTIONS_GET_POST",
+      "acao": "*",
+      "authorization_preflight_allowed": false
+    },
+    "pad_preflight_authorization_allowed": true,
+    "mutation_or_submission": false
+  },
+  "delta": {
+    "prior_terminal_main_sha": "d79fd7d2fc837486c3b471febf86fbbf90297bde",
+    "activation_base_main_sha": "a7e3e7c1e4926ca6bab546b4a0c0a0ddd05f1ff8",
+    "commits_in_delta": 4,
+    "non_generated_commits_in_delta": 1,
+    "substantive_changed_paths": [
+      "host/titanmcp_origin_pair.py",
+      "p/cursor-titanmcp-origin-pair-20261001-01.md"
+    ],
+    "remote_branches_observed_before_claim": 4575,
+    "prior_remote_branch_count": 4575,
+    "open_prs_before_claim": 0,
+    "recent_external_prs_after_watermark": 0,
+    "source_commit_workflows": 0,
+    "source_commit_combined_statuses": 0,
+    "prior_terminal_slack_ts": "1790861376.874899",
+    "latest_external_delta_slack_ts": "1790863762.151499",
+    "commons_claim_slack_ts": "1790870876.649739",
+    "required_channel_delta": "#commons contained one TitanMCP allowed-Origin pair SHIP; #delegations, #todo, #shipped-builds, #products, #leads, and #sales had no message after the watermark.",
+    "automation_state": "The enabled/disabled automation surface was inspected once; no newly evidenced lifecycle delta and no mutation.",
+    "connector_state": "GitHub and Slack remained reachable through the same installed repository account and workspace. Connection presence was not treated as a live provider session, expanded authority, buyer, cash or quota."
+  },
+  "deduplication": {
+    "exact_candidate_current_main": true,
+    "current_delegation_or_todo_root": false,
+    "existing_resource_advanced": "titanmcp-setup-schema",
+    "overlap_exclusions": [
+      "pad runtime and deployment workflow",
+      "setup-schema remint",
+      "SAVE/LOAD DRAFT",
+      "GET /mcp identity remint",
+      "connector publication recovery",
+      "titanmcp.html and Commons adapter"
+    ],
+    "decision": "No new resource surface and no new build order. The landed capability advances the existing producing resource; related unfinished lanes are already owned or actively overlapping."
+  },
+  "verification": {
+    "source_current_runtime": "DNS_UNAVAILABLE_NORMAL_AND_OPTIMIZED_RC_1_NO_FRESH_REMEASURE",
+    "landed_live_receipt": "PASS_TWO_ALLOWED_ORIGINS_TWO_DENIED_ORIGINS_THREE_METHODS_AND_COMMONS_CONTROL",
+    "mutation_refusal": "PASS_BAKE_RC_2_VERDICT_REFUSED_SENT_0",
+    "ledger_json": "PASS_PARSE_AND_REQUIRED_SURFACE_FIELDS",
+    "projection": "PASS_REGENERATE_AND_CHECK",
+    "resource_tests": "PASS_NORMAL_AND_OPTIMIZED_18_OF_18_EACH",
+    "open_door": "The activation records TitanMCP's private Origin pair while preserving Commons OPTIONS/GET/POST ACAO *. It adds no login, identity proof, approval requirement or restriction to the Commons public surface.",
+    "no_auth": "All local checks are credential-free; the unavailable live network path failed closed and performed no endpoint mutation.",
+    "zero_fabrication": "The record distinguishes the landed live receipt from this runtime's DNS failure. It does not claim a reusable session, live deployment, submission, buyer acceptance, payment, revenue or cash.",
+    "privacy": "Only public source identities, SHAs, aggregate counts, endpoint policy classes and Slack timestamps are persisted. No credential, private account identifier, customer data or private file name is stored.",
+    "secret_scan": "PASS_NO_LIVE_SECRET_OR_PRIVATE_IDENTIFIER",
+    "collision": "Only the claimed ledger, append-only event, append-only receipt and generated projection are owned. Runtime, deployment, setup, SAVE/LOAD DRAFT, GET identity, publication recovery, Titan state and peer branches remain untouched.",
+    "diff": "PASS_CLAIMED_PATHS_ONLY"
+  },
+  "build_order_decision": {
+    "created": false,
+    "reason": "The capability is already implemented and landed; adjacent lanes are owned or overlap active work. No independent evidence-backed implementation gap survived deduplication.",
+    "build_orders": []
+  },
+  "quota_lifecycle": {
+    "classification": "PRIOR_STATE_RETAINED_NO_NEW_OFFICIAL_OR_DIRECTLY_OBSERVED_RESET",
+    "official_or_directly_observed_reset_this_wake": false,
+    "account_meter_observed": false,
+    "banked_reset_activated": false,
+    "purchased_reset_used_or_recommended": false,
+    "emergency_reserve_preserved": true
+  },
+  "projection": {
+    "resources": 118,
+    "producing": 89,
+    "inventory_records": 89
+  },
+  "evidence": {
+    "commons_claim": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1790870876649739",
+    "source_ship": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1790863762151499",
+    "source_commit": "https://github.com/woahwhattheheck/commons/commit/603d300152f132aafe738b7db20c7457ae4f486c",
+    "activation_base": "https://github.com/woahwhattheheck/commons/commit/a7e3e7c1e4926ca6bab546b4a0c0a0ddd05f1ff8"
+  },
+  "publication": {
+    "state": "PENDING_PR_MERGE_AND_EXACT_MAIN_READBACK",
+    "activation_pr": null,
+    "activation_head_sha": null,
+    "activation_merge_sha": null,
+    "hosted_checks": "PENDING",
+    "source_blobs": {
+      "host/titanmcp_origin_pair.py": "dfaa9b3ab933b16506b40e4d3305d43a9adb5a23",
+      "p/cursor-titanmcp-origin-pair-20261001-01.md": "d7e9489042a7a4282237df26fb74fd7f2ccaa206"
+    },
+    "activation_blobs_read_back_on_main": {}
+  },
+  "next_watermark": {
+    "observed_at": "2026-10-01T16:08:59Z",
+    "activation_base_main_sha": "a7e3e7c1e4926ca6bab546b4a0c0a0ddd05f1ff8",
+    "current_main_sha": "PENDING_MERGE_AND_READBACK",
+    "latest_external_delta_slack_ts": "1790863762.151499",
+    "latest_commons_claim_slack_ts": "1790870876.649739",
+    "latest_delegations_build_order_ts": "1790848932.160439",
+    "remote_branches_observed_before_claim": 4575,
+    "inventory_record_id": "codex-titanmcp-origin-pair-advancement-20261001-01"
+  },
+  "non_claims": [
+    "No fresh live endpoint measurement was completed in the activation runtime because DNS resolution failed.",
+    "No pad runtime mutation, Commons MCP mutation, bake, deploy, GO, Devpost submission, provider configuration, buyer acceptance, settlement, payout, revenue or cash is claimed.",
+    "LOCK NOT SHIPPED / AWAITING BRYCE GO."
+  ],
+  "titan": "NOT_WRITTEN"
+}
