@@ -1,0 +1,152 @@
+{
+  "schema": "commons-resource-event/v1",
+  "event_id": "codex-titanmcp-list-messages-cursor-and-after-advancement-20261001-01",
+  "event_type": "RESOURCE_ADVANCEMENT",
+  "observed_at": "2026-10-01T19:01:46Z",
+  "actor": "Commons Resource Master / Codex",
+  "selected_resource": "titanmcp-setup-schema",
+  "concrete_consumer": "GPT and ChatGPT MCP integration operators that need exact list_messages cursor and after semantics without fabricating an error class",
+  "measurable_outcome": "Advanced the existing producing resource with pinned known-cursor, unknown-string, empty-string, null and numeric after behavior while preserving no-runtime-mutation authority.",
+  "before": {
+    "capacity": "LIVE",
+    "stage": "PRODUCING",
+    "condition": "CONSTRAINED",
+    "holder": "Commons / GPT and ChatGPT MCP integration operators",
+    "authority": "PINNED_SETUP_SCHEMA_PLUS_GET_MCP_IDENTITY_PLUS_ALLOWED_ORIGIN_PAIR_AND_METHOD_CLASSIFICATION",
+    "evidence_freshness": "2026-10-01T14:09:22Z"
+  },
+  "after": {
+    "capacity": "LIVE",
+    "stage": "PRODUCING",
+    "condition": "CONSTRAINED",
+    "holder": "Commons / GPT and ChatGPT MCP integration operators",
+    "authority": "PINNED_SETUP_IDENTITY_ORIGIN_AND_LIST_MESSAGES_CURSOR_SEMANTICS; READ_ONLY_CLASSIFICATION; REMOTE_MUTATION_BAKE_DEPLOY_GO_AND_SUBMISSION_FALSE",
+    "evidence_freshness": "LANDED_LIVE_RECEIPTS_THROUGH_2026-10-01T18:39:01Z_AND_ACTIVATION_BASE_31B49408"
+  },
+  "production_truth": {
+    "repository": "woahwhattheheck/commons",
+    "cursor_source_commit": "b638acb02892bcee17e5a864357680409aaa4d47",
+    "cursor_classifier_blob": "6714449922d7caa0af0ad0b4e144a4acf0cec656",
+    "cursor_receipt_blob": "ab1c41ef379f25d370b8aeb4c088c556625ca3b7",
+    "unknown_after_source_commit": "06a973a9a7094fbd16c1f0697adc34214a8acf4a",
+    "unknown_after_classifier_blob": "860df4611ba1c07065b028c3a80ed11d208cf3cc",
+    "unknown_after_receipt_blob": "366fea77efb796050a1459205510ff59e772f5df",
+    "activation_base_main_sha": "31b49408ce2d301c598c0118e99161e3fbcf0377",
+    "known_cursor": "HTTP_200_OK_COORD_RESULT_ROWS_HAVE_ID_AND_LEFTOVER_ASSIGNMENT_RESULT_MAY_HAVE_NO_ID",
+    "unknown_or_empty_string_after": "HTTP_200_MCP_OK_TRUE_FULL_TRANSCRIPT",
+    "null_or_numeric_after": "MCP_ISERROR_BAD_ARGUMENT_ARGUMENT_AFTER_NOT_JSONRPC_-32602",
+    "remote_mutation": false
+  },
+  "delta": {
+    "prior_terminal_main_sha": "4c07bcfe20ffef09ab7808e92f1b2a56119b592d",
+    "activation_base_main_sha": "31b49408ce2d301c598c0118e99161e3fbcf0377",
+    "commits_in_delta": 5,
+    "non_generated_commits_in_delta": 2,
+    "substantive_changed_paths": [
+      "host/titanmcp_list_messages_cursor.py",
+      "p/cursor-titanmcp-list-messages-cursor-20261001-01.md",
+      "host/titanmcp_unknown_after.py",
+      "p/cursor-titanmcp-unknown-after-20261001-01.md"
+    ],
+    "remote_branches_observed_before_claim": 4577,
+    "prior_remote_branch_count": 4577,
+    "open_prs_before_claim": 1,
+    "open_pr_collision": false,
+    "recent_external_closed_prs_after_watermark": 0,
+    "source_commit_workflows": "SOURCE_COMMITS_LANDED_ON_MAIN_NO_SOURCE_PR_REMAINED_OPEN",
+    "prior_terminal_slack_ts": "1790872947.573039",
+    "latest_external_delta_slack_ts": "1790879941.188709",
+    "commons_claim_slack_ts": "1790881236.042379",
+    "required_channel_delta": "#commons contained two TitanMCP list_messages SHIPs plus an active pre-go hardening claim; #delegations, #todo, #shipped-builds, #products, #leads and #sales had no message after the watermark.",
+    "automation_state": "Inspected once: 25 total, 2 enabled and 23 disabled; no newly evidenced lifecycle delta and no mutation.",
+    "connector_state": "GitHub and Slack remained reachable. Connected presence was not treated as a live provider session, expanded authority, buyer, cash or quota."
+  },
+  "deduplication": {
+    "exact_candidate_current_main": true,
+    "current_delegation_or_todo_root": false,
+    "existing_resource_advanced": "titanmcp-setup-schema",
+    "active_claim_excluded": "Commons pre-go hardening controls",
+    "overlap_exclusions": [
+      "pad runtime and deployment workflow",
+      "setup-schema remint",
+      "SAVE/LOAD DRAFT",
+      "GET /mcp identity remint",
+      "Origin pair remint",
+      "pre-go hardening",
+      "titanmcp.html and Commons adapter"
+    ],
+    "decision": "One existing resource advances. No new resource and no new build order."
+  },
+  "verification": {
+    "source_compile": "PASS_NORMAL_AND_OPTIMIZED",
+    "landed_live_receipts": "PASS_KNOWN_UNKNOWN_EMPTY_NULL_AND_NUMERIC_AFTER_CASES",
+    "fresh_live_execution": "NOT_RUN_REMOTE_ROOM_AND_TASK_MUTATION_NOT_AUTHORIZED_WITHOUT_EXACT_CLEANUP",
+    "mutation_refusal": "PASS_CURSOR_BAKE_AND_DEPLOY_PLUS_UNKNOWN_AFTER_BAKE_AND_GO_RC_2_VERDICT_REFUSED_SENT_0",
+    "ledger_json": "PASS_PARSE_AND_REQUIRED_SURFACE_FIELDS",
+    "projection": "PASS_REGENERATED_118_RESOURCES_89_PRODUCING_90_RECORDS_AND_CHECK",
+    "resource_tests": "PASS_NORMAL_AND_OPTIMIZED_18_OF_18_EACH",
+    "open_door": "No public Commons route, auth behavior or endpoint is changed.",
+    "no_auth": "All activation checks are credential-free and no connector or provider configuration changes are made.",
+    "zero_fabrication": "The record distinguishes fresh landed receipts from local compile/refusal checks and does not infer a reusable live session, deployment, submission, buyer acceptance, payment, revenue or cash.",
+    "privacy": "Only public source identities, SHAs, aggregate counts and Slack timestamps are persisted. No credential, private account identifier, customer data or private file name is stored.",
+    "secret_scan": "PASS_NO_LIVE_SECRET_OR_PRIVATE_IDENTIFIER",
+    "collision": "Only the four claimed paths are owned. Runtime, deployment, setup code, pre-go hardening, Titan state and peer branches remain untouched.",
+    "diff": "PASS_CLAIMED_PATHS_ONLY"
+  },
+  "build_order_decision": {
+    "created": false,
+    "reason": "The two capabilities are implemented and landed; related hardening has an active claimant, and missing auth or owner action is a gate rather than an implementation gap.",
+    "build_orders": []
+  },
+  "quota_lifecycle": {
+    "classification": "PRIOR_STATE_RETAINED_NO_NEW_OFFICIAL_OR_DIRECTLY_OBSERVED_RESET",
+    "official_or_directly_observed_reset_this_wake": false,
+    "account_meter_observed": false,
+    "banked_reset_activated": false,
+    "purchased_reset_used_or_recommended": false,
+    "emergency_reserve_preserved": true
+  },
+  "projection": {
+    "resources": 118,
+    "producing": 89,
+    "inventory_records": 90
+  },
+  "evidence": {
+    "commons_claim": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1790881236042379",
+    "cursor_source_ship": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1790878474168659",
+    "unknown_after_source_ship": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1790879941188709",
+    "cursor_source_commit": "https://github.com/woahwhattheheck/commons/commit/b638acb02892bcee17e5a864357680409aaa4d47",
+    "unknown_after_source_commit": "https://github.com/woahwhattheheck/commons/commit/06a973a9a7094fbd16c1f0697adc34214a8acf4a",
+    "activation_base": "https://github.com/woahwhattheheck/commons/commit/31b49408ce2d301c598c0118e99161e3fbcf0377"
+  },
+  "publication": {
+    "state": "ACTIVATION_PREPARED_NOT_YET_MERGED",
+    "activation_pr": null,
+    "activation_head_sha": null,
+    "activation_merge_sha": null,
+    "hosted_checks": "PENDING",
+    "source_blobs": {
+      "host/titanmcp_list_messages_cursor.py": "6714449922d7caa0af0ad0b4e144a4acf0cec656",
+      "p/cursor-titanmcp-list-messages-cursor-20261001-01.md": "ab1c41ef379f25d370b8aeb4c088c556625ca3b7",
+      "host/titanmcp_unknown_after.py": "860df4611ba1c07065b028c3a80ed11d208cf3cc",
+      "p/cursor-titanmcp-unknown-after-20261001-01.md": "366fea77efb796050a1459205510ff59e772f5df"
+    },
+    "activation_blobs_read_back_on_main": {}
+  },
+  "next_watermark": {
+    "observed_at": "2026-10-01T19:01:46Z",
+    "activation_base_main_sha": "31b49408ce2d301c598c0118e99161e3fbcf0377",
+    "current_main_sha": null,
+    "latest_external_delta_slack_ts": "1790879941.188709",
+    "latest_commons_claim_slack_ts": "1790881236.042379",
+    "latest_delegations_build_order_ts": "1790848932.160439",
+    "remote_branches_observed_before_claim": 4577,
+    "inventory_record_id": "codex-titanmcp-list-messages-cursor-and-after-advancement-20261001-01"
+  },
+  "non_claims": [
+    "No fresh live endpoint execution was performed because the source classifiers create remote room and task state and no exact cleanup receipt was available.",
+    "No pad runtime mutation, Commons MCP mutation, bake, deploy, GO, provider configuration, submission, device action, buyer acceptance, settlement, payout, revenue or cash is claimed.",
+    "LOCK NOT SHIPPED / AWAITING BRYCE GO."
+  ],
+  "titan": "NOT_WRITTEN"
+}
