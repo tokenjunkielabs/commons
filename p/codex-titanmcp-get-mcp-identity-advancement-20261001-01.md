@@ -27,6 +27,8 @@ No build order was created: the capability is implemented and landed, and every 
 - Latest external delta timestamp: `1790854735.059489`.
 - Claim timestamp: `1790859571.853699`.
 - Remote branches observed before claim: 4,573; open PRs: 0.
-- Current main after activation: `PENDING_MERGE_AND_READBACK`.
+- Activation PR: [#30187](https://github.com/woahwhattheheck/commons/pull/30187), head `76fe6a7255ecefaab1b7706b3cad94ae5b8bfabb`, merge/readback `a1e3c22db016057e1c0f30f972b4530a54b5966a`.
+- Hosted workflows: 6/6 passed before merge.
+- Exact activation blobs read back from main: ledger `0e6576663d801a3f4ec216b2b2d5631638802d58`; event `9e12a17367f0b7b33b34cc3ea8be93693040409d`; receipt `fcf76e09298c66c96a8286c70bf1dcba37b481d0`; projection `a5a2e1039b30773c58ed48b620108ba2cd93fd1f`.
 
 **LOCK NOT SHIPPED / AWAITING BRYCE GO.**
