@@ -1,6 +1,6 @@
 {
   "counts": {
-    "open_issues": 7535,
+    "open_issues": 7506,
     "open_pull_requests": 0,
     "runs_in_progress": 1,
     "runs_queued": 70
@@ -13,6 +13,84 @@
   "pulls_listing": "UNKNOWN",
   "queue_depth_per_runner": 70.0,
   "recently_closed": [
+    {
+      "author": "woahwhattheheck",
+      "base": "main",
+      "branch": "codex/resource-master-uiowa-embedded-payload-readback-20261002-01",
+      "closed_at": "2026-10-02T04:23:03Z",
+      "head_sha": "c85dc34daaefcaeec67b9bc84bec80847f49e21d",
+      "merge_commit_sha": "65b7940b316821ba3aedf39b5d31487d2f13e4f2",
+      "merged_at": "2026-10-02T04:23:03Z",
+      "number": 30207,
+      "state": "MERGED",
+      "title": "Record embedded payload reader activation readback",
+      "updated_at": "2026-10-02T04:23:46Z"
+    },
+    {
+      "author": "woahwhattheheck",
+      "base": "main",
+      "branch": "codex/resource-master-uiowa-embedded-payload-20261002-01",
+      "closed_at": "2026-10-02T04:18:06Z",
+      "head_sha": "198265e082352f5b2900a65a7d6228e7de017bec",
+      "merge_commit_sha": "bbd54c29b4f35eaabe28b97d867bf683364c013d",
+      "merged_at": "2026-10-02T04:18:06Z",
+      "number": 30206,
+      "state": "MERGED",
+      "title": "Activate canonical embedded document payload reader",
+      "updated_at": "2026-10-02T04:18:17Z"
+    },
+    {
+      "author": "woahwhattheheck",
+      "base": "main",
+      "branch": "recovery/uiowa-embedded-payload-20261002",
+      "closed_at": "2026-10-02T02:43:56Z",
+      "head_sha": "b40d047017e89b2591a111576113272c3e963f09",
+      "merge_commit_sha": "8638ebdd83dd78d9857b2379f02476d9ea5b2dc3",
+      "merged_at": "2026-10-02T02:43:56Z",
+      "number": 30205,
+      "state": "MERGED",
+      "title": "Recover embedded reader-document payloads through canonical interchange",
+      "updated_at": "2026-10-02T02:44:06Z"
+    },
+    {
+      "author": "woahwhattheheck",
+      "base": "main",
+      "branch": "recovery/uiowa-useful-stranded-20261002",
+      "closed_at": "2026-10-02T02:33:39Z",
+      "head_sha": "bc69a2ec24048380965c37f6c556f1be69a147ba",
+      "merge_commit_sha": "85aa631f7e7ef219d87a9a8bd290c4e2feead9ec",
+      "merged_at": "2026-10-02T02:33:39Z",
+      "number": 30204,
+      "state": "MERGED",
+      "title": "Recover compatible Iowa export and benchmark improvements",
+      "updated_at": "2026-10-02T02:33:51Z"
+    },
+    {
+      "author": "woahwhattheheck",
+      "base": "main",
+      "branch": "codex/resource-master-command-center-team-workhandoff-readback-20261002-01",
+      "closed_at": "2026-10-02T01:12:20Z",
+      "head_sha": "f03aad1ddd4b8fe2b6a2bc9059f1ffe66725f7ac",
+      "merge_commit_sha": "e012e848add36ffbaf461d6980d139d72d76da63",
+      "merged_at": "2026-10-02T01:12:20Z",
+      "number": 30203,
+      "state": "MERGED",
+      "title": "Reconcile command center workhandoff readback",
+      "updated_at": "2026-10-02T01:12:31Z"
+    },
+    {
+      "author": "woahwhattheheck",
+      "base": "main",
+      "branch": "codex/resource-master-command-center-team-workhandoff-20261002-01",
+      "closed_at": "2026-10-02T01:09:10Z",
+      "head_sha": "064f3cff673a31b05772dca88cdcf23218941bae",
+      "merge_commit_sha": "b6d73ff3c83da6091d2cb08034a5120378f730f3",
+      "merged_at": "2026-10-02T01:09:10Z",
+      "number": 30202,
+      "state": "MERGED",
+      "title": "Advance command center exact team workhandoff resource",
+      "updated_at": "2026-10-02T01:09:20Z"
+    },
     {
       "author": "woahwhattheheck",
       "base": "main",
@@ -129,87 +207,9 @@
       "state": "MERGED",
       "title": "Reconcile pre-GO hardening activation watermark",
       "updated_at": "2026-10-01T10:25:54Z"
-    },
-    {
-      "author": "woahwhattheheck",
-      "base": "main",
-      "branch": "codex/resource-master-prego-hardening-assessment-20261001-01",
-      "closed_at": "2026-10-01T10:19:36Z",
-      "head_sha": "734606459aa27354bc1b26306bf22835de5c48c9",
-      "merge_commit_sha": "6aaf4829c24573f4e11cbf470b4be3aa0e80f4ef",
-      "merged_at": "2026-10-01T10:19:36Z",
-      "number": 30185,
-      "state": "MERGED",
-      "title": "Activate pre-GO hardening assessment resource",
-      "updated_at": "2026-10-01T10:20:07Z"
-    },
-    {
-      "author": "woahwhattheheck",
-      "base": "main",
-      "branch": "codex/private-chargeback-defense-wsgi-terminal-20261001-01",
-      "closed_at": "2026-10-01T05:02:51Z",
-      "head_sha": "f8f3e4e5467afc18a5f0b8526dcedfe52b9a68c2",
-      "merge_commit_sha": "d8946b977bd8c57882cef3df9f7da318f2257d5c",
-      "merged_at": "2026-10-01T05:02:51Z",
-      "number": 30184,
-      "state": "MERGED",
-      "title": "Persist chargeback receiver activation readback and terminal watermark",
-      "updated_at": "2026-10-01T05:04:04Z"
-    },
-    {
-      "author": "woahwhattheheck",
-      "base": "main",
-      "branch": "arc/evidence-14081-20260930",
-      "closed_at": "2026-10-01T04:42:11Z",
-      "head_sha": "54a9fa2583ca92039a751d97808745a5134571ea",
-      "merge_commit_sha": "b81eb2dfc6de402a067ca5a4daab8ef029e1c6b5",
-      "merged_at": "2026-10-01T04:42:11Z",
-      "number": 30183,
-      "state": "MERGED",
-      "title": "Analyze saved Titan ARC aptitude runs",
-      "updated_at": "2026-10-01T04:42:22Z"
-    },
-    {
-      "author": "woahwhattheheck",
-      "base": "main",
-      "branch": "codex/private-chargeback-defense-wsgi-ledger-20261001-01",
-      "closed_at": "2026-10-01T04:40:58Z",
-      "head_sha": "49f50b651a7033d94bfcc3b19fdca8081e558cd0",
-      "merge_commit_sha": "24e12c68fd3ac3c0c3433d7c9de14759efc21e72",
-      "merged_at": "2026-10-01T04:40:58Z",
-      "number": 30182,
-      "state": "MERGED",
-      "title": "Advance private chargeback-defense desk with repaired WSGI receiver",
-      "updated_at": "2026-10-01T04:41:07Z"
-    },
-    {
-      "author": "woahwhattheheck",
-      "base": "main",
-      "branch": "codex/private-chargeback-defense-wsgi-receiver-advancement-20261001-01",
-      "closed_at": "2026-10-01T04:25:39Z",
-      "head_sha": "066d8dacfef295071d9684ce1d49508eb2d312e3",
-      "merge_commit_sha": "42f86a421e99cac7b17b20c0396785e5254087ae",
-      "merged_at": "2026-10-01T04:25:39Z",
-      "number": 30181,
-      "state": "MERGED",
-      "title": "Fix chargeback receiver WSGI Content-Length interoperability",
-      "updated_at": "2026-10-01T04:25:51Z"
-    },
-    {
-      "author": "woahwhattheheck",
-      "base": "main",
-      "branch": "codex/chargeback-defense-private-receiver-adapter-20261001-01",
-      "closed_at": "2026-10-01T01:37:41Z",
-      "head_sha": "39299e0d98f0f6f2a5402c279727605dac34224b",
-      "merge_commit_sha": "f408aaf43e42c56c465bab211b5a6c279c8799f5",
-      "merged_at": "2026-10-01T01:37:41Z",
-      "number": 30180,
-      "state": "MERGED",
-      "title": "Private chargeback-defense receiver adapter (synthetic-only ingress surface)",
-      "updated_at": "2026-10-01T01:37:52Z"
     }
   ],
   "repository": "woahwhattheheck/commons",
   "schema": "commons-github-state/v1",
-  "unchanged_since": "2026-10-02T00:56:23Z"
+  "unchanged_since": "2026-10-02T06:25:48Z"
 }
