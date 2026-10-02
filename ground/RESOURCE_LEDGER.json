@@ -25,6 +25,7 @@
   "priority_queue": [],
   "production_write": false,
   "record_sources": [
+    "inventory/resources/records/codex-uiowa-rfq18649-embedded-payload-interchange-advancement-20261002-01.json",
     "inventory/resources/records/codex-commons-operation-command-center-team-workhandoff-advancement-20261002-01.json",
     "inventory/resources/records/codex-titanmcp-list-messages-cursor-and-after-advancement-20261001-01.json",
     "inventory/resources/records/codex-titanmcp-origin-pair-advancement-20261001-01.json",
@@ -124,15 +125,15 @@
   "schema": "commons-resource-ledger/v2",
   "secrets": false,
   "shared_resource_rule": "ALL_CARRIERS_MAY_USE_ALL_SHARED_RESOURCES; CLAUDE_IS_OWNER_HANDLED",
-  "slack_ts": "1790902786.492209",
+  "slack_ts": "1790913689.434459",
   "snapshot": {
-    "base_main_sha": "5509bd3224b739b8fb425cca9fcd9b8061fe58b2",
-    "observed_at": "2026-10-02T01:02:30Z",
+    "base_main_sha": "8638ebdd83dd78d9857b2379f02476d9ea5b2dc3",
+    "observed_at": "2026-10-02T04:01:29Z",
     "privacy_rule": "Shared account identities, service roles, aggregate quotas, reset states, and operating state may be published for Commons routing. Never persist passwords, tokens, API credentials, recovery or verification links, payment credentials, personal legal identity, or private mail contents.",
     "scope": "Anything convertible into Commons capability or value, including Bryce, devices, subscriptions, models, agents, tools, repositories, builds, data, attention, and external roads.",
     "truth_rule": "Capacity, authority, lifecycle stage, and condition are independent. Declared or cached is not live; reset is not permission; activity is not value."
   },
-  "source_id": "codex-commons-operation-command-center-team-workhandoff-advancement-20261002-01",
+  "source_id": "codex-uiowa-rfq18649-embedded-payload-interchange-advancement-20261002-01",
   "stage_order": [
     "DECLARED",
     "AVAILABLE",
@@ -141,8 +142,9 @@
     "EXERCISED",
     "PRODUCING"
   ],
-  "subject": "MASTER RESOURCE LEDGER — Commons operation command-center exact team workhandoff advancement",
+  "subject": "MASTER RESOURCE LEDGER — canonical embedded-document payload reader activation",
   "supersedes_source_ids": [
+    "codex-commons-operation-command-center-team-workhandoff-advancement-20261002-01",
     "codex-titanmcp-list-messages-cursor-and-after-advancement-20261001-01",
     "codex-titanmcp-origin-pair-advancement-20261001-01",
     "codex-titanmcp-get-mcp-identity-advancement-20261001-01",
@@ -2800,6 +2802,28 @@
       "last_receipt": "codex-commons-prego-hardening-assessment-resource-activation-20261001-01",
       "last_used_at": "2026-10-01T10:05:02Z",
       "stale_after": "next hardening candidate commit, build-order claim, boundary-map change, isolated-restore result, hostile-input result, provider/app-scope change, owner directive, explicit GO, rollback state, source blob or authority change",
+      "priority": 100
+    },
+    {
+      "name": "uiowa-canonical-embedded-document-payload-reader",
+      "kind": "OFFLINE_CANONICAL_XLSX_DOCX_PDF_EMBEDDED_PAYLOAD_READER",
+      "capacity": "LIVE",
+      "stage": "PRODUCING",
+      "condition": "CONSTRAINED",
+      "holder": "Commons / authorized Iowa technical-workshare and interchange operators",
+      "authority": "SHARED_ALL_CARRIERS_PUBLIC_CURRENT_MAIN_READ_EXTRACT_VERIFY_AND_ADAPT; EXPLICIT_CANONICAL_XLSX_WORKSHEET_DOCX_CUSTOM_XML_OR_SINGLE_PDF_JSON_ATTACHMENT_ONLY; STRICT_CANONICAL_JSON_AND_DIGEST_VALIDATION; HUMAN_VIEW_EDITS_NOT_SOURCE; PDF_REQUIRES_OPTIONAL_PYPDF; NO_OFFICE_RENDERING_CLAIM; NO_AUTHENTICITY_OR_ACCEPTANCE_INFERENCE; NO_UNIVERSITY_DATA_PROVIDER_CALL_OUTREACH_SUBMISSION_SIGNATURE_PAYMENT_REVENUE_OR_CASH",
+      "consumer": "Authorized Iowa technical-workshare and interchange operators who receive a disclosed XLSX, DOCX or PDF handoff and need to recover its exact canonical JSON payload without treating edited human views as source truth.",
+      "value": "The landed embedded-to-json command turns three common review-document containers back into the existing strict interchange document, preserving values and authority fields and enabling byte-identical JSON→CSV→JSON continuation for a concrete workshare handoff.",
+      "next_action": "Use embedded-to-json only on explicitly disclosed payload-bearing documents, verify the recovered canonical digest and source authority independently, then continue through the existing interchange commands. Keep ordinary projections, edited prose, page text and worksheet review views outside source custody.",
+      "source": "revenue/uiowa_rfq_18649_interchange; source PR #30205 head b40d047017e89b2591a111576113272c3e963f09 merge 8638ebdd83dd78d9857b2379f02476d9ea5b2dc3",
+      "evidence_ts": "2026-10-02T04:01:29Z",
+      "auth_surface": "Public current-main source and deidentified/local documents run offline without Commons login, browser session, provider credential or repeated approval. XLSX and DOCX digests are verified through the existing canonical codec; PDF needs the optional pypdf dependency. Payload consistency does not prove authenticity, acceptance or agreement with edited human views.",
+      "exact_safe_probe": "Current main 8638ebdd83dd78d9857b2379f02476d9ea5b2dc3 retains README 9e8d1f6b3a52b9e1f6dfbaa602e213dfb3349060, CLI 9864f017b57a0b77a84a5c264db37120fd846f70 and embedded reader d1f82e304ade3361ccda0afbe8ec5e7f754306c1. PR #30205 reports exit 0 on recovered XLSX, DOCX and PDF inputs, six records each, canonical digest f26a8a70c9d1a689673a40cb878c727f2f275af8683d6cf5ad674c92bc1f7a0e and byte-identical JSON→CSV→JSON. source-parses, open-door-guard, muhlnickel-spec-guard and path-manifest succeeded on the immutable head.",
+      "rate_plan_boundary": "Offline standard-library ZIP/XML/JSON work consumes no paid provider allowance; PDF extraction depends on an optional local pypdf installation. A readable payload, matching digest, document presence, source checkout or account connection does not establish authenticity, buyer acceptance, active solicitation, contract, payment, revenue or cash.",
+      "assigned_backlog": "Available to the existing Iowa workshare and interchange lanes. No duplicate reader or verifier-only build order is created. The separate uiowa-100-run-evidence failure is the already-issued UIOWA-100-RUN-EVIDENCE-CONTRACT-REPAIR-20260926-01 lane, not this resource.",
+      "last_receipt": "codex-uiowa-rfq18649-embedded-payload-interchange-advancement-20261002-01",
+      "last_used_at": "2026-10-02T04:01:29Z",
+      "stale_after": "next interchange schema, canonical digest, embedded-part contract, source blob, optional PDF dependency, authority rule, consumer handoff or owner-policy change",
       "priority": 100
     }
   ],
