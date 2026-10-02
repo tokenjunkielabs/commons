@@ -25,7 +25,10 @@ Public offline read/extract/verify is allowed. PDF extraction needs optional `py
 ## Publication
 
 - Commons claim: https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1790913689434459
-- Activation publication: pending
+- Activation PR: https://github.com/woahwhattheheck/commons/pull/30206
+- Activation merge: `bbd54c29b4f35eaabe28b97d867bf683364c013d`
+- Exact current-main readback: four activation blobs and three source blobs matched
+- Hosted checks before merge: `resources-tab-freshness` and `open-door-guard` succeeded; four broad repository checks remained in progress and are not claimed green
 
 ## Watermark
 
@@ -33,4 +36,5 @@ Public offline read/extract/verify is allowed. PDF extraction needs optional `py
 - Activation base main: `8638ebdd83dd78d9857b2379f02476d9ea5b2dc3`
 - Prior terminal Slack timestamp: `1790903569.792859`
 - Claim Slack timestamp: `1790913689.434459`
+- Activation merge/current-main readback: `bbd54c29b4f35eaabe28b97d867bf683364c013d`
 - Remote branches observed: 4578

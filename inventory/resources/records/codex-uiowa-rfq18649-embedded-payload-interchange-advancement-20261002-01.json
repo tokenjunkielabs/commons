@@ -73,8 +73,8 @@
   "verification": {
     "focused_source": "PR_30205_REPORTS_XLSX_DOCX_PDF_EXIT_0_SIX_RECORDS_CANONICAL_DIGEST_F26A8A70_AND_BYTE_IDENTICAL_JSON_CSV_JSON",
     "source_workflows": "SOURCE_PARSES_OPEN_DOOR_GUARD_MUHLNICKEL_SPEC_GUARD_AND_PATH_MANIFEST_SUCCEEDED_ON_IMMUTABLE_HEAD",
-    "resource_ledger": "PENDING_LOCAL_AND_HOSTED_VERIFICATION",
-    "resource_projection": "PENDING_REGENERATION",
+    "resource_ledger": "JSON_PARSE_AND_CANONICAL_ROW_INVARIANTS_PASS",
+    "resource_projection": "18_OF_18_NORMAL_AND_18_OF_18_OPTIMIZED_TESTS_PASS; RESOURCES_TAB_CHECK_FRESH",
     "open_door": "Claimed paths add no authentication, identity, permission, allowlist or payment gate.",
     "privacy": "Only public source identities, exact SHAs, aggregate counts and Slack timestamps are persisted. No credential, private account identifier, customer data or private file name is stored.",
     "zero_fabrication": "Document payload presence and a matching canonical digest do not establish authenticity, human-view agreement, University finding, active solicitation, buyer acceptance, contract, payment, revenue or cash.",
@@ -98,26 +98,31 @@
     "slack_claim": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1790913689434459",
     "source_pull_request": "https://github.com/woahwhattheheck/commons/pull/30205",
     "source_merge": "https://github.com/woahwhattheheck/commons/commit/8638ebdd83dd78d9857b2379f02476d9ea5b2dc3",
-    "activation_pull_request": null,
-    "activation_merge": null,
+    "activation_pull_request": "https://github.com/woahwhattheheck/commons/pull/30206",
+    "activation_merge": "bbd54c29b4f35eaabe28b97d867bf683364c013d",
     "slack_terminal_receipt": null
   },
   "publication": {
-    "state": "PENDING",
+    "state": "MERGED_AND_READ_BACK",
     "activation_base_main_sha": "8638ebdd83dd78d9857b2379f02476d9ea5b2dc3",
-    "pull_request": null,
-    "merge_sha": null,
-    "current_main_sha": null,
-    "exact_current_main_readback": "PENDING",
-    "activation_blobs": {},
-    "hosted_workflows": "Source PR #30205 relevant checks succeeded; activation checks are pending and are not claimed green."
+    "pull_request": "https://github.com/woahwhattheheck/commons/pull/30206",
+    "merge_sha": "bbd54c29b4f35eaabe28b97d867bf683364c013d",
+    "current_main_sha": "bbd54c29b4f35eaabe28b97d867bf683364c013d",
+    "exact_current_main_readback": "MATCHED_4_OF_4_ACTIVATION_BLOBS_AND_3_OF_3_SOURCE_BLOBS",
+    "activation_blobs": {
+      "ground/RESOURCE_LEDGER.json": "a1c29dd25a0e35b38835897e6b628958397a28e2",
+      "inventory/resources/records/codex-uiowa-rfq18649-embedded-payload-interchange-advancement-20261002-01.json": "41ba5f6f7300f1c300fb294d48d849e381dfd3d7",
+      "p/codex-uiowa-rfq18649-embedded-payload-interchange-advancement-20261002-01.md": "f5469eadc785555ca761424a76de28a5ae61fbb8",
+      "resources.html": "3810986b6c954c73e00dc4af6a6d578ad4969810"
+    },
+    "hosted_workflows": "On immutable activation head 198265e082352f5b2900a65a7d6228e7de017bec, resources-tab-freshness and open-door-guard completed success before merge. job-watchdog, path-manifest, muhlnickel-spec-guard and capability-entrypoints remained in progress and are not claimed green."
   },
   "next_watermark": {
-    "observed_at": "2026-10-02T04:01:29Z",
+    "observed_at": "2026-10-02T04:18:05Z",
     "activation_base_main_sha": "8638ebdd83dd78d9857b2379f02476d9ea5b2dc3",
-    "current_main_sha": null,
+    "current_main_sha": "bbd54c29b4f35eaabe28b97d867bf683364c013d",
     "latest_observed_slack_ts": "1790913689.434459",
-    "terminal_slack_ts": null,
+    "terminal_slack_ts": "PENDING_TERMINAL_RECEIPT",
     "inventory_record_id": "codex-uiowa-rfq18649-embedded-payload-interchange-advancement-20261002-01",
     "remote_branches_observed": 4578
   },
