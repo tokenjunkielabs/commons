@@ -147,12 +147,21 @@ def bench_size(size: str, workdir: Path, seed: int) -> dict:
         # Uncounted warmup: warms the page cache and any lazy interpreter work
         # so the counted repeats compare algorithms rather than first-touch.
         timed_run(root, mode, out_dir / mode / "warmup")
-        for _ in range(repeats):
+        for repeat_index in range(repeats):
             gc.collect()
             t, result, written = timed_run(root, mode, out_dir / mode)
+            canonical = result.canonical()
+            # Every counted result must agree, including repeats within a mode.
+            # Keep this outside timed_run: correctness work is not stage timing.
+            if canonicals and canonical != next(iter(canonicals.values())):
+                raise SystemExit(
+                    f"ABORT: counted timing repeat {repeat_index + 1} produced a "
+                    f"different answer at size={size}/{mode}. Refusing to "
+                    "publish a benchmark containing inconsistent answers."
+                )
             for k, v in t.items():
                 timings[mode][k].append(v)
-            canonicals[mode] = result.canonical()
+            canonicals[mode] = canonical
             exports[mode] = written
 
     # Correctness gate. A speedup that changes the answer is not a speedup.
@@ -602,6 +611,8 @@ def write_csv(results: dict, out: Path) -> Path:
         w = csv.DictWriter(fh, fieldnames=fields, lineterminator="\n")
         w.writeheader()
         for size in SIZE_ORDER:
+            if size not in results["sizes"]:
+                continue
             r = results["sizes"][size]
             for mode in wf.MODES:
                 for stage in STAGES + ["total"]:
