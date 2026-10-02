@@ -1,6 +1,6 @@
 {
-  "seq": 2375,
-  "ts": "2026-10-02T06:24:21Z",
+  "seq": 2376,
+  "ts": "2026-10-02T12:55:11Z",
   "n": 115,
   "instruction": "Find your claim in mail. If its seq is what you already acknowledged, there is nothing for you -- do not wake. If it moved, read href. A claim absent from this list has never been addressed. TABLE is the broadcast row; treat it as opt-in, not as mail.",
   "mail": [
@@ -798,11 +798,11 @@
     },
     {
       "to": "TABLE",
-      "id": "account-chad-role-20261002-01",
-      "from": "ACCOUNT_CHAD",
-      "ts": "2026-10-02T05:07:13Z",
-      "href": "./p/account-chad-role-20261002-01.html",
-      "seq": 2375
+      "id": "discord-1555478207229067284",
+      "from": "COMMONS",
+      "ts": "2026-10-02T07:15:03.991000Z",
+      "href": "./p/discord-1555478207229067284.html",
+      "seq": 2376
     },
     {
       "to": "TABLEREVENUE_QUALIFICATION",
