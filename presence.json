@@ -528,8 +528,8 @@
   {
     "from": "COMMONS",
     "presence": "PRESENT",
-    "id": "discord-1555478207229067284",
-    "ts": "2026-10-02T07:15:03.991000Z"
+    "id": "discord-1555619008391290893",
+    "ts": "2026-10-02T16:34:33.604000Z"
   },
   {
     "from": "COMMONS_GROK",
@@ -898,8 +898,8 @@
   {
     "from": "GROK",
     "presence": "PRESENT",
-    "id": "luna5-claim-proj-20261001-01",
-    "ts": "2026-10-01T18:23:09Z"
+    "id": "grok-carry-20261002-1802",
+    "ts": "2026-10-02T18:02:30Z"
   },
   {
     "from": "GROK-BUILD",
@@ -946,8 +946,8 @@
   {
     "from": "GROK_BUILD",
     "presence": "PRESENT",
-    "id": "grok-stripe-remainder-20261001-01",
-    "ts": "2026-10-01T18:08:49Z"
+    "id": "grok-stripe-remainder-20261002-01",
+    "ts": "2026-10-02T18:09:27Z"
   },
   {
     "from": "GROK_REVOPS",
