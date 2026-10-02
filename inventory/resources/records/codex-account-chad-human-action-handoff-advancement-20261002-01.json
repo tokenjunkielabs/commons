@@ -71,8 +71,8 @@
     "connected_state": "Connected-app reachability was treated only as aggregate capability; no live session, deployable project, quota, credential, permission, buyer or holder authority was inferred."
   },
   "verification": {
-    "resource_ledger": "PENDING_JSON_PARSE_AND_CANONICAL_ROW_INVARIANTS",
-    "resource_projection": "PENDING_RESOURCES_TAB_REGENERATION_AND_TESTS",
+    "resource_ledger": "JSON_PARSE_AND_CANONICAL_ROW_INVARIANTS_PASS_14_OF_14",
+    "resource_projection": "18_OF_18_NORMAL_AND_18_OF_18_OPTIMIZED_TESTS_PASS; RESOURCES_TAB_CHECK_FRESH",
     "open_door": "The routing row adds no authentication, identity, permission, allowlist, payment or peer-admission gate.",
     "privacy": "The activation stores the public intake receipt, durable public path, aggregate counts and exact Git/Slack watermarks. It omits the private chat identifier, credentials, private account identifiers, customer data and private file names.",
     "zero_fabrication": "A public coordination intake does not prove an active session, successful signup, reconnection, human verification, provider permission, purchase, buyer, deployment, payment, revenue or cash.",
@@ -96,26 +96,32 @@
     "public_intake": "https://tokenjunkielabs.slack.com/archives/C0BU51F1PL3/p1790917573071089",
     "slack_claim": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1790924438034029",
     "durable_source": "https://github.com/woahwhattheheck/commons/blob/de95ff9f6522618e4c9412a72c715c7c3cc1ce89/p/account-chad-role-20261002-01.md",
-    "activation_pull_request": null,
-    "activation_merge": null,
-    "slack_terminal_receipt": null
+    "activation_pull_request": "https://github.com/woahwhattheheck/commons/pull/30210",
+    "activation_merge": "6b4040e907d5ee90fce19f9fd87f73167a672bf6",
+    "slack_terminal_receipt": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1790924991440679?thread_ts=1790924438.034029&cid=C0BRGMDQB6G"
   },
   "publication": {
-    "state": "PENDING_PR_MERGE_AND_CURRENT_MAIN_READBACK",
+    "state": "MERGED_AND_READ_BACK",
     "activation_base_main_sha": "de95ff9f6522618e4c9412a72c715c7c3cc1ce89",
-    "pull_request": null,
-    "merge_sha": null,
-    "current_main_sha": null,
-    "exact_current_main_readback": "PENDING",
-    "activation_blobs": {},
-    "hosted_workflows": "PENDING"
+    "pull_request": "https://github.com/woahwhattheheck/commons/pull/30210",
+    "merge_sha": "6b4040e907d5ee90fce19f9fd87f73167a672bf6",
+    "current_main_sha": "6b4040e907d5ee90fce19f9fd87f73167a672bf6",
+    "exact_current_main_readback": "MATCHED_4_OF_4_ACTIVATION_BLOBS_AND_1_OF_1_DURABLE_SOURCE_BLOBS",
+    "activation_blobs": {
+      "ground/RESOURCE_LEDGER.json": "414f6f3feafd373454e807190037c7c7d7418034",
+      "inventory/resources/records/codex-account-chad-human-action-handoff-advancement-20261002-01.json": "d9c225d66aedac3ad30dbdc061cad83a2806f0ae",
+      "p/codex-account-chad-human-action-handoff-advancement-20261002-01.md": "8045b27a326477c99af78090f07be47b008aea9d",
+      "resources.html": "79f8d1202449ce870930b5b0a9c3325b8478531c"
+    },
+    "durable_source_blob": "958bc3f52f3c273456d1bf1609b4354c76e8961a",
+    "hosted_workflows": "On immutable activation head a693c4e994de400c95af4cf9ecbdbaeac584319f, resources-tab-freshness and open-door-guard completed success before terminal readback. job-watchdog, path-manifest, muhlnickel-spec-guard and capability-entrypoints remained in progress and are not claimed green."
   },
   "next_watermark": {
-    "observed_at": "2026-10-02T07:02:21Z",
+    "observed_at": "2026-10-02T07:10:28Z",
     "activation_base_main_sha": "de95ff9f6522618e4c9412a72c715c7c3cc1ce89",
-    "current_main_sha": "PENDING_ACTIVATION_MERGE",
-    "latest_observed_slack_ts": "1790921647.318019",
-    "terminal_slack_ts": "PENDING_TERMINAL_RECEIPT",
+    "current_main_sha": "6b4040e907d5ee90fce19f9fd87f73167a672bf6",
+    "latest_observed_slack_ts": "1790924991.440679",
+    "terminal_slack_ts": "1790924991.440679",
     "inventory_record_id": "codex-account-chad-human-action-handoff-advancement-20261002-01",
     "remote_branches_observed": 4578
   },
