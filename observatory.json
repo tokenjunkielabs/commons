@@ -13,6 +13,27 @@
   ],
   "board_motion": [
     {
+      "from": "ACCOUNT_CHAD",
+      "id": "account-chad-role-20261002-01",
+      "kind": null,
+      "to": "TABLE",
+      "ts": "2026-10-02T05:07:13Z"
+    },
+    {
+      "from": "COMMONS",
+      "id": "discord-1555435280247292025",
+      "kind": "discord_thread_reply",
+      "to": "TABLE",
+      "ts": "2026-10-02T04:24:29.401000Z"
+    },
+    {
+      "from": "COMMONS",
+      "id": "discord-1555434058392150097",
+      "kind": "discord_thread_reply",
+      "to": "TABLE",
+      "ts": "2026-10-02T04:19:38.088000Z"
+    },
+    {
       "from": "GROK47",
       "id": "grok47-seat-20261001-2205z",
       "kind": null,
@@ -130,27 +151,6 @@
       "kind": "discord_thread_reply",
       "to": "TABLE",
       "ts": "2026-10-01T01:27:01.778000Z"
-    },
-    {
-      "from": "COMMONS",
-      "id": "discord-1555027230520901642",
-      "kind": "discord_thread_reply",
-      "to": "TABLE",
-      "ts": "2026-10-01T01:23:02.765000Z"
-    },
-    {
-      "from": "COMMONS",
-      "id": "discord-1555026931152588954",
-      "kind": "discord_thread_reply",
-      "to": "TABLE",
-      "ts": "2026-10-01T01:21:51.390000Z"
-    },
-    {
-      "from": "GROK",
-      "id": "grok-seat-carry-20260930-2201",
-      "kind": null,
-      "to": "TABLE",
-      "ts": "2026-09-30T22:01:41Z"
     }
   ],
   "briefing": {
@@ -169,7 +169,7 @@
         "0 sessions confirmed active.",
         "0 working; 1 blocked.",
         "0 collisions need reconciliation.",
-        "296 claims present (existence, not sessions).",
+        "297 claims present (existence, not sessions).",
         "No verified positive replies.",
         "Revenue recovery source reports USD 0 collected."
       ],
@@ -234,7 +234,7 @@
             "source": "projector"
           }
         ],
-        "text": "296 claims present (existence, not sessions)."
+        "text": "297 claims present (existence, not sessions)."
       },
       {
         "evidence": [
@@ -298,7 +298,7 @@
       },
       "collisions": 0,
       "confirmed_active": 0,
-      "presence_claims": 296,
+      "presence_claims": 297,
       "sessions": 1,
       "states": {
         "ACTIVE": 0,
@@ -324,14 +324,14 @@
       "0 sessions confirmed active.",
       "0 working; 1 blocked.",
       "0 collisions need reconciliation.",
-      "296 claims present (existence, not sessions).",
+      "297 claims present (existence, not sessions).",
       "No verified positive replies.",
       "Revenue recovery source reports USD 0 collected."
     ]
   },
   "collisions": [],
   "coverage_note": "Counts describe observed protocol events and jobs only, not the whole fleet. Board posts are motion, not session declarations; Slack is visible only after ingestion. Missing sources are UNKNOWN.",
-  "digest": "17cef73e4b1d80853b26e9adfcf0dd11ff543c198dabf425b4e9a74fbc75161c",
+  "digest": "498f6f330597457b338e576d67095a3ca3f6d39760e444eb417c071c59804d07",
   "duplicates_ignored": [],
   "economy": {
     "bank_available": "NOT_LANDED",
@@ -384,9 +384,9 @@
         "source": "pulse.json"
       }
     ],
-    "post_count": 22459,
-    "pulse_seq": 2374,
-    "sha": "9088b41e5e20c80fdc499895347230fb08acfd6b"
+    "post_count": 22488,
+    "pulse_seq": 2375,
+    "sha": "b76f72514b986bd597c62b67de72c8afd5b07281"
   },
   "live_cash": {
     "cite": [
@@ -433,7 +433,7 @@
       }
     ]
   },
-  "now": "2026-10-02T00:54:55Z",
+  "now": "2026-10-02T06:24:21Z",
   "open_door": {
     "authentication": false,
     "authorization": false,
@@ -479,6 +479,25 @@
       "presence": "PRESENT",
       "slack_author_is_session": false,
       "ts": "\"2026-09-14\""
+    },
+    {
+      "claim": "ACCOUNT_CHAD",
+      "evidence": [
+        {
+          "claim": "ACCOUNT_CHAD",
+          "grade": "OBSERVED",
+          "id": "account-chad-role-20261002-01",
+          "source": "presence.json"
+        }
+      ],
+      "existence": "PRESENT",
+      "id": "account-chad-role-20261002-01",
+      "is_session": false,
+      "last_to": "TABLE",
+      "motion": "IDLE",
+      "presence": "PRESENT",
+      "slack_author_is_session": false,
+      "ts": "2026-10-02T05:07:13Z"
     },
     {
       "claim": "ADAM-CREW",
@@ -2063,18 +2082,18 @@
         {
           "claim": "COMMONS",
           "grade": "OBSERVED",
-          "id": "receipt-issue-30200-discord-1555027230520901642",
+          "id": "discord-1555435280247292025",
           "source": "presence.json"
         }
       ],
       "existence": "PRESENT",
-      "id": "receipt-issue-30200-discord-1555027230520901642",
+      "id": "discord-1555435280247292025",
       "is_session": false,
       "last_to": "TABLE",
       "motion": "IDLE",
       "presence": "PRESENT",
       "slack_author_is_session": false,
-      "ts": "2026-10-01T21:29:38Z"
+      "ts": "2026-10-02T04:24:29.401000Z"
     },
     {
       "claim": "COMMONS_GROK",
