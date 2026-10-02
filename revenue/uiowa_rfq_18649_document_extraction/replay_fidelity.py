@@ -15,6 +15,16 @@ import sys
 import types
 import zipfile
 
+def _display(*values: object) -> None:
+    """Keep console output usable when its encoding cannot represent a quote.
+
+    The JSON artifact always preserves Unicode in UTF-8. A limited terminal gets
+    explicit backslash escapes rather than changing the quote or failing a run.
+    """
+    text = ' '.join(str(value) for value in values) + '\n'
+    encoding = getattr(sys.stdout, 'encoding', None) or 'utf-8'
+    sys.stdout.write(text.encode(encoding, 'backslashreplace').decode(encoding))
+
 def main(argv: list[str] | None=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--baseline', type=Path, required=True, help='Original #16120 extract.py, Git blob d275410f...')
@@ -91,16 +101,16 @@ def main(argv: list[str] | None=None) -> int:
         if not all(checks.values()):
             raise RuntimeError(checks)
         packet = {'schema': 'uiowa.extraction-fidelity-rehearsal.v1', 'synthetic': True, 'baseline_git_blob': blob(before_raw), 'candidate_git_blob': blob(after_raw), 'checks': checks, 'cases': rows}
-        (OUT / 'rehearsal.json').write_text(json.dumps(packet, indent=2, ensure_ascii=False) + '\n')
-        print(json.dumps({'checks': checks, 'source': blob(after_raw)}, indent=2))
+        (OUT / 'rehearsal.json').write_text(json.dumps(packet, indent=2, ensure_ascii=False) + '\n', encoding='utf-8')
+        _display(json.dumps({'checks': checks, 'source': blob(after_raw)}, indent=2))
         for row in rows:
-            print('\n', row['id'])
+            _display('\n', row['id'])
             for label, res in row['results'].items():
                 if 'returned' in res:
                     r = res['returned']
-                    print(label, r['status'], [(s['locator'], s['text'], s['heading_path']) for s in r['segments']], r['warnings'])
+                    _display(label, r['status'], [(s['locator'], s['text'], s['heading_path']) for s in r['segments']], r['warnings'])
                 else:
-                    print(label, res)
+                    _display(label, res)
         return 0
     except (OSError, RuntimeError, ValueError, ImportError) as exc:
         print(f'REPLAY_ERROR:{type(exc).__name__}:{exc}', file=sys.stderr)

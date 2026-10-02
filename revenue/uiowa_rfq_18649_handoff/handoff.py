@@ -11,7 +11,9 @@ import argparse
 import html
 import math
 import json
+import os
 import sys
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable
@@ -635,12 +637,47 @@ def command_validate(path: str, json_output: bool) -> int:
     return 2 if any(f.level == "ERROR" for f in findings) else 0
 
 
-def command_render(path: str, output: str | None) -> int:
+def _publish_new_report(output: str, rendered: str) -> None:
+    """Publish a complete UTF-8 report without replacing any existing path.
+
+    Stage in the destination directory, close the completed file, then use an
+    exclusive hard-link creation as the commit point. Existing reports, input
+    aliases, symlinks and a competing writer's output cannot be overwritten.
+    A filesystem without hard-link support raises an ordinary output error;
+    there is deliberately no non-atomic or overwriting fallback.
+
+    This is no-clobber publication, not a power-loss durability guarantee.
+    """
+    payload = rendered.encode("utf-8")
+    requested = Path(output)
+    parent = requested.parent.resolve(strict=True)
+    destination = parent / requested.name
+    temporary: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="wb", dir=parent, prefix=".handoff-report-", suffix=".tmp", delete=False,
+        ) as handle:
+            temporary = Path(handle.name)
+            handle.write(payload)
+            handle.flush()
+            os.fsync(handle.fileno())
+        # Do not replace this with os.replace or an exists()/write_text pair:
+        # neither preserves an existing destination under a competing writer.
+        os.link(temporary, destination)
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
+
+
+def command_render(path: str, output: str | None, *, no_clobber: bool = False) -> int:
     packet = load_packet(path)
     findings = validate(packet)
     rendered = render(packet, findings)
     if output:
-        Path(output).write_text(rendered, encoding="utf-8")
+        if no_clobber:
+            _publish_new_report(output, rendered)
+        else:
+            Path(output).write_text(rendered, encoding="utf-8")
     else:
         print(rendered)
     return 2 if any(f.level == "ERROR" for f in findings) else 0
@@ -657,6 +694,8 @@ def build_parser() -> argparse.ArgumentParser:
     render_parser = subparsers.add_parser("render", help="Render a handoff JSON packet as Markdown")
     render_parser.add_argument("path")
     render_parser.add_argument("-o", "--output")
+    render_parser.add_argument("--no-clobber", action="store_true",
+                               help="Publish a complete new report without replacing an existing output path")
 
     return parser
 
@@ -667,7 +706,7 @@ def main(argv: list[str] | None = None) -> int:
         if args.command == "validate":
             return command_validate(args.path, args.json_output)
         if args.command == "render":
-            return command_render(args.path, args.output)
+            return command_render(args.path, args.output, no_clobber=args.no_clobber)
     except (OSError, ValueError, UnicodeError, RecursionError) as exc:
         finding = Finding("ERROR", "INPUT_OR_OUTPUT_ERROR", "$", str(exc))
         if args.command == "validate" and args.json_output:
