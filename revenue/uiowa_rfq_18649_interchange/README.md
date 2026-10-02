@@ -29,5 +29,20 @@ python -m unittest -v test_transport.py
 
 ## Scope
 
+### Recover a disclosed machine payload
+
+`python cli.py embedded-to-json review.docx /tmp/recovered.json` also accepts
+the recovered KESTREL-I96 XLSX and PDF reader packages. It reads only their
+explicit `Canonical` worksheet, `customXml/uiowa-interchange.xml` part, or
+single `uiowa-interchange.json` attachment. DOCX/XLSX payload digests are checked
+with the existing canonical codec; duplicate JSON keys and lossy decimal tokens
+are rejected by that same codec. It preserves the payload's existing values and
+authority fields without adopting the old contribution's local fixture schema.
+Ordinary reader projections without these payloads remain projections and return
+a clear error from this command. Edited prose, page text and worksheet review
+views are never converted into records. This is payload recovery, not proof of
+authenticity or agreement with edited human views. PDF input needs `pypdf`.
+Existing import/export and projection commands are unchanged.
+
 No University records, live provider calls, scheduling, or occupied
 workbench/compiler edits.
