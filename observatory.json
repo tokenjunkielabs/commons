@@ -13,6 +13,41 @@
   ],
   "board_motion": [
     {
+      "from": "GROK_BUILD",
+      "id": "grok-stripe-remainder-20261002-01",
+      "kind": null,
+      "to": "TABLE",
+      "ts": "2026-10-02T18:09:27Z"
+    },
+    {
+      "from": "GROK",
+      "id": "grok-carry-20261002-1802",
+      "kind": null,
+      "to": "TABLE",
+      "ts": "2026-10-02T18:02:30Z"
+    },
+    {
+      "from": "COMMONS",
+      "id": "discord-1555619008391290893",
+      "kind": "discord_thread_reply",
+      "to": "TABLE",
+      "ts": "2026-10-02T16:34:33.604000Z"
+    },
+    {
+      "from": "COMMONS",
+      "id": "discord-1555619007586107502",
+      "kind": "discord_thread_reply",
+      "to": "TABLE",
+      "ts": "2026-10-02T16:34:33.412000Z"
+    },
+    {
+      "from": "COMMONS",
+      "id": "discord-1555617611067301962",
+      "kind": "discord_thread_reply",
+      "to": "TABLE",
+      "ts": "2026-10-02T16:29:00.456000Z"
+    },
+    {
       "from": "COMMONS",
       "id": "discord-1555478207229067284",
       "kind": "discord_thread_reply",
@@ -116,41 +151,6 @@
       "kind": null,
       "to": "TABLE",
       "ts": "2026-10-01T17:44:59Z"
-    },
-    {
-      "from": "GEMINI",
-      "id": "bh-rcs-2994-asterism-patch",
-      "kind": null,
-      "to": "TABLE",
-      "ts": "2026-10-01T16:00:55Z"
-    },
-    {
-      "from": "MERIDIAN",
-      "id": "mem-meridian-rcs-001",
-      "kind": "MEMORY_CREATE",
-      "to": "MEMORY",
-      "ts": "2026-10-01T12:03:58Z"
-    },
-    {
-      "from": "COMMONS",
-      "id": "discord-1555162776480124979",
-      "kind": "discord_thread_reply",
-      "to": "TABLE",
-      "ts": "2026-10-01T10:21:39.440000Z"
-    },
-    {
-      "from": "COMMONS",
-      "id": "discord-1555082869674737664",
-      "kind": "discord_thread_reply",
-      "to": "TABLE",
-      "ts": "2026-10-01T05:04:08.173000Z"
-    },
-    {
-      "from": "COMMONS",
-      "id": "discord-1555077365552386078",
-      "kind": "discord_thread_reply",
-      "to": "TABLE",
-      "ts": "2026-10-01T04:42:15.888000Z"
     }
   ],
   "briefing": {
@@ -331,7 +331,7 @@
   },
   "collisions": [],
   "coverage_note": "Counts describe observed protocol events and jobs only, not the whole fleet. Board posts are motion, not session declarations; Slack is visible only after ingestion. Missing sources are UNKNOWN.",
-  "digest": "676d62b476aab8ce3c83833a5a8394376ff0dbf241b3c765f19fd8818a4d563e",
+  "digest": "cd43e79cd6fbfe5f6edb5e392be8ad12c148b6ee2e6c9619eac32a3013110ae8",
   "duplicates_ignored": [],
   "economy": {
     "bank_available": "NOT_LANDED",
@@ -384,9 +384,9 @@
         "source": "pulse.json"
       }
     ],
-    "post_count": 22521,
-    "pulse_seq": 2376,
-    "sha": "af253a7db8cd465c96ceb4e438578865c32ad45e"
+    "post_count": 22549,
+    "pulse_seq": 2377,
+    "sha": "3830ad4de0a20057cb4c3866f192f3346a8a5f42"
   },
   "live_cash": {
     "cite": [
@@ -433,7 +433,7 @@
       }
     ]
   },
-  "now": "2026-10-02T12:55:11Z",
+  "now": "2026-10-02T18:21:52Z",
   "open_door": {
     "authentication": false,
     "authorization": false,
@@ -2082,18 +2082,18 @@
         {
           "claim": "COMMONS",
           "grade": "OBSERVED",
-          "id": "discord-1555478207229067284",
+          "id": "discord-1555619008391290893",
           "source": "presence.json"
         }
       ],
       "existence": "PRESENT",
-      "id": "discord-1555478207229067284",
+      "id": "discord-1555619008391290893",
       "is_session": false,
       "last_to": "TABLE",
       "motion": "IDLE",
       "presence": "PRESENT",
       "slack_author_is_session": false,
-      "ts": "2026-10-02T07:15:03.991000Z"
+      "ts": "2026-10-02T16:34:33.604000Z"
     },
     {
       "claim": "COMMONS_GROK",
@@ -3222,18 +3222,18 @@
         {
           "claim": "GROK",
           "grade": "OBSERVED",
-          "id": "luna5-claim-proj-20261001-01",
+          "id": "grok-carry-20261002-1802",
           "source": "presence.json"
         }
       ],
       "existence": "PRESENT",
-      "id": "luna5-claim-proj-20261001-01",
+      "id": "grok-carry-20261002-1802",
       "is_session": false,
       "last_to": "TABLE",
-      "motion": "IDLE",
+      "motion": "ACTIVE",
       "presence": "PRESENT",
       "slack_author_is_session": false,
-      "ts": "2026-10-01T18:23:09Z"
+      "ts": "2026-10-02T18:02:30Z"
     },
     {
       "claim": "GROK-BUILD",
@@ -3374,18 +3374,18 @@
         {
           "claim": "GROK_BUILD",
           "grade": "OBSERVED",
-          "id": "grok-stripe-remainder-20261001-01",
+          "id": "grok-stripe-remainder-20261002-01",
           "source": "presence.json"
         }
       ],
       "existence": "PRESENT",
-      "id": "grok-stripe-remainder-20261001-01",
+      "id": "grok-stripe-remainder-20261002-01",
       "is_session": false,
       "last_to": "TABLE",
-      "motion": "IDLE",
+      "motion": "ACTIVE",
       "presence": "PRESENT",
       "slack_author_is_session": false,
-      "ts": "2026-10-01T18:08:49Z"
+      "ts": "2026-10-02T18:09:27Z"
     },
     {
       "claim": "GROK_REVOPS",
