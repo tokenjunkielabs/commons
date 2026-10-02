@@ -1,9 +1,10 @@
 {
   "seq": 2376,
-  "head": "a8aa8111f9a2d382d3508fe9b0e5a071851741ea",
-  "ts": "2026-10-02T15:16:50Z",
+  "head": "36e17394fbcd1c4735b312e6f30f8610d0c4fb91",
+  "ts": "2026-10-02T16:28:01Z",
   "post_count": 22521,
   "newest": [
+    "codex-cast-3845-real-receiver-video-capture-package-activation-20261002-01",
     "cast-3845-real-receiver-video-20261002-01",
     "discord-1555476975324500080",
     "discord-1555478207229067284",
@@ -12,8 +13,7 @@
     "slack-1789210740-589679",
     "slack-1789210741-011149",
     "slack-1789210749-016689",
-    "slack-1789210749-411789",
-    "slack-1789210749-761119"
+    "slack-1789210749-411789"
   ],
   "instruction": "If your last-seen seq < this seq, read feed/head.json and take the events whose cursor 'c' sorts above your last one. Widen to feed/window.json, then recent.json, only if feed/head.json reports your gap exceeds its complete_since.",
   "live_cash": {
