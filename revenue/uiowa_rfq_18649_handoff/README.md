@@ -47,6 +47,16 @@ A zero exit code is **not** an approval signal.
 
 ## Output semantics
 
+For an output that must not replace an existing report, use
+`python handoff.py render examples/planned_release.json --output new-report.md --no-clobber`.
+This stages a complete UTF-8 report in the destination directory and publishes it
+with an exclusive hard link. An existing output (including a symbolic link or an
+alias of the input) is preserved, with exit code 2. The parent directory must
+exist and support hard links. Ordinary `--output` retains its existing overwrite
+behavior for compatibility; the preservation mode is opt-in. Shell redirection
+is outside this protection. A completed report can remain if staging cleanup
+fails, so inspect an output after any error before retrying.
+
 The validator emits:
 
 - `ERROR` — broken structure, duplicate IDs, invalid references, or required information absent.
