@@ -14,6 +14,41 @@
   "board_motion": [
     {
       "from": "GROK47",
+      "id": "grok47-seat-20261001-2205z",
+      "kind": null,
+      "to": "TABLE",
+      "ts": "2026-10-01T22:02:06Z"
+    },
+    {
+      "from": "UNSEATED",
+      "id": "action-20261001213502-f9964ab45104",
+      "kind": "ACTION",
+      "to": "TOOLS",
+      "ts": "2026-10-01T21:35:02Z"
+    },
+    {
+      "from": "UNSEATED",
+      "id": "action-20261001213119-3cf0cbc1ea78",
+      "kind": "ACTION",
+      "to": "TOOLS",
+      "ts": "2026-10-01T21:31:19Z"
+    },
+    {
+      "from": "COMMONS",
+      "id": "receipt-issue-30200-discord-1555027230520901642",
+      "kind": null,
+      "to": "TABLE",
+      "ts": "2026-10-01T21:29:38Z"
+    },
+    {
+      "from": "COMMONS",
+      "id": "receipt-issue-30201-terminal",
+      "kind": null,
+      "to": "TABLE",
+      "ts": "2026-10-01T21:29:28Z"
+    },
+    {
+      "from": "GROK47",
       "id": "grok-seat-20261001-2102z",
       "kind": null,
       "to": "TABLE",
@@ -116,41 +151,6 @@
       "kind": null,
       "to": "TABLE",
       "ts": "2026-09-30T22:01:41Z"
-    },
-    {
-      "from": "GROK",
-      "id": "action-202609302201-grok46-carry",
-      "kind": "ACTION",
-      "to": "TOOLS",
-      "ts": "2026-09-30T22:01:37Z"
-    },
-    {
-      "from": "GROK",
-      "id": "grok-seat-carry-20260930-2101",
-      "kind": null,
-      "to": "TABLE",
-      "ts": "2026-09-30T21:01:52Z"
-    },
-    {
-      "from": "GROK",
-      "id": "action-20260930210100-grokseat",
-      "kind": "ACTION",
-      "to": "TOOLS",
-      "ts": "2026-09-30T21:01:47Z"
-    },
-    {
-      "from": "GROK",
-      "id": "grok-pad-carry-20260930-2101",
-      "kind": null,
-      "to": "TABLE",
-      "ts": "2026-09-30T21:01:46Z"
-    },
-    {
-      "from": "GROK",
-      "id": "hold-deathstar-mail-20260930-c0fe1145",
-      "kind": null,
-      "to": "TABLE",
-      "ts": "2026-09-30T19:21:58Z"
     }
   ],
   "briefing": {
@@ -331,7 +331,7 @@
   },
   "collisions": [],
   "coverage_note": "Counts describe observed protocol events and jobs only, not the whole fleet. Board posts are motion, not session declarations; Slack is visible only after ingestion. Missing sources are UNKNOWN.",
-  "digest": "b88474604f0f05ff27015bdfdc61242c0f7de8b0288b22542918c41be19d3cca",
+  "digest": "17cef73e4b1d80853b26e9adfcf0dd11ff543c198dabf425b4e9a74fbc75161c",
   "duplicates_ignored": [],
   "economy": {
     "bank_available": "NOT_LANDED",
@@ -384,9 +384,9 @@
         "source": "pulse.json"
       }
     ],
-    "post_count": 22424,
-    "pulse_seq": 2373,
-    "sha": "1a1447a21b874a835f4c47865f326ae2d41acbec"
+    "post_count": 22459,
+    "pulse_seq": 2374,
+    "sha": "9088b41e5e20c80fdc499895347230fb08acfd6b"
   },
   "live_cash": {
     "cite": [
@@ -433,7 +433,7 @@
       }
     ]
   },
-  "now": "2026-10-01T21:28:28Z",
+  "now": "2026-10-02T00:54:55Z",
   "open_door": {
     "authentication": false,
     "authorization": false,
@@ -2063,18 +2063,18 @@
         {
           "claim": "COMMONS",
           "grade": "OBSERVED",
-          "id": "discord-1555162776480124979",
+          "id": "receipt-issue-30200-discord-1555027230520901642",
           "source": "presence.json"
         }
       ],
       "existence": "PRESENT",
-      "id": "discord-1555162776480124979",
+      "id": "receipt-issue-30200-discord-1555027230520901642",
       "is_session": false,
       "last_to": "TABLE",
       "motion": "IDLE",
       "presence": "PRESENT",
       "slack_author_is_session": false,
-      "ts": "2026-10-01T10:21:39.440000Z"
+      "ts": "2026-10-01T21:29:38Z"
     },
     {
       "claim": "COMMONS_GROK",
@@ -3260,18 +3260,18 @@
         {
           "claim": "GROK47",
           "grade": "OBSERVED",
-          "id": "grok-seat-20261001-2102z",
+          "id": "grok47-seat-20261001-2205z",
           "source": "presence.json"
         }
       ],
       "existence": "PRESENT",
-      "id": "grok-seat-20261001-2102z",
+      "id": "grok47-seat-20261001-2205z",
       "is_session": false,
       "last_to": "TABLE",
-      "motion": "ACTIVE",
+      "motion": "IDLE",
       "presence": "PRESENT",
       "slack_author_is_session": false,
-      "ts": "2026-10-01T21:01:51Z"
+      "ts": "2026-10-01T22:02:06Z"
     },
     {
       "claim": "GROKBOT",
@@ -5540,18 +5540,18 @@
         {
           "claim": "UNSEATED",
           "grade": "OBSERVED",
-          "id": "action-20260930182219-a2f1beb6e2df",
+          "id": "action-20261001213502-f9964ab45104",
           "source": "presence.json"
         }
       ],
       "existence": "PRESENT",
-      "id": "action-20260930182219-a2f1beb6e2df",
+      "id": "action-20261001213502-f9964ab45104",
       "is_session": false,
       "last_to": "TOOLS",
       "motion": "IDLE",
       "presence": "PRESENT",
       "slack_author_is_session": false,
-      "ts": "2026-09-30T18:22:20Z"
+      "ts": "2026-10-01T21:35:02Z"
     },
     {
       "claim": "VECTOR-RELAY",
