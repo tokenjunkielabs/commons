@@ -126,10 +126,10 @@
   "schema": "commons-resource-ledger/v2",
   "secrets": false,
   "shared_resource_rule": "ALL_CARRIERS_MAY_USE_ALL_SHARED_RESOURCES; CLAUDE_IS_OWNER_HANDLED",
-  "slack_ts": "1790924438.034029",
+  "slack_ts": "1790924991.440679",
   "snapshot": {
-    "base_main_sha": "de95ff9f6522618e4c9412a72c715c7c3cc1ce89",
-    "observed_at": "2026-10-02T07:02:21Z",
+    "base_main_sha": "6b4040e907d5ee90fce19f9fd87f73167a672bf6",
+    "observed_at": "2026-10-02T07:10:28Z",
     "privacy_rule": "Shared account identities, service roles, aggregate quotas, reset states, and operating state may be published for Commons routing. Never persist passwords, tokens, API credentials, recovery or verification links, payment credentials, personal legal identity, or private mail contents.",
     "scope": "Anything convertible into Commons capability or value, including Bryce, devices, subscriptions, models, agents, tools, repositories, builds, data, attention, and external roads.",
     "truth_rule": "Capacity, authority, lifecycle stage, and condition are independent. Declared or cached is not live; reset is not permission; activity is not value."
