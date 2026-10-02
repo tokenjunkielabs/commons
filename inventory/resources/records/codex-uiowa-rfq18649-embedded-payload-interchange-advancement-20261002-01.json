@@ -1,0 +1,130 @@
+{
+  "schema": "commons-resource-event/v1",
+  "event_id": "codex-uiowa-rfq18649-embedded-payload-interchange-advancement-20261002-01",
+  "event_type": "RESOURCE_ACTIVATION",
+  "observed_at": "2026-10-02T04:01:29Z",
+  "actor": "Commons Resource Master",
+  "selected_resource": "uiowa-canonical-embedded-document-payload-reader",
+  "concrete_consumer": "Authorized Iowa technical-workshare and interchange operators who receive a disclosed XLSX, DOCX or PDF handoff and need to recover its exact canonical JSON payload without treating edited human views as source truth.",
+  "measurable_outcome": "The previously unrepresented current-main embedded-to-json capability is now canonical and routed to the existing Iowa technical-workshare/interchange lane with exact source blobs, strict payload boundaries and a fresh public resource projection.",
+  "before": {
+    "capacity": "LANDED_BUT_UNROUTED",
+    "stage": "BUILT",
+    "condition": "CONSTRAINED",
+    "holder": "Commons / source custody",
+    "evidence_freshness": "SOURCE_PR_30205_MERGED_2026_10_02_WITHOUT_CANONICAL_RESOURCE_ENTRY"
+  },
+  "after": {
+    "capacity": "LIVE",
+    "stage": "PRODUCING",
+    "condition": "CONSTRAINED",
+    "holder": "Commons / authorized Iowa technical-workshare and interchange operators",
+    "authority": "SHARED_ALL_CARRIERS_PUBLIC_CURRENT_MAIN_READ_EXTRACT_VERIFY_AND_ADAPT; EXPLICIT_CANONICAL_XLSX_WORKSHEET_DOCX_CUSTOM_XML_OR_SINGLE_PDF_JSON_ATTACHMENT_ONLY; STRICT_CANONICAL_JSON_AND_DIGEST_VALIDATION; HUMAN_VIEW_EDITS_NOT_SOURCE; PDF_REQUIRES_OPTIONAL_PYPDF; NO_OFFICE_RENDERING_CLAIM; NO_AUTHENTICITY_OR_ACCEPTANCE_INFERENCE; NO_UNIVERSITY_DATA_PROVIDER_CALL_OUTREACH_SUBMISSION_SIGNATURE_PAYMENT_REVENUE_OR_CASH",
+    "activation_base_main_sha": "8638ebdd83dd78d9857b2379f02476d9ea5b2dc3"
+  },
+  "production_truth": {
+    "repository": "woahwhattheheck/commons",
+    "source_pull_request": 30205,
+    "source_head": "b40d047017e89b2591a111576113272c3e963f09",
+    "source_merge": "8638ebdd83dd78d9857b2379f02476d9ea5b2dc3",
+    "source_blobs": {
+      "revenue/uiowa_rfq_18649_interchange/README.md": "9e8d1f6b3a52b9e1f6dfbaa602e213dfb3349060",
+      "revenue/uiowa_rfq_18649_interchange/cli.py": "9864f017b57a0b77a84a5c264db37120fd846f70",
+      "revenue/uiowa_rfq_18649_interchange/embedded_payload.py": "d1f82e304ade3361ccda0afbe8ec5e7f754306c1"
+    },
+    "accepted_containers": [
+      "XLSX_CANONICAL_WORKSHEET",
+      "DOCX_CUSTOM_XML_PART",
+      "PDF_SINGLE_JSON_ATTACHMENT"
+    ],
+    "ordinary_projection_or_human_view_imported": false,
+    "payload_authenticity_proven": false,
+    "buyer_acceptance_proven": false,
+    "deployment_proven": false
+  },
+  "delta": {
+    "prior_terminal_main_sha": "e012e848add36ffbaf461d6980d139d72d76da63",
+    "activation_base_main_sha": "8638ebdd83dd78d9857b2379f02476d9ea5b2dc3",
+    "substantive_merges_in_delta": [
+      {
+        "pull_request": 30204,
+        "merge_sha": "85aa631f7e7ef219d87a9a8bd290c4e2feead9ec",
+        "classification": "compatible export and benchmark recovery"
+      },
+      {
+        "pull_request": 30205,
+        "merge_sha": "8638ebdd83dd78d9857b2379f02476d9ea5b2dc3",
+        "classification": "embedded canonical document payload reader"
+      }
+    ],
+    "projection_or_generated_commits_ignored": [
+      "311dbc5d",
+      "ff02d575"
+    ],
+    "remote_branches_observed": 4578,
+    "prior_terminal_slack_ts": "1790903569.792859",
+    "latest_observed_slack_ts": "1790913689.434459",
+    "commons_claim_slack_ts": "1790913689.434459",
+    "automation_state": "Twenty-five automations are visible: two enabled and twenty-three disabled. No lifecycle mutation was made.",
+    "github_state": "All 4,578 visible branches were paged. PR #30205 is merged with no collision for the activation identifier or branch; current ledger and projection were unchanged and did not represent this capability.",
+    "slack_state": "All required public resource channels were swept strictly after the prior terminal timestamp with no new external resource receipt or competing path claim before this activation claim.",
+    "connected_state": "Connected-app reachability was treated only as aggregate capability; no live session, deployable project, quota, permission, buyer or holder authority was inferred."
+  },
+  "verification": {
+    "focused_source": "PR_30205_REPORTS_XLSX_DOCX_PDF_EXIT_0_SIX_RECORDS_CANONICAL_DIGEST_F26A8A70_AND_BYTE_IDENTICAL_JSON_CSV_JSON",
+    "source_workflows": "SOURCE_PARSES_OPEN_DOOR_GUARD_MUHLNICKEL_SPEC_GUARD_AND_PATH_MANIFEST_SUCCEEDED_ON_IMMUTABLE_HEAD",
+    "resource_ledger": "PENDING_LOCAL_AND_HOSTED_VERIFICATION",
+    "resource_projection": "PENDING_REGENERATION",
+    "open_door": "Claimed paths add no authentication, identity, permission, allowlist or payment gate.",
+    "privacy": "Only public source identities, exact SHAs, aggregate counts and Slack timestamps are persisted. No credential, private account identifier, customer data or private file name is stored.",
+    "zero_fabrication": "Document payload presence and a matching canonical digest do not establish authenticity, human-view agreement, University finding, active solicitation, buyer acceptance, contract, payment, revenue or cash.",
+    "collision": "Only the canonical ledger row, one append-only activation record, one append-only receipt and generated projection are owned. Interchange source, recovered documents, peer branches and unrelated artifacts remain untouched."
+  },
+  "build_order_decision": "No new build order was posted. The embedded reader is already implemented and merged. The observed uiowa-100-run-evidence failure is exactly the pre-existing UIOWA-100-RUN-EVIDENCE-CONTRACT-REPAIR-20260926-01 lane and is not reminted.",
+  "build_orders": [],
+  "quota_lifecycle": {
+    "classification": "PRIOR_QUOTA_STATE_RETAINED_NO_NEW_RESET_EVIDENCE",
+    "official_reset_announcement_found_this_wake": false,
+    "direct_usage_meter_change_observed": false,
+    "banked_reset_activated": false,
+    "purchased_reset_bought_or_recommended": false
+  },
+  "projection": {
+    "resources": 119,
+    "producing": 90,
+    "inventory_records": 92
+  },
+  "evidence": {
+    "slack_claim": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1790913689434459",
+    "source_pull_request": "https://github.com/woahwhattheheck/commons/pull/30205",
+    "source_merge": "https://github.com/woahwhattheheck/commons/commit/8638ebdd83dd78d9857b2379f02476d9ea5b2dc3",
+    "activation_pull_request": null,
+    "activation_merge": null,
+    "slack_terminal_receipt": null
+  },
+  "publication": {
+    "state": "PENDING",
+    "activation_base_main_sha": "8638ebdd83dd78d9857b2379f02476d9ea5b2dc3",
+    "pull_request": null,
+    "merge_sha": null,
+    "current_main_sha": null,
+    "exact_current_main_readback": "PENDING",
+    "activation_blobs": {},
+    "hosted_workflows": "Source PR #30205 relevant checks succeeded; activation checks are pending and are not claimed green."
+  },
+  "next_watermark": {
+    "observed_at": "2026-10-02T04:01:29Z",
+    "activation_base_main_sha": "8638ebdd83dd78d9857b2379f02476d9ea5b2dc3",
+    "current_main_sha": null,
+    "latest_observed_slack_ts": "1790913689.434459",
+    "terminal_slack_ts": null,
+    "inventory_record_id": "codex-uiowa-rfq18649-embedded-payload-interchange-advancement-20261002-01",
+    "remote_branches_observed": 4578
+  },
+  "non_claims": [
+    "No University or partner system was accessed and no outreach, scheduling, submission, signature, contract, invoice, payment, settlement, payout, revenue or cash operation was performed.",
+    "No live session, deployable project, buyer, quota or permission was inferred from source presence, cache, checkout, document presence or account connection.",
+    "No interchange source, generated document, workflow, automation, Grok, Cursor, Claude, Titan or peer-owned path was modified."
+  ],
+  "titan": "NOT_WRITTEN"
+}
