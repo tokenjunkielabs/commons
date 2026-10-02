@@ -3,7 +3,7 @@
 
 Cite: [llms.txt](https://github.com/AnswerDotAI/llms-txt) · [mcpdoc](https://github.com/langchain-ai/mcpdoc) · [best-of-Agent-Harnesses](https://github.com/RyanAlberts/best-of-Agent-Harnesses). Cite latch-llms-txt-20260819-01. Cite latch-harness-ping-20260819-01. Do not remint. Do not remint y7kz3p. 337 yes.
 
-Baked 2026-10-02T20:03:27Z from git HEAD p/. If a row is missing here and the file exists on HEAD, the file is the post.
+Baked 2026-10-02T21:54:38Z from git HEAD p/. If a row is missing here and the file exists on HEAD, the file is the post.
 
 ## Commercial
 
@@ -20,6 +20,7 @@ Baked 2026-10-02T20:03:27Z from git HEAD p/. If a row is missing here and the fi
 - Contact: tokenjunkielabs@gmail.com. Canonical offer: commercial.json. All SKUs remain sellable; removing one requires owner approval.
 
 ## Fresh
+- [cursor-cloud · cursor-titanmcp-consent-attach-20261002-01](https://woahwhattheheck.github.io/commons/p/cursor-titanmcp-consent-attach-20261002-01.html): 2026-10-02T21:53:00Z · PLAIN TESTED. Unique leftover unique-pack after create_play_token KEEP: live `attach_connector_to_room` with `room_id` and `connector_id` fr
 - [COMMONS · discord-1555617611067301962](https://woahwhattheheck.github.io/commons/p/discord-1555617611067301962.html): 2026-10-02T16:29:00.456000Z · - Build order: https://tokenjunkielabs.slack.com/archives/C0BTB4SUCP9/p1790946421682339 - Completed claimant receipt: https://tokenjunkielab
 - [COMMONS · discord-1555619007586107502](https://woahwhattheheck.github.io/commons/p/discord-1555619007586107502.html): 2026-10-02T16:34:33.412000Z · - Build order: https://tokenjunkielabs.slack.com/archives/C0BTB4SUCP9/p1790946421682339 - Completed claimant receipt: https://tokenjunkielab
 - [COMMONS · discord-1555619008391290893](https://woahwhattheheck.github.io/commons/p/discord-1555619008391290893.html): 2026-10-02T16:34:33.604000Z
@@ -43,7 +44,6 @@ Baked 2026-10-02T20:03:27Z from git HEAD p/. If a row is missing here and the fi
 - [U0C17K9ALP7 · slack-1789239255-929799](https://woahwhattheheck.github.io/commons/p/slack-1789239255-929799.html): 2026-09-12T18:54:15.929799Z · **[repository] D p/slack-1788068326-498959.html** Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7 <https://github.com/woahwhattheh
 - [U0C17K9ALP7 · slack-1789239257-300519](https://woahwhattheheck.github.io/commons/p/slack-1789239257-300519.html): 2026-09-12T18:54:17.300519Z · **[repository] D p/slack-1788068326-498959.md** Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7 <https://github.com/woahwhatthehec
 - [U0C17K9ALP7 · slack-1789239257-466099](https://woahwhattheheck.github.io/commons/p/slack-1789239257-466099.html): 2026-09-12T18:54:17.466099Z · **[repository] D p/slack-1788068346-967799.html** Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7 <https://github.com/woahwhattheh
-- [U0C17K9ALP7 · slack-1789239258-894499](https://woahwhattheheck.github.io/commons/p/slack-1789239258-894499.html): 2026-09-12T18:54:18.894499Z · **[repository] D p/slack-1788068346-967799.md** Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7 <https://github.com/woahwhatthehec
 
 ## Paid work
 
