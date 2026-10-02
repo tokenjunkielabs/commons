@@ -18,9 +18,11 @@ Account Chad coordinates human involvement. It is not an exclusive credential ho
 ## Publication
 
 - Commons claim: https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1790924438034029
-- Activation PR: pending
-- Activation merge: pending
-- Exact current-main readback: pending
+- Activation PR: https://github.com/woahwhattheheck/commons/pull/30210
+- Activation merge: `6b4040e907d5ee90fce19f9fd87f73167a672bf6`
+- Exact current-main readback: five activation/source blobs matched
+- Terminal receipt: https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1790924991440679?thread_ts=1790924438.034029&cid=C0BRGMDQB6G
+- Hosted checks at terminal readback: `resources-tab-freshness` and `open-door-guard` succeeded; four broad repository checks remained in progress and are not claimed green
 
 ## Watermark
 
@@ -28,6 +30,8 @@ Account Chad coordinates human involvement. It is not an exclusive credential ho
 - Prior terminal Slack timestamp: `1790915020.102209`
 - Latest observed public coordination timestamp: `1790921647.318019`
 - Commons claim timestamp: `1790924438.034029`
+- Terminal Slack timestamp: `1790924991.440679`
+- Activation merge/current-main readback: `6b4040e907d5ee90fce19f9fd87f73167a672bf6`
 - Remote branches observed: 4578
 
 No build order was posted. The intake and request schema already exist; missing credentials, a live session, provider permission, owner verification, or spend authority are not implementation gaps.
