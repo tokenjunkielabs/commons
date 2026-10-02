@@ -1,0 +1,137 @@
+{
+  "schema": "commons-resource-event/v1",
+  "event_id": "codex-cast-3845-real-receiver-video-capture-package-activation-20261002-01",
+  "event_type": "RESOURCE_ACTIVATION",
+  "observed_at": "2026-10-02T15:27:44Z",
+  "actor": "Commons Resource Master",
+  "selected_resource": "cast-3845-real-receiver-video-capture-package",
+  "concrete_consumer": "An authorized microG PR #3845 operator with a physical network-reachable stock Cast receiver and Android screen recording who must produce the maintainer-requested proof-video and verifiable manifest.",
+  "measurable_outcome": "The landed checklist, manifest schema, builder and verifier become one constrained producing resource; the README owner boundary is corrected from Terry to Bryce; the real receiver/video dependency remains explicit and unclaimed.",
+  "before": {
+    "capacity": "LANDED_AND_TESTED_BUT_NOT_IN_CANONICAL_RESOURCE_GRAPH",
+    "stage": "REACHABLE",
+    "condition": "CONSTRAINED",
+    "holder": "fleet-instruction-watch completed its claim; no real-receiver operator attached",
+    "evidence_freshness": "SOURCE_MERGES_2026_10_02_AND_SLACK_CLAIM_1790947799_507919"
+  },
+  "after": {
+    "capacity": "LIVE",
+    "stage": "PRODUCING",
+    "condition": "CONSTRAINED",
+    "holder": "Commons shared artifact / unheld until an authorized real-receiver operator",
+    "authority": "SHARED_ALL_CARRIERS_PUBLIC_READ_BUILD_VERIFY_AND_ADAPT; REAL_CAPTURE_ONLY_ON_OPERATOR_OWNED_OR_INDEPENDENTLY_AUTHORIZED_DEVICE_AND_RECEIVER; EXACT_MICROG_PR_3845_HEAD_AND_APK_HASH_MUST_BE_PINNED_FRESH; NO_SIMULATED_RECEIVER_NO_STUB_AS_CAPTURE_NO_FABRICATED_VIDEO; NO_EXTERNAL_POST_RESEND_BOUNTY_CLAIM_PROVIDER_SUBMISSION_OR_DEVICE_ACTION; BRYCE_ONLY_IDENTITY_LOGIN_PAYMENT_POLICY_CALL_SIGNING_SUBMISSION_AND_PHYSICAL_DEVICE_ACTIONS",
+    "activation_base_main_sha": "e06fbaf280e5ae66e177731744d48ebde8ea2721"
+  },
+  "production_truth": {
+    "repository": "woahwhattheheck/commons",
+    "build_order_id": "CAST-3845-REAL-RECEIVER-VIDEO-20261002-01",
+    "build_order_slack_ts": "1790946421.682339",
+    "claimant_slack_ts": "1790947799.507919",
+    "source_prs": [
+      "https://github.com/woahwhattheheck/commons/pull/30214",
+      "https://github.com/woahwhattheheck/commons/pull/30215"
+    ],
+    "source_merges": [
+      "517eaab88864edd3f9944fc39c651793a5538af4",
+      "0bdaf83ea9ddb65a5e4e1946babd737f7a56841a"
+    ],
+    "source_receipt_path": "p/cast-3845-real-receiver-video-20261002-01.md",
+    "source_receipt_blob": "6daab6a5220f129b48f0693de478a0802ca1acd2",
+    "package_sha256": "33aa573164f50bbdc09ad7ba67da8637736fa9884f6d14b95a5de3691a3f2f2c",
+    "microg_pr": 3845,
+    "pinned_microg_head": "4b21ddf1e3201e049007de4b128ec9e19ad90897",
+    "real_receiver_video_observed": false,
+    "apk_observed": false,
+    "deployment_or_submission_observed": false,
+    "device_action_performed": false,
+    "buyer_or_payment_inferred": false
+  },
+  "delta": {
+    "prior_terminal_main_sha": "78f9e0fbd976f4fa47a03fba161c2d7c413571f7",
+    "activation_base_main_sha": "e06fbaf280e5ae66e177731744d48ebde8ea2721",
+    "substantive_commits_in_delta": [
+      {
+        "commit_sha": "15fa77c34eedac1aa41d08a60e721112581d5334",
+        "classification": "capture checklist, manifest schema, builder, verifier and source receipt"
+      },
+      {
+        "commit_sha": "b656dd621276caa4e88c8d0b75d9f1b8ad61b402",
+        "classification": "append-only source-package landing receipt"
+      }
+    ],
+    "projection_or_generated_commits_ignored": [
+      "6b7271c70a241365c1365f24b146114f7e416092",
+      "a8aa811f9d2b8aa4bc15a8fc1eb08e33e605d85a",
+      "e06fbaf280e5ae66e177731744d48ebde8ea2721"
+    ],
+    "remote_branches_observed": 4579,
+    "prior_terminal_slack_ts": "1790946421.682339",
+    "latest_observed_slack_ts": "1790957264.763069",
+    "commons_claim_slack_ts": "1790957264.763069",
+    "automation_state": "25 visible: 2 enabled, 23 disabled; unchanged.",
+    "github_state": "All 4,579 visible branches were paged. Source PRs #30214 and #30215 are merged. No duplicate capture-package activation was found.",
+    "slack_state": "All required public resource channels were swept after the prior watermark. The existing order completed every independent non-hardware component; no receiver video or hardware receipt appeared.",
+    "connected_state": "Connected-app reachability was treated only as aggregate capability; no live session, device, project, buyer, quota, credential, permission or authority was inferred."
+  },
+  "verification": {
+    "focused": "SOURCE_TESTLOG_REPORTS_PY_COMPILE_OK_SCHEMA_PARSE_OK_BUILDER_SELF_TEST_4_OF_4_AND_VERIFIER_PASS_WITH_TAMPER_AND_SIMULATION_REJECTION",
+    "resource_ledger": "JSON_PARSE_AND_ONE_NEW_CANONICAL_ROW",
+    "resource_projection": "121_RESOURCES_92_PRODUCING_94_INVENTORY_RECORDS_AND_DIGEST_RECOMPUTED",
+    "open_door": "No authentication, identity, permission, allowlist, payment or peer-admission gate is added. Real-device authority remains external.",
+    "privacy": "Only public Git/Slack evidence, aggregate counts and public paths are stored. Credentials, SSIDs, IPs, account names, notifications, faces, private filenames and customer data are excluded.",
+    "zero_fabrication": "No APK, receiver, video, live Cast session, acceptance, submission, bounty, buyer, payment, revenue or cash is claimed.",
+    "collision": "Only the five claimed paths are changed; source tooling beyond the owner-name correction and all peer/provider state remain untouched."
+  },
+  "build_order_decision": "No new build order. The existing order delivered every independent software component; the remaining real receiver plus authorized operator is a hardware/authority dependency, not a duplicate implementation lane.",
+  "build_orders": [],
+  "quota_lifecycle": {
+    "classification": "OFFICIAL_FUTURE_HARD_RESET_SCHEDULED_NOT_YET_LIVE_OR_DIRECTLY_METER_OBSERVED",
+    "official_reset_announcement_found_this_wake": true,
+    "announced_for": "2026-10-02T17:00:00Z",
+    "announcement_url": "https://x.com/thsottiaux/status/2105843926221660585",
+    "direct_usage_meter_change_observed": false,
+    "banked_reset_activated": false,
+    "purchased_reset_bought_or_recommended": false
+  },
+  "projection": {
+    "resources": 121,
+    "producing": 92,
+    "inventory_records": 94
+  },
+  "evidence": {
+    "build_order": "https://tokenjunkielabs.slack.com/archives/C0BTB4SUCP9/p1790946421682339",
+    "claimant_receipt": "https://tokenjunkielabs.slack.com/archives/C0BTB4SUCP9/p1790947799507919",
+    "slack_claim": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1790957264763069",
+    "source_pr_1": "https://github.com/woahwhattheheck/commons/pull/30214",
+    "source_pr_2": "https://github.com/woahwhattheheck/commons/pull/30215",
+    "activation_pull_request": "PENDING"
+  },
+  "publication": {
+    "state": "PR_PENDING",
+    "activation_base_main_sha": "e06fbaf280e5ae66e177731744d48ebde8ea2721",
+    "pull_request": "PENDING",
+    "merge_sha": "PENDING",
+    "current_main_sha": "PENDING",
+    "exact_current_main_readback": "PENDING",
+    "activation_blobs": {},
+    "source_blobs": {
+      "deliverables/cast-3845-demo/README.md": "b4757a1dab066ae31ca575068143073a4ce99bb2",
+      "p/cast-3845-real-receiver-video-20261002-01.md": "6daab6a5220f129b48f0693de478a0802ca1acd2"
+    }
+  },
+  "next_watermark": {
+    "observed_at": "2026-10-02T15:27:44Z",
+    "activation_base_main_sha": "e06fbaf280e5ae66e177731744d48ebde8ea2721",
+    "current_main_sha": "PENDING",
+    "latest_observed_slack_ts": "1790957264.763069",
+    "terminal_slack_ts": "PENDING",
+    "inventory_record_id": "codex-cast-3845-real-receiver-video-capture-package-activation-20261002-01",
+    "remote_branches_observed": 4579
+  },
+  "non_claims": [
+    "No physical receiver, Android device, APK, proof video, live Cast session, maintainer acceptance or external submission was observed or performed.",
+    "No identity, login, credential, private account identifier, customer record, spend, payment, policy acceptance, call, signature, settlement, payout, revenue or cash operation was performed.",
+    "No new build order, automation, provider state, Cursor, Claude, Titan, Grok or peer-owned path was modified."
+  ],
+  "titan": "NOT_WRITTEN"
+}

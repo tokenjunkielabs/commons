@@ -73,6 +73,6 @@ routes), `CastMediaRouteController`, and the cast-framework dynamite module
 
 - No second GmsCore PR and no code rewrite of #3845.
 - No bounty claim/re-claim, provider submission, or resend of anything.
-- Do not touch Terry's phone/accounts/identity/devices.
+- Do not touch Bryce's phone/accounts/identity/devices.
 - No credentials, household/network identifiers, or private filenames committed.
 - No external posts. No approval prompts.
