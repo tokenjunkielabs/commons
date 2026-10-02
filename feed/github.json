@@ -1,6 +1,6 @@
 {
   "counts": {
-    "open_issues": 7483,
+    "open_issues": 7461,
     "open_pull_requests": 0,
     "runs_in_progress": 1,
     "runs_queued": 70
@@ -13,6 +13,58 @@
   "pulls_listing": "UNKNOWN",
   "queue_depth_per_runner": 70.0,
   "recently_closed": [
+    {
+      "author": "woahwhattheheck",
+      "base": "main",
+      "branch": "codex/cast-3845-capture-resource-landing-20261002-01",
+      "closed_at": "2026-10-02T16:31:08Z",
+      "head_sha": "a84a0567c0ebcb70101fdbcb51116b7f343326f9",
+      "merge_commit_sha": "a02dfafab01615852a86b27ae608a0f429bd1c70",
+      "merged_at": "2026-10-02T16:31:08Z",
+      "number": 30217,
+      "state": "MERGED",
+      "title": "Resources: append Cast #3845 activation landing",
+      "updated_at": "2026-10-02T16:31:30Z"
+    },
+    {
+      "author": "woahwhattheheck",
+      "base": "main",
+      "branch": "codex/cast-3845-capture-resource-activation-20261002-01",
+      "closed_at": "2026-10-02T16:26:18Z",
+      "head_sha": "205cac05de66301902c3f381a42b160e5a178cd7",
+      "merge_commit_sha": "36e17394fbcd1c4735b312e6f30f8610d0c4fb91",
+      "merged_at": "2026-10-02T16:26:18Z",
+      "number": 30216,
+      "state": "MERGED",
+      "title": "Resources: activate Cast #3845 capture package",
+      "updated_at": "2026-10-02T16:26:31Z"
+    },
+    {
+      "author": "woahwhattheheck",
+      "base": "main",
+      "branch": "fleet/cast-3845-demo-20261002-01-landing",
+      "closed_at": "2026-10-02T13:29:09Z",
+      "head_sha": "b656ddaf80a366d517de0eb0abd611d3c5318fc9",
+      "merge_commit_sha": "0bdaf83ea9ddb65a5e4e1946babd737f7a56841a",
+      "merged_at": "2026-10-02T13:29:09Z",
+      "number": 30215,
+      "state": "MERGED",
+      "title": "Receipt landing append: cast-3845 real-receiver video order (CAST-3845-REAL-RECEIVER-VIDEO-20261002-01)",
+      "updated_at": "2026-10-02T13:29:23Z"
+    },
+    {
+      "author": "woahwhattheheck",
+      "base": "main",
+      "branch": "fleet/cast-3845-demo-20261002-01",
+      "closed_at": "2026-10-02T13:27:54Z",
+      "head_sha": "15fa77c34eedac1aa41d08a60e721112581d5334",
+      "merge_commit_sha": "517eaab88864edd3f9944fc39c651793a5538af4",
+      "merged_at": "2026-10-02T13:27:54Z",
+      "number": 30214,
+      "state": "MERGED",
+      "title": "Lane: cast-3845 real-receiver video evidence tooling (CAST-3845-REAL-RECEIVER-VIDEO-20261002-01)",
+      "updated_at": "2026-10-02T13:28:05Z"
+    },
     {
       "author": "woahwhattheheck",
       "base": "main",
@@ -155,61 +207,9 @@
       "state": "CLOSED",
       "title": "Superseded: TitanMCP cursor and after activation watermark",
       "updated_at": "2026-10-01T19:15:53Z"
-    },
-    {
-      "author": "woahwhattheheck",
-      "base": "main",
-      "branch": "codex/resource-master-titanmcp-list-messages-cursor-after-advancement-20261001-01",
-      "closed_at": "2026-10-01T19:09:06Z",
-      "head_sha": "6063e968acbb15c235e50f2ca8edc871623da988",
-      "merge_commit_sha": "cf211afe9b469e9e4ebbeb4479559c8739e28ac6",
-      "merged_at": "2026-10-01T19:09:06Z",
-      "number": 30192,
-      "state": "MERGED",
-      "title": "Advance TitanMCP list_messages cursor and after semantics",
-      "updated_at": "2026-10-01T19:09:06Z"
-    },
-    {
-      "author": "woahwhattheheck",
-      "base": "main",
-      "branch": "codex/resource-master-titanmcp-origin-pair-watermark-20261001-01",
-      "closed_at": "2026-10-01T16:41:56Z",
-      "head_sha": "0d81eb0b1e5122b2ed460802d8a79b01a7e185c9",
-      "merge_commit_sha": "4c07bcfe20ffef09ab7808e92f1b2a56119b592d",
-      "merged_at": "2026-10-01T16:41:56Z",
-      "number": 30190,
-      "state": "MERGED",
-      "title": "Reconcile TitanMCP Origin-pair activation watermark",
-      "updated_at": "2026-10-01T16:42:08Z"
-    },
-    {
-      "author": "woahwhattheheck",
-      "base": "main",
-      "branch": "codex/resource-master-titanmcp-origin-pair-advancement-20261001-01",
-      "closed_at": "2026-10-01T16:24:39Z",
-      "head_sha": "9625328ca63cdee38274e630d7c2f1cb8f4a4e1e",
-      "merge_commit_sha": "1517d815c268aedd36208fb03509e5847db83b1c",
-      "merged_at": "2026-10-01T16:24:39Z",
-      "number": 30189,
-      "state": "MERGED",
-      "title": "Advance TitanMCP allowed-Origin pair resource",
-      "updated_at": "2026-10-01T16:24:51Z"
-    },
-    {
-      "author": "woahwhattheheck",
-      "base": "main",
-      "branch": "codex/resource-master-titanmcp-watermark-20261001-01",
-      "closed_at": "2026-10-01T13:29:08Z",
-      "head_sha": "a5f2a31daaf7287b80f3c4c0ac86cd5b24571d43",
-      "merge_commit_sha": "d79fd7d2fc837486c3b471febf86fbbf90297bde",
-      "merged_at": "2026-10-01T13:29:08Z",
-      "number": 30188,
-      "state": "MERGED",
-      "title": "Reconcile TitanMCP identity activation watermark",
-      "updated_at": "2026-10-01T13:29:54Z"
     }
   ],
   "repository": "woahwhattheheck/commons",
   "schema": "commons-github-state/v1",
-  "unchanged_since": "2026-10-02T12:56:41Z"
+  "unchanged_since": "2026-10-02T18:23:21Z"
 }
