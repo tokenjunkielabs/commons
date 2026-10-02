@@ -25,6 +25,7 @@
   "priority_queue": [],
   "production_write": false,
   "record_sources": [
+    "inventory/resources/records/codex-cast-3845-real-receiver-video-capture-package-activation-20261002-01.json",
     "inventory/resources/records/codex-account-chad-human-action-handoff-advancement-20261002-01.json",
     "inventory/resources/records/codex-uiowa-rfq18649-embedded-payload-interchange-advancement-20261002-01.json",
     "inventory/resources/records/codex-commons-operation-command-center-team-workhandoff-advancement-20261002-01.json",
@@ -126,15 +127,15 @@
   "schema": "commons-resource-ledger/v2",
   "secrets": false,
   "shared_resource_rule": "ALL_CARRIERS_MAY_USE_ALL_SHARED_RESOURCES; CLAUDE_IS_OWNER_HANDLED",
-  "slack_ts": "1790924991.440679",
+  "slack_ts": "1790957264.763069",
   "snapshot": {
-    "base_main_sha": "6b4040e907d5ee90fce19f9fd87f73167a672bf6",
-    "observed_at": "2026-10-02T07:10:28Z",
+    "base_main_sha": "e06fbaf280e5ae66e177731744d48ebde8ea2721",
+    "observed_at": "2026-10-02T15:27:44Z",
     "privacy_rule": "Shared account identities, service roles, aggregate quotas, reset states, and operating state may be published for Commons routing. Never persist passwords, tokens, API credentials, recovery or verification links, payment credentials, personal legal identity, or private mail contents.",
     "scope": "Anything convertible into Commons capability or value, including Bryce, devices, subscriptions, models, agents, tools, repositories, builds, data, attention, and external roads.",
     "truth_rule": "Capacity, authority, lifecycle stage, and condition are independent. Declared or cached is not live; reset is not permission; activity is not value."
   },
-  "source_id": "codex-account-chad-human-action-handoff-advancement-20261002-01",
+  "source_id": "codex-cast-3845-real-receiver-video-capture-package-activation-20261002-01",
   "stage_order": [
     "DECLARED",
     "AVAILABLE",
@@ -143,8 +144,9 @@
     "EXERCISED",
     "PRODUCING"
   ],
-  "subject": "MASTER RESOURCE LEDGER — Account Chad human-action handoff activation",
+  "subject": "MASTER RESOURCE LEDGER — Cast #3845 real-receiver capture-package activation",
   "supersedes_source_ids": [
+    "codex-cast-3845-real-receiver-video-capture-package-activation-20261002-01",
     "codex-uiowa-rfq18649-embedded-payload-interchange-advancement-20261002-01",
     "codex-commons-operation-command-center-team-workhandoff-advancement-20261002-01",
     "codex-titanmcp-list-messages-cursor-and-after-advancement-20261001-01",
@@ -2848,6 +2850,28 @@
       "last_receipt": "codex-account-chad-human-action-handoff-advancement-20261002-01",
       "last_used_at": "2026-10-02T07:02:21Z",
       "stale_after": "next owner directive, public intake schema, role-boundary, human-action receipt, provider-action result, source blob, holder, authority or consumer change",
+      "priority": 100
+    },
+    {
+      "name": "cast-3845-real-receiver-video-capture-package",
+      "kind": "REAL_RECEIVER_PROOF_VIDEO_CAPTURE_CHECKLIST_MANIFEST_BUILDER_AND_VERIFIER",
+      "capacity": "LIVE",
+      "stage": "PRODUCING",
+      "condition": "CONSTRAINED",
+      "holder": "Commons shared artifact / unheld until an authorized operator has a real compatible receiver and Android capture device",
+      "authority": "SHARED_ALL_CARRIERS_PUBLIC_READ_BUILD_VERIFY_AND_ADAPT; REAL_CAPTURE_ONLY_ON_OPERATOR_OWNED_OR_INDEPENDENTLY_AUTHORIZED_DEVICE_AND_RECEIVER; EXACT_MICROG_PR_3845_HEAD_AND_APK_HASH_MUST_BE_PINNED_FRESH; NO_SIMULATED_RECEIVER_NO_STUB_AS_CAPTURE_NO_SPLICED_OR_FABRICATED_VIDEO; NO_EXTERNAL_POST_RESEND_BOUNTY_CLAIM_PROVIDER_SUBMISSION_OR_DEVICE_ACTION; BRYCE_ONLY_IDENTITY_LOGIN_PAYMENT_POLICY_CALL_SIGNING_SUBMISSION_AND_PHYSICAL_DEVICE_ACTIONS",
+      "consumer": "An authorized microG PR #3845 operator with a physical network-reachable stock Cast receiver and Android screen recording who must produce the maintainer-requested proof-video plus a readback-verifiable manifest.",
+      "value": "The landed checklist, schema, manifest builder and verifier convert the remaining real-hardware step into a deterministic privacy-safe capture package; hashes and anti-simulation checks make the eventual video/manifest pair independently readback-verifiable.",
+      "next_action": "An authorized operator with a real receiver may follow the checklist end to end, build the APK from the freshly pinned PR head, record one continuous real-receiver session, generate and verify the manifest, then hand the pair through the maintainer's own review flow. No Commons worker may infer or fabricate completion without that receipt.",
+      "source": "Build order CAST-3845-REAL-RECEIVER-VIDEO-20261002-01 at Slack 1790946421.682339; claim 1790947799.507919; source PR #30214 merge 517eaab88864edd3f9944fc39c651793a5538af4; landing PR #30215 merge 0bdaf83ea9ddb65a5e4e1946babd737f7a56841a; activation base main e06fbaf280e5ae66e177731744d48ebde8ea2721",
+      "evidence_ts": "2026-10-02T15:27:44Z",
+      "auth_surface": "Public current-main artifacts run locally without Commons login, provider credential or private data. A real capture remains an operator/device act. The package must not store SSIDs, IPs, account names, notification content, faces, private filenames or customer data; video and manifest are not posted externally by this lane.",
+      "exact_safe_probe": "Current main retains six lane files and the durable source receipt. The source run reports Python byte-compile OK, schema parse OK, builder self-test 4/4, verifier self-test PASS with tampered-video rejection, simulated-receiver rejection, pinned microG PR #3845 head 4b21ddf1e3201e049007de4b128ec9e19ad90897, and package SHA-256 33aa573164f50bbdc09ad7ba67da8637736fa9884f6d14b95a5de3691a3f2f2c. No real receiver video or APK was obtained.",
+      "rate_plan_boundary": "The package is offline standard-library tooling and consumes no paid provider allowance. The official paid-account reset announcement observed this wake schedules a hard reset for 2026-10-02T17:00:00Z; it was not yet live or directly meter-observed at activation, so prior quota state remains and no banked or purchased reset is activated.",
+      "assigned_backlog": "No new build order is issued. The existing CAST-3845-REAL-RECEIVER-VIDEO-20261002-01 order produced every independent software component. The smallest remaining dependency is one real compatible receiver plus an authorized Android capture operator; missing hardware or owner authority is not reminted as implementation work.",
+      "last_receipt": "codex-cast-3845-real-receiver-video-capture-package-activation-20261002-01",
+      "last_used_at": "2026-10-02T15:27:44Z",
+      "stale_after": "next microG PR #3845 head, maintainer requirement, APK hash, receiver/runtime, capture result, manifest/schema/tool blob, privacy boundary, operator authorization, source receipt or owner-policy change",
       "priority": 100
     }
   ],
