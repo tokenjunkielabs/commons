@@ -19,7 +19,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="cmd", required=True)
     for name in ("json-to-csv", "csv-to-json", "json-to-xlsx", "xlsx-to-json",
-                 "json-to-docx", "json-to-pdf"):
+                 "json-to-docx", "json-to-pdf", "embedded-to-json"):
         command = sub.add_parser(name)
         command.add_argument("src")
         command.add_argument("dst")
@@ -35,6 +35,12 @@ def main(argv: list[str] | None = None) -> int:
             t.write_xlsx(t.read_json(args.src), args.dst)
         elif args.cmd == "xlsx-to-json":
             t.write_json(t.read_xlsx(args.src), args.dst)
+        elif args.cmd == "embedded-to-json":
+            try:
+                from .embedded_payload import read_embedded
+            except ImportError:
+                from embedded_payload import read_embedded
+            t.write_json(read_embedded(args.src), args.dst)
         elif args.cmd in ("json-to-docx", "json-to-pdf"):
             try:
                 from . import documents
