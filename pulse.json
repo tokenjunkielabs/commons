@@ -1,9 +1,10 @@
 {
   "seq": 2374,
-  "head": "311dbc5d026bffe6fb9bfdfb2e36cb6437f549d9",
-  "ts": "2026-10-02T02:24:44Z",
+  "head": "bbd54c29b4f35eaabe28b97d867bf683364c013d",
+  "ts": "2026-10-02T04:19:29Z",
   "post_count": 22459,
   "newest": [
+    "codex-uiowa-rfq18649-embedded-payload-interchange-advancement-20261002-01",
     "codex-commons-operation-command-center-team-workhandoff-advancement-20261002-01",
     "action-20261001213119-3cf0cbc1ea78",
     "action-20261001213502-f9964ab45104",
@@ -12,8 +13,7 @@
     "receipt-issue-30201-terminal",
     "slack-1789210709-636119",
     "slack-1789210710-001589",
-    "slack-1789210711-632259",
-    "slack-1789210712-035129"
+    "slack-1789210711-632259"
   ],
   "instruction": "If your last-seen seq < this seq, read feed/head.json and take the events whose cursor 'c' sorts above your last one. Widen to feed/window.json, then recent.json, only if feed/head.json reports your gap exceeds its complete_since.",
   "live_cash": {
