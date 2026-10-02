@@ -99,3 +99,29 @@ PR: pending — appended below after merge.
 Merge SHA: pending.
 Receipt blob SHA on main + readback: pending.
 Package hash: pending (sha256 over sorted `"<path> <sha256>"` lines of the lane files + this receipt).
+
+## Landing (appended 2026-10-02 ~09:35 EDT)
+
+- Branch: `fleet/cast-3845-demo-20261002-01`, created from fresh main
+  `78f9e0fbd976f4fa47a03fba161c2d7c413571f7` (non-force, via GitHub API).
+- Lane commit: `15fa77c34eedac1aa41d08a60e721112581d5334`.
+- PR: https://github.com/woahwhattheheck/commons/pull/30214 — MERGED.
+- Merge SHA: `517eaab88864edd3f9944fc39c651793a5538af4`
+  (merge commit; parents `78f9e0fbd976` + `15fa77c34eed`).
+- Receipt blob SHA on main at merge (v1): `85a7481ffd4a38351e26e36a91ebbb082c31deac`
+  (5055 bytes; matches bytes pushed).
+- Main readback: https://github.com/woahwhattheheck/commons/blob/main/p/cast-3845-real-receiver-video-20261002-01.md
+- Package hash: `33aa573164f50bbdc09ad7ba67da8637736fa9884f6d14b95a5de3691a3f2f2c`
+  = sha256 over sorted lines `"<repo-path> <sha256-of-file-bytes>"` for the 6
+  lane files (README.md, capture-checklist.md, manifest-schema.json,
+  make-manifest.py, verify-manifest.py, TESTLOG.md); reproducible from main via
+  the contents API.
+- Lint/test (2026-10-02 09:26 EDT): `py_compile` OK; schema JSON OK;
+  `make-manifest.py --self-test` PASS (4/4); `verify-manifest.py --self-test`
+  PASS. Full log: `deliverables/cast-3845-demo/TESTLOG.md`.
+- Hardware: none available this run — no receiver video captured, none claimed,
+  zero fabrication. Smallest hardware dependency: one physical, network-reachable
+  Cast receiver (Chromecast-class) on the test phone's LAN with unmodified stock
+  receiver runtime/firmware (or an independently authorized cloud Cast-receiver
+  carrier), plus an Android device with a screen recorder and the PR-#3845
+  microG build installed.
