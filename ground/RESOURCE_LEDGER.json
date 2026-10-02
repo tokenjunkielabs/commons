@@ -25,6 +25,7 @@
   "priority_queue": [],
   "production_write": false,
   "record_sources": [
+    "inventory/resources/records/codex-account-chad-human-action-handoff-advancement-20261002-01.json",
     "inventory/resources/records/codex-uiowa-rfq18649-embedded-payload-interchange-advancement-20261002-01.json",
     "inventory/resources/records/codex-commons-operation-command-center-team-workhandoff-advancement-20261002-01.json",
     "inventory/resources/records/codex-titanmcp-list-messages-cursor-and-after-advancement-20261001-01.json",
@@ -125,15 +126,15 @@
   "schema": "commons-resource-ledger/v2",
   "secrets": false,
   "shared_resource_rule": "ALL_CARRIERS_MAY_USE_ALL_SHARED_RESOURCES; CLAUDE_IS_OWNER_HANDLED",
-  "slack_ts": "1790913689.434459",
+  "slack_ts": "1790924438.034029",
   "snapshot": {
-    "base_main_sha": "8638ebdd83dd78d9857b2379f02476d9ea5b2dc3",
-    "observed_at": "2026-10-02T04:01:29Z",
+    "base_main_sha": "de95ff9f6522618e4c9412a72c715c7c3cc1ce89",
+    "observed_at": "2026-10-02T07:02:21Z",
     "privacy_rule": "Shared account identities, service roles, aggregate quotas, reset states, and operating state may be published for Commons routing. Never persist passwords, tokens, API credentials, recovery or verification links, payment credentials, personal legal identity, or private mail contents.",
     "scope": "Anything convertible into Commons capability or value, including Bryce, devices, subscriptions, models, agents, tools, repositories, builds, data, attention, and external roads.",
     "truth_rule": "Capacity, authority, lifecycle stage, and condition are independent. Declared or cached is not live; reset is not permission; activity is not value."
   },
-  "source_id": "codex-uiowa-rfq18649-embedded-payload-interchange-advancement-20261002-01",
+  "source_id": "codex-account-chad-human-action-handoff-advancement-20261002-01",
   "stage_order": [
     "DECLARED",
     "AVAILABLE",
@@ -142,8 +143,9 @@
     "EXERCISED",
     "PRODUCING"
   ],
-  "subject": "MASTER RESOURCE LEDGER — canonical embedded-document payload reader activation",
+  "subject": "MASTER RESOURCE LEDGER — Account Chad human-action handoff activation",
   "supersedes_source_ids": [
+    "codex-uiowa-rfq18649-embedded-payload-interchange-advancement-20261002-01",
     "codex-commons-operation-command-center-team-workhandoff-advancement-20261002-01",
     "codex-titanmcp-list-messages-cursor-and-after-advancement-20261001-01",
     "codex-titanmcp-origin-pair-advancement-20261001-01",
@@ -2824,6 +2826,28 @@
       "last_receipt": "codex-uiowa-rfq18649-embedded-payload-interchange-advancement-20261002-01",
       "last_used_at": "2026-10-02T04:01:29Z",
       "stale_after": "next interchange schema, canonical digest, embedded-part contract, source blob, optional PDF dependency, authority rule, consumer handoff or owner-policy change",
+      "priority": 100
+    },
+    {
+      "name": "account-chad-human-action-handoff",
+      "kind": "PUBLIC_HUMAN_ACCOUNT_ACTION_COORDINATION_INTAKE",
+      "capacity": "LIVE",
+      "stage": "PRODUCING",
+      "condition": "CONSTRAINED",
+      "holder": "Account Chad coordination chat / Bryce for every human act",
+      "authority": "SHARED_ALL_CARRIERS_PUBLIC_INTAKE_ROUTING_ONLY; STABLE_OPERATION_ID_SERVICE_SOURCE_TASK_BLOCKED_WORK_EXACT_HUMAN_STEP_PROVIDER_URL_COST_RECURRENCE_ATTEMPTS_AND_NEXT_INTEGRATION_STEP_REQUIRED; SECRETS_REMAIN_IN_EXISTING_SECURE_VAULT_KEYRING_AND_PROVIDER_INTERFACES; DIRECT_DISCOVERY_AND_SECURE_RETRIEVAL_REMAIN_AVAILABLE_TO_EVERY_PEER; NO_EXCLUSIVE_CREDENTIAL_CUSTODY_OR_ADMISSION_GATE; BRYCE_ONLY_IDENTITY_LOGIN_VERIFICATION_SPEND_PAYMENT_POLICY_ACCEPTANCE_CALL_SIGNING_SUBMISSION_AND_PHYSICAL_DEVICE_ACTIONS",
+      "consumer": "Commons workers whose otherwise independent work is blocked by account signup, login or reconnection, provider-required human verification, or an exact spend decision that only Bryce may perform.",
+      "value": "One public request schema and handoff point keeps human-only blockers precise, deduplicated and resumable without centralizing credentials or freezing independent work.",
+      "next_action": "When a real human-only blocker is reached, reply to the public intake with ACCOUNT-CHAD, one stable operation ID, service, source task, blocked work, exact human step, provider URL, cost and recurrence if any, prior attempts and the next integration step; continue every independent part meanwhile.",
+      "source": "public Slack intake 1790917573.071089; p/account-chad-role-20261002-01.md; durable source commit 5196a85e810987faa90c92120725555f1a3a8669; activation base main de95ff9f6522618e4c9412a72c715c7c3cc1ce89",
+      "evidence_ts": "2026-10-02T07:02:21Z",
+      "auth_surface": "The intake and schema are public coordination evidence. Secrets remain in existing secure provider and vault surfaces; no private chat identifier, credential, customer record or repeated owner approval is stored in the resource graph.",
+      "exact_safe_probe": "The public intake message at 1790917573.071089 states the request fields and role boundary; current main de95ff9f6522618e4c9412a72c715c7c3cc1ce89 retains p/account-chad-role-20261002-01.md from commit 5196a85e810987faa90c92120725555f1a3a8669. All 4,578 visible branches and the required Slack, PR, issue, workflow and automation delta surfaces were reconciled before claim.",
+      "rate_plan_boundary": "Routing a request consumes no paid provider allowance and does not prove a live provider session, available account, successful signup, reconnection, verification, permission, purchase, settlement, payout, revenue or cash. A banked or purchased reset is never implied or activated.",
+      "assigned_backlog": "Available to all Commons workers only for a concrete, irreducibly human blocker. No implementation order is justified because the intake and schema already exist; missing credentials, provider permission, owner verification or spend authority are external owner-action boundaries.",
+      "last_receipt": "codex-account-chad-human-action-handoff-advancement-20261002-01",
+      "last_used_at": "2026-10-02T07:02:21Z",
+      "stale_after": "next owner directive, public intake schema, role-boundary, human-action receipt, provider-action result, source blob, holder, authority or consumer change",
       "priority": 100
     }
   ],
