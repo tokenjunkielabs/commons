@@ -161,6 +161,23 @@ relabelling and conservative local bounds. The corner construction uses
 an explicit two-cube extension. Global compatibility/assembly and the
 mesh-uniform theorem remain open.
 
+## Element-bubble residual lift
+
+[The element-local constructor and derivation](CELL_BUBBLE_LIFT.md)
+invert the complete mean-zero pressure residual after its vertex and edge
+coefficients vanish. Degree four has three independent pressure values;
+degree five has twelve. The returned velocity vanishes on every tetrahedron
+face, so its zero extension preserves neighboring elements. The explicit
+formulas cover all six positive Kuhn shapes without another mean solve.
+
+Run `cell_bubble_lift.py --degree 4 --all-cells` or degree five.
+A single `--cell` accepts a complete native-order pressure array or its
+independent coordinates. Rational translation and positive scaling are
+exact. The output reconstructs every pressure row and includes its exact
+pressure Gram matrix and a scale-independent local bound. The guide
+records the coefficient conventions and residual-subspace scope.
+Complete global assembly and the uniform inf-sup theorem remain separate.
+
 ## Original problem
 
 On a Freudenthal tetrahedral mesh of a cubical domain, let `V_h^k` be the continuous vector degree-k polynomial space with zero boundary trace, and let `Q_h^k = div V_h^k`.
