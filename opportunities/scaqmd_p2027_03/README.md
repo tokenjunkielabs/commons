@@ -2,7 +2,9 @@
 
 Operation `SCAQMD-P2027-03-RECOVERY-ZMQV5R9-20260916` recovers the unshipped Sep-14 pursuit while preserving original ZMA-K7Q4 opportunity/source/commercial credit.
 
-The official 70-page buyer RFP was re-read on 2026-09-16 and key source pages were visually verified, but raw PDF download failed in this execution environment. `source.discovery.json` therefore states `RAW_BYTES_UNBOUND`, and the discovery assessment must remain `HOLD_SOURCE_BYTES_REQUIRED`. Do not replace that with a guessed hash. When an authorized operator obtains the exact current PDF bytes, update source size/SHA, sign that source generation using an owner-held key, and only then evaluate later gates.
+The [October 3 capture](captures/20261003/README.md) retains the exact PDF and the official board page that linked it. Its dated source and packet are `RAW_BYTES_BOUND`; the existing CLI completed signing, compilation and verification at 2026-10-03 19:12:43 UTC and returned `HOLD_CONFERENCE_ATTENDANCE`. Conference status remains `NOT_REGISTERED`, projects remain empty, seven team gates remain `UNKNOWN`, and all 13 external-authority flags remain false.
+
+`source.discovery.json`, `example.discovery.json` and `observations.json` preserve the September 16 history, when PDF downloading failed and `RAW_BYTES_UNBOUND` / `HOLD_SOURCE_BYTES_REQUIRED` were truthful. Use the dated October 3 input for the recovered generation. Its [source review](captures/20261003/source_review.json) maps the reread observations and corrects the past-project locator to Attachment D II.C.1; it does not claim a full new contract review or continuing source completeness.
 
 ## State ordering
 
@@ -27,13 +29,15 @@ The compiler requires at least three distinct comparable projects in the five-ye
 ## CLI
 
 ```bash
-export SCAQMD_SOURCE_AUTHORITY_KEY_HEX='<64+ hex chars>'
-python -m opportunities.scaqmd_p2027_03.cli sign-source source.discovery.json source_authority.json --key-id owner-2026-09
-python -m opportunities.scaqmd_p2027_03.cli compile example.discovery.json source_authority.json assessment.json --key-id owner-2026-09
-python -m opportunities.scaqmd_p2027_03.cli verify example.discovery.json source_authority.json assessment.json --key-id owner-2026-09
+export SCAQMD_SOURCE_AUTHORITY_KEY_HEX='<64+ private hex chars>'
+python -m opportunities.scaqmd_p2027_03.cli sign-source opportunities/scaqmd_p2027_03/captures/20261003/source.json scaqmd-source-authority.json --key-id owner-2026-10
+python -m opportunities.scaqmd_p2027_03.cli compile opportunities/scaqmd_p2027_03/captures/20261003/packet.json scaqmd-source-authority.json scaqmd-assessment.json --key-id owner-2026-10
+python -m opportunities.scaqmd_p2027_03.cli verify opportunities/scaqmd_p2027_03/captures/20261003/packet.json scaqmd-source-authority.json scaqmd-assessment.json --key-id owner-2026-10
 ```
 
-Outputs are exclusive-create files. JSON parsing rejects duplicate keys and non-finite constants.
+Run from the repository root after checking the official source for later updates. Outputs are exclusive-create files. JSON parsing rejects duplicate keys and non-finite constants. Use the default process clock for a new assessment; `verify` reproduces a stored assessment's time and is not a live source refresh.
+
+The captured CLI run used a private invocation-only acquisition key. Its retained MAC records local source-generation integrity; it is not an owner-held production trust root or an endorsement. That key was never published or written and cannot be reused. The commands above create a separate binding using the operator's private key.
 
 ## External authority
 
