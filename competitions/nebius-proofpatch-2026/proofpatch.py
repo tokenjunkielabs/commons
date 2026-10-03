@@ -130,7 +130,7 @@ _core.verify_bundle = verify_bundle
 def main(argv=None):
     argv = list(sys.argv[1:] if argv is None else argv)
     if not argv:
-        print("usage: proofpatch.py {demo|verify|demo-verify} [bundle]", file=sys.stderr)
+        print("usage: proofpatch.py {demo|verify|demo-verify|real-process|real-process-verify} [bundle]", file=sys.stderr)
         return 2
     try:
         if argv == ["demo"]:
@@ -139,12 +139,30 @@ def main(argv=None):
         if argv == ["demo-verify"]:
             print(json.dumps(verify_demo_bundle(_core.demo_bundle()), sort_keys=True, indent=2))
             return 0
+        if argv == ["real-process"]:
+            from _proofpatch_process import run_rehearsal
+            report = run_rehearsal()
+            print(json.dumps(report, sort_keys=True, indent=2))
+            if not report["ok"]:
+                print("proofpatch: " + report["error"], file=sys.stderr)
+                return 2
+            return 0
+        if len(argv) == 2 and argv[0] == "real-process-verify":
+            from _proofpatch_process import verify_rehearsal
+            with open(argv[1], "r", encoding="utf-8") as handle:
+                value = json.load(handle)
+            report = verify_rehearsal(value)
+            print(json.dumps(report, sort_keys=True, indent=2))
+            if not report["ok"]:
+                print("proofpatch: " + report["error"], file=sys.stderr)
+                return 2
+            return 0
         if len(argv) == 2 and argv[0] == "verify":
             with open(argv[1], "r", encoding="utf-8") as handle:
                 value = json.load(handle)
             print(json.dumps(verify_bundle(value), sort_keys=True, indent=2))
             return 0
-        print("usage: proofpatch.py {demo|verify|demo-verify} [bundle]", file=sys.stderr)
+        print("usage: proofpatch.py {demo|verify|demo-verify|real-process|real-process-verify} [bundle]", file=sys.stderr)
         return 2
     except (OSError, json.JSONDecodeError, ProofError) as exc:
         print("proofpatch: " + str(exc), file=sys.stderr)
