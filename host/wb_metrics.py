@@ -780,7 +780,7 @@ def manifold_residual(rows, *, k: int = 8, sample: int = 192,
             for c, row in zip(coeffs, Sc):
                 for dd in range(d):
                     cv[dd] += c * row[dd]
-            for b in basis:
+            for b in new_vecs:
                 proj = sum(x * y for x, y in zip(cv, b))
                 cv = [cv[dd] - proj * b[dd] for dd in range(d)]
             nv = norm(cv)
@@ -798,7 +798,7 @@ def manifold_residual(rows, *, k: int = 8, sample: int = 192,
             for dd in range(d):
                 proj[dd] += c * b[dd]
         return norm([rc[dd] - proj[dd] for dd in range(d)]) / rn
-    sample_res = sorted(residual(row) for row in Sc)
+    sample_res = sorted(residual(row) for row in S)
     med = percentile(sample_res, 50)
     mad = percentile(sorted(abs(r - med) for r in sample_res), 50) or 1e-9
     threshold = med + 8 * mad
