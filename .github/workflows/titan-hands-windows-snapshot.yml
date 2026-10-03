@@ -1,0 +1,49 @@
+name: TITAN Hands Windows snapshot
+
+on:
+  pull_request:
+    paths:
+      - 'host/titan_hands_windows/**'
+      - '.github/workflows/titan-hands-windows-snapshot.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'host/titan_hands_windows/**'
+      - '.github/workflows/titan-hands-windows-snapshot.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows-snapshot:
+    runs-on: windows-latest
+    timeout-minutes: 10
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Producer, protocol and Windows server regressions
+        run: python -B -m unittest discover -s host/titan_hands_windows/tests -v
+      - name: Exact candidate and clean checkout
+        shell: pwsh
+        run: |
+          $head = git rev-parse HEAD
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot resolve tested HEAD' }
+          Write-Output "Tested HEAD: $head"
+          git diff --check HEAD^
+          if ($LASTEXITCODE -ne 0) { throw 'Whitespace check failed' }
+          $dirty = git status --porcelain=v1 --untracked-files=all
+          if ($LASTEXITCODE -ne 0 -or $dirty) { throw "Tested checkout is dirty: $dirty" }
+          if ($env:GITHUB_EVENT_NAME -ne 'pull_request') {
+            git fetch --no-tags origin main
+            if ($LASTEXITCODE -ne 0) { throw 'Cannot refresh main' }
+            git merge-base --is-ancestor HEAD origin/main
+            if ($LASTEXITCODE -ne 0) { throw 'Tested HEAD is not on current main' }
+            Write-Output "Current main: $(git rev-parse origin/main)"
+          }
