@@ -485,8 +485,9 @@ def _source_needs_scan(path: Path, checkpoint: Mapping[str, Any] | None) -> bool
     if checkpoint.get("signature") != signature:
         return True
     if _is_sqlite(path):
-        return any(not bool(state.get("done")) for state in (checkpoint.get("tables") or {}).values()
-                   if isinstance(state, Mapping))
+        return bool(checkpoint.get("rescan_required")) or any(
+            not bool(state.get("done")) for state in (checkpoint.get("tables") or {}).values()
+            if isinstance(state, Mapping))
     return int(checkpoint.get("offset", 0) or 0) < size
 
 
@@ -578,12 +579,19 @@ def _collect_sqlite(path: Path, key: str, checkpoint: Mapping[str, Any] | None,
     prior_size = int(prior.get("size", 0)) if prior else 0
     identity_changed = bool(prior) and (size != prior_size or mtime_ns != prior.get("mtime_ns") or
                                          (prior.get("signature") and signature != prior.get("signature")))
-    if identity_changed:
+    scan_in_progress = any(isinstance(state, Mapping) and not state.get("done")
+                           for state in tables_state.values())
+    rescan_required = bool(prior.get("rescan_required"))
+    if identity_changed and scan_in_progress:
+        # Keep the current bounded pass moving under an active writer. Its
+        # changed snapshot must be followed by a complete new scan before read.
+        rescan_required = True
+    elif identity_changed or (rescan_required and not scan_in_progress):
         # Growth is not proof of append-only rows: mutable values and new keys
-        # can precede a saved cursor. Resume cursors only for the same database
-        # identity; stable row content IDs deduplicate unchanged rows on replay.
+        # can precede a saved cursor. Stable row IDs deduplicate this replay.
         version += 1
         tables_state = {}
+        rescan_required = False
     uri = "file:" + quote(str(path.resolve()).replace("\\", "/"), safe="/:@") + "?mode=ro"
     connection = sqlite3.connect(uri, uri=True, timeout=3.0)
     connection.row_factory = sqlite3.Row
@@ -595,6 +603,8 @@ def _collect_sqlite(path: Path, key: str, checkpoint: Mapping[str, Any] | None,
         connection.execute("PRAGMA query_only=ON")
         connection.execute("BEGIN")
         schema_rows = connection.execute("SELECT name, sql FROM sqlite_master WHERE type='table' ORDER BY name").fetchall()
+        current_tables = {str(schema["name"]) for schema in schema_rows}
+        tables_state = {name: state for name, state in tables_state.items() if name in current_tables}
         for schema in schema_rows:
             table = str(schema["name"])
             try:
@@ -633,11 +643,16 @@ def _collect_sqlite(path: Path, key: str, checkpoint: Mapping[str, Any] | None,
     changed = (size, mtime_ns, signature) != (after_size, after_mtime, after_signature)
     if changed:
         pending = True
+        rescan_required = True
         issues.append({"source": path.name, "reason": "database_changed_during_read",
                        "recovery": "repeat_source_scan_for_changed_rows"})
+    elif rescan_required:
+        pending = True
+        issues.append({"source": path.name, "reason": "database_changed_during_scan",
+                       "recovery": "finish_current_pass_then_repeat_source_scan"})
     proposed = {"kind": "sqlite", "size": size, "mtime_ns": mtime_ns,
                 "signature": signature, "version": version, "tables": tables_state,
-                "changed_during_read": changed}
+                "changed_during_read": changed, "rescan_required": rescan_required}
     source = {"source_id": source_id, "path": str(path), "kind": "sqlite",
               "size": size, "file_version": version, "status": "pending" if pending else "read",
               "table_count": len(tables_state)}
