@@ -2,7 +2,7 @@
   "schema": "indiana-iot-observability-sources/v1",
   "opportunity_id": "27-87814",
   "event_id": "000670000087814",
-  "checked_at": "2026-09-17T19:20:00Z",
+  "checked_at": "2026-10-03T18:13:33Z",
   "sources": [
     {
       "id": "idoa-current-business-opportunities",
@@ -22,15 +22,139 @@
           "improve alert-quality outcomes"
         ]
       },
-      "controls": []
+      "controls": [],
+      "observed_at": "2026-10-03T18:09:30Z"
     },
     {
       "id": "idoa-bid-package",
       "authority": "OFFICIAL_CONTROLLING_PACKAGE",
-      "retained": false,
+      "retained": true,
       "url": "https://secure.in.gov/idoa/proc/solicitations/files/000670000087814.zip",
-      "claims": {},
-      "controls": []
+      "claims": {
+        "main_document": "000670000087814/27-87814 - RFP Main Document.pdf",
+        "main_document_sha256": "a496e02cf82704c702a71d6a766e0ad62318819fd3dca97b1ffb5a1b1d5e36e1",
+        "reviewed_main_pages": 23,
+        "response_deadline": "2026-10-28T15:00:00-04:00",
+        "reference_deadline": "2026-10-28T15:00:00-04:00",
+        "question_deadline": "2026-10-07T15:00:00-04:00",
+        "optional_network_form_deadline": "2026-10-07T15:00:00-04:00",
+        "answers_amendments_target_date": "2026-10-16",
+        "prebid_general": "2026-09-30T09:30:00-04:00",
+        "prebid_individual_start": "2026-09-30T10:40:00-04:00",
+        "prebid_individual_end": "2026-09-30T10:55:00-04:00",
+        "submission": "SUPPLIER_PORTAL_ONLY",
+        "separate_original_format_files": true,
+        "required_step_1_responses": [
+          "executive_summary_letter",
+          "D",
+          "E",
+          "F",
+          "J",
+          "L",
+          "M"
+        ],
+        "one_responsible_respondent_required": true,
+        "joint_combined_proposals_responsive": false,
+        "source_anchors": {
+          "schedule": "Main RFP 1.23, pp.14-15",
+          "submission": "Main RFP 1.7, p.9; 2.1-2.6, pp.16-18",
+          "step_1": "Main RFP 3.2, pp.20-21",
+          "respondent_structure": "Main RFP 1.2, pp.5-6"
+        }
+      },
+      "controls": [
+        "submission_mechanics",
+        "question_deadline",
+        "prebid",
+        "mandatory_requirements"
+      ],
+      "observed_at": "2026-10-03T18:09:30Z",
+      "retained_relpath": "retained/000670000087814.zip",
+      "sha256": "cf0ef21dbf8f9bc59cc54220fe9155a705ad98c1a5e8a312921cf138dfc9e55e",
+      "byte_count": 967929,
+      "members": [
+        {
+          "path": "000670000087814/27-87814 - RFP Main Document.pdf",
+          "byte_count": 439281,
+          "review_state": "READ"
+        },
+        {
+          "path": "000670000087814/27-87814 Att A - IVOSB Commitment Form.docx",
+          "byte_count": 57431,
+          "review_state": "RETAINED_NOT_REVIEWED"
+        },
+        {
+          "path": "000670000087814/27-87814 Att B - Sample Contract.docx",
+          "byte_count": 71996,
+          "review_state": "RETAINED_NOT_REVIEWED"
+        },
+        {
+          "path": "000670000087814/27-87814 Att B1 - IOT-IaaS.docx",
+          "byte_count": 40864,
+          "review_state": "RETAINED_NOT_REVIEWED"
+        },
+        {
+          "path": "000670000087814/27-87814 Att B2 - IOT-PaaS.docx",
+          "byte_count": 38705,
+          "review_state": "RETAINED_NOT_REVIEWED"
+        },
+        {
+          "path": "000670000087814/27-87814 Att B3 - IOT-SaaS.docx",
+          "byte_count": 40890,
+          "review_state": "RETAINED_NOT_REVIEWED"
+        },
+        {
+          "path": "000670000087814/27-87814 Att D - Cost Proposal Template.xlsx",
+          "byte_count": 38516,
+          "review_state": "RETAINED_NOT_REVIEWED"
+        },
+        {
+          "path": "000670000087814/27-87814 Att E - Business Proposal.docx",
+          "byte_count": 45968,
+          "review_state": "RETAINED_NOT_REVIEWED"
+        },
+        {
+          "path": "000670000087814/27-87814 Att F - Technical Proposal Template.docx",
+          "byte_count": 50155,
+          "review_state": "RETAINED_NOT_REVIEWED"
+        },
+        {
+          "path": "000670000087814/27-87814 Att G - Q&A Template.xlsx",
+          "byte_count": 21353,
+          "review_state": "RETAINED_NOT_REVIEWED"
+        },
+        {
+          "path": "000670000087814/27-87814 Att H - Reference Check Form.docx",
+          "byte_count": 37115,
+          "review_state": "RETAINED_NOT_REVIEWED"
+        },
+        {
+          "path": "000670000087814/27-87814 Att I - Pre-Proposal Network Form.docx",
+          "byte_count": 36482,
+          "review_state": "RETAINED_NOT_REVIEWED"
+        },
+        {
+          "path": "000670000087814/27-87814 Att J - Attestation Form.docx",
+          "byte_count": 46494,
+          "review_state": "RETAINED_NOT_REVIEWED"
+        },
+        {
+          "path": "000670000087814/27-87814 Att K - Statement of Work.docx",
+          "byte_count": 51843,
+          "review_state": "RETAINED_NOT_REVIEWED"
+        },
+        {
+          "path": "000670000087814/27-87814 Att L - AI Technical Proposal Questions.docx",
+          "byte_count": 36600,
+          "review_state": "RETAINED_NOT_REVIEWED"
+        },
+        {
+          "path": "000670000087814/27-87814 Att M-Infrastructure Overview.docx",
+          "byte_count": 42858,
+          "review_state": "RETAINED_NOT_REVIEWED"
+        }
+      ],
+      "review_boundary": "Main RFP reviewed. Attachment contents and Supplier Portal comparison remain separate unfinished work; retained bytes do not prove respondent compliance."
     },
     {
       "id": "publicbidsearch-mirror",
@@ -53,7 +177,9 @@
           "AI-assisted troubleshooting"
         ]
       },
-      "controls": []
+      "controls": [],
+      "observed_at": "2026-09-17T19:20:00Z"
     }
-  ]
+  ],
+  "authority_generation_id": "OFFICIAL_ZIP_20261003"
 }
