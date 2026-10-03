@@ -6,6 +6,11 @@ latest ingested receipt per identity. Neither proves a running, reachable
 session. This read-only projection joins those sources with exact claim IDs,
 measures receipt age, and lets consumers route only on fresh evidence while
 keeping session reachability explicitly unknown.
+
+Use --retain-invalid-timestamps to observe mixed-quality source receipts without
+losing valid rows. Malformed and future receipt times remain unknown, retain
+their original value and error, and make timestamp coverage explicitly partial.
+The default remains strict; --check reproduces the policy saved in the output.
 """
 
 from __future__ import annotations
@@ -139,6 +144,7 @@ def build_index(
     observed_at: str,
     source_commit: str,
     source_blobs: dict[str, str],
+    retain_invalid_timestamps: bool = False,
 ) -> dict[str, Any]:
     observed = _timestamp(observed_at, "observed_at")
     assert observed is not None
@@ -186,6 +192,7 @@ def build_index(
     counts = {"FRESH_6H": 0, "RECENT_24H": 0, "STALE": 0, "UNKNOWN_TS": 0}
     identities: list[dict[str, Any]] = []
     matched_claim_ids: set[str] = set()
+    invalid_timestamps = 0
     for actor in sorted(presence_by_actor):
         p_row = presence_by_actor[actor]
         l_row = last_by_actor[actor]
@@ -194,28 +201,38 @@ def build_index(
         lastseen_ts = str(l_row.get("ts") or "")
         _require(presence_ts == lastseen_ts, f"{actor}: timestamp mismatch")
         receipt_id = _text(l_row["id"])
-        parsed = _timestamp(lastseen_ts, f"lastseen[{actor}].ts", allow_blank=True)
-        raw_ts = "" if parsed is None else lastseen_ts
-        age_seconds: int | None
-        if parsed is None:
+        timestamp_error: str | None = None
+        try:
+            parsed = _timestamp(lastseen_ts, f"lastseen[{actor}].ts", allow_blank=True)
+            raw_ts = "" if parsed is None else lastseen_ts
+            age_seconds: int | None
+            if parsed is None:
+                freshness = "UNKNOWN_TS"
+                age_seconds = None
+            else:
+                # Validate and classify before discarding fractional seconds.
+                # Truncation can admit future receipts and extend freshness windows.
+                # datetime truncates after six fractional digits. Compare the
+                # whole-second delta with the original exact decimal fractions.
+                delta = observed - parsed.replace(microsecond=0)
+                receipt_fraction = _fractional_digits(lastseen_ts)
+                elapsed = (delta, observed_fraction)
+                _require(elapsed >= (dt.timedelta(0), receipt_fraction), f"{actor}: last-seen timestamp is in the future")
+                age_seconds = delta // dt.timedelta(seconds=1) - (observed_fraction < receipt_fraction)
+                if elapsed <= (dt.timedelta(seconds=FRESH_SECONDS), receipt_fraction):
+                    freshness = "FRESH_6H"
+                elif elapsed <= (dt.timedelta(seconds=RECENT_SECONDS), receipt_fraction):
+                    freshness = "RECENT_24H"
+                else:
+                    freshness = "STALE"
+        except AgentLivenessError as exc:
+            if not retain_invalid_timestamps:
+                raise
+            timestamp_error = str(exc)
+            raw_ts = lastseen_ts
             freshness = "UNKNOWN_TS"
             age_seconds = None
-        else:
-            # Validate and classify before discarding fractional seconds.
-            # Truncation can admit future receipts and extend freshness windows.
-            # datetime truncates after six fractional digits. Compare the
-            # whole-second delta with the original exact decimal fractions.
-            delta = observed - parsed.replace(microsecond=0)
-            receipt_fraction = _fractional_digits(lastseen_ts)
-            elapsed = (delta, observed_fraction)
-            _require(elapsed >= (dt.timedelta(0), receipt_fraction), f"{actor}: last-seen timestamp is in the future")
-            age_seconds = delta // dt.timedelta(seconds=1) - (observed_fraction < receipt_fraction)
-            if elapsed <= (dt.timedelta(seconds=FRESH_SECONDS), receipt_fraction):
-                freshness = "FRESH_6H"
-            elif elapsed <= (dt.timedelta(seconds=RECENT_SECONDS), receipt_fraction):
-                freshness = "RECENT_24H"
-            else:
-                freshness = "STALE"
+            invalid_timestamps += 1
         counts[freshness] += 1
         exact_claims = sorted(
             claims_by_id.get(receipt_id, []),
@@ -232,13 +249,14 @@ def build_index(
                 "destination": _text(l_row.get("to")),
                 "receipt_freshness": freshness,
                 "age_seconds": age_seconds,
+                **({"timestamp_error": timestamp_error} if timestamp_error else {}),
                 "routing_evidence": "FRESH_RECEIPT_ONLY" if freshness == "FRESH_6H" else "NOT_CURRENT",
                 "session_reachability": "NOT_VERIFIED",
                 "exact_claims": exact_claims,
             }
         )
 
-    return {
+    result = {
         "schema": SCHEMA,
         "observed_at": observed_at,
         "source_commit": source_commit,
@@ -264,6 +282,16 @@ def build_index(
         },
         "identities": identities,
     }
+    if retain_invalid_timestamps:
+        result["timestamp_policy"] = "retain_invalid"
+        result["timestamp_coverage"] = {
+            "state": "PARTIAL" if counts["UNKNOWN_TS"] else "COMPLETE",
+            "identities": len(identities),
+            "classified": len(identities) - counts["UNKNOWN_TS"],
+            "blank": counts["UNKNOWN_TS"] - invalid_timestamps,
+            "invalid": invalid_timestamps,
+        }
+    return result
 
 
 def _decode_json(raw: str | bytes, at: str) -> Any:
@@ -276,7 +304,10 @@ def _decode_json(raw: str | bytes, at: str) -> Any:
         raise AgentLivenessError(f"{at}: invalid JSON: {exc}") from exc
 
 
-def scan(root: Path, observed_at: str, source_commit: str) -> dict[str, Any]:
+def scan(
+    root: Path, observed_at: str, source_commit: str, *,
+    retain_invalid_timestamps: bool = False,
+) -> dict[str, Any]:
     documents: dict[str, object] = {}
     blobs: dict[str, str] = {}
     for path in SOURCE_PATHS:
@@ -290,6 +321,7 @@ def scan(root: Path, observed_at: str, source_commit: str) -> dict[str, Any]:
         observed_at=observed_at,
         source_commit=source_commit,
         source_blobs=blobs,
+        retain_invalid_timestamps=retain_invalid_timestamps,
     )
 
 
@@ -297,7 +329,12 @@ def check_snapshot(root: Path, path: Path) -> dict[str, Any]:
     expected = _decode_json(path.read_text(encoding="utf-8"), str(path))
     _require(isinstance(expected, dict), f"{path} must be an object")
     _require(expected.get("schema") == SCHEMA, f"{path} is not {SCHEMA}")
-    actual = scan(root, _text(expected.get("observed_at")), _text(expected.get("source_commit")))
+    policy = expected.get("timestamp_policy", "strict")
+    _require(policy in ("strict", "retain_invalid"), f"{path}: unknown timestamp policy")
+    actual = scan(
+        root, _text(expected.get("observed_at")), _text(expected.get("source_commit")),
+        retain_invalid_timestamps=policy == "retain_invalid",
+    )
     # JSON booleans and numbers are distinct even when Python equates them.
     # Canonical comparison also preserves nested scalar types without making
     # object key order or whitespace part of the snapshot contract.
@@ -313,6 +350,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--source-commit", help="exact source commit")
     parser.add_argument("--check", type=Path, help="verify an existing projection")
     parser.add_argument("--output", type=Path, help="write instead of stdout")
+    parser.add_argument(
+        "--retain-invalid-timestamps", action="store_true",
+        help="retain malformed/future receipt timestamps as unknown with errors and coverage; --check uses the saved policy",
+    )
     args = parser.parse_args(argv)
     try:
         if args.check:
@@ -328,7 +369,10 @@ def main(argv: list[str] | None = None) -> int:
             return 0
         _require(bool(args.observed_at), "--observed-at is required")
         _require(bool(args.source_commit), "--source-commit is required")
-        result = scan(args.root, args.observed_at, args.source_commit)
+        result = scan(
+            args.root, args.observed_at, args.source_commit,
+            retain_invalid_timestamps=args.retain_invalid_timestamps,
+        )
         rendered = canonical_text(result)
         if args.output:
             args.output.write_text(rendered, encoding="utf-8")
