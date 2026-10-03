@@ -25017,6 +25017,12 @@
           "ts": ""
         },
         {
+          "id": "cursor-titanmcp-get-setup-status-20261003-01",
+          "from": "cursor-cloud",
+          "to": "TABLE",
+          "ts": ""
+        },
+        {
           "id": "cursor-titanmcp-get-operator-20261002-01",
           "from": "cursor-cloud",
           "to": "TABLE",
@@ -25030,12 +25036,6 @@
         },
         {
           "id": "cursor-titanmcp-get-connector-20261003-01",
-          "from": "cursor-cloud",
-          "to": "TABLE",
-          "ts": ""
-        },
-        {
-          "id": "cursor-titanmcp-consent-attach-20261002-01",
           "from": "cursor-cloud",
           "to": "TABLE",
           "ts": ""
