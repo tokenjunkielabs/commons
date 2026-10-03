@@ -58,6 +58,7 @@
     "merge_sha": "639de225748314253ba472eb3d6ebcf9de01d79f",
     "branch_head_sha": "e7cfdcd43ba5ae817ad933752f805c0fbe837347",
     "fresh_main_parent": "a22079e39dbf9ea6556f3611ff303da557638b8d",
+    "receipt_reconciled_main_sha": "52777684d8fac7e3000a1d7a8d742be4260ad456",
     "non_force_history": true,
     "exact_current_main_readback": {
       "ground/RESOURCE_LEDGER.json": "18bb1949552ddd9ec702ef49f1d9b2142f5f8a26",
