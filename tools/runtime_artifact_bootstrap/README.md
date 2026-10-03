@@ -1,5 +1,52 @@
 # Runtime recovery in existing cloud workspaces
 
+## Choose an owned work directory from current capacity
+
+`workdir.py` is an optional Python operator aid for temporary outputs, archives,
+and runtime extraction. It inspects only the candidate directories you supply.
+It identifies their filesystem devices, so `/tmp` and a workspace on the same
+overlay are visible as aliases rather than extra capacity. Linux `tmpfs` and
+`ramfs` candidates are also bounded by observed host memory and the command
+center's existing visible-ancestor cgroup charge-headroom reader.
+
+Inspect without writing:
+
+```sh
+python tools/runtime_artifact_bootstrap/workdir.py inspect \
+  --candidate "$PWD" --candidate /tmp --candidate /dev/shm \
+  --need-bytes 1048576 --reserve-bytes 16777216
+```
+
+Create an independently owned directory on the fitting candidate with the most
+observed usable bytes; equal candidates preserve your argument order:
+
+```sh
+TASK_WORKDIR="$(python tools/runtime_artifact_bootstrap/workdir.py create \
+  --candidate "$PWD" --candidate /dev/shm \
+  --need-bytes 1048576 --reserve-bytes 16777216 --format path)" || exit
+```
+
+Use the returned path as your command's output directory, or pass it as the
+existing browser helper's `tempRoot`. JSON is the default output and includes
+the actual selected root, created path, device aliases, exact byte counts,
+memory sources, unknown coverage, and any creation errors. A failed `create`
+exits nonzero and returns those observations; `inspect` remains read-only.
+
+The helper creates one new `commons-work-*` directory and checks a 4 KiB write
+inside it. A failed attempt removes only that call's own check file and empty
+directory; unexpected contents are preserved. It never recursively deletes,
+moves existing files, changes environment variables, launches workloads, or
+changes another tool's admission behavior. The caller retains the successful
+directory and decides where completed artifacts belong.
+
+Capacity is an observation, not a reservation. Cgroup headroom excludes
+possible cache reclaim and can change with other workers; it is distinct from
+the larger free-space number a tmpfs mount can display. `--need-bytes` is the
+expected temporary-file budget and does not include the workload's process
+memory. Unknown limits remain visible in JSON. Use a full Commons checkout, or
+retain `integrations/command_center/telemetry.py` at its normal relative path,
+to reuse the cgroup reader. The helper uses only the Python standard library.
+
 ## Local product browser with installed Chromium
 
 `local_browser.cjs` exports `openLocalBrowser({ target, executablePath, tempRoot? })`.
@@ -82,8 +129,9 @@ const path = require('node:path');
 JS
 ```
 
-Create the writable parent directory first; use an owned directory under
-`/dev/shm` when the workspace disk is full. The output must be new: `wx` preserves
+Create the writable parent directory first. The optional `workdir.py` helper
+above can compare an owned `/dev/shm` candidate with the workspace, including
+the current cgroup memory budget. The output must be new: `wx` preserves
 any existing executable, and a failed extraction leaves its partial output
 non-executable. Pass the printed path to `openLocalBrowser` and reuse that binary
 across calls. This recovery does not unpack the font/SwiftShader tarballs or
