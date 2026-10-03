@@ -23,7 +23,17 @@ export async function collectNativePass({baseURL='http://127.0.0.1:8893', readPa
     cursor=page.next_cursor;
   } while(cursor && !signal?.aborted);
   const available=availableTools ? new Set(availableTools) : null;
-  const pending=jobs.filter(job=>job.tool_name && !job.complete && (!available || available.has(job.tool_name)));
+  const now=Date.now()/1000;
+  const pending=[];
+  let deferred=0, nextAttempt=null;
+  for (const job of jobs) {
+    if (!job.tool_name || job.complete || (available && !available.has(job.tool_name))) continue;
+    const retryAt=Number(job.next_attempt_epoch);
+    if (Number.isFinite(retryAt) && retryAt>now) {
+      deferred++;
+      nextAttempt=nextAttempt===null ? retryAt : Math.min(nextAttempt,retryAt);
+    } else pending.push(job);
+  }
   const outcomes=[];
   let next=0;
   const worker=async()=>{
@@ -51,6 +61,7 @@ export async function collectNativePass({baseURL='http://127.0.0.1:8893', readPa
   await Promise.all(Array.from({length:Math.max(1,Math.min(32,concurrency,pending.length||1))},worker));
   return {captured:outcomes.filter(row=>row.status==='captured').length,
     considered:pending.length,discovered_jobs:jobs.length,outcomes,corpus_complete:false,
+    deferred_jobs:deferred,next_attempt_epoch:nextAttempt,
     sampling:false,swarm_execution_independent:true};
 }
 
