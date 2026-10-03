@@ -101,6 +101,7 @@ class Store:
                 CREATE TABLE IF NOT EXISTS accounts (account_id TEXT PRIMARY KEY, payload TEXT NOT NULL);
                 CREATE TABLE IF NOT EXISTS notifications (notification_id TEXT PRIMARY KEY,
                     occurred_at TEXT, payload TEXT NOT NULL, delivery_state TEXT DEFAULT 'available', receipt TEXT);
+                CREATE INDEX IF NOT EXISTS notification_delivery_time ON notifications(delivery_state,julianday(occurred_at));
                 CREATE TABLE IF NOT EXISTS runtime_state (key TEXT PRIMARY KEY, payload TEXT NOT NULL);
                 CREATE TABLE IF NOT EXISTS source_records (ref TEXT PRIMARY KEY,source_id TEXT,sha256 TEXT,byte_length INTEGER,character_length INTEGER,iv BLOB,ciphertext BLOB,mac BLOB,format TEXT,key_reference TEXT);
                 CREATE INDEX IF NOT EXISTS source_record_sizes ON source_records(byte_length,character_length);
@@ -345,13 +346,23 @@ class Store:
         if harness: peers=[p for p in peers if p.get("harness")==harness]
         return self.envelope(peers=peers, returned=len(peers),complete=False,census_coverage=census.get("coverage",[]))
 
-    def records(self, table, *, limit=1000, cursor="", q=None, source=None, provider=None, harness=None):
+    def records(self, table, *, limit=1000, cursor="", q=None, source=None, provider=None, harness=None, delivery_state=None, since=None):
+        """Read one identity-ordered page, optionally narrowing notification delivery.
+
+        Delivery state and occurrence time filters leave the retained feed intact.
+        """
         if table not in {"coverage","accounts","notifications"}:
             raise ValueError("Unknown measurement collection")
+        if table!="notifications" and (delivery_state is not None or since is not None):
+            raise ValueError("Delivery filters apply only to notifications")
         with self.connect() as db:
             identity={"coverage":"source_id","accounts":"account_id","notifications":"notification_id"}[table]
             where=[identity+">?"]
             args=[str(cursor or "")]
+            if delivery_state is not None:
+                where.append("delivery_state=?"); args.append(str(delivery_state))
+            if since is not None:
+                where.append("julianday(occurred_at)>=julianday(?)"); args.append(str(since))
             if q:
                 where.append("payload LIKE ?"); args.append("%"+str(q)+"%")
             for key,value in (("source",source),("provider",provider),("harness",harness)):
