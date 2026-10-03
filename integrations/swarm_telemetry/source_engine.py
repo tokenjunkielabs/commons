@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import copy
 import time
+from datetime import datetime
 from pathlib import Path
 from threading import RLock
 from .store import now,stable_id
@@ -60,15 +61,35 @@ class SourceEngine:
             responses=dict(self.store.state("native_response_refs") or {})
             metadata=dict(self.store.state("native_response_metadata") or {})
         receipts={}
+        identical_observations=0
         for job_id,ref in responses.items():
             record=metadata.get(job_id,{})
             owner=record.get("reader") or ("slack" if job_id.startswith("slack-read:") else "services")
-            if owner!=kind or consumed.get(job_id)==ref: continue
+            if owner!=kind: continue
             job=(state.get("jobs") or {}).get(job_id,{})
-            raw=json.loads(self.store.custody.read(ref))
-            if kind=="slack" and job.get("last_native_result_sha256")==module._digest(raw):
+            known=consumed.get(job_id)==ref
+            raw=None if known else json.loads(self.store.custody.read(ref))
+            if known or kind=="slack" and job.get("last_native_result_sha256")==module._digest(raw):
                 # A committed reader checkpoint proves this exact envelope was
                 # consumed even if interruption preceded the receipt-index write.
+                # A later identical live-tail read is still a fresh observation.
+                # Reuse its content projection, but renew the existing poll clock
+                # only when the captured request is still this exact live tail.
+                if (kind=="slack" and job.get("kind") in {"tail","thread_tail"}
+                        and job.get("status")=="live" and not job.get("cursor")
+                        and record.get("arguments")==module._request(job)[1]):
+                    try:
+                        captured=datetime.fromisoformat(record["observed_at"].replace("Z","+00:00")).timestamp()
+                        attempted=datetime.fromisoformat(job["last_attempt_at"].replace("Z","+00:00")).timestamp()
+                    except (KeyError,TypeError,ValueError,OverflowError,OSError):
+                        pass
+                    else:
+                        if captured>attempted:
+                            job["last_attempt_at"]=record["observed_at"]
+                            job["next_attempt_epoch"]=max(float(job.get("next_attempt_epoch",0)),captured+float(config.get("slack_tail_seconds",30)))
+                            job["attempts"]=int(job.get("attempts",0))+1
+                            job["identical_response_observations"]=int(job.get("identical_response_observations",0))+1
+                            identical_observations+=1
                 consumed[job_id]=ref
                 continue
             if "arguments" in record and job:
@@ -119,7 +140,7 @@ class SourceEngine:
         for job_id in seen:
             if job_id in receipts: consumed[job_id]=responses[job_id]
         self.store.state("native_consumed:"+kind,consumed)
-        health={"observed_at":now(),"events":len(events),"pending":len(pending),"complete":bool(rows) and all(row.get("complete",False) for row in rows),"full_source_retained":True,"sampling":False,"native_receipts_available":len(receipts),"native_receipts_consumed":len(consumed)}
+        health={"observed_at":now(),"events":len(events),"pending":len(pending),"complete":bool(rows) and all(row.get("complete",False) for row in rows),"full_source_retained":True,"sampling":False,"native_receipts_available":len(receipts),"native_receipts_consumed":len(consumed),"native_identical_observations":identical_observations}
         self.store.state("source_reader_health:"+kind,health)
         return {"kind":kind,**health}
     def jobs(self,reader=None,limit=None,cursor=0):
