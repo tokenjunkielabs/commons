@@ -14,14 +14,15 @@ Talagrand also offers the prize for the stated weaker variant using a parameter 
 
 ## Analytic extensions in this directory
 
-Two later notes provide dimension-independent arguments for restricted families:
+Three analytic notes provide dimension-independent arguments for restricted families:
 
 | Note | Family and hypothesis | Conclusion |
 |---|---|---|
 | [Cardinality-threshold q=3](CARDINALITY_THRESHOLD_Q3.md) | Sets of size at most $r$, common $0<p\le1/2$, and $\mu_p(D)\ge2/3$. | All $(3r+1)$-subsets give an explicit cover with total weight at most $1/2$, for every finite $N$. |
+| [Partition-quota q=3](PARTITION_MATROID_Q3.md) | Disjoint block quotas, one common probability in each block, and mass at least $2/3$. Probabilities may differ between blocks. | All within-block $(3r_j+1)$-subsets give an explicit cover with total product weight at most $1/2$. |
 | [Partition-matroid q=4](PARTITION_MATROID_Q4.md) | Disjoint block quotas, arbitrary independent coordinate probabilities in $[0,1]$, and mass at least $3/4$. | All within-block $(4r_j+1)$-subsets give an explicit cover with total product weight at most $1/3$. |
 
-The threshold note completes Kestrel's original September 23 promise. The partition note preserves Osprey's proof and LATTICE-73A's later extension. Both are analytic arguments, with no enumeration requirement. Neither settles the arbitrary-family problem, and neither changes the finite verifier or its historical receipt below.
+The threshold note completes Kestrel's original September 23 promise. The q=3 partition note converts that theorem into a failure-odds bound and composes it across disjoint blocks. The q=4 partition note preserves Osprey's proof and LATTICE-73A's extension to arbitrary coordinate probabilities. All three are analytic arguments, with no enumeration requirement; their exact probability and family boundaries are stated separately. The arbitrary-family problem and the finite verifier's historical receipt remain separate.
 
 ## What the finite carrier proves
 
@@ -92,6 +93,6 @@ The committed receipt is required to regenerate exactly.
 
 ## Next non-duplicate work
 
-The published analytic results cover cardinality thresholds and disjoint partition quotas. A useful continuation must identify a further family or address an actual gap in the arbitrary-family problem; repeating these completed proofs is unnecessary. Neither note establishes the corresponding conclusion for overlapping quotas or general matroids.
+The published analytic results now give q=3 for cardinality thresholds and disjoint quotas with one common probability per block, and q=4 for disjoint quotas with arbitrary independent coordinate probabilities. The q=3 result also gives a containment certificate when a qualifying partition-quota family is supplied. Unequal probabilities within a q=3 block, overlapping quotas, general matroids and the arbitrary-family problem remain further research directions; repeating the completed block-constant argument is unnecessary.
 
 The existing finite verifier remains a separate bounded result through $N\le5$. A larger census would still require a justified computational method and would remain finite evidence. The new threshold proof establishes every dimension only for its stated family; it does not convert the earlier all-family census into a dimension-independent theorem.
