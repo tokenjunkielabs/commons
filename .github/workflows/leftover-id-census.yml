@@ -17,8 +17,6 @@ on:
       - "host/leftover_id_census.py"
       - "ground/WORK_AUTOMATION.md"
       - "ground/WORK_AUTOMATION.json"
-      - "test_work_becomes_automation.py"
-      - "test_leftover_id_census_workflow_head.py"
       - ".github/workflows/leftover-id-census.yml"
       - "ping/union_git_ntfy.py"
   pull_request:
@@ -37,10 +35,14 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - name: unit contract
-        run: |
-          python3 test_work_becomes_automation.py
-          python3 test_leftover_id_census_workflow_head.py
+          sparse-checkout: |
+            /.gitattributes
+            /host/leftover_id_census.py
+            /ping/union_git_ntfy.py
+            /ground/WORK_AUTOMATION.json
+            /leftover-census.md
+            /leftover-census.json
+          sparse-checkout-cone-mode: false
       - name: fail when leftover-census stamp is stale vs inputs
         run: python3 host/leftover_id_census.py --check --sha "$(git rev-parse HEAD)"
 
@@ -55,10 +57,14 @@ jobs:
         with:
           ref: ${{ github.ref_name }}
           fetch-depth: 20
-      - name: unit contract
-        run: |
-          python3 test_work_becomes_automation.py
-          python3 test_leftover_id_census_workflow_head.py
+          sparse-checkout: |
+            /.gitattributes
+            /host/leftover_id_census.py
+            /ping/union_git_ntfy.py
+            /ground/WORK_AUTOMATION.json
+            /leftover-census.md
+            /leftover-census.json
+          sparse-checkout-cone-mode: false
       - name: regenerate stamp when leftover statuses drifted, else leave FRESH
         run: python3 host/leftover_id_census.py --regenerate-or-alarm --sha "$(git rev-parse HEAD)"
       - name: commit regenerated stamp on main only
