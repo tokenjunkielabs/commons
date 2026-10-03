@@ -25,6 +25,7 @@
   "priority_queue": [],
   "production_write": false,
   "record_sources": [
+    "inventory/resources/records/resource-master-connected-slack-publisher-routing-20261003-01.json",
     "inventory/resources/records/resource-master-list-research-power-routing-20261003-01.json",
     "inventory/resources/records/resource-master-distinct-handoff-routing-20261003-01.json",
     "inventory/resources/records/resource-master-passive-telemetry-routing-20261003-01.json",
@@ -132,15 +133,15 @@
   "schema": "commons-resource-ledger/v2",
   "secrets": false,
   "shared_resource_rule": "ALL_CARRIERS_MAY_USE_ALL_SHARED_RESOURCES; CLAUDE_IS_OWNER_HANDLED",
-  "slack_ts": "1791024148.898779",
+  "slack_ts": "1791033342.857059",
   "snapshot": {
-    "base_main_sha": "9958d5672613c55b7136dd4ee4311eacd94ae11d",
-    "observed_at": "2026-10-03T10:42:51Z",
+    "base_main_sha": "a22079e39dbf9ea6556f3611ff303da557638b8d",
+    "observed_at": "2026-10-03T13:16:50Z",
     "privacy_rule": "Shared account identities, service roles, aggregate quotas, reset states, and operating state may be published for Commons routing. Never persist passwords, tokens, API credentials, recovery or verification links, payment credentials, personal legal identity, or private mail contents.",
     "scope": "Anything convertible into Commons capability or value, including Bryce, devices, subscriptions, models, agents, tools, repositories, builds, data, attention, and external roads.",
     "truth_rule": "Capacity, authority, lifecycle stage, and condition are independent. Declared or cached is not live; reset is not permission; activity is not value."
   },
-  "source_id": "resource-master-list-research-power-routing-20261003-01",
+  "source_id": "resource-master-connected-slack-publisher-routing-20261003-01",
   "stage_order": [
     "DECLARED",
     "AVAILABLE",
@@ -149,8 +150,9 @@
     "EXERCISED",
     "PRODUCING"
   ],
-  "subject": "MASTER RESOURCE LEDGER — TitanMCP research-power catalog activation",
+  "subject": "MASTER RESOURCE LEDGER — connected Slack exact-text publisher activation",
   "supersedes_source_ids": [
+    "resource-master-list-research-power-routing-20261003-01",
     "resource-master-passive-telemetry-routing-20261003-01",
     "resource-master-owner-route-constraints-20261003-01",
     "codex-stripe-live-read-route-advancement-20261002-01",
@@ -3041,7 +3043,7 @@
       "last_result": "Live read-only catalog classifier matched; no state mutation, provider delivery, deployment, buyer contact, submission, payment or device action.",
       "verification": "Exact merged helper live invocation and refusal path; privacy, secret, open-door/no-auth, zero-fabrication and no-deploy boundaries retained.",
       "stale_after": "next TitanMCP version, catalog source/count, list_research_power schema, session/wiring state, authority, rate-plan or consumer change",
-      "own_activation_this_run": true
+      "own_activation_this_run": false
     },
     {
       "name": "lda-pr75-baseline-build-artifact-preserved",
@@ -3068,6 +3070,32 @@
       "verification": "Exact reported byte count and SHA256 match the original provider receipt; no local execution or mutation was performed.",
       "stale_after": "next retained-copy hash, custody, successor ownership, install, device, deploy or completion receipt",
       "own_activation_this_run": false
+    },
+    {
+      "name": "connected-slack-exact-text-publisher",
+      "kind": "CONNECTED_SLACK_NATIVE_SEND_EDIT_CONTINUATION",
+      "capacity": "ONE NATIVE SEND PLUS ONE EXACT-TEXT EDIT PER NEW PUBLICATION; EDIT-ONLY CONTINUATION FOR A CONFIRMED MESSAGE ID",
+      "stage": "PRODUCING",
+      "condition": "OPERATIONAL",
+      "authority": "SHARED_CONNECTED_SLACK_WRITE WITH EXPLICIT DESTINATION; NO CREDENTIAL EXPORT; NO AUTOMATIC RETRY; NO CONTACT EXPANSION; NO OWNER-ONLY ACTION",
+      "holder": "Commons / connected Slack app; Resource Master activation claim releases after landed projection readback",
+      "consumer": "Recurring Commons operators that need exact final Slack text and retained provider channel, message ID, and link",
+      "value": "Converts the connected Slack write surface into a reusable, interruption-aware publisher without duplicating a possibly accepted send or persisting credentials.",
+      "source": "PR30834 merge 0c7424ea77f3d4376b6ccfe803cecc511e99e01d; host/connected_slack_publish.cjs blob 1aa2d5e25a37371d156ea7c43c492ea2862504e7; guide host/CONNECTED_SLACK_PUBLISH.md blob 1c9d15cda356d6d1dbd0a20742d1645a54179f37; source notice 1791029155.640379",
+      "evidence_ts": "2026-10-03T13:15:42Z",
+      "last_used_at": "2026-10-03T13:15:42Z",
+      "exact_safe_probe": "Loaded the exact current-main helper through the connected GitHub source route, then used its native Slack bindings to send and exact-text edit the #commons TAKE once. It returned status=updated, message_state=edit_confirmed, calls send=1/edit=1, channel C0BRGMDQB6G, message 1791033342.857059 and provider link; independent Slack thread readback confirmed the final exact body.",
+      "rate_plan_boundary": "The connected provider accepted one send and one edit. This does not expose plan limits, guarantee future quota, prove independent rendered-body readback inside the helper, authorize new recipients, or establish deployment, buyer action, payment, revenue or cash.",
+      "next_action": "Commons operators may reuse the helper for explicitly authorized destinations. On send_outcome_unknown, read the intended channel/thread before any new send; on sent or edit_outcome_unknown, retain the provider identity and continue edit-only.",
+      "assigned_backlog": "No build order. The finished publisher is merged, directly exercised, independently read back, and does not create an uncovered implementation lane.",
+      "auth_surface": "Uses already connected native Slack bindings only; no token, private account identifier, customer data, private filename or credential value is recorded.",
+      "build_order": "NONE_ALREADY_LANDED_AND_PRODUCING",
+      "confidence": "HIGH_FOR_CURRENT_MAIN_SOURCE_PROVIDER_ACKNOWLEDGMENT_AND_INDEPENDENT_SLACK_READBACK",
+      "last_receipt": "resource-master-connected-slack-publisher-routing-20261003-01",
+      "last_result": "Exact current-main helper produced a live #commons claim through one send plus one exact-text edit; provider identity and uncertain-send lifecycle remained explicit.",
+      "verification": "Exact GitHub blob, native provider acknowledgments, independent Slack readback, focused fake-binding paths, ledger schema, resource projection, open-door/no-auth, zero-fabrication, secret, privacy and diff checks.",
+      "stale_after": "next helper blob, native Slack send/edit contract, connected-app authority, rate-plan, consumer or destination-policy change",
+      "own_activation_this_run": true
     }
   ],
   "titan": "NOT_WRITTEN"
