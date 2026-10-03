@@ -101,7 +101,10 @@ def select_tasks(tasks, *, limit=100, task=None, states=None, owner=None, after=
             not isinstance(state, str) or state not in TASK_STATES for state in states):
         raise ValueError("states must contain only " + ", ".join(sorted(TASK_STATES)))
     wanted = set(states)
-    rows = _tasks(tasks)
+    # Index retained records without copying every task for a bounded page.
+    # Returned rows remain independent shallow copies, as with _tasks().
+    source = tasks.get("tasks", tasks) if isinstance(tasks, dict) else {}
+    rows = {str(key): row for key, row in source.items() if isinstance(row, dict)}
     matched, remaining, page = 0, 0, []
     for key in sorted(rows):
         row = rows[key]
@@ -116,7 +119,7 @@ def select_tasks(tasks, *, limit=100, task=None, states=None, owner=None, after=
             continue
         remaining += 1
         if len(page) < page_size:
-            page.append(row)
+            page.append(dict(row, task_key=row.get("task_key") or key))
     truncated = remaining > len(page)
     return {"rows": page, "matched": matched, "total": len(rows),
             "next_cursor": page[-1]["task_key"] if truncated else None,
