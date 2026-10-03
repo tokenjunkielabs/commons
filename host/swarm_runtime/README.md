@@ -24,6 +24,7 @@ python host/swarmctl.py status --task github:woahwhattheheck/commons:issue:177
 python host/swarmctl.py sync --max-calls 4
 python host/swarmctl.py take github:woahwhattheheck/commons:issue:177 --operation-id take-177-01 --data /tmp/worker.json
 python host/swarmctl.py heartbeat --feed-cursor '2026-09-26T12:00:00Z|exact-event-id'
+python host/swarmctl.py release github:woahwhattheheck/commons:issue:177 --operation-id release-177-01 --expected-started-at '2026-09-26T12:00:00Z'
 python host/swarmctl.py ship github:woahwhattheheck/commons:issue:177 --operation-id ship-177-01
 python host/swarmctl.py block github:woahwhattheheck/commons:issue:177 --operation-id block-177-01 --blocker 'Exact provider error' --next-action 'Exact action needed'
 python host/swarmctl.py next --operation-id next-02
@@ -33,6 +34,13 @@ Use real task IDs and consumed cursors. `open` adds a task without taking it;
 `abandon` closes unfinished work explicitly. `heartbeat` can omit the task only
 when that worker owns exactly one active task. `ship` records a shipment claim;
 provider reconciliation supplies the actual merged SHA. It does not merge code.
+`release` returns the specified unfinished ACTIVE task to OPEN and releases its
+matching legacy holding without marking completion or taking another task. Copy
+the task's exact `started_at` from `status` into `--expected-started-at` (or
+`expected_started_at` in `--data`/the shared API), and retain it with the same
+operation ID for retries. A changed claim generation, another current worker, or
+a task that is no longer ACTIVE returns an explicit rejected outcome; it cannot
+release newer work. Run `next` separately when ready to take another task.
 After a terminal outcome or a collision, the same transaction attempts to take
 the next compatible task. The response includes its bounded context bundle.
 Status accepts repeated `--state`, exact `--task`/`--owner`, and `--after` with
