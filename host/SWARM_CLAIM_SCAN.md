@@ -61,7 +61,11 @@ The response size limit is 64 MiB per input. No third-party package is required.
   do not supply terminal observations.
 - `coverage` keeps each page's continuation and unknown pagination, unparsed
   statement headers, and message identities supplied with contradictory text.
-  Conflicting versions are left uninterpreted rather than guessed to be edits.
+  The known trailing `*Sent using* <@USER_ID|ChatGPT>` connector signature is
+  ignored only when comparing duplicate message IDs: detailed thread responses
+  include it while native search responses may omit it. Original message text,
+  source references, and export hashes remain retained. Other text differences
+  leave conflicting versions uninterpreted rather than guessed to be edits.
   Unparsed headers retain their exact text and source link, including a
   declaration in a later paragraph of an otherwise unrecognized message.
 - `inputs` binds each supplied export to its SHA-256 and byte count.
