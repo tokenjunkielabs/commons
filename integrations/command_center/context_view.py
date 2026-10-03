@@ -235,6 +235,8 @@ def build_index(work, now=None):
         if source_id in sources:
             raise ValueError("Duplicate source ID in WorkStore state.")
         sources[source_id] = raw
+    source_stats = {key: {"records": 0, "retained_records": 0, "oldest_ingested_at": None}
+                    for key in sources}
     rows, identities = [], set()
     missing = set()
     for raw in work.get("items", []):
@@ -247,12 +249,22 @@ def build_index(work, now=None):
             raise ValueError("Duplicate source_id/item_id in WorkStore state.")
         identities.add(identity)
         rows.append(row)
+        # Match summary's all-record debt detail from this same snapshot/tick.
+        stats = source_stats.get(source_id)
+        if stats is not None:
+            stats["records"] += 1
+            stats["retained_records"] += int(row["freshness"] == "retained")
+            seen = raw.get("last_seen_at")
+            if epoch(seen) is not None and (stats["oldest_ingested_at"] is None or seen < stats["oldest_ingested_at"]):
+                stats["oldest_ingested_at"] = seen
         if source_id not in sources:
             missing.add(source_id)
     rows.sort(key=_sort_key)
     source_rows = [_source(sources.get(key, {}), key, tick) for key in sorted(set(sources) | missing)]
     # All-source health is independent of item filters/pages; empty pages still expose it.
     source_health = reduce_source_health(sources, tick)
+    for debt in source_health["coverage_debt"]:
+        debt.update(source_stats[debt["id"]])
     content = {"schema": SCHEMA, "items": rows, "sources": source_rows}
     return {**content, "content_revision": _hash(content),
             "evaluated_at": current.astimezone(timezone.utc).isoformat().replace("+00:00", "Z"),
