@@ -32,4 +32,12 @@ Connected Slack publication readback, worker-capacity tmpfs recovery guidance, a
 
 Indexed search is not an immutable repository snapshot and remains subject to the provider's 1,000-result ceiling. No credential, private account identifier, customer data, private filename, or private message body is recorded. No identity, payment, policy, call, signing, submission, physical-device, contact, relay, or meeting action occurred. The Michael Clark no-contact/no-relay hold and exact meeting-approval boundary remain intact, and no disabled automation was restarted.
 
-Claim: Slack `1791065412.164259`. Activation merge and terminal watermark will be appended after current-main readback.
+## Landed activation and terminal watermark
+
+- Activation PR: [#30979](https://github.com/woahwhattheheck/commons/pull/30979), merged as `1167e2474fbeee22282fd2765a79268301ddee51` from exact non-force branch head `8aa15ead16deb3c6be53732f08ac531ae0c41bb5` and fresh-main parent `f643abc0319074c2ebcdea7b97211aea00b7eab5`.
+- Exact current-main readback confirmed the ledger `cc9ba99376a2bab20dfe8bb95f345ea8a59c6868`, durable record `4dffcd04a706dd22d822b3f08323b554a29ed2fa`, receipt page `b86acb0634952a510c3317a5e827c22eafb4079e`, and projection `8ec809a7b0b66a74282b8e78ab63ef6c201f2701` blobs.
+- At merge, capability entrypoints was queued and the other five asynchronous workflows were in progress. The later observation found capability entrypoints, path manifest, resources freshness, and open-door guard successful; Muhlnickel spec guard and job watchdog remained in progress. No unfinished check was reported as successful.
+- Terminal receipt: [Slack `1791066016.616799`](https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791066016616799), acknowledged with the exact terminal text.
+- Current projection: 132 resources, 101 producing, 103 durable records.
+
+Claim: Slack `1791065412.164259`. Terminal watermark: Slack `1791066016.616799`, main `1167e2474fbeee22282fd2765a79268301ddee51`.

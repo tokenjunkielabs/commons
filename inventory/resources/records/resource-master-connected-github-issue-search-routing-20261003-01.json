@@ -24,8 +24,36 @@
     "deployments": 0,
     "owner_only_actions": 0
   },
-  "activation_merge": {"state": "PENDING", "pull_request": null, "merge_sha": null, "exact_current_main_readback": {}},
-  "terminal_watermark": {"state": "PENDING", "terminal_slack_ts": null, "terminal_slack_link": null, "prior_terminal_slack_ts": "1791055493.556339", "prior_terminal_main_sha": "1dec21194ab9c28b250cbc19a8fac93fe3d578ef"},
+  "activation_merge": {
+    "state": "MERGED_AND_READ_BACK",
+    "pull_request": 30979,
+    "url": "https://github.com/woahwhattheheck/commons/pull/30979",
+    "merge_sha": "1167e2474fbeee22282fd2765a79268301ddee51",
+    "branch_head_sha": "8aa15ead16deb3c6be53732f08ac531ae0c41bb5",
+    "fresh_main_parent": "f643abc0319074c2ebcdea7b97211aea00b7eab5",
+    "non_force_history": true,
+    "exact_current_main_readback": {
+      "ground/RESOURCE_LEDGER.json": "cc9ba99376a2bab20dfe8bb95f345ea8a59c6868",
+      "inventory/resources/records/resource-master-connected-github-issue-search-routing-20261003-01.json": "4dffcd04a706dd22d822b3f08323b554a29ed2fa",
+      "p/resource-master-connected-github-issue-search-routing-20261003-01.md": "b86acb0634952a510c3317a5e827c22eafb4079e",
+      "resources.html": "8ec809a7b0b66a74282b8e78ab63ef6c201f2701"
+    },
+    "asynchronous_checks_at_merge": {"capability-entrypoints": "queued", "muhlnickel-spec-guard": "in_progress", "open-door-guard": "in_progress", "path-manifest": "in_progress", "resources-tab-freshness": "in_progress", "job-watchdog": "in_progress"},
+    "later_observation": {"capability-entrypoints": "success", "muhlnickel-spec-guard": "in_progress", "open-door-guard": "success", "path-manifest": "success", "resources-tab-freshness": "success", "job-watchdog": "in_progress"}
+  },
+  "terminal_watermark": {
+    "state": "SLACK_CONFIRMED_CLOSURE_PENDING",
+    "terminal_slack_ts": "1791066016.616799",
+    "terminal_slack_link": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791066016616799",
+    "terminal_slack_readback": "PROVIDER_ACKNOWLEDGED_EXACT_TEXT",
+    "current_main_before_watermark_closure": "1167e2474fbeee22282fd2765a79268301ddee51",
+    "watermark_closure_parent_main": "1167e2474fbeee22282fd2765a79268301ddee51",
+    "activation_pull_request": 30979,
+    "activation_merge_sha": "1167e2474fbeee22282fd2765a79268301ddee51",
+    "receipt_pull_request": null,
+    "receipt_merge_sha_accounting": "The closure merge SHA cannot exist in this record's own preimage; read the merged PR or current-main commit after merge. The next-wake lower bound is exact on terminal Slack, activation main, closure parent main, and durable record identity.",
+    "lower_bound_rule": "The next wake begins strictly after Slack 1791066016.616799, main 1167e2474fbeee22282fd2765a79268301ddee51, the listed connector observations, and this durable record identity; it must not remint this activation or its already-owned adjacent capabilities."
+  },
   "build_orders": [],
   "build_order_decision": {
     "state": "NO_NEW_INDEPENDENT_NON_DUPLICATIVE_BUILD_LANE",
