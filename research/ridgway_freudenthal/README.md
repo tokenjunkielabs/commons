@@ -43,8 +43,12 @@ fixed shared face of two Kuhn cubes. It reconstructs the actual checkerboard
 source relation `y1-y2-y3+y4=0` per mode, then builds a protected, zero-cell-mean
 lift for every compatible trace. Use `face_diagonal_lift.py --degree 4` or
 `--degree 5`, with eight or twelve trace coefficients. Admissible dimensions are
-six and nine; final maps have 34 and 174 nonzero coefficients. Other orientations,
-edge classes, the full census and global assembly remain separate.
+six and nine; final maps have 34 and 174 nonzero coefficients.
+
+[The coordinate transport and proof](FACE_DIAGONAL_TRANSPORT.md) extend this same
+interior class to the three coordinate-normal orientations, with exact rational
+translation and positive isotropic scaling. Other edge classes, the full census
+and global assembly remain separate.
 
 ## Original problem
 
