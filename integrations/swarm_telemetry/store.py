@@ -334,6 +334,65 @@ class Store:
                 row = db.execute("SELECT payload FROM runtime_state WHERE key=?", (key,)).fetchone()
         return json.loads(row[0]) if row else None
 
+    def collection_attempt(self, source):
+        """Capture the current diagnostic before a collector starts."""
+        started_at=now()
+        key="source_reader_health:"+source
+        with self.connect() as db:
+            db.execute("BEGIN")
+            diagnostic=db.execute("SELECT payload FROM coverage WHERE source_id=?",(source,)).fetchone()
+            health=db.execute("SELECT payload FROM runtime_state WHERE key=?",(key,)).fetchone()
+        payload=diagnostic[0] if diagnostic else None
+        item=json.loads(payload) if payload else {}
+        if not (item.get("source_id")==source and item.get("collection_only") is True
+                and item.get("status")=="pending_recovery"):
+            payload=None
+        return {"source_id":source,"started_at":started_at,"diagnostic":payload,
+                "health":health[0] if health else None}
+
+    def retire_collection_error(self, attempt):
+        """Retire only a captured prior diagnostic; preserve newer source state."""
+        source=attempt["source_id"]
+        key="source_reader_health:"+source
+        with self._write_lock, self.connect() as db:
+            db.execute("BEGIN IMMEDIATE")
+            row=db.execute("SELECT payload FROM coverage WHERE source_id=?",(source,)).fetchone()
+            diagnostic=json.loads(row[0]) if row else {}
+            pending=(diagnostic.get("source_id")==source
+                     and diagnostic.get("collection_only") is True
+                     and diagnostic.get("status")=="pending_recovery")
+            if not pending:
+                return {"retired":False,"pending":False}
+            started=iso(attempt.get("started_at"))
+            observed=iso(diagnostic.get("observed_at"))
+            if row[0]!=attempt.get("diagnostic") or not started or not observed:
+                return {"retired":False,"pending":True}
+            started=datetime.fromisoformat(started.replace("Z","+00:00"))
+            observed=datetime.fromisoformat(observed.replace("Z","+00:00"))
+            if observed>started:
+                return {"retired":False,"pending":True}
+            row=db.execute("SELECT payload FROM runtime_state WHERE key=?",(key,)).fetchone()
+            health_payload=row[0] if row else None
+            health=json.loads(health_payload) if health_payload else {}
+            recovering=(health.get("retrying") is True or bool(health.get("error"))
+                        or health.get("status") in {"pending_storage","pending_recovery"})
+            health_stamp=iso(health.get("storage_observed_at") or health.get("observed_at"))
+            if recovering and (health_payload!=attempt.get("health")
+                               or not health_stamp
+                               or datetime.fromisoformat(health_stamp.replace("Z","+00:00"))>started):
+                return {"retired":False,"pending":True}
+            recovered_at=now()
+            if recovering:
+                health.update(error=None,retrying=False,status="recovered",recovered_at=recovered_at)
+            health["last_collection_error"]={"diagnostic":diagnostic,
+                                             "attempt_started_at":attempt["started_at"],
+                                             "recovered_at":recovered_at}
+            db.execute("INSERT OR REPLACE INTO runtime_state VALUES (?,?)",
+                       (key,json.dumps(redact(health))))
+            db.execute("DELETE FROM coverage WHERE source_id=? AND payload=?",
+                       (source,attempt["diagnostic"]))
+            return {"retired":True,"pending":False}
+
     def source_job_page(self, readers, *, cursor=0, limit=None):
         """Decode only selected jobs; counts and rows share one read snapshot."""
         readers=list(readers)

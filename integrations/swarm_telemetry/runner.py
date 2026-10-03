@@ -232,6 +232,26 @@ class Runner:
         if not self.storage_ready(kind): return self.storage_wait(kind)
         from .source_engine import SourceEngine
         return SourceEngine(self.store,self.config).run(kind)
+    def _collect_source(self,source,reader):
+        attempt=None
+        try:
+            attempt=self.store.collection_attempt(source)
+        except Exception as exc:
+            self.errors["diagnostic:"+source]=type(exc).__name__
+        result=reader()
+        outcome=result.get("local",result) if source=="local" and isinstance(result,dict) else result
+        if isinstance(outcome,dict) and (outcome.get("status") in {"pending_storage","pending_recovery","busy"}
+                                        or outcome.get("error") or outcome.get("busy") is True):
+            return result
+        if attempt is not None and (attempt["diagnostic"] is not None or source in self.errors):
+            try:
+                recovery=self.store.retire_collection_error(attempt)
+                if not recovery["pending"]:
+                    self.errors.pop(source,None)
+            except Exception as exc:
+                # Recovery bookkeeping cannot turn a completed read into failure.
+                self.errors["diagnostic:"+source]=type(exc).__name__
+        return result
     def _source_error(self,source,exc):
         self.errors[source]=type(exc).__name__
         try:
@@ -333,23 +353,20 @@ class Runner:
         return self.store.ingest([],accounts=accounts,coverage=coverage)
     def collect_once(self,providers=True):
         try:
-            local=self.collect_local()
-            self.errors.pop("local",None)
+            local=self._collect_source("local",self.collect_local)
         except Exception as exc:
             self._source_error("local",exc)
             local={"status":"pending_recovery","error":type(exc).__name__}
         provider_results={}
         if providers:
             try:
-                provider_results["discovery"]=self.collect_discovery()
-                self.errors.pop("discovery",None)
+                provider_results["discovery"]=self._collect_source("discovery",self.collect_discovery)
             except Exception as exc: self._source_error("discovery",exc)
             with ThreadPoolExecutor(max_workers=3,thread_name_prefix="measurement-source") as pool:
-                futures={name:pool.submit(fn) for name,fn in (("slack",lambda:self.collect_extended("slack")),("github",lambda:self.collect_extended("github")),("services",lambda:self.collect_extended("services")),("inventory",self.collect_inventory),("census",self.collect_census),("machine",self.collect_machine))}
+                futures={name:pool.submit(self._collect_source,name,fn) for name,fn in (("slack",lambda:self.collect_extended("slack")),("github",lambda:self.collect_extended("github")),("services",lambda:self.collect_extended("services")),("inventory",self.collect_inventory),("census",self.collect_census),("machine",self.collect_machine))}
                 for name,future in futures.items():
                     try:
                         provider_results[name]=future.result()
-                        self.errors.pop(name,None)
                     except Exception as exc: self._source_error(name,exc)
         state={"mode":"passive","observed_at":now(),"local":local,"providers":provider_results,"errors":self.errors,"dropped_observations":self.dropped,"jev_required":False}
         self.store.state("collector",state)
@@ -404,8 +421,7 @@ class Runner:
                 while not self.stop_event.is_set():
                     self.reader_wakes[label].clear()
                     try:
-                        result=reader()
-                        self.errors.pop(label,None)
+                        result=reader() if label=="local" else self._collect_source(label,reader)
                         self.last_provider[label]={"observed_at":now(),"result":result}
                         if label=="slack": self.dispatch_notifications()
                     except Exception as exc: self._source_error(label,exc)
