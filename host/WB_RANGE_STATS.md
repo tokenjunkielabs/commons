@@ -43,3 +43,19 @@ If indexing fails, the CLI writes the counters collected so far with
 `status: "FAILED"`, provided the stats path is writable, and preserves the
 original failure. The stats path must differ from the model index output path.
 Omit `--stats` to retain the existing CLI output behavior without a report.
+
+## Cache checkpoints during indexing
+
+Index construction publishes the cache manifest after every 64 fetched ranges
+and at each successfully parsed file boundary. It also attempts to publish
+pending ranges if parsing fails; a publication failure preserves the original
+parser or transport error. Successful completion leaves every fetched range
+in the manifest. Individual `RangeReader` callers retain immediate publication
+by default.
+
+The complete manifest is written atomically at each checkpoint. Abrupt process
+termination can leave up to one group of 64 recently fetched ranges outside the
+last published manifest, so a later invocation may fetch those ranges again.
+This bounded checkpoint interval avoids encoding the entire growing manifest
+after every header read. It does not change requested ranges, cached chunk
+contents, the model index, or runtime counter definitions.
