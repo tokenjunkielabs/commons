@@ -17,6 +17,31 @@ changing totals, conflicting metadata, and failed provider reads produce an
 `EvidenceError`, which `collect_report` reports as `NEEDS_MANUAL_DIFF` / exit 22.
 Explicit zero results are supported with zero or one reported page.
 
+## Continue after a failed source read
+
+Each completed Slack search is retained in its original evidence bucket even
+when a later search fails. `slack.query_coverage` lists every planned query as
+`complete`, `failed`, or `unread`; the failed query includes its original error
+type and message. Collection stops issuing Slack queries at that first failure.
+The human-readable output also names the failed and unread queries.
+
+`complete` covers only those planned searches. It does not assert full workspace
+access or that newly posted messages have reached Slack's search index. A query
+that fails partway through pagination remains failed: its partial page contents
+are not promoted to completed search evidence.
+
+GitHub repository, target, and open-PR reads continue independently. A Slack
+failure no longer prevents the open-PR census when the repository and target
+reads succeeded. Source errors remain in `errors`, so the overall result stays
+`NEEDS_MANUAL_DIFF` / exit 22 while the successful evidence is available for
+reconciliation. Current ownership observations are retained, not erased.
+
+When continuing an interrupted read, use the named failed/unread queries to
+complete the retained query export, then supply the real query-to-hit mapping
+through `--slack-evidence`. Preserve source timestamps and check freshness before
+reusing a prior search. Do not turn an unread query into an empty result. This
+helper does not automatically retry a failed provider or create another claim.
+
 Offline Slack input is still a JSON object mapping exact query strings to arrays
 of normalized messages. Each requested query must be present. `[]` records an
 explicitly empty query result; a missing key does not. Every message must be an
