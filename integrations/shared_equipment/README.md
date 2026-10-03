@@ -151,6 +151,63 @@ curl -s -X POST http://127.0.0.1:8878/v1/tools/call \
   }'
 ```
 
+#### Select an existing source reader
+
+`POST /v1/tools/call` accepts an optional top-level `account_ref` and `service`.
+These identify the source reader; they are never inserted into `arguments`.
+The gateway resolves that exact reference before creating a journal entry.
+An unbound reference returns `source_binding_unresolved`, `pending=true`, and
+`uncertain=false` without calling the default account. Calls without source
+context retain the existing catalog dispatch and journal identity.
+
+The host supplies actual readers through `SourceBindings`, independently of
+peer identity. Bind each existing authenticated callback with its exact account
+reference, service and stable, nonsecret `binding_id`. A callback receives
+`(tool_name, arguments)` and returns the native-host contract:
+
+```python
+{
+    "payload": native_response,
+    "account_ref": actual_bound_account_ref,
+    "service": actual_service,
+    "binding_evidence": provider_identity_reference,
+}
+```
+
+The returned account must match the selected binding. Missing account/evidence
+or a mismatched account/service produces an error, never a successful relabel of
+default-account data. `binding_evidence` is a nonsecret provider identity
+reference or digest, not credentials. The callback owns the existing account
+selection and its evidence; this layer does not acquire credentials or switch
+an account implicitly.
+
+For an embedded native host, construct `SourceBindings`, call
+`bind(account_ref, reader, service=service, binding_id=route_id)`, and supply it
+as `CombinedCatalog(..., source_bindings=bindings)`. A host can supply its
+existing extension instances with `extensions=[...]`; omitting that argument
+keeps the standard extensions. The gateway's existing `--equipment-config`
+also accepts `source_reader_factory` as a local `module:callable`. That factory
+receives `source_reader_config` and returns a `SourceBindings` instance or an
+account-reference mapping containing `reader`, `service` and `binding_id`.
+Without a factory, explicit accounts remain unbound until the embedding host
+adds its readers. Existing default equipment continues to be available.
+
+`GET /v1/tools` includes the configured account, service and binding IDs in
+`source_bindings`. Successful selected reads return the native envelope under
+`result.result` and matching metadata under `result.source_context`, including
+the provider binding evidence. Provider fields remain unchanged. The selected
+account, service and binding ID join the tool arguments in the journal digest;
+reusing request/call IDs with another selection returns the existing idempotency
+conflict. Change `binding_id` whenever the underlying authenticated reader route
+changes. Exact retries retain the original response and source metadata.
+
+Telemetry's `Gateway.call(..., account_ref=..., service=...)` retains this bound
+envelope for source custody. If an older gateway ignores the selector or returns
+no matching binding evidence, the read stays pending. `native_connector_gateway`
+passes each queued service job's actual `account_ref` through this route. The
+separate native receipt bridge and its account/tool/argument matching remain
+available for hosts that call their connectors directly.
+
 ### 3. Local Python CLI Module
 Execute catalog introspection, capability inventory, or tool calls directly via CLI:
 

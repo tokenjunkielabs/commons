@@ -79,11 +79,41 @@ class Gateway:
     def __init__(self,url="http://127.0.0.1:8878",timeout=25):
         self.url=url.rstrip("/")
         self.timeout=timeout
-    def call(self,name,arguments=None,operation_id=None,*,preserve_envelope=False):
-        op=operation_id or "telemetry-read:"+stable_id(name,arguments or {},now())
+    def call(self,name,arguments=None,operation_id=None,*,preserve_envelope=False,account_ref=None,service=None):
+        context={}
+        if account_ref is not None:
+            if not isinstance(account_ref,str) or not account_ref.strip():
+                raise ValueError("account_ref must be a nonempty string")
+            context["account_ref"]=account_ref
+            if service is not None:
+                if not isinstance(service,str) or not service.strip():
+                    raise ValueError("service must be a nonempty string")
+                context["service"]=service
+        elif service is not None:
+            raise ValueError("service requires account_ref")
+        op=operation_id or "telemetry-read:"+stable_id(name,arguments or {},context,now())
         body={"request_id":op,"call_id":op,"name":name,"arguments":arguments or {}}
+        body.update(context)
         request=urllib.request.Request(self.url+"/v1/tools/call",data=json.dumps(body).encode(),headers={"Content-Type":"application/json"})
         with urllib.request.urlopen(request,timeout=self.timeout) as response: value=json.load(response)
+        if context:
+            if value.get("isError") or value.get("error"):
+                return value
+            result=value.get("result",{})
+            if isinstance(result,dict) and (result.get("isError") or result.get("error")):
+                return value if preserve_envelope else result
+            bound=result.get("source_context",{}) if isinstance(result,dict) else {}
+            if (not isinstance(bound,dict) or bound.get("account_ref")!=account_ref
+                    or service is not None and bound.get("service")!=service
+                    or not bound.get("binding_id") or not bound.get("binding_evidence")):
+                # Older/default gateways may ignore the selector. Keep that
+                # complete response as error evidence, never source success.
+                return {"isError":True,"code":"source_binding_unresolved",
+                        "pending":True,"uncertain":False,"requested_source":context,
+                        "response":value}
+            # Retain both the untouched native envelope and its actual binding;
+            # source readers unwrap only their traversal view.
+            return value if preserve_envelope else result
         if preserve_envelope: return value
         if value.get("isError") or value.get("error"):
             return value

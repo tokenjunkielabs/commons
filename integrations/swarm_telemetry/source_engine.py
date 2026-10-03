@@ -117,7 +117,7 @@ class SourceEngine:
         if kind=="services" and not callable(reader) and config.get("native_connector_gateway"):
             from .runner import Gateway
             gateway=Gateway(config["native_connector_gateway"],config.get("timeout_seconds",25))
-            reader=lambda name,args,account_ref:gateway.call(name,args)
+            reader=lambda name,args,account_ref:gateway.call(name,args,account_ref=account_ref)
         kwargs={"config":config,"state":state,"sources":self._sources(kind)}
         if callable(reader): kwargs["read_page"]=reader
         result=fn(**kwargs)

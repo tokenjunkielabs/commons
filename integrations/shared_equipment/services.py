@@ -20,6 +20,7 @@ from time import monotonic
 from typing import Any
 
 from integrations.shared_equipment.outcomes import effect_uncertain, tool_failed
+from integrations.shared_equipment.source_bindings import SourceBindings
 from commons_publication_policy import PublicationPolicyViolation, check_outbound_identity
 from integrations.shared_equipment.provider_io import (
     EquipmentError, GitHubSlackEquipment, redacted,
@@ -554,12 +555,17 @@ class ServiceEquipment(GitHubSlackEquipment):
 
 class CombinedCatalog:
     """Add private local equipment without publishing it to the public MCP."""
-    def __init__(self, commons, services=None):
+    def __init__(self, commons, services=None, *, source_bindings=None, extensions=None):
         self.commons = commons
         self.services = services or ServiceEquipment()
-        from integrations.command_center.equipment import CommandCenterEquipment
-        from .provider_apis import GroqExaEquipment
-        self.extensions = [CommandCenterEquipment(), GroqExaEquipment()]
+        self.source_bindings = (source_bindings if isinstance(source_bindings, SourceBindings)
+                                else SourceBindings(source_bindings))
+        if extensions is None:
+            from integrations.command_center.equipment import CommandCenterEquipment
+            from .provider_apis import GroqExaEquipment
+            self.extensions = [CommandCenterEquipment(), GroqExaEquipment()]
+        else:
+            self.extensions = list(extensions)
 
     def tools(self, **kwargs):
         # Keep the advertised catalog consistent with call() dispatch precedence:
@@ -581,7 +587,16 @@ class CombinedCatalog:
                 unique.append(tool)
         return unique
 
-    def call(self, name, arguments):
+    def resolve_source(self, account_ref, service=None):
+        """Select an existing concrete reader without changing provider arguments."""
+        return self.source_bindings.resolve(account_ref, service)
+
+    def call(self, name, arguments, *, account_ref=None, service=None):
+        if account_ref is not None:
+            return self.resolve_source(account_ref, service).call(name, arguments)
+        if service is not None:
+            raise EquipmentError("service requires an explicit account_ref",
+                                 code="source_binding_unresolved")
         for extension in self.extensions:
             if name in {tool["name"] for tool in extension.tools()}:
                 result = extension.call(name, arguments)
