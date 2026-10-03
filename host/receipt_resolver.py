@@ -2,7 +2,7 @@
 """Resolve Commons receipt identifiers into one fail-closed state record.
 
 Supported identifiers:
-  #12569 | pr:12569 | GitHub pull URL
+  #12569 | pr:12569 | GitHub pull URL (including query/fragment permalinks)
   review:5178620884 | review:12567:5178620884
   run:34594768274
   blob:830e8e9a3ddae95799142eba6bcbd03f85eb4787
@@ -31,7 +31,7 @@ DEFAULT_COORDINATION_URL = (
     "state/coordination/coordination.json"
 )
 _HEX40 = re.compile(r"^[0-9a-fA-F]{40}$")
-_PULL_URL = re.compile(r"^https://github\.com/([^/]+/[^/]+)/pull/(\d+)(?:/.*)?$")
+_PULL_URL = re.compile(r"^https://github\.com/([^/?#]+/[^/?#]+)/pull/(\d+)(?:[/?#].*)?$")
 _GITHUB_CREDENTIAL_HOSTS = frozenset({"api.github.com", "raw.githubusercontent.com"})
 
 
