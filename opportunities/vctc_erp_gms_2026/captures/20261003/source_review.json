@@ -1,0 +1,239 @@
+{
+  "schema": "vctc-erp-gms-source-review/v1",
+  "reviewed_date": "2026-10-03",
+  "raw_source_roots": {
+    "buyer_page": "fafac7a71a36cf3e9bb9b003942a5cbd4479d6c9403f127e61608c1cef1e14e3",
+    "rfp": "241ce15b77a8d6b410d926347bde3122b181c8e131cdbc522b5ca69d4ea76c94",
+    "appendix_a": "ee5156298e94d0000860a6d2bc854d0471a90a2f3217d1d8cd648d61e2b2a85d",
+    "appendix_b": "588ead0c09c6c8ec94fea3b9511482bd1632057071c6c82ddd8e5ecaa62fbbf5",
+    "appendix_c": "16f3d75f22a5d49140131d7959c5be011129e0e4e691504757e0d732201969a5"
+  },
+  "main_rfp": {
+    "physical_pages": 22,
+    "reviewed_sections": [
+      {
+        "id": "SCHEDULE_SUBMISSION",
+        "printed_pages": [
+          9
+        ],
+        "physical_pages": [
+          8
+        ],
+        "pdf_page_indexes": [
+          7
+        ]
+      },
+      {
+        "id": "TEAMING",
+        "printed_pages": [
+          4
+        ],
+        "physical_pages": [
+          3
+        ],
+        "pdf_page_indexes": [
+          2
+        ]
+      },
+      {
+        "id": "PROJECT_EXPERIENCE",
+        "printed_pages": [
+          13,
+          14
+        ],
+        "physical_pages": [
+          12,
+          13
+        ],
+        "pdf_page_indexes": [
+          11,
+          12
+        ]
+      },
+      {
+        "id": "PERSONNEL",
+        "printed_pages": [
+          14,
+          15
+        ],
+        "physical_pages": [
+          13,
+          14
+        ],
+        "pdf_page_indexes": [
+          12,
+          13
+        ]
+      },
+      {
+        "id": "POTENTIAL_INTERFACES",
+        "printed_pages": [
+          17
+        ],
+        "physical_pages": [
+          16
+        ],
+        "pdf_page_indexes": [
+          15
+        ]
+      },
+      {
+        "id": "GENERAL_CONVERSION_SCOPE",
+        "printed_pages": [
+          8
+        ],
+        "physical_pages": [
+          7
+        ],
+        "pdf_page_indexes": [
+          6
+        ]
+      },
+      {
+        "id": "DETAILED_CONVERSION_PLAN",
+        "printed_pages": [
+          20
+        ],
+        "physical_pages": [
+          19
+        ],
+        "pdf_page_indexes": [
+          18
+        ]
+      },
+      {
+        "id": "SCORING",
+        "printed_pages": [
+          21,
+          22
+        ],
+        "physical_pages": [
+          20,
+          21
+        ],
+        "pdf_page_indexes": [
+          19,
+          20
+        ]
+      }
+    ],
+    "url": "https://www.goventura.org/wp-content/uploads/2026/09/RFP-Enterprise-Resource-Planning-System.pdf",
+    "raw_path": "raw/rfp.pdf"
+  },
+  "appendix_c": {
+    "physical_pages": 10,
+    "reviewed_sections": [
+      {
+        "id": "INCORPORATED_RFP_DATE",
+        "section": "2",
+        "printed_pages": [
+          1
+        ],
+        "physical_pages": [
+          1
+        ],
+        "pdf_page_indexes": [
+          0
+        ]
+      },
+      {
+        "id": "ASSIGNMENT_SUBCONTRACTING",
+        "section": "7",
+        "buyer_paragraph_labels": [
+          "8.1",
+          "8.2",
+          "8.3"
+        ],
+        "printed_pages": [
+          2,
+          3
+        ],
+        "physical_pages": [
+          2,
+          3
+        ],
+        "pdf_page_indexes": [
+          1,
+          2
+        ]
+      },
+      {
+        "id": "INSURANCE",
+        "section": "10",
+        "printed_pages": [
+          3,
+          4,
+          5,
+          6
+        ],
+        "physical_pages": [
+          3,
+          4,
+          5,
+          6
+        ],
+        "pdf_page_indexes": [
+          2,
+          3,
+          4,
+          5
+        ]
+      }
+    ],
+    "url": "https://www.goventura.org/wp-content/uploads/2026/09/Appendix-C-Professional-Services-Agreement-ERP.pdf",
+    "raw_path": "raw/appendix_c.pdf"
+  },
+  "workbooks": {
+    "appendix_a": "RAW_BYTE_RECOVERY_ONLY_ROWS_NOT_EXTRACTED",
+    "appendix_b": "RAW_BYTE_RECOVERY_ONLY_COST_MODEL_NOT_PREPARED"
+  },
+  "source_discrepancies": [
+    {
+      "id": "DRAFT_RFP_REFERENCE_DATE",
+      "main_schedule_release": "2026-09-14",
+      "draft_agreement_reference": "2026-09-09",
+      "new_revision_inferred": false,
+      "resolution": "UNRESOLVED"
+    },
+    {
+      "id": "CONVERSION_SCOPE",
+      "main_general_scope": "HISTORICAL_AND_ACTIVE_DATA",
+      "main_detailed_plan": "BALANCES_AND_OPEN_TRANSACTIONS_SCOPE_FINALIZED_BEFORE_CONTRACT",
+      "resolution": "UNRESOLVED"
+    },
+    {
+      "id": "CONTRACT_SUBSECTION_NUMBERING",
+      "heading": "7",
+      "printed_paragraphs": [
+        "8.1",
+        "8.2",
+        "8.3"
+      ],
+      "source_labels_preserved": true
+    }
+  ],
+  "qualification_mapping": {
+    "THREE_SIMILAR_PUBLIC_SECTOR_PROJECTS": "THREE_SIMILAR_COMPLETED_PROJECTS_WITHIN_TEN_YEARS",
+    "PUBLIC_SECTOR_REFERENCES": "PUBLIC_SECTOR_OR_COMPARABLE_ENTITY_EXPERIENCE",
+    "legacy_input_identifiers_preserved": true,
+    "all_nine_states": "UNKNOWN",
+    "new_qualification_evidence": false
+  },
+  "unchanged_schedule": {
+    "proposal_deadline": "2026-11-09T15:00:00-08:00",
+    "questions_due": "2026-10-12T15:00:00-07:00",
+    "answers_target_date": "2026-10-26",
+    "optional_preproposal_conference": "2026-09-28T10:00:00-07:00"
+  },
+  "full_requirement_matrix_completed": false,
+  "full_contract_review_completed": false,
+  "new_addendum_established": false,
+  "historical_raw_byte_comparison_available": false,
+  "board_inventory": {
+    "url": "https://www.goventura.org/rfp/erp-system/",
+    "captured_at": "2026-10-03T19:42:55Z",
+    "expected_document_count": 4,
+    "observed_document_count": 4,
+    "additional_pdf_or_xlsx_links_observed": false
+  }
+}

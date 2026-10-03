@@ -1,0 +1,53 @@
+{
+  "issued_at": "2026-10-03T19:49:15+00:00",
+  "key_id": "capture-20261003-84a3",
+  "mac_sha256": "f20b926401e463a55c2bfde4cc9d8262748202c27b56883750b34cf9d620085c",
+  "schema": "vctc-source-authority/v1",
+  "solicitation_id": "VCTC-ERP-GMS-2026-09-14",
+  "sources": [
+    {
+      "current": true,
+      "id": "appendix_a",
+      "issued_date": "2026-09-14",
+      "kind": "APPENDIX_A_FUNCTIONAL_REQUIREMENTS",
+      "retrieved": true,
+      "sha256": "ee5156298e94d0000860a6d2bc854d0471a90a2f3217d1d8cd648d61e2b2a85d",
+      "size_bytes": 36281,
+      "supersedes": [],
+      "url": "https://www.goventura.org/wp-content/uploads/2026/09/Appendix-A-Functional-Requirements-ERP-091426.xlsx"
+    },
+    {
+      "current": true,
+      "id": "appendix_b",
+      "issued_date": "2026-09-14",
+      "kind": "APPENDIX_B_COST_PROPOSAL",
+      "retrieved": true,
+      "sha256": "588ead0c09c6c8ec94fea3b9511482bd1632057071c6c82ddd8e5ecaa62fbbf5",
+      "size_bytes": 33955,
+      "supersedes": [],
+      "url": "https://www.goventura.org/wp-content/uploads/2026/09/Appendix-B-Cost-Proposal-ERP-091426.xlsx"
+    },
+    {
+      "current": true,
+      "id": "appendix_c",
+      "issued_date": "2026-09-14",
+      "kind": "APPENDIX_C_PROFESSIONAL_SERVICES_AGREEMENT",
+      "retrieved": true,
+      "sha256": "16f3d75f22a5d49140131d7959c5be011129e0e4e691504757e0d732201969a5",
+      "size_bytes": 189367,
+      "supersedes": [],
+      "url": "https://www.goventura.org/wp-content/uploads/2026/09/Appendix-C-Professional-Services-Agreement-ERP.pdf"
+    },
+    {
+      "current": true,
+      "id": "rfp",
+      "issued_date": "2026-09-14",
+      "kind": "RFP",
+      "retrieved": true,
+      "sha256": "241ce15b77a8d6b410d926347bde3122b181c8e131cdbc522b5ca69d4ea76c94",
+      "size_bytes": 479321,
+      "supersedes": [],
+      "url": "https://www.goventura.org/wp-content/uploads/2026/09/RFP-Enterprise-Resource-Planning-System.pdf"
+    }
+  ]
+}
