@@ -154,13 +154,20 @@ class SourceEngine:
         return {"kind":kind,**health}
     def jobs(self,reader=None,limit=None,cursor=0):
         items=[]
+        start=max(0,int(cursor or 0))
+        stop=None if limit is None else start+max(1,int(limit))
+        total=0
         for kind in READERS:
             if reader and reader!=kind: continue
-            for job in self.store.state("source_jobs:"+kind) or []:
+            jobs=self.store.state("source_jobs:"+kind) or []
+            first=max(0,start-total)
+            last=len(jobs) if stop is None else min(len(jobs),stop-total)
+            # Decode each reader state for its count, but copy only this page.
+            for job in jobs[first:max(first,last)]:
                 items.append({**job,"reader":kind})
-        start=max(0,int(cursor or 0))
-        end=len(items) if limit is None else min(len(items),start+max(1,int(limit)))
-        return self.store.envelope(jobs=items[start:end],total_jobs=len(items),next_cursor=str(end) if end<len(items) else None,scope="All accounts and all services",corpus_complete=False,sampling=False)
+            total+=len(jobs)
+        end=total if stop is None else min(total,stop)
+        return self.store.envelope(jobs=items,total_jobs=total,next_cursor=str(end) if end<total else None,scope="All accounts and all services",corpus_complete=False,sampling=False)
     def record_response(self,payload):
         job_id=str(payload["job_id"])
         raw=payload["payload"]
