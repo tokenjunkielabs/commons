@@ -20,6 +20,13 @@ MAX_INPUT_BYTES = 64 * 1024 * 1024
 STAMP = re.compile(r"[0-9]{1,12}\.[0-9]{1,6}\Z")
 OPERATION = r"[A-Za-z0-9][A-Za-z0-9_.:/#-]{5,190}"
 DECLARATION = re.compile(r"^(?:CLAIM|TAKE|RESUME|TAKING)\s+(" + OPERATION + r")(?=\s|$|[—–])", re.I)
+DECLARATION_START = re.compile(r"^(?:CLAIM|TAKE|RESUME|RESUMING|TAKING|CONTINUE|CONTINUING)\b", re.I)
+LABELED_OPERATION = re.compile(
+    r"(?:^[ \t]*|(?<=[.!?])[ \t]+)Operation(?:[ \t]+ID)?[ \t]*:[ \t]*`?(" + OPERATION
+    + r")`?(?=\s|$|[—–])", re.I | re.M)
+STATEMENT_HEADER = re.compile(
+    r"^[ \t*`]*(?:CLAIM|TAKE|RESUME|RESUMING|TAKING|CONTINUE|CONTINUING|"
+    r"LANDED|DONE|COMPLETED?|RELEASED?)\b[^\n]*", re.I | re.M)
 TERMINAL = re.compile(r"^(LANDED|DONE|COMPLETED?|RELEASED?)\s+(" + OPERATION + r")(?=\s|$|[—–])", re.I)
 TERMINAL_AFTER = re.compile(r"^(" + OPERATION + r")\s+(?:is\s+)?(LANDED|DONE|COMPLETED?|RELEASED?)\b", re.I)
 HEADER = re.compile(
@@ -247,6 +254,12 @@ def _statement(text):
         operation = match[1].rstrip(".:;")
         if "-" in operation or ":" in operation:
             return "declaration", operation
+    if DECLARATION_START.match(first):
+        operations = {match[1].rstrip(".:;") for match in LABELED_OPERATION.finditer(first)}
+        if len(operations) == 1:
+            operation = next(iter(operations))
+            if "-" in operation or ":" in operation:
+                return "declaration", operation
     match = TERMINAL.match(first)
     if match:
         return match[1].lower(), match[2].rstrip(".:;")
@@ -278,8 +291,9 @@ def scan(messages, pages, *, workspace_url=None):
     for message in ordered:
         statement = _statement(message["text"])
         if statement is None:
-            if re.match(r"^(?:CLAIM|TAKE|RESUME|TAKING|LANDED|DONE|COMPLETED?|RELEASED?)\b", message["text"].lstrip(" *`\n"), re.I):
-                unparsed.append({"channel_id": message["channel_id"], "message_ts": message["message_ts"], "permalink": message["permalink"]})
+            for header in STATEMENT_HEADER.finditer(message["text"]):
+                unparsed.append({"channel_id": message["channel_id"], "message_ts": message["message_ts"],
+                                 "permalink": message["permalink"], "statement_header": header[0].strip()})
             continue
         kind, operation = statement
         reference = {key: message[key] for key in ("channel_id", "message_ts", "permalink", "source")}

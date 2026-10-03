@@ -53,10 +53,19 @@ The response size limit is 64 MiB per input. No third-party package is required.
 - `coverage` keeps each page's continuation and unknown pagination, unparsed
   statement headers, and message identities supplied with contradictory text.
   Conflicting versions are left uninterpreted rather than guessed to be edits.
+  Unparsed headers retain their exact text and source link, including a
+  declaration in a later paragraph of an otherwise unrecognized message.
 - `inputs` binds each supplied export to its SHA-256 and byte count.
 
 The parser recognizes declarations beginning with `CLAIM`, `TAKE`, `RESUME`, or
-`TAKING`, followed by an operation identifier. It extracts explicit relative
+`TAKING`, followed by an operation identifier. A declaration beginning with
+those verbs, `RESUMING`, `CONTINUE`, or `CONTINUING` may instead name one exact
+identifier in a labeled `Operation:` or `Operation ID:` sentence or line.
+Multiple different labeled identifiers remain unparsed. For example, an actual
+`Continuing PayD #635 ... Operation: payd-530-staging-completion-20261003-01.`
+message binds only that explicit operation; a nearby `TAKE PayD #635 ...` without
+an operation identifier remains unparsed with its header and source link.
+No operation ID is invented from the project, PR number, or branch. It extracts explicit relative
 file paths, including a simple `path/{one.py,two.py}` list. It deliberately does
 not infer paths from a GitHub URL or expand directory-wide or wildcard scopes.
 Explicit slash-separated selectors such as `file.py::first/second` retain both
