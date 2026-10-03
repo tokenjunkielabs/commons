@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import io
 import json
 import re
 import sys
@@ -358,6 +359,18 @@ def scan(messages, pages, *, workspace_url=None):
         "unmatched_terminal_observations": [row for row in terminals if row["operation_id"] not in operations]}
 
 
+def _read_bounded(handle):
+    with io.BytesIO() as buffer:
+        remaining = MAX_INPUT_BYTES + 1
+        while remaining:
+            chunk = handle.read(min(64 * 1024, remaining))
+            if not chunk:
+                break
+            buffer.write(chunk)
+            remaining -= len(chunk)
+        return buffer.getvalue()
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("inputs", nargs="+", help="Retained Slack JSON response paths; - reads stdin")
@@ -373,10 +386,10 @@ def main(argv=None):
         messages, pages, inputs = [], [], []
         for name in args.inputs:
             if name == "-":
-                raw = sys.stdin.buffer.read(MAX_INPUT_BYTES + 1)
+                raw = _read_bounded(sys.stdin.buffer)
             else:
                 with Path(name).open("rb") as handle:
-                    raw = handle.read(MAX_INPUT_BYTES + 1)
+                    raw = _read_bounded(handle)
             if len(raw) > MAX_INPUT_BYTES:
                 raise ScanError("input exceeds the 64 MiB per-response limit")
             rows, observed = read_responses(_load(raw), channel_id=args.channel_id, source=name)
