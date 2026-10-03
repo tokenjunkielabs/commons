@@ -1,0 +1,108 @@
+{
+  "schema": "scaqmd-p2027-03-source-review/v1",
+  "reviewed_date": "2026-10-03",
+  "raw_source_sha256": "6642726666cb84052d681e7be3e17290a2391632fbda6dbf1c182ec1eec12e1c",
+  "historical_observations": {
+    "path": "../../observations.json",
+    "git_blob_sha": "8853d779c93928f93f071056037523622032f65b",
+    "observed_date": "2026-09-16",
+    "retained_unchanged": true
+  },
+  "observations": [
+    {
+      "historical_observation_id": "SCHEDULE",
+      "status": "SUPPORTED_AT_CAPTURE",
+      "printed_pages": [
+        3
+      ],
+      "pdf_page_indexes": [
+        2
+      ],
+      "section": "III"
+    },
+    {
+      "historical_observation_id": "SCOPE",
+      "status": "SUPPORTED_AT_CAPTURE",
+      "printed_pages": [
+        4
+      ],
+      "pdf_page_indexes": [
+        3
+      ],
+      "section": "V.A"
+    },
+    {
+      "historical_observation_id": "AI_TESTING",
+      "status": "SUPPORTED_AT_CAPTURE",
+      "printed_pages": [
+        6
+      ],
+      "pdf_page_indexes": [
+        5
+      ],
+      "section": "V.B.7"
+    },
+    {
+      "historical_observation_id": "PAST_PROJECTS",
+      "status": "SUPPORTED_AT_CAPTURE",
+      "printed_pages": [
+        33,
+        34
+      ],
+      "pdf_page_indexes": [
+        32,
+        33
+      ],
+      "section": "Attachment D II.C.1"
+    },
+    {
+      "historical_observation_id": "SCORING",
+      "status": "SUPPORTED_AT_CAPTURE",
+      "printed_pages": [
+        16
+      ],
+      "pdf_page_indexes": [
+        15
+      ],
+      "section": "IX.A-B"
+    },
+    {
+      "historical_observation_id": "MULTI_AWARD",
+      "status": "SUPPORTED_AT_CAPTURE",
+      "printed_pages": [
+        18
+      ],
+      "pdf_page_indexes": [
+        17
+      ],
+      "section": "IX.G"
+    },
+    {
+      "historical_observation_id": "INDEFINITE",
+      "status": "SUPPORTED_AT_CAPTURE",
+      "printed_pages": [
+        19
+      ],
+      "pdf_page_indexes": [
+        18
+      ],
+      "section": "X"
+    }
+  ],
+  "locator_corrections": [
+    {
+      "observation_id": "PAST_PROJECTS",
+      "historical_section": "VI.C",
+      "current_section": "Attachment D II.C.1",
+      "reason": "The project-reference criteria are in Attachment D; main VI.C addresses the project manager."
+    }
+  ],
+  "conference_utc": "2026-10-21T17:00:00Z",
+  "preregistration_date_local": "2026-10-20",
+  "preregistration_time_local": "COB_UNSPECIFIED",
+  "timezone": "America/Los_Angeles",
+  "new_addendum_established": false,
+  "full_document_review_completed": false,
+  "qualification_evidence_added": false,
+  "proposal_deadline_utc": "2026-12-04T21:00:00Z"
+}

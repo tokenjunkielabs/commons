@@ -1,0 +1,98 @@
+{
+  "schema": "scaqmd-p2027-03-native-observation/v1",
+  "observed_at": "2026-10-03T19:12:43Z",
+  "commands": [
+    {
+      "command": [
+        "python",
+        "-B",
+        "-m",
+        "opportunities.scaqmd_p2027_03.cli",
+        "sign-source",
+        "opportunities/scaqmd_p2027_03/captures/20261003/source.json",
+        "opportunities/scaqmd_p2027_03/captures/20261003/source_authority.json",
+        "--key-id",
+        "capture-20261003"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "python",
+        "-B",
+        "-m",
+        "opportunities.scaqmd_p2027_03.cli",
+        "compile",
+        "opportunities/scaqmd_p2027_03/captures/20261003/packet.json",
+        "opportunities/scaqmd_p2027_03/captures/20261003/source_authority.json",
+        "opportunities/scaqmd_p2027_03/captures/20261003/assessment.json",
+        "--key-id",
+        "capture-20261003"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "python",
+        "-B",
+        "-m",
+        "opportunities.scaqmd_p2027_03.cli",
+        "verify",
+        "opportunities/scaqmd_p2027_03/captures/20261003/packet.json",
+        "opportunities/scaqmd_p2027_03/captures/20261003/source_authority.json",
+        "opportunities/scaqmd_p2027_03/captures/20261003/assessment.json",
+        "--key-id",
+        "capture-20261003"
+      ],
+      "exit_code": 0,
+      "stdout": "VERIFIED\n",
+      "stderr": ""
+    }
+  ],
+  "runtime_git_blobs": {
+    "__init__.py": "350722ad6c3c8b4bec7a3fa9a1be556382485ce0",
+    "engine.py": "0e97b9ee8252adcef663d81e44f7e89caa94caa7",
+    "cli.py": "caf1a9f791c5dcd38bdb1e0022e9e9577d1ecfa0"
+  },
+  "observed_state": "HOLD_CONFERENCE_ATTENDANCE",
+  "source_raw_sha256": "6642726666cb84052d681e7be3e17290a2391632fbda6dbf1c182ec1eec12e1c",
+  "source_raw_status": "RAW_BYTES_BOUND",
+  "conference_state": "NOT_REGISTERED",
+  "project_count": 0,
+  "project_gaps": [
+    "THREE_COMPARABLE_PROJECTS"
+  ],
+  "team_gate_gaps": [
+    "BACKGROUND_CHECK_PROCESS",
+    "CERTIFICATIONS_REPRESENTATIONS",
+    "FINANCIAL_CORPORATE_PACKET",
+    "MANAGEMENT_PLAN",
+    "PHYSICAL_SUBMISSION_OWNER",
+    "QA_QC_PROGRAM",
+    "STAFFING_BENCH"
+  ],
+  "capability_plan_gaps": [],
+  "authority": {
+    "award_claim": false,
+    "buyer_contact": false,
+    "certification": false,
+    "conference_registration": false,
+    "contract_acceptance": false,
+    "payment_claim": false,
+    "preference_claim": false,
+    "price_commitment": false,
+    "production_access": false,
+    "proposal_submission": false,
+    "question_submission": false,
+    "revenue_claim": false,
+    "signature": false
+  },
+  "maximum_child_rss_kib": 11648,
+  "key_scope": "Invocation-only private acquisition-generation key; never printed or written. The retained MAC records this completed local run, not an owner-held production trust root or qualification approval. A future operator signs a newly checked generation with their own private key.",
+  "verification_scope": "Actual source and retained discovery qualification data at the process UTC. VERIFY checks the stored assessment semantics; it does not fetch current buyer updates or prove present readiness.",
+  "all_owned_processes_closed": true
+}

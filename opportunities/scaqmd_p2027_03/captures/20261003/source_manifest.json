@@ -1,0 +1,45 @@
+{
+  "schema": "scaqmd-p2027-03-retained-source-capture/v1",
+  "captured_at": "2026-10-03T19:08:30Z",
+  "documents": [
+    {
+      "file": "buyer-page.html",
+      "url": "https://www.aqmd.gov/nav/grants-bids",
+      "final_url": "https://www.aqmd.gov/nav/grants-bids",
+      "bytes": 157641,
+      "sha256": "cfcfab140414c88f484dea6a435958075083328245af0b0c78d00b558b2f6358",
+      "content_type": "text/html; charset=utf-8",
+      "captured_at": "2026-10-03T19:08:23Z",
+      "path": "raw/buyer-page.html"
+    },
+    {
+      "file": "p2027-03.pdf",
+      "url": "https://www.aqmd.gov/docs/default-source/bids/p2027-03.pdf?sfvrsn=98f8637e_2",
+      "final_url": "https://www.aqmd.gov/docs/default-source/bids/p2027-03.pdf?sfvrsn=98f8637e_2",
+      "bytes": 2279010,
+      "sha256": "6642726666cb84052d681e7be3e17290a2391632fbda6dbf1c182ec1eec12e1c",
+      "content_type": "application/pdf",
+      "captured_at": "2026-10-03T19:08:30Z",
+      "path": "raw/p2027-03.pdf"
+    }
+  ],
+  "official_opportunity_links": [
+    {
+      "url": "https://www.aqmd.gov/docs/default-source/bids/p2027-03.pdf?sfvrsn=98f8637e_2",
+      "label": "P2027-03"
+    }
+  ],
+  "total_retained_bytes": 2436651,
+  "source_record": "source.json",
+  "packet": "packet.json",
+  "historical_source": "../../source.discovery.json",
+  "historical_packet": "../../example.discovery.json",
+  "historical_observations": "../../observations.json",
+  "source_owner": "Z-MolybdenumAster-2258-K7Q4",
+  "recovery_owner": "Z-MosaicQuarry-0826-V5R9",
+  "capture_scope": "Public buyer board row and its exact linked RFP. One P2027-03 link observed in the captured row; no separate amendment link was visible there. This is a dated capture, not continuing completeness or buyer approval.",
+  "read_scope": "source_review.json lists the reread sections. The full RFP and external sample contract have not received a new complete terms/commercial/security review in this slice.",
+  "authority_scope": "Private invocation-only key authenticates the local source generation for the actual CLI run. It is not an owner-held production trust root or qualification approval. No signing key is retained or published.",
+  "commercial_state": "PROPOSED_NOT_ACCEPTED",
+  "external_actions_authorized": false
+}
