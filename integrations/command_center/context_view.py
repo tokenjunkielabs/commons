@@ -291,19 +291,24 @@ def select(index, limit=DEFAULT_LIMIT, offset=0, query="", owner="", provider=""
         filters[key] = value if key == "source" else value.strip().casefold() if key == "query" else value.casefold()
     if if_revision is not None and (not isinstance(if_revision, str) or len(if_revision) > 64):
         raise ValueError("Invalid context revision.")
-    matches = []
-    for row in index["items"]:
-        if filters["source"] and row["source_id"] != filters["source"]:
-            continue
-        if any(filters[key] and row["_exact_filters"][key].casefold() != filters[key]
-               for key in ("owner", "provider", "kind", "status")):
-            continue
-        searchable = " ".join(str(row.get(key) or "") for key in
-                              ("source_id", "item_id", "provider", "kind", "status",
-                               "title", "project", "owner", "assigned_owner", "next_action"))
-        if filters["query"] and filters["query"] not in searchable.casefold():
-            continue
-        matches.append(row)
+    if not any(filters.values()):
+        # Discovery ordering may sort this list; never reorder the shared index.
+        matches = list(index["items"])
+    else:
+        matches = []
+        for row in index["items"]:
+            if filters["source"] and row["source_id"] != filters["source"]:
+                continue
+            if any(filters[key] and row["_exact_filters"][key].casefold() != filters[key]
+                   for key in ("owner", "provider", "kind", "status")):
+                continue
+            if filters["query"]:
+                searchable = " ".join(str(row.get(key) or "") for key in
+                                      ("source_id", "item_id", "provider", "kind", "status",
+                                       "title", "project", "owner", "assigned_owner", "next_action"))
+                if filters["query"] not in searchable.casefold():
+                    continue
+            matches.append(row)
     if order != "priority":
         matches.sort(key=lambda row: _discovery_key(row, order, seat))
     page = matches[offset:offset + limit]
