@@ -204,6 +204,14 @@ def _nullable_token(value: Any, where: str) -> str | None:
     return None if value is None else _token(value, where)
 
 
+def _nullable_cursor(value: Any, where: str) -> str | None:
+    # Provider cursors are opaque; preserve padding, punctuation and empty tails.
+    # The packet's existing string and byte limits still apply through _bounded.
+    if value is not None and type(value) is not str:
+        raise LedgerError(f"{where}: cursor must be a string or null")
+    return value
+
+
 def _nullable_time(value: Any, where: str) -> datetime | None:
     return None if value is None else _time(value, where)
 
@@ -226,7 +234,7 @@ def _normalize_source(raw: Any, now: datetime, max_age_seconds: int) -> dict[str
     scope = [_token(v, "source.scope") for v in scope]
     if len(set(scope)) != len(scope):
         raise LedgerError("source.scope: duplicate scope entry")
-    cursor = _nullable_token(row["cursor"], "source.cursor")
+    cursor = _nullable_cursor(row["cursor"], "source.cursor")
     high_water = _nullable_token(row["high_water_mark"], "source.high_water_mark")
     observed = _time(row["observed_at"], "source.observed_at")
     last_good = _nullable_time(row["last_successful_read"], "source.last_successful_read")
