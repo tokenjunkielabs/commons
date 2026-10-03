@@ -872,12 +872,18 @@ def semantic_walk(start_row, vocab_rows: dict, *, steps: int = 8,
     seen = {start_label}
     path = [start_label or "<start>"]
     cur = unit(start_row)
+    # Cache scalar norms lazily without retaining another normalized matrix.
+    row_norms = {}
     for _ in range(steps):
         best, bs = None, -2.0
         for label, row in vocab_rows.items():
             if label in seen or not row:
                 continue
-            s = sum(x * y for x, y in zip(cur, unit(row)))
+            row_norm = row_norms.get(label)
+            if row_norm is None:
+                row_norm = norm(row) or 1.0
+                row_norms[label] = row_norm
+            s = sum(x * (y / row_norm) for x, y in zip(cur, row))
             if s > bs:
                 bs, best = s, label
         if best is None:
