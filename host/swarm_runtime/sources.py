@@ -493,6 +493,13 @@ def _github(root):
 def _workstreams(snapshot, prior):
     sources = {str(s.get("id")): s for s in snapshot.get("sources", []) if isinstance(s, dict)}
     events, facts, following, coverage = [], {}, copy.deepcopy(prior), {}
+    # Bump when parser changes should reconsider previously ignored messages.
+    ignored_items_version = 1
+    # Negative results cover only this snapshot, including when a source leaves it.
+    # The selected event checkpoints in items remain durable.
+    for checkpoint in following.values():
+        checkpoint["ignored_items"] = {}
+        checkpoint["ignored_items_version"] = ignored_items_version
     for ident, source in sources.items():
         old = prior.get(ident, {})
         metadata = source.get("metadata") or {}
@@ -502,6 +509,8 @@ def _workstreams(snapshot, prior):
         # Keep exact opaque cursors/thread boundaries even when coverage is partial.
         following[ident] = {"observed_at": source.get("observed_at", UNKNOWN),
                             "items": dict(old.get("items", {})),
+                            "ignored_items": {},
+                            "ignored_items_version": ignored_items_version,
                             "provider_boundary": boundary or old.get("provider_boundary", {}),
                             "newest_message_ts": old.get("newest_message_ts", "")}
         coverage[ident] = {"provider": source.get("provider"), "scope": source.get("scope"),
@@ -537,11 +546,17 @@ def _workstreams(snapshot, prior):
                                    "at": item.get("created_at") or item.get("updated_at") or UNKNOWN,
                                    "required_capabilities": ["github-publish"]})
         elif provider == "slack" and changed:
-            meta = {"from": item.get("owner"), "ts": item.get("updated_at"),
-                    "swarm_event": (item.get("metadata") or {}).get("swarm_event")}
-            normalized = _events(meta, str(item.get("summary") or ""), iid, revision, private=True)
-            events.extend(normalized)
-            selected = bool(normalized)
+            old = prior.get(sid, {})
+            ignored = (old.get("ignored_items", {}) if
+                       old.get("ignored_items_version") == ignored_items_version else {})
+            if ignored.get(iid) != revision:
+                meta = {"from": item.get("owner"), "ts": item.get("updated_at"),
+                        "swarm_event": (item.get("metadata") or {}).get("swarm_event")}
+                normalized = _events(meta, str(item.get("summary") or ""), iid, revision, private=True)
+                events.extend(normalized)
+                selected = bool(normalized)
+            if not selected:
+                following[sid]["ignored_items"][iid] = revision
         if provider in {"slack", "github"}:
             if selected:
                 following[sid]["items"][iid] = revision
