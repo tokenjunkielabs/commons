@@ -42,15 +42,15 @@
     "later_observation": {"capability-entrypoints": "success", "muhlnickel-spec-guard": "in_progress", "open-door-guard": "success", "path-manifest": "success", "resources-tab-freshness": "success", "job-watchdog": "in_progress"}
   },
   "terminal_watermark": {
-    "state": "SLACK_CONFIRMED_CLOSURE_PENDING",
+    "state": "SLACK_CONFIRMED_CLOSURE_PR_OPEN",
     "terminal_slack_ts": "1791066016.616799",
     "terminal_slack_link": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791066016616799",
     "terminal_slack_readback": "PROVIDER_ACKNOWLEDGED_EXACT_TEXT",
     "current_main_before_watermark_closure": "1167e2474fbeee22282fd2765a79268301ddee51",
-    "watermark_closure_parent_main": "1167e2474fbeee22282fd2765a79268301ddee51",
+    "watermark_closure_parent_main": "40cdd9e6bfa9d9e2a3cf6a27715e56cc409158a6",
     "activation_pull_request": 30979,
     "activation_merge_sha": "1167e2474fbeee22282fd2765a79268301ddee51",
-    "receipt_pull_request": null,
+    "receipt_pull_request": 30980,
     "receipt_merge_sha_accounting": "The closure merge SHA cannot exist in this record's own preimage; read the merged PR or current-main commit after merge. The next-wake lower bound is exact on terminal Slack, activation main, closure parent main, and durable record identity.",
     "lower_bound_rule": "The next wake begins strictly after Slack 1791066016.616799, main 1167e2474fbeee22282fd2765a79268301ddee51, the listed connector observations, and this durable record identity; it must not remint this activation or its already-owned adjacent capabilities."
   },
