@@ -89,8 +89,10 @@ codes and performs no additional source reads.
   `SHIP / RELEASE · OPERATION_ID` headers retain the actual operation ID and
   the first terminal kind. `SHIPPED` and `RELEASED` spellings are also accepted
   in the latter form; a bare `SHIP` header does not supply a terminal observation.
-  Conditional or proposal wording on that header line leaves it unparsed;
-  secondary clauses do not reinterpret these source-release forms. Terminal
+  The conditional/proposal guard ends at the first sentence or newline. Wording
+  such as `pending` or `when` in that header leaves it unparsed; later technical
+  sentences on the same Slack line do not change the completed header. Secondary
+  clauses do not reinterpret these source-release forms. Terminal
   identifiers must contain a hyphen or colon, matching declaration identifiers; ordinary words
   such as `SOURCE` never become operation IDs. Unsupported headers remain in
   `coverage.unparsed_statement_headers` when the message has no recognized
