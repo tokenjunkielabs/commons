@@ -4,6 +4,31 @@ Issue: https://github.com/woahwhattheheck/commons/issues/14999
 
 This is the isolated research surface for the Freudenthal/Kuhn divergence problem. It does not submit anything to the Ridgway Scott Foundation or claim a prize.
 
+## Global construction
+
+[The composed constructor and usage](GLOBAL_DIVERGENCE_LIFT.md) apply the
+minimum-energy mean, protected vertex, protected edge and element-bubble
+stages on every uniform n-by-n-by-n grid with n at least two, for degrees
+four and five. It consumes retained reference matrices, uses the exact
+[global patch planner](GLOBAL_PATCH_PLAN.md), and returns shared physical
+velocity coefficients whose complete divergence is reconstructed exactly.
+
+Run `global_divergence_lift.py pressure.json --energy --output velocity.json`.
+The input is a complete native-order pressure array; `--from-velocity`
+instead derives that input from supplied shared Dirichlet coefficients.
+The reusable API retains geometry, local maps and the mean factorization.
+No local vertex or edge constructor is rerun.
+
+[The global bound](GLOBAL_DIVERGENCE_BOUND.md) composes the local estimates
+on the actual divergence image, including the complete class census,
+source compatibility, pressure coefficient extraction and overlap counts.
+It establishes a mesh-independent right-inverse constant for degrees four
+and five and treats n=1 separately by finite-dimensional existence.
+The executable's dense exact mean solver is intended for small grids.
+The sections below retain the local construction history and its numerical
+operator data; their former references to remaining assembly work describe
+the state before this global composition.
+
 ## Usable two-cube quartic mean repair
 
 [The constructed operator and derivation](P4_MEAN_REPAIR.md) realize any twelve zero-sum cell-average divergences with a continuous piecewise-quartic velocity, zero boundary trace, and zero divergence on every tetrahedral edge.
@@ -217,4 +242,4 @@ The original `kuhn.py` supplies the six exact positively oriented tetrahedra, wi
 
 [The earlier Zhang-import audit](verification_alfyorov/ZHANG_IMPORT_AUDIT.md) distinguishes raw edge matching, already available at degree four, from the degree-six element-mean correction used in Zhang's construction. The new two-cube operator supplies a degree-four local mean correction; it does not by itself establish the separate protected edge-star lifting.
 
-Still unresolved in this lane: the full protected-map/census reconstruction, its actual global source-space compatibility, and the mesh-uniform theorem. No prize, payment, or submission is asserted.
+The local constructions are now connected by the global planner, executable and mesh-uniform bound linked above. Scientific attribution and sponsor disposition remain separate questions. No prize, payment, or submission is asserted.
