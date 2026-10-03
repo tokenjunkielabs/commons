@@ -975,13 +975,55 @@ def fetch_rows(index: dict, cache_dir: Path, tensor_name: str,
     _, elem = entry
     rows, width = _tensor_row_layout(tensor, source["format"])
     reader = RangeReader(source["url"], cache_dir, limit=limit)
+    row_bytes = width * elem
+    # Keep invalid/oversized row reads on read()'s existing validation path.
+    group_rows = (max(1, min(reader.limit, 1024 * 1024) // row_bytes)
+                  if row_bytes > 0 else 1)
     out = []
-    for i in row_idxs:
+    position = 0
+    while position < len(row_idxs):
+        i = row_idxs[position]
         if i < 0 or i >= rows:
             raise WbRangeError("row %d outside [0, %d)" % (i, rows))
-        offset = tensor["begin"] + i * width * elem
-        data = reader.read(offset, width * elem)
-        out.append(data if raw else decode_values(dtype, data))
+        offset = tensor["begin"] + i * row_bytes
+        end = position + 1
+        # Existing row entries always pass through read(), including its hash,
+        # length and transport-contract checks. Do not reorder or dedupe rows.
+        if reader._cache_key(offset, row_bytes) not in reader.manifest["entries"]:
+            while end < len(row_idxs) and end - position < group_rows:
+                row = row_idxs[end]
+                if row != i + end - position or row >= rows:
+                    break
+                row_offset = tensor["begin"] + row * row_bytes
+                if reader._cache_key(row_offset, row_bytes) in reader.manifest["entries"]:
+                    break
+                end += 1
+        count = end - position
+        if count == 1:
+            data = reader.read(offset, row_bytes)
+            out.append(data if raw else decode_values(dtype, data))
+        else:
+            # Persist the validated group before seeding normal row entries.
+            # Publish seeds together, so the same interrupted call can reuse
+            # the original group instead of fetching a different remainder.
+            data = reader.read(offset, count * row_bytes)
+            group_entry = reader.manifest["entries"][
+                reader._cache_key(offset, count * row_bytes)]
+            for ordinal in range(count):
+                row_data = data[ordinal * row_bytes:(ordinal + 1) * row_bytes]
+                digest = _sha256(row_data)
+                file_name = digest + ".bin"
+                (reader.chunks_dir / file_name).write_bytes(row_data)
+                row_offset = offset + ordinal * row_bytes
+                reader.manifest["entries"][
+                    reader._cache_key(row_offset, row_bytes)] = {
+                        **group_entry, "offset": row_offset, "length": row_bytes,
+                        "sha256": digest, "file": file_name,
+                    }
+                reader._pending_manifest_ranges += 1
+                out.append(row_data if raw else decode_values(dtype, row_data))
+            reader.flush_manifest()
+        position = end
     return out
 
 
