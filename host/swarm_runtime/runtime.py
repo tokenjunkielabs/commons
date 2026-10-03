@@ -90,6 +90,32 @@ def _merge_facts(state, incoming):
     merge_facts(state.setdefault("provider_facts", {}), incoming)
 
 
+def _handoff_candidates(before, tasks, seats, moment, events):
+    """Suggest distinct work within one passive reconciliation response."""
+    candidates = []
+    candidate_workers = set()
+    available = dict(tasks)
+    for closed_key, previous in sorted(before.items()):
+        closed = tasks.get(closed_key, {})
+        worker = previous.get("worker")
+        if (previous.get("state") != "ACTIVE" or closed.get("state") not in TERMINAL
+                or not worker or worker == "UNKNOWN"):
+            continue
+        if worker in candidate_workers:
+            continue
+        candidate_workers.add(worker)
+        choice = route(available, worker, seats, moment)
+        target = choice.get("task_key")
+        if not target:
+            continue
+        # Exclusion is local to these suggestions: no custody, heartbeat or
+        # task state changes. Actual dispatch reconciles and takes work again.
+        available.pop(target)
+        candidates.append({"worker": worker, "after_task_key": closed_key,
+                           "task": context_bundle(tasks[target], events)})
+    return candidates
+
+
 class Runtime:
     def __init__(self, root, *, store=None, state_dir=None):
         self.root = Path(root).resolve()
@@ -224,25 +250,8 @@ class Runtime:
                 state["cursors"] = imported.get("cursors", state.get("cursors", {}))
                 state["coverage"] = imported.get("coverage", {})
             view = _project(state, moment)
-            candidates = []
-            candidate_workers = set()
-            for closed_key, previous in sorted(before.items()):
-                closed = view["tasks"].get(closed_key, {})
-                worker = previous.get("worker")
-                if previous.get("state") != "ACTIVE" or closed.get("state") not in TERMINAL or not worker or worker == "UNKNOWN":
-                    continue
-                if worker in candidate_workers:
-                    continue
-                candidate_workers.add(worker)
-                choice = route(view["tasks"], worker, _seats(state), moment)
-                target = choice.get("task_key")
-                if not target:
-                    continue
-                # Reconciliation observed completion, not worker activity or a
-                # delivery. Leave custody available to the existing dispatcher
-                # or an explicit worker operation, which reconciles it again.
-                candidates.append({"worker": worker, "after_task_key": closed_key,
-                                   "task": context_bundle(view["tasks"][target], state["events"])})
+            candidates = _handoff_candidates(before, view["tasks"], _seats(state),
+                                              moment, state["events"])
             return {"action": "sync", "ingested": added, "tasks": len(view["tasks"]),
                     "summary": status(view["tasks"], _seats(state), moment),
                     "provider_calls": fresh.get("calls", 0),

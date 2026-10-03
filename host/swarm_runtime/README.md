@@ -45,9 +45,13 @@ Background `sync` reconciles source events and provider outcomes without taking
 new work or renewing a worker's heartbeat. When an active task becomes terminal,
 its response may include one advisory `candidates` entry per eligible worker:
 `{"worker": "SEAT", "after_task_key": "completed-key", "task": {"task_key": "candidate-key", "...": "bounded context"}}`.
-The candidate retains its current task state and ownership; it is not an
-assignment or delivery. The compatibility `assignments` field is empty. Actual
-dispatch and direct `take`/`next`/terminal operations still acquire the next claim
+Each task is suggested at most once within that response. Later workers use the
+remaining compatible tasks in the existing recovery/priority order; a worker
+gets no suggestion if that batch has exhausted its eligible work. The candidate
+retains its current task state and ownership; it is not an assignment or
+delivery, and another caller may still claim it. The compatibility `assignments`
+field remains empty. Actual dispatch and direct `take`/`next`/terminal operations
+still acquire the next claim
 atomically after fresh reconciliation. Repeated sync alone cannot keep an idle
 worker live or reserve work ahead of its execution callback.
 
