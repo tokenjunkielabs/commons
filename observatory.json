@@ -14,6 +14,13 @@
   "board_motion": [
     {
       "from": "UNSEATED",
+      "id": "Keep-word-to-embedding-lookup-memory-proportional-to-requested-words",
+      "kind": null,
+      "to": "TABLE",
+      "ts": "2026-10-03T07:07:31Z"
+    },
+    {
+      "from": "UNSEATED",
       "id": "Use-cached-provider-evidence-during-zero-call-swarm-sync",
       "kind": null,
       "to": "TABLE",
@@ -144,13 +151,6 @@
       "kind": "discord_thread_reply",
       "to": "TABLE",
       "ts": "2026-10-02T16:34:33.604000Z"
-    },
-    {
-      "from": "COMMONS",
-      "id": "discord-1555619007586107502",
-      "kind": "discord_thread_reply",
-      "to": "TABLE",
-      "ts": "2026-10-02T16:34:33.412000Z"
     }
   ],
   "briefing": {
@@ -331,7 +331,7 @@
   },
   "collisions": [],
   "coverage_note": "Counts describe observed protocol events and jobs only, not the whole fleet. Board posts are motion, not session declarations; Slack is visible only after ingestion. Missing sources are UNKNOWN.",
-  "digest": "c5937b178ea3bd3aa1a2da5829e923e0275d3c2afc14aeb9c7e50f1af6bbe744",
+  "digest": "d84a52550bb16a630f59e792d3ce055cb516f41e113bea0f453e675beb5843e4",
   "duplicates_ignored": [],
   "economy": {
     "bank_available": "NOT_LANDED",
@@ -384,9 +384,9 @@
         "source": "pulse.json"
       }
     ],
-    "post_count": 22855,
-    "pulse_seq": 2382,
-    "sha": "dcc44020cd33d04a4a90176b47e1c2e24db99014"
+    "post_count": 22919,
+    "pulse_seq": 2383,
+    "sha": "337d21896297d8b7784eae1785597871905b129c"
   },
   "live_cash": {
     "cite": [
@@ -433,7 +433,7 @@
       }
     ]
   },
-  "now": "2026-10-03T07:46:53Z",
+  "now": "2026-10-03T08:15:38Z",
   "open_door": {
     "authentication": false,
     "authorization": false,
@@ -5559,18 +5559,18 @@
         {
           "claim": "UNSEATED",
           "grade": "OBSERVED",
-          "id": "Use-cached-provider-evidence-during-zero-call-swarm-sync",
+          "id": "Keep-word-to-embedding-lookup-memory-proportional-to-requested-words",
           "source": "presence.json"
         }
       ],
       "existence": "PRESENT",
-      "id": "Use-cached-provider-evidence-during-zero-call-swarm-sync",
+      "id": "Keep-word-to-embedding-lookup-memory-proportional-to-requested-words",
       "is_session": false,
       "last_to": "TABLE",
-      "motion": "ACTIVE",
+      "motion": "IDLE",
       "presence": "PRESENT",
       "slack_author_is_session": false,
-      "ts": "2026-10-03T06:58:17Z"
+      "ts": "2026-10-03T07:07:31Z"
     },
     {
       "claim": "VECTOR-RELAY",

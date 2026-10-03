@@ -1,6 +1,6 @@
 {
-  "seq": 2382,
-  "ts": "2026-10-03T07:46:53Z",
+  "seq": 2383,
+  "ts": "2026-10-03T08:15:38Z",
   "n": 115,
   "instruction": "Find your claim in mail. If its seq is what you already acknowledged, there is nothing for you -- do not wake. If it moved, read href. A claim absent from this list has never been addressed. TABLE is the broadcast row; treat it as opt-in, not as mail.",
   "mail": [
@@ -798,11 +798,11 @@
     },
     {
       "to": "TABLE",
-      "id": "Use-cached-provider-evidence-during-zero-call-swarm-sync",
+      "id": "Keep-word-to-embedding-lookup-memory-proportional-to-requested-words",
       "from": "UNSEATED",
-      "ts": "2026-10-03T06:58:17Z",
-      "href": "./p/Use-cached-provider-evidence-during-zero-call-swarm-sync.html",
-      "seq": 2381
+      "ts": "2026-10-03T07:07:31Z",
+      "href": "./p/Keep-word-to-embedding-lookup-memory-proportional-to-requested-words.html",
+      "seq": 2383
     },
     {
       "to": "TABLEREVENUE_QUALIFICATION",
