@@ -625,7 +625,12 @@ def decode_values(dtype: str, data: bytes, count: int | None = None) -> list[flo
         fmt, size = entry
         if len(data) % size:
             raise WbRangeError("payload length not divisible by element size")
-        values = [float(v) for v in struct.unpack("<%d%s" % (len(data) // size, fmt[1:]), data)]
+        unpack_format = "<%d%s" % (len(data) // size, fmt[1:])
+        if dtype in ("F16", "F32", "F64"):
+            # struct already returns Python floats for native float formats.
+            values = list(struct.unpack(unpack_format, data))
+        else:
+            values = [float(v) for v in struct.unpack(unpack_format, data)]
     if count is not None:
         values = values[:count]
     return values
