@@ -446,6 +446,19 @@ class Store:
         peers=list(by_id.values())
         if provider: peers=[p for p in peers if p.get("provider")==provider]
         if harness: peers=[p for p in peers if p.get("harness")==harness]
+        if q and peers:
+            # Census observations can add peers or replace searchable fields.
+            # Match the merged view with SQLite's existing LIKE semantics, using
+            # only the three search fields rather than copying full peer payloads.
+            fields=[[p.get(key) for key in ("summary","session_id","peer_id")] for p in peers]
+            pattern="%"+str(q)+"%"
+            with self.connect() as db:
+                matched={row[0] for row in db.execute(
+                    "SELECT key FROM json_each(?) WHERE json_extract(value,'$[0]') LIKE ? "
+                    "OR json_extract(value,'$[1]') LIKE ? OR json_extract(value,'$[2]') LIKE ?",
+                    [json.dumps(fields),pattern,pattern,pattern])}
+            peers=[p for index,p in enumerate(peers) if index in matched]
+        peers=peers[:max(1,min(int(limit),10000))]
         return self.envelope(peers=peers, returned=len(peers),complete=False,census_coverage=census.get("coverage",[]))
 
     def records(self, table, *, limit=1000, cursor="", q=None, source=None, provider=None, harness=None, delivery_state=None, since=None):
