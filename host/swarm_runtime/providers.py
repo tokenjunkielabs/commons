@@ -398,14 +398,19 @@ class _Refresh:
 
 
 def _cached(path, keys, stamp):
-    if not path.exists():
+    if not keys or not path.exists():
         return {}
     try:
         db = sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=0)
         try:
             result = {}
-            for key, encoded, expiry in db.execute("SELECT task_key,value,expires_at FROM facts"):
-                if key in keys:
+            wanted = sorted(keys)
+            for offset in range(0, len(wanted), 500):
+                batch = wanted[offset:offset + 500]
+                placeholders = ",".join("?" for _ in batch)
+                for key, encoded, expiry in db.execute(
+                        "SELECT task_key,value,expires_at FROM facts WHERE task_key IN (" +
+                        placeholders + ")", batch):
                     fact = _decode(encoded, {})
                     for field in ("equivalent", "superseded_by"):
                         if field in fact:

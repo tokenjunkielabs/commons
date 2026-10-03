@@ -432,7 +432,10 @@ def status(tasks, seats, now):
             for capability in sorted(groups["any"]):
                 if not _capability_failure(seat, capability):
                     pools.setdefault(capability, []).append(name)
-    shipped.sort(key=lambda task: (_sort_time(task.get("latest_activity", task.get("last_activity_at"))),
+    # Completion defines shipment recency; worker activity may be absent or later.
+    shipped.sort(key=lambda task: (_time(task.get("closed_at"))
+                                  or _time(task.get("latest_activity"))
+                                  or _sort_time(task.get("last_activity_at")),
                                   task["task_key"]), reverse=True)
     return {"counts": counts, "recoverable": recoverable[:LIMIT],
             "recoverable_count": len(recoverable), "stale_seats": stale[:LIMIT],

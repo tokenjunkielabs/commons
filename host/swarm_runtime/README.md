@@ -111,7 +111,9 @@ Use one shared `--url` deployment for the fleet. The command-center adapter uses
 its existing state directory, provider request budget and collected work snapshot.
 Provider refresh adds a process-shared file lock, durable response cache, 60-second
 mutable-response TTL, immutable merge caching, paginated timeline progress and
-bounded task rotation. A persistent shared client budget permits a burst of four
+bounded task rotation. Cache reads use the existing task-key index for only the
+requested facts, with at most 500 SQL parameters per batch; a small refresh does
+not scan the entire retained cache. A persistent shared client budget permits a burst of four
 requests and replenishes one request every three seconds; cache hits are free.
 These are conservative client settings, not a claim about the provider's quota.
 `COMMONS_SWARM_GITHUB_INTERVAL_S` (1–3600) and `COMMONS_SWARM_GITHUB_BURST` (1–20)
