@@ -90,6 +90,17 @@ in private scratch custody; do not commit raw tool results from private sources.
   `encoding: "utf-8"` on the file entry. The importer does not guess a SHA or
   silently accept content with missing identity.
 
+A successful `fetch_file` response can still contain an empty `content` string
+for a nonempty file. Compare the returned bytes with the observed blob SHA; an
+empty body is valid only for the empty Git blob
+`e69de29bb2d1d6434b8b29ae775ad8c2e48c5391`. For UTF-8 text, fetch that observed
+blob directly and capture it with the entry below. Keep the SHA validation:
+`SOURCE_BLOB_MISMATCH` rejects the incomplete response before any destination is
+created. This recovery was observed with a 2,318,503-byte text file whose path
+read returned no content; the unchanged importer accepted the complete native
+blob response with the same expected Git blob. This observation does not
+establish a size limit or guarantee that every blob response is complete.
+
 ```javascript
 files.push({
   path: repositoryPath,
