@@ -114,12 +114,18 @@ POST /api/work/item or command_center_work_item sets priority, next_action or a 
 
 Work-item edits may include `expected_revision` from `item.owner_work.revision`
 (use `0` when no owner direction exists). Each accepted update increments that
-revision. A stale revision returns HTTP 409 without changing the direction or
-recording a successful operation; read the exact item again and reconcile the
-edit. Exact retries with the same operation ID and payload return their original
-result even if a later edit has advanced the revision. Callers omitting the field
+revision. A stale revision returns HTTP 409 with `code: work_revision_conflict`,
+`status: rejected`, and the `current_work` captured in that transaction. It changes
+no direction and records no successful operation. Compare the returned direction
+with the draft and reconcile the edit. Exact retries with the same operation ID
+and payload return their original result even if a later edit has advanced the revision. Callers omitting the field
 retain their existing behavior. The Work editor sends the revision it displayed,
-keeps a rejected draft in place, and closes after a confirmed save. This protects
+keeps a rejected draft in place, and shows the saved priority, next action, and
+prepared packet. "Use this revision for my draft" updates only the edit's revision
+basis; the operator can adjust the draft and save it again. A definite revision
+rejection can start a corrected operation; unrelated conflicts and uncertain
+transport outcomes still retain the original operation for reconciliation.
+The editor closes after a confirmed save. This protects
 owner directions, not freshness of the separate provider observation.
 
 ## Canonical task visibility

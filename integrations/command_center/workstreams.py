@@ -34,6 +34,15 @@ ERROR_STATUSES = {"error", "failed", "offline", "unavailable", "blocked"}
 CLOCK_SKEW_SECONDS = 300
 
 
+class WorkRevisionConflict(CoreError):
+    """A rejected edit with the saved direction captured in its transaction."""
+
+    def __init__(self, work):
+        super().__init__(409, "Work direction changed since it was read. "
+                         "Compare the saved direction with your draft before saving again.")
+        self.work = {"revision": 0, **work}
+
+
 def _now():
     return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
@@ -314,8 +323,7 @@ class WorkstreamStore:
             # above remain valid even after another writer advances this record.
             revision = work.get("revision", 0)
             if "expected_revision" in clean and clean["expected_revision"] != revision:
-                raise CoreError(409, "Work direction changed since it was read. "
-                                "Refresh this item and reconcile your edit before saving again.")
+                raise WorkRevisionConflict(work)
             for key in ("priority", "next_action"):
                 if key in clean:
                     work[key] = clean[key]
