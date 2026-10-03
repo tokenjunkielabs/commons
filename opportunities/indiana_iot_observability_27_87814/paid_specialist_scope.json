@@ -22,5 +22,6 @@
     "claim award",
     "claim payment",
     "claim revenue"
-  ]
+  ],
+  "proposal_structure": "Main RFP 1.2 requires one responsible respondent and rejects joint/combined proposals. Subcontract allocation remains unresolved."
 }
