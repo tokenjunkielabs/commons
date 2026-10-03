@@ -787,15 +787,17 @@ def collect_service_activity(config=None, state=None, sources=None, read_page=No
     used = 0
     quantum = max(1, int(config.get("max_pages_per_cycle", 50)))
     attempted = set()
+    has_reader = callable(read_page)
     while used < quantum:
+        # Native-only passes can consume receipts, but must not repeatedly
+        # select and skip every queued job while enumerating pending reads.
         candidates = [job for key, job in jobs.items() if key not in attempted and job.get("tool_name") and not job.get("complete") and
-                      (key in receipts or job["status"] == "queued" or job.get("retry_at_epoch", 0) <= time.time() and callable(read_page))]
+                      (key in receipts or has_reader and
+                       (job["status"] == "queued" or job.get("retry_at_epoch", 0) <= time.time()))]
         if not candidates:
             break
         job = candidates[0]
         attempted.add(job["job_id"])
-        if job["job_id"] not in receipts and not callable(read_page):
-            continue
         used += 1
         job["attempts"] += 1
         job["last_attempt_at"] = collector.at
