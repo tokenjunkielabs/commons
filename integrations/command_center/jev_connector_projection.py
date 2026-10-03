@@ -282,9 +282,10 @@ def _project_source(raw: Any) -> tuple[dict[str, Any], list[dict[str, Any]]]:
         operation_id = _nullable_token(record["operation_id"], "record.operation_id")
         event_url = _url(record["source_url"], "record.source_url")
         identity = (resource_scope, event_type, provider_event_id)
+        # A later read is another observation of the same immutable event. Keep
+        # its receipt time on the emitted row so the ledger can combine it.
         semantic = {
             "provider_event_time": provider_event_time,
-            "observed_at": record_observed,
             "event_type": event_type,
             "actor_id": actor_id,
             "work_id": work_id,
