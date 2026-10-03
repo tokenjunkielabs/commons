@@ -57,6 +57,14 @@ def _items(payload):
     return []
 
 
+def _page_items(payload, kind):
+    # Commit pages repeat the commit metadata; only the files array advances.
+    # Keep _items unchanged so graph expansion still reads the commit itself.
+    if kind == "commit_detail" and isinstance(payload, dict) and isinstance(payload.get("files"), list):
+        return payload["files"]
+    return _items(payload)
+
+
 class _Redirect(urllib.request.HTTPRedirectHandler):
     def redirect_request(self, req, fp, code, msg, headers, newurl):
         if urllib.parse.urlsplit(newurl).scheme != "https":
@@ -678,6 +686,13 @@ def collect_github_activity(config=None, state=None, sources=None):
         task = queue[sid]
         ref = task["account_ref"]
         now = time.time()
+        if task["kind"] == "commit_detail" and task.get("file_pagination_version") != 1:
+            # Older checkpoints marked immutable commits complete after page
+            # one when a JSON reader omitted Link headers. Reopen them once
+            # through the normal request budget; retained envelopes stay intact.
+            task.update(file_pagination_version=1, complete=False, next_endpoint=task["endpoint"], page=1)
+            if task.get("pages"):
+                task["status"] = "pending_file_pagination_recovery"
         if task.get("complete"):
             if task.get("immutable") or now - float(task.get("completed_epoch") or now) < refresh:
                 continue
@@ -748,7 +763,7 @@ def collect_github_activity(config=None, state=None, sources=None):
                            "event_type": "github_source_response", "peer_id": None, "session_id": None, "agent_id": None, "parent_agent_id": None,
                            "provider": "github", "model": None, "harness": "existing_account_read_api", "work_id": None, "operation_id": None,
                            "status": "observed" if status < 400 else "read_unavailable", "summary": "GitHub source response captured",
-                           "url": _clean_url(response["url"]), "metrics": {"body_byte_length": len(raw), "records": len(_items(payload)), "http_status": status},
+                           "url": _clean_url(response["url"]), "metrics": {"body_byte_length": len(raw), "records": len(_page_items(payload, task["kind"])), "http_status": status},
                            "metadata": {"account_ref": ref, "repository": task.get("repository"), "kind": task["kind"], "sha256": digest, "response_headers": safe_headers},
                            "source_ref": source_ref,
                            "full_source": {"encoding": "base64", "body": base64.b64encode(raw).decode("ascii"), "sha256": digest, "byte_length": len(raw),
@@ -784,7 +799,7 @@ def collect_github_activity(config=None, state=None, sources=None):
                     expand(task, payload)
                 continue
             task["pages"] += 1
-            task["records"] += len(_items(payload))
+            task["records"] += len(_page_items(payload, task["kind"]))
             if payload is not None:
                 expand(task, payload)
             task["retry_epoch"] = 0
@@ -816,7 +831,7 @@ def collect_github_activity(config=None, state=None, sources=None):
                     task.update(status="graphql_source_unavailable", complete=False, retry_epoch=_retry_epoch(headers))
                     continue
                 task["records"] += len((connection or {}).get("nodes") or [])
-            elif not headers and len(_items(payload)) >= 100 and "per_page=100" in task["endpoint"]:
+            elif not headers and len(_page_items(payload, task["kind"])) >= 100 and "per_page=100" in task["endpoint"]:
                 parts = urllib.parse.urlsplit(task["next_endpoint"])
                 params = urllib.parse.parse_qsl(parts.query, keep_blank_values=True)
                 params = [(k, v) for k, v in params if k != "page"] + [("page", str(task["page"] + 1))]
