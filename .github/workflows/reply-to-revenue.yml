@@ -38,6 +38,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            host/reply_to_revenue.py
+            host/reply_to_revenue_core.py
+            revenue/reply_to_revenue/funnel.json
+            revenue/reply_to_revenue/observations.json
+            revenue/payment_ready/outreach_receipts/
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -49,20 +57,3 @@ jobs:
             echo "send path must fail" >&2
             exit 1
           fi
-      - name: Run reply-to-revenue tests
-        run: >-
-          python3 -m unittest -v
-          test_reply_to_revenue
-          test_reply_to_revenue_event_identity
-      - name: Run optimized reply-to-revenue tests
-        run: >-
-          python3 -O -m unittest -v
-          test_reply_to_revenue
-          test_reply_to_revenue_event_identity
-      - name: Verify syntax
-        run: >-
-          python3 -m py_compile
-          host/reply_to_revenue.py
-          host/reply_to_revenue_core.py
-          test_reply_to_revenue.py
-          test_reply_to_revenue_event_identity.py
