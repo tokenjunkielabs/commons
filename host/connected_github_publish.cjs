@@ -363,6 +363,170 @@ async function publishGitHubChange(tools, change, options = {}) {
   }
 }
 
+/** Explicitly finish a known publication's merge without replaying its creation. */
+async function continueGitHubMerge(tools, change, previousProgress, options = {}) {
+  const progress = {operation: 'merge_continuation', status: 'incomplete', stage: 'validate',
+    calls: {}, files: [], progress_callback_errors: []};
+  let lastResponse;
+  let announce = async () => {};
+  try {
+    const spec = validate(change);
+    if (!spec.merge) throw new TypeError('Set merge: true for this explicit merge continuation');
+    const saved = object(previousProgress, 'previousProgress');
+    for (const key of ['repository_full_name', 'base_branch', 'branch_name']) {
+      if (saved[key] !== spec[key]) throw new Error(`Retained publication differs from change: ${key}`);
+      progress[key] = spec[key];
+    }
+    for (const key of ['base_commit_sha', 'base_tree_sha', 'tree_sha', 'commit_sha']) {
+      progress[key] = sha(saved[key], `Retained ${key}`);
+    }
+    const retainedPR = object(saved.pull_request, 'Retained pull_request');
+    if (!Number.isInteger(retainedPR.number) || retainedPR.number < 1
+        || retainedPR.head_sha !== progress.commit_sha) {
+      throw new Error('Retain the confirmed pull request number and original head SHA');
+    }
+    progress.pull_request = {number: retainedPR.number, url: retainedPR.url, head_sha: progress.commit_sha};
+    if (!Array.isArray(saved.files)) throw new TypeError('Retain the publication file versions');
+    const savedFiles = new Map(saved.files.map(file => [object(file, 'Retained file').path, file]));
+    if (savedFiles.size !== spec.files.length || saved.files.length !== spec.files.length) {
+      throw new Error('Retained file paths differ from the original prepared change');
+    }
+    for (const source of spec.files) {
+      const file = savedFiles.get(source.path);
+      if (!file || file.previous_blob_sha !== source.expected_blob_sha
+          || (file.previous_blob_sha === null ? file.previous_mode !== null
+            : !['100644', '100755'].includes(file.previous_mode))
+          || file.mode !== (source.mode ?? file.previous_mode ?? '100644')) {
+        throw new Error(`Retained file version or mode differs from change: ${source.path}`);
+      }
+      const record = {path: source.path, previous_blob_sha: file.previous_blob_sha,
+        previous_mode: file.previous_mode, mode: file.mode};
+      if (source.encoding === 'base64') record.blob_sha = sha(file.blob_sha, 'Retained binary blob');
+      progress.files.push(record);
+    }
+    const repository_full_name = spec.repository_full_name;
+    const actions = ['get_pr_info', 'fetch', 'fetch_file', 'fetch_blob', 'merge_pull_request'];
+    const bindings = Object.fromEntries(actions.map(action => [action,
+      options.bindings?.[action] ?? `mcp__codex_apps__github_${action}`]));
+    const requireBinding = action => {
+      if (typeof tools?.[bindings[action]] !== 'function') {
+        throw new Error(`Binding not present: ${bindings[action]}. Repeat discovery alongside independent work.`);
+      }
+    };
+    requireBinding('get_pr_info');
+    requireBinding('fetch_file');
+    announce = async () => {
+      if (typeof options.onProgress !== 'function') return;
+      try { await options.onProgress(JSON.parse(JSON.stringify(progress))); }
+      catch (error) { progress.progress_callback_errors.push(String(error.message ?? error)); }
+    };
+    const call = async (action, args) => {
+      progress.calls[action] = (progress.calls[action] ?? 0) + 1;
+      lastResponse = undefined;
+      lastResponse = await tools[bindings[action]](args);
+      return unpack(lastResponse, action);
+    };
+    const fetchJSON = async url => {
+      const payload = await call('fetch', {url});
+      return typeof payload.content === 'string' ? object(JSON.parse(payload.content), 'GitHub resource') : payload;
+    };
+    progress.stage = 'read_pull_request';
+    const pr = await call('get_pr_info', {repository_full_name, pr_number: retainedPR.number});
+    if (pr.number !== retainedPR.number || pr.base !== spec.base_branch || pr.head !== spec.branch_name
+        || typeof pr.head_repo_full_name !== 'string'
+        || pr.head_repo_full_name.toLowerCase() !== repository_full_name.toLowerCase()
+        || pr.head_sha !== progress.commit_sha) {
+      throw new Error('The current pull request differs from the retained repository, branches, or head');
+    }
+    progress.pull_request.url = pr.url ?? retainedPR.url;
+    if (pr.merged === true) {
+      progress.publication_status = 'merged';
+      progress.merge_sha = sha(pr.merge_commit_sha, 'Existing merge');
+      progress.merge_skipped = 'already_merged';
+      await announce();
+    } else {
+      if (pr.merged !== false || pr.state !== 'open') throw new Error('The pull request is not open or confirmed merged');
+      progress.publication_status = 'pull_request_open';
+      await announce();
+      requireBinding('fetch');
+      requireBinding('merge_pull_request');
+      const api = `https://api.github.com/repos/${repository_full_name}`;
+      progress.stage = 'read_base';
+      const base = await fetchJSON(`${api}/branches/${encodeURIComponent(spec.base_branch)}`);
+      progress.current_base_commit_sha = sha(base.commit?.sha, 'Current base branch');
+      progress.current_base_tree_sha = sha(base.commit?.commit?.tree?.sha, 'Current base tree');
+      const trees = new Map();
+      const tree = async treeSha => {
+        if (!trees.has(treeSha)) {
+          const data = await fetchJSON(`${api}/git/trees/${treeSha}`);
+          if (data.sha !== treeSha || !Array.isArray(data.tree) || data.truncated !== false) {
+            throw new Error(`The current base tree could not be read completely: ${treeSha}`);
+          }
+          trees.set(treeSha, data.tree);
+        }
+        return trees.get(treeSha);
+      };
+      progress.stage = 'check_file_versions';
+      for (const file of progress.files) {
+        let current = progress.current_base_tree_sha;
+        let existing = null;
+        const parts = file.path.split('/');
+        for (let index = 0; index < parts.length; index++) {
+          const item = (await tree(current)).find(entry => entry.path === parts[index]);
+          if (!item) break;
+          if (index === parts.length - 1) { existing = item; break; }
+          if (item.type !== 'tree') throw new Error(`A parent path is not a directory: ${file.path}`);
+          current = sha(item.sha, 'Parent tree');
+        }
+        if ((existing?.sha ?? null) !== file.previous_blob_sha
+            || (existing?.mode ?? null) !== file.previous_mode
+            || (existing && existing.type !== 'blob')) {
+          throw new Error(`Base file changed: ${file.path}; read the current source and compose deliberately`);
+        }
+      }
+      await announce();
+      progress.stage = 'merge_pull_request';
+      const merged = await call('merge_pull_request', {repository_full_name, pr_number: retainedPR.number,
+        expected_head_sha: progress.commit_sha, merge_method: spec.merge_method});
+      progress.merge_result = merged;
+      if (merged.merged !== true) throw new Error('GitHub did not report a completed merge');
+      progress.publication_status = 'merged';
+      progress.merge_sha = sha(merged.sha, 'Merge');
+      await announce();
+    }
+    progress.stage = 'readback';
+    progress.readback_ref = progress.merge_sha;
+    const readBlob = typeof tools?.[bindings.fetch_blob] === 'function'
+      ? blob_sha => call('fetch_blob', {repository_full_name, blob_sha}) : undefined;
+    const reads = await Promise.allSettled(progress.files.map(async (file, index) => {
+      const source = spec.files[index];
+      const data = await call('fetch_file', {repository_full_name, path: file.path,
+        ref: progress.readback_ref, encoding: source.encoding});
+      return resolveReadback(file, source, data, readBlob);
+    }));
+    progress.readback = reads.map((read, index) => read.status === 'fulfilled' ? read.value
+      : {path: progress.files[index].path, matches: false, error: String(read.reason?.message ?? read.reason),
+        ...(read.reason?.tool_error ? {tool_error: read.reason.tool_error} : {})});
+    const unavailable = progress.readback.some(read => read.error_code === 'readback_content_unavailable');
+    progress.readback_status = unavailable ? 'content_unavailable'
+      : progress.readback.some(read => !read.matches) ? 'incomplete' : 'complete';
+    if (unavailable) throw new Error('Merged source content was not returned; finish readback without repeating publication');
+    if (progress.readback.some(read => !read.matches)) throw new Error('One or more merged source readbacks did not match');
+    progress.status = 'merged';
+    progress.stage = 'complete';
+    await announce();
+    return progress;
+  } catch (error) {
+    if (error.tool_error) progress.tool_error = error.tool_error;
+    await announce();
+    const failure = new GitHubPublishError(String(error.message ?? error), progress, error);
+    if (error.tool_error) failure.tool_error = error.tool_error;
+    failure.response = lastResponse;
+    throw failure;
+  }
+}
+
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {GitHubPublishError, publishGitHubChange, inspectReadback, resolveReadback, inspectToolError};
+  module.exports = {GitHubPublishError, publishGitHubChange, continueGitHubMerge,
+    inspectReadback, resolveReadback, inspectToolError};
 }
