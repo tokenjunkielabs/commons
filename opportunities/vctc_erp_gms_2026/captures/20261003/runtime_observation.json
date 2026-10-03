@@ -1,0 +1,107 @@
+{
+  "as_of": "2026-10-03T19:49:15+00:00",
+  "authority": {
+    "award_claim": false,
+    "buyer_contact": false,
+    "contract_acceptance": false,
+    "insurance_certification": false,
+    "payment_claim": false,
+    "preproposal_registration": false,
+    "price_commitment": false,
+    "production_mutation": false,
+    "proposal_submission": false,
+    "question_submission": false,
+    "revenue_claim": false,
+    "signature": false
+  },
+  "commands": [
+    {
+      "command": "sign-sources",
+      "elapsed_seconds": 0.037089,
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": ""
+    },
+    {
+      "command": "compile",
+      "elapsed_seconds": 0.035512,
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": ""
+    },
+    {
+      "command": "verify",
+      "elapsed_seconds": 0.035024,
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "VERIFIED\n"
+    }
+  ],
+  "commercial_state": "PROPOSED_NOT_ACCEPTED",
+  "completed_at": "2026-10-03T19:49:15+00:00",
+  "entrypoint": "opportunities.vctc_erp_gms_2026.cli",
+  "invocation_key": {
+    "key_id": "capture-20261003-84a3",
+    "key_persisted": false,
+    "owner_production_trust_root_claimed": false,
+    "scope": "PRIVATE_EPHEMERAL_CAPTURE_USE"
+  },
+  "maximum_child_rss_kib": 11648,
+  "native_admission_minimum_bytes": 33554432,
+  "old_solves_or_test_suites_run": false,
+  "product_source_blobs": {
+    "opportunities/vctc_erp_gms_2026/__init__.py": "affb6f27d4dcd014285e622146dd2236b8b72b4b",
+    "opportunities/vctc_erp_gms_2026/cli.py": "2ca9a2feb9b358af53ef909d9ea90331edf7871f",
+    "opportunities/vctc_erp_gms_2026/engine.py": "83d36f6bfb1349b7ac8cee97f4896bd32d35bb41"
+  },
+  "raw_bytes_verified": [
+    {
+      "bytes": 158778,
+      "file": "buyer-page.html",
+      "git_blob": "53ef0fd82639c865d86c489e3d7270395231bf1b",
+      "sha256": "fafac7a71a36cf3e9bb9b003942a5cbd4479d6c9403f127e61608c1cef1e14e3"
+    },
+    {
+      "bytes": 479321,
+      "file": "rfp.pdf",
+      "git_blob": "de63460920dc72377ce54f8395abe197bb86a747",
+      "sha256": "241ce15b77a8d6b410d926347bde3122b181c8e131cdbc522b5ca69d4ea76c94"
+    },
+    {
+      "bytes": 36281,
+      "file": "appendix_a.xlsx",
+      "git_blob": "df23cec96ff2982f4482655e1a2984678f502222",
+      "sha256": "ee5156298e94d0000860a6d2bc854d0471a90a2f3217d1d8cd648d61e2b2a85d"
+    },
+    {
+      "bytes": 33955,
+      "file": "appendix_b.xlsx",
+      "git_blob": "6e2ee57878ac51f195db9ebe724c2ed0d4d5c6ff",
+      "sha256": "588ead0c09c6c8ec94fea3b9511482bd1632057071c6c82ddd8e5ecaa62fbbf5"
+    },
+    {
+      "bytes": 189367,
+      "file": "appendix_c.pdf",
+      "git_blob": "ea957cf2c3dbdc90f3599694769c3557e8bd60ba",
+      "sha256": "16f3d75f22a5d49140131d7959c5be011129e0e4e691504757e0d732201969a5"
+    }
+  ],
+  "requirement_count": 0,
+  "schema": "vctc-erp-gms-native-observation/v1",
+  "source_generation_only": true,
+  "started_at": "2026-10-03T19:49:15+00:00",
+  "state": "HOLD_REQUIREMENT_MATRIX_REQUIRED",
+  "team_gate_gaps": [
+    "ERP_OR_GMS_PRODUCT_AUTHORITY",
+    "IMPLEMENTATION_LEAD",
+    "INSURANCE_BINDABILITY_PLAN",
+    "PHYSICAL_SUBMISSION_OWNER",
+    "PUBLIC_SECTOR_REFERENCES",
+    "SHORTLIST_DEMO_READINESS",
+    "SUBCONTRACT_DISCLOSURE_AND_CONSENT_PLAN",
+    "SUPPORT_MAINTENANCE_MODEL",
+    "THREE_SIMILAR_PUBLIC_SECTOR_PROJECTS"
+  ],
+  "time_override_used": false,
+  "unchanged_runtime": true
+}
