@@ -178,6 +178,27 @@ pressure Gram matrix and a scale-independent local bound. The guide
 records the coefficient conventions and residual-subspace scope.
 Complete global assembly and the uniform inf-sup theorem remain separate.
 
+## Minimum-energy cell-mean lift
+
+[The exact constructor and uniform-bound derivation](MEAN_ENERGY_LIFT.md)
+supply the initial mean stage on every positive n-by-n-by-n grid.
+The field minimizes H1 energy in the full continuous P1 vector plus
+normal cubic face-bubble space while matching every prescribed zero-sum
+cell mean. Its bound is independent of mesh size by comparison with a
+bounded continuous right inverse, a boundary-preserving interpolant and
+local face flux corrections.
+
+Run `mean_energy_lift.py --subdivisions 2 --both-degrees` to solve once
+and embed that same cubic field in degrees four and five. The exact
+two-by-two-by-two solve has 28 free coordinates after eliminating
+47 independent mean constraints. Output includes every physical pressure
+coefficient, sparse shared velocity coefficients and independently
+integrated energy. The API can reuse its geometry and factorization.
+Rational translation and positive cube size are supported, including n=1.
+This mean stage may change vertex and edge divergence and precedes their
+protected lifts. The current dense reduced solver is intended for small
+exact grids; complete global assembly remains separate.
+
 ## Original problem
 
 On a Freudenthal tetrahedral mesh of a cubical domain, let `V_h^k` be the continuous vector degree-k polynomial space with zero boundary trace, and let `Q_h^k = div V_h^k`.
