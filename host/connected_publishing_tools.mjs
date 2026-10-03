@@ -40,8 +40,14 @@ function inventory(snapshot) {
     if (name !== name.trim()) throw new TypeError(`Tool entry ${index} has whitespace around its name`);
     if (unique.has(name)) {
       duplicateNames.add(name);
-      // A names-only entry must not hide an available definition later in the same export.
-      if (typeof unique.get(name) === 'string' && typeof entry === 'object') unique.set(name, entry);
+      // Repeated exports may supply a name-only object before its definition,
+      // or add schema fields separately. Preserve every supplied field without
+      // letting a later name-only record erase an available definition.
+      if (typeof entry === 'object') {
+        const previous = unique.get(name);
+        const supplied = Object.fromEntries(Object.entries(entry).filter(([, value]) => value != null));
+        unique.set(name, {...(typeof previous === 'object' ? previous : {}), ...supplied});
+      }
     } else unique.set(name, entry);
   }
   const providers = {github: [], slack: []};
