@@ -68,6 +68,8 @@ Background `sync` reconciles source events and provider outcomes without taking
 new work or renewing a worker's heartbeat. When an active task becomes terminal,
 its response may include one advisory `candidates` entry per eligible worker:
 `{"worker": "SEAT", "after_task_key": "completed-key", "task": {"task_key": "candidate-key", "...": "bounded context"}}`.
+The batch prepares its task rows and current seat census once, using the same
+read clock for every worker. An empty batch skips that preparation entirely.
 Each task is suggested at most once within that response. Later workers use the
 remaining compatible tasks in the existing recovery/priority order; a worker
 gets no suggestion if that batch has exhausted its eligible work. The candidate

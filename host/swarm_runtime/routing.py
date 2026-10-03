@@ -287,7 +287,29 @@ def route(tasks: dict, worker: str, seats: dict, now: str, required=None):
     The caller must atomically append TAKE (or RECOVER) with this decision.
     """
     _clock(now)
-    rows, census = _tasks(tasks), _seats(seats, now)
+    return _route_prepared(_tasks(tasks), worker, _seats(seats, now), now, required)
+
+
+def _iter_routes(tasks, workers, seats, now, required=None):
+    """Read-only batch choices over one private routing snapshot.
+
+    Prepare lazily so an empty batch does no census work. Remove each suggested
+    task only from this batch; the caller still reconciles and claims at dispatch.
+    This iterator is internal: consumers read choices without changing them.
+    """
+    rows = census = None
+    for worker in workers:
+        if rows is None:
+            _clock(now)
+            rows, census = _tasks(tasks), _seats(seats, now)
+        choice = _route_prepared(rows, worker, census, now, required)
+        if choice.get("task_key"):
+            rows.pop(choice["task_key"])
+        yield choice
+
+
+def _route_prepared(rows, worker, census, now, required=None):
+    """Apply the unchanged selection rules to caller-owned prepared inputs."""
     seat = census.get(worker, {})
     result = {"task_key": None, "reason": "no_eligible_work", "eligible": [],
               "seat": _seat_summary(seat, worker), "exclusions": []}
