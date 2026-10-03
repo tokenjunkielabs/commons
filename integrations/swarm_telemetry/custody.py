@@ -127,9 +127,10 @@ class Custody:
                     if isinstance(data,str):
                         try: data=base64.b64decode(data,validate=True)
                         except (ValueError,base64.binascii.Error): data=data.encode("utf-8")
-                    self._key=data if data is not None else secure_key()
-                    if not isinstance(self._key,bytes) or len(self._key)!=64:
+                    candidate=data if data is not None else secure_key()
+                    if not isinstance(candidate,bytes) or len(candidate)!=64:
                         raise RuntimeError("Shared source custody key has an incompatible length")
+                    self._key=candidate
         return self._key
 
     def prepare(self,value,source_id):
