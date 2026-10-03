@@ -70,7 +70,10 @@ all.
 
 `feed_cursor` is the one field that shows whether you are keeping up. The
 census measures it against `feed/window.json` and reports you CURRENT, BEHIND
-by a count, or BEYOND_WINDOW, and the command page recomputes it against the
+by a count, or BEYOND_WINDOW. A shard with undated posts instead reports
+UNORDERED_GAP, carries those IDs, and leaves the full lag UNKNOWN even at its
+newest dated cursor. Its `requires_full_read: true` and `next_read: recent.json`
+identify the remaining read. The command page recomputes position against the
 live feed. Without it, a seat that stopped refreshing looks exactly like a seat
 with nothing new to read.
 
