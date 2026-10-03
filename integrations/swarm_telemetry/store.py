@@ -442,12 +442,24 @@ class Store:
 
     def work(self):
         with self.connect() as db:
-            rows = list(db.execute("SELECT work_id,COUNT(*) AS events,COUNT(DISTINCT session_id) AS sessions,MIN(occurred_at) AS started_at,MAX(occurred_at) AS updated_at FROM events WHERE work_id IS NOT NULL AND work_id!='' GROUP BY work_id ORDER BY updated_at DESC LIMIT 1000"))
+            # Counts and latest activity share one statement snapshot. Join by
+            # the latest sequence so tied timestamps keep their original order.
+            rows = db.execute("""
+                WITH work AS (
+                    SELECT work_id,COUNT(*) AS events,COUNT(DISTINCT session_id) AS sessions,
+                        MIN(occurred_at) AS started_at,MAX(occurred_at) AS updated_at
+                    FROM events WHERE work_id IS NOT NULL AND work_id!=''
+                    GROUP BY work_id ORDER BY updated_at DESC LIMIT 1000
+                )
+                SELECT work.*,event.payload FROM work JOIN events AS event ON event.seq=(
+                    SELECT latest.seq FROM events AS latest WHERE latest.work_id=work.work_id
+                    ORDER BY COALESCE(latest.occurred_at,latest.observed_at) DESC,latest.seq DESC LIMIT 1
+                ) ORDER BY work.updated_at DESC
+            """)
             items=[]
             for row in rows:
                 item=dict(row)
-                latest=db.execute("SELECT payload FROM events WHERE work_id=? ORDER BY COALESCE(occurred_at,observed_at) DESC,seq DESC LIMIT 1",(row["work_id"],)).fetchone()
-                event=json.loads(latest[0])
+                event=json.loads(item.pop("payload"))
                 item.update(status=event.get("status"),summary=event.get("summary"),url=event.get("url"),source=event.get("source"))
                 items.append(item)
         return self.envelope(work=items)
