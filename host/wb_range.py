@@ -517,8 +517,10 @@ def decode_values(dtype: str, data: bytes, count: int | None = None) -> list[flo
     if dtype == "BF16":
         if len(data) % 2:
             raise WbRangeError("bf16 payload has odd length")
-        words = struct.unpack("<%dH" % (len(data) // 2), data)
-        raw = b"".join(struct.pack("<I", word << 16) for word in words)
+        # Place each little-endian BF16 word in the upper half of float32.
+        raw = bytearray(len(data) * 2)
+        raw[2::4] = data[0::2]
+        raw[3::4] = data[1::2]
         values = list(struct.unpack("<%df" % (len(data) // 2), raw))
     elif dtype == "F8_E4M3":
         values = [_f8_decode(byte, 4, 3) for byte in data]
