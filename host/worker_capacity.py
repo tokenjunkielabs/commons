@@ -12,6 +12,7 @@ from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
 
 SCHEMA = "commons.worker_capacity/v1"
+PROCESS_STATUS_BYTES = 65536
 
 
 def _now():
@@ -203,15 +204,144 @@ def _filesystem(value):
     return result
 
 
+def _process_row(raw, expected_pid):
+    fields = {}
+    for line in raw.splitlines():
+        key, separator, value = line.partition(b":")
+        if separator and key in (b"Name", b"Pid", b"PPid", b"VmRSS"):
+            if key in fields:
+                raise ValueError("duplicate process status field")
+            fields[key] = value
+    if not {b"Name", b"Pid", b"PPid"}.issubset(fields):
+        raise ValueError("missing process status field")
+    pid = _nonnegative(fields[b"Pid"].strip().decode("ascii"))
+    parent_pid = _nonnegative(fields[b"PPid"].strip().decode("ascii"))
+    if pid != expected_pid:
+        raise ValueError("process status PID differs from directory")
+    name = fields[b"Name"]
+    name = name[1:] if name.startswith(b"\t") else name.lstrip(b" ")
+    rss = None
+    if b"VmRSS" in fields:
+        value, unit = fields[b"VmRSS"].decode("ascii").split()
+        if unit != "kB":
+            raise ValueError("unexpected process RSS unit")
+        rss = _nonnegative(value) * 1024
+    return {"pid": pid, "parent_pid": parent_pid,
+            "name": name.decode("utf-8", errors="backslashreplace"), "rss_bytes": rss}
+
+
+def _process_rss(max_processes, max_status_bytes):
+    coverage = {"max_processes": max_processes, "max_status_bytes": max_status_bytes,
+                "max_bytes_per_status": PROCESS_STATUS_BYTES,
+                "max_directory_entries": max_processes + 1024,
+                "directory_entries_seen": 0, "pid_entries_seen": 0,
+                "status_files_attempted": 0, "status_bytes_read": 0,
+                "processes_returned": 0, "processes_with_rss": 0,
+                "enumeration_complete": False, "stop_reason": None,
+                "pending_pid": None, "unavailable_status_files": [],
+                "truncated_status_files": [], "missing_rss_pids": []}
+    result = {"source": "/proc/[pid]/status", "scope": "visible_procfs_processes",
+              "status": "unavailable", "processes": [], "rss_sum_bytes": None,
+              "coverage": coverage}
+    try:
+        with os.scandir("/proc") as entries:
+            while coverage["directory_entries_seen"] < coverage["max_directory_entries"]:
+                try:
+                    entry = next(entries)
+                except StopIteration:
+                    coverage["enumeration_complete"] = True
+                    break
+                coverage["directory_entries_seen"] += 1
+                if not entry.name.isascii() or not entry.name.isdecimal():
+                    continue
+                pid = int(entry.name)
+                coverage["pid_entries_seen"] += 1
+                if coverage["status_files_attempted"] >= max_processes:
+                    coverage.update(stop_reason="process_limit", pending_pid=pid)
+                    break
+                remaining = max_status_bytes - coverage["status_bytes_read"]
+                if remaining == 0:
+                    coverage.update(stop_reason="total_byte_limit", pending_pid=pid)
+                    break
+                allowance = min(PROCESS_STATUS_BYTES, remaining)
+                raw = bytearray()
+                complete = False
+                coverage["status_files_attempted"] += 1
+                try:
+                    with open(entry.path + "/status", "rb", buffering=0) as stream:
+                        while len(raw) < allowance:
+                            chunk = stream.read(min(8192, allowance - len(raw)))
+                            if not chunk:
+                                complete = True
+                                break
+                            raw.extend(chunk)
+                            coverage["status_bytes_read"] += len(chunk)
+                except OSError as exc:
+                    coverage["unavailable_status_files"].append({"pid": pid, "error": _error(exc)})
+                    continue
+                if not complete:
+                    reason = "total_byte_limit" if coverage["status_bytes_read"] == max_status_bytes else "per_status_byte_limit"
+                    coverage["truncated_status_files"].append({"pid": pid, "reason": reason,
+                                                              "bytes_read": len(raw)})
+                    if reason == "total_byte_limit":
+                        coverage["stop_reason"] = reason
+                        break
+                    continue
+                try:
+                    row = _process_row(bytes(raw), pid)
+                except (UnicodeError, ValueError) as exc:
+                    coverage["unavailable_status_files"].append({"pid": pid, "error": _error(exc)})
+                    continue
+                result["processes"].append(row)
+                if row["rss_bytes"] is None:
+                    coverage["missing_rss_pids"].append(pid)
+            else:
+                coverage["stop_reason"] = "directory_entry_limit"
+    except OSError as exc:
+        result["error"] = _error(exc)
+        coverage["stop_reason"] = "directory_read_error"
+    rows = result["processes"]
+    rows.sort(key=lambda row: (row["rss_bytes"] is None, -(row["rss_bytes"] or 0), row["pid"]))
+    coverage["processes_returned"] = len(rows)
+    known = [row["rss_bytes"] for row in rows if row["rss_bytes"] is not None]
+    coverage["processes_with_rss"] = len(known)
+    result["rss_sum_bytes"] = sum(known) if known else None
+    if "error" not in result or coverage["status_files_attempted"]:
+        result["status"] = "ok" if (coverage["enumeration_complete"]
+            and not coverage["unavailable_status_files"]
+            and not coverage["truncated_status_files"]
+            and not coverage["missing_rss_pids"]) else "partial"
+    return result
+
+
+def _positive_limit(maximum):
+    def parse(raw):
+        try:
+            value = _nonnegative(raw)
+        except ValueError as exc:
+            raise argparse.ArgumentTypeError("expected an integer from 1 to " + str(maximum)) from exc
+        if not 1 <= value <= maximum:
+            raise argparse.ArgumentTypeError("expected an integer from 1 to " + str(maximum))
+        return value
+    return parse
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--path", action="append", help="existing file/directory; repeat for each output filesystem (default: current directory)")
+    parser.add_argument("--process-rss", action="store_true", help="include a bounded read of visible process PID, parent, short name and RSS")
+    parser.add_argument("--max-processes", type=_positive_limit(4096), default=256,
+                        help="status-file attempts with --process-rss (1..4096; default: 256)")
+    parser.add_argument("--max-process-bytes", type=_positive_limit(8388608), default=1048576,
+                        help="total status bytes with --process-rss (1..8388608; default: 1048576)")
     args = parser.parse_args(argv)
     started = _now()
     paths = args.path or ["."]
     report = {"schema": SCHEMA, "started_at": started, "host_memory": _host_memory(),
               "cgroup_memory": _cgroup_memory(),
               "filesystems": [_filesystem(value) for value in paths]}
+    if args.process_rss:
+        report["process_rss"] = _process_rss(args.max_processes, args.max_process_bytes)
     report["finished_at"] = _now()
     print(json.dumps(report, indent=2, ensure_ascii=True, allow_nan=False))
     return 2 if any(row["status"] == "error" for row in report["filesystems"]) else 0
@@ -219,4 +349,3 @@ def main(argv=None):
 
 if __name__ == "__main__":
     sys.exit(main())
-
