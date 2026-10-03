@@ -559,6 +559,8 @@ def _f8_decode(byte: int, exp_bits: int, man_bits: int) -> float:
 
 
 def decode_mxfp4(packed: bytes, scales: bytes, *, block: int = 32) -> list[float]:
+    if block <= 0:
+        raise WbRangeError("mxfp4 block must be positive")
     values = []
     elements_per_byte = 2
     total = len(packed) * elements_per_byte
@@ -567,13 +569,29 @@ def decode_mxfp4(packed: bytes, scales: bytes, *, block: int = 32) -> list[float
         raise WbRangeError(
             "mxfp4 scales short: need %d, have %d" % (expected_scales, len(scales))
         )
-    for index in range(total):
-        byte = packed[index // 2]
-        nibble = byte & 0x0F if index % 2 == 0 else (byte >> 4) & 0x0F
-        sign = -1.0 if nibble & 0x08 else 1.0
-        magnitude = E2M1_TABLE[nibble & 0x07]
-        scale = 2.0 ** (scales[index // block] - 127)
-        values.append(sign * magnitude * scale)
+    # A block shares one scale, and a nibble has only sixteen possible values.
+    # Reuse immutable decoded floats instead of repeating arithmetic per weight.
+    tables = {}
+    for group in range(expected_scales):
+        scale_byte = scales[group]
+        table = tables.get(scale_byte)
+        if table is None:
+            scale = 2.0 ** (scale_byte - 127)
+            table = tuple(
+                (-1.0 if nibble & 0x08 else 1.0) * E2M1_TABLE[nibble & 0x07] * scale
+                for nibble in range(16)
+            )
+            tables[scale_byte] = table
+        start = group * block
+        stop = min(start + block, total)
+        if start % 2:
+            values.append(table[packed[start // 2] >> 4])
+            start += 1
+        for byte in packed[start // 2:stop // 2]:
+            values.append(table[byte & 0x0F])
+            values.append(table[byte >> 4])
+        if stop % 2:
+            values.append(table[packed[stop // 2] & 0x0F])
     return values
 
 
