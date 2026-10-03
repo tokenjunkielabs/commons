@@ -33,5 +33,34 @@
     "explicit_send_authorization"
   ],
   "schema": "cwpd.website-redesign.qualification-receipt.v1",
-  "status": "HOLD_EVIDENCE_INCOMPLETE"
+  "status": "HOLD_EVIDENCE_INCOMPLETE",
+  "record_role": "HISTORICAL_20260913_QUALIFICATION_CARRIER_WITH_CURRENT_UPDATE_POINTER",
+  "external_actions_scope": "The original carrier's actions only; not a claim that no earlier buyer communication existed.",
+  "prior_discovery_record": {
+    "operation": "r-c03-public-sector-rfqs-fischerz-20260912",
+    "owner": "Fischer-Z",
+    "buyer_question_provider_receipt": "1a0988124278dbb0",
+    "slack_source": "https://tokenjunkielabs.slack.com/archives/C0BTB4SUCP9/p1789265070096609",
+    "reply_state": "NOT_REEVALUATED_BY_THIS_SOURCE_UPDATE"
+  },
+  "current_source_update": {
+    "capture": "captures/20261003/source_manifest.json",
+    "selected_clauses": "captures/20261003/source_review.json",
+    "product_observation": "captures/20261003/runtime_observation.json",
+    "recdesk_history_marker": "TRUTHFUL_DISCLOSURE_INCLUDING_NONE_WHEN_ACCURATE",
+    "contracting_stage": "ADDENDUM_SECTION_1_PRE_CONTRACT",
+    "status": "HOLD_EVIDENCE_INCOMPLETE",
+    "external_actions_performed": {
+      "buyer_contact": false,
+      "partner_contact": false,
+      "submission": false,
+      "pricing_commitment": false,
+      "qualification_claim": false,
+      "contract_acceptance": false,
+      "spend": false,
+      "award": false,
+      "payment": false,
+      "revenue": false
+    }
+  }
 }
