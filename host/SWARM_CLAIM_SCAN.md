@@ -27,6 +27,26 @@ The reader accepts raw Slack `messages` pages and the native connector's
 Several source files can be passed together; `-` reads one response from stdin.
 The response size limit is 64 MiB per input. No third-party package is required.
 
+## Select a path or operation
+
+Add `--path host/wb_range.py` or `--operation OPERATION_ID` to focus the same
+command on exact observed values. Repeat either flag to match any supplied value
+of that kind; using both kinds requires both to match. Matching is case-sensitive,
+with no path normalization, basename resolution, wildcard expansion or operation
+alias inference added by selection.
+
+Selected output keeps each matching operation and the peer operations in its
+relevant possible-overlap groups. Group membership and source links stay intact,
+so selecting one operation still exposes its observed counterparts. A path
+selector keeps only groups for that exact path. `selection` distinguishes direct
+matches from related operations and gives the returned collection counts.
+
+The original `counts`, `coverage` and `inputs` remain unchanged and describe
+**all supplied sources**, including unparsed headers, ambiguity, unread cursors
+and input hashes. An empty selection is still not evidence that work is available.
+No flags preserves the complete report. Selection changes no claim states or exit
+codes and performs no additional source reads.
+
 ## Read the result
 
 - `operations` lists recognized declarations, extracted source paths, source
