@@ -41,6 +41,15 @@ def _load_transferable_roles_mod(name: str):
     return importlib.import_module(name)
 
 
+def _add_read_role(roles_mod, indexed: dict[str, dict[str, Any]], raw: dict[str, Any]) -> None:
+    """Normalize supplied role bytes without creating a temporary store."""
+    role = roles_mod.normalize_role(raw)
+    key = roles_mod.role_storage_key(role["role_id"])
+    if key in indexed:
+        raise roles_mod.RoleError(f"role_id already exists: {role['role_id']}")
+    indexed[key] = role
+
+
 def diagnostic_card_tool_schemas() -> list[dict]:
     return [
         _schema(
@@ -74,12 +83,12 @@ def diagnostic_card_tool_schemas() -> list[dict]:
         ),
         _schema(
             "open_obligations_cash_card",
-            "Open obligations for roles with payment_capability metadata; this marker is not proof of payment. Pass roles[] (role objects). Import-only wrap of RoleStore.list_open_obligations(cash_only=True).",
+            "Open obligations for roles with payment_capability metadata; this marker is not proof of payment. Pass roles[] (role objects). Uses shared open_obligation_rows(cash_only=True) in memory.",
             {"roles": "array"},
         ),
         _schema(
             "open_obligations_card",
-            "Open obligations across roles (CRM + paid). Pass roles[]; optional cash_only (default false). Import-only wrap of RoleStore.list_open_obligations. Does not remint WEDGE cash card.",
+            "Open obligations across roles (CRM + paid). Pass roles[]; optional cash_only (default false). Uses shared open_obligation_rows in memory.",
             {"roles": "array"},
             {"cash_only": "boolean"},
         ),
@@ -133,7 +142,7 @@ def diagnostic_card_tool_schemas() -> list[dict]:
         ),
         _schema(
             "export_role_package_card",
-            "Export a portable role package (occupant cleared; no secrets; export_meta stamped). Pass role object. Import-only RoleStore.export_package wrap. Does not remint roles.py.",
+            "Export a portable role package (occupant cleared; no secrets; export_meta stamped). Pass role object. Uses shared export_role_package in memory.",
             {"role": "object"},
         ),
         _schema(
@@ -143,7 +152,7 @@ def diagnostic_card_tool_schemas() -> list[dict]:
         ),
         _schema(
             "inspect_role_card",
-            "Inspect/normalize a transferable role (schema scrub + drop secret-shaped keys). Pass role object. Import-only RoleStore.inspect wrap; returns scrubbed role. Does not remint roles.py.",
+            "Inspect/normalize a transferable role (schema scrub + drop secret-shaped keys). Pass role object. Uses shared normalize_role in memory and returns the scrubbed role.",
             {"role": "object"},
         ),
         _schema(
@@ -154,12 +163,12 @@ def diagnostic_card_tool_schemas() -> list[dict]:
         ),
         _schema(
             "list_role_ids_card",
-            "List role_ids after creating a batch of transferable roles in a tempfile RoleStore. Pass roles (array of role objects). Import-only RoleStore.list_ids wrap; returns role_ids. Does not remint roles.py.",
+            "List role_ids from supplied transferable roles in memory. Pass roles (array of role objects). Returns the original role identifiers with shared normalization and duplicate detection.",
             {"roles": "array"},
         ),
         _schema(
             "get_role_card",
-            "Get a transferable role by role_id after loading roles into a tempfile RoleStore. Pass role_id plus roles (array) or role (object). Import-only RoleStore.get wrap; returns role. Does not remint roles.py.",
+            "Get a transferable role from supplied role objects in memory. Pass role_id plus roles (array) or role (object). Accepts the original identifier or its existing storage key and returns the normalized role.",
             {"role_id": "string"},
             {"roles": "array", "role": "object"},
         ),
@@ -276,13 +285,12 @@ def call_diagnostic_card(name: str, args: dict[str, Any]) -> dict[str, Any] | No
                 "message": "roles must be a nonempty array",
             }
         try:
-            with tempfile.TemporaryDirectory() as tmp:
-                store = roles_mod.RoleStore(tmp)
-                for raw in roles:
-                    if not isinstance(raw, dict):
-                        raise roles_mod.RoleError("each role must be an object")
-                    store.create(raw)
-                rows = store.list_open_obligations(cash_only=True)
+            indexed: dict[str, dict[str, Any]] = {}
+            for raw in roles:
+                if not isinstance(raw, dict):
+                    raise roles_mod.RoleError("each role must be an object")
+                _add_read_role(roles_mod, indexed, raw)
+            rows = roles_mod.open_obligation_rows(indexed.values(), cash_only=True)
         except roles_mod.RoleError as exc:
             return {"ok": False, "error": "role_refused", "message": str(exc)}
         return {"ok": True, "open_obligations": rows}
@@ -304,13 +312,12 @@ def call_diagnostic_card(name: str, args: dict[str, Any]) -> dict[str, Any] | No
             }
         cash_only = bool(args.get("cash_only", False))
         try:
-            with tempfile.TemporaryDirectory() as tmp:
-                store = roles_mod.RoleStore(tmp)
-                for raw in roles:
-                    if not isinstance(raw, dict):
-                        raise roles_mod.RoleError("each role must be an object")
-                    store.create(raw)
-                rows = store.list_open_obligations(cash_only=cash_only)
+            indexed: dict[str, dict[str, Any]] = {}
+            for raw in roles:
+                if not isinstance(raw, dict):
+                    raise roles_mod.RoleError("each role must be an object")
+                _add_read_role(roles_mod, indexed, raw)
+            rows = roles_mod.open_obligation_rows(indexed.values(), cash_only=cash_only)
         except roles_mod.RoleError as exc:
             return {"ok": False, "error": "role_refused", "message": str(exc)}
         return {"ok": True, "open_obligations": rows, "cash_only": cash_only}
@@ -526,10 +533,7 @@ def call_diagnostic_card(name: str, args: dict[str, Any]) -> dict[str, Any] | No
                 "message": "role must be an object",
             }
         try:
-            with tempfile.TemporaryDirectory() as tmp:
-                store = roles_mod.RoleStore(tmp)
-                created = store.create(role)
-                package = store.export_package(created["role_id"])
+            package = roles_mod.export_role_package(roles_mod.normalize_role(role))
         except roles_mod.RoleError as exc:
             return {"ok": False, "error": "role_refused", "message": str(exc)}
         return {"ok": True, "package": package}
@@ -574,10 +578,7 @@ def call_diagnostic_card(name: str, args: dict[str, Any]) -> dict[str, Any] | No
                 "message": "role must be an object",
             }
         try:
-            with tempfile.TemporaryDirectory() as tmp:
-                store = roles_mod.RoleStore(tmp)
-                created = store.create(role)
-                inspected = store.inspect(created["role_id"])
+            inspected = roles_mod.normalize_role(role)
         except roles_mod.RoleError as exc:
             return {"ok": False, "error": "role_refused", "message": str(exc)}
         return {"ok": True, "role": inspected}
@@ -618,17 +619,19 @@ def call_diagnostic_card(name: str, args: dict[str, Any]) -> dict[str, Any] | No
                 "message": "missing roles or role",
             }
         try:
-            with tempfile.TemporaryDirectory() as tmp:
-                store = roles_mod.RoleStore(tmp)
-                for idx, item in enumerate(batch):
-                    if not isinstance(item, dict):
-                        return {
-                            "ok": False,
-                            "error": "missing_argument",
-                            "message": "roles[%s] must be an object" % idx,
-                        }
-                    store.create(item)
-                got = store.get(role_id)
+            indexed: dict[str, dict[str, Any]] = {}
+            for idx, item in enumerate(batch):
+                if not isinstance(item, dict):
+                    return {
+                        "ok": False,
+                        "error": "missing_argument",
+                        "message": "roles[%s] must be an object" % idx,
+                    }
+                _add_read_role(roles_mod, indexed, item)
+            key = roles_mod.role_storage_key(role_id)
+            if key not in indexed:
+                raise roles_mod.RoleError(f"role not found: {role_id}")
+            got = indexed[key]
         except roles_mod.RoleError as exc:
             return {"ok": False, "error": "role_refused", "message": str(exc)}
         return {"ok": True, "role": got}
@@ -650,17 +653,16 @@ def call_diagnostic_card(name: str, args: dict[str, Any]) -> dict[str, Any] | No
                 "message": "roles must be an array",
             }
         try:
-            with tempfile.TemporaryDirectory() as tmp:
-                store = roles_mod.RoleStore(tmp)
-                for idx, role in enumerate(roles):
-                    if not isinstance(role, dict):
-                        return {
-                            "ok": False,
-                            "error": "missing_argument",
-                            "message": "roles[%s] must be an object" % idx,
-                        }
-                    store.create(role)
-                role_ids = store.list_ids()
+            indexed: dict[str, dict[str, Any]] = {}
+            for idx, role in enumerate(roles):
+                if not isinstance(role, dict):
+                    return {
+                        "ok": False,
+                        "error": "missing_argument",
+                        "message": "roles[%s] must be an object" % idx,
+                    }
+                _add_read_role(roles_mod, indexed, role)
+            role_ids = sorted(role["role_id"] for role in indexed.values())
         except roles_mod.RoleError as exc:
             return {"ok": False, "error": "role_refused", "message": str(exc)}
         return {"ok": True, "role_ids": role_ids}
@@ -759,3 +761,4 @@ def call_diagnostic_card(name: str, args: dict[str, Any]) -> dict[str, Any] | No
             return {"ok": False, "error": "role_refused", "message": str(exc)}
         return {"ok": True, "proof": proof}
     return None
+
