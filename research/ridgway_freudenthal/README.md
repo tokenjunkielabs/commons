@@ -29,6 +29,20 @@ The sections below retain the local construction history and its numerical
 operator data; their former references to remaining assembly work describe
 the state before this global composition.
 
+## Exact pressure and kernel dimensions
+
+[The dimension derivation](DIVERGENCE_DIMENSION.md) proves that the mean,
+vertex, edge and element-residual coordinates form a linear isomorphism
+onto the actual divergence image for n at least two. The pressure
+dimensions are \(108n^3-12n^2-24n+5\) at degree four and
+\(195n^3-15n^2-30n+5\) at degree five. Subtracting these from
+\(3(kn-1)^3\) gives the continuous Dirichlet divergence-kernel dimensions.
+
+The note proves independence and spanning from the protected component
+maps, gives exact size tables, and derives the projector
+\(I-\mathcal L\operatorname{div}\) from the existing right inverse.
+It preserves the current complete-pressure runtime format.
+
 ## Usable two-cube quartic mean repair
 
 [The constructed operator and derivation](P4_MEAN_REPAIR.md) realize any twelve zero-sum cell-average divergences with a continuous piecewise-quartic velocity, zero boundary trace, and zero divergence on every tetrahedral edge.
