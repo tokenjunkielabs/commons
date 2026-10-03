@@ -97,3 +97,30 @@ python -m integrations.swarm_telemetry.remote_custody restore --manifest /privat
 ```
 
 If the existing connected account or storage folder is unavailable, retain the local records and journal and report the specific missing route. Upload receipts alone do not establish confirmed custody. This workflow performs no local pruning, deletion, or cutover.
+
+#### Long-term archives with a compact index
+
+The `archive-*` commands retain a metadata-only private index across source snapshots. Adjacent encrypted record ranges are packed into content-addressed chunks; every source reference, IV, MAC, key reference, and segment offset stays separately recorded. Confirmed chunks are reused by content across operations. Record metadata and captured table-state versions are also deduplicated. The existing single-snapshot commands and confirmed v1 copies remain usable.
+
+```sh
+python -m integrations.swarm_telemetry.remote_custody archive-import-v1 --index /private/archive.sqlite3 --journal /private/confirmed-v1.sqlite3
+python -m integrations.swarm_telemetry.remote_custody archive-prepare --source-db /private/source.sqlite3 --index /private/archive.sqlite3 --operation-id OPERATION_ID --account-ref ACCOUNT_REF --folder-id EXISTING_FOLDER_ID --chunk-bytes 4194304
+python -m integrations.swarm_telemetry.remote_custody archive-jobs --index /private/archive.sqlite3 --operation-id OPERATION_ID --limit 50 --cursor 0
+python -m integrations.swarm_telemetry.remote_custody archive-status --index /private/archive.sqlite3 --operation-id OPERATION_ID
+```
+
+Each preparation reads a complete SQLite snapshot. It retains every encrypted source record and the present checkpoint, coverage, cursor, and runtime-state tables. Use repeated `--state-table TABLE` arguments for other complete tables, including events or sessions. Table absence, empty tables, and unfinished source coverage remain explicit. A complete archive snapshot does not mean every provider history has been collected.
+
+The native caller consumes each emitted handoff batch, recording searches, uploads, failures, and downloaded-byte readback through the corresponding `archive-record-*` commands. One reusable staging slot bounds local ciphertext staging to a chunk; uncertain uploads retain their bytes until reconciled. A batch offers at most one upload for that slot. Continue with the returned cursor, including a return to cursor zero while remaining uploads wait for readback. New uploads reread the original source ranges and require their captured hashes to match. Changed or missing source bytes remain pending. Original records and collector cursors are never pruned, advanced, or rewritten by this workflow.
+
+Compression is lossless and used only when the encoded object is smaller. Already-encrypted data commonly remains raw; compressed manifests retain exact table values and recovery metadata. Logical and stored byte counts are reported separately. Provider capacity remains unknown unless an actual provider quota observation supplies it; a successful small upload does not establish unlimited capacity. `archive-capacity --index INDEX --receipt PRIVATE_JSON` accepts observed `limit_bytes`, `used_bytes`, and `available_bytes` with `observed_at` and `basis`; unavailable values remain null.
+
+Each operation has its own remotely confirmed recovery manifest. Fetch it through the existing Drive binding, use `archive-restore-jobs` for its distinct chunk downloads, and run `archive-restore` with the downloaded manifest and private file mapping to create a new database. Recovery does not require the original source or local archive index. Preserve the manifest digest through the existing private handoff. `archive-rebuild-index` reconstructs a new confirmed index from those same downloaded objects, without the original index or source database.
+
+```sh
+python -m integrations.swarm_telemetry.remote_custody archive-restore-jobs --manifest /private/manifest.bin --expected-manifest-sha256 MANIFEST_SHA256
+python -m integrations.swarm_telemetry.remote_custody archive-restore --manifest /private/manifest.bin --downloads /private/downloads.json --output-db /private/NEW-source.sqlite3 --expected-manifest-sha256 MANIFEST_SHA256
+python -m integrations.swarm_telemetry.remote_custody archive-rebuild-index --index /private/NEW-index.sqlite3 --manifest /private/manifest.bin --downloads /private/downloads.json --manifest-file-id DRIVE_MANIFEST_ID --account-ref ACCOUNT_REF --folder-id EXISTING_FOLDER_ID --expected-manifest-sha256 MANIFEST_SHA256
+```
+
+Recovery rebuilds declared columns, types, primary keys, and exact typed rows. Original SQL descriptions are retained privately but are not executed; source indexes, triggers, and defaults are not recreated from manifest SQL. Excluded internal SQLite bookkeeping, such as `sqlite_sequence`, is explicitly named in `source_scope`.
