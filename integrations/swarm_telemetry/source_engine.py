@@ -61,12 +61,24 @@ class SourceEngine:
             responses=dict(self.store.state("native_response_refs") or {})
             metadata=dict(self.store.state("native_response_metadata") or {})
         receipts={}
+        mismatches={}
         identical_observations=0
         for job_id,ref in responses.items():
             record=metadata.get(job_id,{})
             owner=record.get("reader") or ("slack" if job_id.startswith("slack-read:") else "services")
             if owner!=kind: continue
             job=(state.get("jobs") or {}).get(job_id,{})
+            fields=[]
+            if record.get("response_ref",ref)!=ref: fields.append("response_ref")
+            if job:
+                tool,args=module._request(job) if kind=="slack" else (job.get("tool_name"),job.get("args",{}))
+                expected={"tool_name":tool,"account_ref":job.get("account_ref"),"service":job.get("service") or kind}
+                # Compare supplied source context before reading or consuming
+                # the envelope. Older receipts may omit these annotations.
+                fields.extend(key for key,value in expected.items() if key in record and value is not None and record[key]!=value)
+            if fields:
+                mismatches[job_id]=fields
+                continue
             known=consumed.get(job_id)==ref
             raw=None if known else json.loads(self.store.custody.read(ref))
             if known or kind=="slack" and job.get("last_native_result_sha256")==module._digest(raw):
@@ -92,9 +104,9 @@ class SourceEngine:
                             identical_observations+=1
                 consumed[job_id]=ref
                 continue
-            if "arguments" in record and job:
-                current=module._request(job)[1] if kind=="slack" else job.get("args",{})
-                if current!=record["arguments"]: continue
+            if "arguments" in record and job and args!=record["arguments"]:
+                mismatches[job_id]=["arguments"]
+                continue
             receipts[job_id]={"payload":raw,"source_ref":{"ref":ref}}
             if kind=="slack" and job: job["next_attempt_epoch"]=0
         config["native_results"]=receipts
@@ -140,7 +152,7 @@ class SourceEngine:
         for job_id in seen:
             if job_id in receipts: consumed[job_id]=responses[job_id]
         self.store.state("native_consumed:"+kind,consumed)
-        health={"observed_at":now(),"events":len(events),"pending":len(pending),"complete":bool(rows) and all(row.get("complete",False) for row in rows),"full_source_retained":True,"sampling":False,"native_receipts_available":len(receipts),"native_receipts_consumed":len(consumed),"native_identical_observations":identical_observations}
+        health={"observed_at":now(),"events":len(events),"pending":len(pending),"complete":bool(rows) and not mismatches and all(row.get("complete",False) for row in rows),"full_source_retained":True,"sampling":False,"native_receipts_available":len(receipts),"native_receipts_consumed":len(consumed),"native_identical_observations":identical_observations,"native_receipt_mismatches":mismatches}
         self.store.state("source_reader_health:"+kind,health)
         return {"kind":kind,**health}
     def jobs(self,reader=None,limit=None,cursor=0):
@@ -165,7 +177,9 @@ class SourceEngine:
             metadata=self.store.state("native_response_metadata") or {}
             responses[job_id]=ref["ref"]
             metadata[job_id]={key:payload[key] for key in ("arguments","tool_name","account_ref","service") if key in payload}
-            metadata[job_id].update(reader=reader,observed_at=now())
-            self.store.state("native_response_refs",responses)
+            metadata[job_id].update(reader=reader,observed_at=now(),response_ref=ref["ref"])
+            # Publish metadata first and bind it to the retained envelope. An
+            # interruption between these writes cannot pair it with old bytes.
             self.store.state("native_response_metadata",metadata)
+            self.store.state("native_response_refs",responses)
         return self.store.envelope(job_id=job_id,reader=reader,source_record_ref=ref,captured=True)
