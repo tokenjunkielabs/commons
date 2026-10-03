@@ -384,7 +384,9 @@ def _file_identity(path: Path, sample_bytes: int = 4096) -> tuple[int, int, str]
 def _sqlite_identity(path: Path) -> tuple[int, int, str]:
     size, mtime_ns, signature = _file_identity(path)
     sidecar_parts: list[Any] = [signature]
-    for suffix in ("-wal", "-journal", "-shm"):
+    # The WAL index is reader bookkeeping: read-only connections can rewrite
+    # -shm without changing rows. Track only sidecars carrying database content.
+    for suffix in ("-wal", "-journal"):
         sidecar = Path(str(path) + suffix)
         try:
             stat = sidecar.stat()
