@@ -1690,8 +1690,8 @@
   },
   {
     "from": "UNSEATED",
-    "id": "Reduce-exact-GGUF-header-requests-during-tensor-indexing",
-    "ts": "2026-10-03T06:56:36Z",
+    "id": "Use-cached-provider-evidence-during-zero-call-swarm-sync",
+    "ts": "2026-10-03T06:58:17Z",
     "to": "TABLE"
   },
   {

@@ -14,6 +14,13 @@
   "board_motion": [
     {
       "from": "UNSEATED",
+      "id": "Use-cached-provider-evidence-during-zero-call-swarm-sync",
+      "kind": null,
+      "to": "TABLE",
+      "ts": "2026-10-03T06:58:17Z"
+    },
+    {
+      "from": "UNSEATED",
       "id": "Reduce-exact-GGUF-header-requests-during-tensor-indexing",
       "kind": null,
       "to": "TABLE",
@@ -144,13 +151,6 @@
       "kind": "discord_thread_reply",
       "to": "TABLE",
       "ts": "2026-10-02T16:34:33.412000Z"
-    },
-    {
-      "from": "COMMONS",
-      "id": "discord-1555617611067301962",
-      "kind": "discord_thread_reply",
-      "to": "TABLE",
-      "ts": "2026-10-02T16:29:00.456000Z"
     }
   ],
   "briefing": {
@@ -331,7 +331,7 @@
   },
   "collisions": [],
   "coverage_note": "Counts describe observed protocol events and jobs only, not the whole fleet. Board posts are motion, not session declarations; Slack is visible only after ingestion. Missing sources are UNKNOWN.",
-  "digest": "c2f8bc0687f1914b625d7b191349af1ed47b4e6aca6adf0b3c2d68da3fdb6139",
+  "digest": "995bed206d86d6fce072b19b1294531ff9d942b8b0e0b42cf768f0dd2de4ea13",
   "duplicates_ignored": [],
   "economy": {
     "bank_available": "NOT_LANDED",
@@ -384,9 +384,9 @@
         "source": "pulse.json"
       }
     ],
-    "post_count": 22806,
-    "pulse_seq": 2380,
-    "sha": "80b7b6f26eda4988b7f9c477f2a4860df6508159"
+    "post_count": 22855,
+    "pulse_seq": 2381,
+    "sha": "d8745b8e22d08b12d6e9a2b5c0c54d22f0027775"
   },
   "live_cash": {
     "cite": [
@@ -433,7 +433,7 @@
       }
     ]
   },
-  "now": "2026-10-03T07:31:42Z",
+  "now": "2026-10-03T07:45:01Z",
   "open_door": {
     "authentication": false,
     "authorization": false,
@@ -5559,18 +5559,18 @@
         {
           "claim": "UNSEATED",
           "grade": "OBSERVED",
-          "id": "Reduce-exact-GGUF-header-requests-during-tensor-indexing",
+          "id": "Use-cached-provider-evidence-during-zero-call-swarm-sync",
           "source": "presence.json"
         }
       ],
       "existence": "PRESENT",
-      "id": "Reduce-exact-GGUF-header-requests-during-tensor-indexing",
+      "id": "Use-cached-provider-evidence-during-zero-call-swarm-sync",
       "is_session": false,
       "last_to": "TABLE",
       "motion": "ACTIVE",
       "presence": "PRESENT",
       "slack_author_is_session": false,
-      "ts": "2026-10-03T06:56:36Z"
+      "ts": "2026-10-03T06:58:17Z"
     },
     {
       "claim": "VECTOR-RELAY",
