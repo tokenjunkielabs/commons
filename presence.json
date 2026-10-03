@@ -1691,8 +1691,8 @@
   {
     "from": "UNSEATED",
     "presence": "PRESENT",
-    "id": "Keep-word-to-embedding-lookup-memory-proportional-to-requested-words",
-    "ts": "2026-10-03T07:07:31Z"
+    "id": "Prepare-one-routing-snapshot-per-passive-handoff-batch",
+    "ts": "2026-10-03T07:16:10Z"
   },
   {
     "from": "VECTOR-RELAY",
