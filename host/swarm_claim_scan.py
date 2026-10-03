@@ -442,11 +442,67 @@ def _read_bounded(handle):
         return buffer.getvalue()
 
 
+def _select_report(report, *, operation_ids=(), paths=()):
+    requested_operations, requested_paths = set(operation_ids), set(paths)
+    if not requested_operations and not requested_paths:
+        return report
+    matching = {row["operation_id"] for row in report["operations"]
+                if (not requested_operations or row["operation_id"] in requested_operations)
+                and (not requested_paths or requested_paths.intersection(row["observed_paths"]))}
+
+    def relevant_group(row, operations):
+        return (not requested_paths or row["path"] in requested_paths) and bool(matching.intersection(operations))
+
+    overlaps = [row for row in report["possible_overlaps"]
+                if relevant_group(row, row["operation_ids"])]
+    symbol_overlaps = [row for row in report["possible_symbol_overlaps"]
+                       if relevant_group(row, row["operation_ids"])]
+    shared = [row for row in report["shared_file_scopes"]
+              if relevant_group(row, row["symbols_by_operation"])]
+    included = set(matching)
+    for row in overlaps + symbol_overlaps:
+        included.update(row["operation_ids"])
+    for row in shared:
+        included.update(row["symbols_by_operation"])
+
+    def relevant_terminal(row):
+        return (row.get("resolved_operation_id", row["operation_id"]) in included
+                or (not requested_paths and row["operation_id"] in requested_operations))
+
+    selected = dict(report)
+    selected.update({
+        "operations": [row for row in report["operations"] if row["operation_id"] in included],
+        "terminal_observations": [row for row in report["terminal_observations"] if relevant_terminal(row)],
+        "possible_overlaps": overlaps,
+        "possible_symbol_overlaps": symbol_overlaps,
+        "shared_file_scopes": shared,
+        "unmatched_terminal_observations": [row for row in report["unmatched_terminal_observations"]
+                                            if relevant_terminal(row)],
+    })
+    selected["selection"] = {
+        "operation_ids": sorted(requested_operations),
+        "paths": sorted(requested_paths),
+        "match_mode": "Exact, case-sensitive; any value within each selector, both selectors when combined.",
+        "matching_operation_ids": sorted(matching),
+        "related_operation_ids": sorted(included - matching),
+        "returned_counts": {key: len(selected[key]) for key in (
+            "operations", "terminal_observations", "possible_overlaps", "possible_symbol_overlaps",
+            "shared_file_scopes", "unmatched_terminal_observations")},
+        "global_evidence_retained": ["counts", "coverage", "inputs"],
+        "basis": "Selected observations and their possible-overlap peers; absent matches do not establish available work.",
+    }
+    return selected
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("inputs", nargs="+", help="Retained Slack JSON response paths; - reads stdin")
     parser.add_argument("--channel-id", help="Channel ID omitted by a native thread response")
     parser.add_argument("--workspace-url", help="Workspace root used to construct missing message links")
+    parser.add_argument("--operation", action="append", default=[], metavar="OPERATION_ID",
+                        help="Select an exact observed operation ID; repeat to select any listed ID")
+    parser.add_argument("--path", action="append", default=[], metavar="OBSERVED_PATH",
+                        help="Select an exact observed source path; repeat to select any listed path")
     args = parser.parse_args(argv)
     try:
         if args.inputs.count("-") > 1:
@@ -469,6 +525,7 @@ def main(argv=None):
             inputs.append({"source": name, "sha256": hashlib.sha256(raw).hexdigest(), "bytes": len(raw)})
         report = scan(messages, pages, workspace_url=args.workspace_url)
         report["inputs"] = inputs
+        report = _select_report(report, operation_ids=args.operation, paths=args.path)
         sys.stdout.write(json.dumps(report, ensure_ascii=False, indent=2, allow_nan=False) + "\n")
         return 0
     except (ScanError, OSError, UnicodeError, RecursionError, ValueError) as exc:
