@@ -2,7 +2,7 @@
 
 // Caller supplies the already-discovered native bindings and authorized change.
 // No filesystem, network client, credential lookup, ref update, or write retry.
-const ACTIONS = ['fetch', 'fetch_file', 'create_blob', 'create_tree', 'create_commit',
+const ACTIONS = ['fetch', 'fetch_file', 'fetch_blob', 'create_blob', 'create_tree', 'create_commit',
   'create_branch', 'create_pull_request', 'merge_pull_request'];
 const SHA = /^[0-9a-f]{40}$/;
 const EMPTY_BLOB_SHA = 'e69de29bb2d1d6434b8b29ae775ad8c2e48c5391';
@@ -174,6 +174,25 @@ function inspectReadback(file, source, data) {
     matches: data.sha === file.blob_sha};
 }
 
+/** Recover omitted text with one optional read of the observed immutable blob. */
+async function resolveReadback(file, source, data, readBlob) {
+  const initial = inspectReadback(file, source, data);
+  if (initial.error_code !== 'readback_content_unavailable' || typeof readBlob !== 'function') {
+    return initial;
+  }
+  let blob;
+  try {
+    blob = await readBlob(initial.observed_blob_sha);
+  } catch (error) {
+    return {...initial, blob_readback_attempted: true,
+      blob_readback_error: String(error?.message ?? error),
+      ...(error?.tool_error ? {tool_error: error.tool_error} : {})};
+  }
+  return {...inspectReadback(file, source, {
+    sha: initial.observed_blob_sha, content: blob?.content,
+  }), blob_readback_attempted: true, readback_source: 'blob', file_content_available: false};
+}
+
 /** Publish regular-file changes through native GitHub tools, optionally merge. */
 async function publishGitHubChange(tools, change, options = {}) {
   const progress = {status: 'incomplete', stage: 'validate', calls: {}, files: [], progress_callback_errors: []};
@@ -186,8 +205,8 @@ async function publishGitHubChange(tools, change, options = {}) {
     Object.assign(progress, {repository_full_name, base_branch: spec.base_branch, branch_name: spec.branch_name});
     const bindings = Object.fromEntries(ACTIONS.map(action => [action,
       options.bindings?.[action] ?? `mcp__codex_apps__github_${action}`]));
-    const required = ACTIONS.filter(action =>
-      (action !== 'merge_pull_request' || spec.merge)
+    const required = ACTIONS.filter(action => action !== 'fetch_blob'
+      && (action !== 'merge_pull_request' || spec.merge)
       && (action !== 'create_blob' || spec.files.some(file => file.encoding === 'base64')));
     for (const action of required) {
       if (typeof tools?.[bindings[action]] !== 'function') {
@@ -313,12 +332,14 @@ async function publishGitHubChange(tools, change, options = {}) {
     }
     progress.stage = 'readback';
     progress.readback_ref = progress.merge_sha ?? progress.commit_sha;
+    const readBlob = typeof tools?.[bindings.fetch_blob] === 'function'
+      ? blob_sha => call('fetch_blob', {repository_full_name, blob_sha}) : undefined;
     // Every read is independent. Inspect every outcome before reporting completion.
     const reads = await Promise.allSettled(candidates.map(async file => {
       const source = sourceByPath.get(file.path);
       const data = await call('fetch_file', {repository_full_name, path: file.path,
         ref: progress.readback_ref, encoding: source.encoding});
-      return inspectReadback(file, source, data);
+      return resolveReadback(file, source, data, readBlob);
     }));
     progress.readback = reads.map((read, index) => read.status === 'fulfilled' ? read.value
       : {path: candidates[index].path, matches: false, error: String(read.reason?.message ?? read.reason),
@@ -343,5 +364,5 @@ async function publishGitHubChange(tools, change, options = {}) {
 }
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {GitHubPublishError, publishGitHubChange, inspectReadback, inspectToolError};
+  module.exports = {GitHubPublishError, publishGitHubChange, inspectReadback, resolveReadback, inspectToolError};
 }
