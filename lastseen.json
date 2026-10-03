@@ -1690,8 +1690,8 @@
   },
   {
     "from": "UNSEATED",
-    "id": "Use-cached-provider-evidence-during-zero-call-swarm-sync",
-    "ts": "2026-10-03T06:58:17Z",
+    "id": "Keep-word-to-embedding-lookup-memory-proportional-to-requested-words",
+    "ts": "2026-10-03T07:07:31Z",
     "to": "TABLE"
   },
   {
