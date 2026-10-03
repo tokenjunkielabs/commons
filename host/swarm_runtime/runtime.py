@@ -91,15 +91,20 @@ def _merge_facts(state, incoming):
 
 
 def read_status(state, *, tip=None, authority="state/claims", now=None,
-                worker=None, limit=100, task=None, states=None, owner=None, after=None):
+                worker=None, limit=100, task=None, states=None, owner=None, after=None,
+                context=False):
     """Project one retained state without Git, provider IO, or state mutation."""
+    if type(context) is not bool:
+        raise ValueError("context must be a boolean")
+    if context and task is None:
+        raise ValueError("context requires an exact task")
     moment = now if now is not None else now_iso()
     seats = _seats(state)
     view = project(state.get("events", []), now=moment, seats=seats,
                    provider_facts=state.get("provider_facts", {}))
     page = select_tasks(view["tasks"], limit=limit, task=task,
                         states=states, owner=owner, after=after)
-    return {"ok": True, "authority": authority, "tip": tip,
+    result = {"ok": True, "authority": authority, "tip": tip,
             "observed_at": moment, "summary": status(view["tasks"], seats, moment),
             "tasks": page["rows"], "total": page["total"], "matched": page["matched"],
             "truncated": page["truncated"], "next_cursor": page["next_cursor"],
@@ -108,6 +113,10 @@ def read_status(state, *, tip=None, authority="state/claims", now=None,
             "coverage": state.get("coverage", {}),
             "feed_cursor": state.get("cursors", {}).get("commons", {}).get("feed_cursor", "UNKNOWN"),
             "next": route(view["tasks"], worker, seats, moment) if worker else None}
+    if context:
+        result["context"] = (context_bundle(page["rows"][0], state.get("events", []))
+                             if page["rows"] else None)
+    return result
 
 
 def _handoff_candidates(before, tasks, seats, moment, events):
@@ -211,10 +220,11 @@ class Runtime:
         return facts, deferred
 
     def read(self, *, refresh=False, worker=None, limit=100,
-             task=None, states=None, owner=None, after=None):
+             task=None, states=None, owner=None, after=None, context=False):
         tip, state = self.store.read(refresh=refresh)
         return read_status(state, tip=tip, worker=worker, limit=limit,
-                           task=task, states=states, owner=owner, after=after)
+                           task=task, states=states, owner=owner, after=after,
+                           context=context)
 
     def sync(self, *, work_snapshot=None, provider_facts=None, events=None,
              max_calls=4, refresh_providers=True, push=True):
