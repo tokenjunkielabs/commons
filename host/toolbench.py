@@ -238,8 +238,25 @@ class Bench:
         a, b = self.source(left), self.source(right)
         lines = None
         if a["text"] is not None and b["text"] is not None:
-            lines = list(difflib.unified_diff(a["text"].splitlines(), b["text"].splitlines(),
-                                            fromfile=left, tofile=right, lineterm=""))
+            lines = []
+            diff = difflib.unified_diff(a["text"].splitlines(keepends=True),
+                                        b["text"].splitlines(keepends=True),
+                                        fromfile=left, tofile=right, lineterm="")
+            for index, line in enumerate(diff):
+                if index < 2 or line.startswith("@@"):
+                    lines.append(line)
+                    continue
+                # Compare original endings, then render one display line per item.
+                # Otherwise CRLF and missing-final-newline revisions look identical.
+                content = line[1:]
+                body = content.splitlines()
+                displayed = body[0] if body else ""
+                ending = content[len(displayed):]
+                lines.append(line[0] + displayed)
+                if not ending:
+                    lines.append("\\ No newline at end of file")
+                elif ending != "\n":
+                    lines.append(f"\\ Line ending: {ending!a}")
         return {"left": left, "right": right, "same_bytes": a["sha256"] == b["sha256"],
                 "left_sha256": a["sha256"], "right_sha256": b["sha256"], "text_diff": lines}
 
