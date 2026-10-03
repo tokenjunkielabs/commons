@@ -367,7 +367,14 @@ def _read_pulls(path, *, empty_complete=False):
     Returns None when the file holds neither, so the caller names the listing
     as degraded instead of reading garbage as an empty queue.
     An empty JSON Lines export is valid only with explicit completion evidence.
+    Each row must carry a positive integer GitHub number; other provider JSON
+    must not become a complete listing without usable pull identities.
     """
+    def valid_rows(value):
+        return isinstance(value, list) and all(
+            isinstance(row, dict) and type(row.get("number")) is int
+            and row["number"] > 0 for row in value)
+
     with open(path, encoding="utf-8") as fh:
         text = fh.read()
     stripped = text.strip()
@@ -381,7 +388,7 @@ def _read_pulls(path, *, empty_complete=False):
             # The line reader below still rejects an invalid or partial page.
             pass
         else:
-            return value if isinstance(value, list) else None
+            return value if valid_rows(value) else None
     rows = []
     for line in stripped.splitlines():
         line = line.strip()
@@ -397,7 +404,7 @@ def _read_pulls(path, *, empty_complete=False):
             rows.append(value)
         else:
             return None
-    return rows
+    return rows if valid_rows(rows) else None
 
 
 def _read_closed(path):
