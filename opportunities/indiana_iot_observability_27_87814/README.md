@@ -8,9 +8,11 @@ Revenue pursuit carrier for Commons issue #15651.
 
 The live Indiana IDOA notice identifies RFP 27-87814 / event 000670000087814, due October 28, 2026 at 3:00 PM ET, and says IOT seeks an Enterprise Observability Platform that preserves coverage, scales toward 500 monitored applications, and improves detection, resolution, and alert-quality outcomes.
 
-The controlling State bid package is linked publicly as a ZIP but is **not retained/authenticated** in this carrier. Therefore qualification, submission mechanics, questions/pre-bid dates, teaming rules, evaluation criteria, security requirements, pricing forms, insurance, and contract terms remain fail-closed `UNKNOWN`.
+The [official State ZIP](https://secure.in.gov/idoa/proc/solicitations/files/000670000087814.zip) was acquired on October 3 and is retained exactly at `retained/000670000087814.zip`: 967,929 bytes, SHA-256 `cf0ef21dbf8f9bc59cc54220fe9155a705ad98c1a5e8a312921cf138dfc9e55e`. It contains the 23-page main RFP and 15 attachments. The main RFP has been read; attachment review and Supplier Portal comparison remain unfinished.
 
-A current third-party mirror reports a September 30 pre-bid, October 7 question deadline, electronic submission, a 3+1+1 year term, and technical scope hints including APM/DEM/network/infrastructure/application-security monitoring, ServiceNow, OpenTelemetry, and AI-assisted troubleshooting. Those facts remain `DISCOVERY_ONLY` until the State ZIP is independently retained and authenticated.
+`source_ledger.json` records the published schedule and source anchors. The September 17 mirror remains dated `DISCOVERY_ONLY`; its 9:30 conference time is the general session. The main RFP distinguishes the 10:40 individual session (1.23, pp.14-15).
+
+Only package acquisition, published submission instructions and the schedule are `PROVEN`. No owner platform, staffing, security, completed proposal, contract or accepted workshare evidence has been added. `HOLD` remains the actual decision.
 
 ## Retained-evidence trust root
 
@@ -25,9 +27,9 @@ Positive qualification is possible only when all of these agree:
 5. a closed retained-source inventory matching the source ledger;
 6. exact evidence bindings to source, requirement, subject, scope, and generation.
 
-The committed authority manifest is intentionally empty because this carrier does not retain the controlling State ZIP or owner qualification evidence. Its raw-byte SHA-256 is:
+The committed authority manifest binds generation `OFFICIAL_ZIP_20261003` to the retained ZIP and three source-information evidence records. It contains no owner qualification evidence. Its raw-byte SHA-256 is:
 
-`4fd50658996cf65e3303d679293dd68857d1d84cf9305ee22ce02c08878c0814`
+`6abde186bedd29e009d2701121d75db97be0dbff4ca25608c0c266510175c059`
 
 Changing the manifest, a retained source, or an evidence binding without also publishing a new reviewed source generation fails closed.
 
@@ -51,7 +53,11 @@ python -m opportunities.indiana_iot_observability_27_87814.gate \
 
 For deterministic archaeology only, `--historical-now 2026-09-17T19:20:00Z` performs a historical replay. Historical replay is deliberately incapable of emitting `PRIME_REVIEW_READY` or `TEAMING_REVIEW_READY`.
 
-Expected current decision with the committed empty authority root: `HOLD`, with every external-authority bit false.
+Expected current decision with the retained package: `HOLD`, `package_retained=true`, with every external-authority bit false. Open term/security/pricing work orders survive package acquisition; retaining a ZIP alone does not complete those reviews.
+
+## Next source and owner work
+
+The main RFP sets questions and optional Attachment I for October 7, 3 PM ET; answers/amendments target October 16; proposals and reference checks are due October 28, 3 PM ET (1.23). Recheck the official source before relying on a later generation. Required response items include the AI questions and infrastructure overview (3.2); their detailed attachments remain unreviewed. Original pursuit and partner ownership remains Z-KestrelForge-1448, with the existing #15724 source-root repair lineage.
 
 ## Single-writer outbound rule
 

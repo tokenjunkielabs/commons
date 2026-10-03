@@ -30,7 +30,7 @@ CONTROLLING_FIELDS = {
 ALLOWED_REQUIREMENT_STATES = {"UNKNOWN", "PROVEN", "GAP", "NOT_APPLICABLE", "PROPOSED"}
 POSITIVE_SOURCE_AUTHORITIES = {"OFFICIAL_CONTROLLING_PACKAGE", "OWNER_RETAINED_EVIDENCE"}
 AUTHORITY_MANIFEST = "authority_manifest.json"
-AUTHORITY_MANIFEST_SHA256 = "4fd50658996cf65e3303d679293dd68857d1d84cf9305ee22ce02c08878c0814"
+AUTHORITY_MANIFEST_SHA256 = "6abde186bedd29e009d2701121d75db97be0dbff4ca25608c0c266510175c059"
 PACKAGE_ROOT = Path(__file__).resolve().parent
 MAX_RETAINED_BYTES = 16 * 1024 * 1024
 CURRENT_MAX_AGE_SECONDS = 300
@@ -411,11 +411,11 @@ def _compile(
     ]
     work_orders = []
     if not package_retained:
-        work_orders += [
-            {"id": "RETAIN_CONTROLLING_STATE_ZIP", "priority": 1},
-            {"id": "BIND_QUESTION_PREBID_SUBMISSION_TIMELINE", "priority": 2},
-            {"id": "BIND_TEAMING_SECURITY_PRICING_EVALUATION_TERMS", "priority": 3},
-        ]
+        work_orders.append({"id": "RETAIN_CONTROLLING_STATE_ZIP", "priority": 1})
+    if not {"submission_mechanics", "questions_and_prebid"}.issubset(proven):
+        work_orders.append({"id": "BIND_QUESTION_PREBID_SUBMISSION_TIMELINE", "priority": 2})
+    if not {"teaming_rules", "security_compliance", "pricing_forms"}.issubset(proven):
+        work_orders.append({"id": "BIND_TEAMING_SECURITY_PRICING_EVALUATION_TERMS", "priority": 3})
     work_orders += [
         {"id": "QUALIFY_PLATFORM_OR_PRIME_PARTNER", "priority": 4},
         {"id": "PACKAGE_PAID_SPECIALIST_WORKSHARE", "priority": 5},
