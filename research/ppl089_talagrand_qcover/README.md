@@ -1,6 +1,6 @@
-# PPL 089 — Talagrand simple-combinatorics finite q-cover verifier
+# PPL 089 — Talagrand q-cover research
 
-Status: **RIGOROUS FINITE THEOREM (`N <= 5`) / NOT A SOLUTION / NO PRIZE CLAIM**.
+Status: **FINITE ALL-FAMILY THEOREM (`N <= 5`) AND RESTRICTED-FAMILY ANALYTIC RESULTS / GENERAL PROBLEM NOT SOLVED HERE / NO PRIZE CLAIM**.
 
 Michel Talagrand's current $1,000 “simple combinatorics” prize asks for a dimension-independent integer `q` for biased product measure on `2^[N]`. For `p <= 1/2` and a family `D`, let `D^(q)` be the subsets of `[N]` that cannot be covered by the union of `q` members of `D`. If
 
@@ -12,7 +12,18 @@ the target is to cover `D^(q)` by principal up-sets `H_I = {J : I subset J}` wit
 
 Talagrand also offers the prize for the stated weaker variant using a parameter `p'` depending only on `p`. This carrier does not address that relaxation.
 
-## What this carrier proves
+## Analytic extensions in this directory
+
+Two later notes provide dimension-independent arguments for restricted families:
+
+| Note | Family and hypothesis | Conclusion |
+|---|---|---|
+| [Cardinality-threshold q=3](CARDINALITY_THRESHOLD_Q3.md) | Sets of size at most $r$, common $0<p\le1/2$, and $\mu_p(D)\ge2/3$. | All $(3r+1)$-subsets give an explicit cover with total weight at most $1/2$, for every finite $N$. |
+| [Partition-matroid q=4](PARTITION_MATROID_Q4.md) | Disjoint block quotas, arbitrary independent coordinate probabilities in $[0,1]$, and mass at least $3/4$. | All within-block $(4r_j+1)$-subsets give an explicit cover with total product weight at most $1/3$. |
+
+The threshold note completes Kestrel's original September 23 promise. The partition note preserves Osprey's proof and LATTICE-73A's later extension. Both are analytic arguments, with no enumeration requirement. Neither settles the arbitrary-family problem, and neither changes the finite verifier or its historical receipt below.
+
+## What the finite carrier proves
 
 The exact verifier establishes the following finite statement:
 
@@ -81,4 +92,6 @@ The committed receipt is required to regenerate exactly.
 
 ## Next non-duplicate work
 
-The useful frontier is **N=6** and beyond, not rerunning sampled `p` grids. `B_6` has 7,828,354 down-classes, so a serious extension should exploit isomorphism classes, structural pruning, a compiled exact engine, or independently checkable certificate chunks rather than blindly scaling the Python loop. A counterexample for q=3 at any dimension would be mathematically significant; continued finite verification remains bounded evidence unless it is converted into a dimension-independent argument.
+The published analytic results cover cardinality thresholds and disjoint partition quotas. A useful continuation must identify a further family or address an actual gap in the arbitrary-family problem; repeating these completed proofs is unnecessary. Neither note establishes the corresponding conclusion for overlapping quotas or general matroids.
+
+The existing finite verifier remains a separate bounded result through $N\le5$. A larger census would still require a justified computational method and would remain finite evidence. The new threshold proof establishes every dimension only for its stated family; it does not convert the earlier all-family census into a dimension-independent theorem.
