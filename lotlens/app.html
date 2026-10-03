@@ -23,9 +23,15 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.88em}
 #detail{border:1px solid #ddd;background:#fff;padding:.75rem 1rem;margin-top:1rem;white-space:normal}
 textarea{width:100%;min-height:4rem}
 .muted{color:#555}
-.grid{display:grid;grid-template-columns:1fr;gap:1rem}
-@media(min-width:60rem){.grid{grid-template-columns:3fr 2fr}}
+.grid{display:grid;grid-template-columns:minmax(0,1fr);gap:1rem}
+.grid>div{min-width:0}
+.table-scroll{max-width:100%;overflow:auto}
+#summary,#detail,#unresolved,#gaps,#contradictions,#cycles,#notes,#annotations{overflow-wrap:anywhere}
+textarea{box-sizing:border-box}
+@media(min-width:60rem){.grid{grid-template-columns:minmax(0,3fr) minmax(0,2fr)}}
 button{padding:.3rem .7rem}
+button.inspect-item{padding:0;border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer;text-decoration:underline;text-underline-offset:.15em}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,.table-scroll:focus-visible,#detail:focus-visible{outline:3px solid #075985;outline-offset:3px}
 .pathline{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.85em;margin:.2rem 0}
 </style>
 </head>
@@ -51,14 +57,14 @@ button{padding:.3rem .7rem}
 <div id="summary" class="muted">no report loaded</div>
 <div class="grid">
 <div>
-<table id="items"><thead><tr><th>status</th><th>item</th><th>kind</th><th>what</th><th>hops</th><th>via</th></tr></thead><tbody></tbody></table>
+<div class="table-scroll" role="region" aria-label="Affected items and evidence paths" tabindex="0"><table id="items"><thead><tr><th>status</th><th>item</th><th>kind</th><th>what</th><th>hops</th><th>via</th></tr></thead><tbody></tbody></table></div>
 <h3>Unresolved</h3><ul id="unresolved"></ul>
 <h3>Coverage gaps</h3><ul id="gaps"></ul>
 <h3>Contradictions</h3><ul id="contradictions"></ul>
 <h3>Cycles</h3><ul id="cycles"></ul>
 </div>
 <div>
-<div id="detail"><em>click an item for its evidence path</em></div>
+<div id="detail" role="region" aria-label="Selected item evidence path" tabindex="-1"><em>activate an item for its evidence path</em></div>
 <h3>My notes (this tab only until downloaded)</h3>
 <p class="muted">Notes are yours, kept apart from the observations. Download them and apply with <code>lotlens.py annotate</code>; the engine records revisions.</p>
 <textarea id="note" placeholder="note about the selected item"></textarea>
@@ -104,8 +110,8 @@ button{padding:.3rem .7rem}
       var what=nodeDetail(a.kind, a.attrs);
       var via=pathSummaryLines(a.path).map(esc).join("<br>") || (a.path||[]).map(function(e){return esc(e.relation)+(e.status==="potential"?"*":"");}).join(" → ");
       var tr=document.createElement("tr"); tr.className="item"; tr.dataset.index=i;
-      tr.innerHTML="<td><span class='chip "+esc(a.status)+"'>"+esc(a.status)+"</span></td><td><code>"+esc(a.key)+"</code></td><td>"+esc(a.kind)+"</td><td>"+esc(what)+"</td><td>"+a.hops+"</td><td>"+via+"</td>";
-      tr.addEventListener("click",function(){select(a);});
+      tr.innerHTML="<td><span class='chip "+esc(a.status)+"'>"+esc(a.status)+"</span></td><td><button class='inspect-item' type='button' aria-controls='detail'><code>"+esc(a.key)+"</code></button></td><td>"+esc(a.kind)+"</td><td>"+esc(what)+"</td><td>"+a.hops+"</td><td>"+via+"</td>";
+      tr.addEventListener("click",function(event){select(a);if(event.detail===0)$("detail").focus();});
       body.appendChild(tr);
     });
     $("unresolved").innerHTML=(imp.unresolved||[]).map(factLine).join("")||"<li class=muted>none recorded</li>";
@@ -125,7 +131,7 @@ button{padding:.3rem .7rem}
     $("detail").innerHTML=html;
   }
   function renderNotes(){$("notes").innerHTML=notes.map(function(n){return "<li><code>"+esc(n.target)+"</code>: "+esc(n.text)+"</li>";}).join("")||"<li class=muted>none yet</li>"; $("download").disabled=!notes.length;}
-  $("file").addEventListener("change",function(ev){var f=ev.target.files[0]; if(!f)return; var r=new FileReader(); r.onload=function(){try{report=JSON.parse(r.result);}catch(e){$("summary").textContent="not a JSON report: "+e.message;return;} if(!report.impact){$("summary").textContent="this JSON has no impact block";return;} selected=null; $("detail").innerHTML="<em>click an item for its evidence path</em>"; render();}; r.readAsText(f);});
+  $("file").addEventListener("change",function(ev){var f=ev.target.files[0]; if(!f)return; var r=new FileReader(); r.onload=function(){try{report=JSON.parse(r.result);}catch(e){$("summary").textContent="not a JSON report: "+e.message;return;} if(!report.impact){$("summary").textContent="this JSON has no impact block";return;} selected=null; $("detail").innerHTML="<em>activate an item for its evidence path</em>"; render();}; r.readAsText(f);});
   ["status","kind"].forEach(function(id){$(id).addEventListener("change",render);}); $("search").addEventListener("input",render);
   $("addnote").addEventListener("click",function(){var t=$("note").value.trim(); if(!t||!selected)return; notes.push({target:selected.key,text:t}); $("note").value=""; renderNotes();});
   $("download").addEventListener("click",function(){var blob=new Blob([JSON.stringify({schema:"commons-lotlens/v1/notes",notes:notes},null,2)],{type:"application/json"}); var a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="annotations.json"; a.click();});
