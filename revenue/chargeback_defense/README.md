@@ -193,6 +193,22 @@ operator's preparation. That packet is explicitly **DOCUMENT_SOURCE_ONLY**,
 contains zero payment observations and makes no buyer/delivery/payment
 assertion. It is useful preparation, not invented commercial evidence.
 
+Document packets require no payment ledger or initialization:
+
+```bash
+python3 host/chargeback_defense.py packet \
+  --case-id source-documents-20261003 \
+  --file /cloud/private/source-documents/offer.pdf \
+  --file /cloud/private/source-documents/scope.pdf \
+  --output-dir /cloud/private/chargeback-defense/source-packet-20261003
+```
+
+Without `--charge-id`, the command does not open `--db` or `CHARGEBACK_DB`,
+including an existing environment setting. Its `verified-events.jsonl` is
+empty. Supplying `--charge-id` still requires an initialized ledger and a
+matching verified observation; reports and event exports also require their
+existing ledger.
+
 A failed packet command exits nonzero and may leave partial files in its new
 private directory. A successful packet has a completed `manifest.json` and
 exit 0. Existing files/directories are never overwritten.
