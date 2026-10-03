@@ -255,6 +255,22 @@ class _Collector:
                 continue
             self.state["roots"][rootkey] = {"service": service, "account_ref": account, "discovered_at": self.at}
             self.bootstrap(service, account)
+        # Existing checkpoints may already have completed table discovery before
+        # detailed field schemas were collected. Recover the table identities
+        # from record jobs once, retaining every historical job and cursor.
+        if not self.state.get("airtable_field_schemas_seeded"):
+            recovered = set()
+            for job in list(self.state["jobs"].values()):
+                if job.get("tool_name") != PREFIX + "airtable_list_records_for_table":
+                    continue
+                args = job.get("args", {})
+                base, table = args.get("baseId"), args.get("tableId")
+                identity = (job["account_ref"], base, table)
+                if base and table and identity not in recovered:
+                    recovered.add(identity)
+                    self.add("airtable", job["account_ref"], "airtable_get_table_schema",
+                             {"baseId": base, "tables": [{"tableId": table}]})
+            self.state["airtable_field_schemas_seeded"] = True
         if not seen and not self.sources:
             self.add("all_services", "unresolved", None, scope="all accounts/services", gap="service catalog discovery and authenticated reader binding pending")
 
