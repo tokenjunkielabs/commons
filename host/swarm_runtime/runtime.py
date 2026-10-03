@@ -14,7 +14,7 @@ from pathlib import Path
 
 from .identity import task_key
 from .projector import _time, merge_facts, project
-from .routing import context_bundle, route, select_tasks, status
+from .routing import _iter_routes, context_bundle, route, select_tasks, status
 from .store import GitStore
 
 TERMINAL = {"SHIPPED", "BLOCKED", "SUPERSEDED", "ABANDONED"}
@@ -112,9 +112,8 @@ def read_status(state, *, tip=None, authority="state/claims", now=None,
 
 def _handoff_candidates(before, tasks, seats, moment, events):
     """Suggest distinct work within one passive reconciliation response."""
-    candidates = []
+    handoffs = []
     candidate_workers = set()
-    available = dict(tasks)
     for closed_key, previous in sorted(before.items()):
         closed = tasks.get(closed_key, {})
         worker = previous.get("worker")
@@ -124,17 +123,15 @@ def _handoff_candidates(before, tasks, seats, moment, events):
         if worker in candidate_workers:
             continue
         candidate_workers.add(worker)
-        choice = route(available, worker, seats, moment)
+        handoffs.append((closed_key, worker))
+    candidates = []
+    choices = _iter_routes(tasks, (worker for _, worker in handoffs), seats, moment)
+    for (closed_key, worker), choice in zip(handoffs, choices):
         target = choice.get("task_key")
-        if not target:
-            continue
-        # Exclusion is local to these suggestions: no custody, heartbeat or
-        # task state changes. Actual dispatch reconciles and takes work again.
-        available.pop(target)
-        candidates.append({"worker": worker, "after_task_key": closed_key,
-                           "task": context_bundle(tasks[target], events)})
+        if target:
+            candidates.append({"worker": worker, "after_task_key": closed_key,
+                               "task": context_bundle(tasks[target], events)})
     return candidates
-
 
 class Runtime:
     def __init__(self, root, *, store=None, state_dir=None):
