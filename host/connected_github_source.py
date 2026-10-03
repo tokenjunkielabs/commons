@@ -7,6 +7,7 @@ import base64
 import binascii
 import errno
 import hashlib
+import io
 import json
 import os
 from pathlib import Path, PurePosixPath
@@ -52,6 +53,16 @@ def blob_sha(data: bytes) -> str:
     digest = hashlib.sha1(b"blob " + str(len(data)).encode("ascii") + b"\0")
     digest.update(data)
     return digest.hexdigest()
+
+
+def _utf8_bytes(text: str) -> bytes:
+    """Encode large Unicode sources in bounded slices; keep small/ASCII reads direct."""
+    if len(text) <= 64 * 1024 or text.isascii():
+        return text.encode("utf-8")
+    with io.BytesIO() as output:
+        for start in range(0, len(text), 16 * 1024):
+            output.write(text[start:start + 16 * 1024].encode("utf-8"))
+        return output.getvalue()
 
 
 def _file_payload(response: object, *, fallback_sha=None, fallback_encoding=None) -> dict:
@@ -120,7 +131,7 @@ def _source(entry: object) -> dict:
     encoding = payload["encoding"].lower()
     try:
         if encoding in ("utf-8", "utf8"):
-            data = content.encode("utf-8")
+            data = _utf8_bytes(content)
         elif encoding == "base64":
             data = base64.b64decode("".join(content.split()), validate=True)
         else:
