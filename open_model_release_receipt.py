@@ -180,11 +180,11 @@ def render_html(receipt: dict) -> str:
     return """<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Open model release receipt</title><style>
-body{{font:16px system-ui;max-width:1100px;margin:2rem auto;padding:0 1rem;color:#172033}}table{{border-collapse:collapse;width:100%}}th,td{{border:1px solid #ccd3df;padding:.55rem;text-align:left;vertical-align:top}}code{{overflow-wrap:anywhere}}.PASS{{color:#067647}}.FAIL{{color:#b42318}}
+body{{font:16px system-ui;max-width:1100px;margin:2rem auto;padding:0 1rem;color:#172033}}.artifact-table{{overflow-x:auto}}table{{border-collapse:collapse;width:100%;min-width:48rem}}th,td{{border:1px solid #ccd3df;padding:.55rem;text-align:left;vertical-align:top}}code{{overflow-wrap:anywhere}}.PASS{{color:#067647}}.FAIL{{color:#b42318}}
 </style></head><body><h1>Open model release receipt</h1>
 <p>Release: <strong>{release}</strong></p><p>Verified: {time}</p>
 <h2 class="{status}">{status} — {passes}/8 artifacts; loader {loader}</h2>
-<table><thead><tr><th>Artifact</th><th>Reference</th><th>Gate</th><th>Expected SHA-256</th><th>Observed</th></tr></thead><tbody>{rows}</tbody></table>
+<div class="artifact-table" role="region" aria-label="Artifact verification results" tabindex="0"><table><thead><tr><th>Artifact</th><th>Reference</th><th>Gate</th><th>Expected SHA-256</th><th>Observed</th></tr></thead><tbody>{rows}</tbody></table></div>
 <h2>Loader</h2><p>Exit code: <code>{exit_code}</code></p><pre>{stdout}</pre>
 </body></html>""".format(
         release=html.escape(receipt["release_id"]), time=html.escape(receipt["verified_at"]),
