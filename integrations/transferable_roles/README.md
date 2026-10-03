@@ -48,6 +48,16 @@ are never stored in the role — only named routes into existing stores/gateways
 **Roles confer no credential access** — owner policy keeps tokens in existing
 secure stores; this package only names routes.
 
+## Role timestamps
+
+`updated_at` records the role’s last mutation. `get`, `inspect`, and `export`
+preserve the stored timestamp, so reading a role does not make old work appear
+fresh. Legacy records without `updated_at` use `created_at` when available.
+`export_meta.exported_at` records the separate time the handoff package was made.
+Importing a package stamps the adoption time; equipping, transferring, releasing,
+binding or unbinding a route, and advancing an obligation still update
+`updated_at` when they write the role.
+
 ## Entry points
 
 ```bash
