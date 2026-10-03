@@ -56,6 +56,13 @@ original identifier, including punctuation. Existing filename keys still work
 for lookup. Legacy records without a stored `role_id` use their lookup key.
 The open-obligation queue reads each role once.
 
+## Durable writes
+
+Role changes are written to a unique temporary file in the same directory,
+flushed, and atomically moved into place after the complete JSON is ready.
+The existing file mode is preserved. A failed write leaves the previous role
+readable; temporary files from a handled failure are cleaned up.
+
 ## Role timestamps
 
 `updated_at` records the role’s last mutation. `get`, `inspect`, and `export`
