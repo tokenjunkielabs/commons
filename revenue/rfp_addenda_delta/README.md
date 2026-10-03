@@ -137,3 +137,11 @@ hand the client exact live rows requiring renewed technical/commercial/legal/sec
 review. Price, contract scope, source-capture authority, and buyer/client authority
 remain owner decisions; this repository does not claim a sale merely because the
 product exists.
+
+## Real source application
+
+[San Leandro CAD/RMS — October 3, 2026](packets/san_leandro_20261003/README.md)
+retains official source bytes and applies this existing CLI to the original
+baseline and the two subsequent addenda. It records exact Attachment D replacement
+lineage, revised deadlines and source contradictions while keeping both partial
+generations incomplete and preserving original pursuit ownership.
