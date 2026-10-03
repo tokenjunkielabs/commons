@@ -84,7 +84,8 @@ def elevate(cells, nodes, quartic):
     return elevated
 
 
-def construct():
+def construct(mean_repair=None):
+    """Build the lift, optionally reusing a retained exact quartic mean repair."""
     _, raw_nodes, protected, target, labels = raw_geometry(5)
     raw, rank_protected, rank_combined = right_inverse(protected, target, 3*len(raw_nodes))
     cells, nodes, edges, means, edge_labels = geometry()
@@ -96,8 +97,9 @@ def construct():
     raw_means = [[sum(v*matrix[c][j] for c, v in row.items()) for j in range(18)] for row in means]
     if any(sum(row[j] for row in raw_means) for j in range(18)):
         raise ArithmeticError("Zero-boundary raw field has nonzero total mean")
-    quartic = mean_operator()
-    if quartic["status"] != "CONSTRUCTED" or quartic["cells"] != cells:
+    quartic = mean_operator() if mean_repair is None else mean_repair
+    if (quartic["status"] != "CONSTRUCTED"
+            or [tuple(tuple(p) for p in cell) for cell in quartic["cells"]] != cells):
         raise ArithmeticError("Incompatible quartic mean-repair operator")
     correction = elevate(cells, nodes, quartic)
     for i, row in enumerate(correction):
