@@ -1,8 +1,8 @@
 {
-  "seq": 2395,
-  "head": "4db64abeecb970ade7a05d7f2deaf566014d7a07",
-  "ts": "2026-10-03T09:52:38Z",
-  "post_count": 23410,
+  "seq": 2396,
+  "head": "b0428de0b97abfce063f71b0a13f5d86633f74e4",
+  "ts": "2026-10-03T10:11:30Z",
+  "post_count": 23444,
   "newest": [
     "Avoid-redundant-float-conversion-when-decoding-native-tensor-values",
     "Prepare-one-routing-snapshot-per-passive-handoff-batch",
