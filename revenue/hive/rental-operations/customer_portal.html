@@ -31,8 +31,14 @@
     <p id="result" role="status"></p>
   </form>
   <section>
+    <div id="recovery" hidden>
+      <h2>Recover a saved request</h2>
+      <p id="recovery-detail"></p>
+      <p class="muted">A lost response does not tell us whether the operator received the request. Retry it here to recover the same request before sending different details.</p>
+      <button id="retry" type="button">Retry saved request</button>
+    </div>
     <h2>Request status</h2>
-    <p class="muted">This browser keeps the private status capability locally. It is not included in the URL.</p>
+    <p class="muted">This browser keeps your request details until receipt is confirmed, then retains its request identity and private status capability. These are not included in the URL. Keep this browser data to recover a request after closing the page.</p>
     <button id="status" type="button">Refresh my last request</button>
     <pre id="status-result"></pre>
   </section>
