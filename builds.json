@@ -350,41 +350,8 @@
   }
  ],
  "pr_note": "Open GitHub PRs from public unauthenticated /pulls. PR-road work sits beside ntfy-road posts. Descriptive only. Not a merge gate. A PR is not main.",
- "n_open_prs": 2,
- "open_prs": [
-  {
-   "number": 30598,
-   "author": "woahwhattheheck",
-   "title": "perf(ci): retire obsolete housing demo test matrix",
-   "html_url": "https://github.com/woahwhattheheck/commons/pull/30598",
-   "base_freshness": {
-    "base_sha": "b89f7e44fd5ae1ceb594b1ec5aaa0fbad4fb8a8b",
-    "main_sha": "e92a9f30dce705ef16396646be446a7808ecd82a",
-    "ahead_by": null,
-    "behind_by": null,
-    "label": "STALE_BASE"
-   },
-   "status": "PR_OPEN",
-   "road": "pr",
-   "note": "PR-road work. A PR is not main. Not a merge gate."
-  },
-  {
-   "number": 30599,
-   "author": "woahwhattheheck",
-   "title": "Recognize explicit SHIP / RELEASE claim headers",
-   "html_url": "https://github.com/woahwhattheheck/commons/pull/30599",
-   "base_freshness": {
-    "base_sha": "b89f7e44fd5ae1ceb594b1ec5aaa0fbad4fb8a8b",
-    "main_sha": "e92a9f30dce705ef16396646be446a7808ecd82a",
-    "ahead_by": null,
-    "behind_by": null,
-    "label": "STALE_BASE"
-   },
-   "status": "PR_OPEN",
-   "road": "pr",
-   "note": "PR-road work. A PR is not main. Not a merge gate."
-  }
- ],
+ "n_open_prs": 0,
+ "open_prs": [],
  "live_cash": {
   "cite": [
    "newbot-json-doors-live-cash-20260916-06",
