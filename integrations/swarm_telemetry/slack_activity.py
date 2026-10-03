@@ -274,6 +274,34 @@ def _request(job):
     return HISTORY_TOOL, args
 
 
+def _thread_page_regressed(job, reply_timestamps):
+    """Recognize a cursor traversal reversing its observed reply progress.
+
+    Native thread pages can move in either direction. Their opaque cursors do
+    not establish ordering, and the repeated parent is not reply progress.
+    Empty terminal pages and inclusive boundary replies remain valid.
+    """
+    if job["kind"] not in {"thread", "thread_tail"} or not reply_timestamps:
+        return False
+    oldest, newest = min(reply_timestamps, key=Decimal), max(reply_timestamps, key=Decimal)
+    window = {field: job[field] for field in ("oldest", "latest") if field in job}
+    previous = job.get("thread_page_progress") if job.get("cursor") else None
+    previous = previous if isinstance(previous, Mapping) else {}
+    if previous.get("window") != window:
+        previous = {}
+    direction = previous.get("direction")
+    prior_oldest, prior_newest = previous.get("oldest_ts"), previous.get("newest_ts")
+    if _TS.fullmatch(str(prior_oldest or "")) and _TS.fullmatch(str(prior_newest or "")):
+        forward = Decimal(oldest) >= Decimal(prior_oldest) and Decimal(newest) > Decimal(prior_newest)
+        backward = Decimal(newest) <= Decimal(prior_newest) and Decimal(oldest) < Decimal(prior_oldest)
+        movement = "forward" if forward else "backward" if backward else None
+        if direction and movement and direction != movement:
+            return True
+        direction = direction or movement
+    job["thread_page_progress"] = {"oldest_ts": oldest, "newest_ts": newest, "direction": direction, "window": window}
+    return False
+
+
 def _default_reader(config):
     from .runner import Gateway
     gateway = Gateway(config.get("gateway") or config.get("gateway_url") or "http://127.0.0.1:8878", config.get("timeout_seconds", 25))
@@ -433,11 +461,14 @@ def collect_slack_activity(config=None, state=None, sources=None, read_page=None
                     raise SourceReadError("source_page_incomplete")
                 raise SourceReadError("source_schema_pending")
             newest = job.get("newest_ts")
+            reply_timestamps = []
             for message in messages:
                 ts = str(message.get("ts") or message.get("event_ts") or "")
                 subtype = str(message.get("subtype") or "")
                 inner = message.get("message") if isinstance(message.get("message"), Mapping) else message
                 identity_ts = str(inner.get("ts") or message.get("deleted_ts") or ts)
+                if job["kind"] in {"thread", "thread_tail"} and identity_ts != str(job.get("thread_ts")) and _TS.fullmatch(identity_ts):
+                    reply_timestamps.append(identity_ts)
                 revision = _message_revision(message)
                 key = job["account_ref"] + ":" + str(job.get("channel_id")) + ":" + identity_ts
                 previous = observations.get(key)
@@ -485,11 +516,24 @@ def collect_slack_activity(config=None, state=None, sources=None, read_page=None
                 if existing is not None and _TS.fullmatch(str(existing)):
                     candidate = max(candidate, Decimal(str(existing)))
                 matching_tail["oldest"] = str(candidate)
-            if cursor is None:
+            if _thread_page_regressed(job, reply_timestamps):
+                # Re-read the unchanged window instead of trusting a terminal
+                # cursor that reversed direction or skipping unseen messages by
+                # advancing a timestamp bound. Exact pages remain in custody.
+                page_event["metadata"]["thread_cursor_regressed"] = True
+                job.pop("thread_page_progress", None)
+                job.update(cursor="", page_limit=max(1, arguments["limit"] // 2),
+                           status="cursor_recovery_pending", complete=False,
+                           next_attempt_epoch=time.time() + float(config.get("slack_retry_seconds", 120)),
+                           restore_point={"tool_name": tool, "arguments": arguments, "account_ref": job["account_ref"],
+                                          "source_page_event_id": page_event["event_id"], "cursor": arguments.get("cursor"),
+                                          "recovery": "smaller_page_same_window"})
+            elif cursor is None:
                 job.update(status="pagination_metadata_pending", complete=False, next_attempt_epoch=time.time() + float(config.get("slack_retry_seconds", 120)))
             elif cursor and cursor == job.get("cursor"):
                 job.update(status="cursor_recovery_pending", complete=False, next_attempt_epoch=time.time() + float(config.get("slack_retry_seconds", 120)))
             elif terminal:
+                job.pop("thread_page_progress", None)
                 if job["kind"] in {"tail", "thread_tail"}:
                     overlap = Decimal(str(config.get("slack_tail_overlap_seconds", 300)))
                     job.pop("latest", None)
