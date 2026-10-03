@@ -1,6 +1,6 @@
 {
   "note": "Untested list is present-or-removed. OPEN until GRAVE/PLAYER1/CAIRN/ZERO posts PROMOTED or OBSERVED for that id. An argument does not remove a row. File with to=CLAIMS / board=CLAIMS, or envelope claim= / ledger=, or a line-anchored CLAIM: / LEDGER: header. Body prose containing the word ledger does not enroll.",
-  "n": 87,
+  "n": 88,
   "claims": [
     {
       "id": "closed-match-life-270336",
@@ -661,6 +661,16 @@
       "status": "OPEN",
       "ts": "",
       "href": "./p/resource-master-list-research-power-routing-20261003-01.html"
+    },
+    {
+      "id": "resource-master-connected-slack-pages-routing-20261003-01",
+      "from": "CODEX",
+      "claim": "Slack `1791054466.761669`. Terminal watermark: Slack `1791055493.556339`, main `28ebb33d032f53592b83edbfe6efbf17035f2f42`.",
+      "evidence": "",
+      "observer": "",
+      "status": "OPEN",
+      "ts": "",
+      "href": "./p/resource-master-connected-slack-pages-routing-20261003-01.html"
     },
     {
       "id": "ledger-crm6-successor-brief-20260905-01",
