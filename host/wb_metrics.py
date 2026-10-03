@@ -849,15 +849,32 @@ def category_purity(word_rows: dict, cats=None) -> dict:
 
 def order_recovery(axis, word_rows: dict, truth: list) -> dict:
     """project words onto an axis; fraction of correctly ordered pairs vs truth."""
-    proj = {w: sum(x * y for x, y in zip(unit(r), axis))
-            for w, r in word_rows.items() if r and w in truth}
-    got = [w for w, _ in sorted(proj.items(), key=lambda item: item[1])]
     rank = {w: i for i, w in enumerate(truth)}
-    pairs = ok = 0
-    for i in range(len(got)):
-        for j in range(i + 1, len(got)):
-            pairs += 1
-            ok += rank[got[i]] < rank[got[j]]
+    proj = {w: sum(x * y for x, y in zip(unit(r), axis))
+            for w, r in word_rows.items() if r and w in rank}
+    got = [w for w, _ in sorted(proj.items(), key=lambda item: item[1])]
+    n = len(got)
+    pairs = n * (n - 1) // 2
+    ok = 0
+    if n <= 8:
+        # Avoid tree setup for short word lists.
+        for i in range(n):
+            for j in range(i + 1, n):
+                ok += rank[got[i]] < rank[got[j]]
+    else:
+        # Index only recovered ranks, even when truth positions are sparse.
+        positions = {r: i for i, r in
+                     enumerate(sorted(rank[w] for w in got), 1)}
+        counts = [0] * (n + 1)
+        for w in got:
+            position = positions[rank[w]]
+            previous = position - 1
+            while previous:
+                ok += counts[previous]
+                previous -= previous & -previous
+            while position <= n:
+                counts[position] += 1
+                position += position & -position
     return {
         "order": got,
         "pair_accuracy": ok / pairs if pairs else None,
