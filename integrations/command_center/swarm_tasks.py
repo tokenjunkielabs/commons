@@ -242,6 +242,7 @@ def tool():
             "inputSchema": {"type": "object", "required": ["action"],
                 "properties": {"action": {"type": "string", "enum": ["status", "sync", "open", "take", "heartbeat", "release", "ship", "block", "abandon", "next"]},
                                "operation_id": {"type": "string"}, "task_key": {"type": "string"},
+                               "title": {"type": "string", "description": "Human-readable task title retained in the task event and context."},
                                "worker": {"type": "string"}, "seat": {"type": "object"},
                                "expected_started_at": {"type": "string", "description": "For release, the exact started_at from the observed ACTIVE task; keep it unchanged on retries."},
                                "max_calls": {"type": "integer", "minimum": 0, "maximum": 20}},
