@@ -183,9 +183,9 @@ class Broker:
         if type(max_age_seconds) is not int or not 0 <= max_age_seconds <= MAX_AGE:
             raise ValueError("invalid cache age")
         key = hashlib.sha256(dumps([method, params]).encode()).hexdigest()
-        now = self.now()
         with self.connect() as db:
             db.execute("BEGIN IMMEDIATE")
+            now = self.now()
             blocked = db.execute("SELECT reason FROM blocked WHERE namespace=?", (self.namespace,)).fetchone()
             if blocked:
                 return self.envelope("AUTH_BLOCKED", error=blocked[0])
@@ -211,7 +211,6 @@ class Broker:
             return Lease(key, nonce, method, params, expires)
 
     def finish(self, lease: Lease, result: Upstream):
-        now = self.now()
         payload = result.payload
         limited = result.status == 429 or (isinstance(payload, dict) and payload.get("error") == "ratelimited")
         interval = retry_seconds(result.retry_after)
@@ -227,6 +226,7 @@ class Broker:
                 pass
         with self.connect() as db:
             db.execute("BEGIN IMMEDIATE")
+            now = self.now()
             # A late genuine 429 still applies to the whole method, even after lease expiry.
             if limited:
                 db.execute("INSERT INTO rate VALUES (?,?,?) ON CONFLICT(scope,method) DO UPDATE SET next_at=max(rate.next_at,excluded.next_at)", (self.rate_scope, lease.method, now + interval))
