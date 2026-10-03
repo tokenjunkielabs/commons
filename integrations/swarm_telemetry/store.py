@@ -290,7 +290,7 @@ class Store:
     def events(self, *, cursor=0, limit=100, source=None, provider=None, harness=None, q=None, session_id=None, work_id=None, operation_id=None, event_id=None, order="asc"):
         descending = order == "desc"
         where = ["seq<?"] if descending and int(cursor)>0 else ["seq>?"]
-        args = [int(cursor)] if descending and int(cursor)>0 else [0]
+        args = [int(cursor)] if not descending or int(cursor)>0 else [0]
         if event_id:
             where.append("event_id=?")
             args.append(str(event_id))
