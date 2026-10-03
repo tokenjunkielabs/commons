@@ -12,8 +12,8 @@ TOOLS = [
     {"name":"get_dashboard_summary","description":"Immediate cached all-service counts with asynchronous refresh and paginated source details."},
     {"name":"list_peers","description":"Recorded peers and native sessions, with provider, harness and explicit runtime state."},
     {"name":"get_changes_since","description":"Incremental observations after a stable event cursor."},
-    {"name":"get_work_context","description":"Work relationships and contributing events."},
-    {"name":"trace_operation","description":"Observed attempts and outcomes for one operation."},
+    {"name":"get_work_context","description":"Work relationships and contributing events with stable history pagination."},
+    {"name":"trace_operation","description":"Observed attempts and outcomes for one operation with stable history pagination."},
     {"name":"list_accounts_and_services","description":"Account and service reference metadata; no credential values."},
     {"name":"get_source_coverage","description":"Collection coverage, gaps, freshness and checkpoints."},
     {"name":"query_metrics","description":"Defined counts, usage, provider/harness breakdowns and activity."},
@@ -28,6 +28,13 @@ for tool in TOOLS:
             "cursor":{"type":"string","description":"Use next_cursor from the previous page while has_more is true; retain the same filters."},
             "q":{"type":"string","description":"Search the stored notification content."},
         })
+    if tool["name"] in {"get_work_context","trace_operation"}:
+        tool["inputSchema"]["properties"].update({
+            "limit":{"type":"integer","minimum":1,"maximum":1000,"default":1000,"description":"Maximum events per history page."},
+            "cursor":{"type":"integer","minimum":0,"default":0,"description":"Use next_cursor while has_more is true; retain the same history filters and order."},
+            "order":{"type":"string","enum":["asc","desc"],"default":"asc","description":"Event sequence order for this history."},
+            "event_id":{"type":"string","description":"Optional exact event identity within this history."},
+        })
 
 def call(store, name, args=None):
     args=args or {}
@@ -36,9 +43,9 @@ def call(store, name, args=None):
     if name=="list_peers": return store.peers(**{k:args[k] for k in ("provider","harness","q","limit") if k in args})
     if name=="get_changes_since": return store.events(**{k:args[k] for k in ("cursor","limit","source","provider","harness","q","session_id","work_id","operation_id","event_id","order") if k in args})
     if name=="get_work_context":
-        if args.get("work_id"): return store.events(work_id=args["work_id"],limit=args.get("limit",1000))
+        if args.get("work_id"): return store.events(limit=args.get("limit",1000),**{k:args[k] for k in ("cursor","source","provider","harness","q","session_id","work_id","operation_id","event_id","order") if k in args})
         return store.work()
-    if name=="trace_operation": return store.events(operation_id=args.get("operation_id"),limit=args.get("limit",1000))
+    if name=="trace_operation": return store.events(limit=args.get("limit",1000),**{k:args[k] for k in ("cursor","source","provider","harness","q","session_id","work_id","operation_id","event_id","order") if k in args})
     if name=="list_accounts_and_services": return store.records("accounts",**{k:args[k] for k in ("limit","cursor","q","source","provider","harness") if k in args})
     if name=="get_source_coverage": return store.records("coverage",**{k:args[k] for k in ("limit","cursor","q","source","provider","harness") if k in args})
     if name=="query_metrics": return store.metrics()
