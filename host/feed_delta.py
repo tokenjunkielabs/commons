@@ -18,9 +18,9 @@ with no endpoint, no auth and no per-caller state:
 Read with --since CURSOR --shard auto to try the head and, when needed, the
 window in one call. The reader stops after those two files. A gap beyond the
 window still names recent.json in next_read; no retained shard can promise
-history it does not contain. Auto reads exit 2 while a gap remains and keep
-next_cursor at the supplied cursor. Advance to next_cursor only after processing
-all returned events from a COMPLETE result.
+history it does not contain. Every reader mode exits 2 while a gap remains.
+Auto reads also keep next_cursor at the supplied cursor. Advance to next_cursor
+only after processing all returned events from a COMPLETE result.
 
 CURSOR
 ------
@@ -441,9 +441,9 @@ def main(argv=None):
     if args.since is not None:
         result = since(args.since, args.root, args.shard)
         print(json.dumps(result, indent=2))
-        if args.shard == "auto" and result["state"] != "COMPLETE":
-            return 2
-        return 2 if result["state"] == "FINDER-FAILED" else 0
+        # Every reader mode must signal incomplete coverage to shell callers.
+        # Keep the partial events and next_read so they can finish the read.
+        return 0 if result["state"] == "COMPLETE" else 2
 
     if args.check:
         recent = _read_json(os.path.join(args.root, "recent.json"))
