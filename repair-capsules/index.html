@@ -66,14 +66,14 @@ summary{cursor:pointer;font-weight:650;font-size:14px;margin-top:14px}.empty{pad
 <p id="empty" class="empty">Your preview appears here. Nothing is sent to a server.</p>
 <div id="inspection" hidden>
 <h3 id="preview-title"></h3><span id="provenance" class="tag"></span>
-<h3>Next action</h3>
+<h3>Next action</h3><div id="preview-next" class="next"></div>
 <h3>Environment</h3><pre id="preview-environment"></pre>
 <h3>Known-good → broken</h3><small>− removed from known-good · + present in broken. Comparison uses redacted text; masked values can hide differences.</small>
-<pre id="diff" class="diff"></pre>
+<p id="diff-note" class="muted"></p><pre id="diff" class="diff"></pre>
 <details><summary>Broken state and logs</summary><pre id="preview-broken"></pre><pre id="preview-logs"></pre></details>
-
+<p id="redactions" class="muted"></p><p id="integrity" class="muted"></p>
 <details><summary>Exact export preview</summary><pre id="json"></pre></details>
-<h3>What was tried</h3>
+<h3>What was tried</h3><div id="attempts"></div>
 <label for="action">Attempted intervention</label><textarea id="action" placeholder="What did you actually do? Commands are recorded as text, never run."></textarea>
 <label for="result">Observed result</label><textarea id="result" placeholder="What happened? Include the evidence, not just ‘done’."></textarea>
 <button id="record">Record intervention</button><small>Recording does not execute or verify the action. Export again to carry the updated history.</small>
