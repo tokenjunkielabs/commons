@@ -258,10 +258,11 @@ class Bench:
                 name = "sources/" + hashlib.sha256(record["id"].encode()).hexdigest() + ".bin"
                 files[name] = data
                 selected.append({**record, "archive_path": name, "bytes": len(data)})
+            selected_ids = {s["id"] for s in selected}
             all_links = [dict(r) for r in db.execute("SELECT * FROM links WHERE job_id=? ORDER BY source_id", (job_id,))]
             manifest = {"format": "commons-toolbench-handover-v1", "revision": self.revision(db),
                         "job": job, "selected": selected, "notes": notes,
-                        "linked_not_selected": [r for r in all_links if r["source_id"] not in {s["id"] for s in selected}],
+                        "linked_not_selected": [r for r in all_links if r["source_id"] not in selected_ids],
                         "coverage": "Caller-selected evidence only; no completeness, approval, or release certification.",
                         "attribution": "Actor labels and association reasons are caller statements, not authenticated identities or verified facts."}
             files["manifest.json"] = (canonical(manifest) + "\n").encode()
