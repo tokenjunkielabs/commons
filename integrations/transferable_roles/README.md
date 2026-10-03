@@ -48,6 +48,14 @@ are never stored in the role — only named routes into existing stores/gateways
 **Roles confer no credential access** — owner policy keeps tokens in existing
 secure stores; this package only names routes.
 
+## Role identifiers
+
+The stored `role_id` is canonical; escaped filenames are a storage detail.
+Listing roles, reading open obligations, inspecting and exporting preserve the
+original identifier, including punctuation. Existing filename keys still work
+for lookup. Legacy records without a stored `role_id` use their lookup key.
+The open-obligation queue reads each role once.
+
 ## Role timestamps
 
 `updated_at` records the role’s last mutation. `get`, `inspect`, and `export`

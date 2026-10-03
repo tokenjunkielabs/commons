@@ -71,8 +71,12 @@ def _selected(value):
             out[name] = [_text(x, 120) for x in field[:30] if isinstance(x, str)]
         elif name == "artifact" and isinstance(field, dict):
             out[name] = {k: _text(v, 500) for k, v in field.items()
-                         if k in {"url", "repo", "pr", "branch", "head_sha", "merge_sha", "path", "sha"}
+                         if k in {"url", "repo", "pr", "branch", "head_sha", "merge_sha",
+                                  "path", "sha", "kind", "target_branch"}
                          and isinstance(v, (str, int))}
+            # Completion is semantic, so preserve the Boolean without text coercion.
+            if isinstance(field.get("complete"), bool):
+                out[name]["complete"] = field["complete"]
     return out
 
 
@@ -272,6 +276,12 @@ def _post_changes(root, files, prior):
 
 
 def _commons(root, prior):
+    """Consume changed post bytes while retaining incomplete feed coverage.
+
+    The Git catalog supplies the complete local change boundary even when the
+    feed remains unordered. A gap keeps fallback sources and missing-ID retries
+    active without reparsing an unchanged corpus that the catalog already read.
+    """
     pulse = _read(root / "pulse.json", {}) or {}
     cursor = prior.get("feed_cursor", "")
     delta = feed_delta.since(cursor, root=str(root))
@@ -291,7 +301,7 @@ def _commons(root, prior):
     files = {path.stem: path for path in sorted((root / "p").glob("*.md"))}
     catalog = _post_changes(root, files, prior)
     missing, unreadable = set(), set(catalog["unreadable"])
-    selected = set(files) if needs_full or catalog["full"] else catalog["changed"] | expected
+    selected = set(files) if catalog["full"] else catalog["changed"] | expected
     out, high = [], cursor
     full_rows = _read(root / "posts.json", []) if needs_full else []
     if needs_full:
@@ -300,7 +310,7 @@ def _commons(root, prior):
     missing.update(expected - set(files))
     missing.update(catalog["deleted"])
     if selected:
-        reads.append("p/*.md" if needs_full or catalog["full"] else "p/{changed-or-feed-id}.md")
+        reads.append("p/*.md" if catalog["full"] else "p/{changed-or-feed-id}.md")
         for ident in sorted(selected & set(files)):
             try:
                 raw = catalog["raw_bodies"].get(ident)

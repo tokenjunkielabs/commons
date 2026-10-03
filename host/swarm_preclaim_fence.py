@@ -48,6 +48,15 @@ class EvidenceError(RuntimeError):
     pass
 
 
+class SlackCollectionError(EvidenceError):
+    """A failed query together with the completed queries from this read."""
+
+    def __init__(self, error, evidence):
+        super().__init__(str(error))
+        self.error_type = type(error).__name__
+        self.evidence = evidence
+
+
 def parse_target(value):
     m = TARGET_RE.match(value.strip())
     if not m:
@@ -296,9 +305,20 @@ def _semantic_queries(paths, tokens):
 
 
 def collect_slack(searcher, target, stable_id, candidate_paths, semantic_tokens):
-    stable, exact, semantic = [], [], []
+    # Keep source progress when a later query fails. In particular, a rate
+    # limit must not erase a claim already found by an earlier query.
+    evidence = {
+        "stable_id_hits": [],
+        "exact_target_hits": [],
+        "path_semantic_hits": [],
+    }
+    queries = {}
+
+    def plan(query, bucket):
+        queries.setdefault(query, []).append(bucket)
+
     if stable_id:
-        stable += searcher.search(stable_id)
+        plan(stable_id, "stable_id_hits")
     short = target["repo"].split("/", 1)[1]
     n = target["number"]
     for query in (
@@ -306,14 +326,31 @@ def collect_slack(searcher, target, stable_id, candidate_paths, semantic_tokens)
         f'"{short}#{n}"',
         f'"{short}" "#{n}"',
     ):
-        exact += searcher.search(query)
+        plan(query, "exact_target_hits")
     for query in _semantic_queries(candidate_paths, semantic_tokens):
-        semantic += searcher.search(f'"{query}"')
-    return {
-        "stable_id_hits": _dedupe(stable),
-        "exact_target_hits": _dedupe(exact),
-        "path_semantic_hits": _dedupe(semantic),
+        plan(f'"{query}"', "path_semantic_hits")
+    coverage = {
+        "scope": "planned_queries_only",
+        "complete": False,
+        "queries": [
+            {"query": query, "buckets": buckets, "status": "unread"}
+            for query, buckets in queries.items()
+        ],
     }
+    evidence["query_coverage"] = coverage
+    for row in coverage["queries"]:
+        try:
+            hits = searcher.search(row["query"])
+        except Exception as exc:
+            row.update(status="failed", error_type=type(exc).__name__, error=str(exc))
+            # Do not call further Slack queries after a failure. Remaining
+            # queries stay explicitly unread, while GitHub can still advance.
+            raise SlackCollectionError(exc, evidence) from exc
+        row.update(status="complete", hit_count=len(hits))
+        for bucket in row["buckets"]:
+            evidence[bucket] = _dedupe(evidence[bucket] + hits)
+    coverage["complete"] = True
+    return evidence
 
 
 def _owner_snapshot(github, repo):
@@ -636,20 +673,25 @@ def collect_report(
     }
     comparisons = []
     census = {"complete": False, "open_pr_count": None, "hits": []}
+    github_complete = False
 
     try:
         slack = collect_slack(
             slack_searcher, target, stable_id, candidate_paths, semantic_tokens
         )
+    except SlackCollectionError as exc:
+        slack = exc.evidence
+        errors.append(f"slack: {exc.error_type}: {exc}")
     except Exception as exc:
         errors.append(f"slack: {exc.__class__.__name__}: {exc}")
     try:
         owner, upstream, comparisons = collect_github(
             github, owner_fork, target, candidate_paths
         )
+        github_complete = True
     except Exception as exc:
         errors.append(f"github: {exc.__class__.__name__}: {exc}")
-    if not errors:
+    if github_complete:
         try:
             census = collect_owner_pr_census(
                 github,
@@ -705,6 +747,18 @@ def render_text(report):
                 "    - "
                 + " | ".join(str(x) for x in parts if x)[:500]
             )
+    coverage = (report.get("slack") or {}).get("query_coverage")
+    if isinstance(coverage, dict):
+        queries = coverage.get("queries") or []
+        lines.append(
+            "Slack query coverage: "
+            f"complete={coverage.get('complete')} "
+            f"completed={sum(row.get('status') == 'complete' for row in queries)} "
+            f"planned={len(queries)}"
+        )
+        for row in queries:
+            if row.get("status") != "complete":
+                lines.append(f"  {row.get('status')}: {row.get('query')}")
     census = _owner_census(report)
     lines.append(
         "Owner PR census: "

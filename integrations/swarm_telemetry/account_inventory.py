@@ -1,7 +1,8 @@
 """Redacted relational inventory for connected accounts and service access.
 
-The module consumes reference metadata and configuration signals only. It never
-reads credential values or attempts account mutations.
+The module consumes reference metadata and configuration signals only. Canonical
+resource-ledger surfaces remain resource declarations, separate from provider
+account identity. It never reads credential values or attempts account mutations.
 """
 from __future__ import annotations
 
@@ -45,6 +46,12 @@ def _stable(kind: str, *parts: Any) -> str:
 
 def _rows(value: Any) -> list[Mapping[str, Any]]:
     if isinstance(value, Mapping):
+        if value.get("schema") == "commons-resource-ledger/v2" and isinstance(value.get("surfaces"), list):
+            return [{**surface, "_resource_ledger_surface": True,
+                     "_resource_ledger_source_id": value.get("source_id"),
+                     "_resource_ledger_surface_index": index}
+                    for index, surface in enumerate(value["surfaces"])
+                    if isinstance(surface, Mapping)]
         rows: list[Mapping[str, Any]] = []
         for key in ("items", "resources", "accounts", "services", "connectors", "credentials", "references",
                     "records", "sources", "capabilities", "quotas", "inventory", "rows", "providers"):
@@ -158,6 +165,32 @@ def _provider(row: Mapping[str, Any]) -> str:
 def _inventory_records(inputs: Iterable[Mapping[str, Any]], source: str, default_type: str) -> list[dict[str, Any]]:
     result = []
     for row in inputs:
+        if row.get("_resource_ledger_surface") is True:
+            name = _label(row.get("name") or row.get("resource_id"))
+            if not name:
+                continue
+            attributes = _attrs(row, {"source"})
+            attributes.update(source="resource_ledger", resource_id=name,
+                              source_locator="ground/RESOURCE_LEDGER.json#/surfaces/" + str(row["_resource_ledger_surface_index"]))
+            for target, value in (
+                ("source_id", row.get("_resource_ledger_source_id")),
+                ("resource_type", row.get("kind")),
+                ("declared_stage", row.get("stage")),
+                ("declared_condition", row.get("condition")),
+                ("declared_capacity", row.get("capacity")),
+                ("holder", row.get("holder")),
+                ("evidence_ts", row.get("evidence_ts")),
+                ("last_used_at", row.get("last_used_at")),
+                ("provenance", row.get("source")),
+            ):
+                safe = _label(value, 2000)
+                if safe is not None:
+                    attributes[target] = safe
+            # A resource declaration is not an authenticated provider account.
+            # Preserve every surface without interpreting provenance as a login.
+            result.append(_record("resource", _stable("resource", "commons-resource-ledger", name),
+                                  name, "recorded", attributes))
+            continue
         provider = _provider(row)
         account_name = _label(row.get("account_name") or row.get("account") or row.get("owner") or row.get("candidate_account_ref") or row.get("account_ref") or provider)
         account_ref = _label(row.get("account_id") or row.get("account_ref") or account_name)
@@ -390,4 +423,3 @@ def collect_account_inventory(inputs: Any = None, **kwargs: Any) -> dict[str, An
             buckets["service_records"].extend(records)
 
     return build_account_inventory(**buckets, repo_config_roots=roots)
-
