@@ -34,7 +34,7 @@ python competitions/opencv-ai-2026/visual-evidence-gate/packet_cli.py verify \
 
 `inspect` writes the complete receipt to standard output when `--output` is omitted. An output file is created exclusively; an existing file is never replaced. Successful execution exits 0. Input, verification or filesystem errors exit 2 and emit an error on standard error. A quality hold is a successfully computed advisory result and exits 0; callers must read `decision.trace.action`.
 
-The image map is a JSON object from each packet image ID to a local path. Relative paths resolve against the image-map file's directory, including when the command runs from elsewhere. Its keys must match the packet's image IDs exactly. Each file is captured once during a command. `verify` recompiles against those captured bytes; it does not trust a receipt merely because its digest is well formed. No URL fetching is implemented.
+The image map is a JSON object from each packet image ID to a local path. Relative paths resolve against the image-map file's directory, including when the command runs from elsewhere. Its keys must match the packet's image IDs exactly. Each file is captured once during a command. `verify` decodes and measures each captured image once while performing its full deterministic recompile; it does not trust a receipt merely because its digest is well formed. No URL fetching is implemented.
 
 ## Packet contract
 

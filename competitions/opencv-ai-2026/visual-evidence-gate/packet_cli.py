@@ -25,7 +25,7 @@ def read_json(path: Path) -> Any:
     return strict_json_bytes(raw, max_bytes=MAX_JSON_BYTES)
 
 
-def local_inputs(packet_path: Path, map_path: Path):
+def local_inputs(packet_path: Path, map_path: Path, *, receipt_path: Path | None = None):
     packet = read_json(packet_path)
     image_map = read_json(map_path)
     if type(image_map) is not dict or any(
@@ -51,7 +51,13 @@ def local_inputs(packet_path: Path, map_path: Path):
 
     # Validation precedes calls to the local loader. The resulting set also
     # rejects unused map entries so the published receipt has one input set.
-    result = compile_triage(packet, load)
+    if receipt_path is None:
+        result = compile_triage(packet, load)
+    else:
+        result = read_json(receipt_path)
+        # The verifier performs the full deterministic recompile itself.
+        # Do not decode and measure every image once before calling it.
+        verify_triage(packet, load, result)
     if set(image_map) != {item["image_id"] for item in packet["images"]}:
         raise ProofCamError("image map keys must exactly match packet image ids")
     return packet, load, result
@@ -77,11 +83,12 @@ def main(argv: list[str] | None = None) -> int:
             child.add_argument("--receipt", type=Path, required=True)
     args = parser.parse_args(argv)
     try:
-        packet, load, result = local_inputs(args.packet, args.image_map)
+        packet, load, result = local_inputs(
+            args.packet, args.image_map,
+            receipt_path=args.receipt if args.command == "verify" else None,
+        )
         if args.command == "verify":
-            artifact = read_json(args.receipt)
-            verify_triage(packet, load, artifact)
-            result = {"verified": True, "receipt_sha256": artifact["receipt_sha256"]}
+            result = {"verified": True, "receipt_sha256": result["receipt_sha256"]}
         elif args.output is not None:
             write_new_json(args.output, result)
             result = {"written": str(args.output), "receipt_sha256": result["receipt_sha256"]}
