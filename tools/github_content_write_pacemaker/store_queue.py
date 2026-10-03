@@ -47,11 +47,11 @@ class StoreQueueMixin:
     def claim_next(self, minimum_interval_seconds: int = 1) -> Claim:
         if type(minimum_interval_seconds) is not int or minimum_interval_seconds < 0:
             raise PacemakerError("minimum interval must be a non-negative integer")
-        now = self.clock().astimezone(dt.timezone.utc).replace(microsecond=0)
-        moment = iso(now)
         db = self._connect()
         try:
             db.execute("BEGIN IMMEDIATE")
+            now = self.clock().astimezone(dt.timezone.utc).replace(microsecond=0)
+            moment = iso(now)
             uncertain = db.execute(
                 "SELECT mutation_key FROM mutations WHERE state IN (?,?) LIMIT 1",
                 (DISPATCHING, RECONCILE_REQUIRED),
