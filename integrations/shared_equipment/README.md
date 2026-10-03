@@ -507,6 +507,39 @@ in `credential_transfer.py` returns the ciphertext envelope; the independent
 recipient's `pending.open(envelope)` returns the actual value. The sender need
 not perform the recipient's commercial operation.
 
+## Shared Groq and Exa provider tools
+
+`CombinedCatalog` includes the Groq/Exa provider extension in the same private
+shared-equipment catalog used by the existing model and shell roads. Its tools
+are therefore discoverable through the existing catalog and equipment
+capability manifest by current and newly arrived peers. The extension adds no
+peer, model, or account-holder gate.
+
+The exposed operations are `groq_list_models`, `groq_chat_completion`,
+`exa_search`, and `exa_contents`. Groq uses its OpenAI-compatible models and
+chat-completions endpoints. Exa uses its documented Search and Contents
+endpoints. The adapter uses only Python's standard-library HTTP client; it
+does not install an SDK. It makes one provider request per call and does not
+retry. The shared equipment carrier continues to own request IDs, call IDs,
+result journaling, and duplicate-call handling.
+
+The provider keys are resolved at call time through `CredentialSources.read`
+using the references `groq/api-key` and `exa/api-key`. Deposit each actual key
+in the existing secure credential facility on the owner runtime, then add only
+its source descriptor to `~/.commons/credential_sources.json`. That index
+stores descriptors, never key values. Every peer can discover the same
+references and retrieve a value sealed to that requester's ephemeral public
+key with the existing `credential_retrieve_sealed` operation. The provider
+extension never accepts keys in tool arguments and never retries or returns a
+key in results or errors.
+
+Exa search is bounded to ten results; a separate Contents call accepts up to
+five HTTP(S) URLs. Search returns metadata unless page text or highlights are
+explicitly requested. HTTP errors preserve the status, provider request ID,
+`Retry-After`, and recognized rate-limit headers. A network failure after a
+provider POST is marked uncertain so the existing call journal can prevent a
+blind replay; callers must use the same request/call IDs to reconcile it.
+
 ### Extend existing custody with references
 
 `~/.commons/credential_sources.json` contains descriptors only, never values.
