@@ -1,5 +1,5 @@
 name: workflow-surface
-# Retained 67-slot trees pass this check. Do not raise max_active_workflows.
+# Preserve the original workflow inventory and max_active_workflows budget.
 on:
   pull_request:
     paths:
@@ -30,6 +30,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            host/workflow_surface.py
+            ci/workflow-surface.json
+            .github/workflows/
+            ci/workflow-recipes/
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
