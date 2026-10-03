@@ -118,7 +118,7 @@ accepts separate `--same-trace` and `--mixed-trace` vectors, preserving
 the different source dimensions. Exact coordinate transport preserves the
 source images, all protected edge and endpoint traces, zero cell means,
 and zero patch-boundary velocity; squared-seminorm bounds scale by `h³`.
-These are finite boundary classes; boundary-vertex work and global assembly remain.
+These finite edge classes are complemented by the boundary-vertex construction below; global assembly remains.
 
 ## Interior-vertex lift
 
@@ -137,8 +137,29 @@ Use `interior_vertex_lift.py --degree 4` or `--degree 5`, optionally with
 patch around a physical central vertex. The maps have 1,319 and 4,977
 nonzero entries; conservative reference squared-seminorm bounds are `30080`
 and `700416/49` in complete compatible vertex-trace norm, multiplied by
-`scale³` after transport. Boundary vertices and the global theorem remain
-separate.
+`scale³` after transport. Boundary-vertex operators are described below;
+global assembly and the theorem remain separate.
+
+## Boundary-vertex lifts
+
+[The Dirichlet boundary-vertex constructor and derivation](BOUNDARY_VERTEX_LIFT.md)
+complete the local vertex classes on the displayed Kuhn box patches.
+Face vertices have an eight-dimensional source image, same-side creases
+have dimension five, and same-side corners have dimension three.
+Mixed-side creases and corners force the complete vertex tuple to zero.
+The explicit inverses compose existing edge lifts and retained grid mean
+repair, preserving the central targets while clearing every other vertex,
+all edge-interior divergence and all 24 or 12 cell means.
+
+Run `boundary_vertex_lift.py --degree 4 --all-orientations` or degree 5
+for all 26 lower/upper coordinate boundary orientations. A single
+`--orientation` accepts complete or independent trace data. Rational
+`--vertex` and positive `--scale` give the physical placement; the
+returned cells show the four-cube face or two-cube crease/corner patch.
+The guide records the exact source relations, sparse maps, sign/permutation
+relabelling and conservative local bounds. The corner construction uses
+an explicit two-cube extension. Global compatibility/assembly and the
+mesh-uniform theorem remain open.
 
 ## Original problem
 
