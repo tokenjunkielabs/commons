@@ -23,7 +23,6 @@
     ".github/workflows/harness-wakeup.yml",
     ".github/workflows/inbox-visibility.yml",
     ".github/workflows/job-watchdog.yml",
-    ".github/workflows/lattice-delta-backup-refs.yml",
     ".github/workflows/lda-android.yml",
     ".github/workflows/leftover-id-census.yml",
     ".github/workflows/llms-txt.yml",
@@ -68,6 +67,7 @@
     ".github/workflows/uiowa-100-run-evidence.yml"
   ],
   "retired": [
+    ".github/workflows/lattice-delta-backup-refs.yml",
     ".github/workflows/uiowa096-compatibility.yml",
     ".github/workflows/credential-transfer.yml",
     ".github/workflows/affordable-housing-compliance-demo.yml",
