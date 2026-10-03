@@ -42,7 +42,8 @@ ALLOCATION_BY_ROUTE_STATE = {
 }
 SECRET_PATTERNS = (
     re.compile(r"(?i)\b(?:password|passwd|api[_ -]?key|client[_ -]?secret)\s*[:=]\s*\S+"),
-    re.compile(r"\b(?:ghp|github_pat|sk_live|sk_test|xox[baprs])-[-A-Za-z0-9_]{8,}\b"),
+    # GitHub and Stripe use underscores; retain legacy hyphen-shaped matches.
+    re.compile(r"\b(?:(?:gh[pousr]|github_pat|sk_live|sk_test)[_-]|xox[baprs]-)[-A-Za-z0-9_]{8,}\b"),
     re.compile(r"(?i)[?&](?:token|code|secret|key|signature)=[^&\s]+"),
 )
 
