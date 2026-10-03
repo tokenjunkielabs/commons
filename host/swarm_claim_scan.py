@@ -317,11 +317,16 @@ def _terminal_candidates(operation, operations, channel_id):
                   and any(ref["channel_id"] == channel_id for ref in row["declarations"]))
 
 
+def _comparison_text(text):
+    """Ignore only the known trailing connector signature for duplicate IDs."""
+    return re.sub(r"\n\*Sent using\* <@U[A-Z0-9]+\|ChatGPT>\Z", "", text)
+
+
 def scan(messages, pages, *, workspace_url=None):
     workspace = _workspace(workspace_url)
     identities = defaultdict(dict)
     for message in messages:
-        digest = hashlib.sha256(message["text"].encode("utf-8")).hexdigest()
+        digest = hashlib.sha256(_comparison_text(message["text"]).encode("utf-8")).hexdigest()
         identities[(message["channel_id"], message["message_ts"])][digest] = message
     ambiguous, ordered = [], []
     for (channel, stamp), versions in identities.items():
