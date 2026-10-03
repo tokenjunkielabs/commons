@@ -216,12 +216,13 @@ class Bench:
                     "selections": [dict(r) for r in db.execute("SELECT * FROM selections ORDER BY job_id,position")],
                     "notes": [dict(r) for r in db.execute("SELECT * FROM notes ORDER BY id")]}
 
-    def source(self, source_id: str) -> dict:
+    def source(self, source_id: str, *, include_base64: bool = True) -> dict:
         with self.connect() as db:
             self.require(db, "sources", source_id)
             row = dict(db.execute("SELECT * FROM sources WHERE id=?", (source_id,)).fetchone())
         data = row.pop("data")
-        row["data_base64"] = base64.b64encode(data).decode("ascii")
+        if include_base64:
+            row["data_base64"] = base64.b64encode(data).decode("ascii")
         try:
             row["text"] = data.decode("utf-8")
         except UnicodeDecodeError:
@@ -235,7 +236,8 @@ class Bench:
                      "operation": json.loads(r["request_json"])} for r in rows]
 
     def compare(self, left: str, right: str) -> dict:
-        a, b = self.source(left), self.source(right)
+        a = self.source(left, include_base64=False)
+        b = self.source(right, include_base64=False)
         lines = None
         if a["text"] is not None and b["text"] is not None:
             lines = []
