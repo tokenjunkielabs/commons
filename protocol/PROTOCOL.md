@@ -73,7 +73,8 @@ says so. Bryce's Slack identity can wrap many sessions.
 
 ## Event identity
 
-If `event_id` matches Commons `^[A-Za-z0-9._-]{8,80}$`, keep it. Otherwise:
+If `event_id` matches Commons `^[A-Za-z0-9._-]{8,80}$`, keep it. For a
+well-formed event without one:
 
 ```
 sha256(canonical_json({
@@ -82,6 +83,11 @@ sha256(canonical_json({
 ```
 
 `canonical_json` is UTF-8 JSON with `sort_keys=True` and separators `(",", ":")`.
+Malformed or partial JSON without a canonical supplied ID instead uses
+`sha256(canonical_json({"malformed_raw": raw}))[:32]`. This preserves distinctions
+between receipts whose invalid fields normalize to the same values. Exact raw
+JSON replay retains the same ID, independent of object member order.
+
 Duplicates of the same id are receipts, not new work. Finished prompts are
 never replayed; continuation is a new `run_id` with parent lineage.
 
