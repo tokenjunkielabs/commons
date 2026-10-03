@@ -102,6 +102,8 @@ class Store:
                 CREATE TABLE IF NOT EXISTS notifications (notification_id TEXT PRIMARY KEY,
                     occurred_at TEXT, payload TEXT NOT NULL, delivery_state TEXT DEFAULT 'available', receipt TEXT);
                 CREATE INDEX IF NOT EXISTS notification_delivery_time ON notifications(delivery_state,julianday(occurred_at));
+                CREATE TABLE IF NOT EXISTS notification_resolutions (
+                    notification_id TEXT PRIMARY KEY, resolved_by TEXT NOT NULL);
                 CREATE TABLE IF NOT EXISTS runtime_state (key TEXT PRIMARY KEY, payload TEXT NOT NULL);
                 CREATE TABLE IF NOT EXISTS source_records (ref TEXT PRIMARY KEY,source_id TEXT,sha256 TEXT,byte_length INTEGER,character_length INTEGER,iv BLOB,ciphertext BLOB,mac BLOB,format TEXT,key_reference TEXT);
                 CREATE INDEX IF NOT EXISTS source_record_sizes ON source_records(byte_length,character_length);
@@ -127,6 +129,35 @@ class Store:
                     COMMIT;
                 """)
                 self._coverage_service_projection_pending=False
+            db.execute("BEGIN IMMEDIATE")
+            if not db.execute("SELECT 1 FROM runtime_state WHERE key='notification_resolution_index_v1'").fetchone():
+                # Retained resolutions may precede their originals in source
+                # history. Build the target lookup once, including older stores.
+                db.execute("""
+                    INSERT OR REPLACE INTO notification_resolutions
+                    SELECT target.value, note.notification_id
+                    FROM notifications AS note, json_each(note.payload,'$.supersedes') AS target
+                    WHERE target.type='text' AND target.value!=''
+                    ORDER BY note.rowid
+                """)
+                # Preserve the resolver already recorded by earlier ingestion
+                # when several retained notices refer to the same original.
+                db.execute("""
+                    INSERT OR REPLACE INTO notification_resolutions
+                    SELECT notification_id, json_extract(payload,'$.resolved_by') FROM notifications
+                    WHERE json_extract(payload,'$.status')='resolved'
+                        AND json_type(payload,'$.resolved_by')='text'
+                        AND json_extract(payload,'$.resolved_by')!=''
+                """)
+                db.execute("""
+                    UPDATE notifications SET payload=json_set(payload,'$.status','resolved','$.resolved_by',
+                        (SELECT resolved_by FROM notification_resolutions AS resolution
+                         WHERE resolution.notification_id=notifications.notification_id))
+                    WHERE notification_id IN (SELECT notification_id FROM notification_resolutions)
+                        AND (json_extract(payload,'$.status') IS NOT 'resolved'
+                             OR json_extract(payload,'$.resolved_by') IS NULL)
+                """)
+                db.execute("INSERT INTO runtime_state VALUES (?,?)",("notification_resolution_index_v1",json.dumps({"complete":True,"observed_at":now()})))
         from .custody import Custody
         self.custody = Custody(self.path, key_loader=key_loader, write_lock=self._write_lock)
 
@@ -264,10 +295,16 @@ class Store:
                 if previous:
                     old=json.loads(previous[0])
                     item=merge_notification_metadata(old,item)
+                resolution=db.execute("SELECT resolved_by FROM notification_resolutions WHERE notification_id=?",(item["notification_id"],)).fetchone()
+                if resolution:
+                    item["status"]="resolved"
+                    item["resolved_by"]=resolution[0]
+                if previous:
                     db.execute("UPDATE notifications SET payload=? WHERE notification_id=?",(json.dumps(item,ensure_ascii=False),item["notification_id"]))
                 else:
                     db.execute("INSERT INTO notifications (notification_id,occurred_at,payload) VALUES (?,?,?)", (item["notification_id"], item.get("occurred_at") or now(), json.dumps(item, ensure_ascii=False)))
                 for target in item.get("supersedes",[]):
+                    db.execute("INSERT OR REPLACE INTO notification_resolutions VALUES (?,?)",(target,item["notification_id"]))
                     prior_note=db.execute("SELECT payload FROM notifications WHERE notification_id=?",(target,)).fetchone()
                     if prior_note:
                         resolved=json.loads(prior_note[0]); resolved["status"]="resolved"; resolved["resolved_by"]=item["notification_id"]
