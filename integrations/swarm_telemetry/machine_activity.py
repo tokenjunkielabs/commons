@@ -576,16 +576,12 @@ def _collect_sqlite(path: Path, key: str, checkpoint: Mapping[str, Any] | None,
     prior_size = int(prior.get("size", 0)) if prior else 0
     identity_changed = bool(prior) and (size != prior_size or mtime_ns != prior.get("mtime_ns") or
                                          (prior.get("signature") and signature != prior.get("signature")))
-    if prior and (size < prior_size or
-                  (size == prior_size and (mtime_ns != prior.get("mtime_ns") or
-                                           (prior.get("signature") and signature != prior.get("signature"))))):
+    if identity_changed:
+        # Growth is not proof of append-only rows: mutable values and new keys
+        # can precede a saved cursor. Resume cursors only for the same database
+        # identity; stable row content IDs deduplicate unchanged rows on replay.
         version += 1
         tables_state = {}
-    elif identity_changed:
-        # Append or WAL growth: retain table cursors but reopen completed tables
-        # so rows beyond each saved key are discovered in this continuation.
-        tables_state = {name: {**state, "done": False} if isinstance(state, Mapping) else state
-                        for name, state in tables_state.items()}
     uri = "file:" + quote(str(path.resolve()).replace("\\", "/"), safe="/:@") + "?mode=ro"
     connection = sqlite3.connect(uri, uri=True, timeout=3.0)
     connection.row_factory = sqlite3.Row
