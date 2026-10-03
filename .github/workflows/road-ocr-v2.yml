@@ -17,6 +17,12 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            /.gitattributes
+            /revenue/road_barbados_ocr_v2/
+            /.github/workflows/road-ocr-v2.yml
+          sparse-checkout-cone-mode: false
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
