@@ -110,6 +110,20 @@ snapshot. It does not claim that a later current-main tip is
 unchanged, that a running service reloaded it, or that it is deployed. Source
 execution and product acceptance remain the caller's work.
 
+The file reader can return a large file's SHA with an empty body. For text,
+an empty returned body with a nonempty blob identity is recorded as
+`error_code: readback_content_unavailable`, `content_available: false`, and
+`content_matches: null`. This leaves readback incomplete; metadata does not
+establish that the complete source matched. An actual empty Git blob remains
+a normal content comparison. Binary files retain their created-blob SHA
+comparison.
+
+For read-only continuation, the exported `inspectReadback(file, source, data)`
+uses the same comparison as publication. Pass the retained `progress.files`
+entry, its prepared source entry (including `encoding`), and the unpacked
+native file response at `readback_ref`. It performs no provider operation; it
+records a text `blob_sha` on that file entry only after full content matches.
+
 ## Failures and continuation
 
 No provider error is automatically retried. The helper throws
@@ -117,7 +131,12 @@ No provider error is automatically retried. The helper throws
 `response` when one is available. Progress records the stage, call counts,
 previous/new file SHAs (text SHAs become available at readback), tree/commit,
 branch creation, PR, merge result, and all
-readback outcomes. It does not include source contents or the PR description.
+readback outcomes. `publication_status` records a confirmed `pull_request_open`
+or `merged` independently of `status`, which stays `incomplete` when readback
+fails. `readback_status` is `complete`, `content_unavailable`, or `incomplete`.
+The failure also sends the latest progress to `onProgress`, including these
+outcomes and the frozen `readback_ref`. It does not include source contents or
+the PR description.
 
 ```javascript
 try {

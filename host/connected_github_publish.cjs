@@ -5,6 +5,7 @@
 const ACTIONS = ['fetch', 'fetch_file', 'create_blob', 'create_tree', 'create_commit',
   'create_branch', 'create_pull_request', 'merge_pull_request'];
 const SHA = /^[0-9a-f]{40}$/;
+const EMPTY_BLOB_SHA = 'e69de29bb2d1d6434b8b29ae775ad8c2e48c5391';
 
 class GitHubPublishError extends Error {
   constructor(message, progress, cause) {
@@ -119,10 +120,29 @@ function sha(value, label) {
   return value;
 }
 
+function inspectReadback(file, source, data) {
+  if (source.encoding === 'utf-8') {
+    const observed = sha(data.sha, 'Published text blob');
+    // Large-file metadata can retain the blob SHA while omitting the body.
+    if (typeof data.content !== 'string' || (data.content === '' && observed !== EMPTY_BLOB_SHA)) {
+      return {path: file.path, expected_blob_sha: null, observed_blob_sha: observed,
+        content_matches: null, content_available: false, matches: false,
+        error_code: 'readback_content_unavailable'};
+    }
+    const matches = data.content === source.content;
+    if (matches) file.blob_sha = observed;
+    return {path: file.path, expected_blob_sha: null, observed_blob_sha: observed,
+      content_matches: matches, matches};
+  }
+  return {path: file.path, expected_blob_sha: file.blob_sha, observed_blob_sha: data.sha,
+    matches: data.sha === file.blob_sha};
+}
+
 /** Publish regular-file changes through native GitHub tools, optionally merge. */
 async function publishGitHubChange(tools, change, options = {}) {
   const progress = {status: 'incomplete', stage: 'validate', calls: {}, files: [], progress_callback_errors: []};
   let lastResponse;
+  let announce = async () => {};
   try {
     const spec = validate(change);
     const sourceByPath = new Map(spec.files.map(file => [file.path, file]));
@@ -138,7 +158,7 @@ async function publishGitHubChange(tools, change, options = {}) {
         throw new Error(`Binding not present: ${bindings[action]}. Repeat discovery alongside independent work.`);
       }
     }
-    const announce = async () => {
+    announce = async () => {
       if (typeof options.onProgress !== 'function') return;
       try { await options.onProgress(JSON.parse(JSON.stringify(progress))); }
       catch (error) { progress.progress_callback_errors.push(String(error.message ?? error)); }
@@ -240,18 +260,20 @@ async function publishGitHubChange(tools, change, options = {}) {
     const pr = await call('create_pull_request', {repository_full_name, head: spec.branch_name,
       base: spec.base_branch, title: spec.title, body: spec.body});
     progress.pull_request = {number: pr.number, url: pr.url ?? pr.display_url, head_sha: pr.head_sha};
-    await announce();
     if (!Number.isInteger(pr.number) || pr.number < 1 || pr.head_sha !== progress.commit_sha) {
       throw new Error('The returned pull request does not identify the created commit');
     }
+    progress.publication_status = 'pull_request_open';
+    await announce();
     if (spec.merge) {
       progress.stage = 'merge_pull_request';
       const merged = await call('merge_pull_request', {repository_full_name, pr_number: pr.number,
         expected_head_sha: progress.commit_sha, merge_method: spec.merge_method});
       progress.merge_result = merged;
-      await announce();
       if (merged.merged !== true) throw new Error('GitHub did not report a completed merge');
+      progress.publication_status = 'merged';
       progress.merge_sha = sha(merged.sha, 'Merge');
+      await announce();
     }
     progress.stage = 'readback';
     progress.readback_ref = progress.merge_sha ?? progress.commit_sha;
@@ -260,24 +282,21 @@ async function publishGitHubChange(tools, change, options = {}) {
       const source = sourceByPath.get(file.path);
       const data = await call('fetch_file', {repository_full_name, path: file.path,
         ref: progress.readback_ref, encoding: source.encoding});
-      if (source.encoding === 'utf-8') {
-        const observed = sha(data.sha, 'Published text blob');
-        const matches = data.content === source.content;
-        if (matches) file.blob_sha = observed;
-        return {path: file.path, expected_blob_sha: null, observed_blob_sha: observed,
-          content_matches: matches, matches};
-      }
-      return {path: file.path, expected_blob_sha: file.blob_sha, observed_blob_sha: data.sha,
-        matches: data.sha === file.blob_sha};
+      return inspectReadback(file, source, data);
     }));
     progress.readback = reads.map((read, index) => read.status === 'fulfilled' ? read.value
       : {path: candidates[index].path, matches: false, error: String(read.reason?.message ?? read.reason)});
+    const unavailable = progress.readback.some(read => read.error_code === 'readback_content_unavailable');
+    progress.readback_status = unavailable ? 'content_unavailable'
+      : progress.readback.some(read => !read.matches) ? 'incomplete' : 'complete';
+    if (unavailable) throw new Error('Published source content was not returned; finish readback at readback_ref without repeating publication');
     if (progress.readback.some(read => !read.matches)) throw new Error('One or more published source readbacks did not match');
     progress.status = spec.merge ? 'merged' : 'pull_request_open';
     progress.stage = 'complete';
     await announce();
     return progress;
   } catch (error) {
+    await announce();
     const failure = new GitHubPublishError(String(error.message ?? error), progress, error);
     failure.response = lastResponse;
     throw failure;
@@ -285,5 +304,5 @@ async function publishGitHubChange(tools, change, options = {}) {
 }
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {GitHubPublishError, publishGitHubChange};
+  module.exports = {GitHubPublishError, publishGitHubChange, inspectReadback};
 }
