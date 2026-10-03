@@ -227,11 +227,18 @@ class Reader:
         return body, links, url
 
     def emit(self, road, key, records, coverage):
-        safe = re.sub(r'[^A-Za-z0-9_.-]', '-', key)[:100]
-        path = self.home / f'github-{self.account}-{road}-{safe}.json'
+        document = clean({'source': 'github', 'account': self.account, 'road': road,
+                          'coverage': coverage, 'records': records})
+        version = hashlib.sha256(json.dumps(document, ensure_ascii=False, sort_keys=True,
+                                            separators=(',', ':')).encode()).hexdigest()
+        # A retried page may have changed after an interrupted checkpoint.
+        # Preserve both versions; only an exact content replay reuses a batch.
+        safe = re.sub(r'[^A-Za-z0-9_.-]', '-', key)[:32]
+        path = self.home / f'github-{self.account}-{road}-{safe}-{version}.json'
         if not path.exists():
-            atomic_json(path, {'source': 'github', 'account': self.account, 'road': road,
-                 'coverage': coverage, 'records': records})
+            atomic_json(path, document)
+        elif json.loads(path.read_text(encoding='utf-8')) != document:
+            raise RuntimeError('GitHub history batch content differs from its immutable identity')
         return path
 
     def enqueue_detail(self, url, kind='subject'):
