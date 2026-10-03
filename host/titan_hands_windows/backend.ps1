@@ -115,17 +115,28 @@ function Try-Value([scriptblock]$Read, $Default = $null) {
     try { return & $Read } catch { return $Default }
 }
 
-function Element-Id([System.Windows.Automation.AutomationElement]$Element) {
+function Element-Identity($Element, [string]$Path) {
     $processId = Try-Value { $Element.Current.ProcessId } 0
     $rid = Try-Value { ($Element.GetRuntimeId() -join ".") } ""
     $hwnd = Try-Value { $Element.Current.NativeWindowHandle } 0
     $aid = Try-Value { $Element.Current.AutomationId } ""
     $raw = "$processId|$rid|$hwnd|$aid"
+    # A handle/AutomationId is not unique among virtual controls. Without a
+    # runtime ID, preserve each original walker position rather than collapse
+    # distinct controls with otherwise identical identity fields.
+    if (-not $rid) { $raw += "|path:$Path" }
     $sha = [System.Security.Cryptography.SHA256]::Create()
     try {
         $bytes = [Text.Encoding]::UTF8.GetBytes($raw)
         $hex = [BitConverter]::ToString($sha.ComputeHash($bytes)).Replace("-", "").ToLowerInvariant()
-        return "w_" + $hex.Substring(0, 20)
+        return [pscustomobject]@{
+            id = "w_" + $hex.Substring(0, 20)
+            runtime_id = $rid
+            key = if ($rid) { "$processId|$rid" } else { "" }
+            process_id = $processId
+            native_handle = $hwnd
+            automation_id = $aid
+        }
     } finally { $sha.Dispose() }
 }
 
@@ -137,9 +148,7 @@ function Pattern([System.Windows.Automation.AutomationElement]$Element, $Automat
     return $null
 }
 
-function Element-Node([System.Windows.Automation.AutomationElement]$Element, [string]$ParentId) {
-    $id = Element-Id $Element
-    $script:Elements[$id] = $Element
+function Element-Node([System.Windows.Automation.AutomationElement]$Element, [string]$ParentId, [string]$Id, $Identity) {
     $control = Try-Value { $Element.Current.ControlType.ProgrammaticName } "ControlType.Unknown"
     $role = [string]$control -replace '^ControlType\.', ''
     $states = [System.Collections.Generic.List[string]]::new()
@@ -182,58 +191,103 @@ function Element-Node([System.Windows.Automation.AutomationElement]$Element, [st
         }
     }
     return [ordered]@{
-        id = $id
+        id = $Id
         parent = $ParentId
         role = $role
         name = [string](Try-Value { $Element.Current.Name } "")
-        automation_id = [string](Try-Value { $Element.Current.AutomationId } "")
+        automation_id = [string]$Identity.automation_id
         class_name = [string](Try-Value { $Element.Current.ClassName } "")
         help_text = [string](Try-Value { $Element.Current.HelpText } "")
         value = [string]$value
-        process_id = [int](Try-Value { $Element.Current.ProcessId } 0)
-        native_handle = [int](Try-Value { $Element.Current.NativeWindowHandle } 0)
+        process_id = [int]$Identity.process_id
+        native_handle = [int]$Identity.native_handle
         bounds = $bounds
         states = @($states)
         actions = @($actions | Sort-Object -Unique)
     }
 }
 
-function Snapshot($Request) {
+function Same-Element($Left, $Right) {
+    if ($null -eq $Left -or $null -eq $Right) { return $false }
+    if ([object]::ReferenceEquals($Left, $Right)) { return $true }
+    return [bool](Try-Value { [System.Windows.Automation.AutomationElement]::Compare($Left, $Right) } $false)
+}
+
+function Queue-Children($Queue, $ParentElement, [string]$ParentId, [int]$Depth, [string]$Path) {
+    $siblingKeys = [System.Collections.Generic.HashSet[string]]::new()
+    $weakSiblings = [System.Collections.Generic.List[object]]::new()
+    $ordinal = 0
+    $child = Try-Value { $script:Walker.GetFirstChild($ParentElement) } $null
+    while ($null -ne $child) {
+        $childPath = if ($Path) { "$Path/$ordinal" } else { [string]$ordinal }
+        $identity = Element-Identity $child $childPath
+        $repeated = $false
+        if ($identity.key) {
+            $repeated = -not $siblingKeys.Add($identity.key)
+        } else {
+            foreach ($previous in $weakSiblings) {
+                if (Same-Element $previous $child) { $repeated = $true; break }
+            }
+            if (-not $repeated) { $weakSiblings.Add($child) }
+        }
+        # Broken providers can return a sibling cycle before the dequeue loop
+        # ever gets a chance to deduplicate. Stop that cycle, not the whole
+        # snapshot, and disclose incomplete traversal in its coverage.
+        if ($repeated) { $script:TraversalCycle = $true; break }
+        $Queue.Enqueue([pscustomobject]@{
+            element = $child; parent = $ParentId; depth = $Depth
+            path = $childPath; identity = $identity
+        })
+        $ordinal++
+        $child = Try-Value { $script:Walker.GetNextSibling($child) } $null
+    }
+}
+
+function Snapshot($Request, $Root = $null, $Focused = $null) {
     $maxNodes = [Math]::Max(1, [int](Get-Field $Request "max_nodes" 600))
     $maxDepth = [Math]::Max(0, [int](Get-Field $Request "max_depth" 8))
     $includeOffscreen = [bool](Get-Field $Request "include_offscreen" $false)
     $script:Elements = @{}
+    $script:TraversalCycle = $false
     $nodes = [System.Collections.Generic.List[object]]::new()
     $queue = [System.Collections.Generic.Queue[object]]::new()
-    $root = [System.Windows.Automation.AutomationElement]::RootElement
-    $child = $script:Walker.GetFirstChild($root)
-    while ($null -ne $child) {
-        $queue.Enqueue([pscustomobject]@{ element = $child; parent = ""; depth = 0 })
-        $child = $script:Walker.GetNextSibling($child)
-    }
+    $seenRuntimeIds = [System.Collections.Generic.HashSet[string]]::new()
+    if ($null -eq $Root) { $Root = [System.Windows.Automation.AutomationElement]::RootElement }
+    Queue-Children $queue $Root "" 0 ""
     while ($queue.Count -gt 0 -and $nodes.Count -lt $maxNodes) {
         $item = $queue.Dequeue()
         $element = $item.element
+        $identity = $item.identity
+        if ($identity.key -and -not $seenRuntimeIds.Add($identity.key)) { continue }
         $offscreen = Try-Value { $element.Current.IsOffscreen } $false
-        $node = Element-Node $element $item.parent
+        # Allocate once and register only the first occurrence: row identity,
+        # parent links and action lookup must refer to the same element.
+        $script:Elements[$identity.id] = $element
+        $node = Element-Node $element $item.parent $identity.id $identity
         if ($includeOffscreen -or -not $offscreen -or $item.depth -eq 0) { $nodes.Add($node) }
         if ($item.depth -ge $maxDepth) { continue }
-        $next = Try-Value { $script:Walker.GetFirstChild($element) } $null
-        while ($null -ne $next) {
-            $queue.Enqueue([pscustomobject]@{ element = $next; parent = $node.id; depth = $item.depth + 1 })
-            $next = Try-Value { $script:Walker.GetNextSibling($next) } $null
-        }
+        Queue-Children $queue $element $node.id ($item.depth + 1) $item.path
     }
-    $focused = Try-Value { [System.Windows.Automation.AutomationElement]::FocusedElement } $null
-    $focusId = if ($null -ne $focused) { Element-Id $focused } else { "" }
+    if (-not $PSBoundParameters.ContainsKey("Focused")) {
+        $Focused = Try-Value { [System.Windows.Automation.AutomationElement]::FocusedElement } $null
+    }
+    $focusId = ""
+    foreach ($node in $nodes) {
+        if (Same-Element $script:Elements[$node.id] $Focused) { $focusId = $node.id; break }
+        if ($node.states -contains "focused") { $focusId = $node.id }
+    }
     return [ordered]@{
         ok = $true
         kind = "full_snapshot"
         platform = "windows"
         captured_at = [DateTime]::UtcNow.ToString("o")
         focus_id = $focusId
-        truncated = $queue.Count -gt 0
-        coverage = [ordered]@{ returned = $nodes.Count; pending = $queue.Count; max_nodes = $maxNodes; max_depth = $maxDepth }
+        truncated = $queue.Count -gt 0 -or $script:TraversalCycle
+        coverage = [ordered]@{
+            returned = $nodes.Count; pending = $queue.Count
+            max_nodes = $maxNodes; max_depth = $maxDepth
+            sibling_cycle = $script:TraversalCycle
+        }
         nodes = @($nodes)
     }
 }
