@@ -241,7 +241,9 @@ class RangeReader:
                 total = None if total_text == "*" else int(total_text)
                 if total is not None and total <= got_end:
                     raise WbRangeError("remote Content-Range total is not larger than its end")
-                data = response.read()
+                # One extra byte detects oversized bodies without consuming the
+                # complete response when its framing contradicts Content-Range.
+                data = response.read(length + 1)
         except WbRangeError:
             raise
         except urllib.error.HTTPError as exc:
