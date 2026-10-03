@@ -229,7 +229,12 @@ def materialize(manifest: object, output_directory: str | Path) -> dict:
             raise SourceImportError("SOURCE_PATH_CONFLICT", "A source file is also another file's parent directory.", name)
     source_path = None
     try:
-        root = Path(output_directory).expanduser().resolve()
+        root_path = Path(output_directory).expanduser()
+        try:
+            root = root_path.resolve()
+        except RuntimeError as exc:
+            # Path.resolve() may report a symlink loop as RuntimeError.
+            raise OSError(errno.ELOOP, os.strerror(errno.ELOOP)) from exc
         if root.exists() and not root.is_dir():
             raise SourceImportError("DESTINATION_CONFLICT", "Output must be a directory.")
         for item in files.values():
