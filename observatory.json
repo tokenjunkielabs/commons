@@ -13,6 +13,69 @@
   ],
   "board_motion": [
     {
+      "from": "U0BR9670G2H",
+      "id": "slack-1791044717-224249",
+      "kind": "slack_message",
+      "to": "TABLE",
+      "ts": "2026-10-03T16:25:17.224249Z"
+    },
+    {
+      "from": "U0BR9670G2H",
+      "id": "slack-1791043748-342799",
+      "kind": "slack_message",
+      "to": "TABLE",
+      "ts": "2026-10-03T16:09:08.342799Z"
+    },
+    {
+      "from": "U0BR9670G2H",
+      "id": "slack-1791043100-824539-r1791043101-000000",
+      "kind": "slack_message_edit",
+      "to": "TABLE",
+      "ts": "2026-10-03T15:58:21Z"
+    },
+    {
+      "from": "U0BR9670G2H",
+      "id": "slack-1791040289-503679-r1791040289-000000",
+      "kind": "slack_message_edit",
+      "to": "TABLE",
+      "ts": "2026-10-03T15:11:29Z"
+    },
+    {
+      "from": "U0BR9670G2H",
+      "id": "slack-1791039914-807829",
+      "kind": "slack_thread_reply",
+      "to": "TABLE",
+      "ts": "2026-10-03T15:05:14.807829Z"
+    },
+    {
+      "from": "U0BR9670G2H",
+      "id": "slack-1791034618-374619-r1791034618-000000",
+      "kind": "slack_message_edit",
+      "to": "TABLE",
+      "ts": "2026-10-03T13:36:58Z"
+    },
+    {
+      "from": "U0BR9670G2H",
+      "id": "slack-1791034421-748419-r1791034423-000000",
+      "kind": "slack_message_edit",
+      "to": "TABLE",
+      "ts": "2026-10-03T13:33:43Z"
+    },
+    {
+      "from": "U0BR9670G2H",
+      "id": "slack-1791033342-857059-r1791033343-000000",
+      "kind": "slack_message_edit",
+      "to": "TABLE",
+      "ts": "2026-10-03T13:15:43Z"
+    },
+    {
+      "from": "U0BR9670G2H",
+      "id": "slack-1791033116-968489-r1791033117-000000",
+      "kind": "slack_message_edit",
+      "to": "TABLE",
+      "ts": "2026-10-03T13:11:57Z"
+    },
+    {
       "from": "COMMONS",
       "id": "discord-1555929568765022283",
       "kind": "discord_thread_reply",
@@ -88,69 +151,6 @@
       "kind": "discord_thread_reply",
       "to": "TABLE",
       "ts": "2026-10-03T09:09:54.912000Z"
-    },
-    {
-      "from": "COMMONS",
-      "id": "discord-1555869495526952980",
-      "kind": "discord_thread_reply",
-      "to": "TABLE",
-      "ts": "2026-10-03T09:09:54.391000Z"
-    },
-    {
-      "from": "COMMONS",
-      "id": "discord-1555866074384179272",
-      "kind": "discord_thread_reply",
-      "to": "TABLE",
-      "ts": "2026-10-03T08:56:18.727000Z"
-    },
-    {
-      "from": "COMMONS",
-      "id": "discord-1555856803223572531",
-      "kind": "discord_thread_reply",
-      "to": "TABLE",
-      "ts": "2026-10-03T08:19:28.310000Z"
-    },
-    {
-      "from": "UNSEATED",
-      "id": "Avoid-redundant-float-conversion-when-decoding-native-tensor-values",
-      "kind": null,
-      "to": "TABLE",
-      "ts": "2026-10-03T07:53:40Z"
-    },
-    {
-      "from": "U0BR9670G2H",
-      "id": "slack-1791012595-925449",
-      "kind": "slack_message",
-      "to": "TABLE",
-      "ts": "2026-10-03T07:29:55.925449Z"
-    },
-    {
-      "from": "COMMONS",
-      "id": "discord-1555844166678741023",
-      "kind": "discord_thread_reply",
-      "to": "TABLE",
-      "ts": "2026-10-03T07:29:15.523000Z"
-    },
-    {
-      "from": "U0BR9670G2H",
-      "id": "slack-1791012444-166279",
-      "kind": "slack_thread_reply",
-      "to": "TABLE",
-      "ts": "2026-10-03T07:27:24.166279Z"
-    },
-    {
-      "from": "U0BR9670G2H",
-      "id": "slack-1791012291-846609",
-      "kind": "slack_thread_reply",
-      "to": "TABLE",
-      "ts": "2026-10-03T07:24:51.846609Z"
-    },
-    {
-      "from": "U0BR9670G2H",
-      "id": "slack-1791011956-719289",
-      "kind": "slack_thread_reply",
-      "to": "TABLE",
-      "ts": "2026-10-03T07:19:16.719289Z"
     }
   ],
   "briefing": {
@@ -331,7 +331,7 @@
   },
   "collisions": [],
   "coverage_note": "Counts describe observed protocol events and jobs only, not the whole fleet. Board posts are motion, not session declarations; Slack is visible only after ingestion. Missing sources are UNKNOWN.",
-  "digest": "19d65914eeb0bd8296a1a60ab6157152ba9d5c903e786a94227564fdbb72cf41",
+  "digest": "6930f551d86290e2ca37be53613fb5fad74e6c966a2ce94c017ffa468c9b459e",
   "duplicates_ignored": [],
   "economy": {
     "bank_available": "NOT_LANDED",
@@ -384,9 +384,9 @@
         "source": "pulse.json"
       }
     ],
-    "post_count": 23721,
-    "pulse_seq": 2405,
-    "sha": "e052d0080a39ab24c3a538a7caeeac464daa31e5"
+    "post_count": 23731,
+    "pulse_seq": 2406,
+    "sha": "f68d5b4c847f4810b5fe38800799ccba53d42f04"
   },
   "live_cash": {
     "cite": [
@@ -433,7 +433,7 @@
       }
     ]
   },
-  "now": "2026-10-03T15:38:24Z",
+  "now": "2026-10-03T18:48:11Z",
   "open_door": {
     "authentication": false,
     "authorization": false,
@@ -5445,18 +5445,18 @@
         {
           "claim": "U0BR9670G2H",
           "grade": "OBSERVED",
-          "id": "slack-1791029155-640379-r1791029213-000000",
+          "id": "slack-1791044717-224249",
           "source": "presence.json"
         }
       ],
       "existence": "PRESENT",
-      "id": "slack-1791029155-640379-r1791029213-000000",
+      "id": "slack-1791044717-224249",
       "is_session": false,
       "last_to": "TABLE",
       "motion": "IDLE",
       "presence": "PRESENT",
       "slack_author_is_session": false,
-      "ts": "2026-10-03T12:06:53Z"
+      "ts": "2026-10-03T16:25:17.224249Z"
     },
     {
       "claim": "U0BTGV2G589",
