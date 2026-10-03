@@ -96,6 +96,8 @@ def main(argv=None):
     sync.add_argument("--cached", action="store_true", help="ingest existing evidence without provider calls")
     status = commands.add_parser("status")
     status.add_argument("--fresh", action="store_true")
+    status.add_argument("--ledger", type=Path,
+                        help="read a saved canonical runtime ledger without Git or provider requests")
     status.add_argument("--limit", type=int, default=100)
     status.add_argument("--task", help="exact task identity or GitHub issue/PR URL")
     status.add_argument("--state", dest="states", action="append",
@@ -143,7 +145,20 @@ def main(argv=None):
                 operation_id = "cli-" + hashlib.sha256(json.dumps(seed, sort_keys=True).encode()).hexdigest()[:32]
             payload["operation_id"] = operation_id
             print("operation_id=" + operation_id, file=sys.stderr, flush=True)
-        if args.url:
+        if args.command == "status" and args.ledger is not None:
+            if args.fresh:
+                raise ValueError("--fresh cannot refresh a saved ledger; fetch a newer ledger first")
+            from host.swarm_runtime.runtime import read_status
+            from host.swarm_runtime.store import _state
+            raw = args.ledger.read_bytes()
+            state = json.loads(raw.decode("utf-8"))
+            if not isinstance(state, dict) or state.get("schema") != "commons-swarm-runtime/v1":
+                raise ValueError("--ledger requires a saved canonical swarm runtime ledger")
+            result = read_status(_state(state), authority="retained_ledger",
+                                 **{key: value for key, value in payload.items() if key != "refresh"})
+            result.update(source_path=str(args.ledger),
+                          source_ledger_sha256=hashlib.sha256(raw).hexdigest())
+        elif args.url:
             if args.no_push:
                 raise ValueError("--no-push applies to local Git Data proposals, not shared HTTP operations")
             result = shared_request(args.url, {**payload, "action": args.command})
