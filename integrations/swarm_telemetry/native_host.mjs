@@ -2,6 +2,65 @@
  * The host supplies readPage and selects its actual authenticated account.
  * No dependency, peer registration, work dispatch or notification ack is used.
  */
+export function createGatewayReader({gatewayURL='http://127.0.0.1:8878',
+  fetchImpl=globalThis.fetch}={}) {
+  if (typeof gatewayURL!=='string' || !gatewayURL || typeof fetchImpl!=='function') {
+    throw new TypeError('Existing source gateway URL and fetch implementation required');
+  }
+  const base=gatewayURL.replace(/\/$/,'');
+  const fail=code=>{
+    const error=new Error(code);
+    error.name='SourceBindingError';
+    error.code=code;
+    throw error;
+  };
+  const request=async(path,body,signal)=>{
+    const response=await fetchImpl(base+path,{signal,...(body===undefined?{}:
+      {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})});
+    if (!response.ok) fail('source_gateway_unavailable');
+    return response.json();
+  };
+  return async({tool_name,args={},account_ref,service,signal,operation_id})=>{
+    if (typeof account_ref!=='string' || !account_ref.trim()
+        || typeof tool_name!=='string' || !tool_name.trim()
+        || !args || typeof args!=='object' || Array.isArray(args)
+        || (service!=null && (typeof service!=='string' || !service.trim()))) {
+      throw new TypeError('Exact source reference, tool name and provider argument object required');
+    }
+    // Older gateways ignore account selectors. Inspect actual bound routes
+    // before posting so they cannot run their default provider for this read.
+    const inventory=await request('/v1/tools',undefined,signal);
+    if (!Array.isArray(inventory?.source_bindings)) fail('source_binding_unresolved');
+    const advertised=inventory.source_bindings.find(binding=>binding
+      && binding.account_ref===account_ref && binding.binding_id
+      && (service==null || binding.service===service));
+    if (!advertised) fail('source_binding_unresolved');
+    const operation=operation_id??('native-source:'+globalThis.crypto.randomUUID());
+    if (typeof operation!=='string' || !operation.trim()) {
+      throw new TypeError('operation_id must be a nonempty string when supplied');
+    }
+    const body={request_id:operation,call_id:operation,name:tool_name,
+      arguments:structuredClone(args),account_ref};
+    if (service!=null) body.service=service;
+    const response=await request('/v1/tools/call',body,signal);
+    const result=response?.result;
+    if (response?.ok===false || response?.uncertain || !result || typeof result!=='object'
+        || result.isError || result.error || result.uncertain) fail('source_read_unresolved');
+    const bound=result.source_context;
+    const evidence=bound?.binding_evidence;
+    const hasEvidence=typeof evidence==='string' ? Boolean(evidence.trim())
+      : evidence && typeof evidence==='object' && !Array.isArray(evidence) && Object.keys(evidence).length>0;
+    if (!bound || bound.account_ref!==account_ref || !bound.binding_id || !hasEvidence
+        || (service!=null && bound.service!==service) || !('result' in result)) {
+      fail('source_binding_mismatch');
+    }
+    // Keep the complete HTTP/native envelope, including actual route evidence.
+    // Existing collector traversal unwraps only its view of this retained copy.
+    return {payload:response,account_ref:bound.account_ref,service:bound.service,
+      binding_id:bound.binding_id,binding_evidence:structuredClone(evidence)};
+  };
+}
+
 export async function collectNativePass({baseURL='http://127.0.0.1:8893', readPage,
   fetchImpl=globalThis.fetch, availableTools, concurrency=4, signal, pageSize=128}) {
   if (typeof readPage!=='function') throw new TypeError('Existing authenticated readPage binding required');

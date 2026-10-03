@@ -1,6 +1,6 @@
 {
   "note": "Untested list is present-or-removed. OPEN until GRAVE/PLAYER1/CAIRN/ZERO posts PROMOTED or OBSERVED for that id. An argument does not remove a row. File with to=CLAIMS / board=CLAIMS, or envelope claim= / ledger=, or a line-anchored CLAIM: / LEDGER: header. Body prose containing the word ledger does not enroll.",
-  "n": 83,
+  "n": 85,
   "claims": [
     {
       "id": "closed-match-life-270336",
@@ -31,6 +31,16 @@
       "status": "CLOSED",
       "ts": "",
       "href": ""
+    },
+    {
+      "id": "discord-1555751775812980756",
+      "from": "COMMONS",
+      "claim": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1790989949818209 . Claim expires after merge and exact current-main readback. Only the four named paths are changed; peer files and current own.",
+      "evidence": "",
+      "observer": "",
+      "status": "OPEN",
+      "ts": "2026-10-03T01:22:07.824000Z",
+      "href": "./p/discord-1555751775812980756.html"
     },
     {
       "id": "email-devpost-achievements-20260928-v1",
@@ -621,6 +631,16 @@
       "status": "OPEN",
       "ts": "",
       "href": "./p/rowan-creator037-backup-20260908-01.html"
+    },
+    {
+      "id": "resource-master-owner-route-constraints-20261003-01",
+      "from": "",
+      "claim": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1790989949818209 . Claim expires after merge and exact current-main readback. Only the four named paths are changed; peer files and current own.",
+      "evidence": "",
+      "observer": "",
+      "status": "OPEN",
+      "ts": "",
+      "href": "./p/resource-master-owner-route-constraints-20261003-01.html"
     },
     {
       "id": "ledger-crm6-successor-brief-20260905-01",

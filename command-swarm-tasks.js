@@ -153,7 +153,7 @@
       const collisions = node("details"); collisions.append(node("summary", "Recent collisions"), node("pre", JSON.stringify(snapshot.collisions.slice(-20), null, 2), "small")); detailBody.append(collisions);
     }
   }
-  async function read() {
+  async function read(force = false) {
     if (inFlight || document.hidden) return inFlight;
     const shared = cache();
     if (validSnapshot(shared?.snapshot) && (!snapshot || Date.parse(shared.checked_at) > Date.parse(observation?.checked_at))) {
@@ -164,7 +164,7 @@
     inFlight = Promise.resolve().then(async () => {
       try {
         const age = Date.now() - Date.parse(observation?.checked_at);
-        if (!snapshot || !Number.isFinite(age) || age < 0 || age >= CACHE_MS) {
+        if (force || !snapshot || !Number.isFinite(age) || age < 0 || age >= CACHE_MS) {
           const body = await helpers.fetchJson("https://raw.githubusercontent.com/" + REPO + "/" + BRANCH + "/" + PATH,
             {maxBytes: MAX_BYTES});
           if (!validSnapshot(body)) throw new Error("Unrecognized canonical status snapshot");
@@ -181,7 +181,7 @@
     });
     render(); return inFlight;
   }
-  refresh.addEventListener("click", read);
+  refresh.addEventListener("click", () => read(true));
   panel.addEventListener("toggle", () => { if (panel.open && !snapshot) read(); else render(); });
   search.addEventListener("input", () => {
     if (exactTask) { const url = new URL(location.href); url.searchParams.delete("swarm_task"); history.replaceState(null, "", url); }
