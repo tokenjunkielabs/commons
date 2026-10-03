@@ -6,15 +6,45 @@ Blue decision cells are human preparation notes; they do not authorize changes.
 from __future__ import annotations
 import argparse
 import hashlib
+import os
+import subprocess
+import sys
 from datetime import datetime
 from pathlib import Path
 
 from components import assess, json_bytes, load, safe_cell, InputError
 
 
+SHEETS = {
+    "Components": ("components", "component_id name groups service_ids support_state support_evidence_quality support_ends_on owner_role inventory_evidence_quality last_update_on review_due_on evidence_ids version inherited support_declared advisory_record_count"),
+    "Advisories": ("advisories", "component_id advisory_id qualified_applicability qualified_reported_exposure record_disposition overdue owner_role due_on exception_until applicability_evidence_quality exposure_evidence_quality disposition_evidence_quality evidence_ids reported_applicability reported_exposure reported_on conflicting_records"),
+    "Roadmap": ("roadmap", "maintenance_id component_id priority service_ids owner_role change effort_low_days effort_high_days reasons coordination_notes"),
+    "Evidence": ("evidence", "id kind observed_on locator component_ids advisory_id"),
+    "Services": ("services", "id name group"),
+}
+
+def workbook_payload(doc: dict) -> dict:
+    """Shared assessed records and typed presentation values for both SDKs."""
+    report = assess(doc)
+    return {
+        "report": report,
+        "canonical_input_sha256": hashlib.sha256(json_bytes(doc)).hexdigest(),
+        "assessment_sha256": hashlib.sha256(json_bytes(report)).hexdigest(),
+        "sheets": [
+            {"name": name, "key": key, "columns": names.split(),
+             "values": [[safe_cell(row[column]) for column in names.split()]
+                        for row in report[key]]}
+            for name, (key, names) in SHEETS.items()
+        ],
+        "decisions": [[safe_cell(row["component_id"]), safe_cell(row["owner_role"]),
+                       "Investigate", "", "", None] for row in report["roadmap"]],
+    }
+
+
 def make_workbook(doc: dict):
     from artifact_tool import Workbook
-    report = assess(doc)
+    payload = workbook_payload(doc)
+    report = payload["report"]
     wb = Workbook.create()
     cover = wb.worksheets.add("Overview")
     cover.get_range("A1:H25").format.column_width = 13
@@ -26,16 +56,9 @@ def make_workbook(doc: dict):
     cover.merge_cells("A3:H4")
     cover.get_range("A3").values = [["UIOWA-056 | Supplied-record assessment as of " + report["as_of"] + ". No real University data, product recommendations, live probes, or authority to change systems."]]
 
-    specs = {
-        "Components": ("components", "component_id name groups service_ids support_state support_evidence_quality support_ends_on owner_role inventory_evidence_quality last_update_on review_due_on evidence_ids"),
-        "Advisories": ("advisories", "component_id advisory_id qualified_applicability qualified_reported_exposure record_disposition overdue owner_role due_on exception_until applicability_evidence_quality exposure_evidence_quality disposition_evidence_quality evidence_ids reported_applicability reported_exposure"),
-        "Roadmap": ("roadmap", "maintenance_id component_id priority service_ids owner_role change effort_low_days effort_high_days reasons coordination_notes"),
-        "Evidence": ("evidence", "id kind observed_on locator component_ids advisory_id"),
-        "Services": ("services", "id name group"),
-    }
     sheets = {}
     ends = {}
-    for name, (key, names) in specs.items():
+    for name, (key, names) in SHEETS.items():
         columns = names.split()
         rows = report[key]
         sheet = wb.worksheets.add(name)
@@ -101,7 +124,7 @@ def make_workbook(doc: dict):
     cover.merge_cells("A20:H21")
     cover.get_range("A20").values = [["Practice-reference context: https://csrc.nist.gov/projects/ssdf — outcome-based secure-development guidance, not a certification checklist. The thresholds in this instrument are configurable preparation assumptions, not NIST requirements."]]
     cover.merge_cells("A23:H24")
-    cover.get_range("A23").values = [["Canonical input SHA-256: " + hashlib.sha256(json_bytes(doc)).hexdigest()]]
+    cover.get_range("A23").values = [["Canonical input SHA-256: " + payload["canonical_input_sha256"]]]
     cover.get_range("A1:H24").format.vertical_alignment = "center"
     cover.get_range("A6:H8").format.horizontal_alignment = "center"
     cover.freeze_panes.freeze_rows(4)
@@ -125,16 +148,32 @@ def make_workbook(doc: dict):
 
 
 def main(argv=None):
-    from artifact_tool import SpreadsheetFile
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("input", type=Path)
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args(argv)
     if args.out.exists():
         raise InputError("workbook exists; select a new output path")
+    try:
+        from artifact_tool import SpreadsheetFile
+    except ModuleNotFoundError as exc:
+        if exc.name != "artifact_tool":
+            raise
+        # Preserve this command when the current runtime supplies the JS SDK.
+        environment = os.environ.copy()
+        environment.setdefault("CODEX_PRIMARY_RUNTIME_PYTHON", sys.executable)
+        node = environment.get("CODEX_PRIMARY_RUNTIME_NODE", "node")
+        return subprocess.run(
+            [node, str(Path(__file__).with_suffix(".mjs")), str(args.input),
+             "--out", str(args.out)], env=environment, check=False).returncode
     wb, _ = make_workbook(load(args.input))
     SpreadsheetFile.export_xlsx(wb).save(str(args.out))
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        raise SystemExit(main())
+    except (InputError, OSError, ValueError) as exc:
+        print("Workbook not completed: " + str(exc), file=sys.stderr)
+        raise SystemExit(2)

@@ -26,11 +26,21 @@ A valid run produces eight files: `assessment.json`, five CSV tables (`component
 
 ## Workbook and human decisions
 
-`workbook.py` is an optional presentation adapter for environments with `artifact_tool` available. It is deliberately not a dependency of the assessment or verifier.
+`workbook.py` is an optional presentation adapter. It uses the Python `artifact_tool` SDK when available and falls back to the companion `workbook.mjs` when the runtime provides the JavaScript `@oai/artifact-tool` SDK. Neither SDK is a dependency of the assessment or verifier.
 
 ```sh
 python workbook.py sample.json --out component-maintenance.xlsx
 ```
+
+The same command now works in runtimes that provide the JavaScript SDK. Both adapters consume one shared Python presentation payload and the unchanged evaluator; no assessment rules are translated into JavaScript. The fallback uses `CODEX_PRIMARY_RUNTIME_NODE` when set, otherwise `node`, and uses `CODEX_PRIMARY_RUNTIME_PYTHON` when supplied, otherwise the invoking Python executable. The companion can also run directly:
+
+```sh
+node workbook.mjs sample.json --out component-maintenance.xlsx
+```
+
+Direct JavaScript execution uses `CODEX_PRIMARY_RUNTIME_PYTHON` when set, otherwise `python3`; `@oai/artifact-tool` must already be resolvable by Node. No package is downloaded automatically. Both commands reject an existing output path. The JavaScript writer also uses an exclusive final file create, so a competing file or final symlink is not overwritten.
+
+The workbook retains every native component and advisory column, including component version, inherited ownership, declared support, advisory count, advisory intake date and conflicting-record flags. The original leading columns and eight Overview formulas keep their existing references. The current JavaScript view also displays service/advisory counts and the exact evidence-age/planning-horizon parameters, with typed dates, numeric effort, tables, frozen headers and the existing decision dropdown. Blank effort stays unestimated, and a real zero remains numeric. Manual decision notes do not change assessed states or the native bundle.
 
 The seven sheets are Overview, Components, Advisories, Roadmap, Evidence, Services and Decisions. Overview formulas count the assessed records and sum only known effort bounds. Generated sheets retain evidence IDs and service scope. Blue cells on Decisions are editable human preparation notes: owner role, proposed decision, rationale, source reference and next review date. The decision dropdown is Investigate / Plan / Defer / No change. A spreadsheet selection does not authorize a system change, close an advisory or update canonical assessment data.
 
