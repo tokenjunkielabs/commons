@@ -1,0 +1,580 @@
+{
+  "schema": "fssa-nwd.source-binding.v1",
+  "source_owner": "Z-Sol",
+  "original_pursuit_owner": "Z-Sol",
+  "original_operation": "IN-FSSA-NWD-MAC-2788284-PARTNER-FIRST-ZSOL-20260917",
+  "original_thread": "https://tokenjunkielabs.slack.com/archives/C0BTRNE6Y58/p1789691547239749",
+  "capture": {
+    "schema": "fssa-nwd.official-source-capture.v1",
+    "aggregate_cap_bytes": 8388608,
+    "total_bytes": 3558607,
+    "files": [
+      {
+        "desired_file": "buyer-page.html",
+        "url": "https://secure.in.gov/idoa/procurement/current-business-opportunities/",
+        "observed_at": "2026-10-03T22:10:41Z",
+        "final_url": "https://secure.in.gov/idoa/procurement/current-business-opportunities/",
+        "content_type": "text/html",
+        "response_status": 200,
+        "last_modified": null,
+        "etag": null,
+        "file": "buyer-page.html",
+        "bytes": 137802,
+        "sha256": "3803a872cc1dc66104eaa2397da1f04e90141d980d85e2b3a0e41d075bd3b518",
+        "git_blob": "84049883ed9854b1fafdee07be8172cbaa101bb9",
+        "usable_as_requested_source": true,
+        "capture_completed_at": "2026-10-03T22:10:48Z"
+      },
+      {
+        "desired_file": "official-package.zip",
+        "url": "https://secure.in.gov/idoa/proc/solicitations/files/004980000088284.zip",
+        "observed_at": "2026-10-03T22:10:48Z",
+        "final_url": "https://secure.in.gov/idoa/proc/solicitations/files/004980000088284.zip",
+        "content_type": "application/zip",
+        "response_status": 200,
+        "last_modified": "Fri, 02 Oct 2026 17:10:47 GMT",
+        "etag": "\"343285-65cde9d0353c0\"",
+        "file": "official-package.zip",
+        "bytes": 3420805,
+        "sha256": "0bc2c4a47aa2cba6b5732b9308c6d581befd9df957dc03c22796349b5279b867",
+        "git_blob": "5d4da683513fcb09887e361502b84d9d78cffd2c",
+        "usable_as_requested_source": true,
+        "capture_completed_at": "2026-10-03T22:10:55Z"
+      }
+    ],
+    "gaps": [],
+    "archive_inventory": {
+      "source_file": "official-package.zip",
+      "source_sha256": "0bc2c4a47aa2cba6b5732b9308c6d581befd9df957dc03c22796349b5279b867",
+      "member_count": 35,
+      "advertised_uncompressed_bytes": 3575934,
+      "members": [
+        {
+          "member": "Pre-Proposal Conference RFP 88284.pptx",
+          "bytes": 1140686,
+          "compressed_bytes": 1140686,
+          "crc32": "a958a34e",
+          "compression": 0,
+          "encrypted": false,
+          "directory": false,
+          "mode": 0
+        },
+        {
+          "member": "Att A - IVOSB Commitment Form.docx",
+          "bytes": 60282,
+          "compressed_bytes": 60282,
+          "crc32": "54307213",
+          "compression": 0,
+          "encrypted": false,
+          "directory": false,
+          "mode": 0
+        },
+        {
+          "member": "Att B - Sample Contract.docx",
+          "bytes": 68642,
+          "compressed_bytes": 68642,
+          "crc32": "282c800b",
+          "compression": 0,
+          "encrypted": false,
+          "directory": false,
+          "mode": 0
+        },
+        {
+          "member": "Att B1 - IOT-IaaS.docx",
+          "bytes": 40864,
+          "compressed_bytes": 40864,
+          "crc32": "246871b6",
+          "compression": 0,
+          "encrypted": false,
+          "directory": false,
+          "mode": 0
+        },
+        {
+          "member": "Att B2 - IOT-PaaS.docx",
+          "bytes": 38705,
+          "compressed_bytes": 38705,
+          "crc32": "0b389d59",
+          "compression": 0,
+          "encrypted": false,
+          "directory": false,
+          "mode": 0
+        },
+        {
+          "member": "Att B3 - IOT-SaaS.docx",
+          "bytes": 40890,
+          "compressed_bytes": 40890,
+          "crc32": "f2008a21",
+          "compression": 0,
+          "encrypted": false,
+          "directory": false,
+          "mode": 0
+        },
+        {
+          "member": "Att D - Cost Proposal 88284.xlsx",
+          "bytes": 92412,
+          "compressed_bytes": 92412,
+          "crc32": "15ce935b",
+          "compression": 0,
+          "encrypted": false,
+          "directory": false,
+          "mode": 0
+        },
+        {
+          "member": "Att E - Business Proposal.docx",
+          "bytes": 49320,
+          "compressed_bytes": 49320,
+          "crc32": "6c8123c4",
+          "compression": 0,
+          "encrypted": false,
+          "directory": false,
+          "mode": 0
+        },
+        {
+          "member": "Att F - Technical Proposal.docx",
+          "bytes": 38958,
+          "compressed_bytes": 38958,
+          "crc32": "f6559bc5",
+          "compression": 0,
+          "encrypted": false,
+          "directory": false,
+          "mode": 0
+        },
+        {
+          "member": "Att G - Q&A Template.xlsx",
+          "bytes": 18225,
+          "compressed_bytes": 18225,
+          "crc32": "e8c63c3e",
+          "compression": 0,
+          "encrypted": false,
+          "directory": false,
+          "mode": 0
+        },
+        {
+          "member": "Att H - Reference Check Form.docx",
+          "bytes": 39931,
+          "compressed_bytes": 39931,
+          "crc32": "e7ad374e",
+          "compression": 0,
+          "encrypted": false,
+          "directory": false,
+          "mode": 0
+        },
+        {
+          "member": "Att I - Pre-Proposal Network Form.docx",
+          "bytes": 36394,
+          "compressed_bytes": 36394,
+          "crc32": "3798c0ca",
+          "compression": 0,
+          "encrypted": false,
+          "directory": false,
+          "mode": 0
+        },
+        {
+          "member": "Att J - Attestation Form.docx",
+          "bytes": 46247,
+          "compressed_bytes": 46247,
+          "crc32": "1f38d3d8",
+          "compression": 0,
+          "encrypted": false,
+          "directory": false,
+          "mode": 0
+        },
+        {
+          "member": "Att K - SoW.docx",
+          "bytes": 38131,
+          "compressed_bytes": 38131,
+          "crc32": "e0384f4b",
+          "compression": 0,
+          "encrypted": false,
+          "directory": false,
+          "mode": 0
+        },
+        {
+          "member": "Att L - AI - Technical Proposal Questions.docx",
+          "bytes": 36804,
+          "compressed_bytes": 36804,
+          "crc32": "ece04ee4",
+          "compression": 0,
+          "encrypted": false,
+          "directory": false,
+          "mode": 0
+        },
+        {
+          "member": "Att M - Infrastructure Overview.docx",
+          "bytes": 42217,
+          "compressed_bytes": 42217,
+          "crc32": "561c159e",
+          "compression": 0,
+          "encrypted": false,
+          "directory": false,
+          "mode": 0
+        },
+        {
+          "member": "RFP 27-88284 Main Document.pdf",
+          "bytes": 540674,
+          "compressed_bytes": 540674,
+          "crc32": "e249068f",
+          "compression": 0,
+          "encrypted": false,
+          "directory": false,
+          "mode": 0
+        },
+        {
+          "member": "RFP 27-88284 Att I/Att I - Pre-Proposal Network Form - Axon Advisors - IVOSB.docx",
+          "bytes": 33906,
+          "compressed_bytes": 27789,
+          "crc32": "c8b8543f",
+          "compression": 8,
+          "encrypted": false,
+          "directory": false,
+          "mode": 0
+        },
+        {
+          "member": "RFP 27-88284 Att I/Att I - Pre-Proposal Network Form - netlogx.docx",
+          "bytes": 33743,
+          "compressed_bytes": 27620,
+          "crc32": "2af18db3",
+          "compression": 8,
+          "encrypted": false,
+          "directory": false,
+          "mode": 0
+        },
+        {
+          "member": "RFP 27-88284 Att I/Att I - Pre-Proposal Network Form - Vespa Group (IVOSB).docx",
+          "bytes": 33939,
+          "compressed_bytes": 27809,
+          "crc32": "9ac60384",
+          "compression": 8,
+          "encrypted": false,
+          "directory": false,
+          "mode": 0
+        },
+        {
+          "member": "RFP 27-88284 Att I/Att I - Pre-Proposal Network Form Engaging Solutions.docx",
+          "bytes": 33842,
+          "compressed_bytes": 27719,
+          "crc32": "869b0e87",
+          "compression": 8,
+          "encrypted": false,
+          "directory": false,
+          "mode": 0
+        },
+        {
+          "member": "RFP 27-88284 Att I/Att I - Pre-Proposal Network Form HC Systems and Consulting.docx",
+          "bytes": 33710,
+          "compressed_bytes": 27557,
+          "crc32": "2afcfc4e",
+          "compression": 8,
+          "encrypted": false,
+          "directory": false,
+          "mode": 0
+        },
+        {
+          "member": "RFP 27-88284 Att I/Att I - Pre-Proposal Network Form Holistic Health Consulting Group.docx",
+          "bytes": 33576,
+          "compressed_bytes": 27458,
+          "crc32": "1845c4a2",
+          "compression": 8,
+          "encrypted": false,
+          "directory": false,
+          "mode": 0
+        },
+        {
+          "member": "RFP 27-88284 Att I/Att I - Pre-Proposal Network Form RFP 27-88284 COIL Solitions LLC-S.docx",
+          "bytes": 33691,
+          "compressed_bytes": 27553,
+          "crc32": "8880be81",
+          "compression": 8,
+          "encrypted": false,
+          "directory": false,
+          "mode": 0
+        },
+        {
+          "member": "RFP 27-88284 Att I/Att I - Pre-Proposal Network Form Wright Touch HouseCalls, LLC",
+          "bytes": 641943,
+          "compressed_bytes": 577177,
+          "crc32": "7c21f7fb",
+          "compression": 8,
+          "encrypted": false,
+          "directory": false,
+          "mode": 0
+        },
+        {
+          "member": "RFP 27-88284 Att I/Att I - Pre-Proposal Network Form_InclusiveStrategies.docx",
+          "bytes": 33733,
+          "compressed_bytes": 27617,
+          "crc32": "290e29bc",
+          "compression": 8,
+          "encrypted": false,
+          "directory": false,
+          "mode": 0
+        },
+        {
+          "member": "RFP 27-88284 Att I/Att I - Pre-Proposal Network Form_Public Consulting Group LLC.docx",
+          "bytes": 34052,
+          "compressed_bytes": 27932,
+          "crc32": "1e52f1d8",
+          "compression": 8,
+          "encrypted": false,
+          "directory": false,
+          "mode": 0
+        },
+        {
+          "member": "RFP 27-88284 Att I/Att I - Pre-Proposal Network Form_SSG.docx",
+          "bytes": 33683,
+          "compressed_bytes": 27565,
+          "crc32": "bf1a37ea",
+          "compression": 8,
+          "encrypted": false,
+          "directory": false,
+          "mode": 0
+        },
+        {
+          "member": "RFP 27-88284 Att I/Att I - Pre-Proposal Network Form_VeteranStrategies.docx",
+          "bytes": 33797,
+          "compressed_bytes": 27662,
+          "crc32": "17048edd",
+          "compression": 8,
+          "encrypted": false,
+          "directory": false,
+          "mode": 0
+        },
+        {
+          "member": "RFP 27-88284 Att I/Att_I_-_Pre-Proposal_Network_Form PQT Health Inc.docx",
+          "bytes": 33754,
+          "compressed_bytes": 27633,
+          "crc32": "d0485ec6",
+          "compression": 8,
+          "encrypted": false,
+          "directory": false,
+          "mode": 0
+        },
+        {
+          "member": "RFP 27-88284 Att I/ClickLoop_RFP_27-88284_Attachment_I.docx",
+          "bytes": 28796,
+          "compressed_bytes": 26191,
+          "crc32": "e845cd99",
+          "compression": 8,
+          "encrypted": false,
+          "directory": false,
+          "mode": 0
+        },
+        {
+          "member": "RFP 27-88284 Att I/RFP #27-88284 NWD Medicaid Administrative Claiming_Networking.docx",
+          "bytes": 33794,
+          "compressed_bytes": 27665,
+          "crc32": "256716e1",
+          "compression": 8,
+          "encrypted": false,
+          "directory": false,
+          "mode": 0
+        },
+        {
+          "member": "RFP 27-88284 Att I/RFP 27-88284 - Attachment I - ClinEfficiency Pro LLC.docx",
+          "bytes": 28792,
+          "compressed_bytes": 26189,
+          "crc32": "46e3a695",
+          "compression": 8,
+          "encrypted": false,
+          "directory": false,
+          "mode": 0
+        },
+        {
+          "member": "RFP 27-88284 Att I/RFP 27-88284 - FSSA DDARS BBA No Wrong Door WellTrans.docx",
+          "bytes": 34052,
+          "compressed_bytes": 27894,
+          "crc32": "b7ac3510",
+          "compression": 8,
+          "encrypted": false,
+          "directory": false,
+          "mode": 0
+        },
+        {
+          "member": "RFP 27-88284 Att I/RFP 27-88284_Attachment I_Stine Consulting Services LLC.docx",
+          "bytes": 33749,
+          "compressed_bytes": 27627,
+          "crc32": "3994cc28",
+          "compression": 8,
+          "encrypted": false,
+          "directory": false,
+          "mode": 0
+        }
+      ],
+      "members_extracted": 0,
+      "inventory_method": "bounded central directory only"
+    },
+    "elapsed_seconds": 14.14
+  },
+  "selected_document_review": {
+    "schema": "fssa-nwd.selected-document-review.v1",
+    "review_captured_at": "2026-10-03T22:21:49Z",
+    "archive_sha256": "0bc2c4a47aa2cba6b5732b9308c6d581befd9df957dc03c22796349b5279b867",
+    "selected_member_count": 8,
+    "selected_member_bytes": 832282,
+    "inner_document_xml_bytes": 463482,
+    "aggregate_text_bytes": 97424,
+    "all_other_archive_members": "retained in raw ZIP, not extracted or reviewed",
+    "documents": [
+      {
+        "member": "RFP 27-88284 Main Document.pdf",
+        "file": "main-rfp.pdf",
+        "kind": "pdf",
+        "bytes": 540674,
+        "crc32": "e249068f",
+        "sha256": "5e1fecb85371fe36f2cb8075cfe9982026538e3f7f82aebe7a25a5e9ebfff8a0",
+        "git_blob": "4d0a02b17379a3187c74c2d937b4bb17cbe69af3",
+        "text_file": "text/main-rfp.txt",
+        "text_sha256": "48511ac1e67cefdec480d2a414790999cd6a991baafcd7badc3ac81025596815",
+        "page_count": 20,
+        "extraction": "Poppler pdftotext -layout",
+        "coverage": "entire extracted main-document text; embedded objects, headers, footers and visual fidelity not claimed"
+      },
+      {
+        "member": "Att E - Business Proposal.docx",
+        "file": "business-proposal.docx",
+        "kind": "docx",
+        "bytes": 49320,
+        "crc32": "6c8123c4",
+        "sha256": "eb703ceb96a764a8f0b86863ed6a947ea649564ac160bfb17abd074f43aa2929",
+        "git_blob": "feeb187cf5e91bb0006bbdb6cc4e1647c1625049",
+        "text_file": "text/business-proposal.txt",
+        "text_sha256": "57b3ba505108f1e9ed7c2eed21451d9c96956f3e8191780e064304fb974e8860",
+        "page_count": null,
+        "extraction": "word/document.xml paragraphs in document order",
+        "coverage": "entire extracted main-document text; embedded objects, headers, footers and visual fidelity not claimed"
+      },
+      {
+        "member": "Att F - Technical Proposal.docx",
+        "file": "technical-proposal.docx",
+        "kind": "docx",
+        "bytes": 38958,
+        "crc32": "f6559bc5",
+        "sha256": "72ccfe31532f57156dbb077a669fc08e1e1cda0ae880140346225c45e9514c0e",
+        "git_blob": "faf77186212b5ce2494223929bf7de29ac388367",
+        "text_file": "text/technical-proposal.txt",
+        "text_sha256": "98a1c6b81cc9094b6d4582cf066e3f5987e800c77cfad24d17c67224a27c895a",
+        "page_count": null,
+        "extraction": "word/document.xml paragraphs in document order",
+        "coverage": "entire extracted main-document text; embedded objects, headers, footers and visual fidelity not claimed"
+      },
+      {
+        "member": "Att H - Reference Check Form.docx",
+        "file": "reference-check.docx",
+        "kind": "docx",
+        "bytes": 39931,
+        "crc32": "e7ad374e",
+        "sha256": "e819c002dd5d2894635126369805ec498fec91d41e3a32e130d3b712fafa6a72",
+        "git_blob": "c08555be1aa0501c93471c6828737687ca1faded",
+        "text_file": "text/reference-check.txt",
+        "text_sha256": "a68a397205d4eae68c4a09c645e4aceb809d3e736c8ef7fb167f13328b1afccd",
+        "page_count": null,
+        "extraction": "word/document.xml paragraphs in document order",
+        "coverage": "entire extracted main-document text; embedded objects, headers, footers and visual fidelity not claimed"
+      },
+      {
+        "member": "Att J - Attestation Form.docx",
+        "file": "attestation.docx",
+        "kind": "docx",
+        "bytes": 46247,
+        "crc32": "1f38d3d8",
+        "sha256": "2de6cf5b6fd4502dce0515b8f9de15967dfc78f2fe3c38715edcebc5021dc862",
+        "git_blob": "6186f48ff8fbc9db69a34711c950e7d2f40b1116",
+        "text_file": "text/attestation.txt",
+        "text_sha256": "7ec8aaeed4ddb81d4881ed1e18a7db782c918fc5aaa2a2b77925878032e363b2",
+        "page_count": null,
+        "extraction": "word/document.xml paragraphs in document order",
+        "coverage": "entire extracted main-document text; embedded objects, headers, footers and visual fidelity not claimed"
+      },
+      {
+        "member": "Att K - SoW.docx",
+        "file": "scope-of-work.docx",
+        "kind": "docx",
+        "bytes": 38131,
+        "crc32": "e0384f4b",
+        "sha256": "eb2f2877063cc3078d572ac32765b3db81d0a56744e1018fbd5d1c70dad92819",
+        "git_blob": "78ca14a740742dd17f9bc1d48ade1db0268501e7",
+        "text_file": "text/scope-of-work.txt",
+        "text_sha256": "720c631c7140de1d6f3c93f07928bd040341c0a783f97fed9a3325aa9b5568fa",
+        "page_count": null,
+        "extraction": "word/document.xml paragraphs in document order",
+        "coverage": "entire extracted main-document text; embedded objects, headers, footers and visual fidelity not claimed"
+      },
+      {
+        "member": "Att L - AI - Technical Proposal Questions.docx",
+        "file": "ai-questions.docx",
+        "kind": "docx",
+        "bytes": 36804,
+        "crc32": "ece04ee4",
+        "sha256": "f6ce26309ddd37a3ed959a7929a093a2937bc6a02cb21e703c1f8159ccffb69d",
+        "git_blob": "16db6f4ad4c35f68f8380f0362beb43466524977",
+        "text_file": "text/ai-questions.txt",
+        "text_sha256": "5e9d93db70f8932d35a5430b5c0252848fb04dfb6df511f158b94acfdcebafa9",
+        "page_count": null,
+        "extraction": "word/document.xml paragraphs in document order",
+        "coverage": "entire extracted main-document text; embedded objects, headers, footers and visual fidelity not claimed"
+      },
+      {
+        "member": "Att M - Infrastructure Overview.docx",
+        "file": "infrastructure-overview.docx",
+        "kind": "docx",
+        "bytes": 42217,
+        "crc32": "561c159e",
+        "sha256": "488fc4fe205b19a2df80555486b8e2583445e06b895ed9e9055652400d08575a",
+        "git_blob": "8ef97a6b86fb79faec310ba99cf588375417260a",
+        "text_file": "text/infrastructure-overview.txt",
+        "text_sha256": "e23fa5d6fe185dcb8b773e3bd5dbd7a42a32132b784621729e95f0dbdc787cd9",
+        "page_count": null,
+        "extraction": "word/document.xml paragraphs in document order",
+        "coverage": "entire extracted main-document text; embedded objects, headers, footers and visual fidelity not claimed"
+      }
+    ]
+  },
+  "normalized_deadline": {
+    "source": "RFP cover and 1.23, reinforced by Attachment H",
+    "source_text": "October 28, 2026 by 3:00 PM Eastern Time",
+    "timezone": "America/Indiana/Indianapolis",
+    "local": "2026-10-28T15:00:00-04:00",
+    "utc": "2026-10-28T19:00:00Z",
+    "board_abbreviation": "EST",
+    "interpretation": "The RFP's explicit Eastern Time wording and local jurisdiction control this mapping."
+  },
+  "written_question_deadline": {
+    "local": "2026-10-07T15:00:00-04:00",
+    "utc": "2026-10-07T19:00:00Z"
+  },
+  "scheduled_answers_date": "2026-10-14",
+  "reference_deadline": {
+    "local": "2026-10-28T15:00:00-04:00",
+    "utc": "2026-10-28T19:00:00Z"
+  },
+  "coverage": {
+    "requested_http_capture_complete": true,
+    "archive_inventory_complete": true,
+    "selected_documents_read": 8,
+    "selected_requirements": 37,
+    "full_solicitation_and_contract_review_complete": false,
+    "external_incorporated_policy_documents_captured": false,
+    "vendor_networking_submissions_reviewed": false,
+    "qualification_evidence_bound": false
+  },
+  "attachment_label_discrepancy": {
+    "RFP_page_7_and_archive": "L = AI Technical Proposal Questions; M = Infrastructure Overview",
+    "RFP_page_18_Step_1": "L = Infrastructure Overview; M = AI Technical Proposal Questions",
+    "Attachment_J": "Both documents are required by title.",
+    "handling": "Retain the actual filenames and require both forms; no buyer correction is invented."
+  },
+  "original_pursuit_posture": {
+    "partner_first": true,
+    "prime_qualification": "NOT_ESTABLISHED",
+    "research_candidates_not_selected_or_qualified": [
+      "PCG",
+      "Maximus",
+      "Guidehouse",
+      "Sellers Dorsey"
+    ]
+  },
+  "source_age_parameter": {
+    "seconds": 604800,
+    "meaning": "Intake processing window for this captured generation; not a buyer eligibility rule."
+  }
+}
