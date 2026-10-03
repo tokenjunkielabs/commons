@@ -1396,13 +1396,37 @@ def _embed_op(op: str, index: dict, cache_dir: Path, args: dict,
         n_tensor = names.get(kind) or names["down"]
         ns, nt = find_tensor(index, n_tensor)
         n_rows, n_width = _tensor_row_layout(nt, ns["format"])
-        sel = metrics.strided(n_rows, int(args.get("units") or 96))
-        neuron_rows = fetch_rows(index, cache_dir, n_tensor, sel, limit=limit)
+        units = int(args.get("units") or 96)
+        if n_tensor == names["down"]:
+            if n_rows != width:
+                raise WbRangeError("DOWN output width does not match token embeddings")
+            sel = metrics.strided(n_width, units)
+            dtype = nt["dtype"]
+            entry = SAFETENSORS_DTYPES.get(dtype)
+            if entry is None:
+                raise WbRangeError("row ops need a known dtype, got %s" % dtype)
+            elem = entry[1]
+            reader = RangeReader(ns["url"], cache_dir, limit=limit)
+            neuron_rows = [[] for _ in sel]
+            # A DOWN neuron is a column. Decode one physical row at a time,
+            # retaining only the sampled columns across embedding dimensions.
+            for row_idx in range(n_rows):
+                offset = nt["begin"] + row_idx * n_width * elem
+                row = decode_values(dtype, reader.read(offset, n_width * elem))
+                for neuron, column in zip(neuron_rows, sel):
+                    neuron.append(row[column])
+        else:
+            if n_width != width:
+                raise WbRangeError("FFN input width does not match token embeddings")
+            sel = metrics.strided(n_rows, units)
+            neuron_rows = fetch_rows(index, cache_dir, n_tensor, sel, limit=limit)
         decoded = fetch_rows(index, cache_dir, tensor, idxs, limit=limit)
         vocab = load_vocab(index, cache_dir, limit=limit)
         vocab_rows = {vocab[i]: decoded[p] for p, i in enumerate(idxs)
                       if i < len(vocab) and vocab[i]}
         result = metrics.neuron_cleanliness(neuron_rows, vocab_rows)
+        for item in result["cleanest"]:
+            item["neuron"] = sel[item["neuron"]]
         result["tensor"] = n_tensor
         result["vocab_rows_scanned"] = len(vocab_rows)
         return result
