@@ -25,6 +25,7 @@
   "priority_queue": [],
   "production_write": false,
   "record_sources": [
+    "inventory/resources/records/resource-master-distinct-handoff-routing-20261003-01.json",
     "inventory/resources/records/resource-master-passive-telemetry-routing-20261003-01.json",
     "inventory/resources/records/resource-master-owner-route-constraints-20261003-01.json",
     "inventory/resources/records/codex-stripe-live-read-route-advancement-20261002-01.json",
@@ -130,15 +131,15 @@
   "schema": "commons-resource-ledger/v2",
   "secrets": false,
   "shared_resource_rule": "ALL_CARRIERS_MAY_USE_ALL_SHARED_RESOURCES; CLAUDE_IS_OWNER_HANDLED",
-  "slack_ts": "1791000133.566969",
+  "slack_ts": "1791011546.352919",
   "snapshot": {
-    "base_main_sha": "edabfb74456c200c6aa249ddca021d279cc77425",
-    "observed_at": "2026-10-03T04:05:00Z",
+    "base_main_sha": "2c555f56d6af63a2227ba81858da84e1da6754c9",
+    "observed_at": "2026-10-03T07:23:38.605Z",
     "privacy_rule": "Shared account identities, service roles, aggregate quotas, reset states, and operating state may be published for Commons routing. Never persist passwords, tokens, API credentials, recovery or verification links, payment credentials, personal legal identity, or private mail contents.",
     "scope": "Anything convertible into Commons capability or value, including Bryce, devices, subscriptions, models, agents, tools, repositories, builds, data, attention, and external roads.",
     "truth_rule": "Capacity, authority, lifecycle stage, and condition are independent. Declared or cached is not live; reset is not permission; activity is not value."
   },
-  "source_id": "resource-master-passive-telemetry-routing-20261003-01",
+  "source_id": "resource-master-distinct-handoff-routing-20261003-01",
   "stage_order": [
     "DECLARED",
     "AVAILABLE",
@@ -147,8 +148,9 @@
     "EXERCISED",
     "PRODUCING"
   ],
-  "subject": "MASTER RESOURCE LEDGER \u2014 Cast #3845 real-receiver capture-package activation",
+  "subject": "MASTER RESOURCE LEDGER — distinct passive handoff routing activation",
   "supersedes_source_ids": [
+    "resource-master-passive-telemetry-routing-20261003-01",
     "resource-master-owner-route-constraints-20261003-01",
     "codex-stripe-live-read-route-advancement-20261002-01",
     "codex-cast-3845-real-receiver-video-capture-package-activation-20261002-01",
@@ -1125,7 +1127,7 @@
       "source": "presence.json; lastseen.json; claims.json; inventory/resources/agent_liveness.json",
       "stage": "PRODUCING",
       "stale_after": "next presence.json, lastseen.json, or claims.json blob change",
-      "value": "181 public identities classified from exact presence/lastseen/claim blobs: 14 fresh \u22646h, 4 recent 6\u201324h, 144 stale >24h, and 19 unknown; zero sessions claimed reachable"
+      "value": "181 public identities classified from exact presence/lastseen/claim blobs: 14 fresh ≤6h, 4 recent 6–24h, 144 stale >24h, and 19 unknown; zero sessions claimed reachable"
     },
     {
       "assigned_backlog": "full Windows board rebuild and link audit",
@@ -2420,7 +2422,7 @@
       "consumer": "The existing V5-V31-R04-POLICY-FAMILY-RECOVERY-WIDE synthesis and promotion lane that needs exact returned-action, score, margin, trace, timing and first-divergence evidence between the two submitted V3.1 and V4 archives.",
       "evidence_ts": "2026-09-12T19:03:40Z",
       "exact_safe_probe": "Current workflow blob e4414ea28d4d0bce4ac8cc9612af4f8afb64a883; README blob 89b5c961d9a298abedf4ea0bd14c612aa38006d3; bridge blob 6701662a397566cf7be3468ada284e5964404612; focused-test blob aca03e98868a031013bc77a64c324fedde1bc88f; authenticated snapshot-helper blob fbc5e320b8a2ee63af11dc9856c956a679823409. Current focused suite passes 8/8 normally and 8/8 under python -O; compilation passes.",
-      "holder": "Commons / canonical TITAN V5 V3.1\u2194V4 recovery evidence consumers",
+      "holder": "Commons / canonical TITAN V5 V3.1↔V4 recovery evidence consumers",
       "kind": "AUTHENTICATED_SUBMITTED_ARCHIVE_DIFFERENTIAL_EVIDENCE_BRIDGE",
       "last_receipt": "codex-titan-v5-v31-v4-submitted-archive-bridge-resource-activation-20260912-01",
       "last_used_at": "2026-09-12T19:03:40Z",
@@ -2461,7 +2463,7 @@
       "authority": "SHARED_ALL_CARRIERS; PUBLIC_CURRENT_MAIN_READ_REDUCE_AND_SELECTOR_INPUT; EXACT_PR13517_HEAD_531928937E85B7F55967CC6A9A28BB8334CDAB3A_12_BLOB_CUSTODY_32_OF_32_GAMES_719_DECISIONS_ZERO_FAILURE_C00_DEDUP_64_SNAPSHOT_BANK_MATCHES_2136_INPUT_CHECKS_AND_SHA256_BINDING_REQUIRED; DISCOVERY_EVIDENCE_ONLY; NO_RERUN_POLICY_DEFAULT_CONFIG_CURRENT_RELEASE_PROVIDER_OR_KAGGLE_MUTATION",
       "capacity": "LIVE",
       "condition": "CONSTRAINED",
-      "consumer": "The merged P04 route reducer and preregistered selector need exact public R05\u2013R08 rows, snapshots and source custody to rank the complete 13-route matrix and evaluate fresh holdouts without rerunning these completed native cells.",
+      "consumer": "The merged P04 route reducer and preregistered selector need exact public R05–R08 rows, snapshots and source custody to rank the complete 13-route matrix and evaluate fresh holdouts without rerunning these completed native cells.",
       "evidence_ts": "2026-09-13T01:06:53Z",
       "exact_safe_probe": "Current Block-B row blob 56ad64da297d8afb0f3ec51fcb3ad58ea91104d1 and SHA256 853cc8df7a20d5d78cefb796ed3ddac079c4ad92d9eaac6c338d9f4d398c9093; summary blob fd6b6241a1282a955260f21af461ca85e2fb13eb and SHA256 a4593f95e0e5fd431969fe7907a351641264d4e856cf2e2f47467600bf52d784; raw bundle blob 1be6814334d48337cd1e581a674525da382274cf and SHA256 8bb7c01fa36b842c4cd1df5533ba6e46f0b612b5cd1134ede5db69f97d2af9e5. Source reports 32/32 games, 719 decisions each, zero failures, 64/64 snapshot-bank matches and 2136/2136 input checks.",
       "holder": "Commons / canonical TITAN V5 P04 route reducer and preregistered selector consumers",
@@ -2493,11 +2495,11 @@
       "name": "osff-firmware-sbom-conformance-grant-packet",
       "next_action": "Owner may review the exact current-main packet, supply owner-only identity and legal details, and decide whether to email-submit it before the published deadline; if accepted, separately authorize and schedule the proposed new implementation work.",
       "priority": 99,
-      "rate_plan_boundary": "The packet requests \u20ac7,500 for six weeks of future work. It proves no submission, sponsor acceptance, award, booked revenue, payment, settlement or cash; awarded and booked amounts remain \u20ac0.",
+      "rate_plan_boundary": "The packet requests €7,500 for six weeks of future work. It proves no submission, sponsor acceptance, award, booked revenue, payment, settlement or cash; awarded and booked amounts remain €0.",
       "source": "revenue/grants/OSFF_FIRMWARE_SBOM_CONFORMANCE_KIT_2026.md; source PR #13541 head c8e711dfced98065ca0ae55ce8f578a8c5465d05 merge 0a1457fc707b3adc1ebe9b733fc5fd2e72f1091a",
       "stage": "PRODUCING",
       "stale_after": "next packet, sponsor-call, deadline, upstream-specification, submission, award or owner-decision receipt",
-      "value": "The landed packet converts a public \u20ac1,000\u2013\u20ac7,500 funding call into a concrete six-week \u20ac7,500 proposal for an offline firmware embedded-SBOM conformance kit with deterministic fixtures, CLI checks, upstream integration and adoption documentation."
+      "value": "The landed packet converts a public €1,000–€7,500 funding call into a concrete six-week €7,500 proposal for an offline firmware embedded-SBOM conformance kit with deterministic fixtures, CLI checks, upstream integration and adoption documentation."
     },
     {
       "assigned_backlog": "available to existing Commons and connected-repository owners for exact-head diagnosis and repository-policy-permitted equivalent evidence; no hosted-CI replacement, merge queue, provider service or verifier-only delegation is created",
@@ -2659,7 +2661,7 @@
       "authority": "SHARED_ALL_CARRIERS; PUBLIC_CURRENT_MAIN_READ_COMPILE_VERIFY_AND_COMPOSE; EXACT_PR16198_HEAD_0223E01708F2FBE1C7AEFC71FA7064AB8A38EF11_MERGE_637657F64F27ED3ED5A6F192B97280B8DA4F9D85_AND_FIVE_SOURCE_BLOBS_REQUIRED; SOURCE_AUTHENTICATION_FALSE; LOCAL_ASSESSMENT_FALSE; RANKING_FALSE; PROCUREMENT_RECOMMENDATION_FALSE; CUSTOMER_CONTACT_FALSE; SCHEDULING_FALSE; PAYMENT_FALSE; REVENUE_FALSE; DEPLOYMENT_FALSE",
       "capacity": "LIVE",
       "condition": "CONSTRAINED",
-      "consumer": "UIowa peer-research lanes 014\u2013020 and their analysts, who need deterministic source registers, practice cards, metric context and comparison advisories without converting public context into local findings.",
+      "consumer": "UIowa peer-research lanes 014–020 and their analysts, who need deterministic source registers, practice cards, metric context and comparison advisories without converting public context into local findings.",
       "evidence_ts": "2026-09-20T01:12:29Z",
       "exact_safe_probe": "Current main eac6dca49f718e8c3ebebd881b2c4bfcff930b4d retained all five source-head blobs: README 7f022ece8f8bcce1a38ccde356e798467dd4fb42, rehearsal 96289e32ffdb643f9dc3dea85ea614aee1d7f348, example f47f4bec6305fc18dee2c21ee0b8929490b3abe4, compiler fc528ec39cee8791b4afe4a5278295cd8ddd5916 and tests 924d3ea5ab3a69782bc7c5ee9b3de20a61999a9c. The focused suite passes 45/45 normally and 45/45 under python -O; the exact source head's four hosted guards were recorded terminal SUCCESS in PR review 5258091530.",
       "holder": "Commons / UIowa public-source peer-research operators",
@@ -2837,7 +2839,7 @@
       "condition": "CONSTRAINED",
       "consumer": "Authorized Iowa technical-workshare and interchange operators who receive a disclosed XLSX, DOCX or PDF handoff and need to recover its exact canonical JSON payload without treating edited human views as source truth.",
       "evidence_ts": "2026-10-02T04:01:29Z",
-      "exact_safe_probe": "Current main 8638ebdd83dd78d9857b2379f02476d9ea5b2dc3 retains README 9e8d1f6b3a52b9e1f6dfbaa602e213dfb3349060, CLI 9864f017b57a0b77a84a5c264db37120fd846f70 and embedded reader d1f82e304ade3361ccda0afbe8ec5e7f754306c1. PR #30205 reports exit 0 on recovered XLSX, DOCX and PDF inputs, six records each, canonical digest f26a8a70c9d1a689673a40cb878c727f2f275af8683d6cf5ad674c92bc1f7a0e and byte-identical JSON\u2192CSV\u2192JSON. source-parses, open-door-guard, muhlnickel-spec-guard and path-manifest succeeded on the immutable head.",
+      "exact_safe_probe": "Current main 8638ebdd83dd78d9857b2379f02476d9ea5b2dc3 retains README 9e8d1f6b3a52b9e1f6dfbaa602e213dfb3349060, CLI 9864f017b57a0b77a84a5c264db37120fd846f70 and embedded reader d1f82e304ade3361ccda0afbe8ec5e7f754306c1. PR #30205 reports exit 0 on recovered XLSX, DOCX and PDF inputs, six records each, canonical digest f26a8a70c9d1a689673a40cb878c727f2f275af8683d6cf5ad674c92bc1f7a0e and byte-identical JSON→CSV→JSON. source-parses, open-door-guard, muhlnickel-spec-guard and path-manifest succeeded on the immutable head.",
       "holder": "Commons / authorized Iowa technical-workshare and interchange operators",
       "kind": "OFFLINE_CANONICAL_XLSX_DOCX_PDF_EMBEDDED_PAYLOAD_READER",
       "last_receipt": "codex-uiowa-rfq18649-embedded-payload-interchange-advancement-20261002-01",
@@ -2849,7 +2851,7 @@
       "source": "revenue/uiowa_rfq_18649_interchange; source PR #30205 head b40d047017e89b2591a111576113272c3e963f09 merge 8638ebdd83dd78d9857b2379f02476d9ea5b2dc3",
       "stage": "PRODUCING",
       "stale_after": "next interchange schema, canonical digest, embedded-part contract, source blob, optional PDF dependency, authority rule, consumer handoff or owner-policy change",
-      "value": "The landed embedded-to-json command turns three common review-document containers back into the existing strict interchange document, preserving values and authority fields and enabling byte-identical JSON\u2192CSV\u2192JSON continuation for a concrete workshare handoff."
+      "value": "The landed embedded-to-json command turns three common review-document containers back into the existing strict interchange document, preserving values and authority fields and enabling byte-identical JSON→CSV→JSON continuation for a concrete workshare handoff."
     },
     {
       "assigned_backlog": "Available to all Commons workers only for a concrete, irreducibly human blocker. No implementation order is justified because the intake and schema already exist; missing credentials, provider permission, owner verification or spend authority are external owner-action boundaries.",
@@ -2961,6 +2963,58 @@
       "stage": "DECLARED",
       "stale_after": "EVENT_DRIVEN",
       "value": "Landed search/content adapter is reusable source; provider execution remains unobserved until existing account setup completes."
+    },
+    {
+      "name": "distinct-passive-handoff-routing",
+      "kind": "PASSIVE_HANDOFF_DEDUPLICATION",
+      "capacity": "LIVE",
+      "stage": "PRODUCING",
+      "condition": "CONSTRAINED",
+      "authority": "SHARED_DIRECT_ACCESS; PASSIVE_ADVISORY_ONLY; NO_ASSIGNMENT; NO_CLAIM_MUTATION; NO_PROVIDER_CALL; NO_AUTH_OR_ADMISSION_GATE",
+      "holder": "Commons / merged swarm runtime; activation claim releases after landed projection readback",
+      "consumer": "Resource Master build-order dedupe and existing dispatch owners",
+      "value": "A passive reconciliation response suggests each eligible task at most once inside that response, reducing duplicate next-work advice while actual dispatch retains fresh atomic custody.",
+      "source": "PR30352 merge 7127cd584bba9a5451746a1aa7f129ed33627aa4; host/swarm_runtime/runtime.py and host/swarm_runtime/README.md",
+      "evidence_ts": "2026-10-03T07:08:00Z",
+      "last_used_at": "2026-10-03T07:08:00Z",
+      "exact_safe_probe": "Ran the exact merged _handoff_candidates path over consecutive retained state/claims projections: 368 tasks before and after, 0 active-to-terminal transitions, 0 candidates, distinct=true, exit 0; output SHA-256 97b2f0e161a1dbfddf68bebaad424230fed4f2f72423e6d1cd862bcc42d63b1b.",
+      "rate_plan_boundary": "Local Python and retained public state only; zero provider/model/network calls. A zero-candidate retained replay does not prove a live fleet, available workers, deployable work or future throughput.",
+      "next_action": "Existing runtime and dispatch owners may consume distinct passive suggestions on future terminal deltas; actual work still requires fresh reconciliation and atomic claim.",
+      "assigned_backlog": "No build order. Source is already merged and the retained delta produced no candidate requiring delegation.",
+      "auth_surface": "Public current-main source and retained state only; no login, private data or secret required for this activation run.",
+      "build_order": "NONE_SOURCE_ALREADY_LANDED_AND_RETAINED_DELTA_EMPTY",
+      "confidence": "HIGH_FOR_MERGED_SOURCE_AND_EXACT_RETAINED_REPLAY; NONE_FOR_LIVE_FLEET_OR_FUTURE_CANDIDATES",
+      "last_receipt": "resource-master-distinct-handoff-routing-20261003-01",
+      "last_result": "Exact retained-ledger replay completed with distinct=true, candidate_count=0 and no state mutation.",
+      "verification": "Real product helper invocation exited 0; no test suite was run; privacy, secret, open-door/no-auth, zero-fabrication and exact-diff checks are recorded in the durable receipt.",
+      "stale_after": "next runtime helper contract, state/claims schema, routing order, authority, consumer or source-blob change",
+      "own_activation_this_run": true
+    },
+    {
+      "name": "telemetry-observer-acknowledgment-accounting",
+      "kind": "PASSIVE_TELEMETRY_DELIVERY_ACKNOWLEDGMENT",
+      "capacity": "LIVE",
+      "stage": "PRODUCING",
+      "condition": "OPERATIONAL",
+      "authority": "SHARED_DIRECT_ACCESS; OBSERVATION_ONLY; NO_PROVIDER_COLLECTOR; NO_NOTIFICATION_SEND; NO_DEPLOYMENT_OR_CUSTOMER_ACTION",
+      "holder": "Commons telemetry runtime; implementation claim released after PR30419",
+      "consumer": "Existing passive telemetry callers that need rejected observations counted rather than silently accepted",
+      "value": "Observer now accounts for bounded acknowledgment counts, including full-queue rejection, accepted batches and duplicate direct ingestion.",
+      "source": "PR30419 merge abb47d0a3b934fab5133fe18b79ed0da92830acc; integrations/swarm_telemetry/client.py; Slack receipt 1791011956.719289",
+      "evidence_ts": "2026-10-03T07:19:16Z",
+      "last_used_at": "2026-10-03T07:18:57Z",
+      "exact_safe_probe": "Owner ran the real Observer, HTTP Server, Runner and SQLite Store: two full-queue rejections counted as two failures; 130 accepted observations arrived in 64/64/2 batches; direct and duplicate ingestion completed without failures.",
+      "rate_plan_boundary": "Local telemetry transport and retained store only; no provider collectors, model calls, notification delivery, deployment, buyer action, payment, revenue or cash is inferred.",
+      "next_action": "Existing telemetry owner may consume the acknowledgment accounting; record a new receipt only if queue contract or source bytes change.",
+      "assigned_backlog": "No build order. The implementation is merged, exact source is released, and the concrete consumer already exists.",
+      "auth_surface": "Public current-main source and local runtime; no Commons login, customer data or secret is established by the receipt.",
+      "build_order": "NONE_ALREADY_LANDED",
+      "confidence": "HIGH_FOR_OWNER_REPORTED_REAL_RUNTIME_AND_MERGED_SOURCE",
+      "last_receipt": "resource-master-distinct-handoff-routing-20261003-01",
+      "last_result": "PR30419 merged and current-main source matched the landed one-file change.",
+      "verification": "Owner-reported real runtime path plus exact merged PR; no test suite or fabricated observation record.",
+      "stale_after": "next observer acknowledgment schema, delivery-bound, source blob, authority or consumer change",
+      "own_activation_this_run": false
     }
   ],
   "titan": "NOT_WRITTEN"
