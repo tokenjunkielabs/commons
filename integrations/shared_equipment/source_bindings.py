@@ -17,6 +17,7 @@ from typing import Callable
 
 from integrations.shared_equipment.outcomes import effect_uncertain, tool_failed
 from integrations.shared_equipment.provider_io import EquipmentError, redacted
+from integrations.shared_equipment.slack_read_arguments import normalize_slack_read_arguments
 
 
 def _unresolved(message):
@@ -70,7 +71,7 @@ class SourceBinding:
 
     def call(self, name, args):
         """Read one native page and verify the account actually used by the host."""
-        observed = self.reader(name, deepcopy(args))
+        observed = self.reader(name, normalize_slack_read_arguments(name, deepcopy(args)))
         if (not isinstance(observed, Mapping) or "payload" not in observed
                 or not isinstance(observed.get("account_ref"), str)
                 or not observed["account_ref"].strip()):
