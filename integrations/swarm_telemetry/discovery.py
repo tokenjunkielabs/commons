@@ -887,30 +887,6 @@ def discover_sources(config: Mapping | None = None, state: Mapping | None = None
     universe_recovery["unresolved_account_scopes"] = unresolved_account_scopes
     universe_recovery["verified_reader_accounts"] = sum(len(refs) for refs in verified_account_refs.values())
 
-    unresolved_account_scopes = 0
-    for service, details in sorted(unresolved_bindings.items()):
-        verified = verified_account_refs.get(service, set())
-        pending_evidence = [evidence_id for evidence_id, reference in details["evidence"].items() if reference not in verified]
-        for source_row in sources.values():
-            if source_row.get("service") == service and source_row.get("account_ref") in verified:
-                source_row["identity_state"] = "provider_observed"
-                source_row["identity_verified_by"] = "matching_connected_account_reader"
-                if source_row.get("status") == "pending_recovery":
-                    source_row["status"] = "reader_binding_pending"
-        if pending_evidence:
-            unresolved_account_scopes += 1
-            coverage.append({"source": "account_binding:" + service, "status": "pending_recovery", "complete": False,
-                             "service": service, "unresolved_evidence_references": len(pending_evidence),
-                             "evidence_roads": sorted(details["origins"]), "observed_at": at,
-                             "unread_regions": ["account identity for existing service/credential evidence not matched to an authenticated connected account",
-                                                "provider reader binding for each unresolved account evidence reference"]})
-        else:
-            coverage.append({"source": "account_binding:" + service, "status": "observed", "complete": True,
-                             "service": service, "unresolved_evidence_references": 0,
-                             "evidence_roads": sorted(details["origins"]), "observed_at": at,
-                             "scope": "identity binding for supplied evidence matched by an authenticated reader; content backfill remains separate"})
-    universe_recovery["unresolved_account_scopes"] = unresolved_account_scopes
-    universe_recovery["verified_reader_accounts"] = sum(len(refs) for refs in verified_account_refs.values())
     state_out = {"continuation": continuation, "slack_channels": sorted(channels), "github_repositories": sorted(repositories), "repo_metadata": repo_metadata, "channel_metadata": channel_metadata, "org_metadata": org_metadata, "observed_at": at}
     return _safe_output({"sources": sorted(sources.values(), key=lambda row: row["source_id"]), "slack_channels": sorted(channels), "github_repositories": sorted(repositories),
                    "accounts": sorted(accounts.values(), key=lambda row: (row["service"], row["account_ref"])), "coverage": coverage, "state": state_out,
