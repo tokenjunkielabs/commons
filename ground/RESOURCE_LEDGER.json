@@ -25,6 +25,7 @@
   "priority_queue": [],
   "production_write": false,
   "record_sources": [
+    "inventory/resources/records/resource-master-connected-github-workflow-runs-routing-20261003-01.json",
     "inventory/resources/records/resource-master-connected-slack-publisher-routing-20261003-01.json",
     "inventory/resources/records/resource-master-list-research-power-routing-20261003-01.json",
     "inventory/resources/records/resource-master-distinct-handoff-routing-20261003-01.json",
@@ -133,15 +134,15 @@
   "schema": "commons-resource-ledger/v2",
   "secrets": false,
   "shared_resource_rule": "ALL_CARRIERS_MAY_USE_ALL_SHARED_RESOURCES; CLAUDE_IS_OWNER_HANDLED",
-  "slack_ts": "1791034421.748419",
+  "slack_ts": "1791043748.342799",
   "snapshot": {
-    "base_main_sha": "ddd622b8ca14d6598ba4dd81c1e72be0a2909d30",
-    "observed_at": "2026-10-03T13:34:00Z",
+    "base_main_sha": "e8e1cb93133cd62ccf9f81cdb3e8a9e538939277",
+    "observed_at": "2026-10-03T16:08:56Z",
     "privacy_rule": "Shared account identities, service roles, aggregate quotas, reset states, and operating state may be published for Commons routing. Never persist passwords, tokens, API credentials, recovery or verification links, payment credentials, personal legal identity, or private mail contents.",
     "scope": "Anything convertible into Commons capability or value, including Bryce, devices, subscriptions, models, agents, tools, repositories, builds, data, attention, and external roads.",
     "truth_rule": "Capacity, authority, lifecycle stage, and condition are independent. Declared or cached is not live; reset is not permission; activity is not value."
   },
-  "source_id": "resource-master-connected-slack-publisher-routing-20261003-01",
+  "source_id": "resource-master-connected-github-workflow-runs-routing-20261003-01",
   "stage_order": [
     "DECLARED",
     "AVAILABLE",
@@ -150,8 +151,9 @@
     "EXERCISED",
     "PRODUCING"
   ],
-  "subject": "MASTER RESOURCE LEDGER — connected Slack exact-text publisher activation",
+  "subject": "MASTER RESOURCE LEDGER — connected GitHub workflow-run reader activation",
   "supersedes_source_ids": [
+    "resource-master-connected-slack-publisher-routing-20261003-01",
     "resource-master-list-research-power-routing-20261003-01",
     "resource-master-passive-telemetry-routing-20261003-01",
     "resource-master-owner-route-constraints-20261003-01",
@@ -3095,6 +3097,32 @@
       "last_result": "Exact current-main helper produced a live #commons claim through one send plus one exact-text edit; provider identity and uncertain-send lifecycle remained explicit.",
       "verification": "Exact GitHub blob, native provider acknowledgments, independent Slack readback, focused fake-binding paths, ledger schema, resource projection, open-door/no-auth, zero-fabrication, secret, privacy and diff checks.",
       "stale_after": "next helper blob, native Slack send/edit contract, connected-app authority, rate-plan, consumer or destination-policy change",
+      "own_activation_this_run": false
+    },
+    {
+      "name": "connected-github-workflow-run-reader",
+      "kind": "CONNECTED_GITHUB_NATIVE_WORKFLOW_HISTORY_READER",
+      "capacity": "BOUNDED NATIVE REPOSITORY WORKFLOW-RUN COLLECTION READS WITH EXACT PATH OR WORKFLOW-ID SELECTION AND EXPLICIT PAGINATION COVERAGE",
+      "stage": "PRODUCING",
+      "condition": "OPERATIONAL",
+      "authority": "SHARED CONNECTED GITHUB READ ONLY; NO DISPATCH, RERUN, CANCELLATION, APPROVAL, SECRET, ADMINISTRATION, OR WORKFLOW MUTATION",
+      "holder": "Commons / connected GitHub app; Resource Master activation claim releases after landed projection readback",
+      "consumer": "Resource Master and Commons operators that must reconcile asynchronous workflow outcomes without inventing success from an empty commit attachment lookup",
+      "value": "Turns the native repository run collection into exact run identities and explicit complete, partial, or inconclusive coverage for release and resource decisions.",
+      "source": "PR30877 merge 4579655a58cd90a9d0ffb0951aaa998d86dd40ef; host/connected_github_workflow_runs.cjs blob 95babe75d94edf6a8fa0f62f59180a8359e7acce; guide host/CONNECTED_GITHUB_WORKFLOW_RUNS.md blob e9672b5c057d208cf72f9cc7a65c5a3901774fe7; source notice 1791043100.824539",
+      "evidence_ts": "2026-10-03T16:08:56Z",
+      "last_used_at": "2026-10-03T16:08:56Z",
+      "exact_safe_probe": "Loaded the exact merged helper through the connected GitHub source route and read the closed interval 2026-10-03T13:35:00Z..2026-10-03T16:10:00Z. Three native pages returned and examined all 206 advertised unique run IDs with no repeats or changing totals. Exact workflow-path selection found resources-tab runs 37126745511 and 37126732551, both completed success, and reported complete non-snapshot coverage.",
+      "rate_plan_boundary": "Three read calls succeeded. This does not expose the plan limit, guarantee future quota, create an immutable snapshot, prove a deployed surface, or authorize any workflow mutation.",
+      "next_action": "Use the exact run ID with existing jobs, logs, or artifact readers when a concrete consumer needs deeper evidence; narrow creation windows before the provider's 1,000-result filtered-query boundary.",
+      "assigned_backlog": "No build order. The finished reader is merged and directly exercised; adjacent path lookup and installed-package discovery are already landed under existing owners.",
+      "auth_surface": "Uses the already connected GitHub read route only; no credential, private account identifier, customer data, private filename, or secret value is recorded.",
+      "build_order": "NONE_ALREADY_LANDED_AND_PRODUCING",
+      "confidence": "HIGH_FOR_PINNED_SOURCE_AND_THE_EXACT_CLOSED_INTERVAL; LIVE_OFFSET_PAGINATION_IS_NOT_AN_IMMUTABLE_SNAPSHOT",
+      "last_receipt": "resource-master-connected-github-workflow-runs-routing-20261003-01",
+      "last_result": "Exact merged helper produced a complete 206-run closed-window traversal and two exact successful resources-tab workflow identities.",
+      "verification": "Pinned helper blob, native three-page provider read, exact path selection, complete coverage accounting, ledger schema, resource projection, open-door/no-auth, zero-fabrication, secret, privacy, and diff checks.",
+      "stale_after": "next helper blob, native GitHub response contract, connected-app authority, rate-plan, workflow source, selected interval, or consumer change",
       "own_activation_this_run": true
     }
   ],
