@@ -138,6 +138,17 @@ def _source(entry: object) -> dict:
             "source_url": payload.get("display_url") or payload.get("html_url") or payload.get("url")}
 
 
+def _same_file_bytes(path: Path, data: bytes) -> bool:
+    offset = 0
+    with path.open("rb") as stream:
+        while offset < len(data):
+            chunk = stream.read(min(64 * 1024, len(data) - offset))
+            if not chunk or chunk != data[offset:offset + len(chunk)]:
+                return False
+            offset += len(chunk)
+        return not stream.read(1)
+
+
 def _destination(root: Path, item: dict) -> Path:
     destination = root.joinpath(*PurePosixPath(item["path"]).parts)
     current = root
@@ -149,7 +160,7 @@ def _destination(root: Path, item: dict) -> Path:
         raise SourceImportError("DESTINATION_CONFLICT", "An existing symlink is preserved.", item["path"])
     if destination.exists():
         if (not destination.is_file() or destination.stat().st_size != len(item["data"])
-                or destination.read_bytes() != item["data"]):
+                or not _same_file_bytes(destination, item["data"])):
             raise SourceImportError("DESTINATION_CONFLICT", "An existing destination differs and is preserved.", item["path"])
         if item["mode"] is not None and stat.S_IMODE(destination.stat().st_mode) != int(item["mode"][-3:], 8):
             raise SourceImportError("DESTINATION_CONFLICT", "Existing file permissions differ and are preserved.", item["path"])
