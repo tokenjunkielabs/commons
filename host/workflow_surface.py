@@ -149,10 +149,23 @@ def check(root: Path) -> dict:
     errors = []
     manifest = json.loads((root / "ci/workflow-surface.json").read_text(encoding="utf-8"))
     retained = manifest["retained"]
+    retired = manifest.get("retired", [])
+    if not isinstance(retired, list) or any(not isinstance(path, str) for path in retired):
+        raise ValueError("retired workflow inventory must be a list of paths")
     if len(retained) != len(set(retained)):
         errors.append("duplicate retained workflow")
-    if len(retained) + len(manifest["archived"]) != manifest["source_workflows"]:
+    if len(retired) != len(set(retired)):
+        errors.append("duplicate retired workflow")
+    if set(retired) & (set(retained) | {row["source"] for row in manifest["archived"]}):
+        errors.append("retired workflow is also retained or archived")
+    # Retirements preserve source accounting without creating archived recipes.
+    if len(retained) + len(manifest["archived"]) + len(retired) != manifest["source_workflows"]:
         errors.append("source workflow inventory is incomplete")
+    for path in retired:
+        if path != ".github/workflows/" + Path(path).name or Path(path).suffix not in (".yml", ".yaml"):
+            errors.append("invalid retired workflow path: " + path)
+        elif (root / path).exists() or (root / path).is_symlink():
+            errors.append("retired workflow remains active: " + path)
     directory = root / ".github/workflows"
     paths = sorted(directory.rglob("*"))
     files = [p for p in paths if p.is_file() or p.is_symlink()]
@@ -197,7 +210,8 @@ def check(root: Path) -> dict:
     except (ValueError, KeyError, UnicodeError, OSError, yaml.YAMLError) as exc:
         errors.append(str(exc))
     return {"status": "FAIL" if errors else "PASS", "active": len(files),
-            "archived": archived, "errors": errors, "execution": "structural-only"}
+            "archived": archived, "retired": len(retired),
+            "errors": errors, "execution": "structural-only"}
 
 
 def plan(root: Path, paths: list[str], recipe: str | None = None) -> dict:
