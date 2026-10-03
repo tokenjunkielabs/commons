@@ -37,10 +37,12 @@ def parse_request(text: str) -> dict | None:
         text = text.replace("&lt;", "<").replace("&gt;", ">").replace("&amp;", "&")
     if not text.startswith(OPEN):
         return None
-    body, found, _footer = text[len(OPEN):].partition(CLOSE)
-    if not found:
+    # A closing tag inside a JSON string is payload, not the envelope end.
+    # Decode the value first so source-code and template handoffs stay intact.
+    body = text[len(OPEN):].lstrip()
+    value, end = json.JSONDecoder().raw_decode(body)
+    if not body[end:].lstrip().startswith(CLOSE):
         raise ValueError("equipment request envelope is incomplete")
-    value = json.loads(body)
     if not isinstance(value, dict):
         raise ValueError("equipment request must be an object")
     for key in ("request_id", "call_id", "name"):
