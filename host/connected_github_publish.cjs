@@ -242,7 +242,8 @@ async function publishGitHubChange(tools, change, options = {}) {
     progress.readback_ref = progress.merge_sha ?? progress.commit_sha;
     // Every read is independent. Inspect every outcome before reporting completion.
     const reads = await Promise.allSettled(changed.map(async file => {
-      const data = await call('fetch_file', {repository_full_name, path: file.path, ref: progress.readback_ref});
+      const data = await call('fetch_file', {repository_full_name, path: file.path,
+        ref: progress.readback_ref, encoding: 'base64'});
       return {path: file.path, expected_blob_sha: file.blob_sha, observed_blob_sha: data.sha,
         matches: data.sha === file.blob_sha};
     }));

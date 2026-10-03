@@ -91,9 +91,11 @@ branch; use a unique operation name. There is no force-update or overwrite path
 for an existing branch. Identical source/mode changes return
 `status: no_source_changes` without a tree, commit, branch, or PR.
 
-Readback compares each changed file's native Git blob SHA at the returned merge
-commit, or at the published commit when the PR stays open. `readback_ref` names
-that exact source snapshot. It does not claim that a later current-main tip is
+Readback requests base64 for both text and binary files, then compares each
+changed file's native Git blob SHA at the returned merge commit, or at the
+published commit when the PR stays open. Binary files are never decoded as
+UTF-8 merely to check their identity. `readback_ref` names that exact source
+snapshot. It does not claim that a later current-main tip is
 unchanged, that a running service reloaded it, or that it is deployed. Source
 execution and product acceptance remain the caller's work.
 
