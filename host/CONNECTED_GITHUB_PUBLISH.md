@@ -17,13 +17,19 @@ delete files or branches, update existing refs, run tests, or deploy anything.
 Read the current native tool definitions before first use. The shipped adapter
 uses the installed `mcp__codex_apps__github_*` schemas for `fetch`, `fetch_file`,
 `create_blob`, `create_tree`, `create_commit`, `create_branch`,
-`create_pull_request`, and optionally `merge_pull_request`. `create_blob` is
+`create_pull_request`, and optionally `merge_pull_request` and `fetch_blob`. `create_blob` is
 required only when the change contains base64 input; UTF-8 files use the native
 tree writer's inline `content` field together in one request. A caller may supply
 `options.bindings` to map these action names to equivalent observed bindings;
 their argument and result contracts must remain the same. A partial discovery
 is not an account-permission verdict: keep doing useful independent work and
 repeat discovery until the required bindings are present.
+
+`fetch_blob` is an optional read-only continuation for omitted large text. Its
+absence does not prevent publication or ordinary readback. When present, it is
+called once for an observed nonempty text blob whose file response omitted the
+body. Binary files, ordinary text responses, actual empty files, and failed
+file-reader calls do not use this continuation.
 
 From a Node host that already has those native tool bindings:
 
@@ -113,10 +119,17 @@ execution and product acceptance remain the caller's work.
 The file reader can return a large file's SHA with an empty body. For text,
 an empty returned body with a nonempty blob identity is recorded as
 `error_code: readback_content_unavailable`, `content_available: false`, and
-`content_matches: null`. This leaves readback incomplete; metadata does not
-establish that the complete source matched. An actual empty Git blob remains
-a normal content comparison. Binary files retain their created-blob SHA
-comparison.
+`content_matches: null`. If the optional `fetch_blob` binding is available, the
+helper reads that immutable blob and compares its complete text with the prepared
+source. A recovered row records `blob_readback_attempted: true`,
+`readback_source: blob`, and `file_content_available: false`; its full comparison
+determines whether it matches. This performs one additional read and no write.
+
+Without the binding, or if the blob body is also unavailable, the row remains
+`readback_content_unavailable`. A failed blob read retains that observed file SHA
+and unknown comparison, plus `blob_readback_error` and any bounded `tool_error`.
+Metadata alone never establishes a content match. An actual empty Git blob remains
+a normal comparison, and binary files retain their created-blob SHA comparison.
 
 For read-only continuation, the exported `inspectReadback(file, source, data)`
 uses the same comparison as publication. Pass the retained `progress.files`
@@ -124,9 +137,17 @@ entry, its prepared source entry (including `encoding`), and the unpacked
 native file response at `readback_ref`. It performs no provider operation; it
 records a text `blob_sha` on that file entry only after full content matches.
 
+The exported async `resolveReadback(file, source, data, readBlob)` applies the
+same optional recovery used during publication. The first three arguments match
+`inspectReadback`; the optional callback receives the observed blob SHA and must
+return the unpacked native blob payload. It is called only for unavailable text.
+This supports continuation from an already-retained file response without
+repeating its read or any publication write. Omitting the callback preserves the
+synchronous inspector's outcome.
+
 ### Recover omitted UTF-8 content by blob identity
 
-For a text row marked `readback_content_unavailable`, the separate native
+For a text row still marked `readback_content_unavailable`, the separate native
 `github_fetch_blob` reader can retrieve content by the observed blob SHA.
 Use the SHA retained from the file read at `readback_ref`, and compare the
 complete returned text with the original prepared source:
