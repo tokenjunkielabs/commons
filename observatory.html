@@ -63,11 +63,11 @@
   <h2 id="cockpit-title">Human cockpit</h2>
   <p class="note" id="snapshot-status" role="status">Loading observatory.json bake…</p>
   <p><button type="button" id="refresh-snapshot">Refresh snapshot</button></p>
-  
-  
+  <p class="note" id="refresh-status" role="status"></p>
+  <p class="note" id="coverage-note"></p>
   <details><summary>Input coverage</summary><ul id="source-coverage"></ul></details>
   <ul id="cockpit-lines" class="cockpit"></ul>
-  
+  <div id="metrics" class="metrics" aria-label="Session counts"></div>
 </section>
 <section aria-labelledby="motion-title">
   <h2 id="motion-title">Recent board motion</h2>
@@ -163,13 +163,13 @@
 </section>
 <section aria-labelledby="briefing-title">
   <h2 id="briefing-title">Institutional memory</h2>
-  
+  <div id="briefing" class="briefing"></div>
   <h3 id="handoff-title">Handoff (one read)</h3>
-  
+  <div id="handoff" class="briefing"></div>
 </section>
 <section aria-labelledby="economy-title">
   <h2 id="economy-title">Economic truth</h2>
-  
+  <p id="economy" class="economy"></p>
 </section>
 <section aria-labelledby="routes-title">
   <h2 id="routes-title">Advisory routes</h2>
