@@ -2,11 +2,13 @@
 """Unique titanmcp check_subscription KEEP remainder.
 
 Live check_subscription with empty arguments is HTTP 200 JSON, MCP
-ok:true, in-memory stub, subscribed:false, stripe:false, tokens count 0,
-no Stripe charge. Closed-schema extra properties minutes, plays,
-subscribed, and room_id are MCP isError BAD_ARGUMENT hint arguments.<name>
-is not allowed, not JSON-RPC -32602. Integer plays is not allowed (not
-create_play_token must-be-integer). Commons /mcp KEEP has no
+ok:true, in-memory stub, subscribed:false, stripe:false, no Stripe
+charge. Token count/plays_remaining are non-negative integers and may be
+nonzero after an in-memory STUB_TOKEN mint; subscribed stays false.
+Closed-schema extra properties minutes, plays, subscribed, and room_id
+are MCP isError BAD_ARGUMENT hint arguments.<name> is not allowed, not
+JSON-RPC -32602. Integer plays is not allowed (not create_play_token
+must-be-integer). Commons /mcp KEEP has no
 check_subscription. Isolated classifier stays green without reminting
 pad runtime, Latch titanmcp.html, setup-schema, SAVE/LOAD DRAFT, GET
 /mcp identity, Origin pair, list_messages cursor, unknown after=,
@@ -132,8 +134,10 @@ def classify_empty(packet: dict[str, Any], status: int) -> dict[str, Any]:
         and subscription.get("plan") == "none"
         and subscription.get("status") == "inactive"
         and subscription.get("subject") == "anonymous"
-        and tokens.get("count") == 0
-        and tokens.get("plays_remaining") == 0
+        and isinstance(tokens.get("count"), int)
+        and tokens.get("count") >= 0
+        and isinstance(tokens.get("plays_remaining"), int)
+        and tokens.get("plays_remaining") >= 0
         and "No subscription on file" in note
         and "Stub only" in note
         and err.get("code") != -32602
@@ -321,8 +325,9 @@ def measure() -> dict[str, Any]:
         "note": (
             "Unique remainder after get_connector KEEP: check_subscription "
             "empty arguments is 200 ok:true in-memory stub subscribed:false "
-            "stripe:false tokens count 0. Extra minutes/plays/subscribed/"
-            "room_id are MCP isError BAD_ARGUMENT is not allowed, not JSON-RPC "
+            "stripe:false. Token count may be nonzero after STUB_TOKEN mint; "
+            "subscribed stays false. Extra minutes/plays/subscribed/room_id "
+            "are MCP isError BAD_ARGUMENT is not allowed, not JSON-RPC "
             "-32602. Integer plays is not allowed. Commons /mcp KEEP has no "
             "check_subscription. No competition resubmission."
         ),
