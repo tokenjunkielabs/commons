@@ -168,6 +168,11 @@ non-directory parents and conflicting explicitly requested modes are preserved
 and produce `DESTINATION_CONFLICT`. Use another output directory or reconcile
 the existing working copy yourself. There is no overwrite option.
 
+The output directory itself may be a symlink to an ordinary directory. A cyclic
+output-directory link instead returns `SOURCE_IMPORT_IO`, `errno_name: "ELOOP"`,
+`operation: "inspect_destination"`, and no completed files. The links
+remain intact, and no destination is created.
+
 New files are staged beside their destination and atomically linked into place
 without replacing a concurrently created file. The destination filesystem must
 support hard links. The importer cleans up only its own staging files.
