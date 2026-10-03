@@ -31,6 +31,15 @@ FILE_PATH = re.compile(
     r"(?<![A-Za-z0-9_./:-])((?:[A-Za-z0-9_.-]+/)+[A-Za-z0-9_.-]+\.[A-Za-z][A-Za-z0-9]{0,9})"
     r"(?=$|[^A-Za-z0-9_/-])")
 BRACES = re.compile(r"((?:[A-Za-z0-9_.-]+/)+)\{([^{}\n]+)\}")
+SCOPED_PATH = re.compile(
+    r"(?<![A-Za-z0-9_./:-])(?P<path>(?:[A-Za-z0-9_.-]+/)*"
+    r"[A-Za-z0-9_.-]+\.[A-Za-z][A-Za-z0-9]{0,9})::"
+    r"(?P<symbols>[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*"
+    r"(?:/[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*)*)")
+ADJACENT_SYMBOL = re.compile(
+    r"(?<![A-Za-z0-9_./:-])(?P<path>(?:[A-Za-z0-9_.-]+/)*"
+    r"[A-Za-z0-9_.-]+\.(?:py|pyi|js|mjs|cjs|ts|tsx|jsx|rs|go|java|kt|swift|rb|php|c|h|cpp|hpp|sh))"
+    r"`?[ \t]+(?P<symbol>`?[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*(?:\(\))?`?)")
 
 
 class ScanError(ValueError):
@@ -194,7 +203,32 @@ def read_responses(value, *, channel_id=None, source="input"):
     return messages, pages
 
 
-def _paths(text):
+def _scopes(text):
+    """Retain explicit selectors and adjacent code-shaped symbol observations."""
+    text = re.sub(r"https?://[^\s<>]+", "", text)
+    scoped = defaultdict(set)
+    notations = defaultdict(set)
+    for match in SCOPED_PATH.finditer(text):
+        path = match["path"].removeprefix("./")
+        scoped[path].update(match["symbols"].split("/"))
+        notations[path].add("double_colon")
+    for match in ADJACENT_SYMBOL.finditer(text):
+        candidate = match["symbol"]
+        # Ordinary words such as "only", "and" or "metadata" do not identify
+        # a method. Retain code spelling rather than inferring it from prose.
+        if not ("_" in candidate or "." in candidate or candidate.endswith("()")
+                or (candidate.startswith("`") and candidate.endswith("`"))):
+            continue
+        path = match["path"].removeprefix("./")
+        scoped[path].add(candidate.strip("`").removesuffix("()"))
+        notations[path].add("adjacent_code_symbol")
+    return [{"path": path, "symbols": sorted(symbols),
+             "notations": sorted(notations[path]),
+             "path_resolution": "relative_path" if "/" in path else "basename_only"}
+            for path, symbols in sorted(scoped.items())]
+
+
+def _paths(text, scopes=None):
     # URL paths describe links, not a declaration's source-file scope.
     text = re.sub(r"https?://[^\s<>]+", "", text)
     expanded = []
@@ -202,7 +236,8 @@ def _paths(text):
         members = [member.strip(" `") for member in match[2].split(",")]
         if all(re.fullmatch(r"[A-Za-z0-9_.-]+\.[A-Za-z][A-Za-z0-9]{0,9}", member) for member in members):
             expanded.extend(match[1] + member for member in members)
-    return sorted(set(expanded) | {match[1].removeprefix("./") for match in FILE_PATH.finditer(text)})
+    return sorted(set(expanded) | {match[1].removeprefix("./") for match in FILE_PATH.finditer(text)}
+                  | {scope["path"] for scope in (_scopes(text) if scopes is None else scopes)})
 
 
 def _statement(text):
@@ -251,8 +286,12 @@ def scan(messages, pages, *, workspace_url=None):
         if kind == "declaration":
             row = operations.setdefault(operation, {"operation_id": operation,
                 "observed_paths": [], "declarations": [], "terminal_observations": [],
+                "observed_scopes": [],
                 "state": "declaration_observed"})
-            row["observed_paths"] = sorted(set(row["observed_paths"]) | set(_paths(message["text"])))
+            scopes = _scopes(message["text"])
+            row["observed_paths"] = sorted(set(row["observed_paths"]) | set(_paths(message["text"], scopes)))
+            for scope in scopes:
+                row["observed_scopes"].append({**scope, **reference})
             row["declarations"].append(reference)
             row["state"] = "declaration_observed"
         else:
@@ -271,12 +310,40 @@ def scan(messages, pages, *, workspace_url=None):
                     for declaration in operations[op]["declarations"] if declaration["permalink"]}),
                  "status": "possible_file_overlap"}
                 for path, ops in sorted(by_path.items()) if len(ops) > 1]
+    # File co-occurrence alone cannot distinguish work on unrelated methods.
+    # Keep the original file observations, and expose observed symbols separately.
+    scoped_overlaps, scoped_files = [], []
+    for path, ops in sorted(by_path.items()):
+        if len(ops) < 2:
+            continue
+        by_symbol, symbols_by_operation = defaultdict(set), {}
+        for operation in sorted(ops):
+            symbols = {symbol for scope in operations[operation]["observed_scopes"]
+                       if scope["path"] == path for symbol in scope["symbols"]}
+            symbols_by_operation[operation] = sorted(symbols)
+            for symbol in symbols:
+                by_symbol[symbol].add(operation)
+        for symbol, symbol_ops in sorted(by_symbol.items()):
+            if len(symbol_ops) > 1:
+                scoped_overlaps.append({"path": path, "symbol": symbol,
+                    "operation_ids": sorted(symbol_ops),
+                    "declaration_links": sorted({scope["permalink"] for op in symbol_ops
+                        for scope in operations[op]["observed_scopes"]
+                        if scope["path"] == path and symbol in scope["symbols"] and scope["permalink"]}),
+                    "status": "possible_same_symbol_overlap",
+                    "path_resolution": "relative_path" if "/" in path else "basename_only"})
+        if any(symbols_by_operation.values()):
+            scoped_files.append({"path": path, "symbols_by_operation": symbols_by_operation,
+                "unscoped_operation_ids": sorted(op for op, symbols in symbols_by_operation.items() if not symbols),
+                "shared_symbols": sorted(symbol for symbol, symbol_ops in by_symbol.items() if len(symbol_ops) > 1),
+                "path_resolution": "relative_path" if "/" in path else "basename_only"})
     return {"schema": SCHEMA, "advisory_only": True,
         "scope": "Supplied Slack observations only. Declarations do not establish ownership; shared files can contain compatible work. Refresh the linked sources and existing ledger before acting.",
         "counts": {"messages_supplied": len(messages), "distinct_message_ids": len(identities),
                    "interpreted_message_ids": len(ordered), "operations": len(operations),
                    "declarations_without_exact_paths": sum(not row["observed_paths"] for row in operations.values()),
-                   "possible_overlap_paths": len(overlaps), "unparsed_statement_headers": len(unparsed)},
+                   "possible_overlap_paths": len(overlaps), "possible_symbol_overlaps": len(scoped_overlaps),
+                   "unparsed_statement_headers": len(unparsed)},
         "coverage": {"provider_history_complete": False,
                      "basis": "Caller-supplied pages; terminal pages alone do not prove the history or all claims were supplied.",
                      "pages": pages, "pages_with_continuation": sum(page["terminal_page"] is False for page in pages),
@@ -286,6 +353,8 @@ def scan(messages, pages, *, workspace_url=None):
         "operations": [operations[key] for key in sorted(operations)],
         "terminal_observations": terminals,
         "possible_overlaps": overlaps,
+        "possible_symbol_overlaps": scoped_overlaps,
+        "shared_file_scopes": scoped_files,
         "unmatched_terminal_observations": [row for row in terminals if row["operation_id"] not in operations]}
 
 
