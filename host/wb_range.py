@@ -28,6 +28,7 @@ import re
 import socketserver
 import struct
 import sys
+import tempfile
 import time
 import urllib.error
 import urllib.parse
@@ -176,7 +177,21 @@ class RangeReader:
         # This manifest is rewritten after each fetched range; keep encoding compact.
         encoded = json.dumps(self.manifest, ensure_ascii=False,
                              separators=(",", ":"), sort_keys=True) + "\n"
-        self.manifest_path.write_text(encoded, encoding="utf-8", newline="\n")
+        # Finish an owned sibling file before replacing the last usable manifest.
+        temporary_path = None
+        try:
+            with tempfile.NamedTemporaryFile(
+                    mode="w", encoding="utf-8", newline="\n",
+                    dir=self.manifest_path.parent,
+                    prefix=".%s." % self.manifest_path.name, suffix=".tmp",
+                    delete=False) as handle:
+                temporary_path = Path(handle.name)
+                handle.write(encoded)
+            temporary_path.replace(self.manifest_path)
+            temporary_path = None
+        finally:
+            if temporary_path is not None:
+                temporary_path.unlink(missing_ok=True)
 
     def _cache_key(self, offset: int, length: int) -> str:
         return hashlib.sha1(
