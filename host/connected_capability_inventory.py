@@ -200,7 +200,11 @@ def canonical_json(value: Any) -> str:
     return json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
 
 def write_catalog(output: Path, rendered: str) -> None:
-    """Keep the prior catalog readable until its replacement is fully written."""
+    """Replace the canonical catalog atomically while preserving output symlinks."""
+    try:
+        output = output.resolve()
+    except RuntimeError as exc:
+        raise OSError(f"cannot resolve catalog output: {output}") from exc
     output.parent.mkdir(parents=True, exist_ok=True)
     try:
         previous_mode = output.stat().st_mode & 0o777
