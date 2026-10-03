@@ -434,9 +434,17 @@ class Outbox:
                     continue
             if record["delivery_status"] not in {"pending", "failed"} or notification.get("status") == "resolved":
                 continue
+            previous_status, previous_attempts = record["delivery_status"], record["attempts"]
             record["delivery_status"] = "sending"
-            record["attempts"] += 1
-            self._save()  # Persist before the external side effect.
+            record["attempts"] = previous_attempts + 1
+            try:
+                self._save()  # Persist before the external side effect.
+            except Exception:
+                # No delivery happened: a recovered writer must be able to retry
+                # this same in-memory notice without restarting the outbox.
+                record["delivery_status"] = previous_status
+                record["attempts"] = previous_attempts
+                raise
             try:
                 result = dict(dispatch(notification))
             except Exception as error:
