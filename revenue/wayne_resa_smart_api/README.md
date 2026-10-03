@@ -12,8 +12,11 @@ The response documents connect the recovered solicitation to a proposed design:
 [source register](SOURCE_REGISTER.md), [requirements](REQUIREMENTS.md),
 [architecture and delivery](ARCHITECTURE_AND_DELIVERY.md),
 [UAT and cutover](UAT_AND_CUTOVER.md), [unaccepted workshare](WORKSHARE.md), and
-[submission readiness](SUBMISSION_READINESS.md). Missing current addenda,
-qualification evidence and actual interface contracts remain visible there.
+[submission readiness](SUBMISSION_READINESS.md). The
+[October 3 Addendum 2 review](ADDENDUM_2_REVIEW_20261003.md) closes the public A2
+source gap and updates the source/readiness crosswalk. Full submission-package,
+qualification and actual-interface evidence remain outstanding; submission status
+remains **HOLD**.
 
 ## What the implementation does
 
