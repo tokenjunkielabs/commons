@@ -645,8 +645,17 @@ class Store:
         with self.connect() as db:
             rows=list(db.execute("SELECT source,account_ref,harness,COUNT(*) AS partitions,SUM(complete=1) AS complete,SUM(complete=0) AS pending,SUM(complete IS NULL) AS unknown,MAX(observed_at) AS observed_at FROM coverage_projection WHERE (source,account_ref,harness)>(?,?,?) GROUP BY source,account_ref,harness ORDER BY source,account_ref,harness LIMIT ?",previous+[size+1]))
             more=len(rows)>size;rows=rows[:size];items=[]
+            statuses_by_group={}
+            if rows:
+                # The selected page is one contiguous range of the group index.
+                # Read all of its status counts together instead of one query per group.
+                last=[rows[-1][key] for key in ("source","account_ref","harness")]
+                counts=db.execute("SELECT source,account_ref,harness,status,COUNT(*) AS partitions FROM coverage_projection WHERE (source,account_ref,harness)>(?,?,?) AND (source,account_ref,harness)<=(?,?,?) GROUP BY source,account_ref,harness,status",previous+last)
+                for item in counts:
+                    key=(item["source"],item["account_ref"],item["harness"])
+                    statuses_by_group.setdefault(key,{})[item["status"]]=item["partitions"]
             for row in rows:
-                statuses={item[0]:item[1] for item in db.execute("SELECT status,COUNT(*) FROM coverage_projection WHERE source=? AND account_ref=? AND harness=? GROUP BY status",(row["source"],row["account_ref"],row["harness"]))}
+                statuses=statuses_by_group.get((row["source"],row["account_ref"],row["harness"]),{})
                 items.append({"name":row["source"],"account":row["account_ref"],"harness":row["harness"],"partitions":row["partitions"],"complete":row["complete"] or 0,"pending":row["pending"] or 0,"unknown":row["unknown"] or 0,"statuses":statuses,"metrics":{},"observed_at":row["observed_at"],"scope":"all recorded source partitions"})
         next_cursor=json.dumps([rows[-1][key] for key in ("source","account_ref","harness")]) if rows and more else None
         return self.envelope(source_groups=items,returned=len(items),next_cursor=next_cursor,has_more=more,result_complete=not more,corpus_complete=False)
