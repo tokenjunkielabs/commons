@@ -12,7 +12,7 @@ def _project_rows(packet: dict[str, Any]) -> list[dict[str, Any]]:
     qualifying = [
         project
         for project in projects
-        if not project["is_impo_client"] and project["evidence"]["state"] == "VERIFIED"
+        if project["evidence"]["state"] == "VERIFIED"
     ]
     rows: list[dict[str, Any]] = []
     if len(qualifying) >= 3:
@@ -22,7 +22,7 @@ def _project_rows(packet: dict[str, Any]) -> list[dict[str, Any]]:
                 "SUBMISSION",
                 "Three relevant, verifiable project examples",
                 "READY",
-                f"{len(qualifying)} non-IMPO project examples have verified evidence.",
+                f"{len(qualifying)} relevant project examples have verified evidence.",
                 blocking=False,
             )
         )
@@ -33,12 +33,17 @@ def _project_rows(packet: dict[str, Any]) -> list[dict[str, Any]]:
                 "SUBMISSION",
                 "Three relevant, verifiable project examples",
                 "BLOCKED",
-                f"Only {len(qualifying)} qualifying non-IMPO examples are verified; at least three are required.",
+                f"Only {len(qualifying)} relevant examples are verified; at least three are required.",
                 blocking=True,
             )
         )
-    unique_reference_emails = {project["reference_email"].casefold() for project in qualifying}
-    references_ready = len(qualifying) >= 3 and len(unique_reference_emails) >= 3
+    # The RFP permits IMPO experience in project sheets, but prohibits IMPO
+    # references. Keep the experience count separate from reference evidence.
+    reference_projects = [project for project in qualifying if not project["is_impo_client"]]
+    unique_reference_emails = {
+        project["reference_email"].casefold() for project in reference_projects
+    }
+    references_ready = len(reference_projects) >= 3 and len(unique_reference_emails) >= 3
     rows.append(
         _row(
             "EXP-002",
