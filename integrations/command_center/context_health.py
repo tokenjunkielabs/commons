@@ -57,19 +57,26 @@ def envelope(page, summary_sources):
 
 
 def with_source_health(center, page):
-    """Reuse page health when there are no debt rows requiring summary detail.
+    """Reuse canonical page health with complete bounded debt detail.
 
-    Coverage debt still uses build_summary's record counts and ingestion ages.
-    Otherwise the page already has every field, from its own source generation.
+    Record counts and ingestion ages come from the page's own source generation.
+    Older pages without those details retain the summary fallback.
     Does not replace page['revision'] and does not read a provider.
     """
     sources = page.get("source_health")
+    debt = sources.get("coverage_debt") if isinstance(sources, dict) else None
+    count = sources.get("coverage_debt_count") if isinstance(sources, dict) else None
+    omitted = sources.get("coverage_debt_omitted") if isinstance(sources, dict) else None
     if not (isinstance(sources, dict)
             and sources.get("schema") == "commons-source-health/v1"
             and sources.get("independent_of_item_filters") is True
-            and sources.get("coverage_debt_count") == 0
-            and sources.get("coverage_debt") == []
-            and sources.get("coverage_debt_omitted") == 0):
+            and isinstance(debt, list)
+            and type(count) is int and count >= 0
+            and type(omitted) is int and omitted >= 0
+            and count == len(debt) + omitted
+            and all(isinstance(row, dict) and all(key in row for key in
+                    ("records", "retained_records", "oldest_ingested_at"))
+                    for row in debt)):
         sources = center.work_summary().get("sources") or {}
     attached = dict(page)
     attached["source_health_opt_in"] = envelope(page, sources)
