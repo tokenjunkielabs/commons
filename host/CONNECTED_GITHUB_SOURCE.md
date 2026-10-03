@@ -45,6 +45,9 @@ The command prints JSON containing `ok`, the output directory, each file's path,
 Git blob SHA and byte count, plus `written` and `unchanged` totals. It exits zero
 only when the requested import completes. Errors exit one and report a fixed
 code and useful detail without printing source contents or provider error text.
+The manifest must be an ordinary file (or a symlink to one). Special files such
+as named pipes are rejected with `SOURCE_IMPORT_IO`, `errno_name: "EINVAL"`,
+and `operation: "read_manifest"` before reading or creating destinations.
 
 ## Capture in a tool-enabled JavaScript session
 
@@ -133,7 +136,13 @@ any destination is written.
 The example SHA identifies an observed 33,424,517-byte source; use the identity
 from your own selected snapshot. `source_file` paths are resolved relative to
 the process working directory, with `~` expansion. The source file is read only
-and remains intact. Native-response and local-file entries may share one
+and remains intact. It must be an ordinary file; symlinks to ordinary files are
+supported. Named pipes, directories and devices return `SOURCE_IMPORT_IO`
+with `errno_name: "EINVAL"` and `operation: "read_source_file"`. The reader
+checks the path before opening and checks the opened descriptor before reading;
+where the platform supports `O_NONBLOCK`, that flag also prevents a FIFO swapped
+in during open from waiting for a writer. Native-response and local-file entries
+may share one
 manifest. The importer performs no Git command, network fetch, credential
 lookup, or automatic fallback from a failed response.
 
