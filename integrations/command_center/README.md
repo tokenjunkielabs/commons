@@ -150,6 +150,9 @@ work; a task outside the returned observation remains explicitly unobserved.
 Editing the search clears the exact-task URL selection.
 
 Visible Work reads reuse existing refresh/navigation events and coalesce overlaps.
+The panel's Refresh tasks button and the main Refresh button request a fresh
+claims observation with `refresh=1`, including inside the server's status-cache
+period. Passive reads continue to reuse that cache.
 Failed reads retain the last successful snapshot, and server `retry_after` values
 pause further reads until their deadline. A projection observation ages to stale
 after 90 seconds even if surrounding refresh signals stop; source coverage has its
