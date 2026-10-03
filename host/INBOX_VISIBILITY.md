@@ -115,9 +115,22 @@ the whole scheduler fails, inspect the Actions run summary or OS task history.
 
 Each complete source run advances its cursor only after delivery. Partial errors
 retain pending state; one deleted subject does not hide other readable subjects.
-Page/post caps report pending work rather than pretending the feed is complete.
-A very large capped backlog needs an operator-adjusted window/cap; do not mark it
-read to hide it. GitHub notification read/done state and Gmail labels remain
+Post and GitHub page caps report pending work rather than pretending the feed is
+complete. Gmail lists one page at a time and yields its messages before requesting
+the next page. A saved page token is scoped to the mailbox, destination and query;
+it advances only after the page's yielded groups return from delivery. A finite
+pass can read up to 20 pages, with its next page retained for the following pass.
+The existing delivery allowance can stop the pass before another list or body
+read. Earlier delivered messages keep their completion markers if a later page
+fails. `message_pages` and `messages` count the observed pages and unique IDs;
+`message_listing_resumed` identifies a continuation and `message_listing_complete`
+stays false until Gmail returns its final page. Repeated page cursors report
+`gmail_page_cursor_repeated` instead of looping. The final page clears the listing
+checkpoint so the next overlap poll rereads the current query, using existing
+delivered-message markers. An HTTP 400 on a saved page token clears only that
+listing checkpoint and reports the provider error; a later pass restarts the
+query with all delivery markers retained. No mail is marked read to hide a backlog. GitHub
+notification read/done state and Gmail labels remain
 untouched. There is no automatic outbound email, PR mutation, or payment action.
 
 ## State and retry behavior
