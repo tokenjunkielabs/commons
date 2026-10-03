@@ -89,7 +89,10 @@ def _run(repo: Path, args: Sequence[str], *, input_bytes: bytes | None = None) -
             stderr=subprocess.PIPE,
             check=False,
             env=_git_env(),
+            timeout=30,
         )
+    except subprocess.TimeoutExpired as exc:
+        raise GitSourceError(f"git command timed out after 30 seconds: {' '.join(args)}") from exc
     except OSError as exc:
         raise GitSourceError(f"git unavailable: {exc}") from exc
     if proc.returncode != 0:
