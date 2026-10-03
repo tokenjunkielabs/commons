@@ -65,10 +65,10 @@
     ".github/workflows/nm-ocs-tprm.yml",
     ".github/workflows/uiowa-001-131-ebid-pack.yml",
     ".github/workflows/uiowa-100-operator-portability.yml",
-    ".github/workflows/uiowa-100-run-evidence.yml",
-    ".github/workflows/uiowa096-compatibility.yml"
+    ".github/workflows/uiowa-100-run-evidence.yml"
   ],
   "retired": [
+    ".github/workflows/uiowa096-compatibility.yml",
     ".github/workflows/credential-transfer.yml",
     ".github/workflows/affordable-housing-compliance-demo.yml",
     ".github/workflows/commons-transport-regression.yml",
