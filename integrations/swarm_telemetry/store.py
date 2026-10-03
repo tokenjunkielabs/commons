@@ -496,29 +496,58 @@ class Store:
             next_cursor=rows[-1][-1] if rows else cursor
         return self.envelope(**{table:items},returned=len(items),next_cursor=next_cursor,has_more=has_more,result_complete=not has_more,corpus_complete=False)
 
-    def work(self):
+    def work(self, *, limit=1000, cursor=""):
+        size=max(1,min(int(limit),1000))
+        boundary,updated,identity=None,None,""
+        if cursor not in (None,"",0,"0"):
+            try:
+                page=json.loads(cursor)
+            except (ValueError,TypeError) as exc:
+                raise ValueError("Invalid work-list cursor") from exc
+            if (not isinstance(page,list) or len(page)!=4 or page[0]!=1
+                    or type(page[1]) is not int or page[1]<0
+                    or not isinstance(page[2],str) or not isinstance(page[3],str)):
+                raise ValueError("Invalid work-list cursor")
+            _,boundary,updated,identity=page
         with self.connect() as db:
             # Counts and latest activity share one statement snapshot. Join by
             # the latest sequence so tied timestamps keep their original order.
-            rows = db.execute("""
-                WITH work AS (
+            # Continuation keeps the first page's event boundary, so newly
+            # ingested events cannot move work ahead of an in-progress scan.
+            rows = list(db.execute("""
+                WITH boundary AS (
+                    SELECT COALESCE(?,(SELECT MAX(seq) FROM events),0) AS seq
+                ), grouped AS (
                     SELECT work_id,COUNT(*) AS events,COUNT(DISTINCT session_id) AS sessions,
                         MIN(occurred_at) AS started_at,MAX(occurred_at) AS updated_at
                     FROM events WHERE work_id IS NOT NULL AND work_id!=''
-                    GROUP BY work_id ORDER BY updated_at DESC LIMIT 1000
+                        AND seq<=(SELECT seq FROM boundary)
+                    GROUP BY work_id
+                ), work AS (
+                    SELECT * FROM grouped WHERE ? IS NULL OR COALESCE(updated_at,'')<?
+                        OR (COALESCE(updated_at,'')=? AND work_id>?)
+                    ORDER BY COALESCE(updated_at,'') DESC,work_id LIMIT ?
                 )
-                SELECT work.*,event.payload FROM work JOIN events AS event ON event.seq=(
+                SELECT work.*,event.payload,(SELECT seq FROM boundary) AS through_event_cursor
+                FROM work JOIN events AS event ON event.seq=(
                     SELECT latest.seq FROM events AS latest WHERE latest.work_id=work.work_id
+                        AND latest.seq<=(SELECT seq FROM boundary)
                     ORDER BY COALESCE(latest.occurred_at,latest.observed_at) DESC,latest.seq DESC LIMIT 1
-                ) ORDER BY work.updated_at DESC
-            """)
+                ) ORDER BY COALESCE(work.updated_at,'') DESC,work.work_id
+            """,(boundary,updated,updated,updated,identity,size+1)))
+            more=len(rows)>size
+            rows=rows[:size]
+            through=rows[0]["through_event_cursor"] if rows else boundary or 0
             items=[]
             for row in rows:
                 item=dict(row)
+                item.pop("through_event_cursor")
                 event=json.loads(item.pop("payload"))
                 item.update(status=event.get("status"),summary=event.get("summary"),url=event.get("url"),source=event.get("source"))
                 items.append(item)
-        return self.envelope(work=items)
+        next_cursor=json.dumps([1,through,items[-1]["updated_at"] or "",items[-1]["work_id"]],separators=(",",":")) if more else None
+        return self.envelope(work=items,returned=len(items),next_cursor=next_cursor,has_more=more,
+            result_complete=not more,corpus_complete=False,through_event_cursor=through)
 
     def snapshot(self, *, detailed=False):
         cache=self._snapshot_cache.get(bool(detailed))
