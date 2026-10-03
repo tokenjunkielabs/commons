@@ -62,8 +62,8 @@
     "watermark_closure_parent_main": "12a5a98a740e502033788f258438140c532ea7c4",
     "activation_pull_request": 30923,
     "activation_merge_sha": "28ebb33d032f53592b83edbfe6efbf17035f2f42",
-    "receipt_pull_request": "PENDING_CLOSURE_PR",
-    "receipt_merge_sha": "PENDING_CLOSURE_PR",
+    "receipt_pull_request": 30925,
+    "receipt_merge_sha_accounting": "The closure merge SHA cannot exist in this record's own preimage; read the merged PR or current-main commit after merge. The next-wake lower bound is instead exact on terminal Slack, activation main, closure parent main, and durable record identity.",
     "lower_bound_rule": "The next wake begins strictly after Slack 1791055493.556339, main 28ebb33d032f53592b83edbfe6efbf17035f2f42, the listed connector observations, and this durable record identity; it must not remint this activation or its already-owned adjacent capabilities."
   },
   "build_orders": [],
