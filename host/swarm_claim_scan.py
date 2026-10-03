@@ -275,6 +275,14 @@ def _statement(text):
     return None
 
 
+def _terminal_candidates(operation, operations, channel_id):
+    """Use the existing overlap view's dated-suffix convention, without guessing."""
+    return sorted(name for name, row in operations.items()
+                  if name.startswith(operation + "-")
+                  and re.fullmatch(r"-(?:19|20)\d{6}(?:-[A-Za-z0-9_.]+)*", name[len(operation):])
+                  and any(ref["channel_id"] == channel_id for ref in row["declarations"]))
+
+
 def scan(messages, pages, *, workspace_url=None):
     workspace = _workspace(workspace_url)
     identities = defaultdict(dict)
@@ -316,10 +324,19 @@ def scan(messages, pages, *, workspace_url=None):
             row["state"] = "declaration_observed"
         else:
             terminal = {"operation_id": operation, "kind": kind, **reference}
+            target = operation
+            if operation not in operations:
+                candidates = _terminal_candidates(operation, operations, message["channel_id"])
+                if candidates:
+                    terminal["alias_candidates"] = candidates
+                if len(candidates) == 1:
+                    target = candidates[0]
+                    terminal["resolved_operation_id"] = target
+                    terminal["alias_resolution"] = "unique_prior_dated_operation_same_channel"
             terminals.append(terminal)
-            if operation in operations:
-                operations[operation]["terminal_observations"].append(terminal)
-                operations[operation]["state"] = "explicit_terminal_observed"
+            if target in operations:
+                operations[target]["terminal_observations"].append(terminal)
+                operations[target]["state"] = "explicit_terminal_observed"
     by_path = defaultdict(list)
     for operation, row in operations.items():
         if row["state"] == "declaration_observed":
@@ -375,7 +392,8 @@ def scan(messages, pages, *, workspace_url=None):
         "possible_overlaps": overlaps,
         "possible_symbol_overlaps": scoped_overlaps,
         "shared_file_scopes": scoped_files,
-        "unmatched_terminal_observations": [row for row in terminals if row["operation_id"] not in operations]}
+        "unmatched_terminal_observations": [row for row in terminals
+            if row.get("resolved_operation_id", row["operation_id"]) not in operations]}
 
 
 def _read_bounded(handle):
