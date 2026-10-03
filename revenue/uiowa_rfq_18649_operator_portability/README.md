@@ -56,8 +56,6 @@ Bryce's machine; use the existing authorized cloud checkout.
 From the repository root, choose a new output directory for every execution:
 
 ```sh
-python3 -m unittest discover -s revenue/uiowa_rfq_18649_operator_portability -p 'test_uiowa100_portability.py' -v
-python3 -O -m unittest discover -s revenue/uiowa_rfq_18649_operator_portability -p 'test_uiowa100_portability.py' -v
 python3 revenue/uiowa_rfq_18649_operator_portability/uiowa100_portability.py acceptance \
   --root . --revision "$(git rev-parse HEAD)" --out /tmp/uiowa100-acceptance
 ```
@@ -97,10 +95,10 @@ working directory. Transfer the archive digest through an independent channel.
 
 The unit tests use tiny explicitly named stand-ins to test packaging and failure
 contracts. **Their pass does not establish real compiler/workbench acceptance.**
-The separate `acceptance` command must execute on a real checkout. The scoped
-pull-request workflow captures both normal and optimized executions and uploads the
-portable kit and receipts. It has no cron/schedule, no secrets, no write permissions,
-no live data and no required-branch-rule changes.
+The `acceptance` command executes on the real source checkout. The scoped
+pull-request workflow runs this command once, including both operator rehearsals,
+and uploads the portable kit and receipts. It has no cron/schedule, no secrets,
+no write permissions, no live data and no required-branch-rule changes.
 
 `browser_acceptance` is explicitly `NOT_RUN`. Adapter equality is not browser
 rendering, keyboard accessibility, human usability research, or cross-platform proof.
