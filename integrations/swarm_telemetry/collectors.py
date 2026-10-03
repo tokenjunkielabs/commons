@@ -411,7 +411,8 @@ def _transcript_events(path: Path, records: Iterable[Mapping[str, Any]], source_
                   "provider": provider, "model": model, "harness": harness, "prior_usage": prior_usage})
 
 
-def _parse_file(path: Path, checkpoint: Mapping[str, Any] | None) -> tuple[list[Mapping[str, Any]], dict[str, Any], str | None]:
+def _parse_file(path: Path, checkpoint: Mapping[str, Any] | None, *,
+                max_bytes: int = 1024 * 1024, max_records: int = 256) -> tuple[list[Mapping[str, Any]], dict[str, Any], str | None]:
     stat = path.stat()
     ck = dict(checkpoint or {})
     if path.suffix.lower() in {".jsonl", ".ndjson"}:
@@ -425,58 +426,98 @@ def _parse_file(path: Path, checkpoint: Mapping[str, Any] | None) -> tuple[list[
             rewound = True
         rows: list[Mapping[str, Any]] = []
         malformed = 0
+        bytes_read = 0
+        bytes_examined = 0
+        records_read = 0
+        quantum_deferred = False
+        incomplete_trailing_record = False
         with path.open("rb") as handle:
             handle.seek(offset)
             start = offset
             while True:
-                line = handle.readline()
+                if bytes_read >= max_bytes or records_read >= max_records:
+                    quantum_deferred = start < stat.st_size
+                    break
+                remaining = max_bytes - bytes_read
+                line = handle.readline(remaining)
                 if not line:
                     break
-                complete_line = line.endswith(b"\n")
+                bytes_examined += len(line)
+                if not line.endswith(b"\n"):
+                    # Leave the whole record at its original offset. This also
+                    # defers a valid-looking but unterminated JSON fragment.
+                    quantum_deferred = True
+                    incomplete_trailing_record = start + len(line) >= stat.st_size
+                    break
                 line_offset = start
                 try:
                     value = json.loads(line.decode("utf-8"))
-                    for record in _rows(value):
+                    parsed_rows = list(_rows(value))
+                    if len(parsed_rows) > max_records - records_read:
+                        quantum_deferred = True
+                        break
+                    for record in parsed_rows:
                         enriched = dict(record)
                         enriched["__source_offset"] = line_offset
                         enriched["__source_byte_length"] = len(line)
                         rows.append(enriched)
+                    records_read += len(parsed_rows)
                     start += len(line)
+                    bytes_read += len(line)
                 except (UnicodeDecodeError, json.JSONDecodeError):
-                    if not complete_line:
-                        break  # preserve an incomplete trailing record for the next scan
                     malformed += 1
                     start += len(line)
+                    bytes_read += len(line)
                     continue
         final_stat = path.stat()
         changed = final_stat.st_size != stat.st_size or final_stat.st_mtime_ns != stat.st_mtime_ns
+        incomplete_trailing_record = incomplete_trailing_record and not changed
         return rows, {"offset": start, "size": stat.st_size, "mtime_ns": stat.st_mtime_ns,
                       "malformed_records": malformed, "pending_bytes": max(0, final_stat.st_size - start),
+                      "batch_bytes_read": bytes_read, "batch_bytes_examined": bytes_examined,
+                      "batch_records_read": records_read,
+                      "batch_quantum_deferred": quantum_deferred,
+                      "incomplete_trailing_record": incomplete_trailing_record,
                       "rewound": rewound, "changed_during_read": changed}, None
     try:
         if ck.get("size") == stat.st_size and ck.get("mtime_ns") == stat.st_mtime_ns:
             return [], {"size": stat.st_size, "mtime_ns": stat.st_mtime_ns}, None
+        if stat.st_size > max_bytes:
+            return [], ck, f"json_snapshot_exceeds_batch_byte_limit:{stat.st_size}"
         raw = path.read_text(encoding="utf-8")
         value = json.loads(raw)
         final_stat = path.stat()
         # Snapshot JSON is reprocessed on change; downstream event IDs dedupe it.
         snapshot_rows = []
         for index, record in enumerate(_rows(value)):
+            if index >= max_records:
+                return [], ck, f"json_snapshot_exceeds_batch_record_limit:{max_records}"
             enriched = dict(record)
             enriched["__source_index"] = index
             snapshot_rows.append(enriched)
         return snapshot_rows, {"size": stat.st_size, "mtime_ns": stat.st_mtime_ns,
+                               "batch_bytes_read": stat.st_size, "batch_bytes_examined": stat.st_size,
+                               "batch_records_read": len(snapshot_rows),
                                "changed_during_read": final_stat.st_size != stat.st_size or final_stat.st_mtime_ns != stat.st_mtime_ns}, None
     except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
         return [], ck, f"unreadable_json:{type(exc).__name__}"
 
 
 def iter_transcript_events(path: str | os.PathLike[str], checkpoint: Mapping[str, Any] | None = None) -> Iterator[dict[str, Any]]:
-    """Yield safe normalized events from one transcript file after checkpoint."""
+    """Yield safe normalized events in bounded chunks from one transcript file."""
     file_path = Path(path)
-    rows, _, _ = _parse_file(file_path, checkpoint)
     context = dict(checkpoint or {})
-    yield from _transcript_events(file_path, rows, "transcript", context)
+    offset = int(context.get("offset", 0) or 0)
+    while True:
+        rows, proposed, error = _parse_file(file_path, context)
+        if error:
+            return
+        yield from _transcript_events(file_path, rows, "transcript", context)
+        next_offset = int(proposed.get("offset", offset) or 0)
+        if file_path.suffix.lower() not in {".jsonl", ".ndjson"} or next_offset <= offset:
+            return
+        offset = next_offset
+        context.update(proposed)
 
 
 def _discover_files(roots: Iterable[str | os.PathLike[str]]) -> tuple[list[Path], list[dict[str, str]]]:
@@ -510,7 +551,8 @@ def _discover_files(roots: Iterable[str | os.PathLike[str]]) -> tuple[list[Path]
 
 
 def collect_transcripts(roots: Iterable[str | os.PathLike[str]], checkpoints: Mapping[str, Mapping[str, Any]] | None = None,
-                        limit_files: int | None = None) -> dict[str, Any]:
+                        limit_files: int | None = None, max_bytes_per_batch: int = 1024 * 1024,
+                        max_records_per_batch: int = 256) -> dict[str, Any]:
     """Collect a finite batch; returned checkpoints are uncommitted proposals."""
     prior = checkpoints or {}
     events: list[dict[str, Any]] = []
@@ -518,7 +560,10 @@ def collect_transcripts(roots: Iterable[str | os.PathLike[str]], checkpoints: Ma
     paths, discovery_issues = _discover_files(roots)
     coverage = {"files_seen": len(paths), "files_discoverable": len(paths), "files_read": 0,
                 "files_unchanged": 0, "files_skipped": 0, "files_deferred": 0,
-                "events_emitted": 0, "unread_reasons": list(discovery_issues)}
+                "events_emitted": 0, "bytes_read": 0, "bytes_committed": 0, "records_read": 0,
+                "batch_byte_limit": max(0, int(max_bytes_per_batch)),
+                "batch_record_limit": max(0, int(max_records_per_batch)),
+                "unread_reasons": list(discovery_issues)}
     seen_ids: set[str] = set()
     collector_state = dict(prior.get("__collector__", {})) if isinstance(prior.get("__collector__"), Mapping) else {}
     dirty: list[tuple[bool, str, Path]] = []
@@ -538,30 +583,40 @@ def collect_transcripts(roots: Iterable[str | os.PathLike[str]], checkpoints: Ma
             dirty.append((False, key, path))
         else:
             coverage["files_unchanged"] += 1
-    # New files get their first pass immediately. Rotate the remaining dirty set
-    # after the previous cursor so repeated bounded calls eventually cover all files.
-    new_files = sorted((item for item in dirty if item[0]), key=lambda x: x[1].casefold())
-    changed_files = sorted((item for item in dirty if not item[0]), key=lambda x: x[1].casefold())
+    # Rotate one unified dirty set so a continuous arrival of new files cannot
+    # starve changed history and every bounded call advances past its last path.
+    prioritized = sorted(dirty, key=lambda item: (item[1].casefold(), item[1]))
     cursor = str(collector_state.get("cursor") or "")
     if cursor:
-        for group in (changed_files, new_files):
-            cut = next((i + 1 for i, item in enumerate(group) if item[1] > cursor), 0)
-            group[:] = group[cut:] + group[:cut]
-    prioritized = new_files + changed_files
+        cursor_key = (cursor.casefold(), cursor)
+        cut = next((i for i, item in enumerate(prioritized)
+                    if (item[1].casefold(), item[1]) > cursor_key), 0)
+        prioritized = prioritized[cut:] + prioritized[:cut]
     cap = len(prioritized) if limit_files is None else max(0, int(limit_files))
     selected = prioritized[:cap]
     omitted = prioritized[cap:]
     coverage["files_deferred"] = len(omitted)
     if omitted:
         coverage["unread_reasons"].append({"reason": "batch_limit_deferred_dirty_files", "count": len(omitted)})
-    for _, key, path in selected:
+    for selected_index, (_, key, path) in enumerate(selected):
+        bytes_left = max(0, int(max_bytes_per_batch) - coverage["bytes_read"])
+        records_left = max(0, int(max_records_per_batch) - coverage["records_read"])
+        if bytes_left <= 0 or records_left <= 0:
+            deferred = len(selected) - selected_index
+            coverage["files_deferred"] += deferred
+            coverage["unread_reasons"].append({"reason": "batch_byte_or_record_quantum_deferred_files", "count": deferred})
+            break
+        collector_state["cursor"] = key
         try:
-            rows, proposed, error = _parse_file(path, prior.get(key))
+            rows, proposed, error = _parse_file(path, prior.get(key), max_bytes=bytes_left, max_records=records_left)
             if error:
                 coverage["files_skipped"] += 1
                 coverage["unread_reasons"].append({"source": path.name, "reason": error})
                 continue
             coverage["files_read"] += 1
+            coverage["bytes_read"] += int(proposed.get("batch_bytes_examined", proposed.get("batch_bytes_read", 0)) or 0)
+            coverage["bytes_committed"] += int(proposed.get("batch_bytes_read", 0) or 0)
+            coverage["records_read"] += int(proposed.get("batch_records_read", len(rows)) or 0)
             context = dict(prior.get(key, {})) if isinstance(prior.get(key), Mapping) else {}
             if proposed.get("rewound"):
                 context = {}
@@ -576,12 +631,14 @@ def collect_transcripts(roots: Iterable[str | os.PathLike[str]], checkpoints: Ma
             if proposed.get("malformed_records", 0):
                 coverage["unread_reasons"].append({"source": path.name,
                     "reason": "malformed_jsonl_records", "count": proposed["malformed_records"]})
-            if proposed.get("pending_bytes", 0):
+            if proposed.get("incomplete_trailing_record"):
                 coverage["unread_reasons"].append({"source": path.name,
                     "reason": "incomplete_trailing_record", "bytes_pending": proposed["pending_bytes"]})
+            if proposed.get("batch_quantum_deferred"):
+                coverage["unread_reasons"].append({"source": path.name,
+                    "reason": "batch_byte_or_record_quantum_deferred", "bytes_pending": proposed.get("pending_bytes", 0)})
             if proposed.get("changed_during_read"):
                 coverage["unread_reasons"].append({"source": path.name, "reason": "source_changed_during_read"})
-            collector_state["cursor"] = key
         except (OSError, PermissionError) as exc:
             coverage["files_skipped"] += 1
             coverage["unread_reasons"].append({"source": path.name, "reason": type(exc).__name__})

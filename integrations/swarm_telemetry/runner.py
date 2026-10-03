@@ -101,7 +101,13 @@ class Runner:
         from .collectors import collect_transcripts
         roots=self.config.get("transcript_roots",[])
         if not roots: return {"inserted":0}
-        result=collect_transcripts(roots,self.store.checkpoints(),self.config.get("transcript_batch_files",64))
+        result=collect_transcripts(
+            roots,
+            self.store.checkpoints(),
+            self.config.get("transcript_batch_files",8),
+            max_bytes_per_batch=self.config.get("transcript_batch_bytes",1024*1024),
+            max_records_per_batch=self.config.get("transcript_batch_records",256),
+        )
         coverage=result.get("coverage",[])
         if isinstance(coverage,dict): coverage=[coverage]
         for row in coverage:

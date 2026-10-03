@@ -2,7 +2,7 @@
 (() => {
   'use strict';
   const $ = (id) => document.getElementById(id);
-  const state = { view: 'overview', mode: 'api', snapshot: null, data: {}, resultMeta: {}, pages: {}, cursors: {}, sort: {}, filters: { q: '', provider: '', harness: '', source: '' }, loading: false, generation: 0, requestSerial: {}, errors: {} };
+  const state = { view: 'overview', mode: 'api', snapshot: null, data: {}, resultMeta: {}, pages: {}, cursors: {}, sort: {}, filters: { q: '', provider: '', harness: '', source: '' }, loading: false, generation: 0, requestSerial: {}, errors: {}, summaryTimer: null };
   const labels = { overview: 'Recent activity', peers: 'Observed peers', work: 'Work in progress', accounts: 'Accounts & services', notifications: 'Notifications', sources: 'Collection sources' };
   const endpoints = { peers: 'peers', work: 'work', accounts: 'accounts', notifications: 'notifications', sources: 'coverage', events: 'events' };
   const escape = (value) => String(value ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -215,8 +215,8 @@
     });
   }
   function groupedCoverage(rows, recordedGroups) {
-    let groups = recordedGroups?.length ? recordedGroups.filter((g) => matches({ source: g.name, account_ref: g.account, harness: g.harness })) : sourceGroups(rows);
-    if (recordedGroups?.length) {
+    let groups = recordedGroups?.length ? recordedGroups.filter((g) => matches({ source: g.name, provider: g.name, account_ref: g.account, harness: g.harness })) : sourceGroups(rows);
+    if (recordedGroups?.length && state.snapshot?.source_grouping !== 'service') {
       const summary = new Map();
       for (const g of groups) {
         if (!summary.has(g.name)) summary.set(g.name, { name: g.name, accounts: new Set(), harnesses: new Set(), partitions: 0, complete: 0, pending: 0, unknown: 0, statuses: {}, metrics: {}, observed_at: null });
@@ -253,7 +253,7 @@
   function overview() {
     const s = state.snapshot || {}, c = s.counts || {}, u = s.usage || {}, census = s.census, live = census?.counts || {};
     const awaiting = '<div class="stat"><div class="stat-label">Live agent census</div><div class="stat-value awaiting">Awaiting live census</div><div class="stat-foot">Machine, cloud, and harness observations</div></div>';
-    const censusStats = census ? `${stat('Live agent census', live.observed_instances, 'Observed runtime instances', true)}${stat('Executing', live.executing, 'Confirmed execution observations')}${stat('Waiting', live.waiting, 'Confirmed waiting observations')}${stat('State unknown', live.unknown, 'Instance observed; state unavailable')}` : `${awaiting}${stat('Executing', null, 'Awaiting live census')}${stat('Waiting', null, 'Awaiting live census')}${stat('State unknown', null, 'Awaiting live census')}`;
+    const censusStats = census ? `${stat('Observed runtime census', live.observed_instances, 'Observed instances · lower bound', true)}${stat('Executing', live.executing, 'Confirmed within observed sources')}${stat('Waiting', live.waiting, 'Confirmed within observed sources')}${stat('State unknown', live.unknown, 'Execution state or binding unavailable')}` : `${awaiting}${stat('Executing', null, 'Awaiting live census')}${stat('Waiting', null, 'Awaiting live census')}${stat('State unknown', null, 'Awaiting live census')}`;
     const censusStatus = census?.complete === true ? badge('complete') : census?.complete === false ? badge('partial') : badge('coverage unknown');
     const stats = `<div class="section-label"><h2>Live agent census</h2><span>${censusStatus} · ${census ? `Observed ${escape(date(first(census.observed_at, s.observed_at)))}` : 'Awaiting runtime observations'}</span></div><section class="stats census-stats" aria-label="Live agent census">${censusStats}</section><div class="section-label"><h2>Historical activity</h2><span>Collected Slack, GitHub, machine, cloud, and harness records</span></div><section class="stats history-stats" aria-label="Historical activity totals">${stat('Historical sessions', c.sessions, 'Session records across collected history')}${stat('Historical events', c.events, 'Events already ingested')}</section>`;
     const accountingCoverage = typeof u.accounting_coverage === 'number' ? new Intl.NumberFormat(undefined, { style: 'percent', maximumFractionDigits: 1 }).format(u.accounting_coverage) : typeof u.accounting_coverage === 'object' && u.accounting_coverage !== null ? JSON.stringify(u.accounting_coverage) : title(u.accounting_coverage);
@@ -315,7 +315,7 @@
     });
   }
   function updateFilters() {
-    const all = [...Object.values(state.data).flat(), ...(state.snapshot?.providers || []), ...(state.snapshot?.harnesses || []), ...(state.snapshot?.sources || []), ...coverageRows(state.snapshot?.census?.coverage)];
+    const all = [...Object.values(state.data).flat(), ...(state.snapshot?.providers || []), ...(state.snapshot?.harnesses || []), ...(state.snapshot?.sources || []), ...(state.snapshot?.source_groups || []).map((group) => ({ source: group.name, provider: group.name, harness: group.harness })), ...coverageRows(state.snapshot?.census?.coverage)];
     for (const [id, fn, label] of [['provider', provider, 'providers'], ['harness', harness, 'harnesses'], ['source', source, 'sources']]) {
       const values = [...new Set(all.map(fn).filter(present).map(String))].sort();
       if (state.filters[id] && !values.includes(state.filters[id])) values.push(state.filters[id]);
@@ -354,8 +354,8 @@
     }
   }
   function header() {
-    $('mode').textContent = state.mode === 'static' ? 'Saved snapshot' : 'Collected data';
-    $('observed-at').textContent = `Observed ${date(state.snapshot?.observed_at)}`;
+    $('mode').textContent = state.mode === 'static' ? 'Saved snapshot' : state.snapshot?.summary_refreshing ? 'Refreshing summary' : 'Collected data';
+    $('observed-at').textContent = `Observed ${date(state.snapshot?.observed_at)}${present(state.snapshot?.summary_cache_age_seconds) ? ` · summary ${Math.round(state.snapshot.summary_cache_age_seconds)}s old` : ''}`;
     $('json-link').href = state.mode === 'static' ? '../data-snapshot.json' : '/api/telemetry/snapshot';
     $('agent-tools').hidden = state.mode === 'static';
     $('peer-tab-count').textContent = present(state.snapshot?.census?.counts?.observed_instances) ? number(state.snapshot.census.counts.observed_instances) : '';
@@ -364,7 +364,7 @@
     if (state.mode !== 'api') return;
     const generation = state.generation;
     const serial = state.requestSerial[view] = (state.requestSerial[view] || 0) + 1;
-    const query = new URLSearchParams({ limit: view === 'events' ? '100' : '1000' });
+    const query = new URLSearchParams({ limit: view === 'events' || view === 'sources' || view === 'accounts' || view === 'notifications' ? '100' : '1000' });
     if (view === 'events') query.set('order', 'desc');
     if (append && state.cursors[view]) query.set('cursor', state.cursors[view]);
     if (view === 'events' || view === 'sources') for (const [k, v] of Object.entries(state.filters)) if (v) query.set(k, v);
@@ -385,6 +385,7 @@
   }
   async function refresh() {
     if (state.loading) return;
+    clearTimeout(state.summaryTimer);
     state.loading = true;
     state.generation++;
     $('refresh').disabled = true;
@@ -392,34 +393,55 @@
     $('notice').hidden = true;
     try {
       let data;
-      try { data = await fetchJson('/api/telemetry/snapshot'); state.mode = 'api'; }
-      catch {
+      try { data = await fetchJson('/api/telemetry/summary'); state.mode = 'api'; }
+      catch (summaryError) {
+        if (location.protocol !== 'file:' && summaryError.message !== 'HTTP 404') throw summaryError;
         data = await fetchJson('../data-snapshot.json');
         state.mode = 'static';
         $('notice').textContent = 'Viewing the saved collection snapshot. Refresh reloads this file; its collection time is shown above.';
         $('notice').hidden = false;
       }
+      if (state.mode === 'api' && data.summary_ready === false) {
+        state.summaryPending = true;
+        $('mode').textContent = 'Preparing summary';
+        $('observed-at').textContent = 'Waiting for the first completed summary';
+        $('notice').textContent = data.summary_refresh_error ? `The summary refresh needs recovery (${data.summary_refresh_error}). Retrying while the collected records remain available.` : 'Preparing the complete summary from captured records. Source detail and original records remain available.';
+        $('notice').hidden = false;
+        if (!state.snapshot) $('content').innerHTML = '<div class="loading"><span class="spinner" aria-hidden="true"></span><div><strong>Preparing collected telemetry</strong><span class="loading-note">Counts cover all recorded partitions. Detailed records load when their view is opened.</span></div></div>';
+        state.summaryTimer = setTimeout(refresh, 1500);
+        return;
+      }
+      state.summaryPending = false;
+      const previousSnapshot = state.snapshot;
       state.snapshot = data.snapshot || data;
-      state.data = {};
-      state.resultMeta = {};
-      state.pages = {};
-      state.cursors = {};
-      state.errors = {};
+      if (!previousSnapshot) {
+        state.data = {};
+        state.resultMeta = {};
+        state.pages = {};
+        state.cursors = {};
+        state.errors = {};
+      }
       seed(state.snapshot);
       if (data.snapshot) seed(data);
       header(); updateFilters(); render();
+      if (state.snapshot.summary_refreshing) {
+        $('notice').textContent = 'Showing the last completed summary while the latest captured totals refresh. All source partitions remain included.';
+        $('notice').hidden = false;
+        state.summaryTimer = setTimeout(refresh, 2000);
+      }
       if (state.mode === 'api') {
-        const needed = new Set(['events', 'peers', state.view === 'overview' ? 'sources' : state.view]);
-        await Promise.all([...needed].map((view) => loadView(view)));
+        const needed = state.view === 'overview' ? ['events', 'peers'] : [state.view];
+        await Promise.all(needed.filter((view) => !state.data[view]?.length || !state.snapshot.summary_refreshing).map((view) => loadView(view)));
       }
     } catch (e) {
-      $('notice').textContent = `Telemetry could not be loaded (${e.message}). Start the local telemetry service or publish data-snapshot.json alongside this dashboard.`;
+      $('notice').textContent = `The telemetry summary could not be refreshed (${e.message}). ${state.snapshot ? 'Showing the last completed view; retrying the summary.' : 'Retrying the local summary without downloading a second full snapshot.'}`;
       $('notice').hidden = false;
-      if (!state.snapshot) $('content').innerHTML = empty('No snapshot is available. Use Refresh view after the collected data becomes available.');
+      if (!state.snapshot) $('content').innerHTML = '<div class="loading"><span class="spinner" aria-hidden="true"></span> Reconnecting to collected telemetry…</div>';
+      if (state.mode !== 'static') state.summaryTimer = setTimeout(refresh, 3000);
     } finally {
       state.loading = false;
       $('refresh').disabled = false;
-      $('content').setAttribute('aria-busy', 'false');
+      $('content').setAttribute('aria-busy', String(Boolean(state.summaryPending)));
     }
   }
   async function changeView(view) {
