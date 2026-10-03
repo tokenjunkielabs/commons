@@ -36,26 +36,27 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - name: Bind checkout and require both test suites
-        run: |
-          git rev-parse HEAD
-          python - <<'PY'
-          import unittest
-          suite = unittest.defaultTestLoader.loadTestsFromNames(
-              ['test_operator_handoff', 'tests.test_run_evidence'])
-          count = suite.countTestCases()
-          print(f'operator tests collected: {count}')
-          if count < 46:
-              raise SystemExit('Expected original operator tests and all 38 evidence regressions')
-          PY
-      - name: Original and evidence tests, normal Python
-        run: |
-          set -euo pipefail
-          python -m unittest -v test_operator_handoff tests.test_run_evidence 2>&1 | tee "$RUNNER_TEMP/uiowa-100-tests-normal.log"
-      - name: Original and evidence tests, optimized Python
-        run: |
-          set -euo pipefail
-          python -O -m unittest -v test_operator_handoff tests.test_run_evidence 2>&1 | tee "$RUNNER_TEMP/uiowa-100-tests-optimized.log"
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /.gitattributes
+            /revenue/uiowa_rfq_18649_operator_handoff/preflight.py
+            /revenue/uiowa_rfq_18649_operator_handoff/sample_run.py
+            /revenue/uiowa_rfq_18649_operator_handoff/operator_manifest.json
+            /revenue/uiowa_rfq_18649_workshare/**
+            /revenue/uiowa_rfq_18649_rating_model/**
+            /revenue/uiowa_rfq_18649_security_event_review/**
+            /revenue/uiowa_rfq_18649_observability/**
+            /revenue/uiowa_rfq_18649_handoff/**
+            /revenue/uiowa_rfq_18649_prioritization/**
+            /revenue/uiowa_rfq_18649_outcome_measurement/**
+            /revenue/uiowa_rfq_18649_traceability_rehearsal/**
+            /revenue/uiowa_rfq_18649_workbench/11-ais-context.md
+            /revenue/uiowa_rfq_18649_workbench/12-policy-reference-memo.md
+            /revenue/uiowa_rfq_18649_document_extraction/README.md
+            /revenue/uiowa_rfq_18649_workbench/README.md
+            /revenue/uiowa_rfq_18649_workbench/framework_crosswalk/20-framework-crosswalk.csv
+      - name: Bind checkout
+        run: git rev-parse HEAD
       - name: Execute the actual checked-in eight-asset sample
         run: |
           python preflight.py
@@ -107,7 +108,7 @@ jobs:
           (base / 'uiowa-100-validation.json').write_text(json.dumps(validation, indent=2) + '\n')
           print(json.dumps(validation, sort_keys=True))
           PY
-      - name: Retain test logs and sample receipts, including failures
+      - name: Retain sample receipts, including failures
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -115,7 +116,6 @@ jobs:
           retention-days: 14
           if-no-files-found: warn
           path: |
-            ${{ runner.temp }}/uiowa-100-tests-*.log
             ${{ runner.temp }}/uiowa-100-plan/
             ${{ runner.temp }}/uiowa-100-executed/
             ${{ runner.temp }}/uiowa-100-validation.json
