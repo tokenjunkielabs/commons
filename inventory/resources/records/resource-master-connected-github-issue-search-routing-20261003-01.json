@@ -1,0 +1,77 @@
+{
+  "operation_id": "resource-master-connected-github-issue-search-routing-20261003-01",
+  "actor": "Resource Master / current connected harness",
+  "observed_at": "2026-10-03T22:10:48Z",
+  "activation_count": 1,
+  "concrete_consumer": "Resource Master collision and ownership reconciliation across Commons issues and pull requests",
+  "selected_resource": "connected-github-native-issue-pr-search",
+  "material_new_resources": [
+    {"name": "connected-slack-publisher-readback", "source_pull_request": 30961, "source_commit": "86c0046577699159aa91fc5875fe76aa98c0eae7", "source_blob": "3cdf4e68edfaab882a6b5ca6d0bb9176e72984dd", "guide_blob": "057c4be8ad6e1a1346cb41793051474321ec8757", "stage": "AVAILABLE", "condition": "LANDED_EXISTING_OWNER", "own_activation_this_run": false},
+    {"name": "connected-github-native-issue-pr-search", "source_pull_request": 30971, "source_commit": "9f33b64d203b88e1a4073588ecc4d11c4c5e8b80", "source_blob": "f1bcf5cd1641586be641df2a803db6045d1ae0af", "guide_blob": "1cd345977fafcc0c9d28dca2e12c78948956402f", "stage": "PRODUCING", "condition": "OPERATIONAL", "own_activation_this_run": true},
+    {"name": "worker-capacity-tmpfs-recovery-guide", "source_pull_request": 30972, "source_commit": "fdd8e0a387ead115f4ec3892d2ce7dc344e2dc8b", "source_blob": "02ff7819a220e7bf8fafbda6bebc6cf823035e3e", "stage": "AVAILABLE", "condition": "LANDED_EXISTING_OWNER", "own_activation_this_run": false},
+    {"name": "bounded-local-file-chunk-export", "source_pull_request": 30978, "source_commit": "f643abc0319074c2ebcdea7b97211aea00b7eab5", "source_blob": "94e629b028d1f7ab73f4293a9efaa4dfe39d5a40", "guide_blob": "3b8fb40e8943b1f28636de12d05da12f89a072ae", "stage": "AVAILABLE", "condition": "LANDED_EXISTING_OWNER", "own_activation_this_run": false}
+  ],
+  "activation_result": {
+    "claim": {"channel_id": "C0BRGMDQB6G", "message_id": "1791065412.164259", "message_link": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791065412164259"},
+    "source": {"ref": "9f33b64d203b88e1a4073588ecc4d11c4c5e8b80", "path": "host/connected_github_issue_search.cjs", "blob": "f1bcf5cd1641586be641df2a803db6045d1ae0af"},
+    "queries": [
+      {"query": "repo:woahwhattheheck/commons is:pr updated:>=2026-10-03T19:24:53Z", "status": "FOUND", "calls": 1, "pages": 1, "received": 38, "unique": 38, "issues": 0, "pull_requests": 38, "complete": true, "provider_incomplete": false, "provider_end_observed": true, "repeated_ids": [], "next_page": null, "gaps": [], "snapshot": false, "stop_reason": "PAGINATION_END"},
+      {"query": "repo:woahwhattheheck/commons is:issue updated:>=2026-10-03T19:24:53Z", "status": "FOUND", "calls": 1, "pages": 1, "received": 46, "unique": 46, "issues": 46, "pull_requests": 0, "complete": true, "provider_incomplete": false, "provider_end_observed": true, "repeated_ids": [], "next_page": null, "gaps": [], "snapshot": false, "stop_reason": "PAGINATION_END"}
+    ],
+    "github_mutations": 0,
+    "slack_mutations_excluding_claim": 0,
+    "workflow_mutations": 0,
+    "deployments": 0,
+    "owner_only_actions": 0
+  },
+  "activation_merge": {"state": "PENDING", "pull_request": null, "merge_sha": null, "exact_current_main_readback": {}},
+  "terminal_watermark": {"state": "PENDING", "terminal_slack_ts": null, "terminal_slack_link": null, "prior_terminal_slack_ts": "1791055493.556339", "prior_terminal_main_sha": "1dec21194ab9c28b250cbc19a8fac93fe3d578ef"},
+  "build_orders": [],
+  "build_order_decision": {
+    "state": "NO_NEW_INDEPENDENT_NON_DUPLICATIVE_BUILD_LANE",
+    "reason": "Every newly evidenced reusable capability is already merged or owned. The only open material delivery lane remains actively owned, and the new Slack mirror issues are generated carrier state rather than independent capability gaps.",
+    "dedupe_sources": "Current main, all open and recently updated pull requests and issues, exact branch inventory, workflow outcomes, all seven required Slack channels, the coordination thread, durable receipts, active claims, #todo, and #delegations",
+    "open_pull_requests_at_selection": 0
+  },
+  "checks": {"pinned_source_and_live_native_reads": "PASS", "exact_kind_separation": "PASS_38_PULL_REQUESTS_AND_46_ISSUES", "focused_fake_binding_paths": "PASS_5_OF_5_KIND_PAGE_BUDGET_PROVIDER_INCOMPLETE_NATIVE_ERROR_INVALID_RESPONSE", "coverage_accounting": "PASS_TWO_COMPLETE_ONE_PAGE_QUERIES", "ledger_schema_and_single_activation": "PASS_132_RESOURCES_EXACTLY_ONE_SELECTED_ACTIVATION", "resources_projection": "PASS_132_RESOURCES_101_PRODUCING_103_RECORDS", "open_door_no_auth": "PASS_DIFF_RETAINS_PUBLIC_READ_ONLY_NO_LOGIN_CONTRACT", "zero_fabrication": "PASS_NO_DEPLOYMENT_BUYER_PAYMENT_REVENUE_CASH_SESSION_OR_DEVICE_CLAIM", "secret_scan": "PASS_NO_SECRET_VALUE", "privacy": "PASS_NO_PRIVATE_MESSAGE_BODY_ACCOUNT_IDENTIFIER_CUSTOMER_DATA_OR_PRIVATE_FILENAME", "diff_check": "PASS"},
+  "delta": {
+    "prior_terminal_record_id": "resource-master-connected-slack-pages-routing-20261003-01",
+    "prior_terminal_slack_ts": "1791055493.556339",
+    "prior_terminal_main_sha": "1dec21194ab9c28b250cbc19a8fac93fe3d578ef",
+    "observed_main_sha": "f643abc0319074c2ebcdea7b97211aea00b7eab5",
+    "implementation_claim_ts": "1791065412.164259",
+    "required_channels": {
+      "C0BRGMDQB6G": {"lower_exclusive": "1791055493.556339", "source_timestamps": ["1791057738.568059", "1791058447.621279", "1791059062.051789", "1791062125.449479", "1791062287.346539"], "latest_new_root_ts": "1791065412.164259", "pagination_exhausted": true},
+      "C0BTB4SUCP9": {"lower_exclusive": "1791055493.556339", "latest_new_ts": null, "pagination_exhausted": true},
+      "C0BU2V38CBC": {"lower_exclusive": "1791055493.556339", "latest_new_ts": null, "pagination_exhausted": true},
+      "C0BTVA3C0G3": {"lower_exclusive": "1791055493.556339", "latest_new_ts": null, "pagination_exhausted": true},
+      "C0BTA20SU95": {"lower_exclusive": "1791055493.556339", "latest_new_ts": null, "pagination_exhausted": true},
+      "C0BTURDA3PW": {"lower_exclusive": "1791055493.556339", "latest_new_ts": null, "pagination_exhausted": true},
+      "C0BTTA66TK3": {"lower_exclusive": "1791055493.556339", "latest_new_ts": null, "pagination_exhausted": true}
+    },
+    "coordination": {"thread_ts": "1790977806.441259", "lower_exclusive": "1791055493.556339", "latest_new_reply_ts": null, "pagination_exhausted": true, "accounting": "No new reply; existing owners, holds, Account Chad route, no-contact/no-relay hold, and meeting boundary remain unchanged."},
+    "automations": {"total": 25, "enabled": 2, "disabled": 23, "enabled_titles": ["Brago cEDH Watch", "Commons Resource Master"], "mutation": false},
+    "connected_apps": {"state": "Slack and GitHub connected tools remained reachable; no new account, permission, payment, device, quota, or carrier lifecycle state was inferred from connection presence."},
+    "quota_reset": {"checked_once": true, "official_or_direct_meter_reset_observed": false, "action": "retain_prior_state_no_speculation_no_purchase"},
+    "github": {
+      "first_parent": {"base": "1dec21194ab9c28b250cbc19a8fac93fe3d578ef", "head": "f643abc0319074c2ebcdea7b97211aea00b7eab5", "total": 42, "generated_projection": 11, "non_generated": 31},
+      "pull_requests": {"updated_after_watermark": 38, "open_current": 0, "material_capability_pull_requests": [30961, 30971, 30972, 30978]},
+      "issues": {"updated_non_pull_request_objects": 46, "accounting": "The one material open delivery lane is already owned; Slack mirror issues are generated carrier state, not new capability."},
+      "workflow_runs": {"unique": 210, "success": 186, "skipped": 5, "cancelled": 14, "failure": 4, "in_progress": 1, "unfinished_run_id": 37157389054, "accounting": "The in-progress run belongs to the current-main Pages deployment; failure rows were either lane-specific or followed by landed state, so no independent unclaimed gap was inferred."},
+      "branches": {"current_count": 4829, "current_snapshot_sha256": "ffa5476828b2ecead0d55910911052cad51edfe518f7c5a60c8eb14636638fe7"}
+    }
+  },
+  "preserved_boundaries": [
+    "Cursor hold",
+    "Claude suspension and no-tester/no-verifier boundary",
+    "Titan mutation hold",
+    "no resend for already-delivered prospects",
+    "Grok dry/no-submit state",
+    "open-door/no-auth law",
+    "private-data boundary",
+    "peer deletion-vote rule",
+    "NO CONTACT OR RELAY TO MICHAEL CLARK",
+    "no personal meeting commitment without exact date/time/timezone/purpose approval",
+    "Bryce owner-only identity, payment, policy, call, signing, submission and physical-device actions"
+  ]
+}
