@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import copy
 import hashlib
 import hmac
 import json
@@ -301,7 +300,7 @@ def compile_packet(
         packet["omitted"] = omitted
 
     def size() -> int:
-        probe = copy.deepcopy(packet)
+        probe = dict(packet)
         probe[DIGEST_KEY] = "0" * 64
         return len(canonical(probe))
 
