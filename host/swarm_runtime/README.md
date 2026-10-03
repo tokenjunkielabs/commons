@@ -168,6 +168,14 @@ configure this policy on the shared service. Provider Retry-After/reset cooldown
 remain authoritative. Saturated callers receive a positive-jitter retry boundary.
 Rate-limit deferrals carry retry information; refresh does
 not sleep while holding a worker. CLI `--max-calls` accepts 0–20, default 4.
+
+Request continuation stops before the first task that receives no request
+because the call or shared pacing budget is spent. A partially served task keeps
+its endpoint progress and rotates so other tasks get a turn. Cached responses
+still reconcile through the bounded scan after that point. Zero-request refreshes
+rotate a separate cache cursor; they do not move request continuation, and paced
+positive refreshes do not reset their sweep. Coverage reports these as
+`next_after_task_key` and `cache_next_after_task_key`, respectively.
 With provider refresh enabled, `sync --max-calls 0` still reconciles reusable
 cached responses and reports cache misses without making provider requests.
 `sync --cached` disables that refresh path entirely.

@@ -477,13 +477,19 @@ def enrich(tasks: dict, state_dir: Path, equipment=None, max_calls=4, now=None):
             """)
             refresh = _Refresh(db, state_dir, equipment, max_calls, stamp)
             previous = db.execute("SELECT value FROM progress WHERE name='last_task' ").fetchone()
-            cursor = previous["value"] if previous else ""
+            request_cursor = previous["value"] if previous else ""
+            previous_cache = db.execute("SELECT value FROM progress WHERE name='last_cache_task'").fetchone()
+            cache_cursor = previous_cache["value"] if previous_cache else request_cursor
+            cursor = request_cursor if max_calls else cache_cursor
             ordered = [key for key in keys if key > cursor] + [key for key in keys if key <= cursor]
             visited = []
+            advance_requests = max_calls > 0
             for key in ordered[:200]:
                 # get() checks reusable responses before enforcing the network
                 # budget, so cached facts can still reconcile after it is spent.
                 match = TASK.fullmatch(key)
+                calls_before = refresh.calls
+                budget_deferred = False
                 try:
                     if key in artifacts and (match is None or match[2].lower() != "pr"):
                         fact = refresh.artifact(artifacts[key])
@@ -496,6 +502,7 @@ def enrich(tasks: dict, state_dir: Path, equipment=None, max_calls=4, now=None):
                                (key, json.dumps(fact, sort_keys=True), stamp + TTL))
                     result["coverage"]["fresh"] += 1
                 except _Deferred as exc:
+                    budget_deferred = exc.reason in {"call_budget", "shared_request_budget"}
                     deferred = {"task_key": key, "reason": exc.reason}
                     if exc.retry_at:
                         deferred["retry_not_before"] = _iso(exc.retry_at)
@@ -503,7 +510,19 @@ def enrich(tasks: dict, state_dir: Path, equipment=None, max_calls=4, now=None):
                         deferred["error"] = exc.error
                     result["deferred"].append(deferred)
                 visited.append(key)
-                db.execute("INSERT OR REPLACE INTO progress(name,value) VALUES('last_task',?)", (key,))
+                if advance_requests:
+                    # A partially served task rotates fairly; its endpoint/page
+                    # progress is retained. An unserved budget miss resumes next.
+                    if not budget_deferred or refresh.calls > calls_before:
+                        request_cursor = key
+                        db.execute("INSERT OR REPLACE INTO progress(name,value) VALUES('last_task',?)", (key,))
+                    if budget_deferred:
+                        advance_requests = False
+                if not max_calls:
+                    # Positive refreshes must not reset an independent cache
+                    # sweep when shared pacing stops their first request.
+                    cache_cursor = key
+                    db.execute("INSERT OR REPLACE INTO progress(name,value) VALUES('last_cache_task',?)", (key,))
                 db.commit()
                 if refresh.pacing_deferred:
                     break
@@ -513,11 +532,14 @@ def enrich(tasks: dict, state_dir: Path, equipment=None, max_calls=4, now=None):
             pending = sum(key not in facts or facts[key].get("freshness") == "stale"
                           or bool(facts[key].get("reconciliation_pending")) for key in keys)
             result["calls"] = refresh.calls
+            if max_calls and previous_cache is None:
+                cache_cursor = request_cursor
             result["coverage"].update({"complete": pending == 0 and not result["deferred"],
                                        "pending": pending, "visited": len(visited),
                                        "cache_hits": refresh.hits,
                                        "shared_request_policy": refresh.pacing_status(),
-                                       "next_after_task_key": visited[-1] if visited else cursor})
+                                       "next_after_task_key": request_cursor,
+                                       "cache_next_after_task_key": cache_cursor})
             return result
         finally:
             db.close()
