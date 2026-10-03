@@ -301,8 +301,9 @@ def _statement(text, *, source_release=False):
             return None
         # These observed source-release forms must not turn a proposed or
         # conditional header into a completed operation.
+        header = re.split(r"(?<=[.!?])\s+|\n", first, maxsplit=1)[0]
         if re.search(r"\b(?:if|when|unless|until|pending|awaiting|proposed|planned)\b",
-                     first.split("\n", 1)[0], re.I):
+                     header, re.I):
             return None
         operation = match["operation"].rstrip(".:;")
         if "-" in operation or ":" in operation:
