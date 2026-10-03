@@ -474,21 +474,31 @@ class GitStore:
             else:
                 # Never release another worker's unrelated/newer legacy holding.
                 owned_by = worker if worker not in (None, "", "UNKNOWN") else old.get("worker")
+                started = _parse_ts(task.get("started_at"))
+                released = _parse_ts(task.get("released_at"))
+                is_release = (worker in (None, "", "UNKNOWN") and started is not None
+                              and released is not None and released >= started)
+                if is_release:
+                    # RELEASE reopens work and clears worker; its matching
+                    # custody remains in previous_worker, even after reloading
+                    # a ledger that omits the derived before.tasks projection.
+                    owned_by = task.get("previous_worker")
                 if not current or current.get("state") != "HELD" or current.get("holder") != owned_by:
                     continue
-                closed = _parse_ts(task.get("closed_at"))
+                ended = released if is_release else _parse_ts(task.get("closed_at"))
                 taken = _parse_ts(current.get("taken_at"))
                 heartbeat = _parse_ts(current.get("heartbeat_at"))
-                started = _parse_ts(task.get("started_at"))
                 activity = [stamp for stamp in (taken, heartbeat) if stamp is not None]
                 # A holder may take the same key again after its historical task
                 # closed. Terminal projections ignore those later TAKE events;
                 # worker equality alone therefore cannot prove current custody.
-                if closed is None or not activity or max(activity) > closed:
+                if ended is None or not activity or max(activity) > ended:
                     continue
                 if taken is not None and started is not None and taken > started:
                     continue
                 record = dict(current, state="RELEASED", task_key=key, runtime_managed=True)
+                if is_release:
+                    record["heartbeat_at"] = task["released_at"]
             if record != current:
                 updates[path] = record
         return updates
