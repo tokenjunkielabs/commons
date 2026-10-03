@@ -27,6 +27,7 @@ from typing import Any, Callable
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from integrations.shared_equipment.services import CombinedCatalog, redacted
 from integrations.shared_equipment.outcomes import effect_uncertain, tool_failed
+from integrations.shared_equipment.source_bindings import source_bindings_from_config
 from integrations.gemini_slack.upstream_turn import UpstreamTurnError, wait_peer_turn
 from integrations.gemini_slack.tool_result_boundary import BOUNDARY_VERSION, SOURCE_DATA_RULE, tool_result_prompt
 
@@ -284,9 +285,15 @@ class ToolCallStore:
         name: str,
         arguments: dict[str, Any],
         runner: Callable[[str, dict[str, Any]], dict[str, Any]],
+        *,
+        source_context: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
+        # Existing calls retain their original digest. An explicit source is
+        # part of operation identity, never a provider tool argument.
+        identity = arguments if source_context is None else {
+            "arguments": arguments, "source_context": source_context}
         arg_bytes = json.dumps(
-            arguments, sort_keys=True, separators=(",", ":"), ensure_ascii=False
+            identity, sort_keys=True, separators=(",", ":"), ensure_ascii=False
         ).encode("utf-8")
         digest = hashlib.sha256(arg_bytes).hexdigest()
         with self._lock, self._db:
@@ -759,7 +766,9 @@ class Handler(BaseHTTPRequestHandler):
         query = urllib.parse.parse_qs(parsed.query)
         try:
             if parsed.path == "/v1/tools":
-                self._send(200, {"ok": True, "tools": self.server.catalog.tools()})
+                bindings = getattr(self.server.catalog, "source_bindings", None)
+                self._send(200, {"ok": True, "tools": self.server.catalog.tools(),
+                                "source_bindings": bindings.describe() if bindings is not None else []})
                 return
             if parsed.path in ("/", "/health", "/v1/peers"):
                 upstream = self.server.upstream.health()
@@ -830,14 +839,37 @@ class Handler(BaseHTTPRequestHandler):
                 arguments = payload.get("arguments", {})
                 if not isinstance(arguments, dict):
                     raise ValueError("arguments must be an object")
+                source_context = None
+                runner = self.server.catalog.call
+                if "account_ref" in payload or "service" in payload:
+                    account_ref = payload.get("account_ref")
+                    if not isinstance(account_ref, str) or not account_ref.strip():
+                        raise ValueError("account_ref must be a nonempty string")
+                    service = payload.get("service")
+                    if service is not None and (not isinstance(service, str) or not service.strip()):
+                        raise ValueError("service must be a nonempty string")
+                    # Resolve before journaling: an unavailable binding has no
+                    # provider effect and can use the same IDs after recovery.
+                    resolver = getattr(self.server.catalog, "resolve_source", None)
+                    if resolver is None:
+                        raise GatewayError("Explicit source has no bound reader",
+                                           code="source_binding_unresolved")
+                    binding = resolver(account_ref, service)
+                    source_context = binding.context()
+                    runner = binding.call
                 result = self.server.loop.calls.execute_journaled(
                     "equipment:" + payload["request_id"], payload["call_id"],
-                    payload["name"], arguments, self.server.catalog.call)
+                    payload["name"], arguments, runner, source_context=source_context)
                 self._send(200, {"ok": not tool_failed(result), "request_id": payload["request_id"],
                     "call_id": payload["call_id"], "result": redacted(result),
                     "uncertain": effect_uncertain(result)})
             except Exception as exc:
-                self._send(400, {"ok": False, "error": type(exc).__name__, "message": redacted(str(exc))})
+                code = getattr(exc, "code", type(exc).__name__)
+                pending = code in {"source_binding_unresolved", "source_binding_mismatch"}
+                self._send(200 if pending else 400,
+                    {"ok": False, "isError": True, "error": type(exc).__name__,
+                     "code": code, "message": redacted(str(exc)),
+                     "pending": pending, "uncertain": bool(getattr(exc, "uncertain", False))})
             return
         if urllib.parse.urlsplit(self.path).path != "/v1/message":
             self._send(404, {"ok": False, "error": "not_found"})
@@ -890,7 +922,10 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     upstream = UpstreamClient(args.upstream)
-    catalog = CombinedCatalog(McpCatalog(args.mcp_url, ttl_seconds=args.cache_ttl))
+    config = (json.loads(args.equipment_config.read_text(encoding="utf-8"))
+              if args.equipment_config.is_file() else {})
+    catalog = CombinedCatalog(McpCatalog(args.mcp_url, ttl_seconds=args.cache_ttl),
+                              source_bindings=source_bindings_from_config(config))
     calls = ToolCallStore(args.call_db)
     events = EventStore(args.event_log)
     loop = ToolLoop(
@@ -907,7 +942,6 @@ def main(argv: list[str] | None = None) -> int:
     carrier = None
     if args.equipment_config.is_file():
         from integrations.shared_equipment.slack_carrier import SlackEquipmentCarrier
-        config = json.loads(args.equipment_config.read_text(encoding="utf-8"))
         route = config.get("slack_carrier")
         if route:
             carrier = SlackEquipmentCarrier(catalog, calls, route,
