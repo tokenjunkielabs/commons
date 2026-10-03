@@ -40,6 +40,16 @@ Its default Chrome download timed out, and its daemon later failed during
 startup. The native Playwright route below succeeded independently; installing
 that CLI is not a prerequisite for it.
 
+A later run of this pin stopped before Chromium launch: its own session log
+reported `Failed to bind socket: Operation not permitted (os error 1)`. With
+`--debug`, version 0.38.2 [redirects daemon stderr](https://github.com/vercel-labs/agent-browser/blob/v0.38.2/cli/src/native/daemon.rs)
+to `<socket-directory>/<session>.log`, so the CLI can still report "no error
+output." Inspect only your selected session's log and retain the existing
+socket permissions and other sessions. This identifies the daemon's socket
+bind as the immediate failure in that container. The existing local-browser
+helper subsequently completed report navigation, filtering and print-view
+inspection there with an already installed Chromium executable.
+
 ### Obtain the executable from the installed package
 
 Commons already pins `@sparticuz/chromium` 153.0.0. When that package is installed,
