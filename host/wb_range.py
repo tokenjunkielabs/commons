@@ -739,7 +739,7 @@ def verify_ranges(local_path: Path, remote_url: str, cache_dir: Path, *,
 
 
 def _embedding_row(source: dict, tensor: dict, row: int, cache_dir: Path,
-                   limit: int) -> list[float]:
+                   limit: int, *, reader: RangeReader | None = None) -> list[float]:
     dtype = tensor["dtype"]
     if dtype not in ("F32", "F16", "F64", "BF16", "F8_E4M3", "F8_E5M2"):
         raise WbRangeError("axis needs a float dtype, tensor is %s" % dtype)
@@ -751,7 +751,8 @@ def _embedding_row(source: dict, tensor: dict, row: int, cache_dir: Path,
         raise WbRangeError("row %d outside [0, %d)" % (row, rows))
     elem = SAFETENSORS_DTYPES[dtype][1]
     offset = tensor["begin"] + row * width * elem
-    reader = RangeReader(source["url"], cache_dir, limit=limit)
+    if reader is None:
+        reader = RangeReader(source["url"], cache_dir, limit=limit)
     data = reader.read(offset, width * elem)
     return decode_values(dtype, data)
 
@@ -762,11 +763,12 @@ def cut_axis(index: dict, archive: Archive, cache_dir: Path, tensor_name: str,
     if not pairs:
         raise WbRangeError("axis needs at least one row pair")
     source, tensor = find_tensor(index, tensor_name)
+    reader = RangeReader(source["url"], cache_dir, limit=limit)
     accum = None
     rows_used = []
     for positive, negative in pairs:
-        pos = _embedding_row(source, tensor, positive, cache_dir, limit)
-        neg = _embedding_row(source, tensor, negative, cache_dir, limit)
+        pos = _embedding_row(source, tensor, positive, cache_dir, limit, reader=reader)
+        neg = _embedding_row(source, tensor, negative, cache_dir, limit, reader=reader)
         diff = [p - n for p, n in zip(pos, neg)]
         accum = diff if accum is None else [a + d for a, d in zip(accum, diff)]
         rows_used.append([positive, negative])
@@ -800,8 +802,9 @@ def score_rows(index: dict, archive: Archive, cache_dir: Path, tensor_name: str,
         raise WbRangeError("axis width %d != tensor width %d"
                            % (width, tensor["shape"][1]))
     scores = []
+    reader = RangeReader(source["url"], cache_dir, limit=limit) if rows else None
     for row in rows:
-        values = _embedding_row(source, tensor, row, cache_dir, limit)
+        values = _embedding_row(source, tensor, row, cache_dir, limit, reader=reader)
         norm = math.sqrt(sum(v * v for v in values))
         dot = sum(a * v for a, v in zip(axis, values))
         scores.append({"row": row, "cosine": (dot / norm) if norm else 0.0})
