@@ -29,6 +29,26 @@ criticality label and source ID in it is a scenario assumption, not collected
 institutional evidence. The method and input meanings are retained in the
 [original operating guide](https://github.com/woahwhattheheck/commons/blob/d50b57c6ac658fe4e110ad500a7101949edafb3b/revenue/uiowa_rfq_18649_debt/README.md).
 
+## Joint-assumption follow-through
+
+Agreement between the two endpoint objectives does not establish that the same
+portfolio wins throughout the stated intervals. The [joint-assumption readout](JOINT_ASSUMPTIONS.md)
+preserves the concrete 32-hour counterexample: a valid refinement selects
+AUTOMATE alone at 60–68 net support hours, while the former BASE + RETRY + SYNC
+portfolio becomes 42–50. Every effort estimate and feasibility constraint remains
+unchanged.
+
+The completed follow-through for [#16302](https://github.com/woahwhattheheck/commons/issues/16302)
+uses the same calculator and register across all 64 simultaneous low/high benefit
+corners at capacities 32, 40, 50 and 52. Actual execution on October 3, 2026 under
+CPython 3.12.14 completed 256 new scenarios plus four baseline runs with exit 0.
+The [published output projection](joint_assumptions.json) retains selections,
+effort/payback endpoints, feasible sets and report digests; the
+[runnable analysis](joint_assumptions.py) regenerates the full reports.
+Corner counts are not probabilities, and this finite experiment is not a
+continuous-interval robustness proof. The original 10,508-scenario sweep below
+retains its own scope and execution record.
+
 ## 1. Exact capacity transitions at 12 weeks
 
 The intervals below are exhaustive over **integer capacities 0–100 hours**,

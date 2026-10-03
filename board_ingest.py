@@ -992,17 +992,21 @@ def _snapshot(relpaths):
         path = os.path.join(ROOT, *rel.split("/"))
         if not os.path.isfile(path):
             continue
+        file_digest = hashlib.sha256()
+        file_size = 0
         with open(path, "rb") as handle:
-            data = handle.read()
-        file_hash = hashlib.sha256(data).hexdigest()
+            for block in iter(lambda: handle.read(64 * 1024), b""):
+                file_digest.update(block)
+                file_size += len(block)
+        file_hash = file_digest.hexdigest()
         digest.update(rel.encode("utf-8"))
         digest.update(b"\0")
-        digest.update(str(len(data)).encode("ascii"))
+        digest.update(str(file_size).encode("ascii"))
         digest.update(b"\0")
         digest.update(file_hash.encode("ascii"))
         digest.update(b"\n")
         count += 1
-        size += len(data)
+        size += file_size
     return {"sha256": digest.hexdigest(), "files": count, "bytes": size}
 
 
@@ -1211,6 +1215,8 @@ def _contains_recorded_checkout_url(text):
 
 def _autolink(escaped):
     """Link bare URLs and Slack ``<URL|label>`` in HTML-escaped text."""
+    if "http" not in escaped:
+        return escaped
     def _repl(m):
         # Slack stores links as <https://example.test|label>.  At this point
         # the post is already escaped, so consume the whole encoded marker in

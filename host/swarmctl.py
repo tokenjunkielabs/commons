@@ -96,14 +96,18 @@ def main(argv=None):
     sync.add_argument("--cached", action="store_true", help="ingest existing evidence without provider calls")
     status = commands.add_parser("status")
     status.add_argument("--fresh", action="store_true")
+    status.add_argument("--ledger", type=Path,
+                        help="read a saved canonical runtime ledger without Git or provider requests")
     status.add_argument("--limit", type=int, default=100)
     status.add_argument("--task", help="exact task identity or GitHub issue/PR URL")
+    status.add_argument("--context", action="store_true",
+                        help="include the retained event bundle for --task")
     status.add_argument("--state", dest="states", action="append",
                         choices=("OPEN", "ACTIVE", "SHIPPED", "BLOCKED", "SUPERSEDED", "ABANDONED"),
                         help="filter lifecycle state; repeat to include several states")
     status.add_argument("--owner", help="filter current worker by exact name")
     status.add_argument("--after", help="exclusive task-key cursor returned by the previous page")
-    for name in ("open", "take", "heartbeat", "ship", "block", "abandon", "next"):
+    for name in ("open", "take", "heartbeat", "release", "ship", "block", "abandon", "next"):
         command = commands.add_parser(name)
         command.add_argument("task", nargs="?")
         command.add_argument("--operation-id")
@@ -111,6 +115,9 @@ def main(argv=None):
         command.add_argument("--blocker")
         command.add_argument("--next-action")
         command.add_argument("--feed-cursor")
+        if name == "release":
+            command.add_argument("--expected-started-at",
+                                help="current task started_at from status; required here or in --data")
     args = parser.parse_args(argv)
     try:
         if args.command == "sync":
@@ -120,17 +127,22 @@ def main(argv=None):
                        "events": load(args.events, []), "max_calls": args.max_calls,
                        "refresh_providers": not args.cached}
         elif args.command == "status":
+            if args.context and not args.task:
+                raise ValueError("--context requires --task")
             payload = {"refresh": args.fresh, "limit": args.limit, "worker": args.worker}
             payload.update({key: value for key, value in
                             (("task", args.task), ("states", args.states),
                              ("owner", args.owner), ("after", args.after)) if value is not None})
+            if args.context:
+                payload["context"] = True
         else:
             payload = load(args.data, {})
             if not isinstance(payload, dict):
                 raise ValueError("data must be a JSON object")
             for field, value in (("worker", args.worker), ("task_key", args.task),
                                  ("blocker", args.blocker), ("next_action", args.next_action),
-                                 ("feed_cursor", args.feed_cursor)):
+                                 ("feed_cursor", args.feed_cursor),
+                                 ("expected_started_at", getattr(args, "expected_started_at", None))):
                 if value is not None:
                     payload[field] = value
             operation_id = args.operation_id or payload.get("operation_id")
@@ -143,7 +155,20 @@ def main(argv=None):
                 operation_id = "cli-" + hashlib.sha256(json.dumps(seed, sort_keys=True).encode()).hexdigest()[:32]
             payload["operation_id"] = operation_id
             print("operation_id=" + operation_id, file=sys.stderr, flush=True)
-        if args.url:
+        if args.command == "status" and args.ledger is not None:
+            if args.fresh:
+                raise ValueError("--fresh cannot refresh a saved ledger; fetch a newer ledger first")
+            from host.swarm_runtime.runtime import read_status
+            from host.swarm_runtime.store import _state
+            raw = args.ledger.read_bytes()
+            state = json.loads(raw.decode("utf-8"))
+            if not isinstance(state, dict) or state.get("schema") != "commons-swarm-runtime/v1":
+                raise ValueError("--ledger requires a saved canonical swarm runtime ledger")
+            result = read_status(_state(state), authority="retained_ledger",
+                                 **{key: value for key, value in payload.items() if key != "refresh"})
+            result.update(source_path=str(args.ledger),
+                          source_ledger_sha256=hashlib.sha256(raw).hexdigest())
+        elif args.url:
             if args.no_push:
                 raise ValueError("--no-push applies to local Git Data proposals, not shared HTTP operations")
             result = shared_request(args.url, {**payload, "action": args.command})

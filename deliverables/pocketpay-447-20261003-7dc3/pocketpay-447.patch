@@ -1,0 +1,221 @@
+diff --git a/src/wallet/multi-asset.ts b/src/wallet/multi-asset.ts
+index 9bdfaca7ec54a2e29c7f18779e08c44ba1a34f04..2efcb0c3cc9a97d54954dedc0f59216aaeac83c3 100644
+--- a/src/wallet/multi-asset.ts
++++ b/src/wallet/multi-asset.ts
+@@ -28,6 +28,7 @@
+ } from '../utils';
+ import { getHorizonServer, resolveConfig } from '../config';
+ import { withTimeout } from '../network';
++import { parseAmount, formatStroops } from '../utils/amount';
+ 
+ /**
+  * Calculates Stellar protocol XLM reserves based on subentry count.
+@@ -59,6 +60,7 @@
+  * @param horizonAccountData - Raw Horizon account response object (or null if unfunded/unavailable)
+  * @param accountState - Account status override ('funded' | 'unfunded' | 'unavailable' | 'unknown')
+  * @returns Typed {@link MultiAssetBalance} object
++ * @throws {PocketPayError} if a balance or selling liability is not a valid Stellar amount
+  */
+ export function parseMultiAssetBalance(
+   publicKey: string,
+@@ -109,19 +111,20 @@
+       const sellingLiabilities = typeof bal.selling_liabilities === 'string' ? bal.selling_liabilities : '0.0000000';
+       const buyingLiabilities = typeof bal.buying_liabilities === 'string' ? bal.buying_liabilities : '0.0000000';
+ 
+-      const totalNum = parseFloat(totalBalance);
+-      const minReserveNum = parseFloat(reserves.minBalance);
+-      const sellingNum = parseFloat(sellingLiabilities);
+-      const reservedNum = minReserveNum + sellingNum;
+-      const availableNum = Math.max(0, totalNum - reservedNum);
+-
+-      const availableBalance = availableNum.toFixed(7);
+-      const reservedBalance = reservedNum.toFixed(7);
++      const totalStroops = parseAmount(totalBalance).stroops;
++      const reservedStroops = parseAmount(reserves.minBalance).stroops
++        + parseAmount(sellingLiabilities).stroops;
++      const availableStroops = totalStroops > reservedStroops
++        ? totalStroops - reservedStroops
++        : 0n;
++
++      const availableBalance = formatStroops(availableStroops);
++      const reservedBalance = formatStroops(reservedStroops);
+ 
+       let state: AssetBalanceState = 'available';
+-      if (availableNum <= 0 && totalNum > 0) {
++      if (availableStroops === 0n && totalStroops > 0n) {
+         state = 'reserved';
+-      } else if (totalNum === 0) {
++      } else if (totalStroops === 0n) {
+         state = 'unavailable';
+       }
+ 
+@@ -153,19 +156,21 @@
+ 
+       const isAuthorized = bal.is_authorized !== false && bal.is_authorized_to_maintain_liabilities !== false;
+ 
+-      const totalNum = parseFloat(totalBalance);
+-      const sellingNum = parseFloat(sellingLiabilities);
+-      const availableNum = Math.max(0, totalNum - sellingNum);
+-
+-      const availableBalance = availableNum.toFixed(7);
+-      const reservedBalance = sellingNum.toFixed(7);
++      const totalStroops = parseAmount(totalBalance).stroops;
++      const reservedStroops = parseAmount(sellingLiabilities).stroops;
++      const availableStroops = totalStroops > reservedStroops
++        ? totalStroops - reservedStroops
++        : 0n;
++
++      const availableBalance = formatStroops(availableStroops);
++      const reservedBalance = formatStroops(reservedStroops);
+ 
+       let state: AssetBalanceState = 'available';
+       if (!isAuthorized) {
+         state = 'unauthorized';
+-      } else if (availableNum <= 0 && totalNum > 0) {
++      } else if (availableStroops === 0n && totalStroops > 0n) {
+         state = 'reserved';
+-      } else if (totalNum === 0) {
++      } else if (totalStroops === 0n) {
+         state = 'available';
+       }
+ 
+diff --git a/src/utils/balanceDisplay.ts b/src/utils/balanceDisplay.ts
+index 3e94b8f8e1eb7b69d9b113d361f676f371b63f3f..d283a5d7e0e4a80873795c68711ea010019fe3ae 100644
+--- a/src/utils/balanceDisplay.ts
++++ b/src/utils/balanceDisplay.ts
+@@ -85,11 +85,11 @@
+   maximum: number,
+   groupThousands: boolean,
+ ): string {
+-  const [whole, fraction = ''] = canonical.split('.');
++  const [whole = '', fraction = ''] = canonical.split('.');
+   let roundedWhole = whole;
+   let roundedFraction = fraction.slice(0, maximum);
+ 
+-  if (maximum < fraction.length && fraction[maximum] >= '5') {
++  if (maximum < fraction.length && fraction.charAt(maximum) >= '5') {
+     const combined = maximum === 0 ? whole : whole + roundedFraction.padEnd(maximum, '0');
+     const incremented = (BigInt(combined) + 1n).toString();
+ 
+diff --git a/tests/multi-asset-balance.test.ts b/tests/multi-asset-balance.test.ts
+index 05582eb13fa77d1685a5e7b6a2f6f60889d21e1c..87ac3304417f71cd24558566c9cab9c4d21eaf1c 100644
+--- a/tests/multi-asset-balance.test.ts
++++ b/tests/multi-asset-balance.test.ts
+@@ -17,6 +17,7 @@
+   createWallet,
+   PocketPayError,
+ } from '../src';
++import { fundedAccount } from './fixtures/accounts';
+ 
+ const mockLoadAccount = vi.fn();
+ 
+@@ -68,6 +69,97 @@
+   });
+ 
+   describe('parseMultiAssetBalance', () => {
++    it('keeps native reserve and selling-liability arithmetic exact across the amount range', () => {
++      const result = parseMultiAssetBalance(publicKey, {
++        ...fundedAccount,
++        subentry_count: 0,
++        balances: [{
++          asset_type: 'native',
++          balance: '922337203685.4775807',
++          selling_liabilities: '0.0000001',
++        }],
++      });
++
++      expect(result.native?.totalBalance).toBe('922337203685.4775807');
++      expect(result.native?.reservedBalance).toBe('1.0000001');
++      expect(result.native?.availableBalance).toBe('922337203684.4775806');
++      expect(result.native?.state).toBe('available');
++      expect(formatAssetBalanceDisplay(result.native!, 7)).toBe('922337203684.4775806 XLM');
++    });
++
++    it('keeps a single remaining issued stroop available near the protocol maximum', () => {
++      const result = parseMultiAssetBalance(publicKey, {
++        ...fundedAccount,
++        balances: [{
++          asset_type: 'credit_alphanum4',
++          asset_code: 'USDC',
++          asset_issuer: issuerPublicKey,
++          balance: '922337203685.4775807',
++          selling_liabilities: '922337203685.4775806',
++        }],
++      });
++
++      const issued = result.issuedAssets[0]!;
++      expect(issued.availableBalance).toBe('0.0000001');
++      expect(issued.reservedBalance).toBe('922337203685.4775806');
++      expect(issued.state).toBe('available');
++      expect(formatAssetBalanceDisplay(issued, 7)).toBe('0.0000001 USDC');
++    });
++
++    it('rounds display cents after exact liability subtraction', () => {
++      const result = parseMultiAssetBalance(publicKey, {
++        ...fundedAccount,
++        balances: [{
++          asset_type: 'credit_alphanum4',
++          asset_code: 'USDC',
++          asset_issuer: issuerPublicKey,
++          balance: '922337203685.0050000',
++          selling_liabilities: '0.0000001',
++        }],
++      });
++
++      expect(result.issuedAssets[0]?.availableBalance).toBe('922337203685.0049999');
++      expect(result.issuedAssets[0]?.formattedDisplay).toBe('922337203685.00 USDC');
++    });
++
++    it.each(['native', 'credit_alphanum4'])('clamps encumbered %s balances to zero', (assetType) => {
++      const result = parseMultiAssetBalance(publicKey, {
++        ...fundedAccount,
++        balances: [{
++          asset_type: assetType,
++          asset_code: 'USDC',
++          asset_issuer: issuerPublicKey,
++          balance: '1.0000000',
++          selling_liabilities: '1.0000001',
++        }],
++      });
++
++      const item = result.native ?? result.issuedAssets[0]!;
++      expect(item.availableBalance).toBe('0.0000000');
++      expect(item.state).toBe('reserved');
++    });
++
++    it.each(['1e3', '10abc', '0.00000001', '922337203685.4775808'])(
++      'rejects invalid amount %s instead of coercing it through floating point',
++      (amount) => {
++        for (const assetType of ['native', 'credit_alphanum4']) {
++          for (const field of ['balance', 'selling_liabilities']) {
++            expect(() => parseMultiAssetBalance(publicKey, {
++              ...fundedAccount,
++              balances: [{
++                asset_type: assetType,
++                asset_code: 'USDC',
++                asset_issuer: issuerPublicKey,
++                balance: '10.0000000',
++                selling_liabilities: '0.0000000',
++                [field]: amount,
++              }],
++            })).toThrowError(expect.objectContaining({ code: 'PAYMENT_INVALID_AMOUNT' }));
++          }
++        }
++      },
++    );
++
+     it('parses native XLM balance with subentry reserve deduction', () => {
+       const horizonData = {
+         subentry_count: 2,
+diff --git a/docs/balance-display.md b/docs/balance-display.md
+index 08db9aed3fe682a40827c86c24e3dc975a64c3f9..c1dc26e8a77780c611b4d3c142f8f388aa41a844 100644
+--- a/docs/balance-display.md
++++ b/docs/balance-display.md
+@@ -56,3 +56,7 @@
+ ## Existing wallet helper
+ 
+ `formatAssetBalanceDisplay` now delegates valid native and issued values to this shared normaliser. Its historical fixed-decimal shape is preserved by setting the normaliser's minimum and maximum display precision to the helper's `decimals` argument.
++
++`parseMultiAssetBalance` also keeps native reserve and selling-liability deductions in integer stroops before formatting. Issued assets use the same exact subtraction. Both retain seven decimal places in `availableBalance` and `reservedBalance`, clamp an encumbered available balance to zero, and determine availability from the exact result. A remaining `0.0000001` is therefore still available even when the default two-decimal display shows `0.00`.
++
++Raw balance and selling-liability strings must satisfy `parseAmount`: unsigned plain decimals with at most seven fractional digits within the Stellar amount range. Malformed strings produce a typed `PAYMENT_INVALID_AMOUNT` error from `parseMultiAssetBalance`; `safeGetMultiAssetBalance` returns a failure result through its existing error wrapper. The display normaliser's separate missing/invalid return contract is unchanged.

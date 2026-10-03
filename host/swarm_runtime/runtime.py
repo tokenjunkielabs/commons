@@ -14,7 +14,7 @@ from pathlib import Path
 
 from .identity import task_key
 from .projector import _time, merge_facts, project
-from .routing import context_bundle, route, select_tasks, status
+from .routing import _iter_routes, context_bundle, route, select_tasks, status
 from .store import GitStore
 
 TERMINAL = {"SHIPPED", "BLOCKED", "SUPERSEDED", "ABANDONED"}
@@ -89,6 +89,58 @@ def _project(state, moment):
 def _merge_facts(state, incoming):
     merge_facts(state.setdefault("provider_facts", {}), incoming)
 
+
+def read_status(state, *, tip=None, authority="state/claims", now=None,
+                worker=None, limit=100, task=None, states=None, owner=None, after=None,
+                context=False):
+    """Project one retained state without Git, provider IO, or state mutation."""
+    if type(context) is not bool:
+        raise ValueError("context must be a boolean")
+    if context and task is None:
+        raise ValueError("context requires an exact task")
+    moment = now if now is not None else now_iso()
+    seats = _seats(state)
+    view = project(state.get("events", []), now=moment, seats=seats,
+                   provider_facts=state.get("provider_facts", {}))
+    page = select_tasks(view["tasks"], limit=limit, task=task,
+                        states=states, owner=owner, after=after)
+    result = {"ok": True, "authority": authority, "tip": tip,
+            "observed_at": moment, "summary": status(view["tasks"], seats, moment),
+            "tasks": page["rows"], "total": page["total"], "matched": page["matched"],
+            "truncated": page["truncated"], "next_cursor": page["next_cursor"],
+            "collisions": view.get("collisions", [])[-50:],
+            "rejected": view.get("rejected", [])[-20:],
+            "coverage": state.get("coverage", {}),
+            "feed_cursor": state.get("cursors", {}).get("commons", {}).get("feed_cursor", "UNKNOWN"),
+            "next": route(view["tasks"], worker, seats, moment) if worker else None}
+    if context:
+        result["context"] = (context_bundle(page["rows"][0], state.get("events", []))
+                             if page["rows"] else None)
+    return result
+
+
+def _handoff_candidates(before, tasks, seats, moment, events):
+    """Suggest distinct work within one passive reconciliation response."""
+    handoffs = []
+    candidate_workers = set()
+    for closed_key, previous in sorted(before.items()):
+        closed = tasks.get(closed_key, {})
+        worker = previous.get("worker")
+        if (previous.get("state") != "ACTIVE" or closed.get("state") not in TERMINAL
+                or not worker or worker == "UNKNOWN"):
+            continue
+        if worker in candidate_workers:
+            continue
+        candidate_workers.add(worker)
+        handoffs.append((closed_key, worker))
+    candidates = []
+    choices = _iter_routes(tasks, (worker for _, worker in handoffs), seats, moment)
+    for (closed_key, worker), choice in zip(handoffs, choices):
+        target = choice.get("task_key")
+        if target:
+            candidates.append({"worker": worker, "after_task_key": closed_key,
+                               "task": context_bundle(tasks[target], events)})
+    return candidates
 
 class Runtime:
     def __init__(self, root, *, store=None, state_dir=None):
@@ -165,21 +217,11 @@ class Runtime:
         return facts, deferred
 
     def read(self, *, refresh=False, worker=None, limit=100,
-             task=None, states=None, owner=None, after=None):
+             task=None, states=None, owner=None, after=None, context=False):
         tip, state = self.store.read(refresh=refresh)
-        moment = now_iso()
-        view = _project(state, moment)
-        page = select_tasks(view["tasks"], limit=limit, task=task,
-                            states=states, owner=owner, after=after)
-        return {"ok": True, "authority": "state/claims", "tip": tip,
-                "observed_at": moment, "summary": status(view["tasks"], _seats(state), moment),
-                "tasks": page["rows"], "total": page["total"], "matched": page["matched"],
-                "truncated": page["truncated"], "next_cursor": page["next_cursor"],
-                "collisions": view.get("collisions", [])[-50:],
-                "rejected": view.get("rejected", [])[-20:],
-                "coverage": state.get("coverage", {}),
-                "feed_cursor": state.get("cursors", {}).get("commons", {}).get("feed_cursor", "UNKNOWN"),
-                "next": route(view["tasks"], worker, _seats(state), moment) if worker else None}
+        return read_status(state, tip=tip, worker=worker, limit=limit,
+                           task=task, states=states, owner=owner, after=after,
+                           context=context)
 
     def sync(self, *, work_snapshot=None, provider_facts=None, events=None,
              max_calls=4, refresh_providers=True, push=True):
@@ -193,16 +235,16 @@ class Runtime:
             legacy_events = None
         if legacy_events:
             incoming += legacy_events(prior.get("legacy_holdings", {}), prior.get("legacy_mirror_revisions", {}))
-        candidate = copy.deepcopy(prior)
-        _append(candidate, incoming)
-        candidate["seats"] = imported.get("seats", candidate.get("seats", {}))
-        _merge_facts(candidate, imported.get("provider_facts", {}))
-        _merge_facts(candidate, provider_facts or {})
         moment = now_iso()
-        projection = _project(candidate, moment)
         fresh = {"provider_facts": {}, "calls": 0, "deferred": []}
-        if refresh_providers and max_calls:
+        if refresh_providers:
             from .providers import enrich
+            candidate = copy.deepcopy(prior)
+            _append(candidate, incoming)
+            candidate["seats"] = imported.get("seats", candidate.get("seats", {}))
+            _merge_facts(candidate, imported.get("provider_facts", {}))
+            _merge_facts(candidate, provider_facts or {})
+            projection = _project(candidate, moment)
             fresh = enrich(projection["tasks"], self.state_dir, max_calls=max_calls, now=moment)
         facts = {}
         for batch in (imported.get("provider_facts", {}), provider_facts or {},
@@ -224,43 +266,20 @@ class Runtime:
                 state["cursors"] = imported.get("cursors", state.get("cursors", {}))
                 state["coverage"] = imported.get("coverage", {})
             view = _project(state, moment)
-            assignments = []
-            for closed_key, previous in sorted(before.items()):
-                closed = view["tasks"].get(closed_key, {})
-                worker = previous.get("worker")
-                if previous.get("state") != "ACTIVE" or closed.get("state") not in TERMINAL or not worker or worker == "UNKNOWN":
-                    continue
-                choice = route(view["tasks"], worker, _seats(state), moment)
-                target = choice.get("task_key")
-                if not target:
-                    continue
-                row = view["tasks"][target]
-                event = {"id": "reconcile-next:" + digest([closed_key, closed.get("merge_sha"), worker, target]),
-                         "action": "TAKE", "task_key": target, "worker": worker,
-                         "at": moment, "source": "swarm-reconciler"}
-                if row.get("recoverable"):
-                    _append(state, [{**event, "id": event["id"] + ":recover", "action": "RECOVER",
-                                     "expected_worker": row.get("worker"), "expected_heartbeat": row.get("heartbeat")}])
-                _append(state, [event])
-                # Taking actual next work is meaningful worker activity. Keep
-                # automatic assignment and explicit take on the same seat lease.
-                state.setdefault("workers", {}).setdefault(worker, {}).update(
-                    seat=worker, heartbeat=moment,
-                    dispatch_cursor=state.get("cursors", {}).get("commons", {}).get("feed_cursor", "UNKNOWN"))
-                view = _project(state, moment)
-                assignments.append(context_bundle(view["tasks"][target], state["events"]))
+            candidates = _handoff_candidates(before, view["tasks"], _seats(state),
+                                              moment, state["events"])
             return {"action": "sync", "ingested": added, "tasks": len(view["tasks"]),
                     "summary": status(view["tasks"], _seats(state), moment),
                     "provider_calls": fresh.get("calls", 0),
                     "deferred": fresh.get("deferred", []), "coverage": state.get("coverage", {}),
-                    "assignments": assignments}
+                    "assignments": [], "candidates": candidates}
         return self.store.update(mutation, push=push)
 
     def operate(self, action, payload, *, push=True, worker_activity=True):
         if type(worker_activity) is not bool:
             raise ValueError("worker_activity must be a boolean")
         action = str(action).lower()
-        if action not in {"open", "take", "heartbeat", "ship", "block", "abandon", "next"}:
+        if action not in {"open", "take", "heartbeat", "release", "ship", "block", "abandon", "next"}:
             raise ValueError("Unknown swarm action: " + action)
         if not isinstance(payload, dict):
             raise ValueError("Expected operation object")
@@ -278,6 +297,12 @@ class Runtime:
             raise ValueError("task_key is required")
         if action == "block" and (not payload.get("blocker") or not payload.get("next_action")):
             raise ValueError("BLOCKED requires blocker and exact next_action")
+        expected_started = None
+        if action == "release":
+            expected_started_at = payload.get("expected_started_at")
+            if not isinstance(expected_started_at, str) or _time(expected_started_at) is None:
+                raise ValueError("release requires expected_started_at from the observed ACTIVE task")
+            expected_started = _time(expected_started_at)
         request_identity = {"action": action, "payload": payload}
         if not worker_activity:
             # A coordinator choosing a seat is not evidence that seat is live.
@@ -328,18 +353,23 @@ class Runtime:
                     raise ValueError("heartbeat needs task_key unless worker owns exactly one ACTIVE task")
                 selected_key = active[0]
 
+            event_prefix = "swarm-operation-v2:" + hashlib.sha256(operation_id.encode("utf-8")).hexdigest()
+            emitted_ids = set()
+
             def emit(verb, target, suffix="", **extra):
                 allowed = ("base_sha", "head_sha", "branch", "pr", "issue", "repo", "artifact",
                            "merge_sha", "blocker", "next_action", "required_capabilities",
-                           "priority", "source_event_ids", "exact_error", "model", "harness")
+                           "priority", "source_event_ids", "exact_error", "model", "harness", "title")
                 event = {field: payload[field] for field in allowed if field in payload}
-                event.update(id="swarm:" + operation_id + suffix, action=verb, task_key=target,
+                event.update(id=event_prefix + suffix, action=verb, task_key=target,
                              worker=worker or "UNKNOWN", at=moment, source="swarmctl",
                              feed_cursor=payload.get("feed_cursor") or state.get("workers", {}).get(worker, {}).get("feed_cursor", "UNKNOWN"))
                 event.update(extra)
                 _append(state, [event])
+                emitted_ids.add(event["id"])
 
             collision = None
+            release_rejected = []
             if action == "open":
                 emit("OPEN", selected_key)
             elif action == "take":
@@ -367,6 +397,26 @@ class Runtime:
                             emit("RECOVER", selected_key, ":recover", expected_worker=row.get("worker"),
                                  expected_heartbeat=row.get("heartbeat"))
                         emit("TAKE", selected_key)
+            elif action == "release":
+                row = view["tasks"].get(selected_key)
+                reason = None
+                if row is None:
+                    reason = "task_not_found"
+                elif row.get("state") != "ACTIVE":
+                    reason = "task_not_active"
+                elif row.get("worker") != worker:
+                    reason = "custody_changed"
+                elif _time(row.get("started_at")) != expected_started:
+                    reason = "claim_generation_changed"
+                if reason:
+                    release_rejected.append({"id": event_prefix,
+                                             "task_key": selected_key, "reason": reason,
+                                             "state": row.get("state") if row else None})
+                else:
+                    # Keep the caller's generation fixed across CAS retries.
+                    # A release returns work to OPEN without claiming a result.
+                    emit("RELEASE", selected_key,
+                         expected_started_at=payload["expected_started_at"])
             elif action != "next":
                 emit({"heartbeat": "HEARTBEAT", "ship": "SHIP", "block": "BLOCK",
                       "abandon": "ABANDON"}[action], selected_key)
@@ -374,7 +424,7 @@ class Runtime:
             current = view["tasks"].get(selected_key) if selected_key else None
             next_job = None
             should_roll = action == "next" or collision is not None or (
-                current and current.get("state") in TERMINAL and action != "open")
+                current and current.get("state") in TERMINAL and action not in {"open", "release"})
             if should_roll:
                 choice = route(view["tasks"], worker, _seats(state), moment)
                 next_key = choice.get("task_key")
@@ -392,8 +442,8 @@ class Runtime:
                       "task": context_bundle(current, state["events"]) if current else None,
                       "collision": collision, "next": next_job,
                       "deferred": deferred,
-                      "rejected": [row for row in view.get("rejected", [])
-                                   if operation_id in str(row.get("id", row.get("event_id", "")))]}
+                      "rejected": release_rejected + [row for row in view.get("rejected", [])
+                                   if row.get("id", row.get("event_id")) in emitted_ids]}
             operations[operation_id] = {"request_hash": request_hash, "result": result}
             return result
         return self.store.update(mutation, push=push)

@@ -57,6 +57,14 @@ def _items(payload):
     return []
 
 
+def _page_items(payload, kind):
+    # Commit pages repeat the commit metadata; only the files array advances.
+    # Keep _items unchanged so graph expansion still reads the commit itself.
+    if kind == "commit_detail" and isinstance(payload, dict) and isinstance(payload.get("files"), list):
+        return payload["files"]
+    return _items(payload)
+
+
 class _Redirect(urllib.request.HTTPRedirectHandler):
     def redirect_request(self, req, fp, code, msg, headers, newurl):
         if urllib.parse.urlsplit(newurl).scheme != "https":
@@ -76,15 +84,51 @@ def _response_bytes(value):
     return json.dumps(value, ensure_ascii=False, separators=(",", ":"), allow_nan=False).encode("utf-8", "surrogatepass")
 
 
+def _native_payload(value):
+    """Decode installed connector envelopes without discarding their source."""
+    for _ in range(12):
+        if not isinstance(value, Mapping):
+            return value, None
+        if value.get("isError") or value.get("ok") is False or value.get("error"):
+            return value, "native_reader_error"
+        if isinstance(value.get("structuredContent"), (dict, list)):
+            value = value["structuredContent"]
+        elif isinstance(value.get("result"), (dict, list)):
+            value = value["result"]
+        elif isinstance(value.get("content"), str) and any(key in value for key in ("display_url", "display_title", "modified_date")):
+            return value["content"], None
+        elif isinstance(value.get("content"), list):
+            texts = [block.get("text") for block in value["content"]
+                     if isinstance(block, Mapping) and block.get("type") == "text" and isinstance(block.get("text"), str)]
+            decoded = []
+            for text in texts:
+                try:
+                    decoded.append(json.loads(text))
+                except ValueError:
+                    pass
+            if len(decoded) == 1:
+                value = decoded[0]
+            elif len(texts) == 1 and not decoded:
+                return texts[0], None
+            else:
+                return value, "native_response_unrecognized"
+        else:
+            return value, None
+    return value, "native_response_unrecognized"
+
+
 def _request(road, task, config, tokens):
     """A configured raw reader may return {body, headers, status, url}.
 
-    A legacy JSON reader remains usable, with honest reconstructed-JSON custody
-    and page-length pagination when no native headers were supplied.
+    Installed connector results retain their complete native envelope while
+    their provider body is decoded for traversal. A legacy JSON reader remains
+    usable, with reconstructed-JSON custody and page-length pagination when no
+    native headers were supplied.
     """
     reader = road.get("reader")
     endpoint = task["next_endpoint"]
     query = task.get("query")
+    native_envelope, reader_error = None, None
     if callable(reader):
         if query:
             graphql = road.get("graphql_reader")
@@ -93,6 +137,10 @@ def _request(road, task, config, tokens):
             value = graphql(query, task.get("variables") or {})
         else:
             value = reader(endpoint)
+        if isinstance(value, Mapping) and ("isError" in value or "structuredContent" in value or
+                                          isinstance(value.get("content"), list)):
+            native_envelope = copy.deepcopy(value)
+            value, reader_error = _native_payload(value)
         if isinstance(value, Mapping) and "body" in value and ("headers" in value or "status" in value):
             raw = _response_bytes(value["body"])
             headers = {str(k).lower(): str(v) for k, v in (value.get("headers") or {}).items()}
@@ -155,7 +203,14 @@ def _request(road, task, config, tokens):
         payload = json.loads(raw.decode("utf-8-sig"))
     except (ValueError, UnicodeError):
         pass
-    return {"raw": raw, "payload": payload, "headers": headers, "status": status, "url": url, "exact": exact}
+    if native_envelope is not None:
+        # Native tools expose source text, not the original HTTP wire. A text
+        # result only completes selectors that actually request text content.
+        exact = False
+        if not reader_error and payload is None and task["kind"] not in {"actions_logs", "pull_diff", "gist_file"}:
+            reader_error = "native_response_unrecognized"
+    return {"raw": raw, "payload": payload, "headers": headers, "status": status, "url": url, "exact": exact,
+            "native_envelope": native_envelope, "reader_error": reader_error}
 
 
 def _retry_epoch(headers, attempts=1):
@@ -678,10 +733,18 @@ def collect_github_activity(config=None, state=None, sources=None):
         task = queue[sid]
         ref = task["account_ref"]
         now = time.time()
+        if task["kind"] == "commit_detail" and task.get("file_pagination_version") != 1:
+            # Older checkpoints marked immutable commits complete after page
+            # one when a JSON reader omitted Link headers. Reopen them once
+            # through the normal request budget; retained envelopes stay intact.
+            task.update(file_pagination_version=1, complete=False, next_endpoint=task["endpoint"], page=1)
+            if task.get("pages"):
+                task["status"] = "pending_file_pagination_recovery"
         if task.get("complete"):
             if task.get("immutable") or now - float(task.get("completed_epoch") or now) < refresh:
                 continue
             task.update(complete=False, status="pending_refresh", next_endpoint=task["endpoint"], page=1)
+            task.pop("cloud_read_cursor", None)
             if task.get("query"):
                 task["variables"]["cursor"] = None
         if max(float(task.get("retry_epoch") or 0), float(cooldowns.get(ref, 0)), float(cooldowns.get(ref + ":" + str(task.get("repository")), 0))) > now:
@@ -696,7 +759,11 @@ def collect_github_activity(config=None, state=None, sources=None):
             placement = _placement(task)
             if placement:
                 cloud_reader = config.get("github_cloud_reader")
-                task.update(source_placement=placement, provider_original_ref=_api(road["host"]) + task["endpoint"], cloud_read_cursor={"endpoint": task["next_endpoint"], "page": task["page"]})
+                task.update(source_placement=placement, provider_original_ref=_api(road["host"]) + task["endpoint"])
+                # The cloud reader owns this opaque continuation. Preserve its
+                # last committed receipt across calls, retries and checkpoints.
+                if task.get("cloud_read_cursor") is None:
+                    task["cloud_read_cursor"] = {"endpoint": task["next_endpoint"], "page": task["page"]}
                 if not callable(cloud_reader):
                     task.update(status="cloud_custody_pending", complete=False, retry_epoch=time.time() + refresh)
                     # No request was issued. Keep budget available for readable
@@ -726,30 +793,43 @@ def collect_github_activity(config=None, state=None, sources=None):
                                "metadata": {"account_ref": ref, "repository": task.get("repository"), "kind": task["kind"], "source_placement": placement},
                                "source_ref": {"account_ref": ref, "selector_id": sid, "provider_original_ref": task["provider_original_ref"], "source_record_ref": safe_cloud_ref, "sha256": digest},
                                "full_source": safe_receipt})
-                task.update(complete=cloud_complete, status="observed_cloud" if cloud_complete else "cloud_backfilling", cloud_read_cursor=receipt.get("next_cursor"),
+                task.update(complete=cloud_complete, status="observed_cloud" if cloud_complete else "cloud_backfilling",
+                            cloud_read_cursor=receipt.get("next_cursor") if captured else task["cloud_read_cursor"],
                             observed_at=_now(), last_sha256=digest, retry_epoch=0, completed_epoch=time.time() if cloud_complete else None)
                 task["byte_length"] += int(safe_cloud_ref.get("bytes") or 0)
                 continue
             response = _request(road, task, config, tokens)
             raw, payload, status, headers = response["raw"], response["payload"], response["status"], response["headers"]
+            reader_error = response.get("reader_error")
+            reported_status = None if reader_error else status
             digest = hashlib.sha256(raw).hexdigest()
             source_ref = {"account_ref": ref, "repository": task.get("repository"), "selector_id": sid, "endpoint": task["next_endpoint"],
-                          "page": task["page"], "sha256": digest, "body_byte_length": len(raw), "http_status": status,
+                          "page": task["page"], "sha256": digest, "body_byte_length": len(raw), "http_status": reported_status,
                           "exact_http_bytes": response["exact"], "content_type": headers.get("content-type"), "provider_request_id": headers.get("x-github-request-id")}
             safe_headers = {k: v for k, v in headers.items() if k in {"content-type", "content-length", "etag", "last-modified", "x-github-request-id", "x-ratelimit-limit", "x-ratelimit-remaining", "x-ratelimit-reset", "x-ratelimit-resource", "retry-after"}}
             event_id = _hash(ref, sid, task["next_endpoint"], task.get("variables"), digest)
             events.append({"event_id": event_id, "source": "github", "source_id": sid + ":" + digest, "occurred_at": None, "observed_at": _now(),
                            "event_type": "github_source_response", "peer_id": None, "session_id": None, "agent_id": None, "parent_agent_id": None,
                            "provider": "github", "model": None, "harness": "existing_account_read_api", "work_id": None, "operation_id": None,
-                           "status": "observed" if status < 400 else "read_unavailable", "summary": "GitHub source response captured",
-                           "url": _clean_url(response["url"]), "metrics": {"body_byte_length": len(raw), "records": len(_items(payload)), "http_status": status},
+                           "status": "observed" if status < 400 and not reader_error else "read_unavailable", "summary": "GitHub source response captured",
+                           "url": _clean_url(response["url"]), "metrics": {"body_byte_length": len(raw), "records": len(_page_items(payload, task["kind"])), "http_status": reported_status},
                            "metadata": {"account_ref": ref, "repository": task.get("repository"), "kind": task["kind"], "sha256": digest, "response_headers": safe_headers},
                            "source_ref": source_ref,
                            "full_source": {"encoding": "base64", "body": base64.b64encode(raw).decode("ascii"), "sha256": digest, "byte_length": len(raw),
-                                           "url": response["url"], "headers": headers, "status": status, "parsed_json": payload, "exact_http_bytes": response["exact"],
+                                           "url": response["url"], "headers": headers, "status": reported_status, "parsed_json": payload, "exact_http_bytes": response["exact"],
                                            "graphql_query": task.get("query"), "graphql_variables": copy.deepcopy(task.get("variables"))}})
-            task.update(observed_at=_now(), last_status=status, last_sha256=digest)
+            if response.get("native_envelope") is not None:
+                envelope = response["native_envelope"]
+                envelope_bytes = _response_bytes(envelope)
+                envelope_digest = hashlib.sha256(envelope_bytes).hexdigest()
+                events[-1]["full_source"]["native_envelope"] = envelope
+                events[-1]["source_ref"].update(native_envelope_sha256=envelope_digest, native_envelope_byte_length=len(envelope_bytes))
+                events[-1]["event_id"] = _hash(ref, sid, task["next_endpoint"], task.get("variables"), digest, envelope_digest)
+            task.update(observed_at=_now(), last_status=reported_status, last_sha256=digest)
             task["byte_length"] += len(raw)
+            if reader_error:
+                task.update(status=reader_error, complete=False, retry_epoch=_retry_epoch(headers, task["attempts"]))
+                continue
             if status >= 400:
                 provider_message = str(payload.get("message", "")).lower() if isinstance(payload, dict) else ""
                 explicit_rate = any(phrase in provider_message for phrase in ("rate limit exceeded", "secondary rate limit", "abuse detection mechanism"))
@@ -778,7 +858,7 @@ def collect_github_activity(config=None, state=None, sources=None):
                     expand(task, payload)
                 continue
             task["pages"] += 1
-            task["records"] += len(_items(payload))
+            task["records"] += len(_page_items(payload, task["kind"]))
             if payload is not None:
                 expand(task, payload)
             task["retry_epoch"] = 0
@@ -810,7 +890,9 @@ def collect_github_activity(config=None, state=None, sources=None):
                     task.update(status="graphql_source_unavailable", complete=False, retry_epoch=_retry_epoch(headers))
                     continue
                 task["records"] += len((connection or {}).get("nodes") or [])
-            elif not headers and len(_items(payload)) >= 100 and "per_page=100" in task["endpoint"]:
+            # Matching refs returns the entire namespace and ignores page and
+            # per_page. Inferring pages would reread that namespace forever.
+            elif task["kind"] != "refs" and not headers and len(_page_items(payload, task["kind"])) >= 100 and "per_page=100" in task["endpoint"]:
                 parts = urllib.parse.urlsplit(task["next_endpoint"])
                 params = urllib.parse.parse_qsl(parts.query, keep_blank_values=True)
                 params = [(k, v) for k, v in params if k != "page"] + [("page", str(task["page"] + 1))]

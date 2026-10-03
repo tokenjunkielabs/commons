@@ -125,6 +125,32 @@ def _header_integer(headers, name):
     value = headers.get(name)
     return int(value) if isinstance(value, str) and re.fullmatch(r"[0-9]{1,12}", value) else None
 
+
+def _github_request_error(message, status, headers, *, method):
+    """Retain provider retry evidence when describing a failed request."""
+    remaining = _header_integer(headers, "x-ratelimit-remaining")
+    reset = _header_integer(headers, "x-ratelimit-reset")
+    resource = headers.get("x-ratelimit-resource")
+    if not isinstance(resource, str) or not re.fullmatch(r"[a-z][a-z0-9_]{0,63}", resource):
+        resource = None
+    secondary = status in (403, 429) and any(term in str(message).lower()
+        for term in ("secondary rate limit", "abuse detection mechanism"))
+    # A 403 may carry Retry-After without quota exhaustion or the
+    # standard secondary-limit prose. Preserve that provider deadline.
+    limited = status == 429 or status == 403 and (
+        remaining == 0 or secondary or bool(headers.get("retry-after")))
+    kind = ("secondary" if secondary else "primary" if remaining == 0 else "unknown") if limited else None
+    # An explicit quota refusal rejected this request. Retain the cooldown
+    # without making callers reconcile an effect the provider did not perform.
+    return EquipmentError(str(message),
+        code="github_rate_limited" if limited else "github_request_failed",
+        uncertain=method != "GET" and not limited, http_status=status,
+        delivered=False if limited else None,
+        retry_after=headers.get("retry-after") if limited else None,
+        rate_limit_remaining=remaining, rate_limit_reset=reset,
+        rate_limit_resource=resource, rate_limit_kind=kind)
+
+
 class GitHubSlackEquipment:
     def __init__(self, *, gh: str = "gh", slack_token_loader=None, gh_runner=None, opener=None):
         self.gh = gh
@@ -231,17 +257,21 @@ class GitHubSlackEquipment:
         try:
             with self.opener(request, timeout=90) as response:
                 status = int(response.status)
+                retry_after = response.headers.get("Retry-After")
                 response.read(256)
         except urllib.error.HTTPError as exc:
             status = exc.code
+            retry_after = exc.headers.get("Retry-After") if exc.headers is not None else None
             exc.close()
             return {"ok": False, "error": "slack_upload_http_error", "status": status,
+                    "retry_after": retry_after,
                     "uncertain": status not in (400, 401, 403, 404, 413, 429)}
         except Exception:
             raise EquipmentError("Slack file upload response unavailable; reconcile before retry",
                                  code="slack_upload_unconfirmed", uncertain=True) from None
         if status < 200 or status >= 300:
             return {"ok": False, "error": "slack_upload_http_error", "status": status,
+                    "retry_after": retry_after,
                     "uncertain": status >= 500}
         return {"ok": True, "http_status": status, "bytes_uploaded": len(body)}
 
@@ -256,6 +286,13 @@ class GitHubSlackEquipment:
         try:
             with self.opener(request, timeout=45) as response:
                 data = response.read(max_bytes + 1)
+        except urllib.error.HTTPError as exc:
+            status = exc.code
+            retry_after = exc.headers.get("Retry-After") if exc.headers is not None else None
+            exc.close()
+            raise EquipmentError("Slack file readback rate limited" if status == 429 else "Slack file readback unavailable",
+                                 code="slack_rate_limited" if status == 429 else "slack_file_read_failed",
+                                 http_status=status, retry_after=retry_after) from None
         except Exception:
             raise EquipmentError("Slack file readback unavailable", code="slack_file_read_failed") from None
         if len(data) > max_bytes:
@@ -291,24 +328,7 @@ class GitHubSlackEquipment:
                 message = "GitHub request failed through existing gh account"
             if status is None and isinstance(error, dict) and error.get("message") == "Not Found":
                 status = 404
-            remaining = _header_integer(headers, "x-ratelimit-remaining")
-            reset = _header_integer(headers, "x-ratelimit-reset")
-            resource = headers.get("x-ratelimit-resource")
-            if not isinstance(resource, str) or not re.fullmatch(r"[a-z][a-z0-9_]{0,63}", resource):
-                resource = None
-            secondary = status in (403, 429) and any(term in str(message).lower()
-                for term in ("secondary rate limit", "abuse detection mechanism"))
-            # A 403 may carry Retry-After without quota exhaustion or the
-            # standard secondary-limit prose. Preserve that provider deadline.
-            limited = status == 429 or status == 403 and (
-                remaining == 0 or secondary or bool(headers.get("retry-after")))
-            kind = ("secondary" if secondary else "primary" if remaining == 0 else "unknown") if limited else None
-            raise EquipmentError(str(message),
-                code="github_rate_limited" if limited else "github_request_failed",
-                uncertain=method != "GET", http_status=status,
-                retry_after=headers.get("retry-after") if limited else None,
-                rate_limit_remaining=remaining, rate_limit_reset=reset,
-                rate_limit_resource=resource, rate_limit_kind=kind)
+            raise _github_request_error(message, status, headers, method=method)
         if not body.strip():
             return {}
         try:

@@ -162,6 +162,7 @@ class GitStore:
         self.root, self.remote, self.branch = str(root), remote, branch
         self.cache_ttl = max(0, float(cache_ttl))
         self._cache = None
+        self._confirmed_tip = object()
         self._blob_records = {}
         self._legacy_oids = {}
         git_dir = self.git.out("rev-parse", "--absolute-git-dir").strip()
@@ -404,13 +405,19 @@ class GitStore:
         if not refresh and cached and 0 <= time.time() - cached.get("cached_at", 0) < self.cache_ttl:
             return cached["tip"], copy.deepcopy(cached["state"])
         tip = self._tip()
-        if not refresh and cached and cached.get("tip") == tip:
-            state = copy.deepcopy(cached["state"])
-        else:
-            try:
-                state = self._read_tip(tip)
-            except GitError as exc:
-                raise _failure(exc) from exc
+        if cached and cached.get("tip") == tip and (not refresh or self._confirmed_tip == tip):
+            # Freshness comes from the remote observation above. The ledger
+            # and sibling holdings cannot change within that immutable commit.
+            # A disk cache alone cannot establish the first fresh read here.
+            # Refresh only the in-memory observation time; rewriting the same
+            # snapshot would repeat its parsing, copying and disk serialization.
+            cached["cached_at"] = time.time()
+            return tip, copy.deepcopy(cached["state"])
+        try:
+            state = self._read_tip(tip)
+        except GitError as exc:
+            raise _failure(exc) from exc
+        self._confirmed_tip = tip
         self._remember(tip, state)
         return tip, state
 
@@ -474,21 +481,31 @@ class GitStore:
             else:
                 # Never release another worker's unrelated/newer legacy holding.
                 owned_by = worker if worker not in (None, "", "UNKNOWN") else old.get("worker")
+                started = _parse_ts(task.get("started_at"))
+                released = _parse_ts(task.get("released_at"))
+                is_release = (worker in (None, "", "UNKNOWN") and started is not None
+                              and released is not None and released >= started)
+                if is_release:
+                    # RELEASE reopens work and clears worker; its matching
+                    # custody remains in previous_worker, even after reloading
+                    # a ledger that omits the derived before.tasks projection.
+                    owned_by = task.get("previous_worker")
                 if not current or current.get("state") != "HELD" or current.get("holder") != owned_by:
                     continue
-                closed = _parse_ts(task.get("closed_at"))
+                ended = released if is_release else _parse_ts(task.get("closed_at"))
                 taken = _parse_ts(current.get("taken_at"))
                 heartbeat = _parse_ts(current.get("heartbeat_at"))
-                started = _parse_ts(task.get("started_at"))
                 activity = [stamp for stamp in (taken, heartbeat) if stamp is not None]
                 # A holder may take the same key again after its historical task
                 # closed. Terminal projections ignore those later TAKE events;
                 # worker equality alone therefore cannot prove current custody.
-                if closed is None or not activity or max(activity) > closed:
+                if ended is None or not activity or max(activity) > ended:
                     continue
                 if taken is not None and started is not None and taken > started:
                     continue
                 record = dict(current, state="RELEASED", task_key=key, runtime_managed=True)
+                if is_release:
+                    record["heartbeat_at"] = task["released_at"]
             if record != current:
                 updates[path] = record
         return updates

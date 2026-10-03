@@ -248,13 +248,24 @@
     const j=owned(i).job;const initial=j?Object.fromEntries(Object.entries(j).filter(([k])=>!['id','created_at','source_id','item_id'].includes(k))):null;
     add('job','Prepared job JSON (blank leaves existing packet; null clears)',initial?JSON.stringify(initial,null,2):'',true);
     form.append(node('p','field-help','Saving a packet does not dispatch it. Use the existing provider controls or copy it into the linked native task.'));
-    const out=node('div','action-output');out.hidden=true;form.append(out);const submit=node('button','button button-primary','Save work');submit.type='submit';form.append(submit);
+    const out=node('div','action-output');out.hidden=true;form.append(out);const conflict=node('div','action-output');conflict.hidden=true;form.append(conflict);const submit=node('button','button button-primary','Save work');submit.type='submit';form.append(submit);
     let saving=false;
+    function reconcile(current){
+      if(!current||typeof current!=='object'||!Number.isInteger(current.revision)||current.revision<0)return;
+      conflict.hidden=false;
+      conflict.replaceChildren(node('h3','','Saved direction changed'),node('p','','Your draft is unchanged. Compare it with the saved direction below.'),metadata([['Saved revision',current.revision],['Saved priority',current.priority??'No override'],['Saved next action',current.next_action??'No override']]));
+      if(current.job)conflict.append(node('h4','','Saved prepared packet'),node('pre','',JSON.stringify(safe(current.job),null,2)));
+      else conflict.append(node('p','field-help','No saved prepared packet.'));
+      conflict.append(btn('Use this revision for my draft',()=>{
+        i={...i,owner_work:current};conflict.hidden=true;out.hidden=true;submit.textContent='Save work';
+        api.showToast('Draft preserved. Save when your changes are ready.');
+      },'button button-small button-quiet'));
+    }
     form.addEventListener('submit',async e=>{e.preventDefault();if(saving)return;
       let job;try{if(fields.job.value.trim()){job=JSON.parse(fields.job.value);if(job!==null&&(typeof job!=='object'||Array.isArray(job)))throw new Error('Prepared job must be an object or null.');if(job&&(job.status&&!['prepared'].includes(job.status)||job.dispatch_status&&job.dispatch_status!=='not_dispatched'))throw new Error('A prepared packet cannot claim dispatch or completion.');}}catch(error){out.hidden=false;out.replaceChildren(node('p','source-error',error.message));return;}
       const payload={source_id:i.source_id,item_id:i.id,expected_revision:owned(i).revision??0,priority:fields.priority.value.trim()==='0'?0:fields.priority.value.trim()||null,next_action:fields.next_action.value.trim()||null};if(job!==undefined)payload.job=job;
       saving=true;submit.disabled=true;Object.values(fields).forEach(f=>f.disabled=true);
-      try{const saved=await api.updateWork('work-item:'+i.source_id+':'+i.id,payload,out);await refresh(false,true);if(saved){dialog.close();api.showToast('Work direction saved.');}}
+      try{const saved=await api.updateWork('work-item:'+i.source_id+':'+i.id,payload,out,reconcile);await refresh(false,true);if(saved){dialog.close();api.showToast('Work direction saved.');}}
       finally{saving=false;submit.disabled=false;Object.values(fields).forEach(f=>f.disabled=false);submit.textContent='Save / reconcile unchanged edit';}
     });dialog.append(form);document.body.append(dialog);dialog.addEventListener('close',()=>dialog.remove());dialog.showModal();
   }

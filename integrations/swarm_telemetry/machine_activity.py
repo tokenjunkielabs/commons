@@ -373,10 +373,10 @@ def _discover_files(roots: Iterable[str | os.PathLike[str]]) -> tuple[list[Path]
     return [item[0] for _, item in sorted(found.items(), key=lambda pair: pair[0].casefold())], issues
 
 
-def _file_identity(path: Path) -> tuple[int, int, str]:
+def _file_identity(path: Path, sample_bytes: int = 4096) -> tuple[int, int, str]:
     stat = path.stat()
     with path.open("rb") as handle:
-        sample = handle.read(4096)
+        sample = handle.read(sample_bytes)
     signature = _hash(path.name, sample, stat.st_dev, stat.st_ino)
     return stat.st_size, stat.st_mtime_ns, signature
 
@@ -384,7 +384,9 @@ def _file_identity(path: Path) -> tuple[int, int, str]:
 def _sqlite_identity(path: Path) -> tuple[int, int, str]:
     size, mtime_ns, signature = _file_identity(path)
     sidecar_parts: list[Any] = [signature]
-    for suffix in ("-wal", "-journal", "-shm"):
+    # The WAL index is reader bookkeeping: read-only connections can rewrite
+    # -shm without changing rows. Track only sidecars carrying database content.
+    for suffix in ("-wal", "-journal"):
         sidecar = Path(str(path) + suffix)
         try:
             stat = sidecar.stat()
@@ -428,6 +430,12 @@ def _read_log_chunk(path: Path, key: str, checkpoint: Mapping[str, Any] | None,
     offset = int(ck.get("offset", 0) or 0)
     old_size = ck.get("size")
     old_mtime = ck.get("mtime_ns")
+    prior_prefix_signature = signature
+    if ck.get("signature") and old_size is not None and 0 <= old_size < min(size, 4096):
+        # A short log's normal append extends the sampled prefix. Compare the
+        # exact previous sample length so appends keep their byte checkpoint,
+        # while a replaced inode or rewritten prefix starts a new version.
+        _, _, prior_prefix_signature = _file_identity(path, sample_bytes=old_size)
     if offset < 0 or offset > size:
         offset = 0
         version += 1
@@ -435,7 +443,7 @@ def _read_log_chunk(path: Path, key: str, checkpoint: Mapping[str, Any] | None,
         # A same-size rewrite is a new source version, not an empty append.
         offset = 0
         version += 1
-    elif ck.get("signature") and ck.get("signature") != signature and old_size == size:
+    elif ck.get("signature") and ck.get("signature") != prior_prefix_signature:
         offset = 0
         version += 1
     with path.open("rb") as handle:
@@ -474,11 +482,12 @@ def _source_needs_scan(path: Path, checkpoint: Mapping[str, Any] | None) -> bool
         return True
     if checkpoint.get("size") != size or checkpoint.get("mtime_ns") != mtime_ns:
         return True
+    if checkpoint.get("signature") != signature:
+        return True
     if _is_sqlite(path):
-        if checkpoint.get("signature") != signature:
-            return True
-        return any(not bool(state.get("done")) for state in (checkpoint.get("tables") or {}).values()
-                   if isinstance(state, Mapping))
+        return bool(checkpoint.get("rescan_required")) or any(
+            not bool(state.get("done")) for state in (checkpoint.get("tables") or {}).values()
+            if isinstance(state, Mapping))
     return int(checkpoint.get("offset", 0) or 0) < size
 
 
@@ -570,16 +579,19 @@ def _collect_sqlite(path: Path, key: str, checkpoint: Mapping[str, Any] | None,
     prior_size = int(prior.get("size", 0)) if prior else 0
     identity_changed = bool(prior) and (size != prior_size or mtime_ns != prior.get("mtime_ns") or
                                          (prior.get("signature") and signature != prior.get("signature")))
-    if prior and (size < prior_size or
-                  (size == prior_size and (mtime_ns != prior.get("mtime_ns") or
-                                           (prior.get("signature") and signature != prior.get("signature"))))):
+    scan_in_progress = any(isinstance(state, Mapping) and not state.get("done")
+                           for state in tables_state.values())
+    rescan_required = bool(prior.get("rescan_required"))
+    if identity_changed and scan_in_progress:
+        # Keep the current bounded pass moving under an active writer. Its
+        # changed snapshot must be followed by a complete new scan before read.
+        rescan_required = True
+    elif identity_changed or (rescan_required and not scan_in_progress):
+        # Growth is not proof of append-only rows: mutable values and new keys
+        # can precede a saved cursor. Stable row IDs deduplicate this replay.
         version += 1
         tables_state = {}
-    elif identity_changed:
-        # Append or WAL growth: retain table cursors but reopen completed tables
-        # so rows beyond each saved key are discovered in this continuation.
-        tables_state = {name: {**state, "done": False} if isinstance(state, Mapping) else state
-                        for name, state in tables_state.items()}
+        rescan_required = False
     uri = "file:" + quote(str(path.resolve()).replace("\\", "/"), safe="/:@") + "?mode=ro"
     connection = sqlite3.connect(uri, uri=True, timeout=3.0)
     connection.row_factory = sqlite3.Row
@@ -591,6 +603,8 @@ def _collect_sqlite(path: Path, key: str, checkpoint: Mapping[str, Any] | None,
         connection.execute("PRAGMA query_only=ON")
         connection.execute("BEGIN")
         schema_rows = connection.execute("SELECT name, sql FROM sqlite_master WHERE type='table' ORDER BY name").fetchall()
+        current_tables = {str(schema["name"]) for schema in schema_rows}
+        tables_state = {name: state for name, state in tables_state.items() if name in current_tables}
         for schema in schema_rows:
             table = str(schema["name"])
             try:
@@ -629,11 +643,16 @@ def _collect_sqlite(path: Path, key: str, checkpoint: Mapping[str, Any] | None,
     changed = (size, mtime_ns, signature) != (after_size, after_mtime, after_signature)
     if changed:
         pending = True
+        rescan_required = True
         issues.append({"source": path.name, "reason": "database_changed_during_read",
                        "recovery": "repeat_source_scan_for_changed_rows"})
+    elif rescan_required:
+        pending = True
+        issues.append({"source": path.name, "reason": "database_changed_during_scan",
+                       "recovery": "finish_current_pass_then_repeat_source_scan"})
     proposed = {"kind": "sqlite", "size": size, "mtime_ns": mtime_ns,
                 "signature": signature, "version": version, "tables": tables_state,
-                "changed_during_read": changed}
+                "changed_during_read": changed, "rescan_required": rescan_required}
     source = {"source_id": source_id, "path": str(path), "kind": "sqlite",
               "size": size, "file_version": version, "status": "pending" if pending else "read",
               "table_count": len(tables_state)}

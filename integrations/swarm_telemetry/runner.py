@@ -26,15 +26,95 @@ def unwrap(value):
         else: break
     return value
 
+def notification_delivery_state(receipt):
+    """Keep unconfirmed sends recoverable without discarding native envelopes.
+
+    A successful tool invocation alone does not establish a Slack delivery.
+    The existing Slack road returns channel/ts; native connectors return the
+    same message identity in message_context. Wrapper uncertainty and errors
+    remain relevant even when an inner result contains a message handle.
+    """
+    pending=[receipt]
+    seen={}
+    failed=uncertain=confirmed=False
+    while pending:
+        value=pending.pop()
+        if not isinstance(value,dict) or id(value) in seen: continue
+        seen[id(value)]=value
+        error=value.get("error")
+        code=str(value.get("code") or (error.get("code") if isinstance(error,dict) else "") or "").lower()
+        status=str(value.get("delivery_status") or value.get("status") or "").lower()
+        uncertain=uncertain or (
+            value.get("uncertain") is True
+            or isinstance(error,dict) and error.get("uncertain") is True
+            or status in {"uncertain","pending","sending","queued"}
+            or code.endswith("_outcome_unknown")
+            or error=="tool_effect_unknown_after_interruption"
+            or isinstance(error,str) and error.lower().endswith("_outcome_unknown")
+        )
+        failed=failed or (
+            value.get("isError") is True or value.get("ok") is False
+            or value.get("success") is False or value.get("delivered") is False
+            or bool(error) or status in {"failed","error","not_sent","rejected"}
+        )
+        context=value.get("message_context")
+        if not isinstance(context,dict): context={}
+        channel=context.get("channel_id") or value.get("channel")
+        timestamp=context.get("message_ts") or value.get("ts")
+        if isinstance(channel,str) and channel and isinstance(timestamp,str) and timestamp:
+            confirmed=True
+        for key in ("result","structuredContent"):
+            if isinstance(value.get(key),dict): pending.append(value[key])
+        content=value.get("content")
+        for block in content if isinstance(content,list) else []:
+            if not isinstance(block,dict) or block.get("type")!="text": continue
+            try: parsed=json.loads(block.get("text",""))
+            except (ValueError,TypeError): continue
+            if isinstance(parsed,dict): pending.append(parsed)
+    if uncertain or failed and confirmed: return "uncertain"
+    if failed: return "failed"
+    return "sent" if confirmed else "uncertain"
+
 class Gateway:
     def __init__(self,url="http://127.0.0.1:8878",timeout=25):
         self.url=url.rstrip("/")
         self.timeout=timeout
-    def call(self,name,arguments=None,operation_id=None):
-        op=operation_id or "telemetry-read:"+stable_id(name,arguments or {},now())
+    def call(self,name,arguments=None,operation_id=None,*,preserve_envelope=False,account_ref=None,service=None):
+        context={}
+        if account_ref is not None:
+            if not isinstance(account_ref,str) or not account_ref.strip():
+                raise ValueError("account_ref must be a nonempty string")
+            context["account_ref"]=account_ref
+            if service is not None:
+                if not isinstance(service,str) or not service.strip():
+                    raise ValueError("service must be a nonempty string")
+                context["service"]=service
+        elif service is not None:
+            raise ValueError("service requires account_ref")
+        op=operation_id or "telemetry-read:"+stable_id(name,arguments or {},context,now())
         body={"request_id":op,"call_id":op,"name":name,"arguments":arguments or {}}
+        body.update(context)
         request=urllib.request.Request(self.url+"/v1/tools/call",data=json.dumps(body).encode(),headers={"Content-Type":"application/json"})
         with urllib.request.urlopen(request,timeout=self.timeout) as response: value=json.load(response)
+        if context:
+            if value.get("isError") or value.get("error"):
+                return value
+            result=value.get("result",{})
+            if isinstance(result,dict) and (result.get("isError") or result.get("error")):
+                return value if preserve_envelope else result
+            bound=result.get("source_context",{}) if isinstance(result,dict) else {}
+            if (not isinstance(bound,dict) or bound.get("account_ref")!=account_ref
+                    or service is not None and bound.get("service")!=service
+                    or not bound.get("binding_id") or not bound.get("binding_evidence")):
+                # Older/default gateways may ignore the selector. Keep that
+                # complete response as error evidence, never source success.
+                return {"isError":True,"code":"source_binding_unresolved",
+                        "pending":True,"uncertain":False,"requested_source":context,
+                        "response":value}
+            # Retain both the untouched native envelope and its actual binding;
+            # source readers unwrap only their traversal view.
+            return value if preserve_envelope else result
+        if preserve_envelope: return value
         if value.get("isError") or value.get("error"):
             return value
         return unwrap(value)
@@ -252,50 +332,70 @@ class Runner:
         if isinstance(coverage,dict): coverage=[coverage]
         return self.store.ingest([],accounts=accounts,coverage=coverage)
     def collect_once(self,providers=True):
-        local=self.collect_local()
+        try:
+            local=self.collect_local()
+            self.errors.pop("local",None)
+        except Exception as exc:
+            self._source_error("local",exc)
+            local={"status":"pending_recovery","error":type(exc).__name__}
         provider_results={}
         if providers:
-            try: provider_results["discovery"]=self.collect_discovery()
+            try:
+                provider_results["discovery"]=self.collect_discovery()
+                self.errors.pop("discovery",None)
             except Exception as exc: self._source_error("discovery",exc)
             with ThreadPoolExecutor(max_workers=3,thread_name_prefix="measurement-source") as pool:
                 futures={name:pool.submit(fn) for name,fn in (("slack",lambda:self.collect_extended("slack")),("github",lambda:self.collect_extended("github")),("services",lambda:self.collect_extended("services")),("inventory",self.collect_inventory),("census",self.collect_census),("machine",self.collect_machine))}
                 for name,future in futures.items():
-                    try: provider_results[name]=future.result()
+                    try:
+                        provider_results[name]=future.result()
+                        self.errors.pop(name,None)
                     except Exception as exc: self._source_error(name,exc)
         state={"mode":"passive","observed_at":now(),"local":local,"providers":provider_results,"errors":self.errors,"dropped_observations":self.dropped,"jev_required":False}
         self.store.state("collector",state)
         return state
     def dispatch_notifications(self):
         channel=self.config.get("notification_channel")
-        if not channel: return {"sent":0,"enabled":False}
-        sent=0
-        for note in self.store.records("notifications",limit=1000)["notifications"]:
-            if note.get("delivery_state")!="available": continue
-            # Backfill remains available in the feed, without replaying old notices to Slack.
-            occurred=note.get("occurred_at")
-            if not isinstance(occurred,str) or not occurred: continue
-            try:
-                from datetime import datetime,timezone
-                age=(datetime.now(timezone.utc)-datetime.fromisoformat(occurred.replace("Z","+00:00"))).total_seconds()
-                if age>float(self.config.get("notification_max_age_seconds",3600)): continue
-            except (ValueError,TypeError,KeyError): continue
-            if note.get("owner_attention"): continue
-            text=note.get("title","Swarm update")+"\n"+note.get("body","")
-            refs=note.get("source_refs",[])
-            urls=[v.get("url") if isinstance(v,dict) else v for v in refs]
-            text+="".join("\n"+v for v in urls if isinstance(v,str) and v.startswith("https://"))
-            operation_id="telemetry-notice:"+note["notification_id"]
-            self.store.delivery_receipt(note["notification_id"],"pending",{"operation_id":operation_id})
-            try:
-                receipt=self.gateway.call("slack_post_message",{"channel_id":channel,"text":text},operation_id)
-                uncertain=bool(receipt.get("uncertain"))
-                failed=bool(receipt.get("isError") or receipt.get("error"))
-                state="uncertain" if uncertain else "failed" if failed else "sent"
-                self.store.delivery_receipt(note["notification_id"],state,receipt)
-                sent+=state=="sent"
-            except Exception as exc:
-                self.store.delivery_receipt(note["notification_id"],"uncertain",{"operation_id":operation_id,"error":type(exc).__name__})
-        return {"sent":sent,"enabled":True}
+        if not channel: return {"sent":0,"enabled":False,"scanned":0,"pages":0}
+        from datetime import datetime,timezone,timedelta
+        max_age=float(self.config.get("notification_max_age_seconds",3600))
+        cutoff=(datetime.now(timezone.utc)-timedelta(seconds=max_age)).isoformat()
+        sent=scanned=pages=0
+        cursor=""
+        while True:
+            page=self.store.records("notifications",limit=1000,cursor=cursor,delivery_state="available",since=cutoff)
+            pages+=1
+            for note in page["notifications"]:
+                scanned+=1
+                if note.get("delivery_state")!="available" or note.get("status")=="resolved": continue
+                # Backfill remains available in the feed, without replaying old notices to Slack.
+                occurred=note.get("occurred_at")
+                if not isinstance(occurred,str) or not occurred: continue
+                try:
+                    age=(datetime.now(timezone.utc)-datetime.fromisoformat(occurred.replace("Z","+00:00"))).total_seconds()
+                    if age>max_age: continue
+                except (ValueError,TypeError,KeyError): continue
+                audience=note.get("audience")
+                if note.get("owner_attention") or isinstance(audience,dict) and audience.get("owner_attention"): continue
+                text=note.get("title","Swarm update")+"\n"+note.get("body","")
+                refs=note.get("source_refs",[])
+                urls=[v.get("url") if isinstance(v,dict) else v for v in refs]
+                text+="".join("\n"+v for v in urls if isinstance(v,str) and v.startswith("https://"))
+                operation_id="telemetry-notice:"+note["notification_id"]
+                self.store.delivery_receipt(note["notification_id"],"pending",{"operation_id":operation_id})
+                try:
+                    receipt=self.gateway.call("slack_post_message",{"channel_id":channel,"text":text},operation_id,preserve_envelope=True)
+                    state=notification_delivery_state(receipt)
+                    self.store.delivery_receipt(note["notification_id"],state,receipt)
+                    sent+=state=="sent"
+                except Exception as exc:
+                    self.store.delivery_receipt(note["notification_id"],"uncertain",{"operation_id":operation_id,"error":type(exc).__name__})
+            if not page.get("has_more"): break
+            next_cursor=page.get("next_cursor")
+            if not isinstance(next_cursor,str) or next_cursor<=cursor:
+                raise RuntimeError("Notification continuation cursor did not advance")
+            cursor=next_cursor
+        return {"sent":sent,"enabled":True,"scanned":scanned,"pages":pages}
     def start(self):
         self.thread=Thread(target=self.run,daemon=True,name="passive-swarm-measurement")
         self.thread.start()

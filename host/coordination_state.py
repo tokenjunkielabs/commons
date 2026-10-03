@@ -413,7 +413,19 @@ class Git:
 
     def fetch(self, shas, remote="origin", chunk=40):
         """Fetch commits (trees, no blobs) for any SHA not already present."""
-        missing = [s for s in shas if s and s != UNKNOWN and not self.has_commit(s)]
+        candidates = [s for s in shas if s and s != UNKNOWN]
+        missing = None
+        if len(candidates) > 1 and all(
+                re.fullmatch(r"(?:[0-9a-fA-F]{40}|[0-9a-fA-F]{64})", s) for s in candidates):
+            # Canonical object IDs are safe line records. Keep symbolic refs on
+            # the existing path, and fall back if the batch reply is incomplete.
+            checked = self.run("cat-file", "--batch-check=%(objecttype)", check=False,
+                               input_text="".join(s + "^{commit}\n" for s in candidates))
+            kinds = checked.stdout.splitlines()
+            if checked.returncode == 0 and len(kinds) == len(candidates):
+                missing = [s for s, kind in zip(candidates, kinds) if kind != "commit"]
+        if missing is None:
+            missing = [s for s in candidates if not self.has_commit(s)]
         failed = []
         for start in range(0, len(missing), chunk):
             part = missing[start:start + chunk]
@@ -451,15 +463,18 @@ class Git:
         env = {"GIT_INDEX_FILE": index}
         try:
             self.run("read-tree", main, env=env)
-            lines = []
-            for status, path, _om, new_mode, _old, new in changes:
+            removals, lines = [], []
+            for status, path, _om, new_mode, old, new in changes:
                 if status == "D":
-                    self.run("update-index", "--force-remove", "--", path, env=env)
+                    removals.append("0 %s\t%s" % (old, path))
                 else:
                     lines.append("%s %s\t%s" % (new_mode, new, path))
-            if lines:
-                self.run("update-index", "--add", "--index-info", env=env,
-                         input_text="\n".join(lines) + "\n")
+            # Remove old entries first so file/directory replacements compose.
+            # NUL records preserve path bytes and batch every index update.
+            records = removals + lines
+            if records:
+                self.run("update-index", "--add", "-z", "--index-info", env=env,
+                         input_text="\0".join(records) + "\0")
             return self.out("write-tree", env=env).strip()
         finally:
             if os.path.exists(index):

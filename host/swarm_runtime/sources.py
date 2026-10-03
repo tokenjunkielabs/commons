@@ -27,12 +27,15 @@ _ACTIONS = {"OPEN": "OPEN", "TAKE": "TAKE", "CLAIM": "TAKE",
             "SHIPPED": "SHIP", "DONE": "SHIP", "BLOCK": "BLOCK",
             "BLOCKED": "BLOCK", "SUPERSEDE": "SUPERSEDE",
             "SUPERSEDED": "SUPERSEDE", "ABANDON": "ABANDON",
-            "ABANDONED": "ABANDON", "RECOVER": "RECOVER"}
-_START = re.compile(r"^\s*(?:[#*`]+\s*)?(OPEN|TAKE|CLAIM|ACTIVE|HEARTBEAT|SHIP|SHIPPED|DONE|BLOCK|BLOCKED|SUPERSEDE|SUPERSEDED|ABANDON|ABANDONED|RECOVER)\b", re.I)
+            "ABANDONED": "ABANDON", "RECOVER": "RECOVER",
+            "RELEASE": "RELEASE", "RELEASED": "RELEASE"}
+_START = re.compile(r"^\s*(?:[#*`]+\s*)?(OPEN|TAKE|CLAIM|ACTIVE|HEARTBEAT|SHIP|SHIPPED|DONE|BLOCK|BLOCKED|SUPERSEDE|SUPERSEDED|ABANDON|ABANDONED|RECOVER|RELEASE|RELEASED)\b", re.I)
 _REF = re.compile(r"https?://github\.com/[\w.-]+/[\w.-]+/(?:issues|pull)/[1-9][0-9]*|(?:github:)?[\w.-]+/[\w.-]+:(?:issue|pr):[1-9][0-9]*|(?:issue|pr):[\w.-]+/[\w.-]+:[1-9][0-9]*", re.I)
 _FIELDS = ("repo", "issue", "pr", "base_sha", "head_sha", "branch", "merge_sha",
            "artifact", "blocker", "next_action", "superseded_by", "model", "harness",
-           "required_capabilities", "exact_error", "feed_cursor")
+           "required_capabilities", "exact_error", "feed_cursor",
+           "started_at", "heartbeat", "expected_started_at", "expected_worker",
+           "expected_heartbeat")
 
 
 def _digest(value):
@@ -56,6 +59,9 @@ def _key(value):
 
 def _selected(value):
     """Bounded source metadata; never copy a Slack message body into the log."""
+    # Lifecycle clocks and expectations belong to the source event. Dropping
+    # them loses releases or lets recovery refer to a different claim; the
+    # projector decides whether the supplied generation is still current.
     out = {}
     for name in _FIELDS:
         field = value.get(name)
@@ -65,8 +71,12 @@ def _selected(value):
             out[name] = [_text(x, 120) for x in field[:30] if isinstance(x, str)]
         elif name == "artifact" and isinstance(field, dict):
             out[name] = {k: _text(v, 500) for k, v in field.items()
-                         if k in {"url", "repo", "pr", "branch", "head_sha", "merge_sha", "path", "sha"}
+                         if k in {"url", "repo", "pr", "branch", "head_sha", "merge_sha",
+                                  "path", "sha", "kind", "target_branch"}
                          and isinstance(v, (str, int))}
+            # Completion is semantic, so preserve the Boolean without text coercion.
+            if isinstance(field.get("complete"), bool):
+                out[name]["complete"] = field["complete"]
     return out
 
 
@@ -266,6 +276,12 @@ def _post_changes(root, files, prior):
 
 
 def _commons(root, prior):
+    """Consume changed post bytes while retaining incomplete feed coverage.
+
+    The Git catalog supplies the complete local change boundary even when the
+    feed remains unordered. A gap keeps fallback sources and missing-ID retries
+    active without reparsing an unchanged corpus that the catalog already read.
+    """
     pulse = _read(root / "pulse.json", {}) or {}
     cursor = prior.get("feed_cursor", "")
     delta = feed_delta.since(cursor, root=str(root))
@@ -285,7 +301,7 @@ def _commons(root, prior):
     files = {path.stem: path for path in sorted((root / "p").glob("*.md"))}
     catalog = _post_changes(root, files, prior)
     missing, unreadable = set(), set(catalog["unreadable"])
-    selected = set(files) if needs_full or catalog["full"] else catalog["changed"] | expected
+    selected = set(files) if catalog["full"] else catalog["changed"] | expected
     out, high = [], cursor
     full_rows = _read(root / "posts.json", []) if needs_full else []
     if needs_full:
@@ -294,7 +310,7 @@ def _commons(root, prior):
     missing.update(expected - set(files))
     missing.update(catalog["deleted"])
     if selected:
-        reads.append("p/*.md" if needs_full or catalog["full"] else "p/{changed-or-feed-id}.md")
+        reads.append("p/*.md" if catalog["full"] else "p/{changed-or-feed-id}.md")
         for ident in sorted(selected & set(files)):
             try:
                 raw = catalog["raw_bodies"].get(ident)
@@ -477,6 +493,13 @@ def _github(root):
 def _workstreams(snapshot, prior):
     sources = {str(s.get("id")): s for s in snapshot.get("sources", []) if isinstance(s, dict)}
     events, facts, following, coverage = [], {}, copy.deepcopy(prior), {}
+    # Bump when parser changes should reconsider previously ignored messages.
+    ignored_items_version = 1
+    # Negative results cover only this snapshot, including when a source leaves it.
+    # The selected event checkpoints in items remain durable.
+    for checkpoint in following.values():
+        checkpoint["ignored_items"] = {}
+        checkpoint["ignored_items_version"] = ignored_items_version
     for ident, source in sources.items():
         old = prior.get(ident, {})
         metadata = source.get("metadata") or {}
@@ -486,6 +509,8 @@ def _workstreams(snapshot, prior):
         # Keep exact opaque cursors/thread boundaries even when coverage is partial.
         following[ident] = {"observed_at": source.get("observed_at", UNKNOWN),
                             "items": dict(old.get("items", {})),
+                            "ignored_items": {},
+                            "ignored_items_version": ignored_items_version,
                             "provider_boundary": boundary or old.get("provider_boundary", {}),
                             "newest_message_ts": old.get("newest_message_ts", "")}
         coverage[ident] = {"provider": source.get("provider"), "scope": source.get("scope"),
@@ -521,11 +546,17 @@ def _workstreams(snapshot, prior):
                                    "at": item.get("created_at") or item.get("updated_at") or UNKNOWN,
                                    "required_capabilities": ["github-publish"]})
         elif provider == "slack" and changed:
-            meta = {"from": item.get("owner"), "ts": item.get("updated_at"),
-                    "swarm_event": (item.get("metadata") or {}).get("swarm_event")}
-            normalized = _events(meta, str(item.get("summary") or ""), iid, revision, private=True)
-            events.extend(normalized)
-            selected = bool(normalized)
+            old = prior.get(sid, {})
+            ignored = (old.get("ignored_items", {}) if
+                       old.get("ignored_items_version") == ignored_items_version else {})
+            if ignored.get(iid) != revision:
+                meta = {"from": item.get("owner"), "ts": item.get("updated_at"),
+                        "swarm_event": (item.get("metadata") or {}).get("swarm_event")}
+                normalized = _events(meta, str(item.get("summary") or ""), iid, revision, private=True)
+                events.extend(normalized)
+                selected = bool(normalized)
+            if not selected:
+                following[sid]["ignored_items"][iid] = revision
         if provider in {"slack", "github"}:
             if selected:
                 following[sid]["items"][iid] = revision

@@ -6,6 +6,10 @@ does not decide what anyone may read, write, or execute.  It makes the narrow
 owner rule mechanical: an actually broken contract ends fixed on current main,
 or carries concrete attempted-repair evidence for a genuinely external block.
 An open door cannot be converted into a defect by wishing it had been closed.
+
+Fixed packets record execution evidence in a nonempty ``runs`` list, alongside
+changed_paths, the integrated main_sha, and readback_verified.  Legacy ``tests``
+lists remain accepted for existing packets and bounty contribution workflows.
 """
 
 from __future__ import annotations
@@ -65,8 +69,8 @@ def validate(packet: dict[str, Any]) -> dict[str, Any]:
     if outcome == "fixed":
         if not _nonempty_list(packet, "changed_paths"):
             errors.append("fixed requires changed_paths")
-        if not _nonempty_list(packet, "tests"):
-            errors.append("fixed requires tests")
+        if not (_nonempty_list(packet, "runs") or _nonempty_list(packet, "tests")):
+            errors.append("fixed requires runs (or legacy tests)")
         if not SHA_RE.fullmatch(str(packet.get("main_sha") or "")):
             errors.append("fixed requires an integrated 40-character main_sha")
         if packet.get("readback_verified") is not True:

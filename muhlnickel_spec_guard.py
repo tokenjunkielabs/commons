@@ -225,7 +225,15 @@ def load_module_facts() -> tuple[dict[str, Facts], dict[str, Facts]]:
         if not path.is_file() or ".git" in path.parts:
             continue
         try:
-            data = path.read_bytes()
+            with path.open("rb") as stream:
+                if path.suffix != ".py" and path.suffix.lower() in KNOWN_NONEXECUTABLE_SUFFIXES:
+                    # Preserve executable shebang detection without reading
+                    # the unused tail of large documents and data files.
+                    prefix = stream.read(256)
+                    if not PYTHON_SHEBANG_RE.search(prefix):
+                        continue
+                    stream.seek(0)
+                data = stream.read()
         except OSError:
             continue
         if not is_python(path, data):

@@ -94,7 +94,7 @@
     try {
       const response=await fetch(path,{method,credentials:'same-origin',headers:data ? {'Content-Type':'application/json'} : {},body:data ? JSON.stringify(data) : undefined,signal:controller.signal,cache:'no-store'});
       const text=await response.text(); let body; try { body=text ? JSON.parse(text) : {}; } catch (_) { const e=new Error('Server returned an unreadable response (HTTP '+response.status+').'); e.uncertain=method!=='GET'; throw e; }
-      if(!response.ok) { const e=new Error(str(first(body.message,body.error && body.error.message,body.error,'HTTP '+response.status))); e.uncertain=response.status>=500 || response.status===408 || response.status===409; e.body=body; throw e; }
+      if(!response.ok) { const e=new Error(str(first(body.message,body.error && body.error.message,body.error,'HTTP '+response.status))); e.workRevisionConflict=path==='/api/work/item'&&response.status===409&&body.code==='work_revision_conflict';e.uncertain=response.status>=500 || response.status===408 || (response.status===409&&!e.workRevisionConflict); e.body=body; throw e; }
       return {body,httpStatus:response.status};
     } catch(e) { if(e.name==='AbortError') {e.message='Request timed out. The server may still be processing it.';e.uncertain=true;} else if(e.uncertain===undefined) e.uncertain=true; throw e; }
     finally { clearTimeout(timeout); }
@@ -204,7 +204,46 @@
   }
   function renderFleet() {
     const sessions=arr(state&&state.sessions),counts=sessionStats(sessions);$('session-count').textContent=state?counts.sessions+' sessions · '+counts.machines+' '+(counts.machines===1?'machine':'machines')+' · activity is last reported':'Unknown';
-    replace('session-list',sessions.length?sessions.map(s=>{const c=recordCard(s,'session VM');c.className='panel session-card';c.append(meta([['Provider',s.provider],['CPU',s.cpu],['RAM',finite(s.ram_gib)?s.ram_gib.toLocaleString([], {maximumFractionDigits:2})+' GiB':null],['GPU',s.gpu],['Workspace',s.workspace]]));if(s.objective)c.append(make('div','session-objective',s.objective));const existingSessionURL=sessionURL(s);if(existingSessionURL)c.append(link('Open existing session ↗',existingSessionURL,'button button-small button-quiet'));c.append(button('Update record',()=>sessionForm(s)));return c;}):[empty('No session records returned. Existing GPT/Claude VM capacity must be bound to its actual session and route.')]);
+    replace('session-list',sessions.length?sessions.map(s=>{
+      const c=recordCard(s,'session VM');c.className='panel session-card';
+      const gib=value=>finite(value)?value.toLocaleString([], {maximumFractionDigits:2})+' GiB':null;
+      const machine=s.kind==='machine',capacityCPU=machine&&finite(s.cpu_capacity),capacityRAM=machine&&finite(s.ram_capacity_gib);
+      const metrics=[['Provider',s.provider],[capacityCPU?'CPU capacity':'CPU',capacityCPU?s.cpu_capacity:s.cpu],[capacityRAM?'RAM capacity':'RAM',gib(capacityRAM?s.ram_capacity_gib:s.ram_gib)],['GPU',s.gpu],['Workspace',s.workspace]];
+      if(capacityCPU)metrics.push(['Host logical CPUs',s.cpu]);
+      if(capacityRAM)metrics.push(['Host RAM',gib(s.ram_gib)]);
+      if(machine&&finite(s.ram_cgroup_headroom_gib)){const bytes=s.process_limits&&s.process_limits.memory_headroom_bytes;const headroom=finite(bytes)&&bytes>0&&bytes<0.01*2**30?'<0.01 GiB':gib(s.ram_cgroup_headroom_gib);metrics.push(['Container memory headroom',headroom]);}
+      if(machine){
+        const diskTotal=finite(s.disk_total_bytes)?s.disk_total_bytes/2**30:s.disk_gib;
+        const diskFree=finite(s.disk_free_bytes)?s.disk_free_bytes/2**30:s.disk_free_gib;
+        const diskPercent=finite(s.disk_used_bytes)&&finite(s.disk_free_bytes)&&s.disk_used_bytes+s.disk_free_bytes>0?100*s.disk_used_bytes/(s.disk_used_bytes+s.disk_free_bytes):null;
+        metrics.push(['Filesystem capacity',gib(diskTotal)],['Filesystem available',finite(diskFree)&&diskFree>0&&diskFree<0.01?'<0.01 GiB':gib(diskFree)],['Filesystem used',finite(diskPercent)?diskPercent.toLocaleString([], {maximumFractionDigits:1})+'%':null]);
+      }
+      c.append(meta(metrics));
+      if(machine)c.append(make('p','source-note','Available disk space is shared across workloads on the filesystem containing the workspace path. Usage percentage is used space divided by used plus available space, excluding reserved space.'));
+      if(machine&&s.process_limits)c.append(make('p','source-note','CPU capacity is a sustained ceiling. Memory headroom reflects current usage across processes sharing the limit and excludes possible cache reclaim. Limit coverage: '+str(s.process_limits.cgroup_status)+'.'));
+      if(machine){
+        const limits=s.process_limits||{},events=arr(limits.memory_events),isEventSource=value=>/(^|\/)memory\.events(?:\.local)?$/.test(str(value));
+        const unavailable=arr(limits.unavailable_interfaces).filter(isEventSource),errors=arr(limits.read_errors).filter(error=>error&&isEventSource(error.source));
+        const section=make('section','memory-events');section.append(make('h4','card-kind','Memory events · cumulative'));
+        section.append(make('p','source-note','Counters accumulate per cgroup source. Sources can overlap; each is shown separately. These observations do not identify a particular process failure.'));
+        events.forEach(event=>{
+          if(!event||typeof event!=='object')return;
+          const counters=event.counters&&typeof event.counters==='object'&&!Array.isArray(event.counters)?event.counters:{};
+          const count=value=>Number.isSafeInteger(value)&&value>=0?value:null;
+          const highlights=['oom','oom_kill'].filter(key=>Object.prototype.hasOwnProperty.call(counters,key)).map(key=>key+' '+(count(counters[key])??'Unknown'));
+          const details=make('details','raw-details');details.append(make('summary','',str(event.scope||'Scope unknown')+(highlights.length?' · '+highlights.join(' · '):' · Counters')));
+          const values=Object.entries(counters).map(([key,value])=>[key,count(value)]);
+          details.append(meta([['Source',event.source],['Scope',event.scope],...values]));
+          if(!values.length)details.append(make('p','source-note','Counters unavailable for this source.'));
+          section.append(details);
+        });
+        unavailable.forEach(source=>section.append(make('p','source-note','Unavailable: '+str(source))));
+        errors.forEach(error=>section.append(make('p','source-error','Read error: '+str(error.source)+' · '+str(error.error||'Unknown error'))));
+        if(!events.length&&!unavailable.length&&!errors.length)section.append(make('p','source-note','Memory-event observations unavailable.'));
+        c.append(section);
+      }
+      if(s.objective)c.append(make('div','session-objective',s.objective));const existingSessionURL=sessionURL(s);if(existingSessionURL)c.append(link('Open existing session ↗',existingSessionURL,'button button-small button-quiet'));c.append(button('Update record',()=>sessionForm(s)));return c;
+    }):[empty('No session records returned. Existing GPT/Claude VM capacity must be bound to its actual session and route.')]);
     const runtimes=arr(state&&state.runtimes);
     replace('runtime-list',runtimes.length?runtimes.map(r=>{const c=recordCard(r,'runtime');c.append(meta([['Gateway',r.gateway_url],['Schemas',arr(r.tools).length]]));if(r.error)c.append(make('p','source-error',r.error));c.append(button('Inspect tools →',()=>{ $('tool-search').value=str(r.id);renderTools();navigate('tools');}));return c;}):[empty('No runtime catalog returned. Account metadata alone does not make service operations callable here.')]);
   }
@@ -379,7 +418,7 @@
     }
     const buttons=make('div','button-row');buttons.append(button('Copy operation ID',async()=>{try{await navigator.clipboard.writeText(a.id);showToast('Operation ID copied.');}catch(_){showToast('Copy the displayed operation ID manually.');}},'button button-small button-quiet'),button('Refresh operation state',()=>refresh(true),'button button-small button-quiet'));target.append(buttons);
   }
-  async function mutate(key,path,payload,target,name='',onReceipt=null) {
+  async function mutate(key,path,payload,target,name='',onReceipt=null,onConflict=null) {
     const fp=await fingerprint(payload);let a=attempts[key];
     if(a&&pending(a.status)&&(fp===null||a.fingerprint!==fp)){output(target,a,'Previous outcome still uncertain','Reconcile the displayed operation before changing its request. Restore the original arguments to retry with the same operation ID.');return false;}
     if(!a||terminal(a.status))a={id:id(),fingerprint:fp,status:'submitting',path,started_at:new Date().toISOString(),observed_at:first(payload.session&&payload.session.observed_at,payload.budget&&payload.budget.observed_at)};
@@ -393,7 +432,7 @@
         try{await onReceipt(body);}catch(_){showToast('Response received. Inspect the receipt for the current assignment.');}
       }
       await refresh(false,true);return !pending(a.status)&&!/fail|error|reject/i.test(a.status);
-    } catch(e) {a.status=e.uncertain?'uncertain':'failed';saveAttempts();output(target,a,e.uncertain?'Outcome uncertain':'Request rejected',e.message+(e.uncertain?' Do not assume failure or issue a replacement operation. Inspect provider state; unchanged manual retries retain this operation ID.':''),e.body,name);return false;}
+    } catch(e) {a.status=e.uncertain?'uncertain':'failed';saveAttempts();output(target,a,e.uncertain?'Outcome uncertain':'Request rejected',e.message+(e.uncertain?' Do not assume failure or issue a replacement operation. Inspect provider state; unchanged manual retries retain this operation ID.':''),e.body,name);if(e.workRevisionConflict&&typeof onConflict==='function')onConflict(e.body.current_work);return false;}
   }
   function form(title,description,fields,callback) {
     dialogSpec={fields,callback};$('dialog-title').textContent=title;$('dialog-description').textContent=description;$('dialog-output').hidden=true;$('dialog-submit').disabled=false;
@@ -424,7 +463,7 @@
   window.addEventListener('unhandledrejection',event=>{syncError='Client action error: '+str(event.reason&&event.reason.message||event.reason);connectionState();});
   window.CommonsPanel={
     getState:()=>state,getTools:()=>tools,request,navigate,showToast,
-    updateWork:(key,payload,target)=>mutate(key,'/api/work/item',payload,target),
+    updateWork:(key,payload,target,onConflict=null)=>mutate(key,'/api/work/item',payload,target,'',null,onConflict),
     callTool:(key,name,args,target,runtime='shared-equipment',options={})=>mutate(key,'/api/tools/call',
       {runtime_id:runtime,name,arguments:args,...(options.swarm===undefined?{}:{swarm:options.swarm})},target,name,options.onReceipt),
     openTool:(name,args={},runtime='shared-equipment')=>{if(busy){showToast('A tool operation is still in flight.');return false;}const t=tools.find(x=>x.name===name&&x.runtime_id===runtime);if(!t){showToast('This tool is not exposed by the selected gateway.');return false;}chooseTool(t);$('tool-arguments').value=JSON.stringify(args,null,2);$('tool-search').value='';renderTools();navigate('tools');return true;}

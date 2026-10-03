@@ -11,8 +11,6 @@ or permission to send an email, edit a PR, or execute source text.
 Python 3.10+; no pip packages are required for the relay itself.
 
 ```sh
-python3 -m unittest discover -s tests -p test_inbox_slack_relay.py -v
-python3 -m unittest test_inbox_slack_relay_charset test_inbox_slack_relay_alternatives test_inbox_slack_relay_headers -v
 python3 -m host.inbox_slack_relay --config host/inbox_visibility.json
 ```
 
@@ -68,6 +66,22 @@ approval explanations. Unchanged unread notifications are not re-enriched every
 run. Updated comments produce new content versions. Closed/merged events retain
 the distinction between accepted code and payment.
 
+Notification listings use the global endpoint's 50-item page size. Each page is
+enriched and yielded before the next listing request. A checkpoint retains the
+current changed/unread collection, page and fixed upper timestamp across finite
+runs; a partially delivered page is replayed through existing content dedup.
+After both collections finish, the incremental watermark advances only to that
+listing's upper timestamp minus the existing ten-minute overlap, so arrivals
+during a long scan are read in the following window. Source-item failures remain
+pending across resumed pages and prevent a successful watermark advance.
+
+Comment delivery identity includes the comment's source ID, contents, author,
+timestamp and review context, but excludes action text inherited from its parent.
+A close or merge therefore produces a subject update without replaying unchanged
+historical comments. Existing comment receipts under the previous open, closed
+or merged action text are recognized in SQLite and in the same bounded Slack
+history scan; the upgrade does not require clearing the delivery ledger.
+
 Gmail verifies the mailbox and replays a configured sliding query: recent 14 days
 plus older unread/starred mail, excluding sent, drafts, trash and spam. It reads
 full message MIME bodies, favors plain text, and lists attachment names without
@@ -116,13 +130,31 @@ the whole scheduler fails, inspect the Actions run summary or OS task history.
 Each complete source run advances its cursor only after delivery. Partial errors
 retain pending state; one deleted subject does not hide other readable subjects.
 Page/post caps report pending work rather than pretending the feed is complete.
-A very large capped backlog needs an operator-adjusted window/cap; do not mark it
-read to hide it. GitHub notification read/done state and Gmail labels remain
+Source-listing checkpoints resume large backlogs on the next finite run instead
+of restarting the first pages. Per-run listing counts describe the pages visited
+in that run; they are not a total mailbox or notification inventory.
+
+Gmail lists one page at a time and yields its messages before requesting
+the next page. A saved page token is scoped to the mailbox, destination and query;
+it advances only after the page's yielded groups return from delivery. A finite
+pass can read up to 20 pages, with its next page retained for the following pass.
+The existing delivery allowance can stop the pass before another list or body
+read. Earlier delivered messages keep their completion markers if a later page
+fails. `message_pages` and `messages` count the observed pages and unique IDs;
+`message_listing_resumed` identifies a continuation and `message_listing_complete`
+stays false until Gmail returns its final page. Repeated page cursors report
+`gmail_page_cursor_repeated` instead of looping. The final page clears the listing
+checkpoint so the next overlap poll rereads the current query, using existing
+delivered-message markers. An HTTP 400 on a saved page token clears only that
+listing checkpoint and reports the provider error; a later pass restarts the
+query with all delivery markers retained. Source-item errors remain pending
+across continued pages, so a clean final page cannot hide an earlier failure.
+No mail is marked read to hide a backlog. GitHub notification read/done state and Gmail labels remain
 untouched. There is no automatic outbound email, PR mutation, or payment action.
 
 ## State and retry behavior
 
-SQLite contains hashes, timestamps, counters and Slack pagination cursors, not
+SQLite contains hashes, timestamps, counters and provider pagination cursors, not
 message bodies or credentials.
 Each part is journaled before posting. After an uncertain write the next run
 reconciles its marker in Slack before repeating the effect. Root and part markers

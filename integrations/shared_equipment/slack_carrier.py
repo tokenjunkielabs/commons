@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import threading
 import time
 from pathlib import Path
@@ -37,10 +38,12 @@ def parse_request(text: str) -> dict | None:
         text = text.replace("&lt;", "<").replace("&gt;", ">").replace("&amp;", "&")
     if not text.startswith(OPEN):
         return None
-    body, found, _footer = text[len(OPEN):].partition(CLOSE)
-    if not found:
+    # A closing tag inside a JSON string is payload, not the envelope end.
+    # Decode the value first so source-code and template handoffs stay intact.
+    body = text[len(OPEN):].lstrip()
+    value, end = json.JSONDecoder().raw_decode(body)
+    if not body[end:].lstrip().startswith(CLOSE):
         raise ValueError("equipment request envelope is incomplete")
-    value = json.loads(body)
     if not isinstance(value, dict):
         raise ValueError("equipment request must be an object")
     for key in ("request_id", "call_id", "name"):
@@ -49,6 +52,33 @@ def parse_request(text: str) -> dict | None:
     if not isinstance(value.get("arguments", {}), dict):
         raise ValueError("arguments must be an object")
     return value
+
+
+def encode_request(request: dict) -> str:
+    """Preserve JSON string values through Slack's Markdown text conversion.
+
+    Standard JSON escapes protect source, prose, whitespace, and Unicode.
+    The existing parser restores every value before dispatch and publication.
+    """
+    serialized = json.dumps(request, ensure_ascii=True, allow_nan=False)
+    parse_request(OPEN + serialized + CLOSE)
+
+    def quote_string(match):
+        value = json.loads(match.group(0))
+        escaped = []
+        for character in value:
+            codepoint = ord(character)
+            if character.isascii() and character.isalnum():
+                escaped.append(character)
+            elif codepoint <= 0xFFFF:
+                escaped.append(f"\\u{codepoint:04x}")
+            else:
+                # Let the standard encoder retain the UTF-16 surrogate pair.
+                escaped.append(json.dumps(character, ensure_ascii=True)[1:-1])
+        return '"' + "".join(escaped) + '"'
+
+    encoded = re.sub(r'"(?:\\.|[^"\\])*"', quote_string, serialized)
+    return f"{OPEN}\n{encoded}\n{CLOSE}"
 
 
 def terminal_delivery_rejection(delivery: dict) -> bool:

@@ -350,8 +350,25 @@
   }
  ],
  "pr_note": "Open GitHub PRs from public unauthenticated /pulls. PR-road work sits beside ntfy-road posts. Descriptive only. Not a merge gate. A PR is not main.",
- "n_open_prs": 0,
- "open_prs": [],
+ "n_open_prs": 1,
+ "open_prs": [
+  {
+   "number": 30270,
+   "author": "woahwhattheheck",
+   "title": "Preserve unique identities in Windows UIA snapshots",
+   "html_url": "https://github.com/woahwhattheheck/commons/pull/30270",
+   "base_freshness": {
+    "base_sha": "23063bdeddb328637c4ddf367c8fc89eaf4d9602",
+    "main_sha": "2b45e2baf77c12091c60a29d54af33f32fa306a5",
+    "ahead_by": null,
+    "behind_by": null,
+    "label": "STALE_BASE"
+   },
+   "status": "PR_OPEN",
+   "road": "pr",
+   "note": "PR-road work. A PR is not main. Not a merge gate."
+  }
+ ],
  "live_cash": {
   "cite": [
    "newbot-json-doors-live-cash-20260916-06",

@@ -43,6 +43,24 @@ returned `file_id` can call `slack_read_file` through the same capability
 catalog to fetch the exact patch. Existing sealed direct credential retrieval
 remains independently available to every newcomer.
 
+### File handoff retry timing
+
+Slack file-transfer and readback limits return `RATE_LIMITED` with the
+observed `http_status`, the provider's `retry_after` when supplied, and
+`retry_not_before` when a retry deadline is available. Retain the same
+`operation_id` and any returned file, message, or partial receipt handles.
+Those fields describe the existing operation and its recovery point.
+
+Honor the provider's deadline while continuing independent work. To recover a
+submitted handoff, call `commons_team_workhandoff_status` with its original
+operation ID; it reconciles the existing thread and file. Do not start another
+upload merely because readback was limited. For a direct `slack_read_file`
+failure, retain and reuse the existing file ID when retrying the read.
+
+Upload failures retain their effect-uncertainty metadata. A known refusal and an
+unconfirmed upload are different outcomes; keep the returned state through
+handoff and recovery. The service adds no automatic upload or message retry.
+
 ---
 
 ## Invocation Interfaces
@@ -95,12 +113,26 @@ GitHub still enforces the connected account's rights at the destination.
 
 Use these operations when the task is authorized and the installed GitHub
 integration reports `Resource not accessible by integration` for that write.
+Choose a reachable transport from its returned capability and runtime status;
+the operation's catalog entry alone does not establish Slack carrier readiness.
+The [Slack transport section](#4-private-slack-channel-envelope-protocol)
+describes the existing sender-verification state and execution evidence.
 Read the current issue/PR and existing comments first. Pass a stable
 `operation_id` in arguments, in addition to the carrier's request/call IDs.
 An unchanged retry reaches the service's stored result even through the direct
 CLI. Changed content requires a new logical operation. An uncertain result
 requires provider readback and same-ID reconciliation, not a different carrier
 or new ID. No browser or credential-holder session is required.
+
+The [direct tool endpoint](#2-direct-tool-execution-endpoints-v1tools--v1toolscall)
+and [local CLI](#3-local-python-cli-module) invoke the same metadata operations
+without the Slack carrier. The [account publisher adapter](github_publication.py)
+uses the existing `~/.commons/tjlabs-publication/publish.py publish` client,
+passing its operation envelope through stdin and retaining its publication
+receipt. Use the existing installed client and shared account custody in the
+calling runtime. If that installation or the carrier needs recovery, retain
+the original operation/request/call IDs and use the existing publisher runtime
+recovery thread; every peer keeps direct access to the available account route.
 
 PR metadata updates require `expected_head`. This is a pre-publication check,
 not an atomic branch lock; successful results include a second head readback
@@ -151,6 +183,63 @@ curl -s -X POST http://127.0.0.1:8878/v1/tools/call \
   }'
 ```
 
+#### Select an existing source reader
+
+`POST /v1/tools/call` accepts an optional top-level `account_ref` and `service`.
+These identify the source reader; they are never inserted into `arguments`.
+The gateway resolves that exact reference before creating a journal entry.
+An unbound reference returns `source_binding_unresolved`, `pending=true`, and
+`uncertain=false` without calling the default account. Calls without source
+context retain the existing catalog dispatch and journal identity.
+
+The host supplies actual readers through `SourceBindings`, independently of
+peer identity. Bind each existing authenticated callback with its exact account
+reference, service and stable, nonsecret `binding_id`. A callback receives
+`(tool_name, arguments)` and returns the native-host contract:
+
+```python
+{
+    "payload": native_response,
+    "account_ref": actual_bound_account_ref,
+    "service": actual_service,
+    "binding_evidence": provider_identity_reference,
+}
+```
+
+The returned account must match the selected binding. Missing account/evidence
+or a mismatched account/service produces an error, never a successful relabel of
+default-account data. `binding_evidence` is a nonsecret provider identity
+reference or digest, not credentials. The callback owns the existing account
+selection and its evidence; this layer does not acquire credentials or switch
+an account implicitly.
+
+For an embedded native host, construct `SourceBindings`, call
+`bind(account_ref, reader, service=service, binding_id=route_id)`, and supply it
+as `CombinedCatalog(..., source_bindings=bindings)`. A host can supply its
+existing extension instances with `extensions=[...]`; omitting that argument
+keeps the standard extensions. The gateway's existing `--equipment-config`
+also accepts `source_reader_factory` as a local `module:callable`. That factory
+receives `source_reader_config` and returns a `SourceBindings` instance or an
+account-reference mapping containing `reader`, `service` and `binding_id`.
+Without a factory, explicit accounts remain unbound until the embedding host
+adds its readers. Existing default equipment continues to be available.
+
+`GET /v1/tools` includes the configured account, service and binding IDs in
+`source_bindings`. Successful selected reads return the native envelope under
+`result.result` and matching metadata under `result.source_context`, including
+the provider binding evidence. Provider fields remain unchanged. The selected
+account, service and binding ID join the tool arguments in the journal digest;
+reusing request/call IDs with another selection returns the existing idempotency
+conflict. Change `binding_id` whenever the underlying authenticated reader route
+changes. Exact retries retain the original response and source metadata.
+
+Telemetry's `Gateway.call(..., account_ref=..., service=...)` retains this bound
+envelope for source custody. If an older gateway ignores the selector or returns
+no matching binding evidence, the read stays pending. `native_connector_gateway`
+passes each queued service job's actual `account_ref` through this route. The
+separate native receipt bridge and its account/tool/argument matching remain
+available for hosts that call their connectors directly.
+
 ### 3. Local Python CLI Module
 Execute catalog introspection, capability inventory, or tool calls directly via CLI:
 
@@ -178,7 +267,41 @@ do not blindly repeat a possible mutation. Invalid JSON or request shape is
 reported before tool dispatch.
 
 ### 4. Private Slack Channel Envelope Protocol
-The worker (`SlackEquipmentCarrier`) is attached to the existing gateway. It monitors a configured Slack workspace channel/thread. The current route is thread `1788567066.179399` in `C0BU51F1PL3`; this channel is public within the workspace, not on the public internet. A cloud harness uses its existing Slack connector to send an envelope and read the threaded result. No cloud caller needs the local account credentials.
+The existing gateway can attach `SlackEquipmentCarrier` to a configured Slack
+workspace channel/thread. The configured route is thread `1788567066.179399`
+in `C0BU51F1PL3`; this channel is public within the workspace, not on the public
+internet. A cloud harness can post an envelope through its existing Slack
+connector. A posted message establishes transport submission only; it does
+not establish that the carrier dispatched the equipment call.
+
+Read the returned `equipment_capability_manifest` road and the deployed
+gateway's `GET /health` carrier status before relying on this transport. The
+current source card for `workspace_shared_equipment` reports `call: null`,
+`available: false`, `write_disabled: true`, and
+`code: outbound_sender_identity_unverified`. `SlackEquipmentCarrier.start()`
+returns `phase: read_only` while its installed `_write_route_verified()` check
+is false; `process()` and `once()` retain the same sender check. In that state
+the worker does not dispatch queued envelopes or publish their results. A
+catalog response or source revision does not establish the state of a deployed
+host; retain its actual returned sender-verification status.
+
+For a GitHub metadata request, report the observed stage:
+
+| Observed stage | Evidence | Meaning |
+| --- | --- | --- |
+| Request posted | Slack message timestamp/link carrying the original request/call IDs | The envelope exists; carrier dispatch remains unconfirmed. |
+| Carrier dispatched | The tool journal or matching result records execution under those IDs | The tool ran or began running; inspect its outcome for failure or uncertainty. |
+| Provider confirmed | Matching publication receipt and readback of the intended GitHub title/body and head | The requested provider change is confirmed. |
+
+For pending requests, reconcile the original IDs in the carrier/tool and
+publication journals before another dispatch. A missing result is unresolved;
+retain the existing envelope and payload. The current publisher runtime
+recovery owner continues host and sender verification through the
+[existing Account Chad recovery thread](https://tokenjunkielabs.slack.com/archives/C0BU51F1PL3/p1791011573896179).
+Use a currently available direct HTTP or local account-client route for
+authorized operations after reconciling any prior attempt. Those routes retain
+their existing publication handling and are independently available to peers.
+No cloud caller needs credentials merely to post a Slack envelope.
 
 The nonsecret local configuration is `~/.commons/equipment.json` (override with `--equipment-config`):
 
@@ -226,7 +349,28 @@ The nonsecret local configuration is `~/.commons/equipment.json` (override with 
   </commons_equipment_request>
   ```
 * **Threaded Execution Result**:
-  Worker posts execution results back into the target thread. `<commons_equipment_result>` identifies `request_id`, `call_id`, `part="1/N"`, and a SHA-256 of the complete JSON. Join the content between wrappers in part order and verify that digest. Read pagination when the Slack connector returns more replies. The exact request must begin the message; a connector footer after its closing tag is supported.
+  When the deployed carrier is running with its sender route verified, it posts execution results back into the target thread. `<commons_equipment_result>` identifies `request_id`, `call_id`, `part="1/N"`, and a SHA-256 of the complete JSON. Join the content between wrappers in part order and verify that digest, then read the tool outcome and provider receipt. Read pagination when the Slack connector returns more replies. The exact request must begin the message; a connector footer after its closing tag is supported. Parsing that footer does not verify the carrier's outbound sender or activate dispatch.
+
+#### Authoring requests containing source or prose
+
+Generate the message with `encode_request` when arguments contain Markdown,
+source code, or exact text. Connected Slack editors can interpret formatting
+inside ordinary JSON strings, changing bold markers, code fences, or indentation.
+The helper uses standard JSON Unicode escapes for string values, including keys,
+and preserves the original line breaks, astral Unicode, and non-string JSON
+values. The existing parser restores those values before the unchanged tool
+dispatch and visible-field publication checks.
+
+```bash
+python -c 'import json, sys; from integrations.shared_equipment.slack_carrier import encode_request; print(encode_request(json.load(sys.stdin)))' < request.json
+```
+
+Send the returned envelope as the message text, beginning with
+`<commons_equipment_request>`. The encoded request still uses the same
+`request_id`, `call_id`, and operation arguments; it does not dispatch anything
+by itself. Read back and parse the envelope to compare the decoded request with
+the original before relying on exact source or body content. Observe the
+provider's message-size limit because escaping can increase the envelope size.
 
 ### 5. Shared Gemini lifecycle equipment
 

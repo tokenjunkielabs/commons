@@ -183,9 +183,9 @@ class Broker:
         if type(max_age_seconds) is not int or not 0 <= max_age_seconds <= MAX_AGE:
             raise ValueError("invalid cache age")
         key = hashlib.sha256(dumps([method, params]).encode()).hexdigest()
-        now = self.now()
         with self.connect() as db:
             db.execute("BEGIN IMMEDIATE")
+            now = self.now()
             blocked = db.execute("SELECT reason FROM blocked WHERE namespace=?", (self.namespace,)).fetchone()
             if blocked:
                 return self.envelope("AUTH_BLOCKED", error=blocked[0])
@@ -193,6 +193,8 @@ class Broker:
             db.execute("DELETE FROM flight WHERE expires<=?", (now,))
             row = db.execute("SELECT fetched,payload FROM cache WHERE namespace=? AND key=?", (self.namespace, key)).fetchone()
             if row and max_age_seconds > 0 and 0 <= now - row[0] <= max_age_seconds:
+                # The snapshot is detached; decoding must not hold the writer.
+                db.commit()
                 return self.envelope("CACHED", fetched_at=row[0], age_seconds=now-row[0], data=loads(row[1]))
             flight = db.execute("SELECT expires FROM flight WHERE namespace=? AND key=?", (self.namespace, key)).fetchone()
             if flight:
@@ -209,7 +211,6 @@ class Broker:
             return Lease(key, nonce, method, params, expires)
 
     def finish(self, lease: Lease, result: Upstream):
-        now = self.now()
         payload = result.payload
         limited = result.status == 429 or (isinstance(payload, dict) and payload.get("error") == "ratelimited")
         interval = retry_seconds(result.retry_after)
@@ -225,6 +226,7 @@ class Broker:
                 pass
         with self.connect() as db:
             db.execute("BEGIN IMMEDIATE")
+            now = self.now()
             # A late genuine 429 still applies to the whole method, even after lease expiry.
             if limited:
                 db.execute("INSERT INTO rate VALUES (?,?,?) ON CONFLICT(scope,method) DO UPDATE SET next_at=max(rate.next_at,excluded.next_at)", (self.rate_scope, lease.method, now + interval))
@@ -247,7 +249,7 @@ class Broker:
                 return self.envelope("UPSTREAM_ERROR", error=error)
             db.execute("INSERT OR REPLACE INTO cache VALUES (?,?,?,?)", (self.namespace, lease.key, now, text))
             db.execute("DELETE FROM cache WHERE rowid IN (SELECT rowid FROM cache ORDER BY fetched DESC,namespace,key LIMIT -1 OFFSET ?)", (self.max_entries,))
-            return self.envelope("FETCHED", fetched_at=now, age_seconds=0, data=loads(text))
+        return self.envelope("FETCHED", fetched_at=now, age_seconds=0, data=loads(text))
 
     def read(self, method: str, params: dict, provider: Callable, max_age_seconds: int = 30):
         decision = self.acquire(method, params, max_age_seconds)

@@ -293,7 +293,8 @@ def notifications_for_events(events: Iterable[Mapping]) -> list[dict]:
     matching notifications in this batch; the outbox carries this across runs.
     """
     notifications: dict[str, dict] = {}
-    for event in sorted(events, key=lambda item: json.dumps(redact(item), sort_keys=True, default=str)):
+    candidates = []
+    for event in events:
         metadata = dict(event.get("metadata") or {})
         kind = str(metadata.get("notification_type") or event.get("type") or event.get("event_type") or "").lower().replace("-", "_")
         if kind not in _KINDS:
@@ -301,6 +302,10 @@ def notifications_for_events(events: Iterable[Mapping]) -> list[dict]:
         # Ordinary authorized token/model usage is not a new money commitment.
         if kind == "money_commitment" and (metadata.get("authorized_token_usage") is True or metadata.get("commitment_scope") == "authorized_token_usage"):
             continue
+        candidates.append((event, metadata, kind))
+    # Whole source pages and other unknown kinds need no notification sort key.
+    # Preserve the existing canonical order among actual notification candidates.
+    for event, metadata, kind in sorted(candidates, key=lambda item: json.dumps(redact(item[0]), sort_keys=True, default=str)):
         event_id = _event_id(event)
         nid = _notification_id(event_id)
         severity, default_title = _KINDS[kind]
@@ -359,9 +364,11 @@ class Outbox:
     dispatch(notification) returns status sent, failed, or uncertain plus exact
     provider receipt fields. Only a definite failed result is retryable. A
     sending record after restart is uncertain. readback(notification, receipt)
-    returns status sent, not_sent, or uncertain. not_sent permits a retry using
-    the same notification ID. Actual Slack/email adapters live with the existing
-    service road; this module neither gets credentials nor chooses a provider.
+    returns status sent, not_sent, or uncertain. Inconclusive readbacks retain
+    the delivery receipt; their result is saved separately as last_readback.
+    not_sent permits a retry using the same notification ID. Actual Slack/email
+    adapters live with the existing service road; this module neither gets
+    credentials nor chooses a provider.
     """
 
     def __init__(self, path: str | Path, redactor: Callable[[Any], Any] = redact):
@@ -419,18 +426,30 @@ class Outbox:
                     result = dict(readback(notification, record.get("receipt")))
                 except Exception as error:
                     result = {"status": "uncertain", "error": str(error)}
-                record["receipt"] = self.redactor(redact(result))
+                record["last_readback"] = self.redactor(redact(result))
                 status = result.get("status")
+                # An outage or partial readback must not erase the provider
+                # identifiers and destination receipts needed for recovery.
+                if status in {"sent", "not_sent"}:
+                    record["receipt"] = record["last_readback"]
                 record["delivery_status"] = "sent" if status == "sent" else "pending" if status == "not_sent" else "uncertain"
                 self._save()
                 if record["delivery_status"] != "pending":
-                    outcomes.append({"notification_id": nid, **record["receipt"]})
+                    outcomes.append({"notification_id": nid, **record["last_readback"]})
                     continue
             if record["delivery_status"] not in {"pending", "failed"} or notification.get("status") == "resolved":
                 continue
+            previous_status, previous_attempts = record["delivery_status"], record["attempts"]
             record["delivery_status"] = "sending"
-            record["attempts"] += 1
-            self._save()  # Persist before the external side effect.
+            record["attempts"] = previous_attempts + 1
+            try:
+                self._save()  # Persist before the external side effect.
+            except Exception:
+                # No delivery happened: a recovered writer must be able to retry
+                # this same in-memory notice without restarting the outbox.
+                record["delivery_status"] = previous_status
+                record["attempts"] = previous_attempts
+                raise
             try:
                 result = dict(dispatch(notification))
             except Exception as error:

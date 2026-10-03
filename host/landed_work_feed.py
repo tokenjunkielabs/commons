@@ -16,10 +16,12 @@ import subprocess
 import sys
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parent.parent
 CATALOG = ROOT / "ground/LANDED_WORK_FEED.json"
 REPO = "woahwhattheheck/commons"
+UNKNOWN_REPO = "UNKNOWN"
 CHANNEL = "C0BTVA3C0G3"
 BAKE_SUBJECT = "llms.txt+fresh.md"
 BAKE_PATHS = {
@@ -49,6 +51,41 @@ def load_catalog(path: Path | None = None) -> dict[str, Any]:
     return json.loads((path or CATALOG).read_text(encoding="utf-8"))
 
 
+def _repository_name(value: str) -> str | None:
+    name = value.strip()
+    if re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", name):
+        if all(part not in {".", ".."} for part in name.split("/")):
+            return name
+    return None
+
+
+def repository_of(cwd: Path | None = None, repository: str | None = None) -> str:
+    """Return a repository label without exposing origin URLs or userinfo."""
+    if repository is not None:
+        return _repository_name(repository) or UNKNOWN_REPO
+    try:
+        origin = subprocess.check_output(
+            ["git", "config", "--get", "remote.origin.url"],
+            cwd=str(cwd or ROOT), stderr=subprocess.PIPE,
+        ).decode("utf-8").strip()
+    except (OSError, subprocess.CalledProcessError, UnicodeError):
+        return UNKNOWN_REPO
+    scp = re.fullmatch(r"(?:[^/@:\s]+@)?github\.com:(.+)", origin, re.IGNORECASE)
+    if scp:
+        path = scp.group(1)
+    else:
+        try:
+            parsed = urlsplit(origin)
+            if parsed.scheme not in {"https", "http", "ssh", "git"} or parsed.hostname != "github.com":
+                return UNKNOWN_REPO
+            if parsed.query or parsed.fragment:
+                return UNKNOWN_REPO
+            path = parsed.path
+        except ValueError:
+            return UNKNOWN_REPO
+    return _repository_name(path.strip("/").removesuffix(".git")) or UNKNOWN_REPO
+
+
 def harness_of(author: str) -> str:
     name = author.strip()
     if name == "Cursor Agent":
@@ -60,25 +97,64 @@ def harness_of(author: str) -> str:
     return name.replace(" ", "-").lower() or "UNSEATED"
 
 
+class ChangedPathsUnavailable(RuntimeError):
+    """A commit's first parent is absent from the local object database."""
+
+    def __init__(self, first_parent: str):
+        self.first_parent = first_parent
+        super().__init__(f"first parent {first_parent} is unavailable locally")
+
+
 def paths_of(sha: str, cwd: Path | None = None) -> list[str]:
-    # NUL-delimited bytes preserve Git filenames, including whitespace/Unicode.
-    out = subprocess.check_output(
-        ["git", "diff-tree", "--no-commit-id", "--name-only", "-r",
-         "--diff-merges=first-parent", "--root", "-z", sha],
-        cwd=str(cwd or ROOT),
+    """Compare the real first parent; a shallow boundary is not a root."""
+    root = str(cwd or ROOT)
+    env = os.environ.copy()
+    env["GIT_NO_LAZY_FETCH"] = "1"
+    raw_commit = subprocess.check_output(
+        ["git", "cat-file", "commit", sha], cwd=root, env=env,
     )
+    headers = raw_commit.split(b"\n\n", 1)[0].splitlines()
+    first_parent = next(
+        (line[7:].decode("ascii") for line in headers if line.startswith(b"parent ")),
+        None,
+    )
+    revisions = [first_parent, sha] if first_parent else ["--root", sha]
+    # NUL-delimited bytes preserve Git filenames, including whitespace/Unicode.
+    try:
+        out = subprocess.check_output(
+            ["git", "diff-tree", "--no-commit-id", "--name-only", "-r",
+             "--diff-merges=first-parent", "-z", *revisions, "--"],
+            cwd=root, env=env, stderr=subprocess.PIPE,
+        )
+    except subprocess.CalledProcessError as error:
+        if first_parent:
+            parent = subprocess.run(
+                ["git", "cat-file", "-e", first_parent + "^{commit}"],
+                cwd=root, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            )
+            if parent.returncode:
+                raise ChangedPathsUnavailable(first_parent) from error
+        raise
     return [os.fsdecode(path) for path in out.split(b"\0") if path]
 
 
-def parse_commit(sha: str, author: str, subject: str, cwd: Path | None = None) -> dict[str, Any] | None:
+def parse_commit(
+    sha: str, author: str, subject: str, cwd: Path | None = None,
+    *, repository: str | None = None,
+) -> dict[str, Any] | None:
     if subject.startswith(BAKE_SUBJECT):
         return None
-    paths = paths_of(sha, cwd)
+    unavailable_parent = None
+    try:
+        paths = paths_of(sha, cwd)
+    except ChangedPathsUnavailable as error:
+        paths = []
+        unavailable_parent = error.first_parent
     if paths and set(paths) <= BAKE_PATHS:
         return None
     pr_match = PR_RE.search(subject)
-    return {
-        "repo": REPO,
+    row = {
+        "repo": repository_of(cwd, repository),
         "pr": int(pr_match.group(1)) if pr_match else None,
         "sha": sha,
         "title": subject,
@@ -86,6 +162,13 @@ def parse_commit(sha: str, author: str, subject: str, cwd: Path | None = None) -
         "paths": paths,
         "author": author,
     }
+    if unavailable_parent:
+        row["paths_coverage"] = {
+            "state": "UNAVAILABLE",
+            "reason": "FIRST_PARENT_UNAVAILABLE",
+            "first_parent_sha": unavailable_parent,
+        }
+    return row
 
 
 def _line_label(text: str, delimiters: str = "") -> str:
@@ -109,7 +192,9 @@ def format_line(row: dict[str, Any]) -> str:
     )
 
 
-def recent_merges(limit: int = 8, cwd: Path | None = None) -> list[dict[str, Any]]:
+def recent_merges(
+    limit: int = 8, cwd: Path | None = None, *, repository: str | None = None,
+) -> list[dict[str, Any]]:
     """Return up to limit non-bake entries from one first-parent history.
 
     Page by the last examined commit's first parent, not a fixed overscan or
@@ -119,6 +204,7 @@ def recent_merges(limit: int = 8, cwd: Path | None = None) -> list[dict[str, Any
         raise ValueError("limit must be nonnegative")
     if limit == 0:
         return []
+    resolved_repository = repository_of(cwd, repository)
     tip = git(["rev-parse", "--verify", "HEAD^{commit}"], cwd=cwd)
     rows: list[dict[str, Any]] = []
     while True:
@@ -132,7 +218,7 @@ def recent_merges(limit: int = 8, cwd: Path | None = None) -> list[dict[str, Any
         if not records:
             break
         for sha, author, subject in records:
-            parsed = parse_commit(sha, author, subject, cwd)
+            parsed = parse_commit(sha, author, subject, cwd, repository=resolved_repository)
             if parsed is not None:
                 rows.append(parsed)
                 if len(rows) >= limit:
@@ -159,9 +245,12 @@ def refuse_payload(flag: str) -> dict[str, Any]:
     }
 
 
-def measure(limit: int = 8, cwd: Path | None = None) -> dict[str, Any]:
+def measure(
+    limit: int = 8, cwd: Path | None = None, *, repository: str | None = None,
+) -> dict[str, Any]:
     catalog = load_catalog()
-    rows = recent_merges(limit, cwd)
+    resolved_repository = repository_of(cwd, repository)
+    rows = recent_merges(limit, cwd, repository=resolved_repository)
     return {
         "kind": "LANDED_WORK_FEED",
         "id": catalog["id"],
@@ -180,6 +269,7 @@ def measure(limit: int = 8, cwd: Path | None = None) -> dict[str, Any]:
         "twelve_named_here": False,
         "unnamed_remainder": "FINDER-FAILED",
         "count": len(rows),
+        "repo": resolved_repository,
         "lines": [format_line(row) for row in rows],
         "merges": rows,
         "verdict": "RENDER",
@@ -190,6 +280,8 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(add_help=True)
     parser.add_argument("--json", action="store_true")
     parser.add_argument("--limit", type=int, default=8)
+    parser.add_argument("--root", type=Path, help="checkout to read; defaults to this helper's repository")
+    parser.add_argument("--repo", help="explicit owner/name; otherwise infer the configured GitHub origin")
     args, unknown = parser.parse_known_args(argv)
     for flag in unknown:
         if flag in REFUSE:
@@ -210,7 +302,7 @@ def main(argv: list[str] | None = None) -> int:
             return 1
     if args.limit < 0:
         parser.error("--limit must be nonnegative")
-    packet = measure(args.limit)
+    packet = measure(args.limit, args.root, repository=args.repo)
     print(json.dumps(packet, indent=2, sort_keys=True))
     return 0
 

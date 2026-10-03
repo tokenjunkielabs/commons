@@ -19,8 +19,10 @@ import hashlib
 import json
 from pathlib import Path
 import re
+import shutil
 import struct
 import sys
+import tempfile
 import zlib
 
 KINDS = {1: 'commit', 2: 'tree', 3: 'blob', 4: 'tag'}
@@ -429,6 +431,26 @@ def tree_inventory(manifest: dict, objects: dict[str, tuple[str, bytes]], refere
             'entries': entries}
 
 
+def export_objects(output: Path, manifest: dict, objects: dict[str, tuple[str, bytes]]) -> None:
+    """Stage payload writes and remove this new destination if export fails."""
+    # Reserve the destination exclusively before creating anything beneath it.
+    # An existing file, directory or symlink must never enter our cleanup path.
+    output.mkdir(parents=True, exist_ok=False)
+    try:
+        with tempfile.TemporaryDirectory(prefix='.git-bundle-export-', dir=output.parent) as temporary:
+            staging = Path(temporary)
+            folder = staging/'objects'
+            folder.mkdir()
+            for oid, (kind, payload) in objects.items():
+                (folder/(oid+'.'+kind)).write_bytes(payload)
+            (staging/'manifest.json').write_text(json.dumps(manifest, indent=2)+'\n', encoding='utf-8')
+            folder.rename(output/'objects')
+            (staging/'manifest.json').rename(output/'manifest.json')
+    except BaseException:
+        shutil.rmtree(output)
+        raise
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('bundle', type=Path)
@@ -475,12 +497,7 @@ def main(argv: list[str] | None = None) -> int:
                 inventory_objects[object_id(kind, payload, manifest['object_format'])] = (kind, payload)
             manifest['tree_inventory'] = tree_inventory(manifest, inventory_objects, args.tree, max_entries=args.max_tree_entries)
         if args.output:
-            args.output.mkdir(parents=True, exist_ok=False)
-            folder = args.output/'objects'
-            folder.mkdir()
-            for oid, (kind, payload) in objects.items():
-                (folder/(oid+'.'+kind)).write_bytes(payload)
-            (args.output/'manifest.json').write_text(json.dumps(manifest, indent=2)+'\n', encoding='utf-8')
+            export_objects(args.output, manifest, objects)
         print(json.dumps(manifest, indent=2))
         return 3 if args.fail_on_unresolved and manifest['unresolved_pack_objects'] else 0
     except (BundleError, OSError) as error:

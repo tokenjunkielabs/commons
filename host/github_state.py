@@ -36,6 +36,8 @@ Honesty rules, the same ones the delta shards keep:
   "no open pull requests" and "nobody asked" are different facts.
 * If the pull request listing cannot be read, the listing sections are absent
   and named in `degraded` rather than rendered as an empty queue.
+  A successful zero-result JSON Lines export is an empty file; it is accepted
+  only when the caller explicitly supplies `--pulls-complete`.
 * The listing says whether it is every open pull request (`pulls_listing`
   COMPLETE) or a subset (PARTIAL). "Longest open" is only published from a
   complete listing: the oldest row of a newest-first page is not the oldest
@@ -359,23 +361,34 @@ def _read_json(path):
         return json.load(fh)
 
 
-def _read_pulls(path):
-    """A JSON array, or JSON Lines as `gh api --paginate --jq '.[]|...'` writes.
+def _read_pulls(path, *, empty_complete=False):
+    """A JSON array, or JSON Lines containing pull objects or page arrays.
 
     Returns None when the file holds neither, so the caller names the listing
     as degraded instead of reading garbage as an empty queue.
+    An empty JSON Lines export is valid only with explicit completion evidence.
+    Each row must carry a positive integer GitHub number; other provider JSON
+    must not become a complete listing without usable pull identities.
     """
+    def valid_rows(value):
+        return isinstance(value, list) and all(
+            isinstance(row, dict) and type(row.get("number")) is int
+            and row["number"] > 0 for row in value)
+
     with open(path, encoding="utf-8") as fh:
         text = fh.read()
     stripped = text.strip()
     if not stripped:
-        return None
+        return [] if empty_complete else None
     if stripped[0] == "[":
         try:
             value = json.loads(stripped)
         except ValueError:
-            return None
-        return value if isinstance(value, list) else None
+            # Multiple page arrays may be exported one per JSON Lines record.
+            # The line reader below still rejects an invalid or partial page.
+            pass
+        else:
+            return value if valid_rows(value) else None
     rows = []
     for line in stripped.splitlines():
         line = line.strip()
@@ -391,7 +404,7 @@ def _read_pulls(path):
             rows.append(value)
         else:
             return None
-    return rows
+    return rows if valid_rows(rows) else None
 
 
 def _read_closed(path):
@@ -544,7 +557,7 @@ def main(argv=None):
     pulls, degraded = None, []
     if args.pulls:
         try:
-            pulls = _read_pulls(args.pulls)
+            pulls = _read_pulls(args.pulls, empty_complete=args.pulls_complete)
             if pulls is None:
                 degraded = ["pulls"]
         except Exception:

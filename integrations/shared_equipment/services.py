@@ -20,6 +20,7 @@ from time import monotonic
 from typing import Any
 
 from integrations.shared_equipment.outcomes import effect_uncertain, tool_failed
+from integrations.shared_equipment.source_bindings import SourceBindings
 from commons_publication_policy import PublicationPolicyViolation, check_outbound_identity
 from integrations.shared_equipment.provider_io import (
     EquipmentError, GitHubSlackEquipment, redacted,
@@ -104,7 +105,7 @@ TOOLS = [
     _schema("credential_references", "Discover credential references, configured sources, and populated/empty Claude MCP entries. Returns metadata only, equally for newcomers.", {}),
     _schema("credential_retrieve_sealed", "Retrieve an actual credential encrypted to the requester's ephemeral public key. Keep the private key in the requesting runtime; only ciphertext enters this road.", {"credential_ref": "string", "recipient_public_key": "string", "transfer_id": "string", "request_id": "string", "call_id": "string"}),
     _schema("slack_read_channel", "Read a Slack channel using existing workspace access. Follow next_cursor for remaining pages.", {"channel_id": "string"}, {"oldest": "string", "latest": "string", "cursor": "string", "limit": "integer"}),
-    _schema("slack_read_thread", "Read a Slack thread. Follow next_cursor for remaining replies.", {"channel_id": "string", "thread_ts": "string"}, {"cursor": "string", "limit": "integer"}),
+    _schema("slack_read_thread", "Read a Slack thread within optional oldest/latest timestamps. Follow next_cursor for remaining replies.", {"channel_id": "string", "thread_ts": "string"}, {"oldest": "string", "latest": "string", "cursor": "string", "limit": "integer"}),
     _schema("slack_post_message", "Post to a channel verified as internal to the authenticated workspace. Sender is the fixed existing Slack account; do not add model or peer bylines. Returns the provider timestamp and permalink.", {"channel_id": "string", "text": "string"}, {"thread_ts": "string"}),
     _schema("commons_team_workhandoff", "Share an exact patch, tests, and result in the active BountyHub team thread. Internal Slack only; the fixed authenticated account is used, and the route reads back the actual file, message body, sender, and any provider footer. Same operation ID and content is idempotent; changed payload under that ID is rejected. No model/peer allowlist.", {"operation_id": "string", "work_id": "string", "objective": "string", "summary": "string", "patch": "string", "tests": "string", "result": "string"}, {"channel_id": {"type": "string", "default": DEFAULT_CHANNEL_ID}, "thread_ts": {"type": "string", "default": DEFAULT_THREAD_TS}}),
     _schema("commons_team_workhandoff_status", "Reconcile a prior internal Slack workhandoff by stable operation ID. Reads the current provider thread/file and returns actual sender/body/footer verification; it never sends a duplicate.", {"operation_id": "string"}, {"channel_id": {"type": "string", "default": DEFAULT_CHANNEL_ID}, "thread_ts": {"type": "string", "default": DEFAULT_THREAD_TS}}),
@@ -327,8 +328,7 @@ class ServiceEquipment(GitHubSlackEquipment):
             return self.slack("conversations.history", p)
         if name == "slack_read_thread":
             p = {"channel": _string(a, "channel_id"), "ts": _string(a, "thread_ts"), "limit": min(100, max(1, int(a.get("limit", 50))))}
-            if a.get("cursor"):
-                p["cursor"] = a["cursor"]
+            p.update({k: a[k] for k in ("oldest", "latest", "cursor") if a.get(k)})
             return self.slack("conversations.replies", p)
         if name == "slack_post_message":
             channel_id = _string(a, "channel_id")
@@ -404,7 +404,14 @@ class ServiceEquipment(GitHubSlackEquipment):
             value = self.github(endpoint)
             if not isinstance(value, dict) or value.get("type") != "file":
                 raise EquipmentError("path is not a file; supply an exact source path")
-            content = base64.b64decode(value.get("content", "")).decode("utf-8")
+            source = value
+            if value.get("encoding") == "none":
+                # Contents omits inline bytes for large files. Read the resolved
+                # immutable blob so a populated file cannot become empty source.
+                source = self.github(root + "/git/blobs/" + _quote(value["sha"]))
+                if not isinstance(source, dict) or source.get("encoding") != "base64":
+                    raise EquipmentError("GitHub returned no readable blob content")
+            content = base64.b64decode(source.get("content", "")).decode("utf-8")
             return {"repository": repo, "path": value["path"], "sha": value["sha"], "url": value["html_url"], "content": redacted(content), "size": value.get("size")}
         if name == "github_read_issue":
             number = int(a["issue_number"])
@@ -555,12 +562,17 @@ class ServiceEquipment(GitHubSlackEquipment):
 
 class CombinedCatalog:
     """Add private local equipment without publishing it to the public MCP."""
-    def __init__(self, commons, services=None):
+    def __init__(self, commons, services=None, *, source_bindings=None, extensions=None):
         self.commons = commons
         self.services = services or ServiceEquipment()
-        from integrations.command_center.equipment import CommandCenterEquipment
-        from .provider_apis import GroqExaEquipment
-        self.extensions = [CommandCenterEquipment(), GroqExaEquipment()]
+        self.source_bindings = (source_bindings if isinstance(source_bindings, SourceBindings)
+                                else SourceBindings(source_bindings))
+        if extensions is None:
+            from integrations.command_center.equipment import CommandCenterEquipment
+            from .provider_apis import GroqExaEquipment
+            self.extensions = [CommandCenterEquipment(), GroqExaEquipment()]
+        else:
+            self.extensions = list(extensions)
 
     def tools(self, **kwargs):
         # Keep the advertised catalog consistent with call() dispatch precedence:
@@ -582,7 +594,16 @@ class CombinedCatalog:
                 unique.append(tool)
         return unique
 
-    def call(self, name, arguments):
+    def resolve_source(self, account_ref, service=None):
+        """Select an existing concrete reader without changing provider arguments."""
+        return self.source_bindings.resolve(account_ref, service)
+
+    def call(self, name, arguments, *, account_ref=None, service=None):
+        if account_ref is not None:
+            return self.resolve_source(account_ref, service).call(name, arguments)
+        if service is not None:
+            raise EquipmentError("service requires an explicit account_ref",
+                                 code="source_binding_unresolved")
         for extension in self.extensions:
             if name in {tool["name"] for tool in extension.tools()}:
                 result = extension.call(name, arguments)

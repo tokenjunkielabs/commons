@@ -11,6 +11,7 @@ import time
 from threading import Lock, RLock, Thread
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
+from .custody import ClosingConnection
 
 SCHEMA_VERSION = 1
 _DB_WRITE_LOCK = RLock()
@@ -91,16 +92,14 @@ class Store:
                 CREATE TRIGGER IF NOT EXISTS coverage_projection_delete AFTER DELETE ON coverage BEGIN
                     DELETE FROM coverage_projection WHERE source_id=old.source_id;
                 END;
-                INSERT OR IGNORE INTO coverage_projection SELECT source_id,
-                    COALESCE(json_extract(payload,'$.service'),json_extract(payload,'$.source'),'unknown'),
-                    COALESCE(json_extract(payload,'$.account_ref'),json_extract(payload,'$.account_id'),''),
-                    COALESCE(json_extract(payload,'$.harness'),''),COALESCE(json_extract(payload,'$.status'),'unknown'),
-                    json_extract(payload,'$.complete'),json_extract(payload,'$.observed_at') FROM coverage;
                 CREATE INDEX IF NOT EXISTS coverage_group ON coverage_projection(source,account_ref,harness,status,complete,observed_at);
                 CREATE TABLE IF NOT EXISTS checkpoints (source_id TEXT PRIMARY KEY, payload TEXT NOT NULL);
                 CREATE TABLE IF NOT EXISTS accounts (account_id TEXT PRIMARY KEY, payload TEXT NOT NULL);
                 CREATE TABLE IF NOT EXISTS notifications (notification_id TEXT PRIMARY KEY,
                     occurred_at TEXT, payload TEXT NOT NULL, delivery_state TEXT DEFAULT 'available', receipt TEXT);
+                CREATE INDEX IF NOT EXISTS notification_delivery_time ON notifications(delivery_state,julianday(occurred_at));
+                CREATE TABLE IF NOT EXISTS notification_resolutions (
+                    notification_id TEXT PRIMARY KEY, resolved_by TEXT NOT NULL);
                 CREATE TABLE IF NOT EXISTS runtime_state (key TEXT PRIMARY KEY, payload TEXT NOT NULL);
                 CREATE TABLE IF NOT EXISTS source_records (ref TEXT PRIMARY KEY,source_id TEXT,sha256 TEXT,byte_length INTEGER,character_length INTEGER,iv BLOB,ciphertext BLOB,mac BLOB,format TEXT,key_reference TEXT);
                 CREATE INDEX IF NOT EXISTS source_record_sizes ON source_records(byte_length,character_length);
@@ -126,11 +125,53 @@ class Store:
                     COMMIT;
                 """)
                 self._coverage_service_projection_pending=False
+            db.execute("BEGIN IMMEDIATE")
+            if not db.execute("SELECT 1 FROM runtime_state WHERE key='coverage_projection_bootstrap_v1'").fetchone():
+                # Existing stores need one backfill. Coverage triggers maintain
+                # later inserts/replacements/deletes, so opening a store must not
+                # reparse its full retained history. Commit the marker with the
+                # projection, including when another process opens concurrently.
+                db.execute("""
+                    INSERT OR IGNORE INTO coverage_projection SELECT source_id,
+                        COALESCE(json_extract(payload,'$.service'),json_extract(payload,'$.source'),'unknown'),
+                        COALESCE(json_extract(payload,'$.account_ref'),json_extract(payload,'$.account_id'),''),
+                        COALESCE(json_extract(payload,'$.harness'),''),COALESCE(json_extract(payload,'$.status'),'unknown'),
+                        json_extract(payload,'$.complete'),json_extract(payload,'$.observed_at') FROM coverage
+                """)
+                db.execute("INSERT INTO runtime_state VALUES (?,?)",("coverage_projection_bootstrap_v1",json.dumps({"complete":True,"observed_at":now()})))
+            if not db.execute("SELECT 1 FROM runtime_state WHERE key='notification_resolution_index_v1'").fetchone():
+                # Retained resolutions may precede their originals in source
+                # history. Build the target lookup once, including older stores.
+                db.execute("""
+                    INSERT OR REPLACE INTO notification_resolutions
+                    SELECT target.value, note.notification_id
+                    FROM notifications AS note, json_each(note.payload,'$.supersedes') AS target
+                    WHERE target.type='text' AND target.value!=''
+                    ORDER BY note.rowid
+                """)
+                # Preserve the resolver already recorded by earlier ingestion
+                # when several retained notices refer to the same original.
+                db.execute("""
+                    INSERT OR REPLACE INTO notification_resolutions
+                    SELECT notification_id, json_extract(payload,'$.resolved_by') FROM notifications
+                    WHERE json_extract(payload,'$.status')='resolved'
+                        AND json_type(payload,'$.resolved_by')='text'
+                        AND json_extract(payload,'$.resolved_by')!=''
+                """)
+                db.execute("""
+                    UPDATE notifications SET payload=json_set(payload,'$.status','resolved','$.resolved_by',
+                        (SELECT resolved_by FROM notification_resolutions AS resolution
+                         WHERE resolution.notification_id=notifications.notification_id))
+                    WHERE notification_id IN (SELECT notification_id FROM notification_resolutions)
+                        AND (json_extract(payload,'$.status') IS NOT 'resolved'
+                             OR json_extract(payload,'$.resolved_by') IS NULL)
+                """)
+                db.execute("INSERT INTO runtime_state VALUES (?,?)",("notification_resolution_index_v1",json.dumps({"complete":True,"observed_at":now()})))
         from .custody import Custody
         self.custody = Custody(self.path, key_loader=key_loader, write_lock=self._write_lock)
 
     def connect(self):
-        db = sqlite3.connect(self.path, timeout=30)
+        db = sqlite3.connect(self.path, timeout=30, factory=ClosingConnection)
         db.execute("PRAGMA busy_timeout=30000")
         db.row_factory = sqlite3.Row
         return db
@@ -263,10 +304,16 @@ class Store:
                 if previous:
                     old=json.loads(previous[0])
                     item=merge_notification_metadata(old,item)
+                resolution=db.execute("SELECT resolved_by FROM notification_resolutions WHERE notification_id=?",(item["notification_id"],)).fetchone()
+                if resolution:
+                    item["status"]="resolved"
+                    item["resolved_by"]=resolution[0]
+                if previous:
                     db.execute("UPDATE notifications SET payload=? WHERE notification_id=?",(json.dumps(item,ensure_ascii=False),item["notification_id"]))
                 else:
                     db.execute("INSERT INTO notifications (notification_id,occurred_at,payload) VALUES (?,?,?)", (item["notification_id"], item.get("occurred_at") or now(), json.dumps(item, ensure_ascii=False)))
                 for target in item.get("supersedes",[]):
+                    db.execute("INSERT OR REPLACE INTO notification_resolutions VALUES (?,?)",(target,item["notification_id"]))
                     prior_note=db.execute("SELECT payload FROM notifications WHERE notification_id=?",(target,)).fetchone()
                     if prior_note:
                         resolved=json.loads(prior_note[0]); resolved["status"]="resolved"; resolved["resolved_by"]=item["notification_id"]
@@ -287,10 +334,66 @@ class Store:
                 row = db.execute("SELECT payload FROM runtime_state WHERE key=?", (key,)).fetchone()
         return json.loads(row[0]) if row else None
 
+    def source_job_page(self, readers, *, cursor=0, limit=None):
+        """Decode only selected jobs; counts and rows share one read snapshot."""
+        readers=list(readers)
+        start=max(0,int(cursor or 0))
+        stop=None if limit is None else start+max(1,int(limit))
+        keys=["source_jobs:"+reader for reader in readers]
+        items=[]
+        total=0
+        if keys:
+            with self.connect() as db:
+                db.execute("BEGIN")
+                placeholders=",".join("?" for _ in keys)
+                counts={}
+                for row in db.execute("SELECT key,json_type(payload) AS kind,json_array_length(payload) AS count "
+                                      "FROM runtime_state WHERE key IN ("+placeholders+")",keys):
+                    if row["kind"] not in {"array","null"}:
+                        raise ValueError("Source job state must be a JSON array: "+row["key"])
+                    counts[row["key"]]=int(row["count"] or 0)
+                total=sum(counts.get(key,0) for key in keys)
+                offset=0
+                for reader,key in zip(readers,keys):
+                    count=counts.get(key,0)
+                    first=max(0,start-offset)
+                    last=count if stop is None else min(count,stop-offset)
+                    offset+=count
+                    if last<=first: continue
+                    rows=db.execute("SELECT value FROM json_each((SELECT payload FROM runtime_state WHERE key=?)) "
+                                    "WHERE key>=? AND key<? ORDER BY key",(key,first,last))
+                    for row in rows:
+                        items.append({**json.loads(row["value"]),"reader":reader})
+        end=total if stop is None else min(total,stop)
+        return self.envelope(jobs=items,total_jobs=total,next_cursor=str(end) if end<total else None,
+                             scope="All accounts and all services",corpus_complete=False,sampling=False)
+
+    def _native_response_rows(self, db):
+        values={row["key"]:json.loads(row["payload"]) for row in db.execute(
+            "SELECT key,payload FROM runtime_state WHERE key IN (?,?)",
+            ("native_response_refs","native_response_metadata"))}
+        return values.get("native_response_refs") or {}, values.get("native_response_metadata") or {}
+
+    def native_responses(self):
+        """Read sealed response references and request metadata in one snapshot."""
+        with self.connect() as db:
+            return self._native_response_rows(db)
+
+    def record_native_response(self, job_id, ref, metadata):
+        """Merge one response pair atomically, including across writer processes."""
+        with self._write_lock, self.connect() as db:
+            db.execute("BEGIN IMMEDIATE")
+            responses, records=self._native_response_rows(db)
+            responses[job_id]=ref
+            records[job_id]=redact(metadata)
+            db.executemany("INSERT OR REPLACE INTO runtime_state VALUES (?,?)", (
+                ("native_response_refs",json.dumps(responses)),
+                ("native_response_metadata",json.dumps(records))))
+
     def events(self, *, cursor=0, limit=100, source=None, provider=None, harness=None, q=None, session_id=None, work_id=None, operation_id=None, event_id=None, order="asc"):
         descending = order == "desc"
         where = ["seq<?"] if descending and int(cursor)>0 else ["seq>?"]
-        args = [int(cursor)] if descending and int(cursor)>0 else [0]
+        args = [int(cursor)] if not descending or int(cursor)>0 else [0]
         if event_id:
             where.append("event_id=?")
             args.append(str(event_id))
@@ -320,38 +423,67 @@ class Store:
         with self.connect() as db:
             rows = list(db.execute("SELECT payload FROM sessions"+(" WHERE "+" AND ".join(where) if where else "")+" ORDER BY last_activity_at DESC LIMIT ?", args+[max(1,min(int(limit),10000))]))
         current = datetime.now(timezone.utc)
-        peers = []
-        for row in rows:
-            item = json.loads(row[0])
-            item["reported_status"] = item.get("status")
-            try:
-                age = (current-datetime.fromisoformat(item["last_activity_at"].replace("Z","+00:00"))).total_seconds()
-            except (KeyError,ValueError):
-                age = None
-            item["activity_age_seconds"] = age
-            if item.get("status") in {"executing", "running", "started", "waiting", "tool_wait"} and (age is None or age>300):
-                item["status"] = "unknown"
-            item["recently_observed"] = age is not None and 0<=age<=900
-            peers.append(item)
+        peers = [json.loads(row[0]) for row in rows]
         census=self.state("census") or {}
         by_id={item.get("session_id") or item.get("agent_id"):item for item in peers}
+        census_observed_at={}
         for observation in census.get("peers",[]):
             sid=observation.get("session_id") or observation.get("agent_id")
             if sid:
                 previous=by_id.get(sid,{})
                 by_id[sid]={**previous,**{k:v for k,v in observation.items() if v is not None},"usage":previous.get("usage",observation.get("usage",{}))}
+                census_observed_at[sid]=observation.get("observed_at")
         peers=list(by_id.values())
         if provider: peers=[p for p in peers if p.get("provider")==provider]
         if harness: peers=[p for p in peers if p.get("harness")==harness]
+        if q and peers:
+            # Census observations can add peers or replace searchable fields.
+            # Match the merged view with SQLite's existing LIKE semantics, using
+            # only the three search fields rather than copying full peer payloads.
+            fields=[[p.get(key) for key in ("summary","session_id","peer_id")] for p in peers]
+            pattern="%"+str(q)+"%"
+            with self.connect() as db:
+                matched={row[0] for row in db.execute(
+                    "SELECT key FROM json_each(?) WHERE json_extract(value,'$[0]') LIKE ? "
+                    "OR json_extract(value,'$[1]') LIKE ? OR json_extract(value,'$[2]') LIKE ?",
+                    [json.dumps(fields),pattern,pattern,pattern])}
+            peers=[p for index,p in enumerate(peers) if index in matched]
+        peers=peers[:max(1,min(int(limit),10000))]
+        def age_seconds(value):
+            stamp=iso(value)
+            return (current-datetime.fromisoformat(stamp.replace("Z","+00:00"))).total_seconds() if stamp else None
+        for item in peers:
+            # A retained census must age when served, just like stored events.
+            # Runtime status is observed at the source read, independently of
+            # the session's last activity; neither clock is refreshed here.
+            sid=item.get("session_id") or item.get("agent_id")
+            age=age_seconds(item.get("last_activity_at") or item.get("observed_at"))
+            status_age=age_seconds(census_observed_at[sid]) if sid in census_observed_at else age
+            item["reported_status"]=item.get("status")
+            item["activity_age_seconds"]=age
+            item["status_age_seconds"]=status_age
+            if item.get("status") in {"executing","running","started","waiting","tool_wait"} and (status_age is None or status_age>300):
+                item["status"]="unknown"
+            item["recently_observed"]=age is not None and 0<=age<=900
         return self.envelope(peers=peers, returned=len(peers),complete=False,census_coverage=census.get("coverage",[]))
 
-    def records(self, table, *, limit=1000, cursor="", q=None, source=None, provider=None, harness=None):
+    def records(self, table, *, limit=1000, cursor="", q=None, source=None, provider=None, harness=None, delivery_state=None, since=None):
+        """Read one identity-ordered page, optionally narrowing notification delivery.
+
+        Delivery state and occurrence time filters leave the retained feed intact.
+        """
         if table not in {"coverage","accounts","notifications"}:
             raise ValueError("Unknown measurement collection")
+        if table!="notifications" and (delivery_state is not None or since is not None):
+            raise ValueError("Delivery filters apply only to notifications")
         with self.connect() as db:
             identity={"coverage":"source_id","accounts":"account_id","notifications":"notification_id"}[table]
             where=[identity+">?"]
             args=[str(cursor or "")]
+            if delivery_state is not None:
+                where.append("delivery_state=?"); args.append(str(delivery_state))
+            if since is not None:
+                where.append("julianday(occurred_at)>=julianday(?)"); args.append(str(since))
             if q:
                 where.append("payload LIKE ?"); args.append("%"+str(q)+"%")
             for key,value in (("source",source),("provider",provider),("harness",harness)):
@@ -370,17 +502,58 @@ class Store:
             next_cursor=rows[-1][-1] if rows else cursor
         return self.envelope(**{table:items},returned=len(items),next_cursor=next_cursor,has_more=has_more,result_complete=not has_more,corpus_complete=False)
 
-    def work(self):
+    def work(self, *, limit=1000, cursor=""):
+        size=max(1,min(int(limit),1000))
+        boundary,updated,identity=None,None,""
+        if cursor not in (None,"",0,"0"):
+            try:
+                page=json.loads(cursor)
+            except (ValueError,TypeError) as exc:
+                raise ValueError("Invalid work-list cursor") from exc
+            if (not isinstance(page,list) or len(page)!=4 or page[0]!=1
+                    or type(page[1]) is not int or page[1]<0
+                    or not isinstance(page[2],str) or not isinstance(page[3],str)):
+                raise ValueError("Invalid work-list cursor")
+            _,boundary,updated,identity=page
         with self.connect() as db:
-            rows = list(db.execute("SELECT work_id,COUNT(*) AS events,COUNT(DISTINCT session_id) AS sessions,MIN(occurred_at) AS started_at,MAX(occurred_at) AS updated_at FROM events WHERE work_id IS NOT NULL AND work_id!='' GROUP BY work_id ORDER BY updated_at DESC LIMIT 1000"))
+            # Counts and latest activity share one statement snapshot. Join by
+            # the latest sequence so tied timestamps keep their original order.
+            # Continuation keeps the first page's event boundary, so newly
+            # ingested events cannot move work ahead of an in-progress scan.
+            rows = list(db.execute("""
+                WITH boundary AS (
+                    SELECT COALESCE(?,(SELECT MAX(seq) FROM events),0) AS seq
+                ), grouped AS (
+                    SELECT work_id,COUNT(*) AS events,COUNT(DISTINCT session_id) AS sessions,
+                        MIN(occurred_at) AS started_at,MAX(occurred_at) AS updated_at
+                    FROM events WHERE work_id IS NOT NULL AND work_id!=''
+                        AND seq<=(SELECT seq FROM boundary)
+                    GROUP BY work_id
+                ), work AS (
+                    SELECT * FROM grouped WHERE ? IS NULL OR COALESCE(updated_at,'')<?
+                        OR (COALESCE(updated_at,'')=? AND work_id>?)
+                    ORDER BY COALESCE(updated_at,'') DESC,work_id LIMIT ?
+                )
+                SELECT work.*,event.payload,(SELECT seq FROM boundary) AS through_event_cursor
+                FROM work JOIN events AS event ON event.seq=(
+                    SELECT latest.seq FROM events AS latest WHERE latest.work_id=work.work_id
+                        AND latest.seq<=(SELECT seq FROM boundary)
+                    ORDER BY COALESCE(latest.occurred_at,latest.observed_at) DESC,latest.seq DESC LIMIT 1
+                ) ORDER BY COALESCE(work.updated_at,'') DESC,work.work_id
+            """,(boundary,updated,updated,updated,identity,size+1)))
+            more=len(rows)>size
+            rows=rows[:size]
+            through=rows[0]["through_event_cursor"] if rows else boundary or 0
             items=[]
             for row in rows:
                 item=dict(row)
-                latest=db.execute("SELECT payload FROM events WHERE work_id=? ORDER BY COALESCE(occurred_at,observed_at) DESC,seq DESC LIMIT 1",(row["work_id"],)).fetchone()
-                event=json.loads(latest[0])
+                item.pop("through_event_cursor")
+                event=json.loads(item.pop("payload"))
                 item.update(status=event.get("status"),summary=event.get("summary"),url=event.get("url"),source=event.get("source"))
                 items.append(item)
-        return self.envelope(work=items)
+        next_cursor=json.dumps([1,through,items[-1]["updated_at"] or "",items[-1]["work_id"]],separators=(",",":")) if more else None
+        return self.envelope(work=items,returned=len(items),next_cursor=next_cursor,has_more=more,
+            result_complete=not more,corpus_complete=False,through_event_cursor=through)
 
     def snapshot(self, *, detailed=False):
         cache=self._snapshot_cache.get(bool(detailed))
@@ -430,16 +603,22 @@ class Store:
             providers=[dict(row) for row in db.execute("SELECT COALESCE(provider,'unknown') AS provider,COUNT(*) AS events,COUNT(DISTINCT session_id) AS sessions FROM events GROUP BY provider ORDER BY events DESC")]
             harnesses=[dict(row) for row in db.execute("SELECT COALESCE(harness,'unknown') AS harness,COUNT(*) AS events,COUNT(DISTINCT session_id) AS sessions FROM events GROUP BY harness ORDER BY events DESC")]
             activity=[dict(row) for row in db.execute("SELECT SUBSTR(occurred_at,1,10) AS date,COUNT(*) AS events FROM events WHERE occurred_at IS NOT NULL GROUP BY date ORDER BY date DESC LIMIT 90")][::-1]
-            usage={"input_tokens":0,"output_tokens":0,"cached_tokens":0,"reasoning_tokens":0,"cost_usd":None,"sessions_with_usage":0}
+            usage_fields=("input_tokens","output_tokens","cached_tokens","reasoning_tokens","cost_usd")
+            usage={key:None for key in usage_fields}
+            usage["sessions_with_usage"]=0
+            metric_sessions={key:0 for key in usage_fields}
             for row in db.execute("SELECT payload FROM sessions"):
                 item=json.loads(row[0]).get("usage",{})
                 if item:
                     usage["sessions_with_usage"]+=1
-                for key in ("input_tokens","output_tokens","cached_tokens","reasoning_tokens"):
-                    usage[key]+=item.get(key,0)
-                if item.get("cost_usd") is not None:
-                    usage["cost_usd"]=(usage["cost_usd"] or 0)+item["cost_usd"]
+                for key in usage_fields:
+                    value=item.get(key)
+                    if value is not None:
+                        usage[key]=(usage[key] or 0)+value
+                        metric_sessions[key]+=1
             usage["accounting_coverage"] = usage["sessions_with_usage"]/session_count if session_count else None
+            usage["metric_sessions"]=metric_sessions
+            usage["metric_coverage"]={key:count/session_count if session_count else None for key,count in metric_sessions.items()}
             captured=db.execute("SELECT COUNT(*),COALESCE(SUM(byte_length),0),SUM(character_length) FROM source_records").fetchone()
         peers=self.peers(limit=10000)["peers"]
         counts={"events":event_count,"sessions":session_count,"peers":peer_count,"executing":sum(p.get("status") in {"executing","running","started"} for p in peers),"waiting":sum(p.get("status") in {"waiting","tool_wait","blocked"} for p in peers),"recently_observed":sum(bool(p.get("recently_observed")) for p in peers),"unknown":sum(p.get("status") in {None,"unknown"} for p in peers)}
@@ -472,13 +651,19 @@ class Store:
         with self.connect() as db:
             if getattr(self,"_coverage_service_projection_pending",False):
                 relation="(SELECT p.source_id,COALESCE(json_extract(c.payload,'$.service'),p.source) AS source,p.account_ref,p.harness,p.status,p.complete,p.observed_at FROM coverage_projection p JOIN coverage c USING(source_id))"
-            else:relation="coverage_projection"
-            # Stream metadata without large SQL DISTINCT/GROUP temporary files.
-            for row in db.execute("SELECT source,account_ref,harness,status,complete,observed_at FROM "+relation):
+                # The legacy service expression is not indexed. Keep streaming
+                # this low-disk recovery path without a temporary grouping file.
+                query="SELECT source,account_ref,harness,status,complete,observed_at,1 AS partitions FROM "+relation
+            else:
+                # coverage_group covers this ordered aggregation. Transfer one
+                # metadata row per group, without a temporary grouping file.
+                query="SELECT source,account_ref,harness,status,complete,COUNT(*) AS partitions,MAX(observed_at) AS observed_at FROM coverage_projection GROUP BY source,account_ref,harness,status,complete"
+            for row in db.execute(query):
                 group=groups.setdefault(row["source"],{"name":row["source"],"partitions":0,"complete":0,"pending":0,"unknown":0,"statuses":{},"metrics":{},"observed_at":None,"scope":"all recorded source partitions","accounts":set(),"harnesses":set()})
-                group["partitions"]+=1
-                group["complete" if row["complete"]==1 else "pending" if row["complete"]==0 else "unknown"]+=1
-                group["statuses"][row["status"]]=group["statuses"].get(row["status"],0)+1
+                count=row["partitions"]
+                group["partitions"]+=count
+                group["complete" if row["complete"]==1 else "pending" if row["complete"]==0 else "unknown"]+=count
+                group["statuses"][row["status"]]=group["statuses"].get(row["status"],0)+count
                 if row["account_ref"]:group["accounts"].add(row["account_ref"])
                 if row["harness"]:group["harnesses"].add(row["harness"])
                 if row["observed_at"] and (not group["observed_at"] or row["observed_at"]>group["observed_at"]):group["observed_at"]=row["observed_at"]
@@ -495,8 +680,17 @@ class Store:
         with self.connect() as db:
             rows=list(db.execute("SELECT source,account_ref,harness,COUNT(*) AS partitions,SUM(complete=1) AS complete,SUM(complete=0) AS pending,SUM(complete IS NULL) AS unknown,MAX(observed_at) AS observed_at FROM coverage_projection WHERE (source,account_ref,harness)>(?,?,?) GROUP BY source,account_ref,harness ORDER BY source,account_ref,harness LIMIT ?",previous+[size+1]))
             more=len(rows)>size;rows=rows[:size];items=[]
+            statuses_by_group={}
+            if rows:
+                # The selected page is one contiguous range of the group index.
+                # Read all of its status counts together instead of one query per group.
+                last=[rows[-1][key] for key in ("source","account_ref","harness")]
+                counts=db.execute("SELECT source,account_ref,harness,status,COUNT(*) AS partitions FROM coverage_projection WHERE (source,account_ref,harness)>(?,?,?) AND (source,account_ref,harness)<=(?,?,?) GROUP BY source,account_ref,harness,status",previous+last)
+                for item in counts:
+                    key=(item["source"],item["account_ref"],item["harness"])
+                    statuses_by_group.setdefault(key,{})[item["status"]]=item["partitions"]
             for row in rows:
-                statuses={item[0]:item[1] for item in db.execute("SELECT status,COUNT(*) FROM coverage_projection WHERE source=? AND account_ref=? AND harness=? GROUP BY status",(row["source"],row["account_ref"],row["harness"]))}
+                statuses=statuses_by_group.get((row["source"],row["account_ref"],row["harness"]),{})
                 items.append({"name":row["source"],"account":row["account_ref"],"harness":row["harness"],"partitions":row["partitions"],"complete":row["complete"] or 0,"pending":row["pending"] or 0,"unknown":row["unknown"] or 0,"statuses":statuses,"metrics":{},"observed_at":row["observed_at"],"scope":"all recorded source partitions"})
         next_cursor=json.dumps([rows[-1][key] for key in ("source","account_ref","harness")]) if rows and more else None
         return self.envelope(source_groups=items,returned=len(items),next_cursor=next_cursor,has_more=more,result_complete=not more,corpus_complete=False)
@@ -525,6 +719,9 @@ class Store:
             db.execute("UPDATE notifications SET delivery_state=?,receipt=? WHERE notification_id=?",(state,json.dumps(redact(receipt)),notification_id))
 
     def export(self, path, *, public=False):
+        import os
+        import uuid
+
         value=copy.deepcopy(self.snapshot(detailed=True))
         if public:
             # Public bake has operational metadata; private excerpts remain in the source runtime.
@@ -541,5 +738,20 @@ class Store:
             value["sources"]=value["coverage"]
         dest=Path(path)
         dest.parent.mkdir(parents=True,exist_ok=True)
-        dest.write_text(json.dumps(redact(value),ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+        # Preserve the prior export if serialization, writing or flushing fails.
+        # Resolve existing links to keep the destination's write-through behavior.
+        target=dest.resolve()
+        mode=target.stat().st_mode & 0o7777 if target.exists() else None
+        temporary=target.with_name("."+target.name+"."+uuid.uuid4().hex+".tmp")
+        staged=False
+        try:
+            with temporary.open("x",encoding="utf-8") as output:
+                staged=True
+                if mode is not None: temporary.chmod(mode)
+                output.write(json.dumps(redact(value),ensure_ascii=False,indent=2)+"\n")
+                output.flush()
+                os.fsync(output.fileno())
+            temporary.replace(target)
+        finally:
+            if staged: temporary.unlink(missing_ok=True)
         return self.envelope(path=str(dest),bytes=dest.stat().st_size,public=public)

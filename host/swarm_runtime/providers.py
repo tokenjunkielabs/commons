@@ -169,6 +169,7 @@ class _Refresh:
         self.calls = self.hits = 0
         self.client_policy = _client_policy()
         self.pacing_deferred = False
+        self.pacing_retry_at = None
         self.collector = LiveCollectors(SimpleNamespace(state_dir=state_dir), equipment=equipment,
                                         config={"request_timeout_seconds": 15})
         # Same durable ledger and transport as ordinary command-center refresh.
@@ -190,13 +191,17 @@ class _Refresh:
     def pace(self, endpoint):
         # The refresh flock serializes this read/update across all callers.
         # Charge cache misses only; persisting the balance survives restarts.
+        if self.pacing_deferred:
+            # This refresh has one fixed clock and holds the shared lock. Its
+            # exhausted bucket cannot refill while later cache hits are read.
+            raise _Deferred("shared_request_budget", self.pacing_retry_at + _jitter(endpoint))
         bucket = self._bucket()
         if bucket["remaining"] < 1:
-            retry_at = (bucket["updated_at"] + (1 - bucket["remaining"])
-                        * self.client_policy["interval_seconds"] + _jitter(endpoint))
+            self.pacing_retry_at = (bucket["updated_at"] + (1 - bucket["remaining"])
+                                    * self.client_policy["interval_seconds"])
             self._save_bucket(bucket)
             self.pacing_deferred = True
-            raise _Deferred("shared_request_budget", retry_at)
+            raise _Deferred("shared_request_budget", self.pacing_retry_at + _jitter(endpoint))
         bucket["remaining"] -= 1
         self._save_bucket(bucket)
 
@@ -398,14 +403,19 @@ class _Refresh:
 
 
 def _cached(path, keys, stamp):
-    if not path.exists():
+    if not keys or not path.exists():
         return {}
     try:
         db = sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=0)
         try:
             result = {}
-            for key, encoded, expiry in db.execute("SELECT task_key,value,expires_at FROM facts"):
-                if key in keys:
+            wanted = sorted(keys)
+            for offset in range(0, len(wanted), 500):
+                batch = wanted[offset:offset + 500]
+                placeholders = ",".join("?" for _ in batch)
+                for key, encoded, expiry in db.execute(
+                        "SELECT task_key,value,expires_at FROM facts WHERE task_key IN (" +
+                        placeholders + ")", batch):
                     fact = _decode(encoded, {})
                     for field in ("equivalent", "superseded_by"):
                         if field in fact:
@@ -472,13 +482,20 @@ def enrich(tasks: dict, state_dir: Path, equipment=None, max_calls=4, now=None):
             """)
             refresh = _Refresh(db, state_dir, equipment, max_calls, stamp)
             previous = db.execute("SELECT value FROM progress WHERE name='last_task' ").fetchone()
-            cursor = previous["value"] if previous else ""
+            request_cursor = previous["value"] if previous else ""
+            previous_cache = db.execute("SELECT value FROM progress WHERE name='last_cache_task'").fetchone()
+            cache_cursor = previous_cache["value"] if previous_cache else request_cursor
+            cursor = request_cursor if max_calls else cache_cursor
             ordered = [key for key in keys if key > cursor] + [key for key in keys if key <= cursor]
             visited = []
+            advance_requests = max_calls > 0
             for key in ordered[:200]:
-                if refresh.calls >= max_calls:
-                    break
+                # get() checks reusable responses before enforcing the network
+                # budget or shared pacing, so retained responses can reconcile
+                # throughout this bounded window after either is exhausted.
                 match = TASK.fullmatch(key)
+                calls_before = refresh.calls
+                budget_deferred = False
                 try:
                     if key in artifacts and (match is None or match[2].lower() != "pr"):
                         fact = refresh.artifact(artifacts[key])
@@ -491,6 +508,7 @@ def enrich(tasks: dict, state_dir: Path, equipment=None, max_calls=4, now=None):
                                (key, json.dumps(fact, sort_keys=True), stamp + TTL))
                     result["coverage"]["fresh"] += 1
                 except _Deferred as exc:
+                    budget_deferred = exc.reason in {"call_budget", "shared_request_budget"}
                     deferred = {"task_key": key, "reason": exc.reason}
                     if exc.retry_at:
                         deferred["retry_not_before"] = _iso(exc.retry_at)
@@ -498,21 +516,34 @@ def enrich(tasks: dict, state_dir: Path, equipment=None, max_calls=4, now=None):
                         deferred["error"] = exc.error
                     result["deferred"].append(deferred)
                 visited.append(key)
-                db.execute("INSERT OR REPLACE INTO progress(name,value) VALUES('last_task',?)", (key,))
+                if advance_requests:
+                    # A partially served task rotates fairly; its endpoint/page
+                    # progress is retained. An unserved budget miss resumes next.
+                    if not budget_deferred or refresh.calls > calls_before:
+                        request_cursor = key
+                        db.execute("INSERT OR REPLACE INTO progress(name,value) VALUES('last_task',?)", (key,))
+                    if budget_deferred:
+                        advance_requests = False
+                if not max_calls:
+                    # Positive refreshes must not reset an independent cache
+                    # sweep when shared pacing stops their first request.
+                    cache_cursor = key
+                    db.execute("INSERT OR REPLACE INTO progress(name,value) VALUES('last_cache_task',?)", (key,))
                 db.commit()
-                if refresh.pacing_deferred:
-                    break
             unvisited = len(keys) - len(visited)
             if unvisited:
                 result["deferred"].append({"reason": "call_budget_or_task_window", "tasks": unvisited})
             pending = sum(key not in facts or facts[key].get("freshness") == "stale"
                           or bool(facts[key].get("reconciliation_pending")) for key in keys)
             result["calls"] = refresh.calls
+            if max_calls and previous_cache is None:
+                cache_cursor = request_cursor
             result["coverage"].update({"complete": pending == 0 and not result["deferred"],
                                        "pending": pending, "visited": len(visited),
                                        "cache_hits": refresh.hits,
                                        "shared_request_policy": refresh.pacing_status(),
-                                       "next_after_task_key": visited[-1] if visited else cursor})
+                                       "next_after_task_key": request_cursor,
+                                       "cache_next_after_task_key": cache_cursor})
             return result
         finally:
             db.close()

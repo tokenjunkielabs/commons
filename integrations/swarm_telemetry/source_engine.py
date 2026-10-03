@@ -3,12 +3,12 @@ from __future__ import annotations
 import json
 import copy
 import time
+from datetime import datetime
 from pathlib import Path
 from threading import RLock
 from .store import now,stable_id
 
 READERS={"github":"github_activity","slack":"slack_activity","services":"service_activity"}
-_STATE_LOCK=RLock()
 _READER_LOCKS={kind:RLock() for kind in READERS}
 
 def _distinct_sources(rows):
@@ -56,24 +56,54 @@ class SourceEngine:
         config.setdefault("source_catalog_path",str(Path(self.store.path).parent/"service-catalog.json"))
         state=self.store.state("source_reader:"+kind) or {}
         consumed=self.store.state("native_consumed:"+kind) or {}
-        with _STATE_LOCK:
-            responses=dict(self.store.state("native_response_refs") or {})
-            metadata=dict(self.store.state("native_response_metadata") or {})
+        responses,metadata=self.store.native_responses()
         receipts={}
+        mismatches={}
+        identical_observations=0
         for job_id,ref in responses.items():
             record=metadata.get(job_id,{})
             owner=record.get("reader") or ("slack" if job_id.startswith("slack-read:") else "services")
-            if owner!=kind or consumed.get(job_id)==ref: continue
+            if owner!=kind: continue
             job=(state.get("jobs") or {}).get(job_id,{})
-            raw=json.loads(self.store.custody.read(ref))
-            if kind=="slack" and job.get("last_native_result_sha256")==module._digest(raw):
+            fields=[]
+            if record.get("response_ref",ref)!=ref: fields.append("response_ref")
+            if job:
+                tool,args=module._request(job) if kind=="slack" else (job.get("tool_name"),job.get("args",{}))
+                expected={"tool_name":tool,"account_ref":job.get("account_ref"),"service":job.get("service") or kind}
+                # Compare supplied source context before reading or consuming
+                # the envelope. Older receipts may omit these annotations.
+                fields.extend(key for key,value in expected.items() if key in record and value is not None and record[key]!=value)
+            if fields:
+                mismatches[job_id]=fields
+                continue
+            known=consumed.get(job_id)==ref
+            raw=None if known else json.loads(self.store.custody.read(ref))
+            if known or kind=="slack" and job.get("last_native_result_sha256")==module._digest(raw):
                 # A committed reader checkpoint proves this exact envelope was
                 # consumed even if interruption preceded the receipt-index write.
+                # A later identical live-tail read is still a fresh observation.
+                # Reuse its content projection, but renew the existing poll clock
+                # only when the captured request is still this exact live tail.
+                if (kind=="slack" and job.get("kind") in {"tail","thread_tail"}
+                        and job.get("status")=="live" and not job.get("cursor")
+                        and record.get("arguments")==module._request(job)[1]):
+                    try:
+                        captured=datetime.fromisoformat(record["observed_at"].replace("Z","+00:00")).timestamp()
+                        attempted=datetime.fromisoformat(job["last_attempt_at"].replace("Z","+00:00")).timestamp()
+                    except (KeyError,TypeError,ValueError,OverflowError,OSError):
+                        pass
+                    else:
+                        if captured>attempted:
+                            job["last_attempt_at"]=record["observed_at"]
+                            job["next_attempt_epoch"]=max(float(job.get("next_attempt_epoch",0)),captured+float(config.get("slack_tail_seconds",30)))
+                            job["attempts"]=int(job.get("attempts",0))+1
+                            job["identical_response_observations"]=int(job.get("identical_response_observations",0))+1
+                            identical_observations+=1
                 consumed[job_id]=ref
                 continue
-            if "arguments" in record and job:
-                current=module._request(job)[1] if kind=="slack" else job.get("args",{})
-                if current!=record["arguments"]: continue
+            if "arguments" in record and job and args!=record["arguments"]:
+                mismatches[job_id]=["arguments"]
+                continue
             receipts[job_id]={"payload":raw,"source_ref":{"ref":ref}}
             if kind=="slack" and job: job["next_attempt_epoch"]=0
         config["native_results"]=receipts
@@ -87,9 +117,11 @@ class SourceEngine:
         if kind=="services" and not callable(reader) and config.get("native_connector_gateway"):
             from .runner import Gateway
             gateway=Gateway(config["native_connector_gateway"],config.get("timeout_seconds",25))
-            reader=lambda name,args,account_ref:gateway.call(name,args)
+            reader=lambda name,args,account_ref:gateway.call(name,args,account_ref=account_ref)
         kwargs={"config":config,"state":state,"sources":self._sources(kind)}
-        if callable(reader): kwargs["read_page"]=reader
+        # GitHub uses its account-specific readers from config. The native
+        # callback keyword belongs to the Slack and service collector APIs.
+        if kind in {"slack","services"} and callable(reader): kwargs["read_page"]=reader
         result=fn(**kwargs)
         events=result.get("events",[])
         batch_size=max(1,min(1000,int(config.get("source_ingest_batch_events",128))))
@@ -119,18 +151,12 @@ class SourceEngine:
         for job_id in seen:
             if job_id in receipts: consumed[job_id]=responses[job_id]
         self.store.state("native_consumed:"+kind,consumed)
-        health={"observed_at":now(),"events":len(events),"pending":len(pending),"complete":bool(rows) and all(row.get("complete",False) for row in rows),"full_source_retained":True,"sampling":False,"native_receipts_available":len(receipts),"native_receipts_consumed":len(consumed)}
+        health={"observed_at":now(),"events":len(events),"pending":len(pending),"complete":bool(rows) and not mismatches and all(row.get("complete",False) for row in rows),"full_source_retained":True,"sampling":False,"native_receipts_available":len(receipts),"native_receipts_consumed":len(consumed),"native_identical_observations":identical_observations,"native_receipt_mismatches":mismatches}
         self.store.state("source_reader_health:"+kind,health)
         return {"kind":kind,**health}
     def jobs(self,reader=None,limit=None,cursor=0):
-        items=[]
-        for kind in READERS:
-            if reader and reader!=kind: continue
-            for job in self.store.state("source_jobs:"+kind) or []:
-                items.append({**job,"reader":kind})
-        start=max(0,int(cursor or 0))
-        end=len(items) if limit is None else min(len(items),start+max(1,int(limit)))
-        return self.store.envelope(jobs=items[start:end],total_jobs=len(items),next_cursor=str(end) if end<len(items) else None,scope="All accounts and all services",corpus_complete=False,sampling=False)
+        readers=[kind for kind in READERS if not reader or reader==kind]
+        return self.store.source_job_page(readers,cursor=cursor,limit=limit)
     def record_response(self,payload):
         job_id=str(payload["job_id"])
         raw=payload["payload"]
@@ -139,12 +165,7 @@ class SourceEngine:
         ref=self.store.custody.seal(raw,payload.get("source_id") or job_id)
         event={"event_id":"native-response:"+stable_id(job_id,ref["sha256"]),"source":payload.get("service","native-connector"),"source_id":payload.get("source_id") or job_id,"event_type":"native_source_response","occurred_at":payload.get("occurred_at") or now(),"observed_at":now(),"status":"captured","summary":"Complete native connector response captured","source_record_ref":ref,"metadata":{"job_id":job_id,"account_ref":payload.get("account_ref"),"tool_name":payload.get("tool_name"),"exact_response":True}}
         self.store.ingest([event])
-        with _STATE_LOCK:
-            responses=self.store.state("native_response_refs") or {}
-            metadata=self.store.state("native_response_metadata") or {}
-            responses[job_id]=ref["ref"]
-            metadata[job_id]={key:payload[key] for key in ("arguments","tool_name","account_ref","service") if key in payload}
-            metadata[job_id].update(reader=reader,observed_at=now())
-            self.store.state("native_response_refs",responses)
-            self.store.state("native_response_metadata",metadata)
+        metadata={key:payload[key] for key in ("arguments","tool_name","account_ref","service") if key in payload}
+        metadata.update(reader=reader,observed_at=now(),response_ref=ref["ref"])
+        self.store.record_native_response(job_id,ref["ref"],metadata)
         return self.store.envelope(job_id=job_id,reader=reader,source_record_ref=ref,captured=True)

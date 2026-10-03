@@ -75,6 +75,15 @@ site/item is rejected by the existing engine.
 Weekdays run from Monday `0` through Sunday `6`. Stop sequence identifies route
 order; this records the operator's plan, not a navigation recommendation.
 
+A site appears once per daily route. For the same route and weekday, plans may
+not overlap in their inclusive date ranges when they use the same site or stop
+sequence. Changing the sequence does not make a second visit to the same site
+representable. A later nonoverlapping plan, another weekday, or another route
+may still use that site. A rejected plan records no event and does not consume
+its operation key. If older stored plans already repeat a site for a route/date,
+manifesting reports that conflict before creating a route; inspect the retained
+plans instead of retrying the same manifest under another operation key.
+
 ### manifest.json — `manifest`
 
 ```json
@@ -170,6 +179,11 @@ database without initializing it. Existing handoff files are not overwritten;
 use a new intentionally selected directory for a later snapshot. Exporting a
 bundle does not transmit it, post it into accounting, charge a customer, or
 make it customer-authorized.
+
+An ordinary export write or flush failure removes the files created by that
+attempt, including the unfinished file, so the same destination can be retried
+after resolving the storage problem. Existing files remain protected. A process
+or machine interruption can still leave partial output; inspect it before retrying.
 
 ## Read receipts correctly
 

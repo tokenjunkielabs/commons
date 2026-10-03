@@ -60,9 +60,25 @@ Mode `clone` (default) is an isolated clone — no shared index lock. Mode
 
 Busy main is not a stopping point. Stale origin is a measured fact.
 
+Working-file replacements are staged and flushed beside their destination before
+an atomic rename. A failure before replacement keeps the previous file intact;
+existing permissions and symlink targets are retained. This guarantee is per file:
+a later refresh error can leave earlier files updated, with the initial snapshot
+available for recovery. Restore storage capacity and rerun the normal refresh.
+
+Snapshot lookups confirm path absence from Git tree metadata. An unreadable tree
+or a listed blob whose content cannot be read is an error, not a deletion. Refresh
+stops at that error; earlier completed file updates can remain and the initial
+snapshot is available for recovery. Restore source-object access and retry.
+
 ## Receipts
 
-Every command writes `.commons-worktree/receipts/<id>/receipt.json`.
+Commands with a usable working directory write
+`.commons-worktree/receipts/<id>/receipt.json`. An open refused because the
+destination already contains non-Git files returns `readiness=DEST_OCCUPIED`,
+`ok=false`, and process exit status `1`. Its receipt is printed only; the occupied
+destination is left untouched. Callers can use the exit status to avoid treating
+that directory as a successfully opened working copy.
 `origin_state` is `CURRENT` | `STALE` | `UNKNOWN` — measured, never
 fabricated. `destructive`, `deleted_user_work`, and `force` stay false.
 Secret-like filenames are redacted from published receipts (no copy, no hash).
