@@ -315,10 +315,12 @@ class RoleStore:
         if not path.exists():
             raise RoleError(f"role not found: {role_id}")
         data = json.loads(path.read_text(encoding="utf-8"))
+        if isinstance(data, dict):
+            role_id = data.get("role_id") or role_id
         return normalize_role(data, role_id=role_id)
 
     def list_ids(self) -> list[str]:
-        return sorted(p.stem for p in self.root.glob("*.json"))
+        return sorted(self.get(p.stem)["role_id"] for p in self.root.glob("*.json"))
 
     def list_open_obligations(self, *, cash_only: bool = False) -> list[dict[str, Any]]:
         """Open obligations across all roles — cash-work / fulfillment queue.
@@ -332,8 +334,8 @@ class RoleStore:
         This marker does not establish that payment has occurred.
         """
         rows: list[dict[str, Any]] = []
-        for rid in self.list_ids():
-            role = self.get(rid)
+        for path in sorted(self.root.glob("*.json")):
+            role = self.get(path.stem)
             cash = _role_has_payment_capability(role)
             for ob in role.get("obligations") or []:
                 if str(ob.get("status") or "").strip() != "open":
