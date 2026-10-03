@@ -96,8 +96,12 @@ def _row(bounty: dict[str, Any], policy: dict[str, int], as_of_epoch: int) -> di
         reasons.append("DELIVERED_SUBMISSION_NOT_YET_TECHNICALLY_ACCEPTED")
     elif unresolved_attempt:
         state = "SUBMISSION_BLOCKED"
-        action = "UNBLOCK_EXTERNAL_GATE"
-        reasons.append("FAILED_OR_HELD_TRANSPORT_IS_NOT_DELIVERY")
+        if gate_follow is not None:
+            action = "WAIT_DNR"
+            reasons.append("GATE_FOLLOWUP_ALREADY_USED")
+        else:
+            action = "UNBLOCK_EXTERNAL_GATE"
+            reasons.append("FAILED_OR_HELD_TRANSPORT_IS_NOT_DELIVERY")
     else:
         state = "READY_TO_SUBMIT"
         action = "SUBMIT"
