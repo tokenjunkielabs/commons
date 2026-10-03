@@ -1255,7 +1255,7 @@ def main(argv=None):
         changed = None
 
     totals = payload["totals"]
-    print("seats %d (declared %d, presence-only %d, posted headers %d) | "
+    print("seats %d (declared %d, presence-only %d, posted headers %s) | "
           "reference %s%s"
           % (totals["seats"], totals["declared"], totals["presence_only"],
              totals["posted_headers"], payload["reference_time"] or UNKNOWN,
