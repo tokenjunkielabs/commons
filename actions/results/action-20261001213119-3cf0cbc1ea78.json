@@ -1,0 +1,13 @@
+{
+  "id": "action-20261001213119-3cf0cbc1ea78",
+  "verb": "EXECUTE",
+  "target": "",
+  "scope": "github",
+  "ok": false,
+  "error": "command exited 128\nCloning into '/tmp/GmsCore'...\nNote: switching to '32bc8954ff872d0e1a05ddfae81561b6dbecef69'.\n\nYou are in 'detached HEAD' state. You can look around, make experimental\nchanges and commit them, and you can discard any commits you make in this\nstate without impacting any branches by switching back to a branch.\n\nIf you want to create a new branch to retain commits you create, you may\ndo so (now or later) by using -c with the switch command. Example:\n\n  git switch -c <new-branch-name>\n\nOr undo this operation with:\n\n  git switch -\n\nTurn off this advice by setting config variable advice.detachedHead to false\n\nHEAD is now at 32bc8954 Merge commit from fork\nFrom https://github.com/microg/GmsCore\n * [new ref]           refs/pull/3360/head -> pr3360\nCommitter identity unknown\n\n*** Please tell me who you are.\n\nRun\n\n  git config --global user.email \"you@example.com\"\n  git config --global user.name \"Your Name\"\n\nto set your account's default identity.\nOmit --global to set the identity only in this repository.\n\nfatal: empty ident name (for <runner@runnervm8df0l.kbcd0ek5nduelhqehr4h5sjzfe.yx.internal.cloudapp.net>) not allowed\n",
+  "executed_at": "2026-10-03T10:32:04.339812Z",
+  "changed": [],
+  "canonical_records": {},
+  "action_outputs": {},
+  "action_deletions": []
+}
