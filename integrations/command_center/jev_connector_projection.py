@@ -136,6 +136,14 @@ def _nullable_token(value: Any, where: str) -> str | None:
     return None if value is None else _token(value, where)
 
 
+def _nullable_cursor(value: Any, where: str) -> str | None:
+    # Provider cursors are opaque; preserve padding, punctuation and empty tails.
+    # The packet's existing string and byte limits still apply through _bounded.
+    if value is not None and type(value) is not str:
+        raise ProjectionError(f"{where}: cursor must be a string or null")
+    return value
+
+
 def _instant(value: Any, where: str) -> datetime:
     if type(value) is not str or UTC_RE.fullmatch(value) is None:
         raise ProjectionError(f"{where}: timestamp must be RFC3339 UTC ending in Z")
@@ -213,7 +221,7 @@ def _project_source(raw: Any) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     scope = [_token(item, "source.scope") for item in scope]
     if len(scope) != len(set(scope)):
         raise ProjectionError("source.scope: duplicate entry")
-    cursor = _nullable_token(row["cursor"], "source.cursor")
+    cursor = _nullable_cursor(row["cursor"], "source.cursor")
     high_water = _nullable_token(row["high_water_mark"], "source.high_water_mark")
     observed_at = _utc(row["observed_at"], "source.observed_at")
     last_good = None if row["last_successful_read"] is None else _utc(
