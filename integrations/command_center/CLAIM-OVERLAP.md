@@ -62,7 +62,11 @@ separate. Unknown repositories and unqualified filenames retain their scope
 uncertainty instead of silently becoming a fully qualified source identity.
 
 Use `--path` or `--operation` to narrow the result. The default output is JSON;
-`--text` provides a compact operator view. It lists every selected operation's
+`--text` provides a compact operator view. Its coverage heading shows the supplied
+message count, duplicate count, each snapshot's pagination state, and any active
+filters. A zero-match lookup remains scoped to those supplied messages; it does
+not hide a partial page or make an observed source-end marker a full-history claim.
+It lists every selected operation's
 observed state, source scope and statement references, including a single claim
 or completed operation with no matched pair. Filtered results retain any
 overlapping counterpart so both source statements remain available. Overlaps do
