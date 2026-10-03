@@ -222,7 +222,7 @@ class _Collector:
             add("chatgpt_space_list_pages", {"limit": 100, "top_level_only": False, "include_has_children": True})
             self.add(service, account, None, scope="all ChatGPT account conversations and account history", gap="Pages connector enumerates spaces/pages only; recover existing account export/history connector road for complete conversations")
         elif service == "sites":
-            add("sites_list_sites", {"limit": 100, "include_editable": True})
+            add("sites_list_sites", {"limit": 50, "include_editable": True})
             self.add(service, account, None, scope="all Sites source versions and deployment activity", gap="recover native site version/source/activity enumeration and complete provider Git object roads from each returned source_repository reference")
         elif service == "pets":
             add("pets_list_pets", {"limit": 100})
@@ -392,8 +392,9 @@ class _Collector:
                 sid = row.get("id") or row.get("project_id")
                 if sid:
                     add("sites_get_site", {"project_id": sid, "include_mcp_connection": True})
-                    add("sites_list_site_versions", {"project_id": sid, "limit": 100})
-                    add("sites_get_site_worker_logs", {"project_id": sid, "errors_only": False, "limit": 100, "since_minutes": 52560000})
+                    add("sites_list_site_versions", {"project_id": sid, "limit": 50})
+                    # The native reader supports seven days; retain older history as a recovery gap.
+                    add("sites_get_site_worker_logs", {"project_id": sid, "errors_only": False, "limit": 100, "since_minutes": 10080})
                     self.gap(job, "all historical Sites worker logs:" + sid, "native recent worker log tool has no cursor or end-time bound; recover complete source/provider activity road")
         elif action == "sites_list_site_versions":
             for row in _rows(value, "items", "versions"):
