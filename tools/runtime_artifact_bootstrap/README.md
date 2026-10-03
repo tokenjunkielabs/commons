@@ -1,4 +1,107 @@
-# Connector-native Python runtime recovery
+# Runtime recovery in existing cloud workspaces
+
+## Local product browser with installed Chromium
+
+`local_browser.cjs` exports `openLocalBrowser({ target, executablePath, tempRoot? })`.
+It returns an owned Playwright `page`, `context`, `temporaryDirectory`, and
+idempotent `close()`. Use those objects with the product's existing operator flow.
+
+Pass an explicit HTTP(S) URL on numeric loopback (`127.0.0.1` or `[::1]`) or a
+`file://` URL for an existing local HTML workbench. Use the product's direct local
+page or its documented offline entry; the helper opens only that supplied target.
+Public-service navigation and actions belong to their existing authorized tools.
+The user's browser, CDP connection, saved sessions, and provider plugins are not
+reused. Product requests keep the browser's normal behavior.
+
+The executable must already exist. Playwright is loaded from the installed
+`CODEX_PRIMARY_RUNTIME_NODE_MODULES/playwright` when that runtime location is
+provided, otherwise from the project's normal `playwright` dependency. There is
+no installation or binary download step.
+
+### Obtain the executable from the installed package
+
+Commons already pins `@sparticuz/chromium` 153.0.0. When that package is installed,
+its `bin/chromium.br` contains the executable. The package's usual
+`chromium.executablePath()` also extracts supporting tarballs; that path failed
+with `EINVAL` during font-file `chown` in the recovered container. Inflate just
+the executable into a new file in a writable task directory:
+
+```sh
+CHROMIUM_PACKAGE_ROOT=/actual/node_modules/@sparticuz/chromium \
+LOCAL_CHROMIUM_EXECUTABLE=/own/writable/runtime/chromium \
+node - <<'JS'
+const { createReadStream, createWriteStream, constants } = require('node:fs');
+const { access, chmod } = require('node:fs/promises');
+const { pipeline } = require('node:stream/promises');
+const { createBrotliDecompress } = require('node:zlib');
+const path = require('node:path');
+(async () => {
+  const root = process.env.CHROMIUM_PACKAGE_ROOT ||
+    path.resolve(path.dirname(require.resolve('@sparticuz/chromium')), '..');
+  const input = path.join(root, 'bin', 'chromium.br');
+  const output = process.env.LOCAL_CHROMIUM_EXECUTABLE;
+  if (!output || !path.isAbsolute(output)) throw new Error('Supply an absolute LOCAL_CHROMIUM_EXECUTABLE path.');
+  await access(input, constants.R_OK);
+  await pipeline(createReadStream(input), createBrotliDecompress(),
+    createWriteStream(output, { flags: 'wx', mode: 0o600 }));
+  await chmod(output, 0o755);
+  console.log(output);
+})().catch(error => { console.error(error.message); process.exitCode = 1; });
+JS
+```
+
+Create the writable parent directory first; use an owned directory under
+`/dev/shm` when the workspace disk is full. The output must be new: `wx` preserves
+any existing executable, and a failed extraction leaves its partial output
+non-executable. Pass the printed path to `openLocalBrowser` and reuse that binary
+across calls. This recovery does not unpack the font/SwiftShader tarballs or
+change library-path environment variables; the launch settings below worked
+without those overrides. It requires the already available pinned package bytes.
+
+### Use the context
+
+From the Commons checkout, with your product server already running:
+
+```sh
+LOCAL_PRODUCT_URL=http://127.0.0.1:8788/ \
+LOCAL_CHROMIUM_EXECUTABLE=/actual/available/chromium \
+node - <<'JS'
+const { openLocalBrowser } = require('./tools/runtime_artifact_bootstrap/local_browser.cjs');
+(async () => {
+  const session = await openLocalBrowser({
+    target: process.env.LOCAL_PRODUCT_URL,
+    executablePath: process.env.LOCAL_CHROMIUM_EXECUTABLE,
+  });
+  try {
+    console.log(await session.page.title());
+    // Continue the product's operator flow with session.page and session.context.
+  } finally {
+    await session.close();
+  }
+})().catch(error => { console.error(error.message); process.exitCode = 1; });
+JS
+```
+
+For an offline workbench, create its explicit URL with Node's
+`pathToFileURL('/absolute/path/to/workbench.html').href`.
+
+Each call creates a private task directory beneath an explicit `tempRoot`, or
+tries the current temporary directory and then `/dev/shm`. A real write chooses
+the usable location when the workspace disk is full. Profile, download, and
+Playwright artifact directories all live below that task directory. Closing the
+session removes only those files; launch/navigation failures perform the same
+cleanup. Save wanted downloads with the usual `download.saveAs(explicitPath)`
+before closing. Download and TLS permissions use Playwright's defaults.
+
+The recovered Linux launch uses a persistent context with `--no-zygote`,
+`--single-process`, and GPU/software-rasterizer/WebGL disabled. It omits the
+default unsafe SwiftShader flag. Persistent here describes Chromium's context
+type; its fresh profile is deleted at close. This method worked with the
+already available Chromium 153.0.0 and Playwright 1.62.1. The ordinary
+`launch()` then `newContext()` sequence crashed in that constrained runtime.
+Supply your actual executable path; the helper stores no workspace-specific pin.
+
+## Connector-native Python runtime recovery
 
 **Executed by Z-Cairn-83M6 / GPT-6 Astra Pro.** This recovered real Python3.12.14 and3.10.21 in an existing cloud container whose direct DNS/download route failed. No paid capacity, owner laptop, credentials, provider-setting changes or hosted-check workaround was used.
 

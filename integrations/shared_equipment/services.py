@@ -404,7 +404,14 @@ class ServiceEquipment(GitHubSlackEquipment):
             value = self.github(endpoint)
             if not isinstance(value, dict) or value.get("type") != "file":
                 raise EquipmentError("path is not a file; supply an exact source path")
-            content = base64.b64decode(value.get("content", "")).decode("utf-8")
+            source = value
+            if value.get("encoding") == "none":
+                # Contents omits inline bytes for large files. Read the resolved
+                # immutable blob so a populated file cannot become empty source.
+                source = self.github(root + "/git/blobs/" + _quote(value["sha"]))
+                if not isinstance(source, dict) or source.get("encoding") != "base64":
+                    raise EquipmentError("GitHub returned no readable blob content")
+            content = base64.b64decode(source.get("content", "")).decode("utf-8")
             return {"repository": repo, "path": value["path"], "sha": value["sha"], "url": value["html_url"], "content": redacted(content), "size": value.get("size")}
         if name == "github_read_issue":
             number = int(a["issue_number"])

@@ -27,6 +27,7 @@ def _linux_process_limits():
         "memory_limit_bytes": None,
         "memory_current_bytes": None,
         "memory_headroom_bytes": None,
+        "memory_events": [],
         "cgroup_version": None,
         "cgroup_status": "unavailable",
         "controller_status": {"cpu": "unavailable", "memory": "unavailable"},
@@ -35,7 +36,9 @@ def _linux_process_limits():
         "notes": (
             "CPU quota is a sustained CPU-time ceiling, not idle CPU capacity. "
             "Memory headroom is limit minus current usage, shared with descendants "
-            "and excluding reclaim. Ancestors outside the visible mount are unmeasured."
+            "and excluding reclaim. Ancestors outside the visible mount are unmeasured. "
+            "Memory event counters are cumulative, not attributed to a command. "
+            "Hierarchical counters overlap and must not be summed across ancestors."
         ),
     }
     try:
@@ -57,18 +60,21 @@ def _linux_process_limits():
         for line in Path("/proc/self/mountinfo").read_text().splitlines():
             before, separator, after = line.partition(" - ")
             fields = before.split()
-            if not separator or len(fields) < 5 or after.split()[0] != "cgroup2":
+            filesystem = after.split()
+            if (not separator or len(fields) < 5 or len(filesystem) < 3
+                    or filesystem[0] != "cgroup2"):
                 continue
             root, mount = _cgroup_path(fields[3]), _cgroup_path(fields[4])
             try:
                 relative = location.relative_to(root)
             except ValueError:
                 continue
-            matches.append((len(root.parts), mount / relative, mount))
+            local_events = "memory_localevents" in filesystem[2].split(",")
+            matches.append((len(root.parts), mount / relative, mount, local_events))
         if not matches:
             result["cgroup_status"] = "no_visible_cgroup_v2_mount"
             return result
-        _, directory, mount = max(matches, key=lambda entry: entry[0])
+        _, directory, mount, local_events = max(matches, key=lambda entry: entry[0])
         result.update(cgroup_version=2, cgroup_path=str(directory),
                       cgroup_status="observed", cgroup_mount=str(mount))
     except (OSError, ValueError, IndexError) as exc:
@@ -137,6 +143,29 @@ def _linux_process_limits():
                 result["read_errors"].append({"source": str(limit_path), "error": "invalid_memory_limit"})
         elif limit == "max":
             memory_observed = True
+        for interface in ("memory.events", "memory.events.local"):
+            event_path = directory / interface
+            events = read(event_path)
+            if events is None:
+                continue
+            try:
+                counters = {}
+                for line in events.splitlines():
+                    name, count = line.split()
+                    if name in counters:
+                        raise ValueError("duplicate memory event counter")
+                    counters[name] = integer(count)
+                if not counters:
+                    raise ValueError("empty memory event counters")
+                result["memory_events"].append({
+                    "source": str(event_path),
+                    "scope": "local" if local_events or interface.endswith(".local")
+                             else "cgroup_and_descendants",
+                    "counters": counters,
+                })
+            except ValueError:
+                result["read_errors"].append({"source": str(event_path),
+                                              "error": "invalid_memory_events"})
         if directory == mount:
             break
         directory = directory.parent
@@ -153,6 +182,61 @@ def _linux_process_limits():
         result["cgroup_status"] = "controllers_unavailable"
     elif not cpu_observed or not memory_observed:
         result["cgroup_status"] = "partial"
+    return result
+
+
+def _linux_cpu_stats(limits):
+    """Read cumulative CPU accounting from the already discovered hierarchy."""
+    result = {
+        "scope": "visible_cgroup_v2_ancestors",
+        "status": "unavailable", "sources": [],
+        "unavailable_interfaces": [], "read_errors": [],
+        "notes": (
+            "Cumulative counters per source; *_usec values are microseconds. "
+            "Usage includes descendants. cpu.stat bandwidth counters describe "
+            "this group's limit; cpu.stat.local describes this group's runqueues "
+            "including ancestor throttling. Keep sources separate: they overlap "
+            "and are not a command's elapsed time or current utilization. "
+            "Ancestors outside the visible mount are unmeasured."
+        ),
+    }
+    if "cgroup_path" not in limits or "cgroup_mount" not in limits:
+        return result
+    leaf, mount = Path(limits["cgroup_path"]), Path(limits["cgroup_mount"])
+    for directory in (leaf, *leaf.parents):
+        if not directory.is_relative_to(mount):
+            break
+        for interface in ("cpu.stat", "cpu.stat.local"):
+            source = directory / interface
+            try:
+                lines = source.read_text().splitlines()
+            except FileNotFoundError:
+                result["unavailable_interfaces"].append(str(source))
+                continue
+            except OSError as exc:
+                result["read_errors"].append({"source": str(source),
+                                              "error": type(exc).__name__})
+                continue
+            try:
+                counters = {}
+                for line in lines:
+                    name, count = line.split()
+                    if (name in counters or not count.isascii()
+                            or not count.isdecimal()):
+                        raise ValueError("invalid CPU counter")
+                    counters[name] = int(count)
+                # cpu.stat.local may be empty when the controller is disabled.
+                if not counters and interface == "cpu.stat":
+                    raise ValueError("empty CPU counters")
+                result["sources"].append({"source": str(source),
+                                          "counters": counters})
+            except ValueError:
+                result["read_errors"].append({"source": str(source),
+                                              "error": "invalid_cpu_stats"})
+    if result["sources"]:
+        result["status"] = "observed"
+    if result["read_errors"] or (result["sources"] and result["unavailable_interfaces"]):
+        result["status"] = "partial"
     return result
 
 
@@ -209,6 +293,7 @@ def host_observation(state_dir):
     if system == "Linux":
         limits = _linux_process_limits()
         item["process_limits"] = limits
+        item["cpu_cgroup_stats"] = _linux_cpu_stats(limits)
         cpu = [value for value in (item["cpu"], limits["cpu_affinity_processors"],
                                   limits["cpu_quota_processors"]) if value is not None]
         item["cpu_capacity"] = min(cpu) if cpu else None

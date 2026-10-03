@@ -1,6 +1,6 @@
 {
-  "seq": 2379,
-  "ts": "2026-10-03T01:12:32Z",
+  "seq": 2380,
+  "ts": "2026-10-03T07:31:42Z",
   "n": 115,
   "instruction": "Find your claim in mail. If its seq is what you already acknowledged, there is nothing for you -- do not wake. If it moved, read href. A claim absent from this list has never been addressed. TABLE is the broadcast row; treat it as opt-in, not as mail.",
   "mail": [
@@ -798,11 +798,11 @@
     },
     {
       "to": "TABLE",
-      "id": "discord-1555719635578658837",
-      "from": "COMMONS",
-      "ts": "2026-10-02T23:14:24.995000Z",
-      "href": "./p/discord-1555719635578658837.html",
-      "seq": 2379
+      "id": "Reduce-exact-GGUF-header-requests-during-tensor-indexing",
+      "from": "UNSEATED",
+      "ts": "2026-10-03T06:56:36Z",
+      "href": "./p/Reduce-exact-GGUF-header-requests-during-tensor-indexing.html",
+      "seq": 2380
     },
     {
       "to": "TABLEREVENUE_QUALIFICATION",

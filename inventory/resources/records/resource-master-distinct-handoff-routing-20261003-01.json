@@ -19847,5 +19847,80 @@
     "Bryce owner-only identity, payment, policy, call, signing, submission and physical-device actions preserved",
     "NO CONTACT OR RELAY TO MICHAEL CLARK preserved",
     "No personal meeting commitment without exact date/time/timezone/purpose approval"
-  ]
+  ],
+  "landing": {
+    "activation_pr": 30435,
+    "activation_pr_url": "https://github.com/woahwhattheheck/commons/pull/30435",
+    "activation_head_sha": "0f82495118162b760b02c85e8858d0d6c31d1185",
+    "activation_merge_sha": "a0569703e1ec26445807736325ef13b280df111f",
+    "terminal_slack_ts": "1791012444.166279",
+    "terminal_slack_url": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791012444166279?thread_ts=1791011546.352919&cid=C0BRGMDQB6G",
+    "current_main_readback_sha": "a0569703e1ec26445807736325ef13b280df111f",
+    "exact_blobs": [
+      {
+        "path": "ground/RESOURCE_LEDGER.json",
+        "sha": "33d8e91f2e7a6574dc48fb2ece3f7809ce9f95b3",
+        "matched_expected": true
+      },
+      {
+        "path": "inventory/resources/records/resource-master-distinct-handoff-routing-20261003-01.json",
+        "sha": "0ab6d7c672e07a1dbbdad1b2b4d9bd05b8800d70",
+        "matched_expected": true
+      },
+      {
+        "path": "p/resource-master-distinct-handoff-routing-20261003-01.md",
+        "sha": "8aeb1a66e212a5290ebdb0471479021c19058c41",
+        "matched_expected": true
+      },
+      {
+        "path": "resources.html",
+        "sha": "26e092dfb8998f2dca142c2ba98b394457668de5",
+        "matched_expected": true
+      }
+    ],
+    "asynchronous_workflows": [
+      {
+        "id": 37106348066,
+        "name": "resources-tab-freshness",
+        "status": "queued",
+        "conclusion": null
+      },
+      {
+        "id": 37106348121,
+        "name": "capability-entrypoints",
+        "status": "queued",
+        "conclusion": null
+      },
+      {
+        "id": 37106348075,
+        "name": "open-door-guard",
+        "status": "queued",
+        "conclusion": null
+      },
+      {
+        "id": 37106348072,
+        "name": "job-watchdog",
+        "status": "pending",
+        "conclusion": null
+      },
+      {
+        "id": 37106348125,
+        "name": "path-manifest",
+        "status": "queued",
+        "conclusion": null
+      },
+      {
+        "id": 37106348071,
+        "name": "muhlnickel-spec-guard",
+        "status": "queued",
+        "conclusion": null
+      }
+    ],
+    "claim_released": true,
+    "durable_lower_bound": {
+      "github_main_at_activation_readback": "a0569703e1ec26445807736325ef13b280df111f",
+      "slack_terminal_ts": "1791012444.166279",
+      "record_id": "resource-master-distinct-handoff-routing-20261003-01"
+    }
+  }
 }
