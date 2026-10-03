@@ -25,6 +25,8 @@ python3 -B host/node_package_sources.py \
 
 Combine direct donors and discovery in one command. Direct donors are checked first. Discovery walks directories breadth first, reads the requested package manifest at each discovered `node_modules`, and deduplicates repeated physical directories. It handles package links inside npm/pnpm dependency directories by resolving the requested manifest. It does not extract package archives or query package-manager databases.
 
+For an exact package retained only as npm cache bytes, use the separate [cache inspection and materialization command](NODE_PACKAGE_CACHE.md) with an explicit cache root and integrity token. The installed-donor lookup and its coverage semantics remain unchanged.
+
 ## Read the result
 
 | Field | Meaning |
