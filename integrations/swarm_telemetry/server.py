@@ -17,11 +17,17 @@ TOOLS = [
     {"name":"list_accounts_and_services","description":"Account and service reference metadata; no credential values."},
     {"name":"get_source_coverage","description":"Collection coverage, gaps, freshness and checkpoints."},
     {"name":"query_metrics","description":"Defined counts, usage, provider/harness breakdowns and activity."},
-    {"name":"get_notifications","description":"Passive notices with source references and delivery state."},
+    {"name":"get_notifications","description":"Passive notices with source references, delivery state, filters and stable continuation cursors."},
     {"name":"get_collection_jobs","description":"Open resumable native-connector reads for the full corpus; no assignment or admission."},
 ]
 for tool in TOOLS:
     tool["inputSchema"]={"type":"object","properties":{key:{"type":"string"} for key in ("provider","harness","source","q","session_id","work_id","operation_id")},"additionalProperties":True}
+    if tool["name"]=="get_notifications":
+        tool["inputSchema"]["properties"].update({
+            "limit":{"type":"integer","minimum":1,"maximum":10000,"default":1000,"description":"Maximum notices per page."},
+            "cursor":{"type":"string","description":"Use next_cursor from the previous page while has_more is true; retain the same filters."},
+            "q":{"type":"string","description":"Search the stored notification content."},
+        })
 
 def call(store, name, args=None):
     args=args or {}
@@ -36,7 +42,7 @@ def call(store, name, args=None):
     if name=="list_accounts_and_services": return store.records("accounts",**{k:args[k] for k in ("limit","cursor","q","source","provider","harness") if k in args})
     if name=="get_source_coverage": return store.records("coverage",**{k:args[k] for k in ("limit","cursor","q","source","provider","harness") if k in args})
     if name=="query_metrics": return store.metrics()
-    if name=="get_notifications": return store.records("notifications",limit=args.get("limit",1000))
+    if name=="get_notifications": return store.records("notifications",**{k:args[k] for k in ("limit","cursor","q","source","provider","harness") if k in args})
     if name=="get_collection_jobs":
         from .source_engine import SourceEngine
         return SourceEngine(store).jobs(**{k:args[k] for k in ("reader","limit","cursor") if k in args})
