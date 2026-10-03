@@ -430,11 +430,13 @@ class Reader:
             endpoint = obj.get('url') or job['url']
             match = re.search(r'/repos/([^/]+/[^/]+)/(issues|pulls)/(\d+)$', endpoint)
             if match:
-                repo, _, number = match.groups()
-                for suffix, name in ((f'issues/{number}/comments', 'issue_comment'),
-                                     (f'issues/{number}/timeline', 'timeline_event'),
-                                     (f'pulls/{number}/reviews', 'review'),
-                                     (f'pulls/{number}/comments', 'review_comment')):
+                repo, subject_type, number = match.groups()
+                related = [(f'issues/{number}/comments', 'issue_comment'),
+                           (f'issues/{number}/timeline', 'timeline_event')]
+                if subject_type == 'pulls' or isinstance(obj.get('pull_request'), dict):
+                    related.extend([(f'pulls/{number}/reviews', 'review'),
+                                    (f'pulls/{number}/comments', 'review_comment')])
+                for suffix, name in related:
                     self.enqueue_detail(f'{API}/repos/{repo}/{suffix}?per_page=100', name)
         if links.get('next'):
             job['next'] = links['next']; job['page'] = job.get('page', 1) + 1
