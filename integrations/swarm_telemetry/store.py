@@ -333,6 +333,40 @@ class Store:
                 row = db.execute("SELECT payload FROM runtime_state WHERE key=?", (key,)).fetchone()
         return json.loads(row[0]) if row else None
 
+    def source_job_page(self, readers, *, cursor=0, limit=None):
+        """Decode only selected jobs; counts and rows share one read snapshot."""
+        readers=list(readers)
+        start=max(0,int(cursor or 0))
+        stop=None if limit is None else start+max(1,int(limit))
+        keys=["source_jobs:"+reader for reader in readers]
+        items=[]
+        total=0
+        if keys:
+            with self.connect() as db:
+                db.execute("BEGIN")
+                placeholders=",".join("?" for _ in keys)
+                counts={}
+                for row in db.execute("SELECT key,json_type(payload) AS kind,json_array_length(payload) AS count "
+                                      "FROM runtime_state WHERE key IN ("+placeholders+")",keys):
+                    if row["kind"] not in {"array","null"}:
+                        raise ValueError("Source job state must be a JSON array: "+row["key"])
+                    counts[row["key"]]=int(row["count"] or 0)
+                total=sum(counts.get(key,0) for key in keys)
+                offset=0
+                for reader,key in zip(readers,keys):
+                    count=counts.get(key,0)
+                    first=max(0,start-offset)
+                    last=count if stop is None else min(count,stop-offset)
+                    offset+=count
+                    if last<=first: continue
+                    rows=db.execute("SELECT value FROM json_each((SELECT payload FROM runtime_state WHERE key=?)) "
+                                    "WHERE key>=? AND key<? ORDER BY key",(key,first,last))
+                    for row in rows:
+                        items.append({**json.loads(row["value"]),"reader":reader})
+        end=total if stop is None else min(total,stop)
+        return self.envelope(jobs=items,total_jobs=total,next_cursor=str(end) if end<total else None,
+                             scope="All accounts and all services",corpus_complete=False,sampling=False)
+
     def _native_response_rows(self, db):
         values={row["key"]:json.loads(row["payload"]) for row in db.execute(
             "SELECT key,payload FROM runtime_state WHERE key IN (?,?)",
