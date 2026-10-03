@@ -266,7 +266,7 @@ def _write_projection(path: Path, data: bytes) -> None:
                     raise OSError(errno.EIO, "Incomplete projection write")
                 remaining = remaining[written:]
             stream.flush()
-            os.fchmod(stream.fileno(), mode)
+            os.chmod(staging, mode)
             os.fsync(stream.fileno())
         os.replace(staging, target)
     finally:
