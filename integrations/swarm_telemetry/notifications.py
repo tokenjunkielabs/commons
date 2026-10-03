@@ -293,7 +293,8 @@ def notifications_for_events(events: Iterable[Mapping]) -> list[dict]:
     matching notifications in this batch; the outbox carries this across runs.
     """
     notifications: dict[str, dict] = {}
-    for event in sorted(events, key=lambda item: json.dumps(redact(item), sort_keys=True, default=str)):
+    candidates = []
+    for event in events:
         metadata = dict(event.get("metadata") or {})
         kind = str(metadata.get("notification_type") or event.get("type") or event.get("event_type") or "").lower().replace("-", "_")
         if kind not in _KINDS:
@@ -301,6 +302,10 @@ def notifications_for_events(events: Iterable[Mapping]) -> list[dict]:
         # Ordinary authorized token/model usage is not a new money commitment.
         if kind == "money_commitment" and (metadata.get("authorized_token_usage") is True or metadata.get("commitment_scope") == "authorized_token_usage"):
             continue
+        candidates.append((event, metadata, kind))
+    # Whole source pages and other unknown kinds need no notification sort key.
+    # Preserve the existing canonical order among actual notification candidates.
+    for event, metadata, kind in sorted(candidates, key=lambda item: json.dumps(redact(item[0]), sort_keys=True, default=str)):
         event_id = _event_id(event)
         nid = _notification_id(event_id)
         severity, default_title = _KINDS[kind]
