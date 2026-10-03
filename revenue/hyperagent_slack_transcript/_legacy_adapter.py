@@ -15,6 +15,7 @@ from typing import Any, Iterable, Mapping
 
 SCHEMA = "tjlabs.hyperagent_slack_transcript/v1"
 STATE_SCHEMA = "tjlabs.hyperagent_slack_transcript_state/v1"
+MAX_JSON_NESTING_DEPTH = 128
 ALLOWED_BACKENDS = frozenset({"stream", "trace", "envelope"})
 ALLOWED_KINDS = frozenset({"TEXT", "MUTATING_ACTION"})
 ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$")
@@ -46,8 +47,34 @@ def _pairs_no_dupes(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
     return out
 
 
+def _check_json_depth(text: str) -> None:
+    """Bound object/array nesting before decoding, ignoring quoted content."""
+    depth = 0
+    in_string = False
+    escaped = False
+    for character in text:
+        if in_string:
+            if escaped:
+                escaped = False
+            elif character == "\\":
+                escaped = True
+            elif character == '"':
+                in_string = False
+        elif character == '"':
+            in_string = True
+        elif character in "[{":
+            depth += 1
+            if depth > MAX_JSON_NESTING_DEPTH:
+                raise ValidationError(
+                    f"JSON nesting exceeds maximum depth {MAX_JSON_NESTING_DEPTH}"
+                )
+        elif character in "]}":
+            # Syntax, including unmatched delimiters, remains the decoder's job.
+            depth = max(0, depth - 1)
+
+
 def load_strict_json(data: bytes | str) -> Any:
-    """Parse UTF-8 JSON while rejecting duplicate keys and non-finite numbers."""
+    """Parse strict UTF-8 JSON with at most 128 nested objects/arrays."""
     if isinstance(data, bytes):
         try:
             text = data.decode("utf-8", "strict")
@@ -57,6 +84,7 @@ def load_strict_json(data: bytes | str) -> Any:
         text = data
     else:
         raise ValidationError("JSON input must be bytes or str")
+    _check_json_depth(text)
     try:
         return json.loads(
             text,
