@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Materialize exact GitHub connector file responses in a cloud working copy."""
+"""Materialize exact GitHub source bytes in a cloud working copy."""
 from __future__ import annotations
 
 import argparse
@@ -105,7 +105,7 @@ def _file_payload(response: object, *, fallback_sha=None, fallback_encoding=None
 
 def _source(entry: object) -> dict:
     if not isinstance(entry, dict) or not isinstance(entry.get("path"), str):
-        raise SourceImportError("SOURCE_ENTRY_SHAPE", "Each file needs a path and its original response.")
+        raise SourceImportError("SOURCE_ENTRY_SHAPE", "Each file needs a repository path and a source.")
     name = entry["path"]
     pieces = name.split("/")
     if (not name or name.startswith("/") or "\\" in name or "\0" in name
@@ -115,31 +115,47 @@ def _source(entry: object) -> dict:
     mode = entry.get("mode")
     if mode is not None and mode not in ("100644", "100755"):
         raise SourceImportError("SOURCE_MODE", "File mode must be 100644 or 100755 when supplied.", name)
-    payload = _file_payload(entry.get("response"), fallback_sha=entry.get("blob_sha"),
-                            fallback_encoding=entry.get("encoding"))
-    expected = payload["sha"]
-    if not re.fullmatch(r"[0-9a-fA-F]{40}", expected):
-        raise SourceImportError("SOURCE_SHA", "The response needs a complete Git blob SHA.", name)
+    source_file = entry.get("source_file")
+    if "source_file" in entry:
+        if not isinstance(source_file, str) or not source_file or "\0" in source_file:
+            raise SourceImportError("SOURCE_ENTRY_SHAPE", "source_file must name a local file.", name)
+        if "response" in entry or "encoding" in entry:
+            raise SourceImportError("SOURCE_ENTRY_SHAPE", "Use either response or raw source_file bytes, not both.", name)
+        payload = {}
+        expected = entry.get("blob_sha")
+    else:
+        payload = _file_payload(entry.get("response"), fallback_sha=entry.get("blob_sha"),
+                                fallback_encoding=entry.get("encoding"))
+        expected = payload["sha"]
+    if not isinstance(expected, str) or not re.fullmatch(r"[0-9a-fA-F]{40}", expected):
+        raise SourceImportError("SOURCE_SHA", "The source needs a complete Git blob SHA.", name)
     if "blob_sha" in entry and (not isinstance(entry["blob_sha"], str)
             or entry["blob_sha"].lower() != expected.lower()):
         raise SourceImportError("SOURCE_SHA_MISMATCH", "The response differs from the supplied request blob SHA.", name)
-    content = payload.get("content")
-    if not isinstance(content, str):
-        raise SourceImportError("SOURCE_CONTENT", "The response has no file content string.", name)
-    if payload.get("path") is not None and payload["path"] != name:
-        raise SourceImportError("SOURCE_PATH_MISMATCH", "The returned path differs from the requested file.", name)
-    encoding = payload["encoding"].lower()
-    try:
-        if encoding in ("utf-8", "utf8"):
-            data = _utf8_bytes(content)
-        elif encoding == "base64":
-            data = base64.b64decode("".join(content.split()), validate=True)
-        else:
-            raise SourceImportError("SOURCE_ENCODING", "Request full UTF-8 or base64 content.", name)
-    except (UnicodeError, binascii.Error, ValueError) as exc:
-        if isinstance(exc, SourceImportError):
-            raise
-        raise SourceImportError("SOURCE_ENCODING", "The encoded file content is invalid.", name) from None
+    if source_file is not None:
+        try:
+            data = Path(source_file).expanduser().read_bytes()
+        except OSError as exc:
+            raise SourceImportIOError(exc, operation="read_source_file", path=name,
+                                      completed_files=[]) from exc
+    else:
+        content = payload.get("content")
+        if not isinstance(content, str):
+            raise SourceImportError("SOURCE_CONTENT", "The response has no file content string.", name)
+        if payload.get("path") is not None and payload["path"] != name:
+            raise SourceImportError("SOURCE_PATH_MISMATCH", "The returned path differs from the requested file.", name)
+        encoding = payload["encoding"].lower()
+        try:
+            if encoding in ("utf-8", "utf8"):
+                data = _utf8_bytes(content)
+            elif encoding == "base64":
+                data = base64.b64decode("".join(content.split()), validate=True)
+            else:
+                raise SourceImportError("SOURCE_ENCODING", "Request full UTF-8 or base64 content.", name)
+        except (UnicodeError, binascii.Error, ValueError) as exc:
+            if isinstance(exc, SourceImportError):
+                raise
+            raise SourceImportError("SOURCE_ENCODING", "The encoded file content is invalid.", name) from None
     actual = blob_sha(data)
     if actual != expected.lower():
         raise SourceImportError("SOURCE_BLOB_MISMATCH", "Content does not match its Git blob; fetch the complete file/blob again.", name)
@@ -260,7 +276,7 @@ def materialize(manifest: object, output_directory: str | Path) -> dict:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("manifest", help="JSON export containing files: [{path, response, mode?}]")
+    parser.add_argument("manifest", help="JSON files array with response or source_file/blob_sha entries")
     parser.add_argument("output_directory", help="Cloud working directory for exact source files")
     args = parser.parse_args(argv)
     try:
