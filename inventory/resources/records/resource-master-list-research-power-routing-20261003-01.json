@@ -2,7 +2,7 @@
   "activation_count": 1,
   "actor": "Resource Master / current connected harness",
   "operation_id": "resource-master-list-research-power-routing-20261003-01",
-  "observed_at": "2026-10-03T10:33:52Z",
+  "observed_at": "2026-10-03T10:39:34Z",
   "concrete_consumer": "Resource Master capability discovery and existing research/tool-routing owners",
   "selected_resource": "titanmcp-list-research-power-catalog",
   "material_new_resources": [
@@ -125,7 +125,7 @@
     "prior_terminal_record_id": "resource-master-distinct-handoff-routing-20261003-01",
     "prior_terminal_slack_ts": "1791012444.166279",
     "prior_terminal_main_sha": "ae4f8a8dc5b565aa368b83d4cb5a41eb0454dc5d",
-    "observed_main_sha": "3913de98818b8f649f42d36c5eb5d031f2068900",
+    "observed_main_sha": "faabcf6e8689fa0145f90ceac663961afa8b376d",
     "activation_merge_sha": "af6e1c32f4748323d2febadc2756c7a07b7e939a",
     "implementation_claim_ts": "1791022232.039619",
     "required_channels": {
@@ -199,11 +199,21 @@
     "github": {
       "terminal_reconciliation": {
         "prior_sweep_head": "847ad20fc2598c09fe54e136e9787dd71b16e43e",
-        "fresh_main_sha": "3913de98818b8f649f42d36c5eb5d031f2068900",
-        "first_parent_commits": 5,
+        "fresh_main_sha": "faabcf6e8689fa0145f90ceac663961afa8b376d",
+        "first_parent_commits": 9,
         "overlap_with_claimed_paths": false,
         "material_new_resource_or_uncovered_build_lane": false,
-        "accounting": "Fresh main contained two merged, already-owned implementation changes plus board/generated projection churn. Neither touched the claimed ledger, receipt or resources projection paths; no duplicate claim or build order was created."
+        "accounting": "Fresh main contained two merged, already-owned implementation changes plus board/generated projection churn, the receipt merge, and its asynchronous projection repair. No duplicate claim or build order was created."
+      },
+      "post_merge_transport_integrity": {
+        "receipt_pull_request": 30619,
+        "receipt_merge_sha": "b627b1f9d97bb0c879c9ec5fe3b59d2d50b02d53",
+        "failed_workflow_run": 37116927744,
+        "detected_at": "2026-10-03T10:37:15Z",
+        "corrupt_ledger_blob": "aca60f6786df81a550b7983f90b50aee3d94e01c",
+        "symptom": "The uploaded ledger began with a transport truncation banner; the asynchronous resources projection consequently reported zero resources.",
+        "repair": "Re-upload the complete validated ledger as base64 assembled from exact fixed-size local byte chunks, refresh the receipt with this incident, regenerate resources.html from the complete ledger, and verify current-main JSON plus projection freshness before terminal release.",
+        "fabrication_boundary": "The failed projection is recorded as failed and is not represented as a successful check."
       },
       "compare": {
         "base": "ae4f8a8dc5b565aa368b83d4cb5a41eb0454dc5d",
