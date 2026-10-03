@@ -522,9 +522,27 @@ def _read(path: str) -> Any:
 def _as_text(result: dict[str, Any]) -> str:
     summary = result["summary"]
     lines = ["Advisory claim overlap — supplied snapshots only",
-        f"{summary['operations']} operations; {summary['active_or_unresolved']} active or unresolved; "
-        f"{summary['terminal_observed']} explicit terminal; {summary['potential_overlap_pairs']} potential pairs.",
+        f"Operations: {summary['operations']}; active or unresolved: {summary['active_or_unresolved']}; "
+        f"terminal observations: {summary['terminal_observed']}; potential pairs: {summary['potential_overlap_pairs']}.",
         "No liveness, semantic conflict, permission, or global queue conclusion is made."]
+    if result["claims"]:
+        lines.extend(["", "Operation details:"])
+    for claim in result["claims"]:
+        repository = ", ".join(claim["repositories"]) or "repository unknown"
+        lines.append(f"  {claim['operation_id']} [{claim['state']}; {repository}]")
+        scopes = dict.fromkeys(
+            scope["literal"] + ("; symbols: " + ", ".join(scope["symbols"]) if scope["symbols"] else "")
+            for scope in claim["scopes"]
+        )
+        lines.extend(f"    scope: {scope}" for scope in scopes)
+        if not scopes:
+            lines.append("    scope: unresolved in the supplied statements")
+        references = dict.fromkeys(
+            (event["kind"], event["source"]["permalink"] or
+             str(event["source"]["snapshot"]) + ":" + str(event["source"]["position"]))
+            for event in claim["evidence"]
+        )
+        lines.extend(f"    {kind}: {reference}" for kind, reference in references)
     for pair in result["overlaps"]:
         lines.extend(["", f"{pair['left_operation_id']} / {pair['right_operation_id']}"])
         for match in pair["matches"]:
