@@ -22,6 +22,8 @@ The coordinator is advisory infrastructure for processes that actually route rea
 
 Repository owner and name are normalized to lowercase before request hashing. Case variants therefore share one in-flight read and cached response, matching GitHub's repository identity. File paths, refs, branch names and search text retain their original case.
 
+Lease and cache decisions use the time after obtaining SQLite's write transaction, so waiting for another writer does not consume a newly issued lease or admit an expired completion. Completion retains its response-observation timestamp for cached payload freshness and provider Retry-After/reset deadlines, then measures lease expiry and remaining cooldown after the lock wait. JSON serialization and completed-response decoding remain outside the write transaction.
+
 ## Run
 
 Set two independent secrets in the environment:
