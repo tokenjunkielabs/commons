@@ -26,9 +26,11 @@ any requirement. Extraction availability and allocation remain unresolved.
 
 ## Capture and coverage
 
-The [official buyer page](https://www.sanleandro.org/bids.aspx?bidID=104) and six
-documents are retained byte-for-byte in `retained/`. The source manifest records
-each requested/final URL, capture time, byte count, SHA-256 and reading scope.
+The [official buyer page](https://www.sanleandro.org/bids.aspx?bidID=104) is retained
+in `retained/` with its embedded browser Google Maps API key redacted. The six
+documents remain byte-for-byte captures. The source manifest preserves the original
+HTML capture digest and records the published redacted copy's byte count and
+SHA-256 separately, along with requested/final URLs, capture times and reading scope.
 
 `old-generation.json` is a baseline reconstructed from the currently hosted
 original RFP and original Attachment D **captured on October 3**. It does not
