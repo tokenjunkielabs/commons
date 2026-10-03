@@ -212,7 +212,14 @@
       if(capacityCPU)metrics.push(['Host logical CPUs',s.cpu]);
       if(capacityRAM)metrics.push(['Host RAM',gib(s.ram_gib)]);
       if(machine&&finite(s.ram_cgroup_headroom_gib)){const bytes=s.process_limits&&s.process_limits.memory_headroom_bytes;const headroom=finite(bytes)&&bytes>0&&bytes<0.01*2**30?'<0.01 GiB':gib(s.ram_cgroup_headroom_gib);metrics.push(['Container memory headroom',headroom]);}
+      if(machine){
+        const diskTotal=finite(s.disk_total_bytes)?s.disk_total_bytes/2**30:s.disk_gib;
+        const diskFree=finite(s.disk_free_bytes)?s.disk_free_bytes/2**30:s.disk_free_gib;
+        const diskPercent=finite(s.disk_used_bytes)&&finite(s.disk_free_bytes)&&s.disk_used_bytes+s.disk_free_bytes>0?100*s.disk_used_bytes/(s.disk_used_bytes+s.disk_free_bytes):null;
+        metrics.push(['Filesystem capacity',gib(diskTotal)],['Filesystem available',finite(diskFree)&&diskFree>0&&diskFree<0.01?'<0.01 GiB':gib(diskFree)],['Filesystem used',finite(diskPercent)?diskPercent.toLocaleString([], {maximumFractionDigits:1})+'%':null]);
+      }
       c.append(meta(metrics));
+      if(machine)c.append(make('p','source-note','Available disk space is shared across workloads on the filesystem containing the workspace path. Usage percentage is used space divided by used plus available space, excluding reserved space.'));
       if(machine&&s.process_limits)c.append(make('p','source-note','CPU capacity is a sustained ceiling. Memory headroom reflects current usage across processes sharing the limit and excludes possible cache reclaim. Limit coverage: '+str(s.process_limits.cgroup_status)+'.'));
       if(s.objective)c.append(make('div','session-objective',s.objective));const existingSessionURL=sessionURL(s);if(existingSessionURL)c.append(link('Open existing session ↗',existingSessionURL,'button button-small button-quiet'));c.append(button('Update record',()=>sessionForm(s)));return c;
     }):[empty('No session records returned. Existing GPT/Claude VM capacity must be bound to its actual session and route.')]);
