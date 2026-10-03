@@ -70,6 +70,10 @@
     if (!Array.isArray(packet.records) || packet.records.length > MAX_RECORDS) throw new Error(`records: expected an array of at most ${MAX_RECORDS} records.`);
     const cells = new Set((report.assessment_matrix || []).map(c => `${c.group}|${c.dimension}`));
     const normalized = JSON.parse(JSON.stringify(packet, (_key, value) => {
+      try {
+        encodeURIComponent(_key);
+        if (typeof value === "string") encodeURIComponent(value);
+      } catch (_) { throw new Error("Review JSON contains malformed Unicode in a string or key."); }
       if (typeof value === "number" && (!Number.isFinite(value) || Object.is(value, -0) || (Number.isInteger(value) && !Number.isSafeInteger(value)))) {
         throw new Error("Review JSON contains a number that cannot be preserved safely; encode it as text.");
       }
@@ -273,8 +277,11 @@
       try {
         const file = input.files?.[0]; if (!file) return;
         if (file.size > 1024 * 1024) throw new Error("Review-navigation file exceeds 1 MiB.");
-        const raw = await file.text();
+        const bytes = await file.arrayBuffer();
         if (generation !== importGeneration) return; // A report replacement or later import superseded this read.
+        let raw;
+        try { raw = new TextDecoder("utf-8", {fatal: true}).decode(bytes); }
+        catch (_) { throw new Error("Review-navigation file must contain valid UTF-8."); }
         importPacket(JSON.parse(raw));
       } catch (e) { if (generation === importGeneration) { error.textContent = e.message; render(); } }
     });
