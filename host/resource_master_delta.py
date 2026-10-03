@@ -4,6 +4,8 @@
 The report is advisory routing metadata.  It does not authenticate, authorize,
 admit, reserve, contact, deploy, or spend.  Every source supplies its own exact
 watermark so a future sweep can distinguish new work from repeated history.
+Slack events at or before their channel's previous cursor remain visible as
+previously observed evidence; only events in (previous, current] count as new.
 """
 from __future__ import annotations
 
@@ -78,8 +80,16 @@ def validate_observations(data: dict[str, Any]) -> None:
         if not isinstance(channels, dict) or not channels:
             raise ResourceDeltaError("each watermark requires Slack channel cursors")
         for channel, value in channels.items():
-            if not isinstance(channel, str) or not SLACK_TS_RE.fullmatch(str(value)):
+            if not isinstance(channel, str) or not isinstance(value, str) or not SLACK_TS_RE.fullmatch(value):
                 raise ResourceDeltaError("Slack cursors must use exact native timestamps")
+
+    previous_channels = previous["slack_channels"]
+    current_channels = current["slack_channels"]
+    for channel, cursor in previous_channels.items():
+        if channel not in current_channels:
+            raise ResourceDeltaError("current watermark is missing a previous Slack channel")
+        if current_channels[channel] < cursor:
+            raise ResourceDeltaError("Slack channel cursor must not regress")
 
     comparison = data.get("github_comparison")
     if not isinstance(comparison, dict):
@@ -111,8 +121,14 @@ def validate_observations(data: dict[str, Any]) -> None:
         raise ResourceDeltaError("new_slack_events must be a list")
     _require_unique(slack_events, "source_id", "Slack event")
     for row in slack_events:
-        if not SLACK_TS_RE.fullmatch(str(row.get("native_ts", ""))):
+        native_ts = row.get("native_ts")
+        if not isinstance(native_ts, str) or not SLACK_TS_RE.fullmatch(native_ts):
             raise ResourceDeltaError("Slack event requires exact native_ts")
+        channel = row.get("channel")
+        if not isinstance(channel, str) or channel not in previous_channels or channel not in current_channels:
+            raise ResourceDeltaError("Slack event channel requires previous and current cursors")
+        if native_ts > current_channels[channel]:
+            raise ResourceDeltaError("Slack event is beyond its current channel cursor")
 
     orders = data.get("routed_build_orders")
     if not isinstance(orders, list):
@@ -143,7 +159,10 @@ def compile_report(data: dict[str, Any]) -> dict[str, Any]:
     material = sorted(row["path"] for row in comparison["changed_paths"] if row["class"] == "MATERIAL")
     projection = sorted(row["path"] for row in comparison["changed_paths"] if row["class"] == "PROJECTION_ONLY")
     pull_requests = sorted(copy.deepcopy(data["new_pull_requests"]), key=lambda row: row["number"])
-    events = sorted(copy.deepcopy(data["new_slack_events"]), key=lambda row: (row["native_ts"], row["source_id"]))
+    observed_events = sorted(copy.deepcopy(data["new_slack_events"]), key=lambda row: (row["native_ts"], row["source_id"]))
+    previous_channels = data["previous_watermark"]["slack_channels"]
+    events = [row for row in observed_events if row["native_ts"] > previous_channels[row["channel"]]]
+    previously_observed = [row for row in observed_events if row["native_ts"] <= previous_channels[row["channel"]]]
     orders = sorted(copy.deepcopy(data["routed_build_orders"]), key=lambda row: row["id"])
     report = {
         "schema": REPORT_SCHEMA,
@@ -164,6 +183,7 @@ def compile_report(data: dict[str, Any]) -> dict[str, Any]:
             "projection_only_paths": len(projection),
             "new_open_pull_requests": len(pull_requests),
             "new_slack_events": len(events),
+            "previously_observed_slack_events": len(previously_observed),
             "new_business_gmail_receipts": data["gmail_delta"]["new_receipts"],
             "automation_state_changes": len(data.get("automation_state_changes") or []),
             "plugin_route_changes": len(data.get("plugin_route_changes") or []),
@@ -178,6 +198,7 @@ def compile_report(data: dict[str, Any]) -> dict[str, Any]:
         },
         "slack": {
             "events": events,
+            "previously_observed_events": previously_observed,
             "routed_build_orders": orders,
         },
         "connected_state": {
