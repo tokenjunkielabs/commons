@@ -40,10 +40,17 @@ stash ref, and custom namespaces. Work-tree restores populate only the newly
 created target and remove the temporary mirror-push setting; their `origin`
 fetch mapping is the ordinary branches-to-remote-tracking mapping.
 
-The v1 manifest records names and object IDs, not symbolic-ref targets.
+New v3 manifests retain the immediate targets of resolved shared symbolic refs,
+including branch aliases and remote default-branch refs such as `origin/HEAD`.
+Restore reconstructs these links and verifies their targets as well as object IDs;
+links must resolve through the saved ref inventory without cycles. `HEAD` retains
+its attached or detached identity. Both bare and work-tree backups use this format.
+
+Existing v1 and v2 manifests remain readable. V2 retains `HEAD` identity; v1
+records names and object IDs only. Neither older format records other symbolic
+ref targets, so their restorations cannot recover those missing links.
 Reflogs (including older stash entries), repository configuration, the index,
 and uncommitted or untracked files are not restored by this bundle format.
-No manifest schema change is required for the stronger ref readback.
 
 The drill receipt forces `github_outage_protection: false`,
 `same_repo_copy: false`, `owner_disk: false`, and `secrets_present: false`.
