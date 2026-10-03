@@ -31,12 +31,12 @@ _FIELDS = (
     "title", "repo", "issue", "pr", "model", "harness", "created_at", "started_at",
     "heartbeat", "latest_activity", "last_activity_at", "closed_at", "owner_liveness",
     "feed_cursor", "base_sha", "current_base_sha", "head_sha", "branch", "merge_sha",
-    "artifact", "artifact_sha", "landed_sha", "needs_rebase", "blocker", "next_action",
+    "artifact", "artifact_sha", "landed_sha", "needs_rebase", "blocker", "exact_error", "next_action",
     "superseded_by", "shipment_source", "shipment_kind", "shipment_claim", "priority",
     "required_capabilities", "source", "sources", "source_event_ids", "collision_count",
     "provider_state", "provider_observed_at", "provider_source", "provider_activity_at",
     "provider_freshness", "provider_age_s", "provider_reconciliation_pending",
-    "reconciliation_needed", "previous_worker", "recovered_at",
+    "reconciliation_needed", "previous_worker", "recovered_at", "released_at", "claim_transferred_at",
 )
 
 

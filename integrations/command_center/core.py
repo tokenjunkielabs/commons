@@ -830,10 +830,12 @@ class CommandCenter:
         event["moderation"] = dict(mod) if mod else None
         return event
 
-    def _feed(self):
+    def _feed(self, operations=None):
+        """Build the feed, reusing this response's operation rows when supplied."""
         with self._db() as db:
-            operations = db.execute(
-                "SELECT * FROM operations ORDER BY started_at DESC LIMIT 300").fetchall()
+            if operations is None:
+                operations = db.execute(
+                    "SELECT * FROM operations ORDER BY started_at DESC LIMIT 300").fetchall()
             source_events = db.execute(
                 "SELECT data FROM source_events ORDER BY observed_at DESC LIMIT 300").fetchall()
         feed = self._get_records("feed")
@@ -1492,8 +1494,9 @@ class CommandCenter:
         with self._db() as db:
             source_ids = [row["id"] for row in db.execute(
                 "SELECT id FROM sources WHERE id NOT LIKE 'runtime:%' ORDER BY id")]
-            operations = [self._operation(row) for row in db.execute(
-                "SELECT * FROM operations ORDER BY started_at DESC LIMIT 300")]
+            operation_rows = db.execute(
+                "SELECT * FROM operations ORDER BY started_at DESC LIMIT 300").fetchall()
+        operations = [self._operation(row) for row in operation_rows]
         sources = [self._source(source_id) for source_id in source_ids]
         ledger = next((s for s in sources if s["id"] == "resource-ledger"), None)
         catalog = next((s for s in sources if s["id"] == "connected-capabilities"), None)
@@ -1515,6 +1518,6 @@ class CommandCenter:
                 "sessions": sessions, "budgets": self._get_records("budgets"),
                 "operations": operations,
                 "focus": focus[0] if focus else {"objective": "", "next_action": ""},
-                "feed": self._feed(),
+                "feed": self._feed(operation_rows),
                 "janny": janny[0] if janny else {"peer": "", "status": "unassigned",
                     "responsibility": "Reversible derived-feed moderation; no access grants."}}
