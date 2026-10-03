@@ -75,7 +75,7 @@
     "prior_terminal_record_id": "resource-master-list-research-power-routing-20261003-01",
     "prior_terminal_slack_ts": "1791024148.898779",
     "prior_terminal_main_sha": "d9e6e5d9071e18a453eeec4bdfce07272679b8f5",
-    "observed_main_sha": "8b45c2c418eaa44c012eeae6de08f024b1b0c1dd",
+    "observed_main_sha": "a22079e39dbf9ea6556f3611ff303da557638b8d",
     "implementation_claim_ts": "1791033342.857059",
     "required_channels": {
       "C0BRGMDQB6G": {"lower_exclusive": "1791024148.898779", "source_ship_ts": "1791029155.640379", "latest_new_root_ts": "1791033342.857059", "pagination_exhausted": true},
@@ -111,8 +111,8 @@
       "action": "retain_prior_state_no_speculation_no_purchase"
     },
     "github": {
-      "first_parent": {"base": "d9e6e5d9071e18a453eeec4bdfce07272679b8f5", "head": "8b45c2c418eaa44c012eeae6de08f024b1b0c1dd", "total": 39, "generated_projection": 5, "non_generated": 34},
-      "pull_requests": {"updated_or_merged_results": 33, "open_at_sweep": 0, "late_tail": [30837, 30838, 30839, 30842]},
+      "first_parent": {"base": "d9e6e5d9071e18a453eeec4bdfce07272679b8f5", "head": "a22079e39dbf9ea6556f3611ff303da557638b8d", "total": 40, "generated_projection": 5, "non_generated": 35},
+      "pull_requests": {"updated_or_merged_results": 34, "open_at_sweep": 0, "late_tail": [30837, 30838, 30839, 30842, 30843]},
       "issues": {"updated_objects": 198, "accounting": "Generated Slack/Discord board mirrors and projection touches; no independent unclaimed producing lane inferred."},
       "workflow_runs": {"main_commit_shas_scanned": 33, "attached_runs_returned": 0, "accounting": "No workflow conclusion was invented from an empty merge-commit attachment result; asynchronous checks for this activation are accounted separately at merge."},
       "branches": {
