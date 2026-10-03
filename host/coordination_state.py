@@ -413,7 +413,19 @@ class Git:
 
     def fetch(self, shas, remote="origin", chunk=40):
         """Fetch commits (trees, no blobs) for any SHA not already present."""
-        missing = [s for s in shas if s and s != UNKNOWN and not self.has_commit(s)]
+        candidates = [s for s in shas if s and s != UNKNOWN]
+        missing = None
+        if len(candidates) > 1 and all(
+                re.fullmatch(r"(?:[0-9a-fA-F]{40}|[0-9a-fA-F]{64})", s) for s in candidates):
+            # Canonical object IDs are safe line records. Keep symbolic refs on
+            # the existing path, and fall back if the batch reply is incomplete.
+            checked = self.run("cat-file", "--batch-check=%(objecttype)", check=False,
+                               input_text="".join(s + "^{commit}\n" for s in candidates))
+            kinds = checked.stdout.splitlines()
+            if checked.returncode == 0 and len(kinds) == len(candidates):
+                missing = [s for s, kind in zip(candidates, kinds) if kind != "commit"]
+        if missing is None:
+            missing = [s for s in candidates if not self.has_commit(s)]
         failed = []
         for start in range(0, len(missing), chunk):
             part = missing[start:start + chunk]
