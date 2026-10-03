@@ -73,6 +73,8 @@ codes and performs no additional source reads.
   verbs with `/`, as in `DONE / RELEASE OPERATION_ID` or
   `DONE / RELEASE — OPERATION_ID`; its first verb remains the reported kind.
   The exact operation ID and existing quote/condition handling are preserved.
+  A colon, middle dot, en dash or em dash can separate the terminal header from
+  its explicit identifier, as in `LANDED: ID` or `DONE · ID`.
   Exact operation IDs retain their existing behavior. A
   shortened name resolves only when it uniquely matches an earlier declaration
   in the same channel with a dated suffix such as `-20261003-AABE`. The original
