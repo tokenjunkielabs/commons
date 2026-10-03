@@ -126,9 +126,46 @@ running local HTTP backend because native browser navigation to loopback was
 blocked by the test environment. It was not canned-response testing, but it is
 not evidence of native browser HTTP navigation in that environment. JavaScript
 reported no errors and a 390-pixel viewport had no horizontal overflow. Normal
-native navigation on the receiving machine and independent cross-harness
-experiments remain to be exercised. This bounded release does not claim to
-complete the full three-condition research study.
+native navigation is covered by the dated restoration below. Independent
+cross-harness experiments remain unmeasured. This bounded release does not claim
+to complete the full three-condition research study.
+
+### Native UI restoration (2026-10-03)
+
+The unrelated product retirement in [#15784](https://github.com/woahwhattheheck/commons/pull/15784)
+removed the empty `cases`, `task`, `identity`, and `documents` containers
+used by this page's renderer. Native Chromium navigation to the original
+Python/SQLite server reproduced an empty incident chooser and
+`Cannot read properties of null (reading 'append')`, while the server returned
+all four incidents. Restoring those four containers from the original
+[#8756](https://github.com/woahwhattheheck/commons/pull/8756) markup repairs the
+chooser and workspace view. The inline JavaScript, backend, source fixtures,
+and original evidence bytes are unchanged; the retired product stays retired.
+
+Actual native loopback navigation in Chromium 153 then exercised the disclosed
+Quartz tool-failure workspace. Source inspection, the existing two transient
+primary observations followed by a successful read, the separate unconfigured
+secondary surface, record writing, linked notes, checkpoint, and outcome
+evaluation all persisted. A second native browser client resumed the same
+workspace and added a note visible on reload. At 390 pixels the page's measured
+width was exactly 390 pixels, with all four incident buttons and five source
+documents present. Desktop and phone views were visually inspected.
+
+The UI's 13,620-byte JSON download remained byte-identical after closing and
+restarting both Chromium and the Python server with the same SQLite path
+(SHA-256 `a454269a0cd7061ec4b9ddf5c94297623d17d9e3ed008d61817146add0821f0a`).
+Import through the file input created a separate labeled fork with the working
+record, notes, checkpoint, and prior events preserved; the original export was
+unchanged. Importing both retained snapshots from `evidence/interaction.json`
+also preserved their original outcomes: one delivery succeeded, while the
+duplicate-delivery snapshot failed with one duplicate even though its record
+remained correct. Four workspaces were retained in the local store.
+
+The observation recorded 34 browser HTTP requests, no JavaScript or console
+errors, and no external requests. Both browser clients were operated by the
+same assistant. These are native UI and persistence observations of the existing
+synthetic instrument; independent peer comparison and resource savings remain
+`NOT_MEASURED`. No new tests or evidence artifacts are added to the repository.
 
 ## Continuation
 
