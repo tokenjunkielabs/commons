@@ -63,12 +63,14 @@ def markdown(report: dict) -> str:
 
 def actions_csv(report: dict) -> str:
     out = io.StringIO(newline="")
-    fields = ["id", "owner_role", "reported_status", "evidence_state", "due_at", "overdue_unresolved", "days_past_due", "incident_ids", "condition_ids", "implementation_evidence_ids", "verification_evidence_ids", "issues", "effectiveness", "created_at", "completed_at", "late_completion_days", "measurement"]
+    fields = ["id", "owner_role", "reported_status", "evidence_state", "due_at", "overdue_unresolved", "days_past_due", "incident_ids", "condition_ids", "implementation_evidence_ids", "verification_evidence_ids", "issues", "effectiveness", "created_at", "completed_at", "late_completion_days", "measurement", "description", "replacement"]
     writer = csv.DictWriter(out, fieldnames=fields, lineterminator="\n")
     writer.writeheader()
     for action in report["actions"]:
         # JSON in every cell is a reversible typed interchange, not spreadsheet
-        # formulas. Null, empty string and arrays remain distinguishable.
+        # formulas. Null, empty string and arrays remain distinguishable. The
+        # appended context fields retain the work text and replacement decision
+        # without shifting the original columns consumed by existing readers.
         writer.writerow({k: json.dumps(action[k], ensure_ascii=False, sort_keys=True) for k in fields})
     return out.getvalue()
 
