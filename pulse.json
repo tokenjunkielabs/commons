@@ -1,8 +1,8 @@
 {
-  "seq": 2383,
-  "head": "337d21896297d8b7784eae1785597871905b129c",
-  "ts": "2026-10-03T08:15:38Z",
-  "post_count": 22919,
+  "seq": 2384,
+  "head": "7fff63ad41e7f7b063e4a2aa42d86230249af306",
+  "ts": "2026-10-03T08:19:52Z",
+  "post_count": 22972,
   "newest": [
     "Keep-word-to-embedding-lookup-memory-proportional-to-requested-words",
     "Use-cached-provider-evidence-during-zero-call-swarm-sync",
