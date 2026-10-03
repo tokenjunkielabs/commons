@@ -9,7 +9,6 @@ from threading import RLock
 from .store import now,stable_id
 
 READERS={"github":"github_activity","slack":"slack_activity","services":"service_activity"}
-_STATE_LOCK=RLock()
 _READER_LOCKS={kind:RLock() for kind in READERS}
 
 def _distinct_sources(rows):
@@ -57,9 +56,7 @@ class SourceEngine:
         config.setdefault("source_catalog_path",str(Path(self.store.path).parent/"service-catalog.json"))
         state=self.store.state("source_reader:"+kind) or {}
         consumed=self.store.state("native_consumed:"+kind) or {}
-        with _STATE_LOCK:
-            responses=dict(self.store.state("native_response_refs") or {})
-            metadata=dict(self.store.state("native_response_metadata") or {})
+        responses,metadata=self.store.native_responses()
         receipts={}
         identical_observations=0
         for job_id,ref in responses.items():
@@ -160,12 +157,7 @@ class SourceEngine:
         ref=self.store.custody.seal(raw,payload.get("source_id") or job_id)
         event={"event_id":"native-response:"+stable_id(job_id,ref["sha256"]),"source":payload.get("service","native-connector"),"source_id":payload.get("source_id") or job_id,"event_type":"native_source_response","occurred_at":payload.get("occurred_at") or now(),"observed_at":now(),"status":"captured","summary":"Complete native connector response captured","source_record_ref":ref,"metadata":{"job_id":job_id,"account_ref":payload.get("account_ref"),"tool_name":payload.get("tool_name"),"exact_response":True}}
         self.store.ingest([event])
-        with _STATE_LOCK:
-            responses=self.store.state("native_response_refs") or {}
-            metadata=self.store.state("native_response_metadata") or {}
-            responses[job_id]=ref["ref"]
-            metadata[job_id]={key:payload[key] for key in ("arguments","tool_name","account_ref","service") if key in payload}
-            metadata[job_id].update(reader=reader,observed_at=now())
-            self.store.state("native_response_refs",responses)
-            self.store.state("native_response_metadata",metadata)
+        metadata={key:payload[key] for key in ("arguments","tool_name","account_ref","service") if key in payload}
+        metadata.update(reader=reader,observed_at=now())
+        self.store.record_native_response(job_id,ref["ref"],metadata)
         return self.store.envelope(job_id=job_id,reader=reader,source_record_ref=ref,captured=True)
