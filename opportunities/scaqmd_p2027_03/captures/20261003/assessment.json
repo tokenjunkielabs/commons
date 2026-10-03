@@ -1,0 +1,52 @@
+{
+  "as_of": "2026-10-03T19:12:43+00:00",
+  "authority": {
+    "award_claim": false,
+    "buyer_contact": false,
+    "certification": false,
+    "conference_registration": false,
+    "contract_acceptance": false,
+    "payment_claim": false,
+    "preference_claim": false,
+    "price_commitment": false,
+    "production_access": false,
+    "proposal_submission": false,
+    "question_submission": false,
+    "revenue_claim": false,
+    "signature": false
+  },
+  "capability_plan_gaps": [],
+  "commercial_state": "PROPOSED_NOT_ACCEPTED",
+  "conference_state": "NOT_REGISTERED",
+  "evaluation_points": {
+    "cost": 30,
+    "qualifications": 20,
+    "similar_experience": 10,
+    "technical_management": 20,
+    "understanding": 20
+  },
+  "project_count": 0,
+  "project_gaps": [
+    "THREE_COMPARABLE_PROJECTS"
+  ],
+  "proposed_workshare_minor": null,
+  "reasons": [
+    "mandatory bidder conference attendance is not evidenced"
+  ],
+  "receipt_sha256": "6b905d3d3c518d76e284ffea5b769cf5ec5ea4beee8b90b7f259379135292427",
+  "schema": "scaqmd-p2027-03-assessment/v1",
+  "solicitation_id": "P2027-03",
+  "source_authority_receipt_sha256": "f78643723cf137e161f70f30a2e6a168f17308c490ef1f655535cf63b707dc73",
+  "source_raw_sha256": "6642726666cb84052d681e7be3e17290a2391632fbda6dbf1c182ec1eec12e1c",
+  "source_raw_status": "RAW_BYTES_BOUND",
+  "state": "HOLD_CONFERENCE_ATTENDANCE",
+  "team_gate_gaps": [
+    "BACKGROUND_CHECK_PROCESS",
+    "CERTIFICATIONS_REPRESENTATIONS",
+    "FINANCIAL_CORPORATE_PACKET",
+    "MANAGEMENT_PLAN",
+    "PHYSICAL_SUBMISSION_OWNER",
+    "QA_QC_PROGRAM",
+    "STAFFING_BENCH"
+  ]
+}
