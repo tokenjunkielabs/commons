@@ -5,6 +5,7 @@ retained observations, not complete provider history or business acceptance.
 """
 from __future__ import annotations
 
+from bisect import bisect_right
 from collections import Counter
 from datetime import datetime, timezone
 from decimal import Decimal, InvalidOperation
@@ -168,13 +169,13 @@ def build_summary(work, now=None):
     attention_counts = dict(work_counts)
     source_rows = {key: {"records": 0, "retained_records": 0, "oldest_ingested_at": None}
                    for key in sources}
-    choices, payments, heartbeats = [], {}, {}
+    choices, choice_keys, payments, heartbeats = [], [], {}, {}
     events = {name: set() for name, _ in WINDOWS}
     missing_merge_time = set()
     unknown_merge_identity = set()
     money_conflicts = set()
-    statuses = []
-    total_work = controls = 0
+    statuses = Counter()
+    total_work = controls = choice_count = 0
     for item in items:
         source = sources.get(item.get("source_id"), {})
         fresh = item_freshness(item, source, tick)
@@ -196,7 +197,7 @@ def build_summary(work, now=None):
             continue
         total_work += 1
         work_counts[fresh] += 1
-        statuses.append(status)
+        statuses[status] += 1
         active = status in ACTIVE
         attention = bool(re.search(r"failed|failure|error|blocked|uncertain|needs_attention|rejected", status)) or item.get("needs_attention") is True
         if active and kind not in {"email", "slack_thread", "feature"}:
@@ -206,14 +207,23 @@ def build_summary(work, now=None):
         rank = priority(item)
         if attention or ((active or kind == "email" and status in {"unread", "received"})
                          and (kind not in {"email", "slack_thread", "feature"} or math.isfinite(rank))):
-            choices.append((rank, fresh != "fresh", not attention, short(item.get("id")), {
-                "id": short(item.get("id"), 512), "source_id": short(item.get("source_id"), 512),
-                "title": short(item.get("title")), "status": status, "freshness": fresh,
-                "owner": short(item.get("owner")), "priority": None if not math.isfinite(rank) else rank,
-                "next_action": short((item.get("owner_work") or {}).get("next_action") or item.get("next_action"), 280),
-                "url": short(item.get("url"), 1024), "last_ingested_at": item.get("last_seen_at"),
-                "source_observed_at": source.get("last_good_observed_at"),
-            }))
+            choice_count += 1
+            key = (rank, fresh != "fresh", not attention, short(item.get("id")))
+            # Inserting after equal keys preserves the original stable sort order.
+            index = bisect_right(choice_keys, key)
+            if index < MAX_ROWS:
+                if len(choices) == MAX_ROWS:
+                    choice_keys.pop()
+                    choices.pop()
+                choice_keys.insert(index, key)
+                choices.insert(index, {
+                    "id": short(item.get("id"), 512), "source_id": short(item.get("source_id"), 512),
+                    "title": short(item.get("title")), "status": status, "freshness": fresh,
+                    "owner": short(item.get("owner")), "priority": None if not math.isfinite(rank) else rank,
+                    "next_action": short((item.get("owner_work") or {}).get("next_action") or item.get("next_action"), 280),
+                    "url": short(item.get("url"), 1024), "last_ingested_at": item.get("last_seen_at"),
+                    "source_observed_at": source.get("last_good_observed_at"),
+                })
         if kind == "pull_request":
             identity = canonical_pr(item, refs)
             merged = epoch(refs.get("merged_at"))
@@ -297,8 +307,8 @@ def build_summary(work, now=None):
         "work": {"total": total_work, "control_records": controls, "freshness": work_counts,
                  "open": open_counts, "attention": attention_counts,
                  "statuses": compact_counts(statuses),
-                 "top_attention": [row[-1] for row in sorted(choices, key=lambda row: row[:4])[:MAX_ROWS]],
-                 "attention_omitted": max(0, len(choices) - MAX_ROWS)},
+                 "top_attention": choices,
+                 "attention_omitted": max(0, choice_count - MAX_ROWS)},
         "workers": {"explicit_heartbeats": len(heartbeats), "liveness": dict(live),
                     "coverage": "observed_subset" if heartbeats else "unknown",
                     "note": "No heartbeat is inferred from a claim, document edit, or ingestion."},
