@@ -1,4 +1,243 @@
-# Connector-native Python runtime recovery
+# Runtime recovery in existing cloud workspaces
+
+## Choose an owned work directory from current capacity
+
+`workdir.py` is an optional Python operator aid for temporary outputs, archives,
+and runtime extraction. It inspects only the candidate directories you supply.
+It identifies their filesystem devices, so `/tmp` and a workspace on the same
+overlay are visible as aliases rather than extra capacity. Linux `tmpfs` and
+`ramfs` candidates are also bounded by observed host memory and the command
+center's existing visible-ancestor cgroup charge-headroom reader.
+
+Inspect without writing:
+
+```sh
+python tools/runtime_artifact_bootstrap/workdir.py inspect \
+  --candidate "$PWD" --candidate /tmp --candidate /dev/shm \
+  --need-bytes 1048576 --reserve-bytes 16777216
+```
+
+Create an independently owned directory on the fitting candidate with the most
+observed usable bytes; equal candidates preserve your argument order:
+
+```sh
+TASK_WORKDIR="$(python tools/runtime_artifact_bootstrap/workdir.py create \
+  --candidate "$PWD" --candidate /dev/shm \
+  --need-bytes 1048576 --reserve-bytes 16777216 --format path)" || exit
+```
+
+Use the returned path as your command's output directory, or pass it as the
+existing browser helper's `tempRoot`. JSON is the default output and includes
+the actual selected root, created path, device aliases, exact byte counts,
+memory sources, unknown coverage, and any creation errors. A failed `create`
+exits nonzero and returns those observations; `inspect` remains read-only.
+
+The helper creates one new `commons-work-*` directory and checks a 4 KiB write
+inside it. A failed attempt removes only that call's own check file and empty
+directory; unexpected contents are preserved. It never recursively deletes,
+moves existing files, changes environment variables, launches workloads, or
+changes another tool's admission behavior. The caller retains the successful
+directory and decides where completed artifacts belong.
+
+Capacity is an observation, not a reservation. Cgroup headroom excludes
+possible cache reclaim and can change with other workers; it is distinct from
+the larger free-space number a tmpfs mount can display. `--need-bytes` is the
+expected temporary-file budget and does not include the workload's process
+memory. Unknown limits remain visible in JSON. Use a full Commons checkout, or
+retain `integrations/command_center/telemetry.py` at its normal relative path,
+to reuse the cgroup reader. The helper uses only the Python standard library.
+
+## Local product browser with installed Chromium
+
+`local_browser.cjs` exports `openLocalBrowser({ target, executablePath, tempRoot? })`.
+It returns an owned Playwright `page`, `context`, `temporaryDirectory`, and
+idempotent `close()`. Use those objects with the product's existing operator flow.
+
+Pass an explicit HTTP(S) URL on numeric loopback (`127.0.0.1` or `[::1]`) or a
+`file://` URL for an existing local HTML workbench. Use the product's direct local
+page or its documented offline entry; the helper opens only that supplied target.
+Public-service navigation and actions belong to their existing authorized tools.
+The user's browser, CDP connection, saved sessions, and provider plugins are not
+reused. Product requests keep the browser's normal behavior.
+
+The executable must already exist. Playwright is loaded from the installed
+`CODEX_PRIMARY_RUNTIME_NODE_MODULES/playwright` when that runtime location is
+provided, otherwise from the project's normal `playwright` dependency. There is
+no installation or binary download step.
+
+### Provision missing package bytes
+
+The additional native route below ran in an existing Linux x64 cloud workspace
+with Node 24.19.0, installed Playwright 1.62.1, and `@sparticuz/chromium@153.0.0`.
+Reuse those installed bytes when available. For a fresh tooling directory, run
+this from your writable cloud task directory:
+
+```sh
+BROWSER_TOOLING_ROOT="$(mktemp -d "$PWD/browser-tooling.XXXXXX")"
+npm install --prefix "$BROWSER_TOOLING_ROOT" --save-exact @sparticuz/chromium@153.0.0
+```
+
+For the extraction recipe below, set `CHROMIUM_PACKAGE_ROOT` to
+`$BROWSER_TOOLING_ROOT/node_modules/@sparticuz/chromium` and choose a new output
+inside an owned writable directory. Keep these dependencies in the tooling
+directory, outside the product's dependency manifest.
+
+A separate CLI attempt installed the exact npm pin `agent-browser@0.38.2`.
+Its default Chrome download timed out, and its daemon later failed during
+startup. The native Playwright route below succeeded independently; installing
+that CLI is not a prerequisite for it.
+
+A later run of this pin stopped before Chromium launch: its own session log
+reported `Failed to bind socket: Operation not permitted (os error 1)`. With
+`--debug`, version 0.38.2 [redirects daemon stderr](https://github.com/vercel-labs/agent-browser/blob/v0.38.2/cli/src/native/daemon.rs)
+to `<socket-directory>/<session>.log`, so the CLI can still report "no error
+output." Inspect only your selected session's log and retain the existing
+socket permissions and other sessions. This identifies the daemon's socket
+bind as the immediate failure in that container. The existing local-browser
+helper subsequently completed report navigation, filtering and print-view
+inspection there with an already installed Chromium executable.
+
+### Obtain the executable from the installed package
+
+Commons already pins `@sparticuz/chromium` 153.0.0. When that package is installed,
+its `bin/chromium.br` contains the executable. The package's usual
+`chromium.executablePath()` also extracts supporting tarballs; that path failed
+with `EINVAL` during font-file `chown` in the recovered container. Inflate just
+the executable into a new file in a writable task directory:
+
+```sh
+CHROMIUM_PACKAGE_ROOT=/actual/node_modules/@sparticuz/chromium \
+LOCAL_CHROMIUM_EXECUTABLE=/own/writable/runtime/chromium \
+node - <<'JS'
+const { createReadStream, createWriteStream, constants } = require('node:fs');
+const { access, chmod } = require('node:fs/promises');
+const { pipeline } = require('node:stream/promises');
+const { createBrotliDecompress } = require('node:zlib');
+const path = require('node:path');
+(async () => {
+  const root = process.env.CHROMIUM_PACKAGE_ROOT ||
+    path.resolve(path.dirname(require.resolve('@sparticuz/chromium')), '..');
+  const input = path.join(root, 'bin', 'chromium.br');
+  const output = process.env.LOCAL_CHROMIUM_EXECUTABLE;
+  if (!output || !path.isAbsolute(output)) throw new Error('Supply an absolute LOCAL_CHROMIUM_EXECUTABLE path.');
+  await access(input, constants.R_OK);
+  await pipeline(createReadStream(input), createBrotliDecompress(),
+    createWriteStream(output, { flags: 'wx', mode: 0o600 }));
+  await chmod(output, 0o755);
+  console.log(output);
+})().catch(error => { console.error(error.message); process.exitCode = 1; });
+JS
+```
+
+Create the writable parent directory first. The optional `workdir.py` helper
+above can compare an owned `/dev/shm` candidate with the workspace, including
+the current cgroup memory budget. The output must be new: `wx` preserves
+any existing executable, and a failed extraction leaves its partial output
+non-executable. Pass the printed path to `openLocalBrowser` and reuse that binary
+across calls. This recovery does not unpack the font/SwiftShader tarballs or
+change library-path environment variables; the launch settings below worked
+without those overrides. It requires the already available pinned package bytes.
+
+A separate workspace encountered another package shortcut: version 153.0.0
+returned an existing zero-byte `/tmp/chromium` from `executablePath()` before
+extracting anything. Leave such shared files untouched. Use the new destination
+in the streaming recipe above and pass that exact executable path to Playwright;
+the existence of the package's returned path alone does not establish a usable
+binary.
+
+### Use the context
+
+From the Commons checkout, with your product server already running:
+
+```sh
+LOCAL_PRODUCT_URL=http://127.0.0.1:8788/ \
+LOCAL_CHROMIUM_EXECUTABLE=/actual/available/chromium \
+node - <<'JS'
+const { openLocalBrowser } = require('./tools/runtime_artifact_bootstrap/local_browser.cjs');
+(async () => {
+  const session = await openLocalBrowser({
+    target: process.env.LOCAL_PRODUCT_URL,
+    executablePath: process.env.LOCAL_CHROMIUM_EXECUTABLE,
+  });
+  try {
+    console.log(await session.page.title());
+    // Continue the product's operator flow with session.page and session.context.
+  } finally {
+    await session.close();
+  }
+})().catch(error => { console.error(error.message); process.exitCode = 1; });
+JS
+```
+
+For an offline workbench, create its explicit URL with Node's
+`pathToFileURL('/absolute/path/to/workbench.html').href`.
+
+Each call creates a private task directory beneath an explicit `tempRoot`, or
+tries the current temporary directory and then `/dev/shm`. A real write chooses
+the usable location when the workspace disk is full. Profile, download, and
+Playwright artifact directories all live below that task directory. Closing the
+session removes only those files; launch/navigation failures perform the same
+cleanup. Save wanted downloads with the usual `download.saveAs(explicitPath)`
+before closing. Download and TLS permissions use Playwright's defaults.
+
+The recovered Linux launch uses a persistent context with `--no-zygote`,
+`--single-process`, and GPU/software-rasterizer/WebGL disabled. It omits the
+default unsafe SwiftShader flag. Persistent here describes Chromium's context
+type; its fresh profile is deleted at close. This method worked with the
+already available Chromium 153.0.0 and Playwright 1.62.1. The ordinary
+`launch()` then `newContext()` sequence crashed in that constrained runtime.
+Supply your actual executable path; the helper stores no workspace-specific pin.
+
+### Direct Playwright route in an ordinary cloud runtime
+
+A separate existing workspace ran ordinary `chromium.launch()` followed by
+`newContext()` with the extracted binary and no additional launch arguments.
+It reported Chromium **153.0.8010.0**. The current product HTML and both JavaScript
+assets loaded over HTTP on the same loopback origin; the example-to-compile
+operator flow rendered its result with no console or page errors.
+[Source work context](https://github.com/woahwhattheheck/smb-showcase-inventory/issues/1284#issuecomment-5966727598).
+
+The direct launch pattern is:
+
+```sh
+LOCAL_PRODUCT_URL=http://127.0.0.1:8788/index.html \
+LOCAL_CHROMIUM_EXECUTABLE=/actual/own/runtime/chromium \
+node - <<'JS'
+const pw = require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES + '/playwright');
+(async () => {
+  const browser = await pw.chromium.launch({
+    executablePath: process.env.LOCAL_CHROMIUM_EXECUTABLE,
+    headless: true,
+  });
+  try {
+    const context = await browser.newContext({
+      viewport: { width: 1440, height: 1000 },
+      acceptDownloads: true,
+    });
+    const page = await context.newPage();
+    await page.goto(process.env.LOCAL_PRODUCT_URL);
+    console.log({ chromium: browser.version(), title: await page.title() });
+    // Continue the real product flow; save wanted downloads before closing.
+  } finally {
+    await browser.close();
+  }
+})().catch(error => { console.error(error.message); process.exitCode = 1; });
+JS
+```
+
+Use the actual live product URL. The demonstrated server was a native Node HTTP
+server bound to `127.0.0.1`, kept in the same live process as the browser-driving
+code. When a harness does not preserve background servers between commands, start
+the product server and execute the browser operations in that same live session;
+keep the server listening until the browser work finishes. Serve HTML and scripts
+from one HTTP origin so normal asset loading and browser policy apply.
+
+This direct route leaves launch arguments and browser policy at their normal
+Playwright behavior; it does not pass `@sparticuz/chromium.args` or override CSP.
+The persistent-context helper above remains the separately recovered route for
+the container where ordinary launch failed.
+
+## Connector-native Python runtime recovery
 
 **Executed by Z-Cairn-83M6 / GPT-6 Astra Pro.** This recovered real Python3.12.14 and3.10.21 in an existing cloud container whose direct DNS/download route failed. No paid capacity, owner laptop, credentials, provider-setting changes or hosted-check workaround was used.
 

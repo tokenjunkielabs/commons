@@ -6,6 +6,9 @@ by hand. This helper hashes the resource sources, stamps last-reviewed
 (git SHA + UTC time), regenerates the stamp when sources drift, and alarms
 (fails + writes a visible STALE mark) when the page is stale vs its inputs.
 
+Source files and the inventory directory must be readable before a stamp is
+written. An unavailable input reports UNMEASURED and exits 2 with its path.
+
 No gate. Does not block posting or seats. Talk is not a land.
 
   python3 host/resources_tab.py --check
@@ -77,11 +80,8 @@ def git_sha(root, explicit=""):
 
 def read_bytes(root, rel):
     path = os.path.join(root, rel)
-    try:
-        with open(path, "rb") as handle:
-            return handle.read()
-    except OSError:
-        return b""
+    with open(path, "rb") as handle:
+        return handle.read()
 
 
 def read_text(root, rel):
@@ -108,10 +108,9 @@ def write_text(root, rel, text):
 def source_relpaths(root):
     rels = list(FIXED_SOURCES)
     records = os.path.join(root, INVENTORY_RECORDS)
-    if os.path.isdir(records):
-        for name in sorted(os.listdir(records)):
-            if name.endswith(".json"):
-                rels.append(os.path.join(INVENTORY_RECORDS, name))
+    for name in sorted(os.listdir(records)):
+        if name.endswith(".json"):
+            rels.append(os.path.join(INVENTORY_RECORDS, name))
     return rels
 
 
@@ -146,9 +145,7 @@ def ledger_snapshot(root):
         if isinstance(row, dict) and str(row.get("stage") or "").upper() == "PRODUCING":
             producing += 1
     records = os.path.join(root, INVENTORY_RECORDS)
-    inventory = 0
-    if os.path.isdir(records):
-        inventory = len([name for name in os.listdir(records) if name.endswith(".json")])
+    inventory = len([name for name in os.listdir(records) if name.endswith(".json")])
     return {
         "resource_count": len(surfaces),
         "producing_count": producing,
@@ -385,18 +382,26 @@ def main(argv=None):
     if args.self_test:
         return self_test()
     root = os.path.abspath(args.root)
-    if args.regenerate:
-        row = regenerate(root, page=args.page, sha=args.sha, reviewed_at=args.reviewed_at)
-        row.setdefault("action", "REGENERATED")
-    elif args.alarm:
-        row = alarm(root, page=args.page, sha=args.sha, reviewed_at=args.reviewed_at)
-        row.setdefault("action", "ALARMED" if row["state"] == "STALE" else "CHECKED")
-    elif args.regenerate_or_alarm:
-        row = regenerate_or_alarm(root, page=args.page, sha=args.sha, reviewed_at=args.reviewed_at)
-        row.setdefault("action", "CHECKED")
-    else:
-        row = measure(root, page=args.page, sha=args.sha, reviewed_at=args.reviewed_at)
-        row.setdefault("action", "CHECKED")
+    try:
+        if args.regenerate:
+            row = regenerate(root, page=args.page, sha=args.sha, reviewed_at=args.reviewed_at)
+            row.setdefault("action", "REGENERATED")
+        elif args.alarm:
+            row = alarm(root, page=args.page, sha=args.sha, reviewed_at=args.reviewed_at)
+            row.setdefault("action", "ALARMED" if row["state"] == "STALE" else "CHECKED")
+        elif args.regenerate_or_alarm:
+            row = regenerate_or_alarm(root, page=args.page, sha=args.sha, reviewed_at=args.reviewed_at)
+            row.setdefault("action", "CHECKED")
+        else:
+            row = measure(root, page=args.page, sha=args.sha, reviewed_at=args.reviewed_at)
+            row.setdefault("action", "CHECKED")
+    except OSError as exc:
+        error = {"state": "UNMEASURED", "action": "FAILED",
+                 "page": args.page, "reason": str(exc), "path": exc.filename}
+        json.dump(error, sys.stdout, indent=2, sort_keys=True)
+        sys.stdout.write("\n")
+        sys.stderr.write("resources-tab: %s\n" % exc)
+        return 2
     out = {key: row[key] for key in (
         "state",
         "page",

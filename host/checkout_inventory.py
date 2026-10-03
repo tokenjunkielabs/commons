@@ -319,7 +319,7 @@ def _pairs(pairs: Iterable[tuple[str, Any]]) -> dict[str, Any]:
 
 
 def read_json(path: Path) -> Any:
-    flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
+    flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0)
     try:
         fd = os.open(str(path), flags)
     except OSError as exc:

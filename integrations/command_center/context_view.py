@@ -235,6 +235,8 @@ def build_index(work, now=None):
         if source_id in sources:
             raise ValueError("Duplicate source ID in WorkStore state.")
         sources[source_id] = raw
+    source_stats = {key: {"records": 0, "retained_records": 0, "oldest_ingested_at": None}
+                    for key in sources}
     rows, identities = [], set()
     missing = set()
     for raw in work.get("items", []):
@@ -247,12 +249,22 @@ def build_index(work, now=None):
             raise ValueError("Duplicate source_id/item_id in WorkStore state.")
         identities.add(identity)
         rows.append(row)
+        # Match summary's all-record debt detail from this same snapshot/tick.
+        stats = source_stats.get(source_id)
+        if stats is not None:
+            stats["records"] += 1
+            stats["retained_records"] += int(row["freshness"] == "retained")
+            seen = raw.get("last_seen_at")
+            if epoch(seen) is not None and (stats["oldest_ingested_at"] is None or seen < stats["oldest_ingested_at"]):
+                stats["oldest_ingested_at"] = seen
         if source_id not in sources:
             missing.add(source_id)
     rows.sort(key=_sort_key)
     source_rows = [_source(sources.get(key, {}), key, tick) for key in sorted(set(sources) | missing)]
     # All-source health is independent of item filters/pages; empty pages still expose it.
     source_health = reduce_source_health(sources, tick)
+    for debt in source_health["coverage_debt"]:
+        debt.update(source_stats[debt["id"]])
     content = {"schema": SCHEMA, "items": rows, "sources": source_rows}
     return {**content, "content_revision": _hash(content),
             "evaluated_at": current.astimezone(timezone.utc).isoformat().replace("+00:00", "Z"),
@@ -291,19 +303,24 @@ def select(index, limit=DEFAULT_LIMIT, offset=0, query="", owner="", provider=""
         filters[key] = value if key == "source" else value.strip().casefold() if key == "query" else value.casefold()
     if if_revision is not None and (not isinstance(if_revision, str) or len(if_revision) > 64):
         raise ValueError("Invalid context revision.")
-    matches = []
-    for row in index["items"]:
-        if filters["source"] and row["source_id"] != filters["source"]:
-            continue
-        if any(filters[key] and row["_exact_filters"][key].casefold() != filters[key]
-               for key in ("owner", "provider", "kind", "status")):
-            continue
-        searchable = " ".join(str(row.get(key) or "") for key in
-                              ("source_id", "item_id", "provider", "kind", "status",
-                               "title", "project", "owner", "assigned_owner", "next_action"))
-        if filters["query"] and filters["query"] not in searchable.casefold():
-            continue
-        matches.append(row)
+    if not any(filters.values()):
+        # Discovery ordering may sort this list; never reorder the shared index.
+        matches = list(index["items"])
+    else:
+        matches = []
+        for row in index["items"]:
+            if filters["source"] and row["source_id"] != filters["source"]:
+                continue
+            if any(filters[key] and row["_exact_filters"][key].casefold() != filters[key]
+                   for key in ("owner", "provider", "kind", "status")):
+                continue
+            if filters["query"]:
+                searchable = " ".join(str(row.get(key) or "") for key in
+                                      ("source_id", "item_id", "provider", "kind", "status",
+                                       "title", "project", "owner", "assigned_owner", "next_action"))
+                if filters["query"] not in searchable.casefold():
+                    continue
+            matches.append(row)
     if order != "priority":
         matches.sort(key=lambda row: _discovery_key(row, order, seat))
     page = matches[offset:offset + limit]

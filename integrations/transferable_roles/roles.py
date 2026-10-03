@@ -9,8 +9,10 @@ and store pointers that already exist elsewhere.
 from __future__ import annotations
 
 import json
+import os
 import re
 import uuid
+from collections.abc import Iterable
 from copy import deepcopy
 from datetime import datetime, timezone
 from pathlib import Path
@@ -93,7 +95,7 @@ def _normalize_obligation(item: Any) -> dict[str, Any]:
         "id": _require_str(item.get("id") or uuid.uuid4().hex[:12], "obligation.id"),
         "summary": _require_str(item.get("summary"), "obligation.summary"),
         "next_action": _require_str(item.get("next_action"), "obligation.next_action"),
-        "status": str(item.get("status") or "open").strip() or "open",
+        "status": str(item.get("status") or "open").strip().lower() or "open",
     }
     if item.get("evidence_pointer"):
         out["evidence_pointer"] = _require_str(
@@ -272,7 +274,10 @@ def normalize_role(raw: dict[str, Any], *, role_id: str | None = None) -> dict[s
             scrubbed.get("credential_custodian") or "existing_secure_stores"
         ).strip(),
         "created_at": str(scrubbed.get("created_at") or _utc_now()),
-        "updated_at": _utc_now(),
+        # Reads retain source freshness; legacy records fall back to creation.
+        "updated_at": str(
+            scrubbed.get("updated_at") or scrubbed.get("created_at") or _utc_now()
+        ),
         "transfer_count": int(scrubbed.get("transfer_count") or 0),
     }
     if scrubbed.get("label"):
@@ -288,6 +293,78 @@ def normalize_role(raw: dict[str, Any], *, role_id: str | None = None) -> dict[s
     return role
 
 
+def role_storage_key(role_id: str) -> str:
+    """Return the filename stem used by the role registry."""
+    return re.sub(r"[^A-Za-z0-9._-]+", "_", role_id)
+
+
+def open_obligation_rows(
+    roles: Iterable[dict[str, Any]], *, cash_only: bool = False
+) -> list[dict[str, Any]]:
+    """Project open obligations from normalized roles into sorted queue rows.
+
+    Rows for roles that route `payment_capability` stamp
+    `payment_capability: true` so mixed CRM + paid stores separate cash work.
+    When tools resolve cash fields, cash rows also stamp `amount_usd` and
+    `refund` (diagnostic
+    commercial.diagnostic_usd+refund).
+    When cash_only is True, keep only rows with payment_capability is True.
+    This marker does not establish that payment has occurred.
+    """
+    rows: list[dict[str, Any]] = []
+    for role in roles:
+        cash = _role_has_payment_capability(role)
+        for ob in role.get("obligations") or []:
+            if str(ob.get("status") or "").strip() != "open":
+                continue
+            row: dict[str, Any] = {
+                "role_id": role["role_id"],
+                "purpose": role["purpose"],
+                "obligation_id": ob["id"],
+                "summary": ob["summary"],
+                "next_action": ob["next_action"],
+            }
+            if role.get("label"):
+                row["label"] = role["label"]
+            if ob.get("evidence_pointer"):
+                row["evidence_pointer"] = ob["evidence_pointer"]
+            if role.get("synthetic") is True:
+                row["synthetic"] = True
+            if cash:
+                row["payment_capability"] = True
+                cash_fields = _role_cash_fields(role)
+                if cash_fields is not None:
+                    row["amount_usd"] = cash_fields["amount_usd"]
+                    row["refund"] = cash_fields["refund"]
+            rows.append(row)
+    rows.sort(key=lambda r: (r["role_id"], r["obligation_id"]))
+    if cash_only:
+        rows = [r for r in rows if r.get("payment_capability") is True]
+    return rows
+
+
+def export_role_package(role: dict[str, Any]) -> dict[str, Any]:
+    """Build a portable package from a normalized role without changing it."""
+    package = deepcopy(role)
+    # Occupant is runtime binding; export keeps last known next action but
+    # clears the live session so the successor must equip/transfer explicitly.
+    # Durable access_route session_id / last_run_id stay for G2 recover.
+    package["occupant"] = None
+    package["export_meta"] = {
+        "exported_at": _utc_now(),
+        "role_id_stable": True,
+        "next_useful_actions": [
+            o.get("next_action")
+            for o in package.get("obligations") or []
+            if o.get("status") == "open"
+        ],
+    }
+    package = _scrub_secrets(package)
+    # Stamp after scrub: the key name matches _SECRET_KEY_RE ("secret").
+    package.setdefault("export_meta", {})["includes_secrets"] = False
+    return package
+
+
 class RoleStore:
     """On-disk role registry. role_id survives occupant transfer."""
 
@@ -296,8 +373,7 @@ class RoleStore:
         self.root.mkdir(parents=True, exist_ok=True)
 
     def _path(self, role_id: str) -> Path:
-        safe = re.sub(r"[^A-Za-z0-9._-]+", "_", role_id)
-        return self.root / f"{safe}.json"
+        return self.root / f"{role_storage_key(role_id)}.json"
 
     def create(self, raw: dict[str, Any], *, role_id: str | None = None) -> dict[str, Any]:
         role = normalize_role(raw, role_id=role_id)
@@ -312,10 +388,12 @@ class RoleStore:
         if not path.exists():
             raise RoleError(f"role not found: {role_id}")
         data = json.loads(path.read_text(encoding="utf-8"))
+        if isinstance(data, dict):
+            role_id = data.get("role_id") or role_id
         return normalize_role(data, role_id=role_id)
 
     def list_ids(self) -> list[str]:
-        return sorted(p.stem for p in self.root.glob("*.json"))
+        return sorted(self.get(p.stem)["role_id"] for p in self.root.glob("*.json"))
 
     def list_open_obligations(self, *, cash_only: bool = False) -> list[dict[str, Any]]:
         """Open obligations across all roles — cash-work / fulfillment queue.
@@ -328,37 +406,10 @@ class RoleStore:
         When cash_only is True, keep only rows with payment_capability is True.
         This marker does not establish that payment has occurred.
         """
-        rows: list[dict[str, Any]] = []
-        for rid in self.list_ids():
-            role = self.get(rid)
-            cash = _role_has_payment_capability(role)
-            for ob in role.get("obligations") or []:
-                if str(ob.get("status") or "").strip() != "open":
-                    continue
-                row: dict[str, Any] = {
-                    "role_id": role["role_id"],
-                    "purpose": role["purpose"],
-                    "obligation_id": ob["id"],
-                    "summary": ob["summary"],
-                    "next_action": ob["next_action"],
-                }
-                if role.get("label"):
-                    row["label"] = role["label"]
-                if ob.get("evidence_pointer"):
-                    row["evidence_pointer"] = ob["evidence_pointer"]
-                if role.get("synthetic") is True:
-                    row["synthetic"] = True
-                if cash:
-                    row["payment_capability"] = True
-                    cash_fields = _role_cash_fields(role)
-                    if cash_fields is not None:
-                        row["amount_usd"] = cash_fields["amount_usd"]
-                        row["refund"] = cash_fields["refund"]
-                rows.append(row)
-        rows.sort(key=lambda r: (r["role_id"], r["obligation_id"]))
-        if cash_only:
-            rows = [r for r in rows if r.get("payment_capability") is True]
-        return rows
+        return open_obligation_rows(
+            (self.get(path.stem) for path in sorted(self.root.glob("*.json"))),
+            cash_only=cash_only,
+        )
 
     def equip(
         self,
@@ -645,6 +696,7 @@ class RoleStore:
             raise RoleError(f"role_id already exists: {rid}; refuse remint")
         role = normalize_role(package, role_id=rid)
         role["occupant"] = None
+        role["updated_at"] = _utc_now()
         self._write(role)
         return deepcopy(role)
 
@@ -653,30 +705,27 @@ class RoleStore:
 
     def export_package(self, role_id: str) -> dict[str, Any]:
         """Portable package for a successor peer — no secrets, no remint of role_id."""
-        role = self.get(role_id)
-        package = deepcopy(role)
-        # Occupant is runtime binding; export keeps last known next action but
-        # clears the live session so the successor must equip/transfer explicitly.
-        # Durable access_route session_id / last_run_id stay for G2 recover.
-        package["occupant"] = None
-        package["export_meta"] = {
-            "exported_at": _utc_now(),
-            "role_id_stable": True,
-            "next_useful_actions": [
-                o.get("next_action")
-                for o in package.get("obligations") or []
-                if o.get("status") == "open"
-            ],
-        }
-        package = _scrub_secrets(package)
-        # Stamp after scrub: the key name matches _SECRET_KEY_RE ("secret").
-        package.setdefault("export_meta", {})["includes_secrets"] = False
-        return package
+        return export_role_package(self.get(role_id))
 
     def _write(self, role: dict[str, Any]) -> None:
         path = self._path(role["role_id"])
         clean = _scrub_secrets(role)
-        path.write_text(
-            json.dumps(clean, indent=2, ensure_ascii=False, sort_keys=False) + "\n",
-            encoding="utf-8",
-        )
+        content = json.dumps(clean, indent=2, ensure_ascii=False, sort_keys=False) + "\n"
+        temporary = path.with_name(f".{path.name}.{uuid.uuid4().hex}.tmp")
+        created = False
+        try:
+            with temporary.open("x", encoding="utf-8") as stream:
+                created = True
+                stream.write(content)
+                stream.flush()
+                os.fsync(stream.fileno())
+            try:
+                mode = path.stat().st_mode
+            except FileNotFoundError:
+                pass
+            else:
+                temporary.chmod(mode & 0o7777)
+            temporary.replace(path)
+        finally:
+            if created:
+                temporary.unlink(missing_ok=True)

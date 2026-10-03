@@ -136,6 +136,14 @@ def _nullable_token(value: Any, where: str) -> str | None:
     return None if value is None else _token(value, where)
 
 
+def _nullable_cursor(value: Any, where: str) -> str | None:
+    # Provider cursors are opaque; preserve padding, punctuation and empty tails.
+    # The packet's existing string and byte limits still apply through _bounded.
+    if value is not None and type(value) is not str:
+        raise ProjectionError(f"{where}: cursor must be a string or null")
+    return value
+
+
 def _instant(value: Any, where: str) -> datetime:
     if type(value) is not str or UTC_RE.fullmatch(value) is None:
         raise ProjectionError(f"{where}: timestamp must be RFC3339 UTC ending in Z")
@@ -213,7 +221,7 @@ def _project_source(raw: Any) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     scope = [_token(item, "source.scope") for item in scope]
     if len(scope) != len(set(scope)):
         raise ProjectionError("source.scope: duplicate entry")
-    cursor = _nullable_token(row["cursor"], "source.cursor")
+    cursor = _nullable_cursor(row["cursor"], "source.cursor")
     high_water = _nullable_token(row["high_water_mark"], "source.high_water_mark")
     observed_at = _utc(row["observed_at"], "source.observed_at")
     last_good = None if row["last_successful_read"] is None else _utc(
@@ -282,9 +290,10 @@ def _project_source(raw: Any) -> tuple[dict[str, Any], list[dict[str, Any]]]:
         operation_id = _nullable_token(record["operation_id"], "record.operation_id")
         event_url = _url(record["source_url"], "record.source_url")
         identity = (resource_scope, event_type, provider_event_id)
+        # A later read is another observation of the same immutable event. Keep
+        # its receipt time on the emitted row so the ledger can combine it.
         semantic = {
             "provider_event_time": provider_event_time,
-            "observed_at": record_observed,
             "event_type": event_type,
             "actor_id": actor_id,
             "work_id": work_id,

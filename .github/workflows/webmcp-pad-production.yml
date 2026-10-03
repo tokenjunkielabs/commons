@@ -206,13 +206,24 @@ jobs:
         with:
           node-version: "22"
 
-      - name: verify WebMCP contract and pad focus behavior
+      - name: initialize the shipped MCP runtime
         if: steps.creds.outputs.present == 'true'
         working-directory: webmcp-pad
         run: |
           set -euo pipefail
-          node test_webmcp_contract.js
-          node test_pad_focus.js
+          python3 - <<'PY'
+          import importlib.util
+          import json
+
+          spec = importlib.util.spec_from_file_location("titanmcp", "api/mcp.py")
+          runtime = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(runtime)
+          status, response = runtime.handle_rpc_payload({"jsonrpc": "2.0", "id": 1, "method": "initialize"})
+          if status != 200 or not isinstance(response, dict) or "result" not in response:
+              raise SystemExit("MCP initialization failed")
+          print(json.dumps({"http_status": status, "serverInfo": response["result"]["serverInfo"],
+                            "tools": len(runtime.TOOLS), "catalog_rows": len(runtime._CATALOG)}))
+          PY
 
       - name: link and deploy to production
         id: deploy

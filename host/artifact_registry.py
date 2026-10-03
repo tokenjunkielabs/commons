@@ -169,7 +169,11 @@ def normalize_source(source: Mapping[str, Any]) -> Dict[str, Any]:
 
 
 def source_identity(source: Mapping[str, Any]) -> str:
-    source = normalize_source(source)
+    return _normalized_source_identity(normalize_source(source))
+
+
+def _normalized_source_identity(source: Mapping[str, Any]) -> str:
+    """Return the identity of coordinates already checked by normalize_source."""
     kind = source["kind"]
     if kind == "git_blob":
         parts = (kind, source["repo"], source["blob_sha"])
@@ -225,7 +229,7 @@ def validate_registry(value: Mapping[str, Any]) -> Dict[str, Any]:
         local_ids = set()
         for raw_source in sources:
             source = normalize_source(raw_source)
-            identity = source_identity(source)
+            identity = _normalized_source_identity(source)
             if identity in local_ids:
                 raise ValueError("duplicate source locator in artifact row: %s" % identity)
             local_ids.add(identity)
@@ -234,7 +238,7 @@ def validate_registry(value: Mapping[str, Any]) -> Dict[str, Any]:
                 raise ValueError("source locator is bound to two sha256 values: %s" % identity)
             seen_locator[identity] = digest
             normalized_sources.append(source)
-        normalized_sources.sort(key=lambda item: source_identity(item))
+        normalized_sources.sort(key=_normalized_source_identity)
         out_row: Dict[str, Any] = {"sha256": digest, "sources": normalized_sources}
         if size_bytes is not None:
             out_row["size_bytes"] = size_bytes
@@ -249,7 +253,7 @@ def add_artifact(registry: Mapping[str, Any], sha256: str, source: Mapping[str, 
     current = validate_registry(registry)
     digest = normalize_sha256(sha256)
     source = normalize_source(source)
-    identity = source_identity(source)
+    identity = _normalized_source_identity(source)
     if size_bytes is not None:
         size_bytes = _size(size_bytes)
     clean_labels = []
@@ -261,7 +265,7 @@ def add_artifact(registry: Mapping[str, Any], sha256: str, source: Mapping[str, 
         if other_digest == digest:
             continue
         for other_source in other_row["sources"]:
-            if source_identity(other_source) == identity:
+            if _normalized_source_identity(other_source) == identity:
                 raise ValueError("source locator already belongs to sha256 %s" % other_digest)
 
     row = dict(current["artifacts"].get(digest) or {"sha256": digest, "sources": []})
@@ -270,7 +274,7 @@ def add_artifact(registry: Mapping[str, Any], sha256: str, source: Mapping[str, 
         raise ValueError("size_bytes conflicts with existing artifact row")
     if size_bytes is not None:
         row["size_bytes"] = size_bytes
-    by_identity = {source_identity(item): item for item in row["sources"]}
+    by_identity = {_normalized_source_identity(item): item for item in row["sources"]}
     if identity in by_identity and by_identity[identity] != source:
         raise ValueError("source locator metadata conflicts with existing record")
     by_identity[identity] = source

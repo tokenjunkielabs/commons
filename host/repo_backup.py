@@ -105,22 +105,30 @@ def _utc_now() -> str:
 
 def _write_exclusive_json(path: Path, payload: dict[str, Any]) -> None:
     text = json.dumps(payload, indent=2, sort_keys=True) + "\n"
+    if os.path.lexists(path):
+        raise BackupError(f"refusing to overwrite {path}: path already exists")
     try:
-        fd = os.open(str(path), os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o644)
-    except OSError as error:
-        raise BackupError(f"refusing to overwrite {path}: {error}") from error
-    try:
-        remaining = memoryview(text.encode("utf-8"))
-        while remaining:
-            written = os.write(fd, remaining)
-            if written <= 0:
-                raise BackupError(f"cannot write {path}: write made no progress")
-            remaining = remaining[written:]
-        os.fsync(fd)
+        with tempfile.TemporaryDirectory(prefix=".commons-backup-json-", dir=path.parent) as staging:
+            staged = Path(staging) / path.name
+            fd = os.open(str(staged), os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o644)
+            try:
+                remaining = memoryview(text.encode("utf-8"))
+                while remaining:
+                    written = os.write(fd, remaining)
+                    if written <= 0:
+                        raise BackupError(f"cannot write {path}: write made no progress")
+                    remaining = remaining[written:]
+                os.fsync(fd)
+            finally:
+                os.close(fd)
+            # Publish only complete bytes. An occupied destination still wins
+            # even if it appeared after the cheap existence check above.
+            try:
+                os.link(staged, path)
+            except OSError as error:
+                raise BackupError(f"refusing to overwrite {path}: {error}") from error
     except OSError as error:
         raise BackupError(f"cannot write {path}: {error}") from error
-    finally:
-        os.close(fd)
 
 
 def _bundle_heads(bundle: Path) -> list[dict[str, str]]:
@@ -286,14 +294,18 @@ def _verify_manifest(manifest_path: Path) -> dict[str, Any]:
 
 def restore(manifest_path: Path, target: Path, bare: bool = False) -> dict[str, Any]:
     receipt = _verify_manifest(manifest_path)
-    target = target.resolve()
-    if target.exists():
+    # A dangling symlink occupies the requested name even though exists() is
+    # false. Reserve that name before resolving it so restoration cannot follow
+    # an existing link into a different, not-yet-created destination.
+    target = target.absolute()
+    if os.path.lexists(target):
         raise BackupError(f"refusing to overwrite restore target: {target}")
     expected_refs = _bundle_heads(Path(receipt["bundle"]))
     try:
         target.mkdir(parents=True)
     except OSError as error:
         raise BackupError(f"cannot create new restore target {target}: {error}") from error
+    target = target.resolve()
     # Ordinary clones rename branches into origin/* and omit notes/custom refs.
     # Mirror into the new target (or its .git directory) to retain every ref.
     git_dir = target if bare else target / ".git"
@@ -510,3 +522,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

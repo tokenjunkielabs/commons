@@ -92,9 +92,11 @@ def normalize(route: str, params: dict) -> dict:
     if "owner" in out:
         if not isinstance(out["owner"], str) or OWNER_RE.fullmatch(out["owner"]) is None:
             raise ValueError("invalid owner")
+        out["owner"] = out["owner"].lower()
     if "repo" in out:
         if not isinstance(out["repo"], str) or REPO_RE.fullmatch(out["repo"]) is None:
             raise ValueError("invalid repo")
+        out["repo"] = out["repo"].lower()
     if route == "contents.get":
         if "path" not in out:
             raise ValueError("path is required")
@@ -260,6 +262,10 @@ class Broker:
             db.execute("DELETE FROM flight WHERE expires<=?", (now,))
             row = db.execute("SELECT fetched,payload FROM cache WHERE namespace=? AND key=?", (self.namespace, key)).fetchone()
             if row and max_age_seconds > 0 and 0 <= now - row["fetched"] <= max_age_seconds:
+                # The selected bytes belong to this completed read. Release the
+                # write transaction before decoding so independent cache readers
+                # do not serialize on JSON parsing.
+                db.commit()
                 return self.envelope("CACHED", fetched_at=row["fetched"], age_seconds=now-row["fetched"], data=loads(row["payload"]))
             flight = db.execute("SELECT expires FROM flight WHERE namespace=? AND key=?", (self.namespace, key)).fetchone()
             if flight:
@@ -353,6 +359,9 @@ class Broker:
                 "DELETE FROM cache WHERE rowid IN (SELECT rowid FROM cache ORDER BY fetched DESC,namespace,key LIMIT -1 OFFSET ?)",
                 (self.max_entries,),
             )
+            # Persist the completed response before decoding its return value,
+            # so JSON parsing does not hold the shared write transaction.
+            db.commit()
             return self.envelope("FETCHED", fetched_at=now, age_seconds=0, data=loads(payload_text))
 
     def read(self, route: str, params: dict, provider: Callable, max_age_seconds: int = 30):

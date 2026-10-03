@@ -238,8 +238,25 @@ class Bench:
         a, b = self.source(left), self.source(right)
         lines = None
         if a["text"] is not None and b["text"] is not None:
-            lines = list(difflib.unified_diff(a["text"].splitlines(), b["text"].splitlines(),
-                                            fromfile=left, tofile=right, lineterm=""))
+            lines = []
+            diff = difflib.unified_diff(a["text"].splitlines(keepends=True),
+                                        b["text"].splitlines(keepends=True),
+                                        fromfile=left, tofile=right, lineterm="")
+            for index, line in enumerate(diff):
+                if index < 2 or line.startswith("@@"):
+                    lines.append(line)
+                    continue
+                # Compare original endings, then render one display line per item.
+                # Otherwise CRLF and missing-final-newline revisions look identical.
+                content = line[1:]
+                body = content.splitlines()
+                displayed = body[0] if body else ""
+                ending = content[len(displayed):]
+                lines.append(line[0] + displayed)
+                if not ending:
+                    lines.append("\\ No newline at end of file")
+                elif ending != "\n":
+                    lines.append(f"\\ Line ending: {ending!a}")
         return {"left": left, "right": right, "same_bytes": a["sha256"] == b["sha256"],
                 "left_sha256": a["sha256"], "right_sha256": b["sha256"], "text_diff": lines}
 
@@ -258,10 +275,11 @@ class Bench:
                 name = "sources/" + hashlib.sha256(record["id"].encode()).hexdigest() + ".bin"
                 files[name] = data
                 selected.append({**record, "archive_path": name, "bytes": len(data)})
+            selected_ids = {s["id"] for s in selected}
             all_links = [dict(r) for r in db.execute("SELECT * FROM links WHERE job_id=? ORDER BY source_id", (job_id,))]
             manifest = {"format": "commons-toolbench-handover-v1", "revision": self.revision(db),
                         "job": job, "selected": selected, "notes": notes,
-                        "linked_not_selected": [r for r in all_links if r["source_id"] not in {s["id"] for s in selected}],
+                        "linked_not_selected": [r for r in all_links if r["source_id"] not in selected_ids],
                         "coverage": "Caller-selected evidence only; no completeness, approval, or release certification.",
                         "attribution": "Actor labels and association reasons are caller statements, not authenticated identities or verified facts."}
             files["manifest.json"] = (canonical(manifest) + "\n").encode()

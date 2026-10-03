@@ -9,6 +9,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import re
 from datetime import datetime, timezone
 from email.utils import getaddresses
 
@@ -22,6 +23,7 @@ MAX_ID = 512
 MAX_TEXT = 500
 MAX_ACTION = 2000
 MAX_URL = 2048
+CONNECTOR_ADDRESS = re.compile(r'([^@<>]+?)\s+([^@\s<>()\[\]\\,;:"]+@[^@\s<>()\[\]\\,;:"]+)')
 
 
 def _obj(value):
@@ -79,8 +81,16 @@ def _addresses(value):
         value = [value]
     if not isinstance(value, list):
         return set()
-    return {address.lower() for _, address in getaddresses(
-        [entry for entry in value if isinstance(entry, str)]) if "@" in address}
+    headers = []
+    for entry in value:
+        if not isinstance(entry, str):
+            continue
+        # Gmail connector metadata renders one mailbox as "Display Name addr".
+        # Select that address before parsing; leave ordinary headers,
+        # address lists and quoted local parts to the standard parser.
+        match = CONNECTOR_ADDRESS.fullmatch(entry.strip())
+        headers.append(match.group(2) if match else entry)
+    return {address.lower() for _, address in getaddresses(headers) if "@" in address}
 
 
 def _account(item, source):

@@ -47,7 +47,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          # The guard needs the current worktree and one comparison base.
+          fetch-depth: 1
           persist-credentials: false
 
       - name: enforce the Muhlnickel runtime boundary
@@ -56,12 +57,23 @@ jobs:
           EVENT_BEFORE: ${{ github.event.before }}
           PR_BASE: ${{ github.event.pull_request.base.sha }}
         run: |
+          set -eu
           if [ "$EVENT_NAME" = "pull_request" ]; then
             base="$PR_BASE"
           else
             base="$EVENT_BEFORE"
           fi
           if [ -z "$base" ] || [ "$base" = "0000000000000000000000000000000000000000" ]; then
-            base="HEAD^"
+            # A depth-one checkout has the parent SHA in its commit header,
+            # even though revision traversal such as HEAD^ cannot resolve it.
+            base="$(git cat-file -p HEAD | awk 'NF == 0 { exit } $1 == "parent" { print $2; exit }')"
           fi
+          if [ -z "$base" ]; then
+            echo "::error::Unable to resolve the comparison-base commit."
+            exit 1
+          fi
+          if ! git cat-file -e "$base^{commit}" 2>/dev/null; then
+            git fetch --no-tags --depth=1 origin "$base"
+          fi
+          git cat-file -e "$base^{commit}"
           python3 muhlnickel_spec_guard.py --base "$base" --worktree

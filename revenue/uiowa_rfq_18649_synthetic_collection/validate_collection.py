@@ -45,7 +45,9 @@ def validate(root: Path) -> list[str]:
         if not path.exists():
             errors.append(f"missing file: {path}")
             continue
-        if "SYNTHETIC" not in path.read_text(encoding="utf-8")[:500].upper():
+        with path.open("r", encoding="utf-8") as fh:
+            label_excerpt = fh.read(500)
+        if "SYNTHETIC" not in label_excerpt.upper():
             errors.append(f"missing SYNTHETIC label near top: {path}")
         doc_services = set(doc.get("services", []))
         doc_areas = set(doc.get("assessment_areas", []))

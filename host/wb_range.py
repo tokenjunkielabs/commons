@@ -7,6 +7,7 @@ needs, caches them content-addressed, and records every read in a local
 manifest. Safetensors and GGUF indexes are built from header bytes only.
 
 Subcommands: index, slice, verify, axis, score, archive, serve.
+Use index --stats PATH for measured range reads, cache use and elapsed time.
 Stdlib only. No numpy. No executor.
 """
 
@@ -27,6 +28,7 @@ import re
 import socketserver
 import struct
 import sys
+import tempfile
 import time
 import urllib.error
 import urllib.parse
@@ -59,6 +61,9 @@ SAFETENSORS_DTYPES = {
     "F8_E8M0": (None, 1),
     "F4": (None, 1),
 }
+
+# The existing E8M0 decoder has only 256 possible immutable float results.
+E8M0_TABLE = tuple(2.0 ** (byte - 127) for byte in range(256))
 
 # OCP MX E2M1 magnitudes indexed by (exp << 1 | mantissa).
 E2M1_TABLE = (0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 6.0)
@@ -122,11 +127,23 @@ class _NoRedirectHandler(urllib.request.HTTPRedirectHandler):
         return None
 
 
+def _range_counters() -> dict:
+    return {
+        "read_calls": 0,
+        "cache_hits": 0,
+        "cache_body_bytes_read": 0,
+        "http_requests_attempted": 0,
+        "http_requests_succeeded": 0,
+        "http_body_bytes_read": 0,
+    }
+
+
 class RangeReader:
     """HTTP Range reader with a content-addressed local chunk cache."""
 
     def __init__(self, url: str, cache_dir: Path, *, limit: int = DEFAULT_LIMIT_BYTES,
-                 use_cache: bool = True):
+                 use_cache: bool = True, stats: dict | None = None,
+                 checkpoint_every: int = 1):
         parsed = urllib.parse.urlsplit(url)
         if parsed.username or parsed.password or not parsed.hostname:
             raise WbRangeError("remote URL must not contain credentials and must have a host")
@@ -140,6 +157,13 @@ class RangeReader:
         self.cache_dir = Path(cache_dir)
         self.limit = int(limit)
         self.use_cache = use_cache
+        self.checkpoint_every = int(checkpoint_every)
+        if self.checkpoint_every < 1:
+            raise WbRangeError("manifest checkpoint interval must be positive")
+        self._pending_manifest_ranges = 0
+        self.stats = stats if stats is not None else {}
+        for key, value in _range_counters().items():
+            self.stats.setdefault(key, value)
         self.chunks_dir = self.cache_dir / "chunks"
         self.chunks_dir.mkdir(parents=True, exist_ok=True)
         self.manifest_path = self.cache_dir / "cache_manifest.json"
@@ -155,9 +179,30 @@ class RangeReader:
         return {"schema_version": SCHEMA_VERSION, "entries": {}}
 
     def _save_manifest(self) -> None:
-        encoded = json.dumps(self.manifest, ensure_ascii=False, indent=1,
-                             sort_keys=True) + "\n"
-        self.manifest_path.write_text(encoded, encoding="utf-8", newline="\n")
+        # Each checkpoint encodes the complete manifest; keep encoding compact.
+        encoded = json.dumps(self.manifest, ensure_ascii=False,
+                             separators=(",", ":"), sort_keys=True) + "\n"
+        # Finish an owned sibling file before replacing the last usable manifest.
+        temporary_path = None
+        try:
+            with tempfile.NamedTemporaryFile(
+                    mode="w", encoding="utf-8", newline="\n",
+                    dir=self.manifest_path.parent,
+                    prefix=".%s." % self.manifest_path.name, suffix=".tmp",
+                    delete=False) as handle:
+                temporary_path = Path(handle.name)
+                handle.write(encoded)
+            temporary_path.replace(self.manifest_path)
+            temporary_path = None
+        finally:
+            if temporary_path is not None:
+                temporary_path.unlink(missing_ok=True)
+
+    def flush_manifest(self) -> None:
+        """Persist fetched ranges that have not reached their checkpoint yet."""
+        if self._pending_manifest_ranges:
+            self._save_manifest()
+            self._pending_manifest_ranges = 0
 
     def _cache_key(self, offset: int, length: int) -> str:
         return hashlib.sha1(
@@ -172,13 +217,16 @@ class RangeReader:
                 "range length %d exceeds limit %d; raise the limit deliberately"
                 % (length, self.limit)
             )
+        self.stats["read_calls"] += 1
         key = self._cache_key(offset, length)
         entry = self.manifest["entries"].get(key)
         if self.use_cache and entry and entry.get("transport_contract") == RANGE_CONTRACT_VERSION:
             chunk_path = self.chunks_dir / entry["file"]
             if chunk_path.is_file():
                 data = chunk_path.read_bytes()
+                self.stats["cache_body_bytes_read"] += len(data)
                 if _sha256(data) == entry["sha256"] and len(data) == length:
+                    self.stats["cache_hits"] += 1
                     return data
         data = self._fetch(offset, length)
         digest = _sha256(data)
@@ -193,7 +241,9 @@ class RangeReader:
             "transport_contract": RANGE_CONTRACT_VERSION,
             "fetched_utc": _utc_now(),
         }
-        self._save_manifest()
+        self._pending_manifest_ranges += 1
+        if self._pending_manifest_ranges >= self.checkpoint_every:
+            self.flush_manifest()
         return data
 
     def _strict_range(self, offset: int, length: int, *, timeout: int) -> tuple[bytes, int | None]:
@@ -206,6 +256,7 @@ class RangeReader:
                 "Accept-Encoding": "identity",
             },
         )
+        self.stats["http_requests_attempted"] += 1
         try:
             with self._opener.open(request, timeout=timeout) as response:
                 status = getattr(response, "status", None)
@@ -241,7 +292,16 @@ class RangeReader:
                 total = None if total_text == "*" else int(total_text)
                 if total is not None and total <= got_end:
                     raise WbRangeError("remote Content-Range total is not larger than its end")
-                data = response.read()
+                # One extra byte detects oversized bodies without consuming the
+                # complete response when its framing contradicts Content-Range.
+                try:
+                    data = response.read(length + 1)
+                except Exception as exc:
+                    partial = getattr(exc, "partial", None)
+                    if isinstance(partial, (bytes, bytearray)):
+                        self.stats["http_body_bytes_read"] += len(partial)
+                    raise
+                self.stats["http_body_bytes_read"] += len(data)
         except WbRangeError:
             raise
         except urllib.error.HTTPError as exc:
@@ -257,6 +317,7 @@ class RangeReader:
                 "remote range body length mismatch: wanted %d bytes, got %d"
                 % (length, len(data))
             )
+        self.stats["http_requests_succeeded"] += 1
         return data, total
 
     def _fetch(self, offset: int, length: int) -> bytes:
@@ -345,6 +406,25 @@ class _GgufCursor:
         size = struct.calcsize(fmt)
         return struct.unpack(fmt, self.take(size))
 
+    def unpack_group(self, *formats: str):
+        grouped = "<" + "".join(fmt[1:] for fmt in formats)
+        if struct.calcsize(grouped) <= self.reader.limit:
+            # Reuse complete split-field caches from earlier parsers. Each
+            # ordinary read still checks its cached chunk's length and digest.
+            cached = self.reader.use_cache
+            offset = self.pos
+            for fmt in formats:
+                if not cached:
+                    break
+                size = struct.calcsize(fmt)
+                entry = self.reader.manifest["entries"].get(
+                    self.reader._cache_key(offset, size))
+                cached = bool(entry and entry.get("transport_contract") == RANGE_CONTRACT_VERSION)
+                offset += size
+            if not cached:
+                return self.unpack(grouped)
+        return tuple(value for fmt in formats for value in self.unpack(fmt))
+
     def string(self) -> str:
         (length,) = self.unpack("<Q")
         if length > 16 * 1024 * 1024:
@@ -364,7 +444,27 @@ def _gguf_metadata_value(cursor: _GgufCursor, value_type: int):
         if count > 1_000_000:
             raise WbRangeError("implausible gguf array length")
         if element_type == 8:
-            return [cursor.string() for _ in range(count)]
+            if not count:
+                return []
+            values = []
+            (length,) = cursor.unpack("<Q")
+            for index in range(count):
+                if length > 16 * 1024 * 1024:
+                    raise WbRangeError("implausible gguf string length")
+                if index + 1 < count:
+                    # The next length field is inside this known string array.
+                    # Pair it with this body without reading beyond metadata.
+                    if length:
+                        raw, next_length = cursor.unpack_group("<%ds" % length, "<Q")
+                    else:
+                        raw = b""
+                        (next_length,) = cursor.unpack("<Q")
+                    values.append(raw.decode("utf-8"))
+                    length = next_length
+                else:
+                    raw = cursor.take(length) if length else b""
+                    values.append(raw.decode("utf-8"))
+            return values
         if element_type not in GGUF_VALUE_TYPES:
             raise WbRangeError("unsupported gguf array element type %d" % element_type)
         fmt, size = GGUF_VALUE_TYPES[element_type]
@@ -381,8 +481,7 @@ def parse_gguf_index(reader: RangeReader, file_name: str) -> dict:
     (version,) = cursor.unpack("<I")
     if version not in (2, 3):
         raise WbRangeError("unsupported gguf version %d" % version)
-    (tensor_count,) = cursor.unpack("<Q")
-    (kv_count,) = cursor.unpack("<Q")
+    tensor_count, kv_count = cursor.unpack_group("<Q", "<Q")
     if tensor_count > 10_000_000 or kv_count > 1_000_000:
         raise WbRangeError("implausible gguf counts")
     metadata = {}
@@ -399,9 +498,11 @@ def parse_gguf_index(reader: RangeReader, file_name: str) -> dict:
         (n_dims,) = cursor.unpack("<I")
         if n_dims > 8:
             raise WbRangeError("implausible gguf tensor rank")
-        dims = list(cursor.unpack("<%dQ" % n_dims)) if n_dims else []
-        (type_id,) = cursor.unpack("<I")
-        (rel_offset,) = cursor.unpack("<Q")
+        # These fields are contiguous and their complete extent is now known.
+        formats = ("<%dQ" % n_dims, "<I", "<Q") if n_dims else ("<I", "<Q")
+        fields = cursor.unpack_group(*formats)
+        dims = list(fields[:-2])
+        type_id, rel_offset = fields[-2:]
         elements = 1
         for dim in dims:
             elements *= dim
@@ -436,7 +537,10 @@ def parse_gguf_index(reader: RangeReader, file_name: str) -> dict:
 
 def build_index(repo_or_url: str, cache_dir: Path, *, revision: str = "main",
                 limit: int = DEFAULT_LIMIT_BYTES,
-                name_filter: str | None = None) -> dict:
+                name_filter: str | None = None, stats: dict | None = None) -> dict:
+    if stats is not None:
+        stats.update(_range_counters())
+        stats["files_indexed"] = 0
     started = _utc_now()
     sources = []
     if repo_or_url.startswith("https://") or repo_or_url.startswith("http://"):
@@ -459,15 +563,27 @@ def build_index(repo_or_url: str, cache_dir: Path, *, revision: str = "main",
     for file_entry in files:
         if pattern and not pattern.search(file_entry["name"]):
             continue
-        reader = RangeReader(file_entry["url"], cache_dir, limit=limit)
-        if file_entry["name"].endswith(".safetensors"):
-            parsed = parse_safetensors_index(reader, file_entry["name"])
-        else:
-            parsed = parse_gguf_index(reader, file_entry["name"])
+        reader = RangeReader(file_entry["url"], cache_dir, limit=limit, stats=stats,
+                             checkpoint_every=64)
+        try:
+            if file_entry["name"].endswith(".safetensors"):
+                parsed = parse_safetensors_index(reader, file_entry["name"])
+            else:
+                parsed = parse_gguf_index(reader, file_entry["name"])
+        except BaseException:
+            try:
+                reader.flush_manifest()
+            except Exception:
+                # Keep the parser/transport error if cache publication also fails.
+                pass
+            raise
+        reader.flush_manifest()
         parsed["url"] = file_entry["url"]
         parsed["declared_size"] = file_entry.get("size")
         total_tensor_bytes += sum(t["bytes"] or 0 for t in parsed["tensors"].values())
         sources.append(parsed)
+        if stats is not None:
+            stats["files_indexed"] += 1
     if not sources:
         raise WbRangeError("name filter excluded every weight file")
     tensor_count = sum(len(source["tensors"]) for source in sources)
@@ -507,15 +623,17 @@ def decode_values(dtype: str, data: bytes, count: int | None = None) -> list[flo
     if dtype == "BF16":
         if len(data) % 2:
             raise WbRangeError("bf16 payload has odd length")
-        words = struct.unpack("<%dH" % (len(data) // 2), data)
-        raw = b"".join(struct.pack("<I", word << 16) for word in words)
+        # Place each little-endian BF16 word in the upper half of float32.
+        raw = bytearray(len(data) * 2)
+        raw[2::4] = data[0::2]
+        raw[3::4] = data[1::2]
         values = list(struct.unpack("<%df" % (len(data) // 2), raw))
     elif dtype == "F8_E4M3":
         values = [_f8_decode(byte, 4, 3) for byte in data]
     elif dtype == "F8_E5M2":
         values = [_f8_decode(byte, 5, 2) for byte in data]
     elif dtype == "F8_E8M0":
-        values = [2.0 ** (byte - 127) for byte in data]
+        values = [E8M0_TABLE[byte] for byte in data]
     elif dtype == "F4":
         values = []
         for index in range(len(data) * 2):
@@ -530,7 +648,12 @@ def decode_values(dtype: str, data: bytes, count: int | None = None) -> list[flo
         fmt, size = entry
         if len(data) % size:
             raise WbRangeError("payload length not divisible by element size")
-        values = [float(v) for v in struct.unpack("<%d%s" % (len(data) // size, fmt[1:]), data)]
+        unpack_format = "<%d%s" % (len(data) // size, fmt[1:])
+        if dtype in ("F16", "F32", "F64"):
+            # struct already returns Python floats for native float formats.
+            values = list(struct.unpack(unpack_format, data))
+        else:
+            values = [float(v) for v in struct.unpack(unpack_format, data)]
     if count is not None:
         values = values[:count]
     return values
@@ -549,6 +672,8 @@ def _f8_decode(byte: int, exp_bits: int, man_bits: int) -> float:
 
 
 def decode_mxfp4(packed: bytes, scales: bytes, *, block: int = 32) -> list[float]:
+    if block <= 0:
+        raise WbRangeError("mxfp4 block must be positive")
     values = []
     elements_per_byte = 2
     total = len(packed) * elements_per_byte
@@ -557,13 +682,29 @@ def decode_mxfp4(packed: bytes, scales: bytes, *, block: int = 32) -> list[float
         raise WbRangeError(
             "mxfp4 scales short: need %d, have %d" % (expected_scales, len(scales))
         )
-    for index in range(total):
-        byte = packed[index // 2]
-        nibble = byte & 0x0F if index % 2 == 0 else (byte >> 4) & 0x0F
-        sign = -1.0 if nibble & 0x08 else 1.0
-        magnitude = E2M1_TABLE[nibble & 0x07]
-        scale = 2.0 ** (scales[index // block] - 127)
-        values.append(sign * magnitude * scale)
+    # A block shares one scale, and a nibble has only sixteen possible values.
+    # Reuse immutable decoded floats instead of repeating arithmetic per weight.
+    tables = {}
+    for group in range(expected_scales):
+        scale_byte = scales[group]
+        table = tables.get(scale_byte)
+        if table is None:
+            scale = 2.0 ** (scale_byte - 127)
+            table = tuple(
+                (-1.0 if nibble & 0x08 else 1.0) * E2M1_TABLE[nibble & 0x07] * scale
+                for nibble in range(16)
+            )
+            tables[scale_byte] = table
+        start = group * block
+        stop = min(start + block, total)
+        if start % 2:
+            values.append(table[packed[start // 2] >> 4])
+            start += 1
+        for byte in packed[start // 2:stop // 2]:
+            values.append(table[byte & 0x0F])
+            values.append(table[byte >> 4])
+        if stop % 2:
+            values.append(table[packed[stop // 2] & 0x0F])
     return values
 
 
@@ -709,7 +850,7 @@ def verify_ranges(local_path: Path, remote_url: str, cache_dir: Path, *,
 
 
 def _embedding_row(source: dict, tensor: dict, row: int, cache_dir: Path,
-                   limit: int) -> list[float]:
+                   limit: int, *, reader: RangeReader | None = None) -> list[float]:
     dtype = tensor["dtype"]
     if dtype not in ("F32", "F16", "F64", "BF16", "F8_E4M3", "F8_E5M2"):
         raise WbRangeError("axis needs a float dtype, tensor is %s" % dtype)
@@ -721,7 +862,8 @@ def _embedding_row(source: dict, tensor: dict, row: int, cache_dir: Path,
         raise WbRangeError("row %d outside [0, %d)" % (row, rows))
     elem = SAFETENSORS_DTYPES[dtype][1]
     offset = tensor["begin"] + row * width * elem
-    reader = RangeReader(source["url"], cache_dir, limit=limit)
+    if reader is None:
+        reader = RangeReader(source["url"], cache_dir, limit=limit)
     data = reader.read(offset, width * elem)
     return decode_values(dtype, data)
 
@@ -732,11 +874,12 @@ def cut_axis(index: dict, archive: Archive, cache_dir: Path, tensor_name: str,
     if not pairs:
         raise WbRangeError("axis needs at least one row pair")
     source, tensor = find_tensor(index, tensor_name)
+    reader = RangeReader(source["url"], cache_dir, limit=limit)
     accum = None
     rows_used = []
     for positive, negative in pairs:
-        pos = _embedding_row(source, tensor, positive, cache_dir, limit)
-        neg = _embedding_row(source, tensor, negative, cache_dir, limit)
+        pos = _embedding_row(source, tensor, positive, cache_dir, limit, reader=reader)
+        neg = _embedding_row(source, tensor, negative, cache_dir, limit, reader=reader)
         diff = [p - n for p, n in zip(pos, neg)]
         accum = diff if accum is None else [a + d for a, d in zip(accum, diff)]
         rows_used.append([positive, negative])
@@ -770,8 +913,9 @@ def score_rows(index: dict, archive: Archive, cache_dir: Path, tensor_name: str,
         raise WbRangeError("axis width %d != tensor width %d"
                            % (width, tensor["shape"][1]))
     scores = []
+    reader = RangeReader(source["url"], cache_dir, limit=limit) if rows else None
     for row in rows:
-        values = _embedding_row(source, tensor, row, cache_dir, limit)
+        values = _embedding_row(source, tensor, row, cache_dir, limit, reader=reader)
         norm = math.sqrt(sum(v * v for v in values))
         dot = sum(a * v for a, v in zip(axis, values))
         scores.append({"row": row, "cosine": (dot / norm) if norm else 0.0})
@@ -831,13 +975,55 @@ def fetch_rows(index: dict, cache_dir: Path, tensor_name: str,
     _, elem = entry
     rows, width = _tensor_row_layout(tensor, source["format"])
     reader = RangeReader(source["url"], cache_dir, limit=limit)
+    row_bytes = width * elem
+    # Keep invalid/oversized row reads on read()'s existing validation path.
+    group_rows = (max(1, min(reader.limit, 1024 * 1024) // row_bytes)
+                  if row_bytes > 0 else 1)
     out = []
-    for i in row_idxs:
+    position = 0
+    while position < len(row_idxs):
+        i = row_idxs[position]
         if i < 0 or i >= rows:
             raise WbRangeError("row %d outside [0, %d)" % (i, rows))
-        offset = tensor["begin"] + i * width * elem
-        data = reader.read(offset, width * elem)
-        out.append(data if raw else decode_values(dtype, data))
+        offset = tensor["begin"] + i * row_bytes
+        end = position + 1
+        # Existing row entries always pass through read(), including its hash,
+        # length and transport-contract checks. Do not reorder or dedupe rows.
+        if reader._cache_key(offset, row_bytes) not in reader.manifest["entries"]:
+            while end < len(row_idxs) and end - position < group_rows:
+                row = row_idxs[end]
+                if row != i + end - position or row >= rows:
+                    break
+                row_offset = tensor["begin"] + row * row_bytes
+                if reader._cache_key(row_offset, row_bytes) in reader.manifest["entries"]:
+                    break
+                end += 1
+        count = end - position
+        if count == 1:
+            data = reader.read(offset, row_bytes)
+            out.append(data if raw else decode_values(dtype, data))
+        else:
+            # Persist the validated group before seeding normal row entries.
+            # Publish seeds together, so the same interrupted call can reuse
+            # the original group instead of fetching a different remainder.
+            data = reader.read(offset, count * row_bytes)
+            group_entry = reader.manifest["entries"][
+                reader._cache_key(offset, count * row_bytes)]
+            for ordinal in range(count):
+                row_data = data[ordinal * row_bytes:(ordinal + 1) * row_bytes]
+                digest = _sha256(row_data)
+                file_name = digest + ".bin"
+                (reader.chunks_dir / file_name).write_bytes(row_data)
+                row_offset = offset + ordinal * row_bytes
+                reader.manifest["entries"][
+                    reader._cache_key(row_offset, row_bytes)] = {
+                        **group_entry, "offset": row_offset, "length": row_bytes,
+                        "sha256": digest, "file": file_name,
+                    }
+                reader._pending_manifest_ranges += 1
+                out.append(row_data if raw else decode_values(dtype, row_data))
+            reader.flush_manifest()
+        position = end
     return out
 
 
@@ -916,15 +1102,20 @@ def load_vocab(index: dict, cache_dir: Path, *, limit: int = DEFAULT_LIMIT_BYTES
 def word_row_map(index: dict, cache_dir: Path, tensor_name: str, vocab: list,
                  words: list[str], *, limit: int = DEFAULT_LIMIT_BYTES) -> dict:
     """word -> decoded embedding row; tries surface, ▁-prefixed, capitalized."""
+    forms_by_word = [
+        (word, (word, "▁" + word, word.capitalize(),
+                "▁" + word.capitalize(), " " + word))
+        for word in words
+    ]
+    wanted = {form for _, forms in forms_by_word for form in forms if form}
     lookup = {}
     for i, token in enumerate(vocab):
         for form in (token, token.lstrip("▁"), token.replace("▁", " ").strip()):
-            if form and form not in lookup:
+            if form in wanted and form not in lookup:
                 lookup[form] = i
     targets = {}
-    for word in words:
-        for form in (word, "▁" + word, word.capitalize(),
-                     "▁" + word.capitalize(), " " + word):
+    for word, forms in forms_by_word:
+        for form in forms:
             if form in lookup:
                 targets[word] = lookup[form]
                 break
@@ -945,6 +1136,12 @@ def embed_tensor_name(index: dict) -> str:
             low = name.lower()
             if "embed" in low and "norm" not in low:
                 return name
+    # Preserve existing selections before trying the canonical GGUF spelling.
+    for source in index["sources"]:
+        if source.get("format") == "gguf":
+            for name in source["tensors"]:
+                if name.lower() == "token_embd.weight":
+                    return name
     raise WbRangeError("no embedding tensor found in index")
 
 
@@ -1067,7 +1264,7 @@ def metric_op(op: str, index: dict, archive: Archive, cache_dir: Path,
         shape = t["shape"]
         if len(shape) < 3:
             raise WbRangeError("expert health needs a >= 3-D (MoE) tensor")
-        n_exp = shape[-1]
+        n_exp = shape[0] if source["format"] == "safetensors" else shape[-1]
         per_expert_rows = 1
         for dim in shape[1:-1]:
             per_expert_rows *= dim
@@ -1141,7 +1338,7 @@ def metric_op(op: str, index: dict, archive: Archive, cache_dir: Path,
 
     elif op == "direction":
         source, t = find_tensor(index, tensor)
-        rows, width = _tensor_row_layout(t)
+        rows, width = _tensor_row_layout(t, source["format"])
         idxs = metrics.strided(rows, min(sample, 384))
         decoded = fetch_rows(index, cache_dir, tensor, idxs, limit=limit)
         result = {"tensor": tensor, "rows_sampled": len(decoded)}
@@ -1174,8 +1371,12 @@ def _embed_op(op: str, index: dict, cache_dir: Path, args: dict,
     vocab_sample = int(args.get("vocab_sample") or 1200)
     idxs = metrics.strided(rows_total, vocab_sample)
 
+    vocab = None
+
     def word_rows(words):
-        vocab = load_vocab(index, cache_dir, limit=limit)
+        nonlocal vocab
+        if vocab is None:
+            vocab = load_vocab(index, cache_dir, limit=limit)
         mapped = word_row_map(index, cache_dir, tensor, vocab, words,
                               limit=limit)
         return mapped["rows"], mapped["missing"]
@@ -1225,7 +1426,6 @@ def _embed_op(op: str, index: dict, cache_dir: Path, args: dict,
         if word not in rows_map:
             raise WbRangeError("%r is not an embeddable token" % word)
         decoded = fetch_rows(index, cache_dir, tensor, idxs, limit=limit)
-        vocab = load_vocab(index, cache_dir, limit=limit)
         vocab_rows = {vocab[i]: decoded[p] for p, i in enumerate(idxs)
                       if i < len(vocab) and vocab[i]}
         result = metrics.concept_neighbors(rows_map[word], vocab_rows,
@@ -1272,13 +1472,37 @@ def _embed_op(op: str, index: dict, cache_dir: Path, args: dict,
         n_tensor = names.get(kind) or names["down"]
         ns, nt = find_tensor(index, n_tensor)
         n_rows, n_width = _tensor_row_layout(nt, ns["format"])
-        sel = metrics.strided(n_rows, int(args.get("units") or 96))
-        neuron_rows = fetch_rows(index, cache_dir, n_tensor, sel, limit=limit)
+        units = int(args.get("units") or 96)
+        if n_tensor == names["down"]:
+            if n_rows != width:
+                raise WbRangeError("DOWN output width does not match token embeddings")
+            sel = metrics.strided(n_width, units)
+            dtype = nt["dtype"]
+            entry = SAFETENSORS_DTYPES.get(dtype)
+            if entry is None:
+                raise WbRangeError("row ops need a known dtype, got %s" % dtype)
+            elem = entry[1]
+            reader = RangeReader(ns["url"], cache_dir, limit=limit)
+            neuron_rows = [[] for _ in sel]
+            # A DOWN neuron is a column. Decode one physical row at a time,
+            # retaining only the sampled columns across embedding dimensions.
+            for row_idx in range(n_rows):
+                offset = nt["begin"] + row_idx * n_width * elem
+                row = decode_values(dtype, reader.read(offset, n_width * elem))
+                for neuron, column in zip(neuron_rows, sel):
+                    neuron.append(row[column])
+        else:
+            if n_width != width:
+                raise WbRangeError("FFN input width does not match token embeddings")
+            sel = metrics.strided(n_rows, units)
+            neuron_rows = fetch_rows(index, cache_dir, n_tensor, sel, limit=limit)
         decoded = fetch_rows(index, cache_dir, tensor, idxs, limit=limit)
         vocab = load_vocab(index, cache_dir, limit=limit)
         vocab_rows = {vocab[i]: decoded[p] for p, i in enumerate(idxs)
                       if i < len(vocab) and vocab[i]}
         result = metrics.neuron_cleanliness(neuron_rows, vocab_rows)
+        for item in result["cleanest"]:
+            item["neuron"] = sel[item["neuron"]]
         result["tensor"] = n_tensor
         result["vocab_rows_scanned"] = len(vocab_rows)
         return result
@@ -1899,6 +2123,8 @@ def _parser() -> argparse.ArgumentParser:
     index_cmd.add_argument("--work-dir", type=Path, default=Path("wb-range-out"))
     index_cmd.add_argument("--limit", type=int, default=DEFAULT_LIMIT_BYTES)
     index_cmd.add_argument("--output", type=Path, default=None)
+    index_cmd.add_argument("--stats", type=Path, default=None,
+                           help="write this invocation's measured range/cache counts and elapsed time")
 
     slice_cmd = commands.add_parser("slice", help="fetch a tensor byte range")
     slice_cmd.add_argument("index", type=Path)
@@ -1996,10 +2222,39 @@ def main(argv: list[str] | None = None) -> int:
     cache_dir.mkdir(parents=True, exist_ok=True)
 
     if args.command == "index":
-        index = build_index(args.target, cache_dir, revision=args.revision,
-                            limit=args.limit, name_filter=args.filter)
         output = args.output or (work_dir / "wb_range_index.json")
-        write_json(output, index)
+        if args.stats is not None and args.stats.resolve() == output.resolve():
+            raise WbRangeError("stats output must differ from the model index output")
+        stats = {} if args.stats is not None else None
+        started = time.perf_counter()
+        error = None
+        try:
+            index = build_index(args.target, cache_dir, revision=args.revision,
+                                limit=args.limit, name_filter=args.filter, stats=stats)
+            write_json(output, index)
+        except BaseException as exc:
+            error = exc
+            raise
+        finally:
+            if stats is not None:
+                report = {
+                    "schema_version": "commons-wb-range-stats/v1",
+                    "operation": "index",
+                    "status": "FAILED" if error is not None else "INDEXED",
+                    "http_scope": "range_requests_only",
+                    "elapsed_seconds": time.perf_counter() - started,
+                    **stats,
+                }
+                if error is not None:
+                    report["error"] = "%s: %s" % (type(error).__name__, error)
+                try:
+                    write_json(args.stats, report)
+                except OSError as exc:
+                    message = "cannot write stats output: %s" % exc
+                    if error is not None:
+                        print(message, file=sys.stderr)
+                    else:
+                        raise WbRangeError(message) from exc
         print(json.dumps({
             "status": "INDEXED",
             "files": index["file_count"],
@@ -2023,6 +2278,11 @@ def main(argv: list[str] | None = None) -> int:
                    ("status", "matched", "samples", "bytes_compared", "size_agree")}
         print(json.dumps(summary, sort_keys=True))
         return 0 if result["status"] == "MATCH" else 1
+
+    if args.command == "archive":
+        archive = Archive(work_dir / "archive")
+        print(json.dumps(archive.manifest, sort_keys=True))
+        return 0
 
     index = load_index(args.index)
     archive = Archive(work_dir / "archive")
@@ -2056,9 +2316,6 @@ def main(argv: list[str] | None = None) -> int:
         result = score_rows(index, archive, cache_dir, args.tensor,
                             args.axis, rows, limit=args.limit)
         print(json.dumps(result, sort_keys=True))
-        return 0
-    if args.command == "archive":
-        print(json.dumps(archive.manifest, sort_keys=True))
         return 0
     raise WbRangeError("unhandled command")
 

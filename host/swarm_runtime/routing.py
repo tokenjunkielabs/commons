@@ -101,7 +101,10 @@ def select_tasks(tasks, *, limit=100, task=None, states=None, owner=None, after=
             not isinstance(state, str) or state not in TASK_STATES for state in states):
         raise ValueError("states must contain only " + ", ".join(sorted(TASK_STATES)))
     wanted = set(states)
-    rows = _tasks(tasks)
+    # Index retained records without copying every task for a bounded page.
+    # Returned rows remain independent shallow copies, as with _tasks().
+    source = tasks.get("tasks", tasks) if isinstance(tasks, dict) else {}
+    rows = {str(key): row for key, row in source.items() if isinstance(row, dict)}
     matched, remaining, page = 0, 0, []
     for key in sorted(rows):
         row = rows[key]
@@ -116,7 +119,7 @@ def select_tasks(tasks, *, limit=100, task=None, states=None, owner=None, after=
             continue
         remaining += 1
         if len(page) < page_size:
-            page.append(row)
+            page.append(dict(row, task_key=row.get("task_key") or key))
     truncated = remaining > len(page)
     return {"rows": page, "matched": matched, "total": len(rows),
             "next_cursor": page[-1]["task_key"] if truncated else None,
@@ -249,8 +252,9 @@ def _capability_failure(seat, capability, repo=None):
     return None
 
 
-def _compatible(task, seat, required):
-    groups = _capabilities(seat)
+def _compatible(task, seat, required, *, groups=None):
+    if groups is None:
+        groups = _capabilities(seat)
     needs = _requirements(task.get("required_capabilities", task.get("required")))
     needs += _requirements(required)
     missing = []
@@ -283,7 +287,29 @@ def route(tasks: dict, worker: str, seats: dict, now: str, required=None):
     The caller must atomically append TAKE (or RECOVER) with this decision.
     """
     _clock(now)
-    rows, census = _tasks(tasks), _seats(seats, now)
+    return _route_prepared(_tasks(tasks), worker, _seats(seats, now), now, required)
+
+
+def _iter_routes(tasks, workers, seats, now, required=None):
+    """Read-only batch choices over one private routing snapshot.
+
+    Prepare lazily so an empty batch does no census work. Remove each suggested
+    task only from this batch; the caller still reconciles and claims at dispatch.
+    This iterator is internal: consumers read choices without changing them.
+    """
+    rows = census = None
+    for worker in workers:
+        if rows is None:
+            _clock(now)
+            rows, census = _tasks(tasks), _seats(seats, now)
+        choice = _route_prepared(rows, worker, census, now, required)
+        if choice.get("task_key"):
+            rows.pop(choice["task_key"])
+        yield choice
+
+
+def _route_prepared(rows, worker, census, now, required=None):
+    """Apply the unchanged selection rules to caller-owned prepared inputs."""
     seat = census.get(worker, {})
     result = {"task_key": None, "reason": "no_eligible_work", "eligible": [],
               "seat": _seat_summary(seat, worker), "exclusions": []}
@@ -299,6 +325,8 @@ def route(tasks: dict, worker: str, seats: dict, now: str, required=None):
     if held:
         result.update(reason="worker_active", active=held[:LIMIT])
         return result
+    # Capabilities are unchanged across candidates in this routing decision.
+    groups = _capabilities(seat)
     candidates = []
     for key, task in rows.items():
         recovery = _recoverable(task, census, now)
@@ -309,7 +337,7 @@ def route(tasks: dict, worker: str, seats: dict, now: str, required=None):
                 "task_key": key, "reason": "provider_reconciliation_needed",
                 "next_action": task.get("reconciliation_needed", UNKNOWN)})
             continue
-        missing = _compatible(task, seat, required)
+        missing = _compatible(task, seat, required, groups=groups)
         if missing:
             result["exclusions"].append({"task_key": key,
                                          "reason": missing[0]["reason"],
@@ -359,7 +387,10 @@ def _related(event, task, ids):
         if any(_known(task.get(key)) and _text(event.get(key)) == _text(task[key])
                for key in ("issue", "pr")):
             return True
-    text = "\n".join(_text(event.get(key)) for key in ("text", "excerpt", "body"))
+    prose = [_text(event.get(key)) for key in ("text", "excerpt", "body")]
+    if not any(prose):
+        return False
+    text = "\n".join(prose)
     needles = [task.get("task_key")]
     if _known(repo):
         for key, path in (("issue", "issues"), ("pr", "pull")):
@@ -432,7 +463,10 @@ def status(tasks, seats, now):
             for capability in sorted(groups["any"]):
                 if not _capability_failure(seat, capability):
                     pools.setdefault(capability, []).append(name)
-    shipped.sort(key=lambda task: (_sort_time(task.get("latest_activity", task.get("last_activity_at"))),
+    # Completion defines shipment recency; worker activity may be absent or later.
+    shipped.sort(key=lambda task: (_time(task.get("closed_at"))
+                                  or _time(task.get("latest_activity"))
+                                  or _sort_time(task.get("last_activity_at")),
                                   task["task_key"]), reverse=True)
     return {"counts": counts, "recoverable": recoverable[:LIMIT],
             "recoverable_count": len(recoverable), "stale_seats": stale[:LIMIT],

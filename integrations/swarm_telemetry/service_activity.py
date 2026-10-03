@@ -45,28 +45,106 @@ def _unwrap(raw):
     """Decode for traversal only; the unmodified envelope is retained separately."""
     value = raw
     for _ in range(12):
+        # Some native tools JSON-encode a complete JSON response inside a text
+        # block. Decode every wrapper before declaring its source traversed.
+        # Plain document text remains a valid leaf response.
+        if isinstance(value, str):
+            try:
+                value = json.loads(value)
+            except ValueError:
+                return value
+            continue
         if not isinstance(value, Mapping):
-            break
+            return value
         if value.get("isError") or value.get("ok") is False or value.get("error"):
             raise RuntimeError("native_service_read_error")
-        if isinstance(value.get("structuredContent"), (dict, list)):
+        if isinstance(value.get("structuredContent"), (dict, list, str)):
             value = value["structuredContent"]
-        elif isinstance(value.get("result"), (dict, list)):
+        elif isinstance(value.get("result"), (dict, list, str)):
             value = value["result"]
         elif isinstance(value.get("content"), list):
             decoded = []
+            text = []
             for block in value["content"]:
                 if isinstance(block, Mapping) and block.get("type") == "text":
+                    if not isinstance(block.get("text"), str):
+                        raise ValueError("native_service_invalid_text_block")
+                    text.append(block["text"])
                     try:
                         decoded.append(json.loads(block["text"]))
                     except (TypeError, ValueError):
                         pass
             if not decoded:
-                break
+                return "\n".join(text)
             value = decoded[0] if len(decoded) == 1 else {"decoded_blocks": decoded}
         else:
-            break
-    return value
+            return value
+    raise ValueError("native_service_response_nesting_exceeded")
+
+
+def _response_values(value):
+    if isinstance(value, Mapping) and set(value) == {"decoded_blocks"}:
+        for block in value["decoded_blocks"]:
+            yield from _response_values(_unwrap(block))
+    else:
+        yield value
+
+
+def _has_collection(value, keys):
+    """Distinguish an empty provider collection from an unrecognized shape."""
+    if isinstance(value, list):
+        return True
+    if not isinstance(value, Mapping):
+        return False
+    for key in keys:
+        rows = value.get(key)
+        if isinstance(rows, list) or isinstance(rows, Mapping) and isinstance(rows.get("nodes"), list):
+            return True
+    return any(_has_collection(value[key], keys) for key in ("data", "results", "response") if key in value)
+
+
+def _collection_keys(job):
+    # These are the collections used by successors/continuation below. Content
+    # reads have no collection requirement, including plain-text documents.
+    action = (job.get("tool_name") or "").removeprefix(PREFIX)
+    collections = {
+        "gmail_search_email_ids": ("messages", "emails", "message_ids", "ids"),
+        "gmail_list_drafts": ("drafts",),
+        "gmail_read_email_thread": ("messages", "emails"),
+        "google_drive_search": ("files", "results", "items"),
+        "google_drive_list_file_revisions": ("revisions",),
+        "google_drive_get_file_comments": ("comments",),
+        "dropbox_list_folder": ("entries",),
+        "dropbox_list_restore_events": ("events",),
+        "dropbox_list_file_requests": ("file_requests",),
+        "dropbox_list_file_revisions": ("entries",),
+        "airtable_list_bases": ("bases",),
+        "airtable_list_tables_for_base": ("tables",),
+        "airtable_list_records_for_table": ("records",),
+        "airtable_list_automations": ("automations",),
+        "vercel_list_teams": ("teams",),
+        "vercel_list_projects": ("projects",),
+        "vercel_list_deployments": ("deployments",),
+        "vercel_list_agent_runs": ("runs", "agentRuns", "items"),
+        "railway_list_projects": ("projects",),
+        "railway_list_services": ("services",),
+        "railway_list_deployments": ("deployments",),
+        "stripe_list_available_accounts_or_orgs": ("accounts",),
+        "stripe_stripe_api_search": ("data",),
+        "apollo_io_apollo_find_tools": ("tools",),
+        "chatgpt_space_list_spaces": ("spaces", "items"),
+        "chatgpt_space_list_pages": ("items", "pages"),
+        "chatgpt_space_list_page_comments": ("items", "comments"),
+        "pets_list_pets": ("pets", "items"),
+        "sites_list_sites": ("items", "sites"),
+        "sites_list_site_versions": ("items", "versions"),
+    }
+    operation = job.get("args", {}).get("selectSchema", {}).get("operation")
+    if action == "netlify_netlify_team_services_reader" and operation == "get-teams":
+        return ("teams", "accounts")
+    if action == "netlify_netlify_project_services_reader" and operation == "get-projects":
+        return ("sites", "projects")
+    return collections.get(action)
 
 
 def _rows(value, *keys):
@@ -177,6 +255,22 @@ class _Collector:
                 continue
             self.state["roots"][rootkey] = {"service": service, "account_ref": account, "discovered_at": self.at}
             self.bootstrap(service, account)
+        # Existing checkpoints may already have completed table discovery before
+        # detailed field schemas were collected. Recover the table identities
+        # from record jobs once, retaining every historical job and cursor.
+        if not self.state.get("airtable_field_schemas_seeded"):
+            recovered = set()
+            for job in list(self.state["jobs"].values()):
+                if job.get("tool_name") != PREFIX + "airtable_list_records_for_table":
+                    continue
+                args = job.get("args", {})
+                base, table = args.get("baseId"), args.get("tableId")
+                identity = (job["account_ref"], base, table)
+                if base and table and identity not in recovered:
+                    recovered.add(identity)
+                    self.add("airtable", job["account_ref"], "airtable_get_table_schema",
+                             {"baseId": base, "tables": [{"tableId": table}]})
+            self.state["airtable_field_schemas_seeded"] = True
         if not seen and not self.sources:
             self.add("all_services", "unresolved", None, scope="all accounts/services", gap="service catalog discovery and authenticated reader binding pending")
 
@@ -222,7 +316,7 @@ class _Collector:
             add("chatgpt_space_list_pages", {"limit": 100, "top_level_only": False, "include_has_children": True})
             self.add(service, account, None, scope="all ChatGPT account conversations and account history", gap="Pages connector enumerates spaces/pages only; recover existing account export/history connector road for complete conversations")
         elif service == "sites":
-            add("sites_list_sites", {"limit": 100, "include_editable": True})
+            add("sites_list_sites", {"limit": 50, "include_editable": True})
             self.add(service, account, None, scope="all Sites source versions and deployment activity", gap="recover native site version/source/activity enumeration and complete provider Git object roads from each returned source_repository reference")
         elif service == "pets":
             add("pets_list_pets", {"limit": 100})
@@ -231,6 +325,9 @@ class _Collector:
             add("apollo_io_apollo_find_tools", {"intent": "read", "query": "Enumerate all saved account contacts, conversations, message content, campaigns, deals, tasks, custom object records and historical activity with pagination schemas"})
             for action in ("apollo_users_api_profile", "apollo_email_accounts_index", "apollo_contacts_search", "apollo_conversations_search", "apollo_emailer_messages_search", "apollo_emailer_campaigns_search", "apollo_deals_search", "apollo_tasks_search", "apollo_users_search", "apollo_custom_objects_show", "apollo_labels_index", "apollo_fields_index"):
                 add("apollo_io_apollo_find_tools", {"intent": "read", "query": action + " exact input schema, complete account enumeration and pagination"}, context={"target_action": action})
+                if action == "apollo_custom_objects_show":
+                    self.add(service, account, None, scope="Apollo collection identities and contents", context={"target_action": action}, gap="native collection detail requires an existing collection ID; recover exact IDs from retained account source or authenticated provider inventory before binding reads")
+                    continue
                 parameters = {"action": action}
                 if action in {"apollo_contacts_search", "apollo_conversations_search"}:
                     parameters.update(page=1, per_page=50)
@@ -303,16 +400,20 @@ class _Collector:
             schema = self.state.get("apollo_action_schemas", {}).get(subaction, {})
             properties = schema.get("properties", {})
             pagination = value.get("pagination") or {}
-            current = args.get("page", pagination.get("page", 1))
-            total = pagination.get("total_pages") or value.get("total_pages")
-            more = bool(value.get("next_page") or value.get("has_more") or total and current < total)
-            rows = _rows(value, "contacts", "conversations", "emailer_messages", "messages", "campaigns", "deals", "tasks", "users", "records")
-            if len(rows) >= args.get("per_page", 50):
+            current = int(str(args.get("page", pagination.get("page", 1))))
+            page_size = int(str(args.get("per_page", pagination.get("per_page", 50))))
+            raw_total = pagination.get("total_pages", value.get("total_pages"))
+            total = None if raw_total is None else int(str(raw_total))
+            if current < 1 or page_size < 1 or total is not None and total < 0:
+                raise ValueError("native_apollo_invalid_pagination")
+            more = bool(value.get("next_page") or value.get("has_more") or total is not None and current < total)
+            rows = _rows(value, "contacts", "conversations", "emailer_messages", "messages", "emailer_campaigns", "campaigns", "deals", "tasks", "users", "records")
+            if total is None and len(rows) >= page_size:
                 more = True
             if more:
                 if "page" in properties and "per_page" in properties:
-                    args["page"] = current + 1
-                    args.setdefault("per_page", min(50, properties["per_page"].get("maximum", 50)))
+                    for field, number in (("page", current + 1), ("per_page", page_size)):
+                        args[field] = str(number) if properties[field].get("type") == "string" else number
                     self.add(job["service"], job["account_ref"], action, args, context=job["context"])
                 else:
                     self.gap(job, "Apollo continuation:" + str(subaction), "provider has more source; recover exact action pagination schema via native Apollo tool discovery")
@@ -392,8 +493,9 @@ class _Collector:
                 sid = row.get("id") or row.get("project_id")
                 if sid:
                     add("sites_get_site", {"project_id": sid, "include_mcp_connection": True})
-                    add("sites_list_site_versions", {"project_id": sid, "limit": 100})
-                    add("sites_get_site_worker_logs", {"project_id": sid, "errors_only": False, "limit": 100, "since_minutes": 52560000})
+                    add("sites_list_site_versions", {"project_id": sid, "limit": 50})
+                    # The native reader supports seven days; retain older history as a recovery gap.
+                    add("sites_get_site_worker_logs", {"project_id": sid, "errors_only": False, "limit": 100, "since_minutes": 10080})
                     self.gap(job, "all historical Sites worker logs:" + sid, "native recent worker log tool has no cursor or end-time bound; recover complete source/provider activity road")
         elif action == "sites_list_site_versions":
             for row in _rows(value, "items", "versions"):
@@ -515,6 +617,10 @@ class _Collector:
             for row in _rows(value, "tables"):
                 if row.get("id"):
                     fields = [field["id"] for field in row.get("fields", []) if field.get("id")]
+                    # Table summaries omit type-specific options such as select
+                    # choices and formula configuration. Retain the full schema
+                    # alongside record values through the same native queue.
+                    add("airtable_get_table_schema", {"baseId": args["baseId"], "tables": [{"tableId": row["id"]}]})
                     add("airtable_list_records_for_table", {"baseId": args["baseId"], "tableId": row["id"], "fieldIds": fields, "pageSize": 100})
         elif action == "airtable_list_records_for_table":
             for row in _rows(value, "records"):
@@ -614,7 +720,7 @@ class _Collector:
                 if row.get("stripe_context") and isinstance(row.get("livemode"), bool):
                     ctx = {"stripe_context": row["stripe_context"], "livemode": row["livemode"]}
                     for resource in SCOPES["stripe"][1:]:
-                        add("stripe_stripe_api_search", {**ctx, "intent": "read/list all retained " + resource, "resource": resource, "limit": 100}, context={**ctx, "resource": resource})
+                        add("stripe_stripe_api_search", {**ctx, "intent": "read/list all retained " + resource, "resource": resource, "limit": 20}, context={**ctx, "resource": resource})
         elif action == "stripe_stripe_api_search":
             operations = [row for row in _rows(value, "data") if row.get("method", "").upper() == "GET"]
             matches = [row for row in operations if "{" not in row.get("path", "")]
@@ -681,15 +787,17 @@ def collect_service_activity(config=None, state=None, sources=None, read_page=No
     used = 0
     quantum = max(1, int(config.get("max_pages_per_cycle", 50)))
     attempted = set()
+    has_reader = callable(read_page)
     while used < quantum:
+        # Native-only passes can consume receipts, but must not repeatedly
+        # select and skip every queued job while enumerating pending reads.
         candidates = [job for key, job in jobs.items() if key not in attempted and job.get("tool_name") and not job.get("complete") and
-                      (key in receipts or job["status"] == "queued" or job.get("retry_at_epoch", 0) <= time.time() and callable(read_page))]
+                      (key in receipts or has_reader and
+                       (job["status"] == "queued" or job.get("retry_at_epoch", 0) <= time.time()))]
         if not candidates:
             break
         job = candidates[0]
         attempted.add(job["job_id"])
-        if job["job_id"] not in receipts and not callable(read_page):
-            continue
         used += 1
         job["attempts"] += 1
         job["last_attempt_at"] = collector.at
@@ -702,10 +810,14 @@ def collect_service_activity(config=None, state=None, sources=None, read_page=No
             digest = collector.retain(job, raw)
             if job["job_id"] in receipts and isinstance(receipt, Mapping) and receipt.get("source_ref"):
                 collector.events[-1]["source_ref"]["native_receipt"] = copy.deepcopy(receipt["source_ref"])
-            value = _unwrap(raw)
-            collector.continuation(job, value)
-            collector.time_partition(job, value)
-            collector.successors(job, value)
+            values = list(_response_values(_unwrap(raw)))
+            keys = _collection_keys(job)
+            if keys and not any(_has_collection(value, keys) for value in values):
+                raise ValueError("native_service_unrecognized_collection")
+            for value in values:
+                collector.continuation(job, value)
+                collector.time_partition(job, value)
+                collector.successors(job, value)
             job.update(status="observed", complete=True, observed_at=collector.at,
                        response_envelope_sha256=digest, unread_regions=[], retry_at_epoch=None)
         except Exception as error:
@@ -728,15 +840,28 @@ def collect_service_activity(config=None, state=None, sources=None, read_page=No
                               "pending_recovery_scopes": sum(job["status"] == "pending_recovery" for job in pending),
                               "observed_at": collector.at,
                               "unread_regions": [{"job_id": job["job_id"], "scope": job["scope"], "status": job["status"], "alternate_reader": job.get("alternate_reader")} for job in pending]})
-    # Poll only after the executable historical queue drains. Recovery scopes
-    # stay visible across refresh generations and are never erased by polling.
-    executable = [job for job in jobs.values() if job.get("tool_name") and not job["complete"]]
-    if not executable and time.time() >= collector.state.get("next_poll_epoch", 0):
+    # Each account refreshes after its own executable historical queue drains.
+    # Another account's backfill or failed reader must not freeze this account.
+    # Recovery scopes stay visible and are never erased by polling. Older
+    # checkpoints share one deadline; migrate it once into the account roots.
+    executable_scopes = {(job["service"], job["account_ref"]) for job in jobs.values()
+                         if job.get("tool_name") and not job["complete"]}
+    now_epoch = time.time()
+    ready_roots = []
+    for root in collector.state["roots"].values():
+        root.setdefault("next_poll_epoch", collector.state.get("next_poll_epoch", 0))
+        if ((root["service"], root["account_ref"]) not in executable_scopes and
+                now_epoch >= root["next_poll_epoch"]):
+            ready_roots.append(root)
+    if ready_roots:
         collector.state["cycle"] += 1
         collector.active_cycle = collector.state["cycle"]
-        for root in collector.state["roots"].values():
+        for root in ready_roots:
             collector.bootstrap(root["service"], root["account_ref"])
-        collector.state["next_poll_epoch"] = time.time() + float(config.get("poll_interval_seconds", 300))
+            root["next_poll_epoch"] = now_epoch + float(config.get("poll_interval_seconds", 300))
+    if collector.state["roots"]:
+        collector.state["next_poll_epoch"] = min(root["next_poll_epoch"]
+                                                for root in collector.state["roots"].values())
     pending = [copy.deepcopy(job) for job in jobs.values() if not job["complete"]]
     return {"events": collector.events, "coverage": {"source": "service_activity", "observed_at": collector.at,
             "complete": not pending, "services": len({root["service"] for root in collector.state["roots"].values()}),

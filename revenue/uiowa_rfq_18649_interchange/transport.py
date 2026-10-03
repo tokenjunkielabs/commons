@@ -141,14 +141,30 @@ def to_rows(document: Any) -> list[list[str]]:
 
 
 def from_rows(rows: Iterable[Iterable[str]]) -> Any:
-    """Decode a complete typed table, rejecting omitted/reordered/extra nodes."""
-    table = [list(row) for row in rows]
-    if len(table) < 3 or table[0] != [FORMAT, "", ""] or table[1] != HEADER:
+    """Decode typed rows with one lookahead, rejecting missing/reordered/extra nodes.
+
+    Validate rows as they arrive instead of retaining the complete transport
+    table alongside the reconstructed document.
+    """
+    table = iter(rows)
+
+    def next_row() -> list[str] | None:
+        try:
+            row = next(table)
+        except StopIteration:
+            return None
+        if type(row) is not list:
+            row = list(row)
+        if (len(row) != 3 or type(row[0]) is not str
+                or type(row[1]) is not str or type(row[2]) is not str):
+            raise InterchangeError("every transport row must contain exactly three text cells")
+        return row
+
+    if next_row() != [FORMAT, "", ""] or next_row() != HEADER:
         raise InterchangeError("missing or unsupported interchange header")
-    if any(len(row) != 3 or any(type(cell) is not str for cell in row)
-           for row in table):
-        raise InterchangeError("every transport row must contain exactly three text cells")
-    index = 2
+    current = next_row()
+    if current is None:
+        raise InterchangeError("missing or unsupported interchange header")
 
     def parse_row(row: list[str]) -> tuple[str, str, Any]:
         p, kind, literal = row
@@ -159,27 +175,29 @@ def from_rows(rows: Iterable[Iterable[str]]) -> Any:
             raise InterchangeError("pointer must be a JSON string")
         return pointer, kind, value
 
-    def take(expected: str, depth: int) -> Any:
-        nonlocal index
+    def take(expected: str, depth: int,
+             decoded: tuple[str, str, Any] | None = None) -> Any:
+        nonlocal current
         if depth > MAX_DEPTH:
             raise InterchangeError(f"JSON nesting exceeds supported depth {MAX_DEPTH}")
-        if index >= len(table):
+        if current is None:
             raise InterchangeError(f"missing node at {expected!r}")
-        pointer, kind, value = parse_row(table[index])
-        index += 1
+        pointer, kind, value = parse_row(current) if decoded is None else decoded
+        current = next_row()
         if pointer != expected:
             raise InterchangeError(f"expected pointer {expected!r}; got {pointer!r}")
         if kind in ("object", "array"):
-            if type(value) is not int or value < 0 or value > len(table) - index:
+            if type(value) is not int or value < 0:
                 raise InterchangeError(f"invalid child count at {pointer!r}")
             children: Any = {} if kind == "object" else []
             for i in range(value):
                 if kind == "array":
                     children.append(take(pointer + "/" + str(i), depth + 1))
                     continue
-                if index >= len(table):
+                if current is None:
                     raise InterchangeError(f"missing object child at {pointer!r}")
-                next_pointer, _, _ = parse_row(table[index])
+                child_row = parse_row(current)
+                next_pointer = child_row[0]
                 prefix = pointer + "/"
                 if not next_pointer.startswith(prefix):
                     raise InterchangeError(f"object child not under {pointer!r}")
@@ -189,7 +207,7 @@ def from_rows(rows: Iterable[Iterable[str]]) -> Any:
                 key = _unescape(segment)
                 if key in children:
                     raise InterchangeError(f"duplicate object member at {next_pointer!r}")
-                children[key] = take(next_pointer, depth + 1)
+                children[key] = take(next_pointer, depth + 1, child_row)
             return children
         types = {"string": str, "integer": int, "float": float,
                  "boolean": bool, "null": type(None)}
@@ -198,7 +216,7 @@ def from_rows(rows: Iterable[Iterable[str]]) -> Any:
         return value
 
     result = take("", 0)
-    if index != len(table):
+    if current is not None:
         raise InterchangeError("extra rows after the complete document")
     canonical_json(result)
     return result

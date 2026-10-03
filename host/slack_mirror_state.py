@@ -232,13 +232,13 @@ class MirrorStore:
             raise DeliveryError("malformed mirror state database; preserved unchanged")
 
     @contextmanager
-    def _connection(self, *, check_schema=True) -> Iterator[sqlite3.Connection]:
+    def _connection(self, *, check_schema=True, write=True) -> Iterator[sqlite3.Connection]:
         self._check_file()
         db = None
         try:
             db = sqlite3.connect(self.path, timeout=5, isolation_level=None)
             db.execute("PRAGMA synchronous=FULL")
-            db.execute("BEGIN IMMEDIATE")
+            db.execute("BEGIN IMMEDIATE" if write else "BEGIN")
             if check_schema:
                 self._check_schema(db)
             yield db
@@ -287,7 +287,7 @@ class MirrorStore:
     def inspect(self, source_event: str, parts: list[str], *, channel: str, thread_ts: str = "") -> dict:
         identity = event_identity(source_event, channel, thread_ts)
         fingerprint, hashes = _parts(parts)
-        with self._connection() as db:
+        with self._connection(write=False) as db:
             key, record = self._load(db, identity, fingerprint, hashes)
         if record is None:
             return {"event_key": key, "state": "ABSENT", "identity": identity}

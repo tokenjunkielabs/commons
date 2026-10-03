@@ -84,14 +84,35 @@ def _feed(center, engine):
     """Expose canonical events through the existing retained command-center feed."""
     import hashlib
     import json
+    from host.swarm_runtime.projector import _time
     from host.swarm_runtime.runtime import _project, now_iso
     tip, state = engine.store.read(refresh=False)
     observed_at = now_iso()
-    tasks = _project(state, observed_at)["tasks"]
-    with center._db() as db:
-        db.execute("BEGIN IMMEDIATE")
+    moment = _time(observed_at)
+    # Bump this when the feed's derivation changes. Sequence alone is not a
+    # checkpoint: provider facts can land work without adding a journal event.
+    projection_version = 1
+
+    def cursor(db):
         row = db.execute("SELECT data FROM records WHERE kind='usage' AND id='swarm-feed-cursor'").fetchone()
-        consumed = json.loads(row["data"]).get("seq", 0) if row else 0
+        return json.loads(row["data"]) if row else {}
+
+    def current(checkpoint):
+        applied = _time(checkpoint.get("observed_at"))
+        return (tip not in (None, "", "UNKNOWN") and checkpoint.get("tip") == tip
+                and checkpoint.get("projection_version") == projection_version
+                and applied is not None and applied <= moment)
+
+    with center._db() as db:
+        if current(cursor(db)):
+            return
+        db.execute("BEGIN IMMEDIATE")
+        checkpoint = cursor(db)
+        # Another process may have materialized this tip while we waited.
+        if current(checkpoint):
+            return
+        tasks = _project(state, observed_at)["tasks"]
+        consumed = checkpoint.get("seq", 0)
         for event in state.get("events", []):
             if event.get("seq", 0) <= consumed:
                 continue
@@ -109,8 +130,18 @@ def _feed(center, engine):
         for item in _terminal_receipts(state, tasks, tip, observed_at):
             db.execute("INSERT OR IGNORE INTO source_events(id,observed_at,data) VALUES(?,?,?)",
                        (item["id"], item["observed_at"], json.dumps(item)))
+        # Future-dated custody can become valid without a new source revision.
+        # Keep that uncommon path uncached until its source timestamps pass.
+        cacheable = not any(
+            stamp is not None and stamp > moment
+            for event in state.get("events", [])
+            for field in ("at", "started_at", "heartbeat")
+            for stamp in (_time(event.get(field)),)
+        )
         db.execute("INSERT OR REPLACE INTO records(kind,id,data) VALUES('usage','swarm-feed-cursor',?)",
-                   (json.dumps({"seq": consumed}),))
+                   (json.dumps({"seq": consumed, "tip": tip if cacheable else None,
+                                "projection_version": projection_version,
+                                "observed_at": observed_at}),))
 
 
 def runtime(center):
@@ -132,7 +163,8 @@ def call(center, payload):
             result = engine.read(refresh=bool(payload.get("refresh", False)),
                                  worker=payload.get("worker"), limit=payload.get("limit", 100),
                                  task=payload.get("task"), states=payload.get("states"),
-                                 owner=payload.get("owner"), after=payload.get("after"))
+                                 owner=payload.get("owner"), after=payload.get("after"),
+                                 context=payload.get("context", False))
         elif action == "sync":
             # Source collection is already coalesced by refresh_work(). This
             # consumes its shared snapshot, never launches one reader per seat.
@@ -167,12 +199,13 @@ def call(center, payload):
         raise
 
 
-def after_ingest(center):
+def after_ingest(center, *, refresh_providers=False):
     """Existing provider/peer ingestion mechanically refreshes task projection.
 
     A nonblocking lock collapses simultaneous source batches. The next batch or
     explicit sync retries after contention; a failed task sync never falsifies
-    the already-stored provider observation.
+    the already-stored provider observation. Only a completed collector cycle
+    opts into bounded history reconciliation; ordinary ingestion stays cached.
     """
     from host.swarm_runtime.locks import LockUnavailable, release, take
     try:
@@ -184,10 +217,14 @@ def after_ingest(center):
 
     def run():
         try:
-            result = call(center, {"action": "sync", "refresh_providers": False, "max_calls": 0})
+            result = call(center, {"action": "sync", "refresh_providers": refresh_providers,
+                                   "max_calls": 4 if refresh_providers else 0})
             import json
             # Operational error classification only, never provider payloads.
             outcome = {key: result.get(key) for key in ("ok", "tip", "error", "published")}
+            sync_result = result.get("result") or result.get("proposed_result") or {}
+            if "provider_calls" in sync_result:
+                outcome["provider_calls"] = sync_result["provider_calls"]
             if "feed_sync" in result:
                 outcome["feed_sync"] = result["feed_sync"]
             (center.state_dir / "swarm-last-sync.json").write_text(json.dumps(outcome), encoding="utf-8")
@@ -207,10 +244,14 @@ def after_ingest(center):
 
 def tool():
     return {"name": "command_center_swarm_tasks",
-            "description": "Canonical task status, sync, take, heartbeat, ship, block and next. Atomic shared claims, provider reconciliation and automatic next-task routing; no review queue. Reuse operation_id on retries.",
+            "description": "Canonical task status, sync, take, heartbeat, release, ship, block and next. Atomic shared claims and provider reconciliation. Release requires the observed expected_started_at and returns unfinished work without taking another task. Reuse operation_id on retries.",
             "inputSchema": {"type": "object", "required": ["action"],
-                "properties": {"action": {"type": "string", "enum": ["status", "sync", "open", "take", "heartbeat", "ship", "block", "abandon", "next"]},
+                "properties": {"action": {"type": "string", "enum": ["status", "sync", "open", "take", "heartbeat", "release", "ship", "block", "abandon", "next"]},
                                "operation_id": {"type": "string"}, "task_key": {"type": "string"},
+                               "title": {"type": "string", "description": "Human-readable task title retained in the task event and context."},
+                               "task": {"type": "string", "description": "For status, an exact task identity or GitHub issue/PR URL."},
+                               "context": {"type": "boolean", "description": "For status with task, include its bounded retained event bundle without acquiring work."},
                                "worker": {"type": "string"}, "seat": {"type": "object"},
+                               "expected_started_at": {"type": "string", "description": "For release, the exact started_at from the observed ACTIVE task; keep it unchanged on retries."},
                                "max_calls": {"type": "integer", "minimum": 0, "maximum": 20}},
                 "additionalProperties": True}}

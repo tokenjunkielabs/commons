@@ -160,9 +160,9 @@ def _inspect_signature_header(header: str, tolerance: int) -> tuple[bool, bool]:
     Returns (well_formed, stale). This function never verifies anything: it
     only decides which deterministic HTTP status a rejected delivery maps to.
     ``_core.verify()`` remains the authoritative check and runs on every
-    request afterwards with the exact same bytes and header. The shape rules
-    mirror ``_core.verify()`` exactly so the mapping cannot disagree with the
-    core's own malformed/stale classification.
+    request afterwards with the exact same bytes and header. Timestamp text
+    must be bounded ASCII decimal digits: ``str.isdigit()`` also accepts
+    Unicode characters that cannot be converted to an integer.
     """
     if not header or len(header) > 8192 or "\n" in header or "\r" in header:
         return False, False
@@ -176,9 +176,10 @@ def _inspect_signature_header(header: str, tolerance: int) -> tuple[bool, bool]:
             timestamps.append(value)
         elif key == "v1":
             signatures.append(value)
-    if len(timestamps) != 1 or not timestamps[0].isdigit() or not signatures:
+    if (len(timestamps) != 1 or not re.fullmatch(r"[0-9]{1,12}", timestamps[0])
+            or not signatures):
         return False, False
-    if len(timestamps[0]) > 12 or any(not _V1_HEX_RE.fullmatch(item) for item in signatures):
+    if any(not _V1_HEX_RE.fullmatch(item) for item in signatures):
         return False, False
     stamp = int(timestamps[0])
     return True, abs(int(time.time()) - stamp) > tolerance
@@ -334,8 +335,12 @@ def _log_delivery(method: str, path: str, status: int, payload: Mapping[str, Any
     secrets, customer fields, account identifiers, or private paths."""
     event_id = payload.get("event_id", "-") if isinstance(payload, Mapping) else "-"
     outcome = payload.get("status", payload.get("error", "-")) if isinstance(payload, Mapping) else "-"
+    # Request targets can contain customer data or credentials, even when the
+    # route is unknown. Log only the route category and a bounded method name.
+    route = "unmatched" if status == 404 else "ingest"
+    logged_method = method if method in {"GET", "HEAD", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"} else "OTHER"
     LOG.info("method=%s route=%s status=%d outcome=%s event_id=%s body_bytes=%d duration_ms=%d",
-             method, path, status, outcome, event_id, body_bytes,
+             logged_method, route, status, outcome, event_id, body_bytes,
              int((time.time() - started) * 1000))
 
 
@@ -352,6 +357,10 @@ class _Handler(BaseHTTPRequestHandler):
         if method != "POST" or self.path != self.config.route:
             # Method/path mapping never needs a body; Content-Length is only
             # required for POST deliveries to the ingest route.
+            # Do not let an unread rejected body become the next request line.
+            if (any(value.strip() != "0" for value in self.headers.get_all("Content-Length", []))
+                    or "Transfer-Encoding" in self.headers):
+                self.close_connection = True
             headers = {name.lower(): value for name, value in self.headers.items()}
             started = time.time()
             status, payload = handle_delivery(method, self.path, headers, b"", self.config)
@@ -391,9 +400,13 @@ class _Handler(BaseHTTPRequestHandler):
         self.send_response(status, _STATUS_PHRASES.get(status, "Unknown"))
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(body)))
+        if self.close_connection:
+            self.send_header("Connection", "close")
         if status == 405:
             self.send_header("Allow", "POST")
         self.end_headers()
+        if self.command == "HEAD":
+            return
         try:
             self.wfile.write(body)
         except (BrokenPipeError, ConnectionResetError):
@@ -420,8 +433,15 @@ class _Handler(BaseHTTPRequestHandler):
     def do_OPTIONS(self) -> None:
         self._dispatch("OPTIONS")
 
+    def log_request(self, code: int | str = "-", size: int | str = "-") -> None:
+        # BaseHTTPRequestHandler otherwise logs the complete request line.
+        status = code if isinstance(code, int) else "-"
+        response_bytes = size if isinstance(size, int) else "-"
+        LOG.info("http_server: status=%s response_bytes=%s", status, response_bytes)
+
     def log_message(self, format: str, *args: Any) -> None:  # noqa: A002 - stdlib signature
-        LOG.info("http_server: " + format, *args)
+        # Parser error text can echo untrusted methods, targets and headers.
+        LOG.info("http_server: protocol_error")
 
 
 def serve_forever(config: ReceiverConfig) -> tuple[ThreadingHTTPServer, threading.Thread]:

@@ -219,15 +219,25 @@ def compile_dispatch(snapshot: Any) -> dict[str, Any]:
     assigned_counts = {row["channel_id"]: 0 for row in channels}
     assignments: list[dict[str, Any]] = []
     holds: list[dict[str, Any]] = []
+    channels_by_tag: dict[str, list[int]] = {}
+    for index, channel in enumerate(channels):
+        if channel["paused"] or _remaining_headroom(channel, 0) <= 0:
+            continue
+        for tag in channel["specialty_tags"]:
+            channels_by_tag.setdefault(tag, []).append(index)
 
     for work in work_items:
-        work_tags = set(work["tags"])
+        matches_by_channel: dict[int, list[str]] = {}
+        # Normalized work tags are sorted, so each matched list keeps its
+        # canonical order without scanning unrelated channel specialties.
+        for tag in work["tags"]:
+            for index in channels_by_tag.get(tag, ()):
+                matches_by_channel.setdefault(index, []).append(tag)
         candidates: list[tuple[tuple[int, int, int, int, str, str], dict[str, Any], list[str]]] = []
-        for channel in channels:
+        for index, matched in matches_by_channel.items():
+            channel = channels[index]
             assigned_now = assigned_counts[channel["channel_id"]]
-            headroom = _remaining_headroom(channel, assigned_now)
-            matched = sorted(work_tags.intersection(channel["specialty_tags"]))
-            if channel["paused"] or headroom <= 0 or not matched:
+            if _remaining_headroom(channel, assigned_now) <= 0:
                 continue
             candidates.append((_pressure_score(channel, assigned_now, len(matched)), channel, matched))
 

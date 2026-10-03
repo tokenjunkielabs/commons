@@ -189,17 +189,25 @@ class Reader:
             status = exc.code
             headers = {name.lower(): value for name, value in (exc.headers or {}).items()}
             secondary = False
-            if status in (403, 429):
+            empty_repository = False
+            if status in (403, 409, 429):
                 try:
                     error = json.loads(exc.read(65536))
                     message = str(error.get('message', '')).lower() if isinstance(error, dict) else ''
                     secondary = any(term in message for term in ('secondary rate limit', 'abuse detection mechanism'))
+                    empty_repository = (status == 409 and message.strip() == 'git repository is empty.' and
+                        bool(re.fullmatch(r'/(?:repos/[^/]+/[^/]+|repositories/\d+)/commits', parsed.path)))
                 except (OSError, ValueError, TypeError):
                     pass
             limited = status == 429 or status == 403 and (
                 headers.get('x-ratelimit-remaining') == '0' or
                 bool(headers.get('retry-after')) or secondary)
             exc.close()
+            if empty_repository:
+                # Preserve an empty batch and advance the normal commit cursor.
+                for scope in ('global', resource):
+                    self.state.get('cooldown_backoff', {}).pop(scope, None)
+                return [], {}, url
             if limited:
                 primary = (headers.get('x-ratelimit-remaining') == '0' and not secondary
                            and headers.get('x-ratelimit-resource') in (None, resource))
@@ -227,11 +235,18 @@ class Reader:
         return body, links, url
 
     def emit(self, road, key, records, coverage):
-        safe = re.sub(r'[^A-Za-z0-9_.-]', '-', key)[:100]
-        path = self.home / f'github-{self.account}-{road}-{safe}.json'
+        document = clean({'source': 'github', 'account': self.account, 'road': road,
+                          'coverage': coverage, 'records': records})
+        version = hashlib.sha256(json.dumps(document, ensure_ascii=False, sort_keys=True,
+                                            separators=(',', ':')).encode()).hexdigest()
+        # A retried page may have changed after an interrupted checkpoint.
+        # Preserve both versions; only an exact content replay reuses a batch.
+        safe = re.sub(r'[^A-Za-z0-9_.-]', '-', key)[:32]
+        path = self.home / f'github-{self.account}-{road}-{safe}-{version}.json'
         if not path.exists():
-            atomic_json(path, {'source': 'github', 'account': self.account, 'road': road,
-                 'coverage': coverage, 'records': records})
+            atomic_json(path, document)
+        elif json.loads(path.read_text(encoding='utf-8')) != document:
+            raise RuntimeError('GitHub history batch content differs from its immutable identity')
         return path
 
     def enqueue_detail(self, url, kind='subject'):
@@ -415,11 +430,13 @@ class Reader:
             endpoint = obj.get('url') or job['url']
             match = re.search(r'/repos/([^/]+/[^/]+)/(issues|pulls)/(\d+)$', endpoint)
             if match:
-                repo, _, number = match.groups()
-                for suffix, name in ((f'issues/{number}/comments', 'issue_comment'),
-                                     (f'issues/{number}/timeline', 'timeline_event'),
-                                     (f'pulls/{number}/reviews', 'review'),
-                                     (f'pulls/{number}/comments', 'review_comment')):
+                repo, subject_type, number = match.groups()
+                related = [(f'issues/{number}/comments', 'issue_comment'),
+                           (f'issues/{number}/timeline', 'timeline_event')]
+                if subject_type == 'pulls' or isinstance(obj.get('pull_request'), dict):
+                    related.extend([(f'pulls/{number}/reviews', 'review'),
+                                    (f'pulls/{number}/comments', 'review_comment')])
+                for suffix, name in related:
                     self.enqueue_detail(f'{API}/repos/{repo}/{suffix}?per_page=100', name)
         if links.get('next'):
             job['next'] = links['next']; job['page'] = job.get('page', 1) + 1

@@ -362,6 +362,41 @@ function writeReceiptIfRequested(args, receipt) {
   if (args.receipt) atomicWriteJson(args.receipt, receipt, "receipt");
 }
 
+function fileEntryPath(filePath) {
+  let directory = path.dirname(filePath);
+  const suffix = [path.basename(filePath)];
+  while (true) {
+    try {
+      // Compare directory entries, not inodes: replacing a separate hard link
+      // with an atomic rename leaves the input's directory entry intact.
+      return path.join(fs.realpathSync(directory), ...suffix);
+    } catch (error) {
+      const parent = path.dirname(directory);
+      if (!error || error.code !== "ENOENT" || parent === directory) {
+        throw new RunnerError("PATH_RESOLUTION_FAILED", "receipt or input directory could not be resolved");
+      }
+      suffix.unshift(path.basename(directory));
+      directory = parent;
+    }
+  }
+}
+
+function assertDistinctReceiptPath(args) {
+  if (!args.receipt) return;
+  // atomicWriteJson resolves the destination before opening its directory.
+  const receipt = fileEntryPath(path.resolve(args.receipt));
+  const inputs = [["journal", args.journal]];
+  if (args.journal && (args.command === "run" || args.command === "rollback")) {
+    inputs.push(["journal", path.resolve(args.journal)]);
+  }
+  if (args.command === "run") inputs.push(["packet", args.packet]);
+  for (const [label, filePath] of inputs) {
+    if (filePath && receipt === fileEntryPath(filePath)) {
+      throw new RunnerError("OUTPUT_PATH_COLLISION", "receipt path must differ from " + label + " path", 2);
+    }
+  }
+}
+
 function parseArgs(argv) {
   if (!argv.length) throw new RunnerError("USAGE", "expected command: run, rollback, or verify", 2);
   const command = argv[0];
@@ -390,6 +425,7 @@ function safeErrorReceipt(error) {
 function main(argv) {
   try {
     const args = parseArgs(argv);
+    assertDistinctReceiptPath(args);
     let result;
     if (args.command === "run") result = runPacket(args);
     else if (args.command === "rollback") result = rollbackPacket(args);

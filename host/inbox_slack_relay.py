@@ -367,14 +367,35 @@ class Event:
         return digest(self.provider + ":" + self.item)
 
     def messages(self) -> list[str]:
+        return [text for text, _ in self.message_parts()]
+
+    def message_parts(self) -> list[tuple[str, tuple[str, ...]]]:
         # Include the sanitized *contents*, not only subject/latest_comment_url.
-        header = clean(f"{self.provider.upper()} | {self.title[:300]}\nSource: {self.url[:800]}\nAuthor: {self.author[:300]} | Updated: {self.updated[:80]}\nNext: {self.action[:500]}")
+        source_header = f"{self.provider.upper()} | {self.title[:300]}\nSource: {self.url[:800]}\nAuthor: {self.author[:300]} | Updated: {self.updated[:80]}"
+        header = clean(source_header + f"\nNext: {self.action[:500]}")
         body = clean(self.body or "[No text body provided by the source.]")
         # Slack supports long threads; normal bodies are not silently truncated.
         chunks = [body[i:i + 2800] for i in range(0, len(body), 2800)] or [""]
-        version = digest(self.event_id + "\0" + header + "\0" + body)
-        return [f"{header}\n\nContents ({i + 1}/{len(chunks)}):\n{chunk}\n\nrelay.part={digest(version + ':' + str(i))}"
-                for i, chunk in enumerate(chunks)]
+        is_comment = self.provider == "github" and re.fullmatch(r"(?:issue-comment|review|inline-review):[0-9]+", self.event_id)
+        # A parent closing/merging changes routing text, not historical comment
+        # contents. The separate subject event still versions that transition.
+        version_header = clean(source_header) if is_comment else header
+        versions = [digest(self.event_id + "\0" + version_header + "\0" + body)]
+        if is_comment:
+            # Recognize already delivered pre-upgrade parts under every former
+            # parent action. Body, author, timestamp and review context must match.
+            for action in (self.action,
+                           "Existing owner: inspect this update and post CLAIM / DONE + evidence / BLOCKED in this thread.",
+                           "Existing owner: verify acceptance/payment conditions; merge is not payment. Do not duplicate a collection request.",
+                           "Existing owner: inspect the closure reason; do not assume accepted or paid."):
+                legacy_header = clean(source_header + f"\nNext: {action[:500]}")
+                versions.append(digest(self.event_id + "\0" + legacy_header + "\0" + body))
+        parts = []
+        for i, chunk in enumerate(chunks):
+            key = digest(versions[0] + ':' + str(i))
+            keys = (key, *sorted({digest(version + ':' + str(i)) for version in versions[1:]} - {key}))
+            parts.append((f"{header}\n\nContents ({i + 1}/{len(chunks)}):\n{chunk}\n\nrelay.part={keys[0]}", keys))
+        return parts
 
 
 class State:
@@ -426,9 +447,10 @@ class Delivery:
                 self.cooldown_until = max(self.cooldown_until, time.time() + exc.retry_after)
             raise
 
-    def find(self, channel: str, marker: str, attempted: float, thread: str = "") -> str:
+    def find(self, channel: str, marker: str | tuple[str, ...], attempted: float, thread: str = "") -> str:
         # Resume a bounded scan instead of rereading its first pages forever.
         # Freeze the time window so a growing channel cannot move those pages.
+        markers = (marker,) if isinstance(marker, str) else marker
         scan_key = "slack.scan." + digest(json.dumps([channel, thread, marker, attempted]))
         retained = self.state.get(scan_key)
         resumed = bool(retained)
@@ -456,7 +478,7 @@ class Delivery:
                     self.state.discard(scan_key)
                 raise
             for message in result.get("messages", []):
-                if marker in message.get("text", ""):
+                if any(candidate in message.get("text", "") for candidate in markers):
                     self.state.discard(scan_key)
                     return str(message["ts"])
             cursor = result.get("response_metadata", {}).get("next_cursor", "")
@@ -543,20 +565,30 @@ class Delivery:
             self.state.db.execute("UPDATE items SET ts=? WHERE key=?", (thread, event.key))
             self.state.db.commit()
         delivered = 0
-        for text in event.messages():
-            key = text.rsplit("relay.part=", 1)[1]
+        for text, keys in event.message_parts():
+            key = keys[0]
             part = self.state.db.execute("SELECT ts,attempted,uncertain FROM parts WHERE key=?", (key,)).fetchone()
             if part and part[0]:
                 continue
+            if len(keys) > 1:
+                legacy = self.state.db.execute(
+                    "SELECT ts FROM parts WHERE key IN (" + ",".join("?" for _ in keys[1:]) + ") AND ts<>'' LIMIT 1", keys[1:]
+                ).fetchone()
+                if legacy:
+                    self.state.db.execute("INSERT OR REPLACE INTO parts VALUES (?,?,?,?)", (key, legacy[0], time.time(), 0))
+                    self.state.db.commit()
+                    continue
+            markers = tuple("relay.part=" + candidate for candidate in keys)
+            marker = markers[0] if len(markers) == 1 else markers
             if not part:
                 # A restored/evicted ledger must recover previously posted parts too.
-                ts = self.find(channel, "relay.part=" + key, 0, thread)
+                ts = self.find(channel, marker, 0, thread)
                 self.state.db.execute("INSERT INTO parts VALUES (?,?,?,?)", (key, ts, time.time(), 0 if ts else 1))
                 self.state.db.commit()
                 if ts:
                     continue
             else:
-                ts = self.find(channel, "relay.part=" + key, part[1], thread) if part[2] else ""
+                ts = self.find(channel, marker, part[1], thread) if part[2] else ""
                 if ts:
                     self.state.db.execute("UPDATE parts SET ts=?,uncertain=0 WHERE key=?", (ts, key))
                     self.state.db.commit()
@@ -604,35 +636,88 @@ def github_events(get: Callable, config: dict, since: str, seen: Callable = lamb
     return collect_delivery_groups(github_delivery_groups, get, config, since, seen)
 
 
-def github_delivery_groups(get: Callable, config: dict, since: str, seen: Callable = lambda key: "") -> tuple[dict, Iterator[tuple[str, list[Event]]]]:
+def github_delivery_groups(get: Callable, config: dict, since: str, seen: Callable = lambda key: "",
+                           checkpoint: Callable = lambda key, value: None) -> tuple[dict, Iterator[tuple[str, list[Event]]]]:
     account = get("user")
     if str(account.get("login", "")).lower() != config["github_login"].lower():
         raise RelayError("github_account_mismatch")
+    scan_key = "github.listing." + digest(json.dumps([
+        config["github_login"].lower(), config.get("github_channel", ""),
+        config.get("coordination_repository", "")]))
+    retained = seen(scan_key)
+    try:
+        scan = json.loads(retained) if retained else {
+            "since": since, "before": iso(), "feed": "changed", "page": 1, "pending": False,
+        }
+        if (not isinstance(scan, dict) or scan["feed"] not in {"changed", "unread"}
+                or type(scan["page"]) is not int or scan["page"] < 1
+                or type(scan.get("pending", False)) is not bool):
+            raise ValueError
+        for field in ("since", "before"):
+            if not isinstance(scan[field], str):
+                raise ValueError
+            datetime.fromisoformat(scan[field].replace("Z", "+00:00"))
+    except (KeyError, TypeError, ValueError):
+        raise RelayError("github_listing_checkpoint_invalid") from None
     info = {"mode": "native-notifications", "private_omitted": 0, "carrier_noise": 0,
-            "notifications": 0, "unchanged": 0, "source_items_pending": 0, "error_codes": []}
-    # all=true also catches activity another peer read before this poll.
-    changed = github_pages(get, "notifications?all=true&since=" + urllib.parse.quote(since))
-    unread = github_pages(get, "notifications?all=false")
-    notifications = {str(n["id"]): n for n in changed + unread}
-    info["notifications"] = len(notifications)
+            "notifications": 0, "unchanged": 0, "source_items_pending": 0, "error_codes": [],
+            "prior_source_items_pending": bool(scan.get("pending")), "listing_pages": 0,
+            "listing_complete": False, "listing_resumed": bool(retained)}
+
     def groups() -> Iterator[tuple[str, list[Event]]]:
-        for notice in notifications.values():
-            version = "gh.notice." + digest(str(notice["id"]) + ":" + str(notice.get("updated_at", "")))
-            # Do not repeatedly download every comment on unchanged unread threads.
-            if seen(version):
-                info["unchanged"] += 1
-                continue
-            try:
-                batch, included = github_notice_events(get, config, notice, info)
-            except RelayError as exc:
-                info["source_items_pending"] += 1
-                if exc.code not in info["error_codes"]:
-                    info["error_codes"].append(exc.code)
-                if exc.retry_after:
-                    raise
-                continue
-            if included:
-                yield version, batch
+        observed: set[str] = set()
+        for _ in range(20):
+            # Freeze the listing window across finite runs. Keep this page until
+            # every yielded group returns from the caller's successful delivery.
+            checkpoint(scan_key, json.dumps(scan))
+            params = {"all": "true" if scan["feed"] == "changed" else "false",
+                      "before": scan["before"], "per_page": 50, "page": scan["page"]}
+            if scan["feed"] == "changed":
+                # Include activity another peer has already marked read.
+                params["since"] = scan["since"]
+            notices = get("notifications?" + urllib.parse.urlencode(params))
+            if not isinstance(notices, list):
+                raise RelayError("github_list_shape")
+            info["listing_pages"] += 1
+            for notice in notices:
+                if not isinstance(notice, dict) or not notice.get("id"):
+                    raise RelayError("github_notice_shape")
+                notice_id = str(notice["id"])
+                if notice_id not in observed:
+                    info["notifications"] += 1
+                    observed.add(notice_id)
+                version = "gh.notice." + digest(notice_id + ":" + str(notice.get("updated_at", "")))
+                # Preserve existing content-level deduplication when replaying a
+                # partly delivered page or the overlapping unread collection.
+                if seen(version):
+                    info["unchanged"] += 1
+                    continue
+                try:
+                    batch, included = github_notice_events(get, config, notice, info)
+                except RelayError as exc:
+                    info["source_items_pending"] += 1
+                    scan["pending"] = True
+                    checkpoint(scan_key, json.dumps(scan))
+                    if exc.code not in info["error_codes"]:
+                        info["error_codes"].append(exc.code)
+                    if exc.retry_after:
+                        raise
+                    continue
+                if included:
+                    yield version, batch
+            # The global notifications endpoint caps pages at 50, unlike issue
+            # comments. A short server-capped page must not imply end of source.
+            if len(notices) >= 50:
+                scan["page"] += 1
+            elif scan["feed"] == "changed":
+                scan.update(feed="unread", page=1)
+            else:
+                info["listing_complete"] = True
+                info["completed_until"] = scan["before"]
+                checkpoint(scan_key, "")
+                return
+            checkpoint(scan_key, json.dumps(scan))
+        raise RelayError("github_page_limit_pending")
     return info, groups()
 
 
@@ -712,29 +797,90 @@ def gmail_events(get: Callable, config: dict, since: str, seen: Callable = lambd
     return collect_delivery_groups(gmail_delivery_groups, get, config, since, seen)
 
 
-def gmail_delivery_groups(get: Callable, config: dict, since: str, seen: Callable = lambda key: "") -> tuple[dict, Iterator[tuple[str, list[Event]]]]:
+def gmail_message_ids(get: Callable, query: str, info: dict, scope: str,
+                      seen: Callable, checkpoint: Callable | None = None) -> Iterator[str]:
+    """Yield ID pages with a scoped continuation after successful consumption."""
+    key = "gmail.listing." + scope
+    saved = seen(key)
+    try:
+        prior = json.loads(saved) if saved else {}
+    except (TypeError, ValueError):
+        raise RelayError("gmail_listing_checkpoint_invalid") from None
+    if (not isinstance(prior, dict) or (prior and prior.get("scope") != scope)
+            or type(prior.get("pending", False)) is not bool):
+        raise RelayError("gmail_listing_checkpoint_invalid")
+    token = prior.get("page_token", "")
+    if not isinstance(token, str):
+        raise RelayError("gmail_listing_checkpoint_invalid")
+    info["message_listing_resumed"] = bool(token)
+    info["prior_source_items_pending"] = bool(prior.get("pending"))
+    def save(next_token: str | None):
+        if checkpoint is not None:
+            checkpoint(key, "" if next_token is None else json.dumps({
+                "scope": scope, "page_token": next_token,
+                "pending": bool(prior.get("pending") or info.get("source_items_pending"))}, sort_keys=True))
+    requested_tokens: set[str] = set()
+    seen_ids: set[str] = set()
+    for _ in range(20):
+        if token in requested_tokens:
+            raise RelayError("gmail_page_cursor_repeated")
+        requested_tokens.add(token)
+        params = {"q": query, "maxResults": 100}
+        if token:
+            params["pageToken"] = token
+        try:
+            page = get("messages", params)
+        except RelayError as exc:
+            if token and exc.code == "http_400":
+                # An expired/invalid continuation must not trap every future
+                # pass. Retain item markers and report this provider error;
+                # the next pass can restart the same query from page one.
+                save(None)
+            raise
+        if not isinstance(page, dict) or not isinstance(page.get("messages", []), list):
+            raise RelayError("gmail_list_shape")
+        # Until every yielded group returns from delivery, a retry must start
+        # with this page; per-message markers skip its completed deliveries.
+        save(token)
+        info["message_pages"] += 1
+        for item in page.get("messages", []):
+            mid = item.get("id") if isinstance(item, dict) else None
+            if not isinstance(mid, str) or not mid:
+                raise RelayError("gmail_list_shape")
+            if mid in seen_ids:
+                info["duplicate_message_ids"] += 1
+                continue
+            seen_ids.add(mid)
+            info["messages"] += 1
+            yield mid
+        token = page.get("nextPageToken", "")
+        if not isinstance(token, str):
+            raise RelayError("gmail_list_shape")
+        if not token:
+            save(None)
+            info["message_listing_complete"] = True
+            return
+        if token in requested_tokens:
+            raise RelayError("gmail_page_cursor_repeated")
+        save(token)
+    raise RelayError("gmail_page_limit_pending")
+
+
+def gmail_delivery_groups(get: Callable, config: dict, since: str, seen: Callable = lambda key: "",
+                          checkpoint: Callable | None = None) -> tuple[dict, Iterator[tuple[str, list[Event]]]]:
     profile = get("profile")
     if str(profile.get("emailAddress", "")).lower() != config["gmail_address"].lower():
         raise RelayError("gmail_account_mismatch")
     # Sliding overlap intentionally re-reads IDs; per-part dedup prevents repeat posts.
     query = config.get("gmail_query", "{newer_than:14d is:unread is:starred} -in:spam -in:trash -in:sent -in:drafts")
-    ids: list[str] = []
-    token = ""
-    for _ in range(20):
-        params = {"q": query, "maxResults": 100}
-        if token:
-            params["pageToken"] = token
-        page = get("messages", params)
-        ids.extend(str(item["id"]) for item in page.get("messages", []))
-        token = page.get("nextPageToken", "")
-        if not token:
-            break
-    if token:
-        raise RelayError("gmail_page_limit_pending")
-    info = {"mode": "work-mail-poll", "messages": len(ids), "unchanged": 0, "private_or_auth_omitted": 0,
+    info = {"mode": "work-mail-poll", "messages": 0, "message_pages": 0,
+            "message_listing_complete": False, "message_listing_resumed": False, "duplicate_message_ids": 0,
+            "unchanged": 0, "private_or_auth_omitted": 0,
             "promotional_omitted": 0, "github_mail_deduped": 0, "unclassified_pending": 0, "source_items_pending": 0, "body_pending": 0}
     def groups() -> Iterator[tuple[str, list[Event]]]:
-        for mid in dict.fromkeys(ids):
+        scope = digest(json.dumps([config["gmail_address"].lower(),
+                                   config.get("gmail_channel", ""), query]))
+        for mid in gmail_message_ids(get, query, info, scope, seen, checkpoint):
             # Received message IDs are immutable. Skip only a completed content
             # delivery; omitted/partial mail remains eligible on every poll.
             version = "gmail.delivered." + digest(json.dumps([
@@ -822,7 +968,7 @@ def run(config: dict, state: State, providers: Providers) -> dict:
         collecting = True
         try:
             getter = providers.github if name == "github" else providers.gmail
-            info, groups = source(getter, config, since, state.get)
+            info, groups = source(getter, config, since, state.get, state.set)
             report["sources"][name] = info
             while True:
                 collecting = False
@@ -840,12 +986,15 @@ def run(config: dict, state: State, providers: Providers) -> dict:
                 if version:
                     state.set(version, "1")
             state.set(name + "_last_poll", iso())
-            if info.get("source_items_pending", 0):
+            if info.get("source_items_pending", 0) or info.get("prior_source_items_pending"):
                 report["errors"][name] = "source_items_pending"
             else:
                 state.set(name + "_last_success", iso())
                 if name == "github":
-                    state.set("github_since", iso(now - timedelta(minutes=10)))
+                    # A resumed listing may have started in an earlier run.
+                    # Advancing to wall time would skip arrivals during that scan.
+                    completed = datetime.fromisoformat(info["completed_until"].replace("Z", "+00:00"))
+                    state.set("github_since", iso(completed - timedelta(minutes=10)))
         except RelayError as exc:
             report["errors"][name] = exc.code
             if exc.code == "delivery_budget_pending":

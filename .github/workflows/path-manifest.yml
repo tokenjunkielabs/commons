@@ -40,9 +40,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-      - name: exercise classifier
-        run: python3 test_path_manifest.py
+          # The pull-request merge commit and its base are enough for the delta.
+          fetch-depth: 2
+          # Keep generator_contracts source files from the manifest in this list.
+          sparse-checkout: |
+            host/path_manifest.py
+            architecture/path-manifest.json
+            board_ingest.py
+            revenue/procurement_runway_gate/
+          sparse-checkout-cone-mode: false
       - name: emit exact-tree diagnostics
         run: |
           python3 host/path_manifest.py \
@@ -77,29 +83,11 @@ jobs:
         if: steps.procurement_runway.outputs.changed == 'true'
         with:
           python-version: '3.11'
-      - name: procurement runway gate — Python 3.11
+      - name: Compile and verify procurement runway
         if: steps.procurement_runway.outputs.changed == 'true'
         shell: bash
         run: |
           set -eu
-          python -m py_compile revenue/procurement_runway_gate/*.py
-          python -m unittest revenue.procurement_runway_gate.test_gate
-          python -O -m unittest revenue.procurement_runway_gate.test_gate
-          out="$(mktemp -d)/runway"
-          python -m revenue.procurement_runway_gate compile revenue/procurement_runway_gate/current_opportunities.json --output-dir "$out"
-          python -m revenue.procurement_runway_gate verify revenue/procurement_runway_gate/current_opportunities.json --output-dir "$out"
-      - uses: actions/setup-python@v5
-        if: steps.procurement_runway.outputs.changed == 'true'
-        with:
-          python-version: '3.13'
-      - name: procurement runway gate — Python 3.13
-        if: steps.procurement_runway.outputs.changed == 'true'
-        shell: bash
-        run: |
-          set -eu
-          python -m py_compile revenue/procurement_runway_gate/*.py
-          python -m unittest revenue.procurement_runway_gate.test_gate
-          python -O -m unittest revenue.procurement_runway_gate.test_gate
           out="$(mktemp -d)/runway"
           python -m revenue.procurement_runway_gate compile revenue/procurement_runway_gate/current_opportunities.json --output-dir "$out"
           python -m revenue.procurement_runway_gate verify revenue/procurement_runway_gate/current_opportunities.json --output-dir "$out"

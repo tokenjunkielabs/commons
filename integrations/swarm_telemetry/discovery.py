@@ -20,6 +20,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
+from contextlib import closing
 from pathlib import Path
 from typing import Any, Mapping
 
@@ -321,7 +322,7 @@ def _sqlite_channels(path):
         raise DiscoveryError("native_slack_cache_missing")
     channels = set()
     spans = {}
-    with sqlite3.connect(file.resolve().as_uri() + "?mode=ro", uri=True, timeout=5) as db:
+    with closing(sqlite3.connect(file.resolve().as_uri() + "?mode=ro", uri=True, timeout=5)) as db:
         tables = {row[0] for row in db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
         for name in sorted(tables):
             quoted = '"' + name.replace('"', '""') + '"'
@@ -375,6 +376,11 @@ def _connector_channels(value):
                      "display_name": heading, "type": kind, "is_private": kind in {"Private Channel", "Direct Message", "Group DM"},
                      "is_im": kind == "Direct Message", "is_mpim": kind == "Group DM", "is_archived": fields.get("Archived") == "Yes" if "Archived" in fields else None,
                      "user_id": fields.get("User ID"), "members_text": fields.get("Members"), "purpose": fields.get("Purpose"), "source_fields": fields})
+    next_page = re.search(r'(?m)^Pagination:\s*More results available\.\s*Use cursor:\s*"([^"\r\n]+)"\s*$', text)
+    if next_page:
+        # Native cursors are opaque, including their padding. Retain the exact
+        # value so a host can continue this incomplete conversation listing.
+        return rows, next_page.group(1), False
     totals = re.search(r"showing\s+(\d+)\s+of\s+(\d+)\s+total", text)
     complete = bool(totals) and int(totals.group(1)) == int(totals.group(2)) == len(rows)
     return rows, "" if complete else None, complete
@@ -752,10 +758,14 @@ def discover_sources(config: Mapping | None = None, state: Mapping | None = None
             payload = _unwrap(snapshot.get("payload", {}))
             rows = payload if isinstance(payload, list) else payload.get("repositories", payload.get("repos", []))
             for row in rows:
-                repo = _name(row.get("full_name") or row.get("repo_full_name") or row.get("nameWithOwner"))
+                repo = _name(row.get("full_name") or row.get("repository_full_name") or row.get("repo_full_name") or row.get("nameWithOwner"))
                 if repo:
                     repositories.add(repo)
-                    repo_metadata[ref + ":" + repo] = {"account_ref": ref, "host": host, "repository": repo, "private": row.get("private"), "archived": row.get("archived"), "default_branch": _name(row.get("default_branch")), "id": row.get("id")}
+                    visibility = row.get("visibility")
+                    private = row.get("private")
+                    if private is None and visibility in {"public", "private", "internal"}:
+                        private = visibility != "public"
+                    repo_metadata[ref + ":" + repo] = {"account_ref": ref, "host": host, "repository": repo, "private": private, "visibility": visibility, "archived": row.get("archived"), "default_branch": _name(row.get("default_branch")), "id": row.get("id")}
             coverage.append({"source": "github:connector-list:" + ref, "status": "observed" if snapshot.get("complete") else "backfilling", "complete": bool(snapshot.get("complete")),
                              "records": len(rows), "cursor": snapshot.get("cursor"), "observed_at": snapshot.get("observed_at") or at, "scope": "actual native connector repository listing; full content backfill separate"})
         except Exception as error:
@@ -877,30 +887,6 @@ def discover_sources(config: Mapping | None = None, state: Mapping | None = None
     universe_recovery["unresolved_account_scopes"] = unresolved_account_scopes
     universe_recovery["verified_reader_accounts"] = sum(len(refs) for refs in verified_account_refs.values())
 
-    unresolved_account_scopes = 0
-    for service, details in sorted(unresolved_bindings.items()):
-        verified = verified_account_refs.get(service, set())
-        pending_evidence = [evidence_id for evidence_id, reference in details["evidence"].items() if reference not in verified]
-        for source_row in sources.values():
-            if source_row.get("service") == service and source_row.get("account_ref") in verified:
-                source_row["identity_state"] = "provider_observed"
-                source_row["identity_verified_by"] = "matching_connected_account_reader"
-                if source_row.get("status") == "pending_recovery":
-                    source_row["status"] = "reader_binding_pending"
-        if pending_evidence:
-            unresolved_account_scopes += 1
-            coverage.append({"source": "account_binding:" + service, "status": "pending_recovery", "complete": False,
-                             "service": service, "unresolved_evidence_references": len(pending_evidence),
-                             "evidence_roads": sorted(details["origins"]), "observed_at": at,
-                             "unread_regions": ["account identity for existing service/credential evidence not matched to an authenticated connected account",
-                                                "provider reader binding for each unresolved account evidence reference"]})
-        else:
-            coverage.append({"source": "account_binding:" + service, "status": "observed", "complete": True,
-                             "service": service, "unresolved_evidence_references": 0,
-                             "evidence_roads": sorted(details["origins"]), "observed_at": at,
-                             "scope": "identity binding for supplied evidence matched by an authenticated reader; content backfill remains separate"})
-    universe_recovery["unresolved_account_scopes"] = unresolved_account_scopes
-    universe_recovery["verified_reader_accounts"] = sum(len(refs) for refs in verified_account_refs.values())
     state_out = {"continuation": continuation, "slack_channels": sorted(channels), "github_repositories": sorted(repositories), "repo_metadata": repo_metadata, "channel_metadata": channel_metadata, "org_metadata": org_metadata, "observed_at": at}
     return _safe_output({"sources": sorted(sources.values(), key=lambda row: row["source_id"]), "slack_channels": sorted(channels), "github_repositories": sorted(repositories),
                    "accounts": sorted(accounts.values(), key=lambda row: (row["service"], row["account_ref"])), "coverage": coverage, "state": state_out,

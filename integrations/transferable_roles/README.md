@@ -48,6 +48,31 @@ are never stored in the role — only named routes into existing stores/gateways
 **Roles confer no credential access** — owner policy keeps tokens in existing
 secure stores; this package only names routes.
 
+## Role identifiers
+
+The stored `role_id` is canonical; escaped filenames are a storage detail.
+Listing roles, reading open obligations, inspecting and exporting preserve the
+original identifier, including punctuation. Existing filename keys still work
+for lookup. Legacy records without a stored `role_id` use their lookup key.
+The open-obligation queue reads each role once.
+
+## Durable writes
+
+Role changes are written to a unique temporary file in the same directory,
+flushed, and atomically moved into place after the complete JSON is ready.
+The existing file mode is preserved. A failed write leaves the previous role
+readable; temporary files from a handled failure are cleaned up.
+
+## Role timestamps
+
+`updated_at` records the role’s last mutation. `get`, `inspect`, and `export`
+preserve the stored timestamp, so reading a role does not make old work appear
+fresh. Legacy records without `updated_at` use `created_at` when available.
+`export_meta.exported_at` records the separate time the handoff package was made.
+Importing a package stamps the adoption time; equipping, transferring, releasing,
+binding or unbinding a route, and advancing an obligation still update
+`updated_at` when they write the role.
+
 ## Entry points
 
 ```bash
@@ -150,6 +175,10 @@ successor; use `release` when the session ends without one yet.
 `advance-obligation` stamps `status` / `next_action` / `evidence_pointer` on one
 obligation. Purpose and sibling obligations stay. Allowed statuses:
 `open|done|blocked|deferred`. Roles still confer no credentials.
+
+Status values are trimmed and normalized to lowercase when role records are
+created, read or imported, matching obligation advancement. Incoming `OPEN`
+therefore remains visible in the open-work queue.
 
 `open-obligations` scans every role in the store and returns open rows as
 `{"open_obligations": [...]}` with `role_id`, optional `label`, `purpose`,

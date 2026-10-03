@@ -20,6 +20,7 @@ Metric families:
 from __future__ import annotations
 
 from collections import Counter
+import heapq
 import math
 import random
 import re
@@ -318,12 +319,21 @@ def sign_cos_pearson(rows, *, pairs: int = 2500, seed: int = 11) -> dict:
     rng = random.Random(seed)
     n = len(rows)
     xs, ys = [], []
+    # Each sampled row is fixed for this invocation; retain only its scalar norm.
+    norms = {}
     for _ in range(pairs):
         a, b = rng.randrange(n), rng.randrange(n)
         if a == b:
             continue
-        xs.append(sign_agreement(rows[a], rows[b]))
-        ys.append(cos(rows[a], rows[b]))
+        ra, rb = rows[a], rows[b]
+        xs.append(sign_agreement(ra, rb))
+        if a not in norms:
+            norms[a] = norm(ra)
+        if b not in norms:
+            norms[b] = norm(rb)
+        na, nb = norms[a], norms[b]
+        ys.append(sum(x * y for x, y in zip(ra, rb)) / (na * nb)
+                  if na != 0.0 and nb != 0.0 else 0.0)
     m = len(xs)
     mx, my = sum(xs) / m, sum(ys) / m
     sx = math.sqrt(sum((x - mx) ** 2 for x in xs) / m)
@@ -593,9 +603,10 @@ def axis_with_purity(pair_rows, *, place_row=None) -> dict:
         raise WbMetricsError("all pair directions are zero")
     purity = None
     if len(dirs) >= 2:
-        sims = [sum(x * y for x, y in zip(dirs[i], dirs[j]))
-                for i in range(len(dirs)) for j in range(i + 1, len(dirs))]
-        purity = sum(sims) / len(sims)
+        n = len(dirs)
+        sims = (sum(x * y for x, y in zip(dirs[i], dirs[j]))
+                for i in range(n) for j in range(i + 1, n))
+        purity = sum(sims) / (n * (n - 1) // 2)
     mean_dir = mean_vec(dirs)
     axis = unit(mean_dir)
     result = {
@@ -715,14 +726,20 @@ def neuron_cleanliness(neuron_rows, vocab_rows: dict, *, k: int = 5) -> dict:
     vocab_units = [(label, unit(row)) for label, row in vocab_rows.items() if row]
     if not vocab_units:
         raise WbMetricsError("empty vocab")
+    # Keep legacy slicing and NaN ordering outside the finite top-k path.
+    bounded = type(k) is int and 0 < k < len(vocab_units)
+    finite_vocab = bounded and all(
+        math.isfinite(value) for _, row in vocab_units for value in row)
     out = []
     for j, nrow in enumerate(neuron_rows):
         u = unit(nrow)
-        scored = sorted(
-            ((label, sum(x * y for x, y in zip(u, v)))
-             for label, v in vocab_units),
-            key=lambda item: -item[1],
-        )[:k]
+        scores = ((label, sum(x * y for x, y in zip(u, v)))
+                  for label, v in vocab_units)
+        if finite_vocab and all(math.isfinite(value) for value in u):
+            # nsmallest retains encounter order for equal scores, like sorted.
+            scored = heapq.nsmallest(k, scores, key=lambda item: -item[1])
+        else:
+            scored = sorted(scores, key=lambda item: -item[1])[:k]
         out.append({"neuron": j, "top1": scored[0][1],
                     "top": [{"token": t, "cos": s} for t, s in scored]})
     out.sort(key=lambda item: -item["top1"])
@@ -771,7 +788,7 @@ def manifold_residual(rows, *, k: int = 8, sample: int = 192,
             for c, row in zip(coeffs, Sc):
                 for dd in range(d):
                     cv[dd] += c * row[dd]
-            for b in basis:
+            for b in new_vecs:
                 proj = sum(x * y for x, y in zip(cv, b))
                 cv = [cv[dd] - proj * b[dd] for dd in range(d)]
             nv = norm(cv)
@@ -789,7 +806,7 @@ def manifold_residual(rows, *, k: int = 8, sample: int = 192,
             for dd in range(d):
                 proj[dd] += c * b[dd]
         return norm([rc[dd] - proj[dd] for dd in range(d)]) / rn
-    sample_res = sorted(residual(row) for row in Sc)
+    sample_res = sorted(residual(row) for row in S)
     med = percentile(sample_res, 50)
     mad = percentile(sorted(abs(r - med) for r in sample_res), 50) or 1e-9
     threshold = med + 8 * mad
@@ -811,18 +828,23 @@ def category_purity(word_rows: dict, cats=None) -> dict:
     """is each word's nearest neighbor in its own category? (fable_practical)"""
     cats = cats or CATEGORIES
     labels = {w: c for c, ws in cats.items() for w in ws}
-    have = {w: unit(r) for w, r in word_rows.items()
-            if r and w in labels}
+    have = [(w, unit(r)) for w, r in word_rows.items()
+            if r and w in labels]
+    neighbors = [None] * len(have)
+    scores = [-2.0] * len(have)
+    # Visit each pair once. Candidates still arrive in insertion order for
+    # either word, so equal scores retain the same first neighbor.
+    for i, (w, vec) in enumerate(have):
+        for j in range(i + 1, len(have)):
+            x, other = have[j]
+            s = sum(a * b for a, b in zip(vec, other))
+            if s > scores[i]:
+                scores[i], neighbors[i] = s, x
+            if s > scores[j]:
+                scores[j], neighbors[j] = s, w
     hits = tot = 0
     misses = []
-    for w, vec in have.items():
-        best, bs = None, -2.0
-        for x, other in have.items():
-            if x == w:
-                continue
-            s = sum(a * b for a, b in zip(vec, other))
-            if s > bs:
-                bs, best = s, x
+    for (w, _), best, bs in zip(have, neighbors, scores):
         if best is None:
             continue
         tot += 1
@@ -844,15 +866,32 @@ def category_purity(word_rows: dict, cats=None) -> dict:
 
 def order_recovery(axis, word_rows: dict, truth: list) -> dict:
     """project words onto an axis; fraction of correctly ordered pairs vs truth."""
-    proj = {w: sum(x * y for x, y in zip(unit(r), axis))
-            for w, r in word_rows.items() if r and w in truth}
-    got = [w for w, _ in sorted(proj.items(), key=lambda item: item[1])]
     rank = {w: i for i, w in enumerate(truth)}
-    pairs = ok = 0
-    for i in range(len(got)):
-        for j in range(i + 1, len(got)):
-            pairs += 1
-            ok += rank[got[i]] < rank[got[j]]
+    proj = {w: sum(x * y for x, y in zip(unit(r), axis))
+            for w, r in word_rows.items() if r and w in rank}
+    got = [w for w, _ in sorted(proj.items(), key=lambda item: item[1])]
+    n = len(got)
+    pairs = n * (n - 1) // 2
+    ok = 0
+    if n <= 8:
+        # Avoid tree setup for short word lists.
+        for i in range(n):
+            for j in range(i + 1, n):
+                ok += rank[got[i]] < rank[got[j]]
+    else:
+        # Index only recovered ranks, even when truth positions are sparse.
+        positions = {r: i for i, r in
+                     enumerate(sorted(rank[w] for w in got), 1)}
+        counts = [0] * (n + 1)
+        for w in got:
+            position = positions[rank[w]]
+            previous = position - 1
+            while previous:
+                ok += counts[previous]
+                previous -= previous & -previous
+            while position <= n:
+                counts[position] += 1
+                position += position & -position
     return {
         "order": got,
         "pair_accuracy": ok / pairs if pairs else None,
@@ -867,12 +906,18 @@ def semantic_walk(start_row, vocab_rows: dict, *, steps: int = 8,
     seen = {start_label}
     path = [start_label or "<start>"]
     cur = unit(start_row)
+    # Cache scalar norms lazily without retaining another normalized matrix.
+    row_norms = {}
     for _ in range(steps):
         best, bs = None, -2.0
         for label, row in vocab_rows.items():
             if label in seen or not row:
                 continue
-            s = sum(x * y for x, y in zip(cur, unit(row)))
+            row_norm = row_norms.get(label)
+            if row_norm is None:
+                row_norm = norm(row) or 1.0
+                row_norms[label] = row_norm
+            s = sum(x * (y / row_norm) for x, y in zip(cur, row))
             if s > bs:
                 bs, best = s, label
         if best is None:

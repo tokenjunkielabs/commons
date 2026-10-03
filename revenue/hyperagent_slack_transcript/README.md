@@ -14,6 +14,8 @@ Every admitted mutating message carries both its immutable `approval_id` and `ap
 
 Strict-input handling rejects duplicate JSON keys, non-finite numbers, bool-as-int controls, noncanonical UTC, malformed opaque IDs, and non-scalar Unicode before canonical UTF-8 hashing. CLI contract/resource errors return status 2 without a traceback or output artifact.
 
+JSON input permits at most **128 nested objects or arrays** (`MAX_JSON_NESTING_DEPTH`). The root object or array counts as depth 1; a root scalar has depth 0. Brackets and braces inside quoted strings do not count. An iterative scan checks this bound before decoding, including escaped quotes and backslashes, so excess-depth input raises `ValidationError` independently of the Python decoder's recursion behavior. The CLI returns status 2 and creates no output artifact for this error.
+
 ## Approval contract
 
 The authenticated approval object is:

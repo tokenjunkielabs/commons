@@ -21,6 +21,15 @@ KEY_TARGET = "commons:swarm-telemetry:source-custody-key"
 KEY_REFERENCE = "telemetry/source-custody-key"
 _CUSTODY_WRITE_LOCK = RLock()
 
+class ClosingConnection(sqlite3.Connection):
+    """Retain SQLite transaction semantics and close each completed context."""
+    def __exit__(self, exc_type, exc_value, traceback):
+        try:
+            return super().__exit__(exc_type, exc_value, traceback)
+        finally:
+            self.close()
+
+
 class _Credential(ctypes.Structure):
     _fields_=[("Flags",wintypes.DWORD),("Type",wintypes.DWORD),("TargetName",wintypes.LPWSTR),("Comment",wintypes.LPWSTR),("LastWritten",wintypes.FILETIME),("CredentialBlobSize",wintypes.DWORD),("CredentialBlob",ctypes.POINTER(ctypes.c_ubyte)),("Persist",wintypes.DWORD),("AttributeCount",wintypes.DWORD),("Attributes",ctypes.c_void_p),("TargetAlias",wintypes.LPWSTR),("UserName",wintypes.LPWSTR)]
 
@@ -116,7 +125,7 @@ class Custody:
         self._key_lock=Lock()
         self._key_loader=key_loader
         self._write_lock=write_lock or _CUSTODY_WRITE_LOCK
-        with self._write_lock,sqlite3.connect(self.path,timeout=30) as db:
+        with self._write_lock,sqlite3.connect(self.path,timeout=30,factory=ClosingConnection) as db:
             db.execute("PRAGMA busy_timeout=30000")
             db.execute("CREATE TABLE IF NOT EXISTS source_records (ref TEXT PRIMARY KEY,source_id TEXT,sha256 TEXT,byte_length INTEGER,character_length INTEGER,iv BLOB,ciphertext BLOB,mac BLOB,format TEXT,key_reference TEXT)")
     def key(self):
@@ -127,9 +136,10 @@ class Custody:
                     if isinstance(data,str):
                         try: data=base64.b64decode(data,validate=True)
                         except (ValueError,base64.binascii.Error): data=data.encode("utf-8")
-                    self._key=data if data is not None else secure_key()
-                    if not isinstance(self._key,bytes) or len(self._key)!=64:
+                    candidate=data if data is not None else secure_key()
+                    if not isinstance(candidate,bytes) or len(candidate)!=64:
                         raise RuntimeError("Shared source custody key has an incompatible length")
+                    self._key=candidate
         return self._key
 
     def prepare(self,value,source_id):
@@ -154,26 +164,28 @@ class Custody:
 
     def seal(self,value,source_id):
         reference,record=self.prepare(value,source_id)
-        with self._write_lock,sqlite3.connect(self.path,timeout=30) as db:
+        with self._write_lock,sqlite3.connect(self.path,timeout=30,factory=ClosingConnection) as db:
             db.execute("PRAGMA busy_timeout=30000")
             self.insert_prepared(db,[record])
         return reference
-    def envelope(self,ref):
-        with sqlite3.connect(self.path,timeout=30) as db:
+    def _record(self,ref):
+        with sqlite3.connect(self.path,timeout=30,factory=ClosingConnection) as db:
             db.execute("PRAGMA busy_timeout=30000")
             db.row_factory=sqlite3.Row
             row=db.execute("SELECT * FROM source_records WHERE ref=?",(ref,)).fetchone()
         if not row: raise KeyError(ref)
-        result=dict(row)
+        return dict(row)
+    def envelope(self,ref):
+        result=self._record(ref)
         for field in ("iv","ciphertext","mac"): result[field]=base64.b64encode(result[field]).decode("ascii")
         result.update(encryption="AES-256-CBC + HMAC-SHA256",source_exact=True,credential_access="Existing direct shared secure facility",key_reference=KEY_REFERENCE)
         return result
     def read(self,ref):
-        envelope=self.envelope(ref)
-        iv,cipher,mac=(base64.b64decode(envelope[field]) for field in ("iv","ciphertext","mac"))
+        record=self._record(ref)
+        iv,cipher,mac=(record[field] for field in ("iv","ciphertext","mac"))
         key=self.key()
         expected=hmac.new(key[32:],b"swarm-source-v1"+iv+cipher,hashlib.sha256).digest()
         if not hmac.compare_digest(expected,mac): raise ValueError("Source authentication failed")
         raw=_aes(cipher,key[:32],iv,decrypt=True)
-        if hashlib.sha256(raw).hexdigest()!=envelope["sha256"]: raise ValueError("Source content mismatch")
+        if hashlib.sha256(raw).hexdigest()!=record["sha256"]: raise ValueError("Source content mismatch")
         return raw

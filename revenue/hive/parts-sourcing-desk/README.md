@@ -13,8 +13,8 @@ record of a fulfilled customer sourcing request.
 
 ## Run
 
-Python 3.11 or newer; runtime uses only the standard library. Keep `parts_desk.py`
-and `index.html` together, then run in the selected execution environment:
+Python 3.11 or newer; runtime uses only the standard library. Keep `parts_desk.py`,
+`supplier_enquiries.py` and `index.html` together, then run in the selected execution environment:
 
 ```sh
 python3 parts_desk.py --db /path/to/workshop/desk.sqlite3 --port 8080
@@ -43,11 +43,18 @@ the owner's PC. A hosted deployment is a separate unperformed operation.
    measurement or serial details. Unknown or conflicting fit stays unreviewed,
    uncertain or incompatible. Resolve missing details with the technician or
    manufacturer outside the application; no supplier inquiry is sent here.
-4. Create a handoff, adjust quantity, unit price, shipping and notes, and download
+4. To clarify an option with a supplier, select **Include in supplier enquiry pack**
+   on the saved options you want. Under **Supplier enquiry drafts**, choose the
+   as-of date and source-age reminder, then **Download selected enquiries**. The ZIP
+   contains one unsent text draft per selected supplier, an internal printable
+   summary, JSON and its file manifest. Extract it and review each supplier's own
+   text file before sharing; other suppliers' drafts and the combined summary
+   stay internal. Downloading does not update the job or send anything.
+5. Create a handoff, adjust quantity, unit price, shipping and notes, and download
    its text file. The file includes model/serial, supplier/SKU, source URL and date,
    fit finding, totals and unresolved warnings. Printing also produces a job
    summary. Drafting and downloading do not place an order.
-5. After an actual order through an existing external supplier workflow, record
+6. After an actual order through an existing external supplier workflow, record
    its real confirmation reference. The local record becomes `placed`. The app
    neither verifies that external fact nor initiates the purchase. A cancelled
    draft may be replaced; recording cancellation of a placed order requires the
@@ -118,7 +125,20 @@ python3 parts_desk.py --db /path/to/workshop/desk.sqlite3 --import-catalog permi
 GET `/api/state`, `/api/catalog?q=...`, `/api/requests/{id}`, `/api/export`,
 `/api/backup`, and `/api/orders/{id}/handoff.txt` return the saved state or downloads.
 
-All POST requests use `application/json` and `operation_id`. Request/option writes
+GET `/api/requests/{id}/enquiries.zip?option_id=...&as_of=YYYY-MM-DD&max_age_days=7`
+downloads the existing supplier-enquiry pack for saved options. Repeat `option_id`
+to choose several options; omitting it includes all saved options for that job,
+matching the exporter CLI. The browser POSTs the same route with JSON
+`{option_ids:[...],as_of:"YYYY-MM-DD",max_age_days:7}` so a large selection does not
+depend on URL length. This read-only POST needs no `operation_id`; the browser
+always sends the explicitly selected IDs.
+The date defaults to the current UTC date; the reminder defaults to seven days.
+Unknown selections or invalid export parameters return a JSON error with HTTP 400.
+Saved fit state, source snapshots, revisions and existing-order notices come from
+the existing exporter. These downloads do not write the workspace or contact suppliers.
+See `SUPPLIER_ENQUIRIES.md` for the command-line and Python routes.
+
+All POST requests use `application/json`; workspace mutations also use `operation_id`. Request/option writes
 include the current request `revision`; order edits use the order's `revision`.
 
 - `/api/requests` creates `{data:{job_ref,make,model,serial,part_number,description,quantity,notes}}`.

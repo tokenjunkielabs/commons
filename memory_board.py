@@ -922,11 +922,15 @@ def derive(rows):
     boards = {}
     seen_entries = set()
     max_order = (datetime.max, Decimal(0), "")
-    ordered = sorted(rows, key=lambda row: (
+    memory_rows = []
+    for ts, original, body in rows:
+        meta = struct_from_body(body, original)
+        if str(meta.get("kind") or "").strip().upper() in MEMORY_KINDS:
+            memory_rows.append((ts, original, body, meta))
+    ordered = sorted(memory_rows, key=lambda row: (
         event_order(row[1].get("ts") or row[0], row[1].get("id")) or max_order
     ))
-    for ts, original, body in ordered:
-        meta = struct_from_body(body, original)
+    for ts, original, body, meta in ordered:
         meta.setdefault("ts", ts or "")
         kind = str(meta.get("kind") or "").strip().upper()
         src = canonical_actor(meta.get("from"))

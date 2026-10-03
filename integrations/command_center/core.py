@@ -156,6 +156,8 @@ class CommandCenter:
                     name TEXT NOT NULL, runtime TEXT, status TEXT NOT NULL,
                     started_at TEXT NOT NULL, finished_at TEXT, summary TEXT, error TEXT
                 );
+                CREATE INDEX IF NOT EXISTS operations_started
+                    ON operations(started_at DESC);
                 CREATE TABLE IF NOT EXISTS work_refresh (
                     id INTEGER PRIMARY KEY CHECK(id=1), data TEXT NOT NULL
                 );
@@ -828,22 +830,32 @@ class CommandCenter:
         event["moderation"] = dict(mod) if mod else None
         return event
 
-    def _feed(self):
+    def _feed(self, operations=None):
+        """Build the feed, reusing this response's operation rows when supplied."""
         with self._db() as db:
-            operations = db.execute(
-                "SELECT * FROM operations ORDER BY started_at DESC LIMIT 300").fetchall()
+            if operations is None:
+                operations = db.execute(
+                    "SELECT * FROM operations ORDER BY started_at DESC LIMIT 300").fetchall()
             source_events = db.execute(
                 "SELECT data FROM source_events ORDER BY observed_at DESC LIMIT 300").fetchall()
-            moderation = {row["event_id"]: dict(row)
-                          for row in db.execute("SELECT * FROM moderation")}
         feed = self._get_records("feed")
         feed.extend(self._operation_event(row) for row in operations)
         feed.extend(json.loads(row["data"]) for row in source_events)
+        feed = sorted(feed, key=lambda item: item.get("observed_at") or "", reverse=True)[:300]
+        if not feed:
+            return feed
+        # The retained moderation history can outgrow this bounded view. Its
+        # primary key already supports exact lookups for the events we return.
+        with self._db() as db:
+            placeholders = ",".join("?" for _ in feed)
+            moderation = {row["event_id"]: dict(row) for row in db.execute(
+                "SELECT * FROM moderation WHERE event_id IN (" + placeholders + ")",
+                [event["id"] for event in feed])}
         for event in feed:
             mod = moderation.get(event["id"])
             event["hidden"] = bool(mod["hidden"]) if mod else False
             event["moderation"] = mod
-        return sorted(feed, key=lambda item: item.get("observed_at") or "", reverse=True)[:300]
+        return feed
 
 
 
@@ -1384,7 +1396,7 @@ class CommandCenter:
             if final.get("status") in ("completed", "completed_with_errors"):
                 final["last_completed_at"] = final["finished_at"]
                 from .swarm_tasks import after_ingest
-                after_ingest(self)
+                after_ingest(self, refresh_providers=True)
             try:
                 self._save_work_refresh(final)
             finally:
@@ -1482,8 +1494,9 @@ class CommandCenter:
         with self._db() as db:
             source_ids = [row["id"] for row in db.execute(
                 "SELECT id FROM sources WHERE id NOT LIKE 'runtime:%' ORDER BY id")]
-            operations = [self._operation(row) for row in db.execute(
-                "SELECT * FROM operations ORDER BY started_at DESC LIMIT 300")]
+            operation_rows = db.execute(
+                "SELECT * FROM operations ORDER BY started_at DESC LIMIT 300").fetchall()
+        operations = [self._operation(row) for row in operation_rows]
         sources = [self._source(source_id) for source_id in source_ids]
         ledger = next((s for s in sources if s["id"] == "resource-ledger"), None)
         catalog = next((s for s in sources if s["id"] == "connected-capabilities"), None)
@@ -1505,6 +1518,6 @@ class CommandCenter:
                 "sessions": sessions, "budgets": self._get_records("budgets"),
                 "operations": operations,
                 "focus": focus[0] if focus else {"objective": "", "next_action": ""},
-                "feed": self._feed(),
+                "feed": self._feed(operation_rows),
                 "janny": janny[0] if janny else {"peer": "", "status": "unassigned",
                     "responsibility": "Reversible derived-feed moderation; no access grants."}}

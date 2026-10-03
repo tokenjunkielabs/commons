@@ -18,9 +18,9 @@ with no endpoint, no auth and no per-caller state:
 Read with --since CURSOR --shard auto to try the head and, when needed, the
 window in one call. The reader stops after those two files. A gap beyond the
 window still names recent.json in next_read; no retained shard can promise
-history it does not contain. Auto reads exit 2 while a gap remains and keep
-next_cursor at the supplied cursor. Advance to next_cursor only after processing
-all returned events from a COMPLETE result.
+history it does not contain. Every reader mode exits 2 while a gap remains.
+Auto reads also keep next_cursor at the supplied cursor. Advance to next_cursor
+only after processing all returned events from a COMPLETE result.
 
 CURSOR
 ------
@@ -44,8 +44,11 @@ why the id is part of the cursor and the comparison is a plain string compare.
 HONESTY
 -------
 * A record with no landing time and no author time cannot be ordered. It is not
-  quietly dropped: its id is listed in `undated` on both shards, and `since()`
-  reports an explicit unordered gap that requires a full read.
+  quietly dropped. Shard production first looks for the source file's recorded
+  introduction on the local Git first-parent history. A recovered clock carries
+  its commit/path in `landing_ref`; the original post and author time stay intact.
+  Missing history and shallow boundaries remain `undated` on both shards, and
+  `since()` reports an explicit unordered gap that requires a full read.
 * If `recent.json` cannot be read, or reads as something other than a non-empty
   list, this writes nothing and exits non-zero. An empty feed would tell every
   session that nothing happened.
@@ -55,7 +58,7 @@ HONESTY
 * Output is byte-stable: rebuilding with unchanged inputs reproduces the
   identical file, including `built_at`, so a no-op bake makes no diff.
 
-Stdlib only. No network. Reads two files, writes two files.
+Stdlib only. No network. Reads the bakes and local Git history, writes two shards.
 """
 
 from __future__ import annotations
@@ -63,8 +66,10 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import subprocess
 import sys
 import tempfile
+from datetime import datetime, timezone
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -109,6 +114,79 @@ def _clean(value):
     return (value or "").strip()
 
 
+def with_landing_history(recent, root):
+    """Recover only missing clocks from recorded first-parent introductions.
+
+    Direct Git posts can omit both clock fields. Consult one local history scan
+    for their real page paths; never stamp a rebuild time or rewrite the source.
+    A shallow boundary is not evidence that its inherited files were added there.
+    """
+    pending = {}
+    for index, rec in enumerate(recent):
+        if not isinstance(rec, dict) or landing_key(rec):
+            continue
+        href = rec.get("href")
+        if not isinstance(href, str):
+            continue
+        href = href[2:] if href.startswith("./") else href
+        if not href.startswith("p/") or not href.endswith(".html"):
+            continue
+        page = href[2:-5]
+        if not page or "/" in page or "\\" in page or "\0" in page:
+            continue
+        pending[index] = "p/" + page + ".md"
+    if not pending:
+        return recent
+
+    def git(*args):
+        result = subprocess.run(
+            ["git", "--no-optional-locks", "--literal-pathspecs", "-C", str(root), *args],
+            capture_output=True, text=True, encoding="utf-8", errors="surrogateescape",
+            timeout=30, env={**os.environ, "GIT_NO_LAZY_FETCH": "1", "GIT_TERMINAL_PROMPT": "0"},
+        )
+        result.check_returncode()
+        return result.stdout
+
+    try:
+        shallow_path = git("rev-parse", "--git-path", "shallow").strip()
+        if not os.path.isabs(shallow_path):
+            shallow_path = os.path.join(root, shallow_path)
+        try:
+            with open(shallow_path, encoding="ascii") as fh:
+                shallow = set(fh.read().split())
+        except FileNotFoundError:
+            shallow = set()
+        paths = set(pending.values())
+        raw = git("log", "--first-parent", "--format=%H%x00%cI", "--name-only", "-z",
+                  "--diff-filter=A", "--no-renames", "--diff-merges=first-parent",
+                  "HEAD", "--", *sorted(paths))
+    except (OSError, UnicodeError, subprocess.SubprocessError):
+        return recent
+
+    found = {}
+    fields = iter(raw.split("\0"))
+    commit, stamp = "", ""
+    for value in fields:
+        value = value[1:] if value.startswith("\n") else value
+        if len(value) in (40, 64) and all(c in "0123456789abcdef" for c in value):
+            commit, stamp = value, ""
+            clock = next(fields, "")
+            try:
+                parsed = datetime.fromisoformat(clock.replace("Z", "+00:00"))
+                if parsed.tzinfo is not None and commit not in shallow:
+                    stamp = parsed.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
+            except ValueError:
+                pass
+        elif stamp and value in paths and value not in found:
+            found[value] = (stamp, {"kind": "git-first-parent", "sha": commit, "path": value})
+    rows = list(recent)
+    for index, path in pending.items():
+        if path in found:
+            stamp, ref = found[path]
+            rows[index] = dict(recent[index], durable_ts=stamp, landing_ref=ref)
+    return rows
+
+
 def headline(rec):
     """Headline fields. Empty and default-valued keys are omitted."""
     out = {"c": cursor_of(rec)}
@@ -131,6 +209,8 @@ def headline(rec):
     author = _clean(rec.get("ts"))
     if author and author[:19] != landing_key(rec)[:19]:
         out["ts"] = author
+    if rec.get("landing_ref"):
+        out["landing_ref"] = rec["landing_ref"]
     return out
 
 
@@ -179,6 +259,9 @@ def build(recent, pulse, shard, count, excerpt):
         "undated": sorted(i for i in undated if i),
         "events": events,
     }
+    recovered = sum(bool(r.get("landing_ref")) for r in dated)
+    if recovered:
+        payload["source"]["git_landing_records"] = recovered
     return payload
 
 
@@ -234,6 +317,7 @@ def write_shards(root=ROOT, head_n=HEAD_N, window_n=WINDOW_N, excerpt=EXCERPT):
         )
         raise SystemExit(2)
     pulse = _read_json(os.path.join(root, "pulse.json"), {}) or {}
+    recent = with_landing_history(recent, root)
 
     plan = [
         ("head", head_n, excerpt),
@@ -441,9 +525,9 @@ def main(argv=None):
     if args.since is not None:
         result = since(args.since, args.root, args.shard)
         print(json.dumps(result, indent=2))
-        if args.shard == "auto" and result["state"] != "COMPLETE":
-            return 2
-        return 2 if result["state"] == "FINDER-FAILED" else 0
+        # Every reader mode must signal incomplete coverage to shell callers.
+        # Keep the partial events and next_read so they can finish the read.
+        return 0 if result["state"] == "COMPLETE" else 2
 
     if args.check:
         recent = _read_json(os.path.join(args.root, "recent.json"))
@@ -451,6 +535,7 @@ def main(argv=None):
             print("FINDER-FAILED: recent.json unreadable or empty")
             return 2
         pulse = _read_json(os.path.join(args.root, "pulse.json"), {}) or {}
+        recent = with_landing_history(recent, args.root)
         for shard, count, exc in (("head", HEAD_N, EXCERPT), ("window", WINDOW_N, 0)):
             payload = build(recent, pulse, shard, count, exc)
             print("%-7s %4d events  %7d bytes  since %s"

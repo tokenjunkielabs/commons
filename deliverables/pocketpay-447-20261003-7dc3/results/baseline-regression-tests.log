@@ -1,0 +1,142 @@
+
+ RUN  v3.2.7 /workspace/scratch/7dc37f79ad05/pocketpay-447-baseline-7dc3
+
+ ❯ tests/qrParser.test.ts (2 tests | 2 failed) 16ms
+   × QR Parser > parses valid QR payload 13ms
+     → expected undefined to be 'GABCDEF1234567890' // Object.is equality
+   × QR Parser > throws on malformed URL 1ms
+     → expected function to throw an error, but it didn't
+ ❯ tests/multi-asset-balance.test.ts (23 tests | 7 failed) 36ms
+   ✓ Multi-Asset Balance Model > calculateNativeReserves > calculates minimum reserve for 0 subentries (1.0 XLM) 3ms
+   ✓ Multi-Asset Balance Model > calculateNativeReserves > calculates minimum reserve for 3 subentries (2.5 XLM) 0ms
+   ✓ Multi-Asset Balance Model > calculateNativeReserves > handles negative or undefined subentries gracefully 1ms
+   × Multi-Asset Balance Model > parseMultiAssetBalance > keeps native reserve and selling-liability arithmetic exact across the amount range 11ms
+     → expected '922337203684.4775391' to be '922337203684.4775806' // Object.is equality
+   × Multi-Asset Balance Model > parseMultiAssetBalance > keeps a single remaining issued stroop available near the protocol maximum 1ms
+     → expected '0.0000000' to be '0.0000001' // Object.is equality
+   × Multi-Asset Balance Model > parseMultiAssetBalance > rounds display cents after exact liability subtraction 1ms
+     → expected '922337203685.0050049' to be '922337203685.0049999' // Object.is equality
+   ✓ Multi-Asset Balance Model > parseMultiAssetBalance > clamps encumbered native balances to zero 1ms
+   ✓ Multi-Asset Balance Model > parseMultiAssetBalance > clamps encumbered credit_alphanum4 balances to zero 1ms
+   × Multi-Asset Balance Model > parseMultiAssetBalance > rejects invalid amount 1e3 instead of coercing it through floating point 1ms
+     → expected function to throw an error, but it didn't
+   × Multi-Asset Balance Model > parseMultiAssetBalance > rejects invalid amount 10abc instead of coercing it through floating point 1ms
+     → expected function to throw an error, but it didn't
+   × Multi-Asset Balance Model > parseMultiAssetBalance > rejects invalid amount 0.00000001 instead of coercing it through floating point 1ms
+     → expected function to throw an error, but it didn't
+   × Multi-Asset Balance Model > parseMultiAssetBalance > rejects invalid amount 922337203685.4775808 instead of coercing it through floating point 1ms
+     → expected function to throw an error, but it didn't
+   ✓ Multi-Asset Balance Model > parseMultiAssetBalance > parses native XLM balance with subentry reserve deduction 1ms
+   ✓ Multi-Asset Balance Model > parseMultiAssetBalance > parses issued assets with authorized and unauthorized states 2ms
+   ✓ Multi-Asset Balance Model > parseMultiAssetBalance > handles unknown or unparseable asset types gracefully 1ms
+   ✓ Multi-Asset Balance Model > parseMultiAssetBalance > returns clean unfunded model when account data is missing (404) 1ms
+   ✓ Multi-Asset Balance Model > parseMultiAssetBalance > returns unavailable model when account state is unavailable 1ms
+   ✓ Multi-Asset Balance Model > getMultiAssetBalance & safeGetMultiAssetBalance > fetches and parses multi-asset balance from Horizon 2ms
+   ✓ Multi-Asset Balance Model > getMultiAssetBalance & safeGetMultiAssetBalance > returns unfunded status for 404 response without throwing 1ms
+   ✓ Multi-Asset Balance Model > getMultiAssetBalance & safeGetMultiAssetBalance > safeGetMultiAssetBalance returns SuccessResult when successful 1ms
+   ✓ Multi-Asset Balance Model > getMultiAssetBalance & safeGetMultiAssetBalance > safeGetMultiAssetBalance returns FailureResult for invalid public key 1ms
+   ✓ Multi-Asset Balance Model > formatAssetBalanceDisplay & findAssetInMultiBalance > formats native and issued assets properly with custom decimals 0ms
+   ✓ Multi-Asset Balance Model > formatAssetBalanceDisplay & findAssetInMultiBalance > finds XLM and issued assets accurately within MultiAssetBalance 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/multi-asset-balance.test.ts > Multi-Asset Balance Model > parseMultiAssetBalance > keeps native reserve and selling-liability arithmetic exact across the amount range
+AssertionError: expected '922337203684.4775391' to be '922337203684.4775806' // Object.is equality
+
+Expected: "922337203684.4775806"
+Received: "922337203684.4775391"
+
+ ❯ tests/multi-asset-balance.test.ts:85:47
+     83|       expect(result.native?.totalBalance).toBe('922337203685.4775807');
+     84|       expect(result.native?.reservedBalance).toBe('1.0000001');
+     85|       expect(result.native?.availableBalance).toBe('922337203684.47758…
+       |                                               ^
+     86|       expect(result.native?.state).toBe('available');
+     87|       expect(formatAssetBalanceDisplay(result.native!, 7)).toBe('92233…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/9]⎯
+
+ FAIL  tests/multi-asset-balance.test.ts > Multi-Asset Balance Model > parseMultiAssetBalance > keeps a single remaining issued stroop available near the protocol maximum
+AssertionError: expected '0.0000000' to be '0.0000001' // Object.is equality
+
+Expected: "0.0000001"
+Received: "0.0000000"
+
+ ❯ tests/multi-asset-balance.test.ts:103:39
+    101| 
+    102|       const issued = result.issuedAssets[0]!;
+    103|       expect(issued.availableBalance).toBe('0.0000001');
+       |                                       ^
+    104|       expect(issued.reservedBalance).toBe('922337203685.4775806');
+    105|       expect(issued.state).toBe('available');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/9]⎯
+
+ FAIL  tests/multi-asset-balance.test.ts > Multi-Asset Balance Model > parseMultiAssetBalance > rounds display cents after exact liability subtraction
+AssertionError: expected '922337203685.0050049' to be '922337203685.0049999' // Object.is equality
+
+Expected: "922337203685.0049999"
+Received: "922337203685.0050049"
+
+ ❯ tests/multi-asset-balance.test.ts:121:56
+    119|       });
+    120| 
+    121|       expect(result.issuedAssets[0]?.availableBalance).toBe('922337203…
+       |                                                        ^
+    122|       expect(result.issuedAssets[0]?.formattedDisplay).toBe('922337203…
+    123|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/9]⎯
+
+ FAIL  tests/multi-asset-balance.test.ts > Multi-Asset Balance Model > parseMultiAssetBalance > rejects invalid amount 1e3 instead of coercing it through floating point
+ FAIL  tests/multi-asset-balance.test.ts > Multi-Asset Balance Model > parseMultiAssetBalance > rejects invalid amount 10abc instead of coercing it through floating point
+ FAIL  tests/multi-asset-balance.test.ts > Multi-Asset Balance Model > parseMultiAssetBalance > rejects invalid amount 0.00000001 instead of coercing it through floating point
+ FAIL  tests/multi-asset-balance.test.ts > Multi-Asset Balance Model > parseMultiAssetBalance > rejects invalid amount 922337203685.4775808 instead of coercing it through floating point
+AssertionError: expected function to throw an error, but it didn't
+ ❯ tests/multi-asset-balance.test.ts:157:17
+    155|                 [field]: amount,
+    156|               }],
+    157|             })).toThrowError(expect.objectContaining({ code: 'PAYMENT_…
+       |                 ^
+    158|           }
+    159|         }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/9]⎯
+
+ FAIL  tests/qrParser.test.ts > QR Parser > parses valid QR payload
+AssertionError: expected undefined to be 'GABCDEF1234567890' // Object.is equality
+
+- Expected: 
+"GABCDEF1234567890"
+
++ Received: 
+undefined
+
+ ❯ tests/qrParser.test.ts:8:28
+      6|     const url = 'pocketpay://pay?address=GABCDEF1234567890&amount=10.5…
+      7|     const result = parseQRPayload(url);
+      8|     expect(result.address).toBe('GABCDEF1234567890');
+       |                            ^
+      9|     expect(result.amount).toBe('10.5');
+     10|     expect(result.asset).toEqual({ code: 'USD', issuer: 'ISSUER' });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/9]⎯
+
+ FAIL  tests/qrParser.test.ts > QR Parser > throws on malformed URL
+AssertionError: expected function to throw an error, but it didn't
+ ❯ tests/qrParser.test.ts:17:42
+     15|   test('throws on malformed URL', () => {
+     16|     const badUrl = 'pocketpay://pay?address=invalid&amount=abc';
+     17|     expect(() => parseQRPayload(badUrl)).toThrow(PaymentParseError);
+       |                                          ^
+     18|   });
+     19| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/9]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  9 failed | 16 passed (25)
+   Start at  09:44:44
+   Duration  1.54s (transform 920ms, setup 0ms, collect 1.82s, tests 52ms, environment 0ms, prepare 244ms)
+

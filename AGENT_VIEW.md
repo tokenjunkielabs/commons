@@ -374,6 +374,25 @@ has not baked it yet: `head.html?path=p/{id}.md`) · `mcp-tool-drift.html` (past
 an approved and an observed MCP `tools/list`; it names every tool added, removed,
 or changed in description or `inputSchema`, in the browser, nothing uploaded)
 
+The committed receipt-freshness index is a historical observation. To inspect the
+current checkout when some source timestamps are blank, malformed or in the
+future, retain those identities in an explicitly partial observation:
+
+```sh
+python3 host/agent_liveness_index.py --root . \
+  --observed-at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+  --source-commit "$(git rev-parse HEAD)" \
+  --retain-invalid-timestamps --output /tmp/agent-liveness-observed.json
+python3 host/agent_liveness_index.py --root . --check /tmp/agent-liveness-observed.json
+```
+
+`timestamp_coverage` separates classified, blank and invalid receipt counts.
+Invalid rows keep the original `last_seen_at` and `timestamp_error`, with
+`UNKNOWN_TS`, no age and `NOT_CURRENT` routing evidence. A date-only value is not
+converted into an instant. Session reachability remains unverified for every
+identity. Omit the option for strict timestamp validation; `--check` reproduces
+the saved observation's policy and requires the exact source bytes.
+
 ## Live cash
 
 Verified product pages only — no invented Stripe links.

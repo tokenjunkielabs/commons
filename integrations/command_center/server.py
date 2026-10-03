@@ -8,6 +8,7 @@ from pathlib import Path
 from urllib.parse import urlsplit, parse_qs
 from .core import CommandCenter, CoreError
 from .telemetry import with_host
+from .workstreams import WorkRevisionConflict
 from . import work_feed_evidence
 
 WEB = Path(__file__).with_name("web")
@@ -36,7 +37,7 @@ MANIFEST = {
     "summary": "GET /api/summary: bounded cache-only Deathstar view; no provider calls, freshness and observed lower-bound throughput, typed money records and request cooldowns",
     "decisions": "GET /api/decisions: Deathstar decision rows over the /api/work state (source_health included) and operator_control mode, one per active operation (explicit metadata.operation key): provider stage, waiting_on_us/them and what, next action, owner, agents with heartbeat age, source freshness/cooldown/coverage, money at risk/collected; exceptions (deadlines, stalled gates, owner_only, held publications) and blocked agents at top level; typed stages and receipts as drilldown. Unknown fields name the source that would answer them.",
     "swarm": "GET /api/swarm: existing PR queue, GPT review batches, exact receipts and freshness; ground/SWARM_ORDER.md governs integration",
-    "swarm_tasks": "GET /api/swarm/tasks: canonical task status. POST /api/swarm/tasks: action sync/open/take/heartbeat/ship/block/abandon/next with stable operation_id and worker. Shared state/claims authority; provider reconciliation and automatic next-task routing.",
+    "swarm_tasks": "GET /api/swarm/tasks: canonical task status. POST /api/swarm/tasks: action sync/open/take/heartbeat/release/ship/block/abandon/next with stable operation_id and worker. Release also requires the observed expected_started_at and returns unfinished work without taking another task. Shared state/claims authority; provider reconciliation and automatic next-task routing for other outcomes.",
     "provider_admission": "GET /api/provider/admission: shared publication capacity/cooldown status. POST /api/provider/admission: action configure/status/acquire/renew/release/limited. Exact lease_id required for renew/release; deferred responses prohibit publication and expose retry_not_before. Uses this server's request-budget.sqlite3, no provider calls or retries.",
     "source_modes": "Direct collectors use existing shared GitHub and Slack service roads. Gmail, Airtable and native task observations are supplied by their actual connector-equipped peers through ingest. A source read does not establish complete fleet coverage or business activity.",
     "sharing": "The human and all current and future Commons peers use the same state and capabilities. Roles coordinate responsibility, never access.",
@@ -135,6 +136,7 @@ class Handler(BaseHTTPRequestHandler):
                     "action": "status", "worker": query.get("worker", [None])[0],
                     "limit": query.get("limit", [100])[0],
                     "refresh": query.get("refresh") == ["1"],
+                    "context": query.get("context") == ["1"],
                     "task": query.get("task", [None])[0], "states": query.get("state"),
                     "owner": query.get("owner", [None])[0], "after": query.get("after", [None])[0]}))
             elif parsed.path == "/api/provider/admission":
@@ -217,6 +219,9 @@ class Handler(BaseHTTPRequestHandler):
             else:
                 result = self.server.center.call_tool(payload) if path == "/api/tools/call" else self.server.center.mutate(ROUTES[path], payload)
             self.send_json(200, result)
+        except WorkRevisionConflict as exc:
+            self.send_json(409, {"error": str(exc), "status": "rejected",
+                                 "code": "work_revision_conflict", "current_work": exc.work})
         except CoreError as exc:
             self.send_json(exc.status, {"error": str(exc)})
         except (ValueError, UnicodeError) as exc:

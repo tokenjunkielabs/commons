@@ -104,10 +104,12 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;min-height:220px;background:#1b1
   var api = window.ReferralIntakeCompleteness, journal = api.createJournal(), last = null;
   function v(id){ return document.getElementById(id).value; }
   function packet(){
+    var referralId = v("referralId");
+    var recorded = journal.referrals[referralId.trim().toUpperCase()];
     return {
-      referralId: v("referralId"),
+      referralId: referralId,
       referralClass: v("referralClass"),
-      submittedAt: new Date().toISOString(),
+      submittedAt: recorded ? recorded.input.submittedAt : new Date().toISOString(),
       fields: {
         referringClinicId: v("referringClinicId"),
         destinationClinicId: v("destinationClinicId"),

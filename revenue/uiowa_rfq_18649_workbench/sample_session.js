@@ -30,7 +30,7 @@
     el.resetBtn.textContent = parked ? "Leave sample and restore review" : originalClearLabel;
     if (parked) {
       el.inspectBtn.disabled = true;
-      message.textContent = "Synthetic sample only — not compiler output. Reset clears this sample's notes, dispositions, selection, filters and temporary draft cache. Downloaded files are untouched. " +
+      message.textContent = "Synthetic sample only — not compiler output. Reset clears this sample's notes, dispositions, selection, filters, linked review records and temporary draft cache. Downloaded files are untouched. " +
         (parked.report ? "Your prior report and drafts are parked in this tab; leave to restore them." : "Your existing tab drafts are parked; leave to return to the empty workbench.") +
         " Closing or reloading still requires downloaded JSON to retain important work.";
     }
@@ -48,7 +48,8 @@
       savedReceipt: el.savedDraftSelect.value,
       exported: el.exportStatus.textContent, error: el.error.textContent,
       intakeOpen: el.importPanel.open,
-      savedPanelOpen: document.getElementById("savedDraftPanel")?.open
+      savedPanelOpen: document.getElementById("savedDraftPanel")?.open,
+      review: globalThis.UIowaWorkbenchReview?.captureState() || null
     };
   }
 
@@ -60,6 +61,7 @@
     state.savedDrafts = new Map();
     el.statusFilter.value = "";
     installReport(syntheticReport());
+    globalThis.UIowaWorkbenchReview?.clearSampleState();
     setError("");
     updateControls();
     document.getElementById("summary-heading").focus();
@@ -104,6 +106,7 @@
       if (savedPanel && typeof prior.savedPanelOpen === "boolean") savedPanel.open = prior.savedPanelOpen;
       el.exportStatus.textContent = prior.exported;
       setError(prior.error);
+      if (prior.review) globalThis.UIowaWorkbenchReview?.restoreState(prior.review);
       parked = null;
       updateControls();
       // The sample panel is now hidden and the original intake may be collapsed.
@@ -141,7 +144,8 @@
     parked = {
       report: null, notes: new Map(), dispositions: new Map(), savedDrafts: new Map(),
       selectedKey: null, search: "", status: "", savedReceipt: "",
-      exported: "", error: "", intakeOpen: true, savedPanelOpen: false
+      exported: "", error: "", intakeOpen: true, savedPanelOpen: false,
+      review: {report_receipt_sha256: null, packet: null, hash: location.hash}
     };
     try { cleanSample(); }
     catch (err) { preservationError(err); updateControls(); }

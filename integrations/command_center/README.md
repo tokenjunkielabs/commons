@@ -93,11 +93,20 @@ Connector-equipped peers call command_center_ingest or POST /api/work/ingest wit
 
 Direct GitHub/Slack readers use workstreams.config.json in the shared private state directory. Configure github, slack and documents with actual existing repositories, channel IDs and canonical document paths/collections. Defaults: four workers, two pages of thirty records, eight Actions repositories, 180-second cooperative deadline. GitHub includes authored contributions outside owned repositories; document reads pin a commit. In-flight reads finish under their provider timeouts; incomplete coverage remains explicit.
 
+Completed source batches are committed as their readers finish, so Work reads can see new observations while slower sources are still being collected. One collector thread serializes those writes and retains the corresponding receipts in source order. Deferred sources keep their previous snapshots. The collection still joins every in-flight reader before releasing its existing lock or reporting final completion; partial progress does not mark the whole refresh complete.
+
 GET /api/work?refresh=1 or command_center_refresh_work starts one bounded read and returns observations with progress. An OS-held lock prevents duplicate collectors across UI/gateway processes. No scheduler is installed. Connector-fed sources refresh through their actual connector-equipped peers and the same ingest API; direct refresh does not impersonate those connectors.
 
 A plain read refreshes itself. When the last completed collection is older than five minutes, any read — GET /api/work, the browser, or a peer's command_center_work_state call — starts that same bounded read in the background and returns at once; the lock keeps it to one. Every response carries a `freshness` block: `last_completed_at`, `age_seconds`, `stale`, `auto_refresh` (started, already_running, not_due or why not), `collector_configured` and `stale_sources`. A failed or unconfigured attempt never resets the clock, so `stale` stays true until something is actually collected. A reader that sees `auto_refresh: started` can read again once it finishes. A "running" record left by a process that died is re-offered to the lock after fifteen minutes.
 
 GET /api/observability composes the board bakes — pulse.json, feed/head.json, seats.json, feed/github.json — from main at the commit the app already pins, re-read when main moves or after five minutes. A bake main cannot supply falls back to the local checkout and is labelled `road: checkout` with the main error; one neither road can read is listed in `degraded`. Seat liveness is recomputed at read time, and a heartbeat further ahead than `heartbeat_future_skew_s` (300) reads UNKNOWN and is never routable.
+
+The checkout CLI, `python -m integrations.command_center.observability --root /path/to/commons`,
+always prints its available JSON snapshot (or the headline with `--headline`). It exits `2`
+and names each failed file on stderr when any of those four required sources cannot be
+read or decoded. A successful read exits `0`; stale or unknown observations and the
+absent optional coordination head do not change that exit status. The web/API keeps
+serving its partial snapshot independently of this command-line status.
 
 `command.html`, the page Pages serves, reads the same four bakes from `main` through raw.githubusercontent.com. It uses the copy Pages serves beside it only when `main` cannot be read, and names the files it took from the site. A Pages deploy waits in the shared Actions queue, and on 2026-09-11 the site trailed `main` by 34 hours. The headline gives the bake's age from `pulse.json`.
 
@@ -105,12 +114,18 @@ POST /api/work/item or command_center_work_item sets priority, next_action or a 
 
 Work-item edits may include `expected_revision` from `item.owner_work.revision`
 (use `0` when no owner direction exists). Each accepted update increments that
-revision. A stale revision returns HTTP 409 without changing the direction or
-recording a successful operation; read the exact item again and reconcile the
-edit. Exact retries with the same operation ID and payload return their original
-result even if a later edit has advanced the revision. Callers omitting the field
+revision. A stale revision returns HTTP 409 with `code: work_revision_conflict`,
+`status: rejected`, and the `current_work` captured in that transaction. It changes
+no direction and records no successful operation. Compare the returned direction
+with the draft and reconcile the edit. Exact retries with the same operation ID
+and payload return their original result even if a later edit has advanced the revision. Callers omitting the field
 retain their existing behavior. The Work editor sends the revision it displayed,
-keeps a rejected draft in place, and closes after a confirmed save. This protects
+keeps a rejected draft in place, and shows the saved priority, next action, and
+prepared packet. "Use this revision for my draft" updates only the edit's revision
+basis; the operator can adjust the draft and save it again. A definite revision
+rejection can start a corrected operation; unrelated conflicts and uncertain
+transport outcomes still retain the original operation for reconciliation.
+The editor closes after a confirmed save. This protects
 owner directions, not freshness of the separate provider observation.
 
 ## Canonical task visibility
@@ -140,6 +155,16 @@ pause further reads until their deadline. A projection observation ages to stale
 after 90 seconds even if surrounding refresh signals stop; source coverage has its
 own clocks and may already be partial. Landing these UI files does not establish
 that an owner-host process loaded them.
+
+## Operation claim overlaps
+
+`python -m integrations.command_center.claim_overlap` projects explicit operation
+and source-scope declarations from saved detailed Slack responses. It reuses
+the supplied snapshots, preserves original claim links, and shows potential
+path overlaps without changing custody or calling a provider. See
+[Operation scope overlap view](CLAIM-OVERLAP.md) for input, filtering, coverage
+and unresolved-claim behavior. Existing `state/claims` and work-item APIs remain
+the ownership and work roads.
 
 ## Live cash
 
@@ -200,6 +225,15 @@ python -O -B -m unittest integrations.command_center.test_slack_threads integrat
 The later-page shape regression intentionally tests a conservative merge of valid
 rows, rather than the previous all-or-nothing loss of newly fetched pages. Source
 publication and passing tests do not establish deployment or real-provider refresh.
+
+## Bounded summary selection
+
+`build_summary` retains at most 12 attention rows while scanning the existing work
+snapshot. Priority, freshness, attention status and shortened item ID retain their
+existing ordering, including source order for equal keys. Omitted counts still
+include every eligible record, and status counts accumulate by distinct status.
+This bounds attention selection storage without changing input coverage or the
+summary response.
 
 ## Deathstar decision view
 

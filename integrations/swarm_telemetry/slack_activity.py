@@ -10,6 +10,7 @@ from __future__ import annotations
 import hashlib
 import base64
 import json
+import math
 import re
 import time
 from datetime import datetime, timezone
@@ -92,6 +93,44 @@ class SourceReadError(RuntimeError):
         self.code = code if re.fullmatch(r"[A-Za-z0-9_:-]{1,120}", code) else "source_read_failed"
 
 
+def _provider_retry_seconds(value):
+    """Retain numeric provider retry hints across native transport envelopes."""
+    delays = []
+    for _ in range(12):
+        if not isinstance(value, Mapping):
+            break
+        for metadata in (value, value.get("error_data")):
+            if not isinstance(metadata, Mapping):
+                continue
+            for fields in (metadata, metadata.get("headers")):
+                if not isinstance(fields, Mapping):
+                    continue
+                for key in ("retry_after_seconds", "retry_after", "Retry-After", "retry-after"):
+                    hint = fields.get(key)
+                    if isinstance(hint, bool):
+                        continue
+                    try:
+                        seconds = float(hint)
+                    except (TypeError, ValueError, OverflowError):
+                        continue
+                    if math.isfinite(seconds) and seconds >= 0:
+                        delays.append(seconds)
+        if isinstance(value.get("structuredContent"), Mapping):
+            value = value["structuredContent"]
+        elif isinstance(value.get("result"), Mapping):
+            value = value["result"]
+        elif isinstance(value.get("content"), list):
+            texts = [block["text"] for block in value["content"]
+                     if isinstance(block, Mapping) and block.get("type") == "text" and isinstance(block.get("text"), str)]
+            try:
+                value = json.loads(texts[0]) if texts else None
+            except (ValueError, RecursionError):
+                break
+        else:
+            break
+    return max(delays) if delays else None
+
+
 def _page(value):
     """Parse supplied native/API fields, retaining complete formatted blocks."""
     value = _unwrap(value)
@@ -99,13 +138,19 @@ def _page(value):
         return [], None, False, {"parse_state": "source_schema_pending"}
     rows = value.get("messages")
     if rows is None:
-        rows = value.get("thread_messages") or value.get("thread") or value.get("events")
+        rows = next((value[field] for field in ("thread_messages", "thread", "events")
+                     if value.get(field) is not None), None)
+    parsed_empty = False
+    page_counts = {}
     if isinstance(rows, list):
         messages = [{**row["event"], "native_event_source": dict(row)} if isinstance(row.get("event"), Mapping) else dict(row) for row in rows if isinstance(row, Mapping)]
     else:
         text = rows if isinstance(rows, str) else value.get("formatted_source") or value.get("result") or value.get("text")
         messages = []
         if isinstance(text, str):
+            # The native channel reader represents an empty page as its
+            # channel header alone. A nonempty unknown format is still unread.
+            parsed_empty = bool(re.fullmatch(r"Channel: [^\n]+ \([CGD][A-Z0-9]{7,}\)\s*", text.strip()))
             boundaries = list(re.finditer(r"(?m)^=== (?:Message|Reply) from (.*?) ===[^\n]*\nMessage TS:\s*(\d{9,}\.\d+)\s*\n", text))
             for index, marker in enumerate(boundaries):
                 end = boundaries[index + 1].start() if index + 1 < len(boundaries) else len(text)
@@ -126,6 +171,11 @@ def _page(value):
                 thread_markers = list(re.finditer(r"(?m)^(?:=== THREAD PARENT MESSAGE ===|--- Reply \d+ of \d+ ---)\s*\nFrom:\s*(.*?)\nTime:\s*([^\n]*)\nMessage TS:\s*(\d{9,}\.\d+)\s*\n", text))
                 parent_ts = thread_markers[0].group(3) if thread_markers else None
                 reply_total = re.search(r"=== THREAD REPLIES \((\d+) total\) ===", text)
+                if reply_total:
+                    declared = int(reply_total.group(1))
+                    returned = sum(marker.group(0).startswith("--- Reply ") for marker in thread_markers)
+                    page_counts = {"declared_replies": declared, "normalized_replies": returned,
+                                   "native_page_complete": returned == declared}
                 for index, marker in enumerate(thread_markers):
                     end = thread_markers[index + 1].start() if index + 1 < len(thread_markers) else len(text)
                     block, body = text[marker.start():end], text[marker.end():end]
@@ -146,8 +196,16 @@ def _page(value):
     elif isinstance(value.get("pagination_info"), str):
         pagination = value["pagination_info"]
         next_page = re.search(r"(?:use\s+cursor|next_cursor|cursor)\s*[:=]\s*`?([^`\s]+)", pagination, re.I)
-        cursor = next_page.group(1) if next_page else ""
-        terminal = not next_page and not re.search(r"more messages available|next page|has_more.{0,5}true", pagination, re.I)
+        if next_page:
+            cursor, terminal = next_page.group(1), False
+        elif re.search(r"\b(?:no more (?:messages|pages)|end of results)\b", pagination, re.I):
+            # Check the explicit end marker before its contained phrase
+            # "more messages available", or empty tails never finish.
+            cursor, terminal = "", True
+        elif re.search(r"more messages available|next page|has_more.{0,5}true", pagination, re.I):
+            cursor, terminal = "", False
+        else:
+            cursor, terminal = None, False
     elif value.get("has_more") is False:
         cursor, terminal = "", True
     elif isinstance(rows, list) and len(rows) < 100 and "has_more" not in value:
@@ -156,9 +214,37 @@ def _page(value):
         cursor, terminal = None, False
     else:
         cursor, terminal = None, False
-    return messages, cursor, terminal, {"parse_state": "parsed" if messages or isinstance(rows, list) else "source_schema_pending",
+    incomplete = page_counts.get("native_page_complete") is False
+    return messages, cursor, terminal and not incomplete, {"parse_state": "source_page_incomplete" if incomplete else "parsed" if messages or isinstance(rows, list) or parsed_empty else "source_schema_pending",
                                       "normalized_records": len(messages), "pagination_known": cursor is not None,
-                                      "source_pagination": value.get("pagination_info") or metadata}
+                                      "source_pagination": value.get("pagination_info") or metadata, **page_counts}
+
+
+def _message_revision(message):
+    """Hash message content, independently of its history/thread read wrapper.
+
+    Exact envelopes and formatted blocks remain in source custody. Pagination,
+    thread counters and presentation metadata describe the read, not an edit.
+    Content, edit timestamps, files, attachments and reactions still contribute
+    to the revision so genuine message changes retain distinct event identities.
+    """
+    inner = message.get("message") if isinstance(message.get("message"), Mapping) else message
+    snapshot = dict(inner)
+    for field in ("native_formatted_source", "native_event_source", "source_format",
+                  "thread_ts", "reply_count", "reply_users", "reply_users_count", "latest_reply",
+                  "last_read", "subscribed", "unread_count", "parent_user_id",
+                  "user_profile", "bot_profile"):
+        snapshot.pop(field, None)
+    # History may omit thread_ts even for a broadcast reply. The immutable
+    # message timestamp identifies the record; its parent remains in metadata.
+    if message.get("source_format") == "native_formatted_projection":
+        body = str(snapshot.get("text") or "")
+        body = re.sub(r"\n=== THREAD REPLIES \(\d+ total\) ===\s*$", "", body)
+        body = re.sub(r"\nThread:\s*\d+\s+repl(?:y|ies)(?:\s+\(latest:[^\r\n]*\))?\s*$", "", body)
+        snapshot["text"] = body.rstrip("\r\n")
+        snapshot["files"] = [{key: value for key, value in file.items() if key != "formatted_metadata"}
+                             if isinstance(file, Mapping) else file for file in snapshot.get("files", [])]
+    return _digest("slack-message-content-v1", snapshot)
 
 
 def _base_event(job, kind, identity, occurred_at, full_source, summary, metadata=None):
@@ -175,7 +261,7 @@ def _base_event(job, kind, identity, occurred_at, full_source, summary, metadata
 def _request(job):
     if job["kind"] == "file":
         return FILE_TOOL, {"file_id": job["file_id"]}
-    args = {"channel_id": job.get("dm_user_id") or job["channel_id"], "limit": 100, "response_format": "detailed"}
+    args = {"channel_id": job.get("dm_user_id") or job["channel_id"], "limit": job.get("page_limit", 100), "response_format": "detailed"}
     if job.get("cursor"):
         args["cursor"] = job["cursor"]
     if job.get("oldest"):
@@ -188,6 +274,34 @@ def _request(job):
     return HISTORY_TOOL, args
 
 
+def _thread_page_regressed(job, reply_timestamps):
+    """Recognize a cursor traversal reversing its observed reply progress.
+
+    Native thread pages can move in either direction. Their opaque cursors do
+    not establish ordering, and the repeated parent is not reply progress.
+    Empty terminal pages and inclusive boundary replies remain valid.
+    """
+    if job["kind"] not in {"thread", "thread_tail"} or not reply_timestamps:
+        return False
+    oldest, newest = min(reply_timestamps, key=Decimal), max(reply_timestamps, key=Decimal)
+    window = {field: job[field] for field in ("oldest", "latest") if field in job}
+    previous = job.get("thread_page_progress") if job.get("cursor") else None
+    previous = previous if isinstance(previous, Mapping) else {}
+    if previous.get("window") != window:
+        previous = {}
+    direction = previous.get("direction")
+    prior_oldest, prior_newest = previous.get("oldest_ts"), previous.get("newest_ts")
+    if _TS.fullmatch(str(prior_oldest or "")) and _TS.fullmatch(str(prior_newest or "")):
+        forward = Decimal(oldest) >= Decimal(prior_oldest) and Decimal(newest) > Decimal(prior_newest)
+        backward = Decimal(newest) <= Decimal(prior_newest) and Decimal(oldest) < Decimal(prior_oldest)
+        movement = "forward" if forward else "backward" if backward else None
+        if direction and movement and direction != movement:
+            return True
+        direction = direction or movement
+    job["thread_page_progress"] = {"oldest_ts": oldest, "newest_ts": newest, "direction": direction, "window": window}
+    return False
+
+
 def _default_reader(config):
     from .runner import Gateway
     gateway = Gateway(config.get("gateway") or config.get("gateway_url") or "http://127.0.0.1:8878", config.get("timeout_seconds", 25))
@@ -196,7 +310,7 @@ def _default_reader(config):
             raise SourceReadError("native_file_reader_binding_pending")
         short = "slack_read_thread" if name == THREAD_TOOL else "slack_read_channel"
         fields = {"channel_id": config.get("_dm_channel_mapping", {}).get(args["channel_id"], args["channel_id"]), "limit": args.get("limit", 100)}
-        for field in ("cursor", "oldest", "latest"):
+        for field in ("cursor", "oldest", "latest", "response_format"):
             if field in args:
                 fields[field] = args[field]
         if "message_ts" in args:
@@ -338,23 +452,39 @@ def collect_slack_activity(config=None, state=None, sources=None, read_page=None
                 continue
             messages, cursor, terminal, parse = _page(raw)
             page_event["metadata"].update(parse)
+            if parse["parse_state"] != "parsed":
+                job["last_source_page_event_id"] = page_event["event_id"]
+                if parse["parse_state"] == "source_page_incomplete":
+                    # Keep the same cursor/window: even the last rendered
+                    # message can be cut off by the native response formatter.
+                    job["page_limit"] = max(1, arguments["limit"] // 2)
+                    raise SourceReadError("source_page_incomplete")
+                raise SourceReadError("source_schema_pending")
             newest = job.get("newest_ts")
+            reply_timestamps = []
             for message in messages:
                 ts = str(message.get("ts") or message.get("event_ts") or "")
                 subtype = str(message.get("subtype") or "")
                 inner = message.get("message") if isinstance(message.get("message"), Mapping) else message
                 identity_ts = str(inner.get("ts") or message.get("deleted_ts") or ts)
-                revision = _digest(message)
+                if job["kind"] in {"thread", "thread_tail"} and identity_ts != str(job.get("thread_ts")) and _TS.fullmatch(identity_ts):
+                    reply_timestamps.append(identity_ts)
+                revision = _message_revision(message)
                 key = job["account_ref"] + ":" + str(job.get("channel_id")) + ":" + identity_ts
-                changed = key in observations and observations[key] != revision
-                kind = "message_deleted" if subtype == "message_deleted" else "message_changed" if subtype == "message_changed" or inner.get("edited") else "message_snapshot_changed" if changed else "message"
-                event = _base_event(job, kind, identity_ts + ":" + revision, _timestamp(ts or identity_ts), message.get("native_formatted_source") or message.get("native_event_source") or message, inner.get("text") or "Slack message source",
+                previous = observations.get(key)
+                previous = previous if isinstance(previous, Mapping) else {}
+                # Old checkpoints used wrapper hashes. Their first canonical
+                # observation is a baseline, not evidence of a message edit.
+                changed = bool(previous.get("revision")) and previous["revision"] != revision
+                kind = "message_deleted" if subtype == "message_deleted" else "message_changed" if subtype == "message_changed" or inner.get("edited") else "message_snapshot_changed" if changed else previous.get("event_type", "message")
+                event = _base_event(job, "message", identity_ts + ":" + revision, _timestamp(ts or identity_ts), message.get("native_formatted_source") or message.get("native_event_source") or message, inner.get("text") or "Slack message source",
                                     {"message_ts": identity_ts, "event_ts": ts or None, "thread_ts": inner.get("thread_ts"), "subtype": subtype,
                                      "source_page_event_id": page_event["event_id"], "source_format": message.get("source_format", "slack_api"), "revision": revision,
                                      "original_event_id": "slack-message:" + _digest(job.get("workspace_id"), job.get("channel_id"), identity_ts, revision)})
+                event["event_type"] = kind
                 event["peer_id"] = inner.get("user") or message.get("user")
                 events.append(event)
-                observations[key] = revision
+                observations[key] = {"revision": revision, "event_type": kind}
                 if _TS.fullmatch(identity_ts) and (newest is None or Decimal(identity_ts) > Decimal(str(newest))):
                     newest = identity_ts
                 thread_ts = inner.get("thread_ts") or (identity_ts if inner.get("reply_count", 0) else None)
@@ -386,11 +516,24 @@ def collect_slack_activity(config=None, state=None, sources=None, read_page=None
                 if existing is not None and _TS.fullmatch(str(existing)):
                     candidate = max(candidate, Decimal(str(existing)))
                 matching_tail["oldest"] = str(candidate)
-            if cursor is None:
+            if _thread_page_regressed(job, reply_timestamps):
+                # Re-read the unchanged window instead of trusting a terminal
+                # cursor that reversed direction or skipping unseen messages by
+                # advancing a timestamp bound. Exact pages remain in custody.
+                page_event["metadata"]["thread_cursor_regressed"] = True
+                job.pop("thread_page_progress", None)
+                job.update(cursor="", page_limit=max(1, arguments["limit"] // 2),
+                           status="cursor_recovery_pending", complete=False,
+                           next_attempt_epoch=time.time() + float(config.get("slack_retry_seconds", 120)),
+                           restore_point={"tool_name": tool, "arguments": arguments, "account_ref": job["account_ref"],
+                                          "source_page_event_id": page_event["event_id"], "cursor": arguments.get("cursor"),
+                                          "recovery": "smaller_page_same_window"})
+            elif cursor is None:
                 job.update(status="pagination_metadata_pending", complete=False, next_attempt_epoch=time.time() + float(config.get("slack_retry_seconds", 120)))
             elif cursor and cursor == job.get("cursor"):
                 job.update(status="cursor_recovery_pending", complete=False, next_attempt_epoch=time.time() + float(config.get("slack_retry_seconds", 120)))
             elif terminal:
+                job.pop("thread_page_progress", None)
                 if job["kind"] in {"tail", "thread_tail"}:
                     overlap = Decimal(str(config.get("slack_tail_overlap_seconds", 300)))
                     job.pop("latest", None)
@@ -417,7 +560,12 @@ def collect_slack_activity(config=None, state=None, sources=None, read_page=None
             code = getattr(error, "code", type(error).__name__)
             if raw is not None:
                 events.append(_base_event(job, "slack_source_read_failure", _digest(raw), at, raw, "Slack source read requires recovery", {"error": code}))
-            job.update(status="pending_recovery", complete=False, error=code, next_attempt_epoch=time.time() + float(config.get("slack_retry_seconds", 120)),
+            retry_seconds = _provider_retry_seconds(raw)
+            if code == "source_page_incomplete" and job.get("page_limit", 100) < arguments.get("limit", 100):
+                retry_seconds = 0
+            if retry_seconds is None:
+                retry_seconds = float(config.get("slack_retry_seconds", 120))
+            job.update(status="pending_recovery", complete=False, error=code, next_attempt_epoch=time.time() + retry_seconds,
                        restore_point={"tool_name": tool, "arguments": arguments, "account_ref": job["account_ref"], "cursor": job.get("cursor"), "file_id": job.get("file_id")})
             if job["kind"] == "file":
                 job["alternate_reader"] = {"mode": "read_only_stream", "scope": "all file bytes through another existing direct source road", "account_ref": job["account_ref"], "file_id": job["file_id"], "native_limit_bytes": 10 * 1024 * 1024}

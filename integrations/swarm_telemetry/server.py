@@ -12,16 +12,33 @@ TOOLS = [
     {"name":"get_dashboard_summary","description":"Immediate cached all-service counts with asynchronous refresh and paginated source details."},
     {"name":"list_peers","description":"Recorded peers and native sessions, with provider, harness and explicit runtime state."},
     {"name":"get_changes_since","description":"Incremental observations after a stable event cursor."},
-    {"name":"get_work_context","description":"Work relationships and contributing events."},
-    {"name":"trace_operation","description":"Observed attempts and outcomes for one operation."},
+    {"name":"get_work_context","description":"Work relationships and contributing events with stable history pagination."},
+    {"name":"trace_operation","description":"Observed attempts and outcomes for one operation with stable history pagination."},
     {"name":"list_accounts_and_services","description":"Account and service reference metadata; no credential values."},
     {"name":"get_source_coverage","description":"Collection coverage, gaps, freshness and checkpoints."},
     {"name":"query_metrics","description":"Defined counts, usage, provider/harness breakdowns and activity."},
-    {"name":"get_notifications","description":"Passive notices with source references and delivery state."},
+    {"name":"get_notifications","description":"Passive notices with source references, delivery state, filters and stable continuation cursors."},
     {"name":"get_collection_jobs","description":"Open resumable native-connector reads for the full corpus; no assignment or admission."},
 ]
 for tool in TOOLS:
     tool["inputSchema"]={"type":"object","properties":{key:{"type":"string"} for key in ("provider","harness","source","q","session_id","work_id","operation_id")},"additionalProperties":True}
+    if tool["name"]=="get_notifications":
+        tool["inputSchema"]["properties"].update({
+            "limit":{"type":"integer","minimum":1,"maximum":10000,"default":1000,"description":"Maximum notices per page."},
+            "cursor":{"type":"string","description":"Use next_cursor from the previous page while has_more is true; retain the same filters."},
+            "q":{"type":"string","description":"Search the stored notification content."},
+        })
+    if tool["name"] in {"get_work_context","trace_operation"}:
+        tool["inputSchema"]["properties"].update({
+            "limit":{"type":"integer","minimum":1,"maximum":1000,"default":1000,"description":"Maximum events per history page."},
+            "cursor":{"type":"integer","minimum":0,"default":0,"description":"Use next_cursor while has_more is true; retain the same history filters and order."},
+            "order":{"type":"string","enum":["asc","desc"],"default":"asc","description":"Event sequence order for this history."},
+            "event_id":{"type":"string","description":"Optional exact event identity within this history."},
+        })
+    if tool["name"]=="get_work_context":
+        tool["inputSchema"]["properties"]["limit"]["description"]="Maximum work items or work-history events per page."
+        tool["inputSchema"]["properties"]["cursor"]={"type":["integer","string"],"default":0,
+            "description":"Without work_id, use the opaque work-list next_cursor; with work_id, use the integer event next_cursor. Continue while has_more is true."}
 
 def call(store, name, args=None):
     args=args or {}
@@ -30,13 +47,13 @@ def call(store, name, args=None):
     if name=="list_peers": return store.peers(**{k:args[k] for k in ("provider","harness","q","limit") if k in args})
     if name=="get_changes_since": return store.events(**{k:args[k] for k in ("cursor","limit","source","provider","harness","q","session_id","work_id","operation_id","event_id","order") if k in args})
     if name=="get_work_context":
-        if args.get("work_id"): return store.events(work_id=args["work_id"],limit=args.get("limit",1000))
-        return store.work()
-    if name=="trace_operation": return store.events(operation_id=args.get("operation_id"),limit=args.get("limit",1000))
+        if args.get("work_id"): return store.events(limit=args.get("limit",1000),**{k:args[k] for k in ("cursor","source","provider","harness","q","session_id","work_id","operation_id","event_id","order") if k in args})
+        return store.work(**{k:args[k] for k in ("limit","cursor") if k in args})
+    if name=="trace_operation": return store.events(limit=args.get("limit",1000),**{k:args[k] for k in ("cursor","source","provider","harness","q","session_id","work_id","operation_id","event_id","order") if k in args})
     if name=="list_accounts_and_services": return store.records("accounts",**{k:args[k] for k in ("limit","cursor","q","source","provider","harness") if k in args})
     if name=="get_source_coverage": return store.records("coverage",**{k:args[k] for k in ("limit","cursor","q","source","provider","harness") if k in args})
     if name=="query_metrics": return store.metrics()
-    if name=="get_notifications": return store.records("notifications",limit=args.get("limit",1000))
+    if name=="get_notifications": return store.records("notifications",**{k:args[k] for k in ("limit","cursor","q","source","provider","harness") if k in args})
     if name=="get_collection_jobs":
         from .source_engine import SourceEngine
         return SourceEngine(store).jobs(**{k:args[k] for k in ("reader","limit","cursor") if k in args})
@@ -71,7 +88,7 @@ class Handler(BaseHTTPRequestHandler):
         try:
             if path in {"/health","/api/telemetry/health"}:
                 runner=self.server.runner
-                self.send(200,{"ok":True,"service":"commons-swarm-telemetry","version":"1.0.0","mode":"passive","jev_required":False,"runtime":self.server.store.state("collector"),"storage":self.server.store.state("storage_guard"),"readers":{kind:self.server.store.state("source_reader_health:"+kind) for kind in ("slack","github","services")},"collector_threads":[{"name":worker.name,"alive":worker.is_alive()} for worker in ([runner.thread]+runner.provider_threads) if worker] if runner else [],"collector_errors":dict(runner.errors) if runner else {}})
+                self.send(200,{"ok":True,"service":"commons-swarm-telemetry","version":"1.0.0","mode":"passive","jev_required":False,"runtime":self.server.store.state("collector"),"storage":self.server.store.state("storage_guard"),"readers":{kind:self.server.store.state("source_reader_health:"+kind) for kind in ("slack","github","services")},"collector_progress":dict(runner.last_provider) if runner else {},"collector_threads":[{"name":worker.name,"alive":worker.is_alive()} for worker in ([runner.thread]+runner.provider_threads) if worker] if runner else [],"collector_errors":dict(runner.errors) if runner else {}})
             elif path=="/api/telemetry/tools": self.send(200,{"ok":True,"tools":TOOLS,"access":"shared open discovery"})
             elif path=="/v1/tools": self.send(200,{"ok":True,"tools":TOOLS})
             elif path=="/api/telemetry/source-record":

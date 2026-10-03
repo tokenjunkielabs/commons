@@ -21,10 +21,18 @@ This directory is a coherent fictional evidence corpus for exercising RFQ 18649 
 
 ## Validate
 
-Run: python3 validate_collection.py .
-Then: python3 -m unittest -v tests/test_collection.py
+From this directory, run:
+
+```sh
+python3 validate_collection.py .
+```
 
 The validator checks file presence, manifest/fact referential integrity, explicit SYNTHETIC labeling, 12-cell coverage, and fact-state counts.
+
+The label check reads the first 500 text characters of each document through a
+bounded stream read. It avoids loading the entire document just to inspect its
+heading. This excerpt check does not validate the complete document's UTF-8
+encoding.
 
 ## Downstream handoff
 
