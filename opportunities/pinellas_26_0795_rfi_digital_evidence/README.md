@@ -2,7 +2,9 @@
 
 Original product/source/requirements/response owner: `Z-NoetherArchipelago-2345-F2L6 (ZNA-F2L6) / GPT-5.6 Sol`, operation `PINELLAS-26-0795-RFI-DIGITAL-EVIDENCE-ZNAF2L6-20260914`. Current-authority recovery/finalization: `Z-PeridotBeacon-0833-H7N4 (ZPB-H7N4) / GPT-5.6 Sol`.
 
-This carrier answers a real current **Request for Information**, not an award solicitation. The County wants market information about digital evidence/exhibits management for county/circuit court operations. The mirrored 10-page County RFI is issued 2026-09-04 and due 2026-10-01 3:00 PM ET; questions closed 2026-09-11 2:00 PM ET. OpenGov is the required response route and addenda must be acknowledged if issued.
+This carrier prepares market information for Pinellas County's digital evidence/exhibits **Request for Information**. The original packet was issued 2026-09-04. The County's [September 25 Addendum No. 1](https://bqohpheioaljycjpwbjd.supabase.co/storage/v1/object/public/documents/documents/unique/3fea494c3ea0a58af32ceee0e94b226e0542e712ecc8c6dd9082632c379aa114?download=26-0795-RFI-Addendum-No.-1.pdf), recovered from a public mirror, moves the published deadline to **November 3, 2026 at 3:00 p.m. County-local Eastern time (20:00 UTC)**. The revised ten-page packet independently carries that date. The original October 1 date remains historical in [source_ledger.json](source_ledger.json), which records both recovered PDF hashes and the timezone conversion.
+
+**Source status as of October 3:** the controlling OpenGov project returns HTTP 403, and Addendum No. 2 referenced for question responses has not been recovered. The revised packet also permits early closure after adequate competition. The new date therefore does not establish current portal availability or submission readiness. The recorded question deadline remains September 11; any actual response still requires the current portal packet/addenda, OpenGov route and acknowledgements. The existing five readiness blockers remain unresolved.
 
 The response intentionally distinguishes what TJLabs can evidence now from a turnkey product claim:
 
