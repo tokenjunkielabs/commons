@@ -353,13 +353,13 @@
  "n_open_prs": 1,
  "open_prs": [
   {
-   "number": 30568,
+   "number": 30577,
    "author": "woahwhattheheck",
-   "title": "Bind source completion to the real operation in the claim scanner",
-   "html_url": "https://github.com/woahwhattheheck/commons/pull/30568",
+   "title": "Support fixed shared supplies in workshop plans",
+   "html_url": "https://github.com/woahwhattheheck/commons/pull/30577",
    "base_freshness": {
-    "base_sha": "393a792347f631f536d51b56504392e1852b2015",
-    "main_sha": "1b1a59c5087205f45573b826d89f36efe47cd4de",
+    "base_sha": "1f9f1a44f673e490fd0311ce98ceb3854a87c17d",
+    "main_sha": "2c555f56d6af63a2227ba81858da84e1da6754c9",
     "ahead_by": null,
     "behind_by": null,
     "label": "STALE_BASE"
