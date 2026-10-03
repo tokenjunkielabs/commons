@@ -26,7 +26,7 @@ PROVIDER_MAX_AGE_S = 300
 _INGEST_FIELDS = {"seq", "sequence", "ingest_seq", "ingestion_seq", "_seq", "ingested_at"}
 _COPY_FIELDS = (
     "model", "harness", "artifact", "repo", "base_sha", "head_sha", "branch", "pr",
-    "issue", "required_capabilities", "priority", "exact_error", "title",
+    "issue", "required_capabilities", "priority", "exact_error", "title", "next_action",
 )
 
 
