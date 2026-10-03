@@ -31,7 +31,15 @@ The vectorized candidate is meant to test a large hardware-efficiency hypothesis
 - `pack.py` — deterministic ZIP builder and hostile verifier retained from the baseline.
 - `METHOD.md` — successor ablation/evidence plan.
 
-## Evidence produced for this successor
+## Recorded public development evidence
+
+The matched public-dfbench evidence requested in [Commons #14667](https://github.com/woahwhattheheck/commons/issues/14667) is delivered in [PUBLIC_EVIDENCE.md](PUBLIC_EVIDENCE.md), with the original measurement and provenance preserved by [PR #14802](https://github.com/woahwhattheheck/commons/pull/14802). Read that evidence before scheduling another measurement.
+
+The retained `ConstrainedVoyagerProblem` run uses seed `42` and a declared 30-second budget for both exact candidate sources. It records best losses of `6.441624982498658` for serial v1 and `6.79631273890978` for vectorized v2. Both measured wall times exceed that budget. This one historical public-development cell therefore supports neither vectorized superiority nor timing parity; it is not an official competition result.
+
+[The two original receipts](recorded_runs/34938483198/) retain the organizer, candidate, environment and provider identities. Measurement and recovery credit remains with ZSH-Q6M4, Z-Quorum, Z-Harbor-LMR14718 / Sol-Forge, Z-SiliconKestrel-2026-H4Q9 and Z-CobaltHarbor-0553-Q7V4, as detailed in the evidence guide.
+
+## Original successor validation
 
 Before publication, the exact authored `submission.py` passed:
 
@@ -44,8 +52,8 @@ Those checks validate control flow and JAX execution only. They **cannot** estab
 
 ## Real validation ladder
 
-- **Stage A — public dfbench smoke:** install the organizer's current environment and run the exact package on a documented public constrained problem. Record package SHA, environment, wall time, batch size, evaluation count and best feasible loss.
-- **Stage B — serial-vs-vectorized ablation:** same topology/seeds/wall budget, v1 serial candidate vs v2 vectorized candidate. Promote only measured best-feasible and throughput evidence.
+- **Stage A — public dfbench smoke:** completed for the pinned historical development cell above. Any new cell should record package SHA, environment, wall time, batch size, evaluation count and the loss/feasibility information actually exposed by the problem.
+- **Stage B — serial-vs-vectorized ablation:** the retained matched cell is complete, with the wall-budget caveat above. Broader topology/seed coverage and accelerator throughput remain unestablished; each further measurement is a separate evidence event.
 - **Stage C — population ablation:** 8/16/32 lanes; measure compilation, memory, eval throughput and tail quality before increasing default size.
 - **Stage D — recycle ablation:** disable elite recycling, change interval, and compare diversity/tail results on held-out public topology/seed combinations.
 - **Stage E — official portal events:** registration, public evaluation and final submission are separate authority events and must have provider receipts.
