@@ -68,11 +68,15 @@ def _utc_datetime(value: datetime, field: str, record: str) -> datetime:
     """Normalize both CSV and programmatic timestamps before elapsed arithmetic."""
     if not isinstance(value, datetime):
         raise DataError(f"{record}: {field} must be a datetime")
-    if value.tzinfo is None or value.utcoffset() is None:
+    try:
+        has_offset = value.tzinfo is not None and value.utcoffset() is not None
+    except (ValueError, OverflowError, TypeError) as exc:
+        raise DataError(f"{record}: {field} must include a valid UTC offset") from exc
+    if not has_offset:
         raise DataError(f"{record}: {field} must include a UTC offset")
     try:
         return value.astimezone(timezone.utc)
-    except (ValueError, OverflowError) as exc:
+    except (ValueError, OverflowError, TypeError) as exc:
         raise DataError(f"{record}: {field} cannot be represented in UTC") from exc
 
 
