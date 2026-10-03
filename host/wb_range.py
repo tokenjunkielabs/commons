@@ -7,6 +7,7 @@ needs, caches them content-addressed, and records every read in a local
 manifest. Safetensors and GGUF indexes are built from header bytes only.
 
 Subcommands: index, slice, verify, axis, score, archive, serve.
+Use index --stats PATH for measured range reads, cache use and elapsed time.
 Stdlib only. No numpy. No executor.
 """
 
@@ -122,11 +123,22 @@ class _NoRedirectHandler(urllib.request.HTTPRedirectHandler):
         return None
 
 
+def _range_counters() -> dict:
+    return {
+        "read_calls": 0,
+        "cache_hits": 0,
+        "cache_body_bytes_read": 0,
+        "http_requests_attempted": 0,
+        "http_requests_succeeded": 0,
+        "http_body_bytes_read": 0,
+    }
+
+
 class RangeReader:
     """HTTP Range reader with a content-addressed local chunk cache."""
 
     def __init__(self, url: str, cache_dir: Path, *, limit: int = DEFAULT_LIMIT_BYTES,
-                 use_cache: bool = True):
+                 use_cache: bool = True, stats: dict | None = None):
         parsed = urllib.parse.urlsplit(url)
         if parsed.username or parsed.password or not parsed.hostname:
             raise WbRangeError("remote URL must not contain credentials and must have a host")
@@ -140,6 +152,9 @@ class RangeReader:
         self.cache_dir = Path(cache_dir)
         self.limit = int(limit)
         self.use_cache = use_cache
+        self.stats = stats if stats is not None else {}
+        for key, value in _range_counters().items():
+            self.stats.setdefault(key, value)
         self.chunks_dir = self.cache_dir / "chunks"
         self.chunks_dir.mkdir(parents=True, exist_ok=True)
         self.manifest_path = self.cache_dir / "cache_manifest.json"
@@ -172,13 +187,16 @@ class RangeReader:
                 "range length %d exceeds limit %d; raise the limit deliberately"
                 % (length, self.limit)
             )
+        self.stats["read_calls"] += 1
         key = self._cache_key(offset, length)
         entry = self.manifest["entries"].get(key)
         if self.use_cache and entry and entry.get("transport_contract") == RANGE_CONTRACT_VERSION:
             chunk_path = self.chunks_dir / entry["file"]
             if chunk_path.is_file():
                 data = chunk_path.read_bytes()
+                self.stats["cache_body_bytes_read"] += len(data)
                 if _sha256(data) == entry["sha256"] and len(data) == length:
+                    self.stats["cache_hits"] += 1
                     return data
         data = self._fetch(offset, length)
         digest = _sha256(data)
@@ -206,6 +224,7 @@ class RangeReader:
                 "Accept-Encoding": "identity",
             },
         )
+        self.stats["http_requests_attempted"] += 1
         try:
             with self._opener.open(request, timeout=timeout) as response:
                 status = getattr(response, "status", None)
@@ -243,7 +262,14 @@ class RangeReader:
                     raise WbRangeError("remote Content-Range total is not larger than its end")
                 # One extra byte detects oversized bodies without consuming the
                 # complete response when its framing contradicts Content-Range.
-                data = response.read(length + 1)
+                try:
+                    data = response.read(length + 1)
+                except Exception as exc:
+                    partial = getattr(exc, "partial", None)
+                    if isinstance(partial, (bytes, bytearray)):
+                        self.stats["http_body_bytes_read"] += len(partial)
+                    raise
+                self.stats["http_body_bytes_read"] += len(data)
         except WbRangeError:
             raise
         except urllib.error.HTTPError as exc:
@@ -259,6 +285,7 @@ class RangeReader:
                 "remote range body length mismatch: wanted %d bytes, got %d"
                 % (length, len(data))
             )
+        self.stats["http_requests_succeeded"] += 1
         return data, total
 
     def _fetch(self, offset: int, length: int) -> bytes:
@@ -478,7 +505,10 @@ def parse_gguf_index(reader: RangeReader, file_name: str) -> dict:
 
 def build_index(repo_or_url: str, cache_dir: Path, *, revision: str = "main",
                 limit: int = DEFAULT_LIMIT_BYTES,
-                name_filter: str | None = None) -> dict:
+                name_filter: str | None = None, stats: dict | None = None) -> dict:
+    if stats is not None:
+        stats.update(_range_counters())
+        stats["files_indexed"] = 0
     started = _utc_now()
     sources = []
     if repo_or_url.startswith("https://") or repo_or_url.startswith("http://"):
@@ -501,7 +531,7 @@ def build_index(repo_or_url: str, cache_dir: Path, *, revision: str = "main",
     for file_entry in files:
         if pattern and not pattern.search(file_entry["name"]):
             continue
-        reader = RangeReader(file_entry["url"], cache_dir, limit=limit)
+        reader = RangeReader(file_entry["url"], cache_dir, limit=limit, stats=stats)
         if file_entry["name"].endswith(".safetensors"):
             parsed = parse_safetensors_index(reader, file_entry["name"])
         else:
@@ -510,6 +540,8 @@ def build_index(repo_or_url: str, cache_dir: Path, *, revision: str = "main",
         parsed["declared_size"] = file_entry.get("size")
         total_tensor_bytes += sum(t["bytes"] or 0 for t in parsed["tensors"].values())
         sources.append(parsed)
+        if stats is not None:
+            stats["files_indexed"] += 1
     if not sources:
         raise WbRangeError("name filter excluded every weight file")
     tensor_count = sum(len(source["tensors"]) for source in sources)
@@ -1969,6 +2001,8 @@ def _parser() -> argparse.ArgumentParser:
     index_cmd.add_argument("--work-dir", type=Path, default=Path("wb-range-out"))
     index_cmd.add_argument("--limit", type=int, default=DEFAULT_LIMIT_BYTES)
     index_cmd.add_argument("--output", type=Path, default=None)
+    index_cmd.add_argument("--stats", type=Path, default=None,
+                           help="write this invocation's measured range/cache counts and elapsed time")
 
     slice_cmd = commands.add_parser("slice", help="fetch a tensor byte range")
     slice_cmd.add_argument("index", type=Path)
@@ -2066,10 +2100,39 @@ def main(argv: list[str] | None = None) -> int:
     cache_dir.mkdir(parents=True, exist_ok=True)
 
     if args.command == "index":
-        index = build_index(args.target, cache_dir, revision=args.revision,
-                            limit=args.limit, name_filter=args.filter)
         output = args.output or (work_dir / "wb_range_index.json")
-        write_json(output, index)
+        if args.stats is not None and args.stats.resolve() == output.resolve():
+            raise WbRangeError("stats output must differ from the model index output")
+        stats = {} if args.stats is not None else None
+        started = time.perf_counter()
+        error = None
+        try:
+            index = build_index(args.target, cache_dir, revision=args.revision,
+                                limit=args.limit, name_filter=args.filter, stats=stats)
+            write_json(output, index)
+        except BaseException as exc:
+            error = exc
+            raise
+        finally:
+            if stats is not None:
+                report = {
+                    "schema_version": "commons-wb-range-stats/v1",
+                    "operation": "index",
+                    "status": "FAILED" if error is not None else "INDEXED",
+                    "http_scope": "range_requests_only",
+                    "elapsed_seconds": time.perf_counter() - started,
+                    **stats,
+                }
+                if error is not None:
+                    report["error"] = "%s: %s" % (type(error).__name__, error)
+                try:
+                    write_json(args.stats, report)
+                except OSError as exc:
+                    message = "cannot write stats output: %s" % exc
+                    if error is not None:
+                        print(message, file=sys.stderr)
+                    else:
+                        raise WbRangeError(message) from exc
         print(json.dumps({
             "status": "INDEXED",
             "files": index["file_count"],
