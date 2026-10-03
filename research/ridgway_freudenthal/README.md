@@ -118,7 +118,27 @@ accepts separate `--same-trace` and `--mixed-trace` vectors, preserving
 the different source dimensions. Exact coordinate transport preserves the
 source images, all protected edge and endpoint traces, zero cell means,
 and zero patch-boundary velocity; squared-seminorm bounds scale by `h³`.
-These are finite boundary classes; vertex work and global assembly remain.
+These are finite boundary classes; boundary-vertex work and global assembly remain.
+
+## Interior-vertex lift
+
+[The interior-vertex constructor and derivation](INTERIOR_VERTEX_LIFT.md)
+characterize the complete 24-cell vertex source image on an eight-cube patch:
+18 independent values and six explicit compatibility relations. Both degrees
+match every compatible tuple while setting all other vertex divergence,
+all edge-interior divergence coefficients, all 48 cell means and the entire
+outer velocity trace to zero. The construction combines an explicit
+first-derivative inverse with the existing fourteen incident-edge lifts and
+retained grid mean repair.
+
+Use `interior_vertex_lift.py --degree 4` or `--degree 5`, optionally with
+`--trace` for the complete 24-coordinate tuple or `--free-trace` for its
+18 independent values. Exact `--vertex` and positive `--scale` place the
+patch around a physical central vertex. The maps have 1,319 and 4,977
+nonzero entries; conservative reference squared-seminorm bounds are `30080`
+and `700416/49` in complete compatible vertex-trace norm, multiplied by
+`scale³` after transport. Boundary vertices and the global theorem remain
+separate.
 
 ## Original problem
 
