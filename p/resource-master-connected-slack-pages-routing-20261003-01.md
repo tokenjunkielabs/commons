@@ -22,6 +22,14 @@ The Resource Master consumed the exact merged `host/connected_slack_pages.cjs` h
 
 The helper reads only. It did not send, edit, delete, react, mutate a channel, expose a private message body, or make a workspace-completeness claim.
 
+## Landed activation and terminal watermark
+
+- Activation PR: [#30923](https://github.com/woahwhattheheck/commons/pull/30923), merged as `28ebb33d032f53592b83edbfe6efbf17035f2f42` from non-force branch head `add367fb5c92dadb4463b8b57a3941ce09240b98`.
+- Exact current-main readback confirmed the ledger, durable record, receipt page, and generated projection blobs recorded in the JSON receipt.
+- At merge, path-manifest and resources-tab freshness were successful; open-door guard and capability entrypoints were in progress; Muhlnickel spec guard and job watchdog were pending. The later observation found four successes, one in progress, and one pending; no asynchronous state was invented into a stopping point.
+- Terminal receipt: [Slack `1791055493.556339`](https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791055493556339), independently read back exactly.
+- Current projection: 131 resources, 100 producing, 102 durable records.
+
 ## Delta and delegation decision
 
 The initial main sweep advanced through 29 first-parent commits: 24 non-generated and five generated/projection commits. The workflow sweep exhausted 191 unique runs with 186 successes, two skipped, two cancelled, one failed scheduled board run, and no unfinished run. Terminal branch reconciliation found 28 additions and no removals.
@@ -32,4 +40,4 @@ Bounded Python import mapping, exact retained npm-cache recovery, bounded proces
 
 No credential, cursor value, private account identifier, customer data, private filename, or Slack message body is recorded. No owner-only identity, payment, policy, call, signing, submission, physical-device, contact, relay, or meeting action occurred. The no-contact/no-relay hold for Michael Clark remains intact, and no disabled automation was restarted.
 
-Claim: Slack `1791054466.761669`. Activation merge and terminal watermark will be appended only after exact current-main readback and terminal Slack receipt.
+Claim: Slack `1791054466.761669`. Terminal watermark: Slack `1791055493.556339`, main `28ebb33d032f53592b83edbfe6efbf17035f2f42`.
