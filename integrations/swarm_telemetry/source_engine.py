@@ -119,7 +119,9 @@ class SourceEngine:
             gateway=Gateway(config["native_connector_gateway"],config.get("timeout_seconds",25))
             reader=lambda name,args,account_ref:gateway.call(name,args)
         kwargs={"config":config,"state":state,"sources":self._sources(kind)}
-        if callable(reader): kwargs["read_page"]=reader
+        # GitHub uses its account-specific readers from config. The native
+        # callback keyword belongs to the Slack and service collector APIs.
+        if kind in {"slack","services"} and callable(reader): kwargs["read_page"]=reader
         result=fn(**kwargs)
         events=result.get("events",[])
         batch_size=max(1,min(1000,int(config.get("source_ingest_batch_events",128))))
