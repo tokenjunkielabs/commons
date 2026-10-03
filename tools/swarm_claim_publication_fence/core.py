@@ -253,12 +253,14 @@ def _assert_output_dir_identity(parent_path: str, expected: Tuple[int, int]) -> 
         os.close(check_fd)
 
 
-def _write_new_at(dir_fd: int, name: str, text: str) -> None:
+def _write_new_at(dir_fd: int, name: str, text: str, created: List[str]) -> None:
     flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
     if hasattr(os, "O_NOFOLLOW"):
         flags |= os.O_NOFOLLOW
     fd = os.open(name, flags, 0o600, dir_fd=dir_fd)
     try:
+        # Rollback owns this path as soon as exclusive creation succeeds.
+        created.append(name)
         data = text.encode("utf-8")
         offset = 0
         while offset < len(data):
@@ -321,8 +323,7 @@ def write_compilation(prefix: str, report: Dict[str, Any], markdown: str, receip
         identity = (parent_stat.st_dev, parent_stat.st_ino)
         for name, visible_path, text in outputs:
             _assert_output_dir_identity(parent_path, identity)
-            _write_new_at(dir_fd, name, text)
-            created.append(name)
+            _write_new_at(dir_fd, name, text, created)
         _assert_output_dir_identity(parent_path, identity)
         for name, _, text in outputs:
             _read_back_at(dir_fd, name, text)
