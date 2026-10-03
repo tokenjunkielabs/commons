@@ -26,15 +26,65 @@ def unwrap(value):
         else: break
     return value
 
+def notification_delivery_state(receipt):
+    """Keep unconfirmed sends recoverable without discarding native envelopes.
+
+    A successful tool invocation alone does not establish a Slack delivery.
+    The existing Slack road returns channel/ts; native connectors return the
+    same message identity in message_context. Wrapper uncertainty and errors
+    remain relevant even when an inner result contains a message handle.
+    """
+    pending=[receipt]
+    seen={}
+    failed=uncertain=confirmed=False
+    while pending:
+        value=pending.pop()
+        if not isinstance(value,dict) or id(value) in seen: continue
+        seen[id(value)]=value
+        error=value.get("error")
+        code=str(value.get("code") or (error.get("code") if isinstance(error,dict) else "") or "").lower()
+        status=str(value.get("delivery_status") or value.get("status") or "").lower()
+        uncertain=uncertain or (
+            value.get("uncertain") is True
+            or isinstance(error,dict) and error.get("uncertain") is True
+            or status in {"uncertain","pending","sending","queued"}
+            or code.endswith("_outcome_unknown")
+            or error=="tool_effect_unknown_after_interruption"
+            or isinstance(error,str) and error.lower().endswith("_outcome_unknown")
+        )
+        failed=failed or (
+            value.get("isError") is True or value.get("ok") is False
+            or value.get("success") is False or value.get("delivered") is False
+            or bool(error) or status in {"failed","error","not_sent","rejected"}
+        )
+        context=value.get("message_context")
+        if not isinstance(context,dict): context={}
+        channel=context.get("channel_id") or value.get("channel")
+        timestamp=context.get("message_ts") or value.get("ts")
+        if isinstance(channel,str) and channel and isinstance(timestamp,str) and timestamp:
+            confirmed=True
+        for key in ("result","structuredContent"):
+            if isinstance(value.get(key),dict): pending.append(value[key])
+        content=value.get("content")
+        for block in content if isinstance(content,list) else []:
+            if not isinstance(block,dict) or block.get("type")!="text": continue
+            try: parsed=json.loads(block.get("text",""))
+            except (ValueError,TypeError): continue
+            if isinstance(parsed,dict): pending.append(parsed)
+    if uncertain or failed and confirmed: return "uncertain"
+    if failed: return "failed"
+    return "sent" if confirmed else "uncertain"
+
 class Gateway:
     def __init__(self,url="http://127.0.0.1:8878",timeout=25):
         self.url=url.rstrip("/")
         self.timeout=timeout
-    def call(self,name,arguments=None,operation_id=None):
+    def call(self,name,arguments=None,operation_id=None,*,preserve_envelope=False):
         op=operation_id or "telemetry-read:"+stable_id(name,arguments or {},now())
         body={"request_id":op,"call_id":op,"name":name,"arguments":arguments or {}}
         request=urllib.request.Request(self.url+"/v1/tools/call",data=json.dumps(body).encode(),headers={"Content-Type":"application/json"})
         with urllib.request.urlopen(request,timeout=self.timeout) as response: value=json.load(response)
+        if preserve_envelope: return value
         if value.get("isError") or value.get("error"):
             return value
         return unwrap(value)
@@ -303,10 +353,8 @@ class Runner:
                 operation_id="telemetry-notice:"+note["notification_id"]
                 self.store.delivery_receipt(note["notification_id"],"pending",{"operation_id":operation_id})
                 try:
-                    receipt=self.gateway.call("slack_post_message",{"channel_id":channel,"text":text},operation_id)
-                    uncertain=bool(receipt.get("uncertain"))
-                    failed=bool(receipt.get("isError") or receipt.get("error"))
-                    state="uncertain" if uncertain else "failed" if failed else "sent"
+                    receipt=self.gateway.call("slack_post_message",{"channel_id":channel,"text":text},operation_id,preserve_envelope=True)
+                    state=notification_delivery_state(receipt)
                     self.store.delivery_receipt(note["notification_id"],state,receipt)
                     sent+=state=="sent"
                 except Exception as exc:
