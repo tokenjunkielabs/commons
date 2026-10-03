@@ -326,11 +326,19 @@ def inspect_bundle(bundle: bytes, *, limits: Limits = Limits(), bases: tuple[tup
 
 
 def _read(path: Path, maximum: int) -> bytes:
+    # The allowance bounds total input, not a speculative allocation for each read.
+    pieces = []
+    remaining = maximum + 1
     with path.open('rb') as stream:
-        data = stream.read(maximum + 1)
-    if len(data) > maximum:
+        while remaining:
+            piece = stream.read(min(64 * 1024, remaining))
+            if not piece:
+                break
+            pieces.append(piece)
+            remaining -= len(piece)
+    if not remaining:
         raise BundleError('File exceeds configured byte limit: ' + str(path))
-    return data
+    return b''.join(pieces)
 
 
 def tree_inventory(manifest: dict, objects: dict[str, tuple[str, bytes]], reference: str,
