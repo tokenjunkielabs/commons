@@ -367,14 +367,35 @@ class Event:
         return digest(self.provider + ":" + self.item)
 
     def messages(self) -> list[str]:
+        return [text for text, _ in self.message_parts()]
+
+    def message_parts(self) -> list[tuple[str, tuple[str, ...]]]:
         # Include the sanitized *contents*, not only subject/latest_comment_url.
-        header = clean(f"{self.provider.upper()} | {self.title[:300]}\nSource: {self.url[:800]}\nAuthor: {self.author[:300]} | Updated: {self.updated[:80]}\nNext: {self.action[:500]}")
+        source_header = f"{self.provider.upper()} | {self.title[:300]}\nSource: {self.url[:800]}\nAuthor: {self.author[:300]} | Updated: {self.updated[:80]}"
+        header = clean(source_header + f"\nNext: {self.action[:500]}")
         body = clean(self.body or "[No text body provided by the source.]")
         # Slack supports long threads; normal bodies are not silently truncated.
         chunks = [body[i:i + 2800] for i in range(0, len(body), 2800)] or [""]
-        version = digest(self.event_id + "\0" + header + "\0" + body)
-        return [f"{header}\n\nContents ({i + 1}/{len(chunks)}):\n{chunk}\n\nrelay.part={digest(version + ':' + str(i))}"
-                for i, chunk in enumerate(chunks)]
+        is_comment = self.provider == "github" and re.fullmatch(r"(?:issue-comment|review|inline-review):[0-9]+", self.event_id)
+        # A parent closing/merging changes routing text, not historical comment
+        # contents. The separate subject event still versions that transition.
+        version_header = clean(source_header) if is_comment else header
+        versions = [digest(self.event_id + "\0" + version_header + "\0" + body)]
+        if is_comment:
+            # Recognize already delivered pre-upgrade parts under every former
+            # parent action. Body, author, timestamp and review context must match.
+            for action in (self.action,
+                           "Existing owner: inspect this update and post CLAIM / DONE + evidence / BLOCKED in this thread.",
+                           "Existing owner: verify acceptance/payment conditions; merge is not payment. Do not duplicate a collection request.",
+                           "Existing owner: inspect the closure reason; do not assume accepted or paid."):
+                legacy_header = clean(source_header + f"\nNext: {action[:500]}")
+                versions.append(digest(self.event_id + "\0" + legacy_header + "\0" + body))
+        parts = []
+        for i, chunk in enumerate(chunks):
+            key = digest(versions[0] + ':' + str(i))
+            keys = (key, *sorted({digest(version + ':' + str(i)) for version in versions[1:]} - {key}))
+            parts.append((f"{header}\n\nContents ({i + 1}/{len(chunks)}):\n{chunk}\n\nrelay.part={keys[0]}", keys))
+        return parts
 
 
 class State:
@@ -426,9 +447,10 @@ class Delivery:
                 self.cooldown_until = max(self.cooldown_until, time.time() + exc.retry_after)
             raise
 
-    def find(self, channel: str, marker: str, attempted: float, thread: str = "") -> str:
+    def find(self, channel: str, marker: str | tuple[str, ...], attempted: float, thread: str = "") -> str:
         # Resume a bounded scan instead of rereading its first pages forever.
         # Freeze the time window so a growing channel cannot move those pages.
+        markers = (marker,) if isinstance(marker, str) else marker
         scan_key = "slack.scan." + digest(json.dumps([channel, thread, marker, attempted]))
         retained = self.state.get(scan_key)
         resumed = bool(retained)
@@ -456,7 +478,7 @@ class Delivery:
                     self.state.discard(scan_key)
                 raise
             for message in result.get("messages", []):
-                if marker in message.get("text", ""):
+                if any(candidate in message.get("text", "") for candidate in markers):
                     self.state.discard(scan_key)
                     return str(message["ts"])
             cursor = result.get("response_metadata", {}).get("next_cursor", "")
@@ -543,20 +565,30 @@ class Delivery:
             self.state.db.execute("UPDATE items SET ts=? WHERE key=?", (thread, event.key))
             self.state.db.commit()
         delivered = 0
-        for text in event.messages():
-            key = text.rsplit("relay.part=", 1)[1]
+        for text, keys in event.message_parts():
+            key = keys[0]
             part = self.state.db.execute("SELECT ts,attempted,uncertain FROM parts WHERE key=?", (key,)).fetchone()
             if part and part[0]:
                 continue
+            if len(keys) > 1:
+                legacy = self.state.db.execute(
+                    "SELECT ts FROM parts WHERE key IN (" + ",".join("?" for _ in keys[1:]) + ") AND ts<>'' LIMIT 1", keys[1:]
+                ).fetchone()
+                if legacy:
+                    self.state.db.execute("INSERT OR REPLACE INTO parts VALUES (?,?,?,?)", (key, legacy[0], time.time(), 0))
+                    self.state.db.commit()
+                    continue
+            markers = tuple("relay.part=" + candidate for candidate in keys)
+            marker = markers[0] if len(markers) == 1 else markers
             if not part:
                 # A restored/evicted ledger must recover previously posted parts too.
-                ts = self.find(channel, "relay.part=" + key, 0, thread)
+                ts = self.find(channel, marker, 0, thread)
                 self.state.db.execute("INSERT INTO parts VALUES (?,?,?,?)", (key, ts, time.time(), 0 if ts else 1))
                 self.state.db.commit()
                 if ts:
                     continue
             else:
-                ts = self.find(channel, "relay.part=" + key, part[1], thread) if part[2] else ""
+                ts = self.find(channel, marker, part[1], thread) if part[2] else ""
                 if ts:
                     self.state.db.execute("UPDATE parts SET ts=?,uncertain=0 WHERE key=?", (ts, key))
                     self.state.db.commit()
