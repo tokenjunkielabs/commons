@@ -116,8 +116,10 @@ codes and performs no additional source reads.
 - `inputs` binds each supplied export to its SHA-256 and byte count.
 
 The parser recognizes declarations beginning with `CLAIM`, `TAKE`, `RESUME`, or
-`TAKING`, followed by an operation identifier. A declaration beginning with
-those verbs, `RESUMING`, `CONTINUE`, or `CONTINUING` may instead name one exact
+`TAKING`, followed by an operation identifier. A colon, middle dot, en dash or
+em dash may separate the primary declaration verb from that exact identifier,
+as in `CLAIM: ID` or `TAKE — ID`. A declaration beginning with those verbs,
+`RESUMING`, `CONTINUE`, or `CONTINUING` may instead name one exact
 identifier in a labeled `Operation:` or `Operation ID:` sentence or line.
 Multiple different labeled identifiers remain unparsed. For example, an actual
 `Continuing PayD #635 ... Operation: payd-530-staging-completion-20261003-01.`
