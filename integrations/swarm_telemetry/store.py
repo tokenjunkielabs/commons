@@ -91,11 +91,6 @@ class Store:
                 CREATE TRIGGER IF NOT EXISTS coverage_projection_delete AFTER DELETE ON coverage BEGIN
                     DELETE FROM coverage_projection WHERE source_id=old.source_id;
                 END;
-                INSERT OR IGNORE INTO coverage_projection SELECT source_id,
-                    COALESCE(json_extract(payload,'$.service'),json_extract(payload,'$.source'),'unknown'),
-                    COALESCE(json_extract(payload,'$.account_ref'),json_extract(payload,'$.account_id'),''),
-                    COALESCE(json_extract(payload,'$.harness'),''),COALESCE(json_extract(payload,'$.status'),'unknown'),
-                    json_extract(payload,'$.complete'),json_extract(payload,'$.observed_at') FROM coverage;
                 CREATE INDEX IF NOT EXISTS coverage_group ON coverage_projection(source,account_ref,harness,status,complete,observed_at);
                 CREATE TABLE IF NOT EXISTS checkpoints (source_id TEXT PRIMARY KEY, payload TEXT NOT NULL);
                 CREATE TABLE IF NOT EXISTS accounts (account_id TEXT PRIMARY KEY, payload TEXT NOT NULL);
@@ -130,6 +125,19 @@ class Store:
                 """)
                 self._coverage_service_projection_pending=False
             db.execute("BEGIN IMMEDIATE")
+            if not db.execute("SELECT 1 FROM runtime_state WHERE key='coverage_projection_bootstrap_v1'").fetchone():
+                # Existing stores need one backfill. Coverage triggers maintain
+                # later inserts/replacements/deletes, so opening a store must not
+                # reparse its full retained history. Commit the marker with the
+                # projection, including when another process opens concurrently.
+                db.execute("""
+                    INSERT OR IGNORE INTO coverage_projection SELECT source_id,
+                        COALESCE(json_extract(payload,'$.service'),json_extract(payload,'$.source'),'unknown'),
+                        COALESCE(json_extract(payload,'$.account_ref'),json_extract(payload,'$.account_id'),''),
+                        COALESCE(json_extract(payload,'$.harness'),''),COALESCE(json_extract(payload,'$.status'),'unknown'),
+                        json_extract(payload,'$.complete'),json_extract(payload,'$.observed_at') FROM coverage
+                """)
+                db.execute("INSERT INTO runtime_state VALUES (?,?)",("coverage_projection_bootstrap_v1",json.dumps({"complete":True,"observed_at":now()})))
             if not db.execute("SELECT 1 FROM runtime_state WHERE key='notification_resolution_index_v1'").fetchone():
                 # Retained resolutions may precede their originals in source
                 # history. Build the target lookup once, including older stores.
