@@ -69,7 +69,11 @@ codes and performs no additional source reads.
   bare filename to a longer path. Refresh the linked source before combining
   those observations.
 - `terminal_observations` records explicit `LANDED`, `DONE`, `COMPLETE`, or
-  `RELEASE` statements. Exact operation IDs retain their existing behavior. A
+  `RELEASE` statements. An explicit primary header may combine two of those
+  verbs with `/`, as in `DONE / RELEASE OPERATION_ID` or
+  `DONE / RELEASE — OPERATION_ID`; its first verb remains the reported kind.
+  The exact operation ID and existing quote/condition handling are preserved.
+  Exact operation IDs retain their existing behavior. A
   shortened name resolves only when it uniquely matches an earlier declaration
   in the same channel with a dated suffix such as `-20261003-AABE`. The original
   `operation_id` remains literal; `resolved_operation_id` and `alias_resolution`

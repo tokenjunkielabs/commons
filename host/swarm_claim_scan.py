@@ -28,7 +28,10 @@ LABELED_OPERATION = re.compile(
 STATEMENT_HEADER = re.compile(
     r"^[ \t*`]*(?:CLAIM|TAKE|RESUME|RESUMING|TAKING|CONTINUE|CONTINUING|"
     r"LANDED|DONE|COMPLETED?|RELEASED?)\b[^\n]*", re.I | re.M)
-TERMINAL = re.compile(r"^(LANDED|DONE|COMPLETED?|RELEASED?)\s+(" + OPERATION + r")(?=\s|$|[—–])", re.I)
+TERMINAL = re.compile(
+    r"^(LANDED|DONE|COMPLETED?|RELEASED?)"
+    r"(?:\s*/\s*(?:LANDED|DONE|COMPLETED?|RELEASED?)(?:\s+[—–])?)?"
+    r"\s+(" + OPERATION + r")(?=\s|$|[—–])", re.I)
 TERMINAL_AFTER = re.compile(r"^(" + OPERATION + r")\s+(?:is\s+)?(LANDED|DONE|COMPLETED?|RELEASED?)\b", re.I)
 HEADER = re.compile(
     r"^(?:=== THREAD PARENT MESSAGE ===|--- Reply [0-9]+ of [0-9]+ ---|"
