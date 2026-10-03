@@ -49,7 +49,9 @@ def _io_error_result(exc: OSError, *, operation: str, path: str | None,
 
 
 def blob_sha(data: bytes) -> str:
-    return hashlib.sha1(b"blob " + str(len(data)).encode("ascii") + b"\0" + data).hexdigest()
+    digest = hashlib.sha1(b"blob " + str(len(data)).encode("ascii") + b"\0")
+    digest.update(data)
+    return digest.hexdigest()
 
 
 def _file_payload(response: object, *, fallback_sha=None, fallback_encoding=None) -> dict:
