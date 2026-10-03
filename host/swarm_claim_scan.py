@@ -20,6 +20,7 @@ SCHEMA = "commons.slack_claim_scan/v1"
 MAX_INPUT_BYTES = 64 * 1024 * 1024
 STAMP = re.compile(r"[0-9]{1,12}\.[0-9]{1,6}\Z")
 OPERATION = r"[A-Za-z0-9][A-Za-z0-9_.:/#-]{5,190}"
+TERMINAL_ID = r"(?P<code>`?)(?P<operation>" + OPERATION + r")(?P=code)"
 DECLARATION = re.compile(
     r"^(?:CLAIM|TAKE|RESUME|TAKING)(?:\s*[:·—–]\s*|\s+)(?P<code>`?)"
     r"(?P<operation>" + OPERATION + r")(?P=code)(?=\s|$|[—–])", re.I)
@@ -33,14 +34,14 @@ STATEMENT_HEADER = re.compile(
 TERMINAL = re.compile(
     r"^(LANDED|DONE|COMPLETED?|RELEASED?)"
     r"(?:\s*/\s*(?:LANDED|DONE|COMPLETED?|RELEASED?)(?:\s+[—–])?)?"
-    r"(?:\s*[:·—–]\s*|\s+)(" + OPERATION + r")(?=\s|$|[—–])", re.I)
+    r"(?:\s*[:·—–]\s*|\s+)" + TERMINAL_ID + r"(?=\s|$|[—–])", re.I)
 TERMINAL_AFTER = re.compile(r"^(" + OPERATION + r")\s+(?:is\s+)?(LANDED|DONE|COMPLETED?|RELEASED?)\b", re.I)
 SOURCE_TERMINAL = re.compile(
     r"^(DONE)[ \t]+SOURCE[ \t]*/[ \t]*RELEASED?"
-    r"(?:[ \t]*[:·—–][ \t]*|[ \t]+)(" + OPERATION + r")(?=\s|$|[—–])", re.I)
+    r"(?:[ \t]*[:·—–][ \t]*|[ \t]+)" + TERMINAL_ID + r"(?=\s|$|[—–])", re.I)
 SHIP_RELEASE_TERMINAL = re.compile(
     r"^(SHIP(?:PED)?)[ \t]*/[ \t]*RELEASED?"
-    r"(?:[ \t]*[:·—–][ \t]*|[ \t]+)(" + OPERATION + r")(?=\s|$|[—–])", re.I)
+    r"(?:[ \t]*[:·—–][ \t]*|[ \t]+)" + TERMINAL_ID + r"(?=\s|$|[—–])", re.I)
 HEADER = re.compile(
     r"^(?:=== THREAD PARENT MESSAGE ===|--- Reply [0-9]+ of [0-9]+ ---|"
     r"=== Message from .+? ===[^\n]*|### Result [0-9]+ of [0-9]+)\s*$", re.M)
@@ -303,13 +304,13 @@ def _statement(text, *, source_release=False):
         if re.search(r"\b(?:if|when|unless|until|pending|awaiting|proposed|planned)\b",
                      first.split("\n", 1)[0], re.I):
             return None
-        operation = match[2].rstrip(".:;")
+        operation = match["operation"].rstrip(".:;")
         if "-" in operation or ":" in operation:
             return match[1].lower(), operation
         return None
     match = TERMINAL.match(first)
     if match:
-        operation = match[2].rstrip(".:;")
+        operation = match["operation"].rstrip(".:;")
         if "-" in operation or ":" in operation:
             return match[1].lower(), operation
     match = TERMINAL_AFTER.match(first)
