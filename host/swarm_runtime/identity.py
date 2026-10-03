@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 from collections.abc import Mapping
+from functools import lru_cache
 from urllib.parse import urlsplit
 
 _REPO = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
@@ -40,6 +41,19 @@ def task_key(value=None, repo=None, kind=None, number=None):
     An issue and its implementing PR remain different identities until explicit
     provider evidence relates them; a coincident number is not such evidence.
     """
+    if type(value) is str and len(value) <= 1024 and repo is None and kind is None and number is None:
+        return _cached_task_key(value)
+    return _task_key(value, repo=repo, kind=kind, number=number)
+
+
+@lru_cache(maxsize=4096)
+def _cached_task_key(value):
+    # Only bounded plain strings enter the cache; mappings and contextual fields
+    # are evaluated on every call, and the retained result is an immutable key.
+    return _task_key(value)
+
+
+def _task_key(value=None, repo=None, kind=None, number=None):
     if isinstance(value, Mapping):
         item = value
         for field in ("task_key", "html_url", "url"):
