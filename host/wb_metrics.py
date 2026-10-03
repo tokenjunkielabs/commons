@@ -20,6 +20,7 @@ Metric families:
 from __future__ import annotations
 
 from collections import Counter
+import heapq
 import math
 import random
 import re
@@ -725,14 +726,20 @@ def neuron_cleanliness(neuron_rows, vocab_rows: dict, *, k: int = 5) -> dict:
     vocab_units = [(label, unit(row)) for label, row in vocab_rows.items() if row]
     if not vocab_units:
         raise WbMetricsError("empty vocab")
+    # Keep legacy slicing and NaN ordering outside the finite top-k path.
+    bounded = type(k) is int and 0 < k < len(vocab_units)
+    finite_vocab = bounded and all(
+        math.isfinite(value) for _, row in vocab_units for value in row)
     out = []
     for j, nrow in enumerate(neuron_rows):
         u = unit(nrow)
-        scored = sorted(
-            ((label, sum(x * y for x, y in zip(u, v)))
-             for label, v in vocab_units),
-            key=lambda item: -item[1],
-        )[:k]
+        scores = ((label, sum(x * y for x, y in zip(u, v)))
+                  for label, v in vocab_units)
+        if finite_vocab and all(math.isfinite(value) for value in u):
+            # nsmallest retains encounter order for equal scores, like sorted.
+            scored = heapq.nsmallest(k, scores, key=lambda item: -item[1])
+        else:
+            scored = sorted(scores, key=lambda item: -item[1])[:k]
         out.append({"neuron": j, "top1": scored[0][1],
                     "top": [{"token": t, "cos": s} for t, s in scored]})
     out.sort(key=lambda item: -item["top1"])
