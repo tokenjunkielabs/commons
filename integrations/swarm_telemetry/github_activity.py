@@ -682,6 +682,7 @@ def collect_github_activity(config=None, state=None, sources=None):
             if task.get("immutable") or now - float(task.get("completed_epoch") or now) < refresh:
                 continue
             task.update(complete=False, status="pending_refresh", next_endpoint=task["endpoint"], page=1)
+            task.pop("cloud_read_cursor", None)
             if task.get("query"):
                 task["variables"]["cursor"] = None
         if max(float(task.get("retry_epoch") or 0), float(cooldowns.get(ref, 0)), float(cooldowns.get(ref + ":" + str(task.get("repository")), 0))) > now:
@@ -696,7 +697,11 @@ def collect_github_activity(config=None, state=None, sources=None):
             placement = _placement(task)
             if placement:
                 cloud_reader = config.get("github_cloud_reader")
-                task.update(source_placement=placement, provider_original_ref=_api(road["host"]) + task["endpoint"], cloud_read_cursor={"endpoint": task["next_endpoint"], "page": task["page"]})
+                task.update(source_placement=placement, provider_original_ref=_api(road["host"]) + task["endpoint"])
+                # The cloud reader owns this opaque continuation. Preserve its
+                # last committed receipt across calls, retries and checkpoints.
+                if task.get("cloud_read_cursor") is None:
+                    task["cloud_read_cursor"] = {"endpoint": task["next_endpoint"], "page": task["page"]}
                 if not callable(cloud_reader):
                     task.update(status="cloud_custody_pending", complete=False, retry_epoch=time.time() + refresh)
                     # No request was issued. Keep budget available for readable
@@ -726,7 +731,8 @@ def collect_github_activity(config=None, state=None, sources=None):
                                "metadata": {"account_ref": ref, "repository": task.get("repository"), "kind": task["kind"], "source_placement": placement},
                                "source_ref": {"account_ref": ref, "selector_id": sid, "provider_original_ref": task["provider_original_ref"], "source_record_ref": safe_cloud_ref, "sha256": digest},
                                "full_source": safe_receipt})
-                task.update(complete=cloud_complete, status="observed_cloud" if cloud_complete else "cloud_backfilling", cloud_read_cursor=receipt.get("next_cursor"),
+                task.update(complete=cloud_complete, status="observed_cloud" if cloud_complete else "cloud_backfilling",
+                            cloud_read_cursor=receipt.get("next_cursor") if captured else task["cloud_read_cursor"],
                             observed_at=_now(), last_sha256=digest, retry_epoch=0, completed_epoch=time.time() if cloud_complete else None)
                 task["byte_length"] += int(safe_cloud_ref.get("bytes") or 0)
                 continue
