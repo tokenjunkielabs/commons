@@ -559,7 +559,8 @@ class CombinedCatalog:
         self.commons = commons
         self.services = services or ServiceEquipment()
         from integrations.command_center.equipment import CommandCenterEquipment
-        self.extensions = [CommandCenterEquipment()]
+        from .provider_apis import GroqExaEquipment
+        self.extensions = [CommandCenterEquipment(), GroqExaEquipment()]
 
     def tools(self, **kwargs):
         # Keep the advertised catalog consistent with call() dispatch precedence:
