@@ -1280,8 +1280,12 @@ def _embed_op(op: str, index: dict, cache_dir: Path, args: dict,
     vocab_sample = int(args.get("vocab_sample") or 1200)
     idxs = metrics.strided(rows_total, vocab_sample)
 
+    vocab = None
+
     def word_rows(words):
-        vocab = load_vocab(index, cache_dir, limit=limit)
+        nonlocal vocab
+        if vocab is None:
+            vocab = load_vocab(index, cache_dir, limit=limit)
         mapped = word_row_map(index, cache_dir, tensor, vocab, words,
                               limit=limit)
         return mapped["rows"], mapped["missing"]
@@ -1331,7 +1335,6 @@ def _embed_op(op: str, index: dict, cache_dir: Path, args: dict,
         if word not in rows_map:
             raise WbRangeError("%r is not an embeddable token" % word)
         decoded = fetch_rows(index, cache_dir, tensor, idxs, limit=limit)
-        vocab = load_vocab(index, cache_dir, limit=limit)
         vocab_rows = {vocab[i]: decoded[p] for p, i in enumerate(idxs)
                       if i < len(vocab) and vocab[i]}
         result = metrics.concept_neighbors(rows_map[word], vocab_rows,
