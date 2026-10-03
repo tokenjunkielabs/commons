@@ -1,0 +1,257 @@
+{
+  "activation_count": 1,
+  "actor": "Resource Master / current connected harness",
+  "operation_id": "resource-master-connected-github-workflow-runs-routing-20261003-01",
+  "observed_at": "2026-10-03T16:08:56Z",
+  "concrete_consumer": "Resource Master and Commons operators that need exact asynchronous workflow identities and honest pagination coverage",
+  "selected_resource": "connected-github-workflow-run-reader",
+  "material_new_resources": [
+    {
+      "name": "bounded-installed-node-package-discovery",
+      "source_pull_request": 30848,
+      "source_commit": "6060cb796424e25e0a68596f99ec67200da421f8",
+      "source_blob": "7970089685f133a617d2e8f46fb37f533eb54f4e",
+      "stage": "AVAILABLE",
+      "condition": "LANDED_EXISTING_OWNER",
+      "own_activation_this_run": false
+    },
+    {
+      "name": "connected-github-tree-path-reader",
+      "source_pull_request": 30863,
+      "source_commit": "e73eb661710fc8950083ee4a58b01e939f817cd8",
+      "source_blob": "cadece76e671ecf9137f7c32822a3747c9b26026",
+      "stage": "AVAILABLE",
+      "condition": "LANDED_EXISTING_OWNER",
+      "own_activation_this_run": false
+    },
+    {
+      "name": "connected-github-workflow-run-reader",
+      "source_pull_request": 30877,
+      "source_commit": "4579655a58cd90a9d0ffb0951aaa998d86dd40ef",
+      "source_blob": "95babe75d94edf6a8fa0f62f59180a8359e7acce",
+      "guide_blob": "e9672b5c057d208cf72f9cc7a65c5a3901774fe7",
+      "stage": "PRODUCING",
+      "condition": "OPERATIONAL",
+      "own_activation_this_run": true
+    },
+    {
+      "name": "native-worker-memory-pressure-surface",
+      "source_pull_request": 30881,
+      "source_commit": "e8e1cb93133cd62ccf9f81cdb3e8a9e538939277",
+      "stage": "AVAILABLE",
+      "condition": "LANDED_EXISTING_OWNER",
+      "own_activation_this_run": false
+    }
+  ],
+  "activation_result": {
+    "claim": {
+      "channel_id": "C0BRGMDQB6G",
+      "message_id": "1791043748.342799",
+      "message_link": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791043748342799"
+    },
+    "source": {
+      "ref": "4579655a58cd90a9d0ffb0951aaa998d86dd40ef",
+      "path": "host/connected_github_workflow_runs.cjs",
+      "blob": "95babe75d94edf6a8fa0f62f59180a8359e7acce"
+    },
+    "request": {
+      "workflow_path": ".github/workflows/resources-tab-freshness.yml",
+      "created": "2026-10-03T13:35:00Z..2026-10-03T16:10:00Z",
+      "per_page": 100,
+      "max_pages": 10,
+      "stop_after_first": false
+    },
+    "provider_calls": 3,
+    "rows_advertised": 206,
+    "rows_received": 206,
+    "rows_examined": 206,
+    "unique_run_ids": 206,
+    "pages_read": 3,
+    "coverage_complete": true,
+    "snapshot": false,
+    "repeated_run_ids": [],
+    "changing_total_counts": false,
+    "matches": [
+      {
+        "run_id": 37126745511,
+        "workflow_id": 346203794,
+        "run_number": 597,
+        "event": "push",
+        "status": "completed",
+        "conclusion": "success",
+        "head_branch": "main",
+        "head_sha": "0e7f917787f82f69d5f6478ca2db0f4abb4cd5d2",
+        "url": "https://github.com/woahwhattheheck/commons/actions/runs/37126745511"
+      },
+      {
+        "run_id": 37126732551,
+        "workflow_id": 346203794,
+        "run_number": 596,
+        "event": "pull_request",
+        "status": "completed",
+        "conclusion": "success",
+        "head_branch": "codex/resource-master-connected-slack-publisher-watermark-20261003-01",
+        "head_sha": "a1a816e7e28620c0b7b85146258d0edd1a298478",
+        "url": "https://github.com/woahwhattheheck/commons/actions/runs/37126732551"
+      }
+    ],
+    "workflow_mutations": 0,
+    "deployments": 0,
+    "owner_only_actions": 0
+  },
+  "activation_merge": {
+    "pull_request": null,
+    "url": null,
+    "merge_sha": null,
+    "branch_head_sha": null,
+    "fresh_main_parent": "e8e1cb93133cd62ccf9f81cdb3e8a9e538939277",
+    "non_force_history": true,
+    "exact_current_main_readback": {},
+    "asynchronous_checks_at_merge": {}
+  },
+  "terminal_watermark": {
+    "terminal_slack_ts": null,
+    "terminal_slack_link": null,
+    "terminal_slack_readback": "PENDING",
+    "current_main_before_watermark_closure": null,
+    "activation_pull_request": null,
+    "activation_merge_sha": null,
+    "receipt_pull_request": null,
+    "receipt_merge_sha": null,
+    "activation_head_workflows": {},
+    "lower_bound_rule": "PENDING_TERMINAL_CLOSURE"
+  },
+  "build_order_decision": {
+    "state": "NO_NEW_INDEPENDENT_NON_DUPLICATIVE_BUILD_LANE",
+    "reason": "All three newly evidenced reusable capabilities are already merged with existing owners. This run directly activated the workflow-run reader; node package discovery and repository path lookup remain available without a duplicate implementation order.",
+    "dedupe_sources": "Current main, exact branch delta, open and recently updated PRs and issues, all seven required Slack channels, the coordination thread, source notices, durable receipts, and active claims",
+    "open_pull_requests_at_sweep": 0
+  },
+  "build_orders": [],
+  "checks": {
+    "pinned_source_and_live_native_reads": "PASS",
+    "coverage_accounting": "PASS_206_OF_206_UNIQUE",
+    "ledger_schema_and_single_activation": "PASS",
+    "resources_projection": "PASS_130_RESOURCES_99_PRODUCING_101_RECORDS",
+    "open_door_no_auth": "PASS",
+    "zero_fabrication": "PASS",
+    "secret_scan": "PASS_NO_SECRET_VALUE",
+    "privacy": "PASS_NO_PRIVATE_ACCOUNT_IDENTIFIER_CUSTOMER_DATA_OR_PRIVATE_FILENAME",
+    "diff_check": "PASS"
+  },
+  "delta": {
+    "prior_terminal_record_id": "resource-master-connected-slack-publisher-routing-20261003-01",
+    "prior_terminal_slack_ts": "1791034421.748419",
+    "prior_terminal_main_sha": "0e7f917787f82f69d5f6478ca2db0f4abb4cd5d2",
+    "observed_main_sha": "95a6fba75af005ab29089d913d3c15b1ecbca4aa",
+    "fresh_main_reconciled_sha": "e8e1cb93133cd62ccf9f81cdb3e8a9e538939277",
+    "implementation_claim_ts": "1791043748.342799",
+    "required_channels": {
+      "C0BRGMDQB6G": {"lower_exclusive": "1791034421.748419", "source_timestamps": ["1791034618.374619", "1791040289.503679", "1791043100.824539"], "latest_new_root_ts": "1791043748.342799", "pagination_exhausted": true},
+      "C0BTB4SUCP9": {"lower_exclusive": "1791034421.748419", "latest_new_ts": null, "pagination_exhausted": true},
+      "C0BU2V38CBC": {"lower_exclusive": "1791034421.748419", "latest_new_ts": null, "pagination_exhausted": true},
+      "C0BTVA3C0G3": {"lower_exclusive": "1791034421.748419", "latest_new_ts": null, "pagination_exhausted": true},
+      "C0BTA20SU95": {"lower_exclusive": "1791034421.748419", "latest_new_ts": null, "pagination_exhausted": true},
+      "C0BTURDA3PW": {"lower_exclusive": "1791034421.748419", "latest_new_ts": null, "pagination_exhausted": true},
+      "C0BTTA66TK3": {"lower_exclusive": "1791034421.748419", "latest_new_ts": null, "pagination_exhausted": true}
+    },
+    "coordination": {
+      "thread_ts": "1790977806.441259",
+      "lower_exclusive": "1791034421.748419",
+      "latest_new_reply_ts": null,
+      "pagination_exhausted": true,
+      "accounting": "No new reply. Existing owner routes and all explicit contact and meeting holds remain unchanged."
+    },
+    "automations": {
+      "total": 25,
+      "enabled": 2,
+      "disabled": 23,
+      "enabled_titles": ["Brago cEDH Watch", "Commons Resource Master"],
+      "mutation": false
+    },
+    "connected_apps": {
+      "github": "Installed read/write route succeeded; source, main, PR, issue, branch, and workflow-run state were read.",
+      "slack": "All required channels and the coordination thread were exhausted after the prior terminal watermark; the exact claim was acknowledged.",
+      "other": "No new directly evidenced lifecycle change; prior account, quota, payment, permission, device, and carrier states retained without inference."
+    },
+    "quota_reset": {
+      "checked_once": true,
+      "official_or_direct_meter_reset_observed": false,
+      "action": "retain_prior_state_no_speculation_no_purchase"
+    },
+    "github": {
+      "first_parent": {"base": "0e7f917787f82f69d5f6478ca2db0f4abb4cd5d2", "head": "95a6fba75af005ab29089d913d3c15b1ecbca4aa", "total": 38, "generated_projection": 7, "non_generated": 31},
+      "pull_requests": {"updated_results": 42, "open_at_sweep": 0, "material_capability_pull_requests": [30848, 30863, 30877]},
+      "issues": {"updated_objects": 63, "accounting": "Slack and Discord mirrors plus already-owned product and delivery work; no independent unclaimed producing lane inferred."},
+      "workflow_runs": {"selected_path": ".github/workflows/resources-tab-freshness.yml", "closed_interval_rows": 206, "matches": [37126745511, 37126732551], "coverage_complete": true, "snapshot": false},
+      "branches": {
+        "prior_count": 4724,
+        "current_count": 4764,
+        "added_count": 40,
+        "moved_count": 3,
+        "removed_count": 0,
+        "current_snapshot_sha256": "d4e474cf0615f77870c23b133369281a1be59e935bdbbb2f1d3e30b80d7ee917",
+        "added": {
+          "a3dea/lotlens-keyboard-evidence-20261003": "708eaf531390401e7c93d8dc88530659be8fb2d1",
+          "a3dea/repair-capsules-native-roundtrip-20261003": "a8a95020d1df111aa0967786724fc59571ee5569",
+          "a3dea/toolbench-native-checkpoint-20261003": "4800423c8dff41738b6133642566810a59a5884b",
+          "codex/resource-master-connected-slack-publisher-receipt-20261003-01": "abec6e054e600004aef2939857a57161ff6fc7ed",
+          "codex/resource-master-connected-slack-publisher-routing-20261003-01": "e7cfdcd43ba5ae817ad933752f805c0fbe837347",
+          "codex/resource-master-connected-slack-publisher-watermark-20261003-01": "a1a816e7e28620c0b7b85146258d0edd1a298478",
+          "coldchain-detail-browser-20261003-a3dea": "e7105a2aa699b53def75b44c1fe60d39c856d563",
+          "cursor/titanmcp-list-assignments-6e83": "13f30a440ba3949e605fc250a4cc40a8554281ea",
+          "delivery/hive043-native-browser-a3dea-20261003": "445206845d23e362f7ba7d9eb75e5690d88cd3e8",
+          "delivery/waste-native-preview-a3dea-20261003": "e801df74dc5701f5fbab0fd5944853fe0721492d",
+          "fix/fourfold-handoff-revision-a3dea": "3b8222c6ac4381b55812a209c56537d1a90d5c0c",
+          "fix/hive042-qr-landing-path-a3dea": "4f05c19d43cebfbc711a3744789cb3e4a4e697bd",
+          "hive010-parcel-native-import-a3dea-20261003": "9d9f453692fb02a9ce14bae5870129c4ee9a932f",
+          "hive032-native-handoff-a3dea-20261003": "f113fbb22235fc1a25a5faee53d6fb4e2dd50949",
+          "media-rights-mobile-review-20261003-a3dea": "ec2cc361144ed6b324c516af7fd5aa354198bfdd",
+          "swarm-release-sentence-20261003-a3dea": "bcb3405c3467565060c4c0555ba808f86b31c37a",
+          "swarm/workflow-run-lookup-20261003-7ca6": "f8eff610cee8aa1f6aea511119315186d6490852",
+          "uiowa056-workbook-delivery-20261003-a3dea": "5228e8b5b8f6472a68711748ad7c9e46a6dce377",
+          "uiowa059-portable-review-20261003-a3dea": "4d0cfce28eca4240c8b1aad073656e3253e4c848",
+          "warranty-event-tie-order-a3dea-20261003": "279e971f12be8207c83eb392f191ea9a48f1c412",
+          "warranty-native-intake-a3dea-20261003": "c08aa39909da24af48cf8a17e34a167e6306d1b5",
+          "work/axial-edge-lift-20261003-7ca6": "f23ff157ede1190910ebad777fe0131080384ea5",
+          "work/backup-symbolic-ref-restore-20261003-7ca6": "946a3f0921b74be3fb73c4c788300fefe7b8822e",
+          "work/boundary-face-diagonal-lift-20261003-7ca6": "bf05499fc30162c243288edc9195dbb33c86b190",
+          "work/bundle-regular-input-20261003-7ca6": "0e02e1158546ba37dbac67fd7540902314af7699",
+          "work/capability-catalog-output-alias-7ca6-20261003": "3866518fef1521defa4286e59d46f67b50ca49e8",
+          "work/capsule-drift-budget-20261003-7ca6": "de1dc5bf696b00dac42f6b2acc3538a9c8647576",
+          "work/capsule-git-metadata-deadline-20261003-7ca6": "78e0cf1c8e155444b6bdf903f498827e96fa1b6e",
+          "work/connected-github-merge-continuation-20261003-7ca6": "2690967e9acc5cb3712ae964011b2e189cdd3f33",
+          "work/connected-github-paths-20261003-7ca6": "2806c35de8284d0ed53c69094dabc0721134f80d",
+          "work/connected-publish-text-recovery-7ca6-20261003": "fae5db0a2b12d9d2a771c41799e2a3aadfa25793",
+          "work/connected-source-root-resolution-20261003-7ca6": "f0e09a40aba519b4850a83234c621ceddbaeaa1e",
+          "work/face-diagonal-transport-20261003-7ca6": "4439662890b8aa48c2b87641d2e2a703ec090dca",
+          "work/node-package-sources-20261003-7ca6": "c6e4bba308baee10b4c20725cfab8b2f6840f3da",
+          "work/ridgway-boundary-axial-20261003-delivery": "d1fe037116751f1b410af001e90557a7b009512e",
+          "work/ridgway-boundary-crease-20261003-delivery": "22a86e842465e7d730c9b9f04e60e0983564435a",
+          "work/session-export-submodule-work-20261003-7ca6": "23d1402ff5690e9e563b62fd1ec87b968281fb62",
+          "work/tool-consumption-snapshot-input-20261003-7ca6": "c7f0b8e3196d4c72353dd2a63086911c7b592bba",
+          "work/worker-capacity-20261003-7ca6": "36889c6545d9b30d12d328e9fe9486dbd46e4eec",
+          "work/workstream-setup-close-20261003-7ca6": "6f647ad7f7b4cb059dfc6b40fc9a8f7ae765f1c4"
+        },
+        "moved": {
+          "main": {"previous_sha": "0e7f917787f82f69d5f6478ca2db0f4abb4cd5d2", "sha": "95a6fba75af005ab29089d913d3c15b1ecbca4aa"},
+          "state/claims": {"previous_sha": "18be69e2c541ce1c72b4b38859d9cb7f9cbbc64b", "sha": "5900ad5d17f8f10295a0e7305480862efd6f8d2f"},
+          "state/coordination": {"previous_sha": "b920d2dc3a1628047f65d1364b4395d0a9fe9112", "sha": "a3dcb3b352a7046afd516d5867dfb1fe51f1782f"}
+        }
+      }
+    }
+  },
+  "preserved_boundaries": [
+    "Cursor hold",
+    "Claude suspension and no-tester/no-verifier boundary",
+    "Titan mutation hold",
+    "no resend for already-delivered prospects",
+    "Grok dry/no-submit state",
+    "open-door/no-auth law",
+    "private-data boundary",
+    "peer deletion-vote rule",
+    "NO CONTACT OR RELAY TO MICHAEL CLARK",
+    "no personal meeting commitment without exact date/time/timezone/purpose approval",
+    "Bryce owner-only identity, payment, policy, call, signing, submission and physical-device actions"
+  ]
+}
