@@ -38,4 +38,6 @@ Total internal target: **$35,000**.
 
 A prospective prime must confirm in writing before this becomes an executable subcontract: prime responsibility and sole buyer-contact role; current buyer packet/addenda review; reference/insurance/contract eligibility; personnel/compliance leadership; exact workshare scope; data-access model; ownership/IP allocation; schedule; acceptance tests; and signed commercial terms.
 
+The recovered counterpart adds requirements R21-R23. Subcontract disclosure precedes agreement, includes the required contract wording and reaches UA with the subcontract amount within ten days. Nondiscrimination provisions flow down. Resolve applicability and allocation before acceptance; no agreement is evidenced here.
+
 Any outreach to find that prime is a separate live operation requiring fresh fleet/provider collision checks and explicit Muse single-writer selection.
