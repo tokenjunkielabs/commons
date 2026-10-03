@@ -353,6 +353,8 @@ class Runtime:
                     raise ValueError("heartbeat needs task_key unless worker owns exactly one ACTIVE task")
                 selected_key = active[0]
 
+            emitted_ids = set()
+
             def emit(verb, target, suffix="", **extra):
                 allowed = ("base_sha", "head_sha", "branch", "pr", "issue", "repo", "artifact",
                            "merge_sha", "blocker", "next_action", "required_capabilities",
@@ -363,6 +365,7 @@ class Runtime:
                              feed_cursor=payload.get("feed_cursor") or state.get("workers", {}).get(worker, {}).get("feed_cursor", "UNKNOWN"))
                 event.update(extra)
                 _append(state, [event])
+                emitted_ids.add(event["id"])
 
             collision = None
             release_rejected = []
@@ -439,7 +442,7 @@ class Runtime:
                       "collision": collision, "next": next_job,
                       "deferred": deferred,
                       "rejected": release_rejected + [row for row in view.get("rejected", [])
-                                   if operation_id in str(row.get("id", row.get("event_id", "")))]}
+                                   if row.get("id", row.get("event_id")) in emitted_ids]}
             operations[operation_id] = {"request_hash": request_hash, "result": result}
             return result
         return self.store.update(mutation, push=push)
