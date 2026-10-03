@@ -78,6 +78,14 @@ still acquire the next claim
 atomically after fresh reconciliation. Repeated sync alone cannot keep an idle
 worker live or reserve work ahead of its execution callback.
 
+After a configured collector cycle completes, the existing ingestion hook also
+requests historical provider reconciliation with a maximum of four reads. The
+shared provider cache, pacing, retry budget and ingestion lock still apply; a
+busy hook leaves the work for a later cycle or explicit sync. Ordinary ingestion
+and passive board sync continue to request zero provider reads. No new timer or
+worker dispatch is created. `swarm-last-sync.json` includes `provider_calls` for
+the completed hook alongside its existing publication/error receipt.
+
 Meaningful claims transactions also publish `holdings/swarm-status.json` beside
 the ledger. This bounded read model comes from the same Python projector and
 includes the exact ledger's SHA-256 and projection time. It is suitable for a
