@@ -58,6 +58,9 @@ def main(argv=None):
             finally: runner.stop(); server.server_close()
             return 0
         print(json.dumps(redact(result),ensure_ascii=False),flush=True)
+        if args.command=="collect" and result.get("errors"):
+            print(json.dumps({"ok":False,"error":"collection_failed","sources":redact(result["errors"])}),file=sys.stderr)
+            return 1
         return 0
     except Exception as exc:
         print(json.dumps({"ok":False,"error":type(exc).__name__,"message":redact(str(exc))}),file=sys.stderr)
