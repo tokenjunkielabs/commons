@@ -253,7 +253,7 @@ def _text_status(raw: bytes | None, *, oversized: bool) -> tuple[str | None, str
         text = raw.decode("utf-8", "strict")
     except UnicodeDecodeError:
         return None, "NON_UTF8"
-    if any((ord(ch) < 32 and ch not in "\n\r\t") or ord(ch) == 127 for ch in text):
+    if re.search(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]", text):
         return None, "NON_TEXT_CONTROL"
     return text, None
 
