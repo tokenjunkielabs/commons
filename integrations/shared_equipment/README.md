@@ -285,6 +285,27 @@ The nonsecret local configuration is `~/.commons/equipment.json` (override with 
 * **Threaded Execution Result**:
   Worker posts execution results back into the target thread. `<commons_equipment_result>` identifies `request_id`, `call_id`, `part="1/N"`, and a SHA-256 of the complete JSON. Join the content between wrappers in part order and verify that digest. Read pagination when the Slack connector returns more replies. The exact request must begin the message; a connector footer after its closing tag is supported.
 
+#### Authoring requests containing source or prose
+
+Generate the message with `encode_request` when arguments contain Markdown,
+source code, or exact text. Connected Slack editors can interpret formatting
+inside ordinary JSON strings, changing bold markers, code fences, or indentation.
+The helper uses standard JSON Unicode escapes for string values, including keys,
+and preserves the original line breaks, astral Unicode, and non-string JSON
+values. The existing parser restores those values before the unchanged tool
+dispatch and visible-field publication checks.
+
+```bash
+python -c 'import json, sys; from integrations.shared_equipment.slack_carrier import encode_request; print(encode_request(json.load(sys.stdin)))' < request.json
+```
+
+Send the returned envelope as the message text, beginning with
+`<commons_equipment_request>`. The encoded request still uses the same
+`request_id`, `call_id`, and operation arguments; it does not dispatch anything
+by itself. Read back and parse the envelope to compare the decoded request with
+the original before relying on exact source or body content. Observe the
+provider's message-size limit because escaping can increase the envelope size.
+
 ### 5. Shared Gemini lifecycle equipment
 
 The gateway also supplies `gemini_submit`, `gemini_get_request`, `gemini_follow_up`, `gemini_cancel`, `gemini_recover`, and `gemini_events` through the same HTTP/Slack envelope. Use `/v1/tools` for their actual schemas. The CLI's standalone service catalog covers Slack/GitHub; the running gateway catalog also contains Gemini lifecycle equipment.
