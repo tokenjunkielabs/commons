@@ -359,9 +359,11 @@ class Outbox:
     dispatch(notification) returns status sent, failed, or uncertain plus exact
     provider receipt fields. Only a definite failed result is retryable. A
     sending record after restart is uncertain. readback(notification, receipt)
-    returns status sent, not_sent, or uncertain. not_sent permits a retry using
-    the same notification ID. Actual Slack/email adapters live with the existing
-    service road; this module neither gets credentials nor chooses a provider.
+    returns status sent, not_sent, or uncertain. Inconclusive readbacks retain
+    the delivery receipt; their result is saved separately as last_readback.
+    not_sent permits a retry using the same notification ID. Actual Slack/email
+    adapters live with the existing service road; this module neither gets
+    credentials nor chooses a provider.
     """
 
     def __init__(self, path: str | Path, redactor: Callable[[Any], Any] = redact):
@@ -419,12 +421,16 @@ class Outbox:
                     result = dict(readback(notification, record.get("receipt")))
                 except Exception as error:
                     result = {"status": "uncertain", "error": str(error)}
-                record["receipt"] = self.redactor(redact(result))
+                record["last_readback"] = self.redactor(redact(result))
                 status = result.get("status")
+                # An outage or partial readback must not erase the provider
+                # identifiers and destination receipts needed for recovery.
+                if status in {"sent", "not_sent"}:
+                    record["receipt"] = record["last_readback"]
                 record["delivery_status"] = "sent" if status == "sent" else "pending" if status == "not_sent" else "uncertain"
                 self._save()
                 if record["delivery_status"] != "pending":
-                    outcomes.append({"notification_id": nid, **record["receipt"]})
+                    outcomes.append({"notification_id": nid, **record["last_readback"]})
                     continue
             if record["delivery_status"] not in {"pending", "failed"} or notification.get("status") == "resolved":
                 continue
