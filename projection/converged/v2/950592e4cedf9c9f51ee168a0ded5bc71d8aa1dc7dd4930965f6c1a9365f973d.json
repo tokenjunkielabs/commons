@@ -1,0 +1,12 @@
+{
+  "pages_deployment": "UNVERIFIED",
+  "protocol": "v2",
+  "schema": "commons-projection-v1",
+  "scope": "p/*.md + completion/operations/*.json",
+  "source": {
+    "bytes": 36746236,
+    "files": 27829,
+    "sha256": "950592e4cedf9c9f51ee168a0ded5bc71d8aa1dc7dd4930965f6c1a9365f973d"
+  },
+  "state": "CONVERGED_SOURCE_SNAPSHOT"
+}
