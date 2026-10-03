@@ -619,6 +619,9 @@ class Store:
             db.execute("UPDATE notifications SET delivery_state=?,receipt=? WHERE notification_id=?",(state,json.dumps(redact(receipt)),notification_id))
 
     def export(self, path, *, public=False):
+        import os
+        import uuid
+
         value=copy.deepcopy(self.snapshot(detailed=True))
         if public:
             # Public bake has operational metadata; private excerpts remain in the source runtime.
@@ -635,5 +638,20 @@ class Store:
             value["sources"]=value["coverage"]
         dest=Path(path)
         dest.parent.mkdir(parents=True,exist_ok=True)
-        dest.write_text(json.dumps(redact(value),ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+        # Preserve the prior export if serialization, writing or flushing fails.
+        # Resolve existing links to keep the destination's write-through behavior.
+        target=dest.resolve()
+        mode=target.stat().st_mode & 0o7777 if target.exists() else None
+        temporary=target.with_name("."+target.name+"."+uuid.uuid4().hex+".tmp")
+        staged=False
+        try:
+            with temporary.open("x",encoding="utf-8") as output:
+                staged=True
+                if mode is not None: temporary.chmod(mode)
+                output.write(json.dumps(redact(value),ensure_ascii=False,indent=2)+"\n")
+                output.flush()
+                os.fsync(output.fileno())
+            temporary.replace(target)
+        finally:
+            if staged: temporary.unlink(missing_ok=True)
         return self.envelope(path=str(dest),bytes=dest.stat().st_size,public=public)
