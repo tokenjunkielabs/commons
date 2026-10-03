@@ -811,18 +811,23 @@ def category_purity(word_rows: dict, cats=None) -> dict:
     """is each word's nearest neighbor in its own category? (fable_practical)"""
     cats = cats or CATEGORIES
     labels = {w: c for c, ws in cats.items() for w in ws}
-    have = {w: unit(r) for w, r in word_rows.items()
-            if r and w in labels}
+    have = [(w, unit(r)) for w, r in word_rows.items()
+            if r and w in labels]
+    neighbors = [None] * len(have)
+    scores = [-2.0] * len(have)
+    # Visit each pair once. Candidates still arrive in insertion order for
+    # either word, so equal scores retain the same first neighbor.
+    for i, (w, vec) in enumerate(have):
+        for j in range(i + 1, len(have)):
+            x, other = have[j]
+            s = sum(a * b for a, b in zip(vec, other))
+            if s > scores[i]:
+                scores[i], neighbors[i] = s, x
+            if s > scores[j]:
+                scores[j], neighbors[j] = s, w
     hits = tot = 0
     misses = []
-    for w, vec in have.items():
-        best, bs = None, -2.0
-        for x, other in have.items():
-            if x == w:
-                continue
-            s = sum(a * b for a, b in zip(vec, other))
-            if s > bs:
-                bs, best = s, x
+    for (w, _), best, bs in zip(have, neighbors, scores):
         if best is None:
             continue
         tot += 1
