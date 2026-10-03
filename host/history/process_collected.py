@@ -23,6 +23,8 @@ args=parser.parse_args()
 if args.workers < 1 or args.poll_seconds < 1:
     parser.error('workers and poll-seconds must be positive')
 root=Path(args.directory)
+if not root.is_dir():
+    parser.error('directory must be an existing directory')
 source_digests={}
 
 def complete(source):
