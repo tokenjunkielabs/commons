@@ -1,20 +1,20 @@
-# Draft Buyer Questions — NOT SENT
+# CWPD question reconciliation — internal, not sent
 
-Question deadline stated by CWPD: September 18, 2026.  
-Official route: Carrie Dittman (listed in the RFP).  
-**These are internal draft questions only. Do not send without separate authorization.**
+The September 18, 2026 question period has passed. This register reconciles the ten original draft questions against the published addendum; it is not a new question submission. Original wording remains available in repository history. No additional buyer contact is performed.
 
-Prioritize questions that materially change architecture, price or eligibility.
+Clause numbers refer to [the official addendum](https://cwpd.org/wp-content/uploads/2026/09/rfp-addendum-redesign-2027.pdf). Selected facts and physical page locators are in [source_review.json](captures/20261003/source_review.json).
 
-1. **RecDesk integration surface.** Can CWPD provide the RecDesk tenant/module details and any API, feed, embed, export or partner documentation currently available for program information? If API credentials or partner approval are required, will CWPD/RecDesk sponsor access for the selected vendor?
-2. **RecDesk data expectations.** Which fields are highest priority for automated display on cwpd.org (program name/category, dates/times, location, registration status, capacity/availability, price), and what refresh latency is acceptable?
-3. **Current WordPress inventory.** Can CWPD provide a current plugin/theme/custom-code inventory and any known technical constraints before final proposal pricing?
-4. **Hosting baseline.** Is retaining DataYard preferred, neutral or discouraged? Please share any current uptime, backup/recovery, staging, WAF/CDN, monitoring or support requirements that the replacement must preserve.
-5. **Content inventory.** Approximately how many pages/posts/files are in scope for migration beyond the 51 park pages, and are PDFs/documents expected to be remediated for accessibility as part of this engagement?
-6. **Park Finder.** What system/source currently holds amenity and park attribute data, and which filters or comparison attributes generate the most resident requests?
-7. **Search/analytics.** Can the selected vendor receive historical site-search terms and analytics (including device/path/conversion data) during discovery?
-8. **Accessibility evidence.** Does CWPD require a particular audit format, VPAT/ACR, third-party accessibility audit, or specific assistive-technology/browser test matrix at launch?
-9. **Budget.** Is there an approved budget range or not-to-exceed amount that vendors should use to distinguish base scope from optional features?
-10. **Proposal references.** Is municipal/park-district experience preferred as stated in evaluation, or is comparable public/nonprofit service-delivery work acceptable where a vendor can demonstrate equivalent accessibility, governance and content complexity?
+| Original item | Addendum sections | Disposition | Remaining internal work |
+| --- | --- | --- | --- |
+| 1. RecDesk integration surface | 5 | Core source question answered | Obtain endpoint/schema and tenant details at the stated access stage; validate the adapter. |
+| 2. RecDesk data expectations | 5 | Fields clarified; lifecycle feasibility open | Confirm refresh cadence and capacity/cancellation signals; define failure behavior. |
+| 3. WordPress inventory | 2, 7, 11–12 | Partial | Inventory plugins, themes and custom code; identify upgrade and migration dependencies. |
+| 4. Hosting baseline | 12 | Preference and environment clarified | Document the proposed service target, retention/recovery settings and support responsibility. |
+| 5. Content inventory and documents | 8–10 | Planning baseline and work split clarified | Confirm selected content and migration batches; agree accessibility handoffs. |
+| 6. Park Finder | 7–8 | Current source and launch baseline clarified | Design editable taxonomy and result cards; distinguish optional enhancements. |
+| 7. Search/analytics | 19, 21–22 | Discovery access and pain points addressed | Inspect available datasets and recruit representative research participants during discovery. |
+| 8. Accessibility evidence | 10 | Audit/remediation direction clarified | Resolve audit procurement, fees, format and assistive-technology coverage. |
+| 9. Budget | 4, 23 | Buyer budget/payment position answered | Build an owner-approved, staged estimate with explicit exclusions. |
+| 10. Portfolio and references | 1, 24–25 | Qualification and preference clarified | Supply truthful comparable work and permitted reference details; do not invent sector or API history. |
 
-Do not ask for information already unambiguously answered by an addendum. Re-check the official RFP page and any published Q&A before sending.
+These remaining items guide internal estimation and later project discovery. They do not authorize a late buyer question, account access, reference contact or proposal submission.
