@@ -286,14 +286,18 @@ def _verify_manifest(manifest_path: Path) -> dict[str, Any]:
 
 def restore(manifest_path: Path, target: Path, bare: bool = False) -> dict[str, Any]:
     receipt = _verify_manifest(manifest_path)
-    target = target.resolve()
-    if target.exists():
+    # A dangling symlink occupies the requested name even though exists() is
+    # false. Reserve that name before resolving it so restoration cannot follow
+    # an existing link into a different, not-yet-created destination.
+    target = target.absolute()
+    if os.path.lexists(target):
         raise BackupError(f"refusing to overwrite restore target: {target}")
     expected_refs = _bundle_heads(Path(receipt["bundle"]))
     try:
         target.mkdir(parents=True)
     except OSError as error:
         raise BackupError(f"cannot create new restore target {target}: {error}") from error
+    target = target.resolve()
     # Ordinary clones rename branches into origin/* and omit notes/custom refs.
     # Mirror into the new target (or its .git directory) to retain every ref.
     git_dir = target if bare else target / ".git"
