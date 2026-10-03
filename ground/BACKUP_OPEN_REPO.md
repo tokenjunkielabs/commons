@@ -38,6 +38,13 @@ dangling symlinks, are refused before a new restore directory is created.
 The requested directory must be created successfully before it is resolved
 and populated.
 
+Manifest and drill-receipt JSON is staged in a private sibling directory and
+flushed before exclusive publication. An ordinary write failure leaves the
+requested JSON filename absent and cleans up that attempt's staging, so the
+same JSON write can be retried. Existing destination names are preserved.
+This does not remove a bundle already published by a snapshot, or make the
+bundle and manifest a single atomic operation.
+
 `verify <manifest>` checks the bundle checksum and ref inventory, then restores
 it into a temporary bare repository and checks the resulting HEAD and refs.
 Only that successful readback returns `VERIFIED`; matching hashes and headers
@@ -106,3 +113,4 @@ Shelf: [tools-cash.html](../tools-cash.html). Catalog: [commerce.html](../commer
 ## Contest product (titanmcp)
 
 Live judge pad (≠ Commons Shared Pad / ≠ Commons `/mcp`): https://webmcp-pad.vercel.app/ — **titanmcp 1.4.5**, 24 tools, Agent Resources, `syncConsents`. Board: [titanmcp.html](../titanmcp.html). Cite Latch Pad KEEP. Submit/YouTube wait Bryce exact go.
+
