@@ -252,15 +252,24 @@ class Runner:
         if isinstance(coverage,dict): coverage=[coverage]
         return self.store.ingest([],accounts=accounts,coverage=coverage)
     def collect_once(self,providers=True):
-        local=self.collect_local()
+        try:
+            local=self.collect_local()
+            self.errors.pop("local",None)
+        except Exception as exc:
+            self._source_error("local",exc)
+            local={"status":"pending_recovery","error":type(exc).__name__}
         provider_results={}
         if providers:
-            try: provider_results["discovery"]=self.collect_discovery()
+            try:
+                provider_results["discovery"]=self.collect_discovery()
+                self.errors.pop("discovery",None)
             except Exception as exc: self._source_error("discovery",exc)
             with ThreadPoolExecutor(max_workers=3,thread_name_prefix="measurement-source") as pool:
                 futures={name:pool.submit(fn) for name,fn in (("slack",lambda:self.collect_extended("slack")),("github",lambda:self.collect_extended("github")),("services",lambda:self.collect_extended("services")),("inventory",self.collect_inventory),("census",self.collect_census),("machine",self.collect_machine))}
                 for name,future in futures.items():
-                    try: provider_results[name]=future.result()
+                    try:
+                        provider_results[name]=future.result()
+                        self.errors.pop(name,None)
                     except Exception as exc: self._source_error(name,exc)
         state={"mode":"passive","observed_at":now(),"local":local,"providers":provider_results,"errors":self.errors,"dropped_observations":self.dropped,"jev_required":False}
         self.store.state("collector",state)
