@@ -224,36 +224,30 @@ class Runtime:
                 state["cursors"] = imported.get("cursors", state.get("cursors", {}))
                 state["coverage"] = imported.get("coverage", {})
             view = _project(state, moment)
-            assignments = []
+            candidates = []
+            candidate_workers = set()
             for closed_key, previous in sorted(before.items()):
                 closed = view["tasks"].get(closed_key, {})
                 worker = previous.get("worker")
                 if previous.get("state") != "ACTIVE" or closed.get("state") not in TERMINAL or not worker or worker == "UNKNOWN":
                     continue
+                if worker in candidate_workers:
+                    continue
+                candidate_workers.add(worker)
                 choice = route(view["tasks"], worker, _seats(state), moment)
                 target = choice.get("task_key")
                 if not target:
                     continue
-                row = view["tasks"][target]
-                event = {"id": "reconcile-next:" + digest([closed_key, closed.get("merge_sha"), worker, target]),
-                         "action": "TAKE", "task_key": target, "worker": worker,
-                         "at": moment, "source": "swarm-reconciler"}
-                if row.get("recoverable"):
-                    _append(state, [{**event, "id": event["id"] + ":recover", "action": "RECOVER",
-                                     "expected_worker": row.get("worker"), "expected_heartbeat": row.get("heartbeat")}])
-                _append(state, [event])
-                # Taking actual next work is meaningful worker activity. Keep
-                # automatic assignment and explicit take on the same seat lease.
-                state.setdefault("workers", {}).setdefault(worker, {}).update(
-                    seat=worker, heartbeat=moment,
-                    dispatch_cursor=state.get("cursors", {}).get("commons", {}).get("feed_cursor", "UNKNOWN"))
-                view = _project(state, moment)
-                assignments.append(context_bundle(view["tasks"][target], state["events"]))
+                # Reconciliation observed completion, not worker activity or a
+                # delivery. Leave custody available to the existing dispatcher
+                # or an explicit worker operation, which reconciles it again.
+                candidates.append({"worker": worker, "after_task_key": closed_key,
+                                   "task": context_bundle(view["tasks"][target], state["events"])})
             return {"action": "sync", "ingested": added, "tasks": len(view["tasks"]),
                     "summary": status(view["tasks"], _seats(state), moment),
                     "provider_calls": fresh.get("calls", 0),
                     "deferred": fresh.get("deferred", []), "coverage": state.get("coverage", {}),
-                    "assignments": assignments}
+                    "assignments": [], "candidates": candidates}
         return self.store.update(mutation, push=push)
 
     def operate(self, action, payload, *, push=True, worker_activity=True):
