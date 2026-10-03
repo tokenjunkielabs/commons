@@ -303,6 +303,30 @@
     var key = identityKey(input);
     var existing = key ? store.faults[key] : null;
 
+    if (piiHits.length) {
+      var refusalInput = {
+        faultId: FAULT_RE.test(input.faultId) && piiHits.indexOf("faultId") === -1 ? input.faultId : "",
+        faultClass: Object.prototype.hasOwnProperty.call(CLASSES, input.faultClass) ? input.faultClass : "",
+        fields: {}
+      };
+      var refusalState = existing ? clone(existing) : newState(refusalInput, fingerprint, now);
+      refusalState.input = refusalInput;
+      refusalState.idempotencyKey = refusalInput.faultId;
+      refusalState.status = "PII_REFUSED";
+      refusalState.attempts += 1;
+      refusalState.lastProcessedAt = now;
+      refusalState.lastWorkerGeneration = workerGeneration;
+      refusalState.effects.statusReceipt = {
+        id: (refusalInput.faultId || "UNKEYED") + ":status",
+        kind: "HANDOFF_REFUSAL_RECEIPT",
+        reason: "PII_OR_LIVE_IDENTIFIER",
+        hits: piiHits,
+        createdAt: now
+      };
+      stampProgress(refusalState, now, refusalState.status);
+      return result(refusalState, null, { storedStatus: existing ? existing.status : null });
+    }
+
     if (existing && existing.fingerprint !== fingerprint) {
       return Object.assign({
         receiptVersion: 1,
@@ -334,19 +358,6 @@
     if (state.status === "ROLLED_BACK") {
       state.status = "NEW";
       state.effects = emptyEffects();
-    }
-
-    if (piiHits.length) {
-      state.status = "PII_REFUSED";
-      state.effects.statusReceipt = state.effects.statusReceipt || {
-        id: (input.faultId || "UNKEYED") + ":status",
-        kind: "HANDOFF_REFUSAL_RECEIPT",
-        reason: "PII_OR_LIVE_IDENTIFIER",
-        hits: piiHits,
-        createdAt: now
-      };
-      stampProgress(state, now, state.status);
-      return result(state);
     }
 
     if (!input.faultId || !FAULT_RE.test(input.faultId)) {
