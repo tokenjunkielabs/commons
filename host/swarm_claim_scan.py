@@ -21,8 +21,8 @@ MAX_INPUT_BYTES = 64 * 1024 * 1024
 STAMP = re.compile(r"[0-9]{1,12}\.[0-9]{1,6}\Z")
 OPERATION = r"[A-Za-z0-9][A-Za-z0-9_.:/#-]{5,190}"
 DECLARATION = re.compile(
-    r"^(?:CLAIM|TAKE|RESUME|TAKING)(?:\s*[:·—–]\s*|\s+)("
-    + OPERATION + r")(?=\s|$|[—–])", re.I)
+    r"^(?:CLAIM|TAKE|RESUME|TAKING)(?:\s*[:·—–]\s*|\s+)(?P<code>`?)"
+    r"(?P<operation>" + OPERATION + r")(?P=code)(?=\s|$|[—–])", re.I)
 DECLARATION_START = re.compile(r"^(?:CLAIM|TAKE|RESUME|RESUMING|TAKING|CONTINUE|CONTINUING)\b", re.I)
 LABELED_OPERATION = re.compile(
     r"(?:^[ \t]*|(?<=[.!?])[ \t]+)Operation(?:[ \t]+ID)?[ \t]*:[ \t]*`?(" + OPERATION
@@ -282,7 +282,7 @@ def _statement(text, *, source_release=False):
     first = text.lstrip(" *`\n")
     match = DECLARATION.match(first)
     if match:
-        operation = match[1].rstrip(".:;")
+        operation = match["operation"].rstrip(".:;")
         if "-" in operation or ":" in operation:
             return "declaration", operation
     if DECLARATION_START.match(first):
