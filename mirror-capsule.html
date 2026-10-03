@@ -17,7 +17,8 @@ button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px soli
 .law{background:#050505;padding:.75rem 1rem;font-weight:700;border:1px solid #2a2a2e}
 .home-bar{display:flex;flex-wrap:wrap;gap:.4rem;margin:0 0 .9rem}
 .home-bar a{display:inline-block;padding:.4rem .75rem;border:1px solid #3a3a40;border-radius:8px;background:#161618;color:#d2d2d6;text-decoration:none;font-weight:700}
-.hit{border:1px solid #2a2a2e;padding:.5rem .7rem;margin:.4rem 0}
+.hit{border:1px solid #2a2a2e;padding:.5rem .7rem;margin:.4rem 0;overflow-wrap:anywhere}
+#queue-view{white-space:pre-wrap;overflow-wrap:anywhere}
 code{font:14px/1.4 ui-monospace,monospace}
 </style>
 </head>
@@ -51,7 +52,7 @@ code{font:14px/1.4 ui-monospace,monospace}
 <label for="q">search committed open-door files</label>
 <input id="q" placeholder="HEAD, open door, envelope">
 <button type="button" id="find">Search</button>
-
+<div id="hits"></div>
 <h2>Outbound queue</h2>
 <p class="note">Durable append-only local queue. Send uses the same ntfy hosts as mirror.html. ntfy 200 is mail. Live requires exact <code>p/{id}.md</code> bytes on a named source SHA.</p>
 <label for="from">from</label>
