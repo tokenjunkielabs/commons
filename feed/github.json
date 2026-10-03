@@ -1,6 +1,6 @@
 {
   "counts": {
-    "open_issues": 7431,
+    "open_issues": 7401,
     "open_pull_requests": 0,
     "runs_in_progress": 1,
     "runs_queued": 70
@@ -13,6 +13,32 @@
   "pulls_listing": "UNKNOWN",
   "queue_depth_per_runner": 70.0,
   "recently_closed": [
+    {
+      "author": "woahwhattheheck",
+      "base": "main",
+      "branch": "resource-master/stripe-read-route-receipt-20261002-2219",
+      "closed_at": "2026-10-02T22:21:27Z",
+      "head_sha": "7f7a6c643f21008621b0aefeec810a8f589ca721",
+      "merge_commit_sha": "46094fa5d44ca2cf09c7871b3a848264471dde3e",
+      "merged_at": "2026-10-02T22:21:27Z",
+      "number": 30222,
+      "state": "MERGED",
+      "title": "Append payment read-route landing and handoff watermark",
+      "updated_at": "2026-10-02T22:22:23Z"
+    },
+    {
+      "author": "woahwhattheheck",
+      "base": "main",
+      "branch": "resource-master/stripe-read-route-20261002-2214",
+      "closed_at": "2026-10-02T22:19:09Z",
+      "head_sha": "5fd5f6d4cc6ab7b81af4ba7e239454efe0306309",
+      "merge_commit_sha": "370d6f763c61ec32f51a58de2b01b711a9bd1b4e",
+      "merged_at": "2026-10-02T22:19:09Z",
+      "number": 30221,
+      "state": "MERGED",
+      "title": "Advance the existing Stripe read route for payment operators",
+      "updated_at": "2026-10-02T22:20:58Z"
+    },
     {
       "author": "woahwhattheheck",
       "base": "main",
@@ -181,35 +207,9 @@
       "state": "MERGED",
       "title": "Add internal team workhandoff via Shared Equipment",
       "updated_at": "2026-10-02T00:25:36Z"
-    },
-    {
-      "author": "woahwhattheheck",
-      "base": "main",
-      "branch": "codex/resource-master-titanmcp-cursor-after-watermark-20261001-01",
-      "closed_at": "2026-10-01T19:18:39Z",
-      "head_sha": "14ee44205d74ad64ec601ecb858c83403ab14010",
-      "merge_commit_sha": "bedbf888cdbc336f6cc1185679524a125a35e17e",
-      "merged_at": "2026-10-01T19:18:39Z",
-      "number": 30194,
-      "state": "MERGED",
-      "title": "Reconcile TitanMCP cursor and after activation watermark",
-      "updated_at": "2026-10-01T19:19:15Z"
-    },
-    {
-      "author": "woahwhattheheck",
-      "base": "main",
-      "branch": "codex/resource-master-titanmcp-list-messages-cursor-after-advancement-20261001-01",
-      "closed_at": "2026-10-01T19:15:52Z",
-      "head_sha": "39715e3369ca91ba59b5a53d9295a36cec81caec",
-      "merge_commit_sha": null,
-      "merged_at": null,
-      "number": 30193,
-      "state": "CLOSED",
-      "title": "Superseded: TitanMCP cursor and after activation watermark",
-      "updated_at": "2026-10-01T19:15:53Z"
     }
   ],
   "repository": "woahwhattheheck/commons",
   "schema": "commons-github-state/v1",
-  "unchanged_since": "2026-10-02T22:14:45Z"
+  "unchanged_since": "2026-10-03T01:13:54Z"
 }
