@@ -331,6 +331,7 @@ class LiveCollectors:
         items = []
         for row in rows.values():
             url = row.get("html_url")
+            requires_action = row.get("status") == "completed" and row.get("conclusion") == "action_required"
             items.append({"id": "github:run:" + repo + ":" + str(row["id"]), "kind": "build",
                 "title": text(row.get("display_title") or row.get("name"), 500),
                 "status": row.get("conclusion") if row.get("status") == "completed" else row.get("status", "unknown"),
@@ -338,7 +339,8 @@ class LiveCollectors:
                 "created_at": timestamp(row.get("created_at")),
                 "updated_at": timestamp(row.get("updated_at")),
                 "activity_observed_at": timestamp(row.get("updated_at")), "url": url,
-                "summary": text(row.get("name"), 500), "next_action": None,
+                "summary": text(row.get("name"), 500), "needs_attention": requires_action,
+                "next_action": "Inspect the workflow run for the required action or approval." if requires_action else None,
                 "refs": {"run_id": row["id"], "run_attempt": row.get("run_attempt"),
                          "head_sha": row.get("head_sha"), "head_branch": row.get("head_branch"),
                          "provider_status": row.get("status"), "conclusion": row.get("conclusion")},
