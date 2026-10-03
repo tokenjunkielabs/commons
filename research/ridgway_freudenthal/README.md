@@ -63,6 +63,23 @@ seminorm-squared bounds `5248` and `98136/49` in complete trace-coefficient norm
 physical scaling multiplies these bounds by `h³`. The full census and
 mesh-uniform theorem remain separate.
 
+## Boundary face-diagonal lift
+
+[The boundary face-diagonal operator and derivation](BOUNDARY_FACE_DIAGONAL_LIFT.md)
+construct quartic and quintic protected lifts under the Dirichlet condition.
+The two incident traces must agree in every interior mode: four complete
+quartic coordinates have two free coordinates, and six quintic coordinates
+have three. The final reference maps use only four and five nonzero scalar
+coefficients. They set all other-edge and endpoint divergence traces, all twelve
+cell means, and the entire patch-boundary velocity trace to zero. Both degrees have
+a conservative seminorm-squared bound of `72` in complete compatible
+trace-coordinate norm. Use `boundary_face_diagonal_lift.py --all-faces` with
+`--degree 4` or `--degree 5` for all six lower/upper coordinate-face directions;
+exact translation and positive isotropic scaling multiply the bound by `h³`.
+The derivation records the vertex and Bernstein-index relabelling for upper
+faces. This is one boundary class; the full census and global theorem remain
+separate.
+
 ## Original problem
 
 On a Freudenthal tetrahedral mesh of a cubical domain, let `V_h^k` be the continuous vector degree-k polynomial space with zero boundary trace, and let `Q_h^k = div V_h^k`.
