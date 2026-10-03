@@ -1,7 +1,7 @@
 {
   "operation_id": "resource-master-connected-slack-pages-routing-20261003-01",
   "actor": "Resource Master / current connected harness",
-  "observed_at": "2026-10-03T19:16:20Z",
+  "observed_at": "2026-10-03T19:23:06Z",
   "activation_count": 1,
   "concrete_consumer": "Resource Master and Commons operators performing bounded exact Slack delta sweeps",
   "selected_resource": "connected-slack-native-page-collector",
@@ -49,7 +49,7 @@
     "prior_terminal_slack_ts": "1791044717.224249",
     "prior_terminal_main_sha": "e79cfc2dfcad075c38c59c234e9b4c48466e9431",
     "observed_main_sha": "62973f2ce4ee013db079881403844ad9b24deda3",
-    "fresh_main_reconciled_sha": "1869a2c2db0572c420908f1feb9ade5e36fe507d",
+    "fresh_main_reconciled_sha": "b2c35db4399086483a49d19f6e73fc3376122d5a",
     "implementation_claim_ts": "1791054466.761669",
     "required_channels": {
       "C0BRGMDQB6G": {"lower_exclusive": "1791044717.224249", "source_timestamps": ["1791047700.877849", "1791049466.546919", "1791050530.098889", "1791051715.656349", "1791054310.421089"], "latest_new_root_ts": "1791054466.761669", "pagination_exhausted": true},
