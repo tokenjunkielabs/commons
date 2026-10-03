@@ -25,6 +25,7 @@
   "priority_queue": [],
   "production_write": false,
   "record_sources": [
+    "inventory/resources/records/resource-master-connected-slack-pages-routing-20261003-01.json",
     "inventory/resources/records/resource-master-connected-github-workflow-runs-routing-20261003-01.json",
     "inventory/resources/records/resource-master-connected-slack-publisher-routing-20261003-01.json",
     "inventory/resources/records/resource-master-list-research-power-routing-20261003-01.json",
@@ -134,15 +135,15 @@
   "schema": "commons-resource-ledger/v2",
   "secrets": false,
   "shared_resource_rule": "ALL_CARRIERS_MAY_USE_ALL_SHARED_RESOURCES; CLAUDE_IS_OWNER_HANDLED",
-  "slack_ts": "1791044717.224249",
+  "slack_ts": "1791054466.761669",
   "snapshot": {
-    "base_main_sha": "f5fa16fb36ac0ae95cc702f69f92afb74d0bb6de",
-    "observed_at": "2026-10-03T16:29:21Z",
+    "base_main_sha": "b2c35db4399086483a49d19f6e73fc3376122d5a",
+    "observed_at": "2026-10-03T19:23:06Z",
     "privacy_rule": "Shared account identities, service roles, aggregate quotas, reset states, and operating state may be published for Commons routing. Never persist passwords, tokens, API credentials, recovery or verification links, payment credentials, personal legal identity, or private mail contents.",
     "scope": "Anything convertible into Commons capability or value, including Bryce, devices, subscriptions, models, agents, tools, repositories, builds, data, attention, and external roads.",
     "truth_rule": "Capacity, authority, lifecycle stage, and condition are independent. Declared or cached is not live; reset is not permission; activity is not value."
   },
-  "source_id": "resource-master-connected-github-workflow-runs-routing-20261003-01",
+  "source_id": "resource-master-connected-slack-pages-routing-20261003-01",
   "stage_order": [
     "DECLARED",
     "AVAILABLE",
@@ -151,8 +152,9 @@
     "EXERCISED",
     "PRODUCING"
   ],
-  "subject": "MASTER RESOURCE LEDGER — connected GitHub workflow-run reader activation",
+  "subject": "MASTER RESOURCE LEDGER — connected Slack page collector activation",
   "supersedes_source_ids": [
+    "resource-master-connected-github-workflow-runs-routing-20261003-01",
     "resource-master-connected-slack-publisher-routing-20261003-01",
     "resource-master-list-research-power-routing-20261003-01",
     "resource-master-passive-telemetry-routing-20261003-01",
@@ -3123,6 +3125,32 @@
       "last_result": "Exact merged helper produced a complete 206-run closed-window traversal and two exact successful resources-tab workflow identities.",
       "verification": "Pinned helper blob, native three-page provider read, exact path selection, complete coverage accounting, ledger schema, resource projection, open-door/no-auth, zero-fabrication, secret, privacy, and diff checks.",
       "stale_after": "next helper blob, native GitHub response contract, connected-app authority, rate-plan, workflow source, selected interval, or consumer change",
+      "own_activation_this_run": false
+    },
+    {
+      "name": "connected-slack-native-page-collector",
+      "kind": "CONNECTED_SLACK_NATIVE_CURSOR_PAGE_READER",
+      "capacity": "BOUNDED NATIVE CHANNEL, THREAD, OR SEARCH PAGE CHAINS WITH MAXIMUM PAGE AND TIME BUDGETS, RETAINED RESPONSE ENVELOPES, AND EXPLICIT CONTINUATION",
+      "stage": "PRODUCING",
+      "condition": "OPERATIONAL",
+      "authority": "SHARED CONNECTED SLACK READ ONLY; NO SEND, EDIT, DELETE, REACTION, CHANNEL MUTATION, CONTACT EXPANSION, OR WORKSPACE-COMPLETENESS INFERENCE",
+      "holder": "Commons / connected Slack app; Resource Master activation claim releases after landed projection readback",
+      "consumer": "Resource Master and Commons operators that need exact cursor, provider-end, and continuation evidence for bounded Slack delta sweeps",
+      "value": "Turns native Slack reads into explicit page-chain accounting without inventing provider completion, dropping response envelopes, or persisting private message bodies.",
+      "source": "PR30885 merge d3cd2d78d24d720e474f84c553a620186630c244; head 7c2e7d9e59f7cfe5bd7c57d8cf432b94762321e4; host/connected_slack_pages.cjs blob 772d03dcdcf921bead716342ed6f280e66882e98; guide host/CONNECTED_SLACK_PAGES.md blob 957da921158ae06d4bef4a05c0cdf38bbeb006cd; source notice 1791049466.546919",
+      "evidence_ts": "2026-10-03T19:16:20Z",
+      "last_used_at": "2026-10-03T19:16:20Z",
+      "exact_safe_probe": "Loaded the exact merged helper and invoked read_channel for C0BRGMDQB6G strictly after Slack 1791044717.224249 with limit 100, max_pages 10 and timeout 30000. One native call retained one response, rendered six distinct timestamps, observed the exact provider-end message, returned no continuation cursor, and stopped as PROVIDER_END with snapshot=false and coverage=native_pagination_only.",
+      "rate_plan_boundary": "One native read call succeeded. This does not expose or refresh a plan limit, prove a workspace snapshot, infer unread thread replies, authorize a write, or establish buyer acceptance, payment, revenue, cash, deployment, session, or device action.",
+      "next_action": "Reuse the exact helper only for bounded authorized Slack reads; retain private response bodies outside the repository and continue from next_request when provider end is not explicitly observed.",
+      "assigned_backlog": "No build order. The finished collector is merged and directly exercised; adjacent bounded Python-import, npm-cache, worker-RSS, and GitHub filename capabilities are already landed under existing owners.",
+      "auth_surface": "Uses the already connected native Slack read bindings only; no token, cursor value, private message body, private account identifier, customer data, private filename, or credential value is recorded.",
+      "build_order": "NONE_ALREADY_LANDED_AND_PRODUCING",
+      "confidence": "HIGH_FOR_PINNED_SOURCE_AND_THIS_EXACT_NATIVE_PAGE_CHAIN; NATIVE_PAGINATION_IS_NOT_A_WORKSPACE_SNAPSHOT",
+      "last_receipt": "resource-master-connected-slack-pages-routing-20261003-01",
+      "last_result": "Exact merged helper completed a one-call post-watermark #commons page chain with explicit provider end, six distinct message timestamps, and no mutation.",
+      "verification": "Pinned helper blob, live native read, exact provider-end and timestamp accounting, focused fake-binding paths, ledger schema, resource projection, open-door/no-auth, zero-fabrication, secret, privacy, and diff checks.",
+      "stale_after": "next helper blob, native Slack response contract, connected-app authority, rate-plan, channel policy, selected lower bound, or consumer change",
       "own_activation_this_run": true
     }
   ],
