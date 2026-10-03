@@ -560,13 +560,19 @@ class Store:
         with self.connect() as db:
             if getattr(self,"_coverage_service_projection_pending",False):
                 relation="(SELECT p.source_id,COALESCE(json_extract(c.payload,'$.service'),p.source) AS source,p.account_ref,p.harness,p.status,p.complete,p.observed_at FROM coverage_projection p JOIN coverage c USING(source_id))"
-            else:relation="coverage_projection"
-            # Stream metadata without large SQL DISTINCT/GROUP temporary files.
-            for row in db.execute("SELECT source,account_ref,harness,status,complete,observed_at FROM "+relation):
+                # The legacy service expression is not indexed. Keep streaming
+                # this low-disk recovery path without a temporary grouping file.
+                query="SELECT source,account_ref,harness,status,complete,observed_at,1 AS partitions FROM "+relation
+            else:
+                # coverage_group covers this ordered aggregation. Transfer one
+                # metadata row per group, without a temporary grouping file.
+                query="SELECT source,account_ref,harness,status,complete,COUNT(*) AS partitions,MAX(observed_at) AS observed_at FROM coverage_projection GROUP BY source,account_ref,harness,status,complete"
+            for row in db.execute(query):
                 group=groups.setdefault(row["source"],{"name":row["source"],"partitions":0,"complete":0,"pending":0,"unknown":0,"statuses":{},"metrics":{},"observed_at":None,"scope":"all recorded source partitions","accounts":set(),"harnesses":set()})
-                group["partitions"]+=1
-                group["complete" if row["complete"]==1 else "pending" if row["complete"]==0 else "unknown"]+=1
-                group["statuses"][row["status"]]=group["statuses"].get(row["status"],0)+1
+                count=row["partitions"]
+                group["partitions"]+=count
+                group["complete" if row["complete"]==1 else "pending" if row["complete"]==0 else "unknown"]+=count
+                group["statuses"][row["status"]]=group["statuses"].get(row["status"],0)+count
                 if row["account_ref"]:group["accounts"].add(row["account_ref"])
                 if row["harness"]:group["harnesses"].add(row["harness"])
                 if row["observed_at"] and (not group["observed_at"] or row["observed_at"]>group["observed_at"]):group["observed_at"]=row["observed_at"]
