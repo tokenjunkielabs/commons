@@ -15,8 +15,10 @@ import argparse
 import json
 import os
 import re
+import stat
 import subprocess
 import sys
+import tempfile
 from collections import defaultdict
 from pathlib import Path
 from typing import Any, Iterable
@@ -190,6 +192,38 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def write_output(path: Path, text: str) -> None:
+    # Follow an existing output link as write_text did, then publish atomically.
+    try:
+        path = path.resolve()
+    except RuntimeError as exc:
+        raise AliasIndexError("output path cannot be resolved") from exc
+    try:
+        existing = path.stat()
+    except FileNotFoundError:
+        mode = None
+    else:
+        if not stat.S_ISREG(existing.st_mode):
+            path.write_text(text, encoding="utf-8")
+            return
+        mode = stat.S_IMODE(existing.st_mode)
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=path.parent,
+                                         prefix=".alias-index-", suffix=".tmp", delete=False) as handle:
+            temporary = Path(handle.name)
+            if mode is not None:
+                os.chmod(temporary, mode)
+            handle.write(text)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary, path)
+        temporary = None
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
+
+
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
@@ -206,7 +240,7 @@ def main(argv: list[str] | None = None) -> int:
             return 0
         rendered = canonical_text(result)
         if args.output:
-            args.output.write_text(rendered, encoding="utf-8")
+            write_output(args.output, rendered)
         else:
             sys.stdout.write(rendered)
         return 0
@@ -217,4 +251,3 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
