@@ -158,8 +158,9 @@ class RangeReader:
         return {"schema_version": SCHEMA_VERSION, "entries": {}}
 
     def _save_manifest(self) -> None:
-        encoded = json.dumps(self.manifest, ensure_ascii=False, indent=1,
-                             sort_keys=True) + "\n"
+        # This manifest is rewritten after each fetched range; keep encoding compact.
+        encoded = json.dumps(self.manifest, ensure_ascii=False,
+                             separators=(",", ":"), sort_keys=True) + "\n"
         self.manifest_path.write_text(encoded, encoding="utf-8", newline="\n")
 
     def _cache_key(self, offset: int, length: int) -> str:
