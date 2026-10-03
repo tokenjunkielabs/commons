@@ -4,7 +4,6 @@
   "source_workflows": 440,
   "max_active_workflows": 67,
   "retained": [
-    ".github/workflows/affordable-housing-compliance-demo.yml",
     ".github/workflows/astra-kag-study.yml",
     ".github/workflows/astra-sol-puzzle71-current-review.yml",
     ".github/workflows/board-label.yml",
@@ -71,6 +70,7 @@
     ".github/workflows/uiowa096-compatibility.yml"
   ],
   "retired": [
+    ".github/workflows/affordable-housing-compliance-demo.yml",
     ".github/workflows/commons-transport-regression.yml",
     ".github/workflows/merged-branch-janitor.yml"
   ],
