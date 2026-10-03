@@ -9,6 +9,7 @@ and store pointers that already exist elsewhere.
 from __future__ import annotations
 
 import json
+import os
 import re
 import uuid
 from copy import deepcopy
@@ -682,7 +683,22 @@ class RoleStore:
     def _write(self, role: dict[str, Any]) -> None:
         path = self._path(role["role_id"])
         clean = _scrub_secrets(role)
-        path.write_text(
-            json.dumps(clean, indent=2, ensure_ascii=False, sort_keys=False) + "\n",
-            encoding="utf-8",
-        )
+        content = json.dumps(clean, indent=2, ensure_ascii=False, sort_keys=False) + "\n"
+        temporary = path.with_name(f".{path.name}.{uuid.uuid4().hex}.tmp")
+        created = False
+        try:
+            with temporary.open("x", encoding="utf-8") as stream:
+                created = True
+                stream.write(content)
+                stream.flush()
+                os.fsync(stream.fileno())
+            try:
+                mode = path.stat().st_mode
+            except FileNotFoundError:
+                pass
+            else:
+                temporary.chmod(mode & 0o7777)
+            temporary.replace(path)
+        finally:
+            if created:
+                temporary.unlink(missing_ok=True)
