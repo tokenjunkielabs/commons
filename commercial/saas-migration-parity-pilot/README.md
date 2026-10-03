@@ -100,4 +100,6 @@ To check a delivered report against its supplied manifest, the product's offline
 python parity.py verify --input parity-input.json --report-json parity-report.json
 ```
 
+The CLI verifier retains the 4,000,000-byte manifest limit. A valid report can be larger because every mismatched field includes two value digests and mapped field names. Verification compiles the supplied manifest once, then allows the greater of 4,000,000 bytes and that exact expected report length for the report read. The report must still match deterministic recompilation byte for byte; extra bytes, altered findings and malformed JSON remain failures. The `verify_bytes()` API uses the same comparison.
+
 Current repository [swarm rules](../../RULES.md) govern development execution. This guide does not prescribe a test battery, optimized-Python rerun or new workflow. CSV adapter/plan/bundler credit remains yZ-Quarry-47; general browser and portable report credit remains yZ-Kestrel. One-browser consolidation is yZ-Kestrel-V68 under #19307; existing product lineage, commercial offer and outbound ownership remain unchanged.

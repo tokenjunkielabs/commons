@@ -173,15 +173,20 @@ def render_markdown(report: dict[str, Any]) -> str:
     return "\n".join(lines) + "\n"
 
 
-def verify_bytes(input_raw: bytes, report_raw: bytes) -> tuple[bool, str]:
-    expected, _ = compile_bytes(input_raw)
+def _verify_compiled_bytes(
+    expected: dict[str, Any], expected_bytes: bytes, report_raw: bytes,
+) -> tuple[bool, str]:
     observed = loads_strict(report_raw)
     if type(observed) is not dict:
         return False, "report is not object"
-    expected_bytes = canonical_bytes(expected)
     if report_raw != expected_bytes:
         return False, "report bytes differ from deterministic recompilation"
     return True, expected["receipt"]["report_core_sha256"]
+
+
+def verify_bytes(input_raw: bytes, report_raw: bytes) -> tuple[bool, str]:
+    expected, _ = compile_bytes(input_raw)
+    return _verify_compiled_bytes(expected, canonical_bytes(expected), report_raw)
 
 
 
@@ -208,8 +213,12 @@ def cli(argv: list[str] | None = None) -> int:
                 "network_calls_performed": False,
             }, sort_keys=True))
             return 0
-        report_raw = _read_bounded_regular(args.report_json, MAX_INPUT_BYTES)
-        ok, detail = verify_bytes(input_raw, report_raw)
+        expected, _ = compile_bytes(input_raw)
+        expected_bytes = canonical_bytes(expected)
+        # Mismatch digests can make a valid report larger than its input manifest.
+        report_limit = max(MAX_INPUT_BYTES, len(expected_bytes))
+        report_raw = _read_bounded_regular(args.report_json, report_limit)
+        ok, detail = _verify_compiled_bytes(expected, expected_bytes, report_raw)
         print(json.dumps({"verified": ok, "detail": detail}, sort_keys=True))
         return 0 if ok else 2
     except ParityError as exc:
