@@ -10,6 +10,7 @@
 <style>
 .cta{display:inline-block;margin:.45rem .4rem .45rem 0;padding:.7rem 1.05rem;border:1px solid #62b879;border-radius:8px;background:#f0f0f2;color:#09090b!important;font-weight:800;text-decoration:none}
 .cta:hover{filter:brightness(1.06)}
+@media(max-width:48rem){#world-measurement caption{display:block;width:100%;overflow-wrap:anywhere}}
 </style>
 <link rel="stylesheet" href="./the-world.css?v=20260824a">
 <script src="./exact-main.js?v=20260824a"></script>
@@ -82,7 +83,7 @@
   <section aria-labelledby="result-heading" class="world-panel">
     <h2 id="result-heading">Measurement</h2>
     <p id="world-result" class="world-verdict" data-state="IDLE" role="status" aria-live="polite">Enter two full SHAs and one path.</p>
-    
+    <div id="world-measurement"></div>
   </section>
 
   <section aria-labelledby="receipt-heading" class="world-panel">
