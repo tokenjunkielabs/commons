@@ -1,16 +1,19 @@
 {
   "schema": "tjlabs.pinellas-26-0795-rfi-source-ledger/v1",
   "solicitation_id": "26-0795-RFI",
-  "observed_at": "2026-09-14T04:24:00Z",
-  "deadline": "2026-10-01T19:00:00Z",
+  "observed_at": "2026-10-03T08:38:30Z",
+  "deadline": "2026-11-03T20:00:00Z",
   "sources": [
     {
       "id": "official-opengov-project",
       "class": "OFFICIAL_PORTAL",
       "url": "https://procurement.opengov.com/portal/pinellasfl/projects/295048",
-      "status": "HTTP_403_FROM_THIS_RUNTIME",
-      "facts": {"project_id": "26-0795-RFI"},
-      "can_authorize_submission": false
+      "status": "HTTP_403_FROM_WEB_FETCH",
+      "facts": {
+        "project_id": "26-0795-RFI"
+      },
+      "can_authorize_submission": false,
+      "last_checked_at": "2026-10-03T08:38:30Z"
     },
     {
       "id": "mirrored-rfi-pdf",
@@ -34,7 +37,48 @@
       "id": "secondary-cleatus-summary",
       "class": "SECONDARY_SUMMARY",
       "url": "https://www.cleat.ai/government/contracts/digital-evidence-request-for-information-nbu7",
-      "facts": {"listed_documents": 5},
+      "facts": {
+        "listed_documents": 5
+      },
+      "can_authorize_submission": false
+    },
+    {
+      "id": "mirrored-addendum-1",
+      "class": "PUBLIC_MIRROR_OF_COUNTY_RFI_ADDENDUM",
+      "source_url": "https://bidscopeai.com/opportunities/bbf583f1-9c09-4f42-a28e-5bdacb844ae4",
+      "document_url": "https://bqohpheioaljycjpwbjd.supabase.co/storage/v1/object/public/documents/documents/unique/3fea494c3ea0a58af32ceee0e94b226e0542e712ecc8c6dd9082632c379aa114?download=26-0795-RFI-Addendum-No.-1.pdf",
+      "document_title": "26-0795-RFI Addendum No. 1",
+      "document_date": "2026-09-25",
+      "observed_at": "2026-10-03T08:38:30Z",
+      "pages": 1,
+      "bytes": 285053,
+      "sha256": "3fea494c3ea0a58af32ceee0e94b226e0542e712ecc8c6dd9082632c379aa114",
+      "document_facts": {
+        "response_deadline_local": "2026-11-03T15:00:00",
+        "prior_response_deadline_local": "2026-10-01T15:00:00",
+        "addenda_acknowledgement_in_opengov_required": true,
+        "answers_referenced_in_addendum": 2,
+        "other_terms_unchanged_by_this_addendum": true
+      },
+      "can_authorize_submission": false
+    },
+    {
+      "id": "mirrored-rfi-addendum-1-revision",
+      "class": "PUBLIC_MIRROR_OF_COUNTY_RFI",
+      "source_url": "https://bidscopeai.com/opportunities/bbf583f1-9c09-4f42-a28e-5bdacb844ae4",
+      "document_url": "https://bqohpheioaljycjpwbjd.supabase.co/storage/v1/object/public/documents/documents/unique/b0efe0db164eec530a8f7b4efa9329a1e38bb87e92f1d46bc59a2395758d87ff?download=Digital-Evidence-Request-for-Information-Addendum-231-Revision-.pdf",
+      "document_title": "Digital Evidence Request for Information (Addendum #1 Revision)",
+      "observed_at": "2026-10-03T08:38:30Z",
+      "pages": 10,
+      "bytes": 389771,
+      "sha256": "b0efe0db164eec530a8f7b4efa9329a1e38bb87e92f1d46bc59a2395758d87ff",
+      "document_facts": {
+        "response_deadline_local": "2026-11-03T15:00:00",
+        "question_deadline_local": "2026-09-11T14:00:00",
+        "responses_via_opengov_only": true,
+        "early_close_if_adequate_competition_received": true,
+        "rfi_only_no_award_commitment": true
+      },
       "can_authorize_submission": false
     }
   ],
@@ -42,6 +86,20 @@
     "Current official OpenGov project bytes and current addenda generation are not retained from the controlling portal",
     "No OpenGov registration/account state is evidenced here",
     "Affidavits/attestations are visible through public mirrors but are not signed or represented as complete",
-    "This package does not establish a production-hosting provider, court deployment, certification, or prior court reference"
-  ]
+    "This package does not establish a production-hosting provider, court deployment, certification, or prior court reference",
+    "Addendum No. 1 references question responses in Addendum No. 2; that document and any later addenda have not been recovered in this observation."
+  ],
+  "original_observed_at": "2026-09-14T04:24:00Z",
+  "deadline_basis": {
+    "source_ids": [
+      "mirrored-addendum-1",
+      "mirrored-rfi-addendum-1-revision"
+    ],
+    "published_local": "2026-11-03T15:00:00",
+    "timezone": "America/New_York",
+    "timezone_basis": "County-local Eastern time; UTC conversion uses the November 3 offset of -05:00.",
+    "source_class": "PUBLIC_MIRROR_OF_COUNTY_DOCUMENT",
+    "current_portal_status": "UNVERIFIED_HTTP_403",
+    "prior_deadline": "2026-10-01T19:00:00Z"
+  }
 }
