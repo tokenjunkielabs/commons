@@ -68,7 +68,12 @@ available for recovery. Restore storage capacity and rerun the normal refresh.
 
 ## Receipts
 
-Every command writes `.commons-worktree/receipts/<id>/receipt.json`.
+Commands with a usable working directory write
+`.commons-worktree/receipts/<id>/receipt.json`. An open refused because the
+destination already contains non-Git files returns `readiness=DEST_OCCUPIED`,
+`ok=false`, and process exit status `1`. Its receipt is printed only; the occupied
+destination is left untouched. Callers can use the exit status to avoid treating
+that directory as a successfully opened working copy.
 `origin_state` is `CURRENT` | `STALE` | `UNKNOWN` — measured, never
 fabricated. `destructive`, `deleted_user_work`, and `force` stay false.
 Secret-like filenames are redacted from published receipts (no copy, no hash).
