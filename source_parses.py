@@ -43,6 +43,7 @@ from __future__ import annotations
 
 import argparse
 import ast
+from concurrent.futures import ThreadPoolExecutor
 import os
 import shutil
 import subprocess
@@ -133,8 +134,10 @@ def check_node(paths: Sequence[str]) -> List[Tuple[str, str]]:
         # inventing a red that means "this runner is thin".
         print("note: node not present; .js parse check skipped")
         return []
-    bad: List[Tuple[str, str]] = []
-    for path in paths:
+    if not paths:
+        return []
+
+    def parse(path: str) -> Tuple[str, str] | None:
         done = subprocess.run(
             ["node", "--check", path], capture_output=True, text=True, check=False
         )
@@ -144,8 +147,13 @@ def check_node(paths: Sequence[str]) -> List[Tuple[str, str]]:
             for entry in first[1:4]:
                 if entry.strip():
                     detail += "\n           %s" % entry.strip()[:120]
-            bad.append((path, detail))
-    return bad
+            return path, detail
+        return None
+
+    # Bound concurrent Node processes; map preserves the existing path order.
+    workers = min(4, len(paths), os.cpu_count() or 1)
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        return [result for result in pool.map(parse, paths) if result is not None]
 
 
 def main(argv: Sequence[str] | None = None) -> int:
