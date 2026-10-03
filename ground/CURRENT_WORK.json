@@ -72,7 +72,6 @@
         "ground/CURRENT_WORK.json",
         "host/current_work.py",
         "current-work.html",
-        "test_current_work.py",
         "p/current-work-ledger-20260828-01.md"
       ],
       "acceptance": "Official main SHA plus each claimed path readable at that SHA. Chat is not a close.",
@@ -99,7 +98,6 @@
         "revenue/ip/opportunity_registry.schema.json",
         "revenue/ip/opportunity_registry.json",
         "host/opportunity_registry.py",
-        "test_opportunity_registry.py",
         "opportunity.html",
         "proof-to-proposal.html",
         "ground/OPPORTUNITY_REGISTRY.md",
