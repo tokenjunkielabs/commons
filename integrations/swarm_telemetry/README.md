@@ -42,6 +42,8 @@ The human dashboard loads `/api/telemetry/summary`, also available as the `get_d
 
 The coverage index backfills retained partitions once per database upgrade. Its completion marker commits in the same transaction as the backfill; later opens reuse the index without reparsing coverage payloads. Existing coverage triggers maintain subsequent inserts, replacements and deletions. Service-name projection recovery remains independent of this bootstrap.
 
+Database contexts in the event store and encrypted source custody close their SQLite connections after the existing transaction commit or rollback. Repeated reads and capture passes release their database handles immediately, without waiting for Python garbage collection. Direct connection callers retain the normal SQLite connection API.
+
 Service summaries aggregate repeated account, harness, status and completion groups through the existing covering index before transferring metadata into Python. Every recorded partition still contributes to counts and freshness; the normal query needs no temporary grouping file. The low-disk legacy projection recovery path continues streaming individual rows.
 
 Transcript history uses configurable `transcript_batch_files`, `transcript_batch_bytes` and `transcript_batch_records` collection quanta; defaults are eight files, 1 MiB and 256 records. Byte offsets and session/provider/model/usage context survive each committed batch. A partial or oversized record remains at its original offset with explicit pending coverage. The machine activity collector independently retains exact file ranges in source custody. Collector batches limit memory used by a collection turn; they neither sample history nor limit swarm work.

@@ -11,6 +11,7 @@ import time
 from threading import Lock, RLock, Thread
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
+from .custody import ClosingConnection
 
 SCHEMA_VERSION = 1
 _DB_WRITE_LOCK = RLock()
@@ -170,7 +171,7 @@ class Store:
         self.custody = Custody(self.path, key_loader=key_loader, write_lock=self._write_lock)
 
     def connect(self):
-        db = sqlite3.connect(self.path, timeout=30)
+        db = sqlite3.connect(self.path, timeout=30, factory=ClosingConnection)
         db.execute("PRAGMA busy_timeout=30000")
         db.row_factory = sqlite3.Row
         return db
