@@ -1,11 +1,20 @@
 #!/usr/bin/env python3
-"""Build deterministic public agent-discovery surfaces from one registry."""
+"""Build deterministic public agent-discovery surfaces from one registry.
+
+Generation stages and syncs each complete file before replacement. A failed
+write preserves that destination; earlier files may already be updated. After
+recovering storage, run generate again and use check to confirm the full set.
+"""
 
 from __future__ import annotations
 
 import argparse
+import errno
 import json
+import os
 from pathlib import Path
+import stat
+import tempfile
 from typing import Any
 from urllib.parse import urlparse
 
@@ -239,11 +248,36 @@ def projections(registry: dict[str, Any]) -> dict[str, str]:
     }
 
 
+def _write_projection(path: Path, data: bytes) -> None:
+    # Follow an existing output symlink as write_bytes did; replace its target.
+    target = path.resolve()
+    try:
+        mode = stat.S_IMODE(target.stat().st_mode)
+    except FileNotFoundError:
+        mode = 0o644
+    descriptor, staging = tempfile.mkstemp(prefix=f".{target.name}.", suffix=".tmp",
+                                           dir=target.parent)
+    try:
+        with os.fdopen(descriptor, "wb") as stream:
+            remaining = memoryview(data)
+            while remaining:
+                written = stream.write(remaining)
+                if not written:
+                    raise OSError(errno.EIO, "Incomplete projection write")
+                remaining = remaining[written:]
+            stream.flush()
+            os.fchmod(stream.fileno(), mode)
+            os.fsync(stream.fileno())
+        os.replace(staging, target)
+    finally:
+        Path(staging).unlink(missing_ok=True)
+
+
 def generate(root: Path = ROOT) -> None:
     for relative, content in projections(load_registry(root / "agent-discovery.json")).items():
         path = root / relative
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_bytes(content.encode("utf-8"))
+        _write_projection(path, content.encode("utf-8"))
 
 
 def check(root: Path = ROOT) -> list[str]:
@@ -252,7 +286,7 @@ def check(root: Path = ROOT) -> list[str]:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("command", choices=("validate", "generate", "check"), nargs="?", default="check")
     args = parser.parse_args()
     if args.command == "validate":
