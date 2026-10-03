@@ -104,7 +104,7 @@ TOOLS = [
     _schema("credential_references", "Discover credential references, configured sources, and populated/empty Claude MCP entries. Returns metadata only, equally for newcomers.", {}),
     _schema("credential_retrieve_sealed", "Retrieve an actual credential encrypted to the requester's ephemeral public key. Keep the private key in the requesting runtime; only ciphertext enters this road.", {"credential_ref": "string", "recipient_public_key": "string", "transfer_id": "string", "request_id": "string", "call_id": "string"}),
     _schema("slack_read_channel", "Read a Slack channel using existing workspace access. Follow next_cursor for remaining pages.", {"channel_id": "string"}, {"oldest": "string", "latest": "string", "cursor": "string", "limit": "integer"}),
-    _schema("slack_read_thread", "Read a Slack thread. Follow next_cursor for remaining replies.", {"channel_id": "string", "thread_ts": "string"}, {"cursor": "string", "limit": "integer"}),
+    _schema("slack_read_thread", "Read a Slack thread within optional oldest/latest timestamps. Follow next_cursor for remaining replies.", {"channel_id": "string", "thread_ts": "string"}, {"oldest": "string", "latest": "string", "cursor": "string", "limit": "integer"}),
     _schema("slack_post_message", "Post to a channel verified as internal to the authenticated workspace. Sender is the fixed existing Slack account; do not add model or peer bylines. Returns the provider timestamp and permalink.", {"channel_id": "string", "text": "string"}, {"thread_ts": "string"}),
     _schema("commons_team_workhandoff", "Share an exact patch, tests, and result in the active BountyHub team thread. Internal Slack only; the fixed authenticated account is used, and the route reads back the actual file, message body, sender, and any provider footer. Same operation ID and content is idempotent; changed payload under that ID is rejected. No model/peer allowlist.", {"operation_id": "string", "work_id": "string", "objective": "string", "summary": "string", "patch": "string", "tests": "string", "result": "string"}, {"channel_id": {"type": "string", "default": DEFAULT_CHANNEL_ID}, "thread_ts": {"type": "string", "default": DEFAULT_THREAD_TS}}),
     _schema("commons_team_workhandoff_status", "Reconcile a prior internal Slack workhandoff by stable operation ID. Reads the current provider thread/file and returns actual sender/body/footer verification; it never sends a duplicate.", {"operation_id": "string"}, {"channel_id": {"type": "string", "default": DEFAULT_CHANNEL_ID}, "thread_ts": {"type": "string", "default": DEFAULT_THREAD_TS}}),
@@ -327,8 +327,7 @@ class ServiceEquipment(GitHubSlackEquipment):
             return self.slack("conversations.history", p)
         if name == "slack_read_thread":
             p = {"channel": _string(a, "channel_id"), "ts": _string(a, "thread_ts"), "limit": min(100, max(1, int(a.get("limit", 50))))}
-            if a.get("cursor"):
-                p["cursor"] = a["cursor"]
+            p.update({k: a[k] for k in ("oldest", "latest", "cursor") if a.get(k)})
             return self.slack("conversations.replies", p)
         if name == "slack_post_message":
             channel_id = _string(a, "channel_id")
