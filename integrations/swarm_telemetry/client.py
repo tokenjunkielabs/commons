@@ -39,7 +39,16 @@ class Observer:
             try:
                 body='{"events":['+','.join(events)+']}'
                 req=urllib.request.Request(self.base_url+"/api/telemetry/observe",data=body.encode(),headers={"Content-Type":"application/json"})
-                with urllib.request.urlopen(req,timeout=2) as response: response.read(1024)
+                with urllib.request.urlopen(req,timeout=2) as response: receipt=json.loads(response.read(1024))
+                if not isinstance(receipt,dict) or receipt.get("ok") is not True:
+                    raise ValueError("Observation was not acknowledged")
+                # A successful HTTP response can still reject a full queue.
+                counts=[receipt["queued"]] if "queued" in receipt else [receipt.get("inserted"),receipt.get("duplicates")]
+                if any(type(count) is not int or count<0 for count in counts):
+                    raise ValueError("Invalid observation acknowledgment")
+                accepted=sum(counts)
+                if accepted>len(events): raise ValueError("Invalid observation acknowledgment")
+                self.failed+=len(events)-accepted
             except Exception: self.failed+=len(events)
             finally:
                 for _ in events: self.queue.task_done()
