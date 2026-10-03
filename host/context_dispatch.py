@@ -7,6 +7,7 @@ import argparse
 import hashlib
 import json
 import os
+import stat
 import sys
 import tempfile
 from collections.abc import Mapping, Sequence
@@ -24,7 +25,12 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def _load(path: Path) -> tuple[Any, bytes]:
-    raw = path.read_bytes()
+    with open(path, "rb", opener=lambda name, flags: os.open(
+        name, flags | getattr(os, "O_NONBLOCK", 0)
+    )) as stream:
+        if not stat.S_ISREG(os.fstat(stream.fileno()).st_mode):
+            raise PacketError(f"input must be a regular file: {path}")
+        raw = stream.read()
     return json.loads(raw.decode()), raw
 
 
@@ -174,7 +180,10 @@ def _format_live_git_drift(drift: Mapping[str, Any] | None) -> str:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description=(
+        "Compile, verify and render context packets. JSON inputs must be regular "
+        "files; symlinks to regular files are supported."
+    ))
     sub = parser.add_subparsers(dest="command", required=True)
 
     packet = sub.add_parser("packet")
