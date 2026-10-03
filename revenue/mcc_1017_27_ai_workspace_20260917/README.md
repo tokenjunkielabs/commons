@@ -4,7 +4,8 @@ Status: INTERNAL RESEARCH / PARTNER-FIRST / NO OUTBOUND
 
 Current machine state is intentionally fail-closed:
 
-- buyer authoritative package: EMPTY
+- current buyer-authoritative package and addenda confirmation: EMPTY
+- three mirrored base documents: RECOVERED on 2026-10-03
 - direct-prime evidence: EMPTY
 - direct-prime readiness: false
 - partner candidate Presidio: PUBLIC_FIT_ONLY
@@ -15,7 +16,9 @@ Current machine state is intentionally fail-closed:
 - proposal submission: false
 - award/payment/revenue: false
 
-The live discovery target is Metropolitan Community College (Kansas City, Missouri) IFB 1017-27, Cloud-Based Collaborative AI Workspace Software. Secondary procurement indexing currently reports an October 5, 2026 response deadline and a September 25, 2026 questions deadline, plus a five-year relevant-experience gate and three higher-education references. Those facts remain SECONDARY_DISCOVERY until the literal Public Purchase package, addenda and Q&A are retained and hashed.
+The discovery target is Metropolitan Community College (Kansas City, Missouri) IFB 1017-27, Cloud-Based Collaborative AI Workspace Software. The three named base documents are now recovered unchanged from Bidscope's public document links. The bid package states that bids must arrive before October 5, 2026 at 11:00 AM CT and questions before noon September 25. The previous packet attached a -05:00 offset to the index's 16:00/17:00 values, placing both cutoffs five hours later than the literal base document. The two packet values now match the document's Central time and bind its exact digest.
+
+These are mirrored buyer-authored base files. The current Public Purchase package, addenda and Q&A have not been confirmed, so the recovered records and deadline bindings remain SECONDARY_DISCOVERY in the existing schema. The compiler still reports the current buyer-package gap and unknown current response-window status. See [sources.md](sources.md) for the three download URLs, byte counts, hashes and remaining source step. Experience/reference qualification and the proposed workshare remain unproven.
 
 ## Why partner-first
 
