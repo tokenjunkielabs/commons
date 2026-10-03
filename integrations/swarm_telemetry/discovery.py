@@ -20,6 +20,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
+from contextlib import closing
 from pathlib import Path
 from typing import Any, Mapping
 
@@ -321,7 +322,7 @@ def _sqlite_channels(path):
         raise DiscoveryError("native_slack_cache_missing")
     channels = set()
     spans = {}
-    with sqlite3.connect(file.resolve().as_uri() + "?mode=ro", uri=True, timeout=5) as db:
+    with closing(sqlite3.connect(file.resolve().as_uri() + "?mode=ro", uri=True, timeout=5)) as db:
         tables = {row[0] for row in db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
         for name in sorted(tables):
             quoted = '"' + name.replace('"', '""') + '"'
