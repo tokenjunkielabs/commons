@@ -46,13 +46,13 @@
       "id": "R07",
       "requirement": "Official price sheet and detailed pricing; proposal prices firm 120 days.",
       "route_effect": "PRIME_BLOCK",
-      "source": "3/Appendix I",
+      "source": "3/Appendix I; Addendum 1 (editable Word RFP)",
       "type": "mandatory"
     },
     {
       "id": "R08",
       "requirement": "Comply with current counterpart Standard Terms and Conditions plus appendices.",
-      "route_effect": "PRIME_BLOCK_UNTIL_ACQUIRED",
+      "route_effect": "PRIME_BLOCK_UNTIL_OWNER_TERMS_REVIEW",
       "source": "10.1",
       "type": "mandatory"
     },
@@ -139,6 +139,27 @@
       "route_effect": "RECHECK_BEFORE_ANY_EXTERNAL_ACTION_OR_SUBMISSION",
       "source": "7/HogBid",
       "type": "currentness"
+    },
+    {
+      "id": "R21",
+      "requirement": "Complete applicable official signature forms listed in source_ledger.json; retain truthful disclosures and authorized signatures.",
+      "route_effect": "OWNER_FORM_COMPLETION",
+      "source": "Standard Terms signature sheets",
+      "type": "mandatory"
+    },
+    {
+      "id": "R22",
+      "requirement": "Review conditional accessibility evidence, proprietary/redacted packaging and EU personal-data obligations for the proposed service.",
+      "route_effect": "OWNER_APPLICABILITY_REVIEW",
+      "source": "Arkansas Technology Access; Required Additional Redacted Copy; GDPR",
+      "type": "conditional"
+    },
+    {
+      "id": "R23",
+      "requirement": "Reconcile commencement/damages, assignment, nondiscrimination and subcontract disclosures with the proposed workshare.",
+      "route_effect": "PRIME_CONTRACT_REVIEW",
+      "source": "Performance Timeline; Award; Non-Discrimination; Contract and Grant Disclosure",
+      "type": "performance"
     }
   ],
   "rfp_number": "09112026",

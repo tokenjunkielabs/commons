@@ -46,7 +46,7 @@
       "status": "UNKNOWN"
     },
     {
-      "evidence_needed": "Owner/legal review of RFP statutory and counterpart signature certifications.",
+      "evidence_needed": "Owner review and completion evidence for current counterpart forms and requirements R21-R23; see source_ledger.json for named forms and unresolved clauses.",
       "field": "statutory_certifications_reviewed",
       "status": "UNKNOWN"
     }
@@ -59,7 +59,7 @@
       "status": "OPEN"
     },
     {
-      "evidence_needed": "Written partner acceptance that it owns buyer relationship, proposal, references, insurance, signature and prime obligations.",
+      "evidence_needed": "Written partner acceptance that it owns buyer relationship, proposal, references, insurance, signature and prime obligations. Include allocation of recovered counterpart requirements R21-R23.",
       "field": "partner_prime_responsibility_confirmed",
       "status": "OPEN"
     },
@@ -84,5 +84,6 @@
       "status": "READY_INTERNAL"
     }
   ],
-  "truth_boundary": "Unknown is not false and is never PASS. Fill only with evidence the owner can actually produce."
+  "truth_boundary": "Unknown is not false and is never PASS. Fill only with evidence the owner can actually produce.",
+  "intake_convention": "current_candidate.json records only evidenced readiness: false and reference counts of zero mean no supporting evidence is retained, not a negative claim about the owner. UNKNOWN and OPEN states remain unresolved."
 }
