@@ -29,6 +29,19 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            reconcile/build_sync.py
+            host/feed_delta.py
+            host/__init__.py
+            host_offload/staleness_alarm.py
+            recent.json
+            feed/head.json
+            feed/window.json
+            posts.json
+            seats.json
+            pulse.json
+            reconcile/observations/
       # sync.json is measured here, from the main this run checked out, rather
       # than committed by the bake: a committed copy would be a snapshot that
       # could itself go stale, and every bake would re-trigger this workflow.
