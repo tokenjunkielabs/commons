@@ -1,7 +1,8 @@
 # Import exact source from connected GitHub reads
 
-`connected_github_source.py` turns saved native GitHub file/blob responses into
-ordinary source files in an ephemeral cloud working directory. It needs only
+`connected_github_source.py` turns saved native GitHub file/blob responses or
+locally recovered exact blob bytes into ordinary source files in an ephemeral
+cloud working directory. It needs only
 Python's standard library. It performs no network requests or Git/provider
 mutations and does not execute imported files.
 
@@ -102,6 +103,50 @@ For binary blobs, use base64 `fetch_file` or the GET blob JSON response. Source
 URLs are retained in the result when the provider includes them. The importer
 checks the bytes against the supplied Git blob identity; it does not independently
 prove commit ancestry, repository membership, freshness, or snapshot completeness.
+
+## Import recovered local bytes
+
+Some large files exceed the connector transport even when requested through
+`fetch_blob`. If an existing cloud Git object database or another already
+authorized source route has recovered the complete bytes, import that local
+file directly. This avoids embedding another copy in a JSON export.
+
+Use `source_file` with the exact `blob_sha` observed for the requested repository
+path at the selected commit. This is an alternative to `response`; do not also
+provide `response` or `encoding` on the same entry. The bytes are raw, including
+for binary files, and undergo the same complete Git blob identity check before
+any destination is written.
+
+```json
+{
+  "files": [
+    {
+      "path": "posts.json",
+      "blob_sha": "f3343f6a99a70f213b1da74630a58a3e3a4f0eb5",
+      "source_file": "/cloud/scratch/recovered/posts.json",
+      "mode": "100644"
+    }
+  ]
+}
+```
+
+The example SHA identifies an observed 33,424,517-byte source; use the identity
+from your own selected snapshot. `source_file` paths are resolved relative to
+the process working directory, with `~` expansion. The source file is read only
+and remains intact. Native-response and local-file entries may share one
+manifest. The importer performs no Git command, network fetch, credential
+lookup, or automatic fallback from a failed response.
+
+Keep the original source identity and recovery context with your working
+inputs. A matching blob confirms bytes, not repository membership or commit
+ancestry. Local-file input avoids JSON serialization overhead; the importer
+still retains file bodies in memory while it validates the batch.
+
+A local source read failure exits one with `SOURCE_IMPORT_IO`, the system errno,
+`operation: "read_source_file"`, the relative repository `path`, and an empty
+`completed_files` list. Source reads precede all destination writes. Raw local
+source paths and operating-system exception text are not printed. A byte/hash
+mismatch retains `SOURCE_BLOB_MISMATCH` and writes no destination files.
 
 ## Existing files and recovery
 
