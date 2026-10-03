@@ -251,10 +251,10 @@ class Broker:
         if type(max_age_seconds) is not int or not 0 <= max_age_seconds <= MAX_AGE:
             raise ValueError("invalid cache age")
         key = hashlib.sha256(dumps([route, params]).encode()).hexdigest()
-        now = self.now()
         bucket = route_bucket(route)
         with self.connect() as db:
             db.execute("BEGIN IMMEDIATE")
+            now = self.now()
             blocked = db.execute("SELECT reason FROM blocked WHERE namespace=?", (self.namespace,)).fetchone()
             if blocked:
                 return self.envelope("AUTH_BLOCKED", error=blocked[0])
@@ -327,6 +327,9 @@ class Broker:
 
         with self.connect() as db:
             db.execute("BEGIN IMMEDIATE")
+            # Lock waits must not extend a lease. Keep the response observation
+            # time above for payload freshness and provider cooldown deadlines.
+            transaction_now = self.now()
             if limited:
                 self._extend(db, limit_bucket, now + delay)
             # The final permitted request can succeed while exhausting its
@@ -340,7 +343,7 @@ class Broker:
                 db.execute("INSERT OR REPLACE INTO blocked VALUES (?,?)", (self.namespace, "bad_credentials"))
                 db.execute("DELETE FROM cache WHERE namespace=?", (self.namespace,))
             row = db.execute("SELECT nonce,expires FROM flight WHERE namespace=? AND key=?", (self.namespace, lease.key)).fetchone()
-            if not row or row["nonce"] != lease.nonce or row["expires"] <= now:
+            if not row or row["nonce"] != lease.nonce or row["expires"] <= transaction_now:
                 return self.envelope("DISCARDED", retry_after_seconds=1)
             db.execute("DELETE FROM flight WHERE namespace=? AND key=? AND nonce=?", (self.namespace, lease.key, lease.nonce))
             blocked = db.execute("SELECT reason FROM blocked WHERE namespace=?", (self.namespace,)).fetchone()
@@ -348,7 +351,7 @@ class Broker:
                 return self.envelope("AUTH_BLOCKED", error=blocked[0])
             if limited:
                 db.execute("DELETE FROM cache WHERE namespace=? AND key=?", (self.namespace, lease.key))
-                wait = self._cooldown(db, lease.bucket, now) or delay
+                wait = self._cooldown(db, lease.bucket, transaction_now) or 1
                 return self.envelope("COOLDOWN", retry_after_seconds=wait)
             if payload_text is None:
                 db.execute("DELETE FROM cache WHERE namespace=? AND key=?", (self.namespace, lease.key))
