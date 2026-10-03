@@ -757,10 +757,14 @@ def discover_sources(config: Mapping | None = None, state: Mapping | None = None
             payload = _unwrap(snapshot.get("payload", {}))
             rows = payload if isinstance(payload, list) else payload.get("repositories", payload.get("repos", []))
             for row in rows:
-                repo = _name(row.get("full_name") or row.get("repo_full_name") or row.get("nameWithOwner"))
+                repo = _name(row.get("full_name") or row.get("repository_full_name") or row.get("repo_full_name") or row.get("nameWithOwner"))
                 if repo:
                     repositories.add(repo)
-                    repo_metadata[ref + ":" + repo] = {"account_ref": ref, "host": host, "repository": repo, "private": row.get("private"), "archived": row.get("archived"), "default_branch": _name(row.get("default_branch")), "id": row.get("id")}
+                    visibility = row.get("visibility")
+                    private = row.get("private")
+                    if private is None and visibility in {"public", "private", "internal"}:
+                        private = visibility != "public"
+                    repo_metadata[ref + ":" + repo] = {"account_ref": ref, "host": host, "repository": repo, "private": private, "visibility": visibility, "archived": row.get("archived"), "default_branch": _name(row.get("default_branch")), "id": row.get("id")}
             coverage.append({"source": "github:connector-list:" + ref, "status": "observed" if snapshot.get("complete") else "backfilling", "complete": bool(snapshot.get("complete")),
                              "records": len(rows), "cursor": snapshot.get("cursor"), "observed_at": snapshot.get("observed_at") or at, "scope": "actual native connector repository listing; full content backfill separate"})
         except Exception as error:
