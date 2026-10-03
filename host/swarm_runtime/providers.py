@@ -169,6 +169,7 @@ class _Refresh:
         self.calls = self.hits = 0
         self.client_policy = _client_policy()
         self.pacing_deferred = False
+        self.pacing_retry_at = None
         self.collector = LiveCollectors(SimpleNamespace(state_dir=state_dir), equipment=equipment,
                                         config={"request_timeout_seconds": 15})
         # Same durable ledger and transport as ordinary command-center refresh.
@@ -190,13 +191,17 @@ class _Refresh:
     def pace(self, endpoint):
         # The refresh flock serializes this read/update across all callers.
         # Charge cache misses only; persisting the balance survives restarts.
+        if self.pacing_deferred:
+            # This refresh has one fixed clock and holds the shared lock. Its
+            # exhausted bucket cannot refill while later cache hits are read.
+            raise _Deferred("shared_request_budget", self.pacing_retry_at + _jitter(endpoint))
         bucket = self._bucket()
         if bucket["remaining"] < 1:
-            retry_at = (bucket["updated_at"] + (1 - bucket["remaining"])
-                        * self.client_policy["interval_seconds"] + _jitter(endpoint))
+            self.pacing_retry_at = (bucket["updated_at"] + (1 - bucket["remaining"])
+                                    * self.client_policy["interval_seconds"])
             self._save_bucket(bucket)
             self.pacing_deferred = True
-            raise _Deferred("shared_request_budget", retry_at)
+            raise _Deferred("shared_request_budget", self.pacing_retry_at + _jitter(endpoint))
         bucket["remaining"] -= 1
         self._save_bucket(bucket)
 
@@ -482,7 +487,8 @@ def enrich(tasks: dict, state_dir: Path, equipment=None, max_calls=4, now=None):
             visited = []
             for key in ordered[:200]:
                 # get() checks reusable responses before enforcing the network
-                # budget, so cached facts can still reconcile after it is spent.
+                # budget or shared pacing, so retained responses can reconcile
+                # throughout this bounded window after either is exhausted.
                 match = TASK.fullmatch(key)
                 try:
                     if key in artifacts and (match is None or match[2].lower() != "pr"):
@@ -505,8 +511,6 @@ def enrich(tasks: dict, state_dir: Path, equipment=None, max_calls=4, now=None):
                 visited.append(key)
                 db.execute("INSERT OR REPLACE INTO progress(name,value) VALUES('last_task',?)", (key,))
                 db.commit()
-                if refresh.pacing_deferred:
-                    break
             unvisited = len(keys) - len(visited)
             if unvisited:
                 result["deferred"].append({"reason": "call_budget_or_task_window", "tasks": unvisited})
