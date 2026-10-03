@@ -53,3 +53,33 @@ Full-source collectors can also POST their complete source envelopes as an event
 Native application lifecycle data is supplied by an available host caller. The configured `native_runtime_path` contains the latest actual native API snapshot and its original `observed_at` timestamp; the 15-second census reader rereads this file and never substitutes its own fetch time for that source timestamp. This Python runtime has no built-in native application API refresh producer. A visible external host automation can be described by `native_refresh_producer` with its `id`, `kind`, `configured`, `status`, `interval_seconds` and registration time. Census reports this configuration separately from verified scheduled source reads. Registration alone does not freshen a session or establish successful scheduled collection. `native_host.mjs` advances connector source jobs and does not call the native application session API. The host must retain each complete native response in encrypted custody, then replace the snapshot metadata using its actual read time. Process census and other provider reads continue independently.
 
 Native session state expires after `stale_after_seconds` (900 seconds by default). Stale executing/waiting states become declarations or unknown state, and source coverage becomes `pending_host_refresh`; the separate `native_app_sessions:refresh-producer` partition records `host_caller_required` or `external_host_configured` with its descriptor and pending execution evidence. Native snapshot rows and every prior source reference remain retained. The current native chat listing accepts at most 50 non-pinned rows plus all pinned rows, so this snapshot retains an explicit historical enumeration gap; archived and transcript source traversal have their own cursors. A missing host producer cannot make old execution counts current, and requires no peer admission or credential grant.
+
+### Passive remote custody of encrypted source records
+
+`python -m integrations.swarm_telemetry.remote_custody` snapshots the exact encrypted `source_records` into a private SQLite journal and prepares resumable chunks for an already-connected Google Drive account and folder. Use a stable operation ID across retries. The module uses the Python 3.11+ standard library and requires no encryption keys or decryption. Keep the source database, journal, downloaded ciphertext, destination configuration, and keys private; the commands below contain placeholders only. It does not provision providers, purchase capacity, or authorize paid usage; use an existing no-charge route.
+
+```sh
+python -m integrations.swarm_telemetry.remote_custody prepare --source-db PRIVATE-source.sqlite3 --journal PRIVATE-custody.sqlite3 --operation-id OPERATION_ID --account-ref ACCOUNT_REF --folder-id EXISTING_FOLDER_ID --chunk-bytes 4194304
+python -m integrations.swarm_telemetry.remote_custody jobs --journal PRIVATE-custody.sqlite3 --limit 50 --cursor 0
+```
+
+`jobs` emits connector handoffs as `{object_id, action, tool_name, args}` plus `next_cursor`; execute them through the existing authenticated Drive connector. Use one native caller per journal and execute each emitted batch before requesting another. Traverse the returned cursors to finish a finite pass over the full operation snapshot. This traversal does not sample records. Complete each object's deterministic-name search before uploading or retrying an upload, then record the search result with every matching file ID. A completed search with no matches is valid: omit `--file-id` and retain `--complete`. The custody handoffs do not dispatch or throttle other work, schedule activity, or introduce peer-admission, approval, or acknowledgement gates.
+
+```sh
+python -m integrations.swarm_telemetry.remote_custody record-search --journal PRIVATE-custody.sqlite3 --object-id OBJECT_ID --file-id DRIVE_FILE_ID --complete
+python -m integrations.swarm_telemetry.remote_custody record-search --journal PRIVATE-custody.sqlite3 --object-id OBJECT_ID --complete
+python -m integrations.swarm_telemetry.remote_custody record-upload --journal PRIVATE-custody.sqlite3 --object-id OBJECT_ID --file-id DRIVE_FILE_ID
+python -m integrations.swarm_telemetry.remote_custody record-readback --journal PRIVATE-custody.sqlite3 --object-id OBJECT_ID --file-id DRIVE_FILE_ID --download /private/downloaded-object
+python -m integrations.swarm_telemetry.remote_custody status --journal PRIVATE-custody.sqlite3
+```
+
+An uploaded object remains **pending** until its downloaded bytes equal the expected bytes. The journal records **confirmed** copies only after that readback. Resume with the same journal and operation ID, performing the deterministic-name search before any upload retry. Each prepared operation is a fixed snapshot; later source records require a new operation and journal. Drive filenames are reconciliation references, not atomic exactly-once keys. After every chunk is confirmed, the operation manifest is prepared as JSONL with full record metadata, chunk hashes, and provider locations. The manifest itself must be uploaded and pass byte-equal readback before the operation has a confirmed remote manifest.
+
+Recovery starts with the downloaded remote manifest and does not require the custody journal. `restore-jobs` emits native fetch handoffs for its referenced chunks. Supply their actual downloaded absolute paths in a private JSON mapping keyed by provider file ID or opaque filename. `restore` reconstructs encrypted `source_records` in a new SQLite database from the manifest and chunks; it preserves the original source records and requires no decryption key. When a trusted manifest digest is available, pass it with `--expected-manifest-sha256`.
+
+```sh
+python -m integrations.swarm_telemetry.remote_custody restore-jobs --manifest /private/remote-manifest.jsonl
+python -m integrations.swarm_telemetry.remote_custody restore --manifest /private/remote-manifest.jsonl --downloads /private/downloads.json --output-db /private/NEW-source.sqlite3 --expected-manifest-sha256 EXPECTED_MANIFEST_SHA256
+```
+
+If the existing connected account or storage folder is unavailable, retain the local records and journal and report the specific missing route. Upload receipts alone do not establish confirmed custody. This workflow performs no local pruning, deletion, or cutover.
