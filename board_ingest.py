@@ -1215,6 +1215,8 @@ def _contains_recorded_checkout_url(text):
 
 def _autolink(escaped):
     """Link bare URLs and Slack ``<URL|label>`` in HTML-escaped text."""
+    if "http" not in escaped:
+        return escaped
     def _repl(m):
         # Slack stores links as <https://example.test|label>.  At this point
         # the post is already escaped, so consume the whole encoded marker in
