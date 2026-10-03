@@ -226,6 +226,15 @@ The later-page shape regression intentionally tests a conservative merge of vali
 rows, rather than the previous all-or-nothing loss of newly fetched pages. Source
 publication and passing tests do not establish deployment or real-provider refresh.
 
+## Bounded summary selection
+
+`build_summary` retains at most 12 attention rows while scanning the existing work
+snapshot. Priority, freshness, attention status and shortened item ID retain their
+existing ordering, including source order for equal keys. Omitted counts still
+include every eligible record, and status counts accumulate by distinct status.
+This bounds attention selection storage without changing input coverage or the
+summary response.
+
 ## Deathstar decision view
 
 `GET /api/decisions` (`decisions.py`) projects the existing `/api/work`
