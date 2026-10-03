@@ -152,6 +152,12 @@ process exits; lock contention and an unavailable lock are reported separately.
 heartbeat do not refresh GitHub REST data. Dispatch and terminal operations may
 refresh exact candidate identifiers within a four-call budget; canonical claims
 still use git. `status --fresh` refreshes the claims branch, not providers.
+Every fresh store read checks the remote claims tip. When that commit is
+unchanged, it reuses the isolated cached snapshot without rereading Git objects
+or rewriting the cache file after this process has read its Git objects once.
+A disk cache alone does not satisfy that first fresh read. A changed tip reloads
+the ledger and its holdings; an unavailable remote remains an error, and
+mutations keep their fresh-tip check.
 `sync --work-snapshot`, `--facts` and `--events` accept saved JSON inputs.
 
 The existing `commons-board` ingest job runs `sync --cached --max-calls 0` after
