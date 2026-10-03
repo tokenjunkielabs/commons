@@ -369,11 +369,14 @@ class LiveCollectors:
             body = text(row.get("text"))
             url = workspace.rstrip("/") + "/archives/" + channel_id + "/p" + ts.replace(".", "") if workspace else None
             updated = timestamp(row.get("edited", {}).get("ts") or ts)
+            # A new reply is thread activity even when its parent text is unchanged.
+            activity = latest({"activity_observed_at": value}
+                              for value in (updated, row.get("latest_reply")))
             items.append({"id": "slack:" + channel_id + ":" + ts, "kind": "slack_thread",
                 "title": body.splitlines()[0][:500] if body else "Slack message",
                 "status": "posted", "owner": row.get("user") or row.get("bot_id"),
                 "project": channel.get("project") or label, "updated_at": updated,
-                "activity_observed_at": updated, "url": url, "summary": body,
+                "activity_observed_at": activity, "url": url, "summary": body,
                 "next_action": None, "refs": {"channel_id": channel_id, "message_ts": ts,
                     "thread_ts": resolution["thread_ts"], "root_resolution": resolution["state"],
                     "root_reason": resolution["reason"], "reply_count": row.get("reply_count"),
