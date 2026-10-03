@@ -636,35 +636,88 @@ def github_events(get: Callable, config: dict, since: str, seen: Callable = lamb
     return collect_delivery_groups(github_delivery_groups, get, config, since, seen)
 
 
-def github_delivery_groups(get: Callable, config: dict, since: str, seen: Callable = lambda key: "") -> tuple[dict, Iterator[tuple[str, list[Event]]]]:
+def github_delivery_groups(get: Callable, config: dict, since: str, seen: Callable = lambda key: "",
+                           checkpoint: Callable = lambda key, value: None) -> tuple[dict, Iterator[tuple[str, list[Event]]]]:
     account = get("user")
     if str(account.get("login", "")).lower() != config["github_login"].lower():
         raise RelayError("github_account_mismatch")
+    scan_key = "github.listing." + digest(json.dumps([
+        config["github_login"].lower(), config.get("github_channel", ""),
+        config.get("coordination_repository", "")]))
+    retained = seen(scan_key)
+    try:
+        scan = json.loads(retained) if retained else {
+            "since": since, "before": iso(), "feed": "changed", "page": 1, "pending": False,
+        }
+        if (not isinstance(scan, dict) or scan["feed"] not in {"changed", "unread"}
+                or type(scan["page"]) is not int or scan["page"] < 1
+                or type(scan.get("pending", False)) is not bool):
+            raise ValueError
+        for field in ("since", "before"):
+            if not isinstance(scan[field], str):
+                raise ValueError
+            datetime.fromisoformat(scan[field].replace("Z", "+00:00"))
+    except (KeyError, TypeError, ValueError):
+        raise RelayError("github_listing_checkpoint_invalid") from None
     info = {"mode": "native-notifications", "private_omitted": 0, "carrier_noise": 0,
-            "notifications": 0, "unchanged": 0, "source_items_pending": 0, "error_codes": []}
-    # all=true also catches activity another peer read before this poll.
-    changed = github_pages(get, "notifications?all=true&since=" + urllib.parse.quote(since))
-    unread = github_pages(get, "notifications?all=false")
-    notifications = {str(n["id"]): n for n in changed + unread}
-    info["notifications"] = len(notifications)
+            "notifications": 0, "unchanged": 0, "source_items_pending": 0, "error_codes": [],
+            "prior_source_items_pending": bool(scan.get("pending")), "listing_pages": 0,
+            "listing_complete": False, "listing_resumed": bool(retained)}
+
     def groups() -> Iterator[tuple[str, list[Event]]]:
-        for notice in notifications.values():
-            version = "gh.notice." + digest(str(notice["id"]) + ":" + str(notice.get("updated_at", "")))
-            # Do not repeatedly download every comment on unchanged unread threads.
-            if seen(version):
-                info["unchanged"] += 1
-                continue
-            try:
-                batch, included = github_notice_events(get, config, notice, info)
-            except RelayError as exc:
-                info["source_items_pending"] += 1
-                if exc.code not in info["error_codes"]:
-                    info["error_codes"].append(exc.code)
-                if exc.retry_after:
-                    raise
-                continue
-            if included:
-                yield version, batch
+        observed: set[str] = set()
+        for _ in range(20):
+            # Freeze the listing window across finite runs. Keep this page until
+            # every yielded group returns from the caller's successful delivery.
+            checkpoint(scan_key, json.dumps(scan))
+            params = {"all": "true" if scan["feed"] == "changed" else "false",
+                      "before": scan["before"], "per_page": 50, "page": scan["page"]}
+            if scan["feed"] == "changed":
+                # Include activity another peer has already marked read.
+                params["since"] = scan["since"]
+            notices = get("notifications?" + urllib.parse.urlencode(params))
+            if not isinstance(notices, list):
+                raise RelayError("github_list_shape")
+            info["listing_pages"] += 1
+            for notice in notices:
+                if not isinstance(notice, dict) or not notice.get("id"):
+                    raise RelayError("github_notice_shape")
+                notice_id = str(notice["id"])
+                if notice_id not in observed:
+                    info["notifications"] += 1
+                    observed.add(notice_id)
+                version = "gh.notice." + digest(notice_id + ":" + str(notice.get("updated_at", "")))
+                # Preserve existing content-level deduplication when replaying a
+                # partly delivered page or the overlapping unread collection.
+                if seen(version):
+                    info["unchanged"] += 1
+                    continue
+                try:
+                    batch, included = github_notice_events(get, config, notice, info)
+                except RelayError as exc:
+                    info["source_items_pending"] += 1
+                    scan["pending"] = True
+                    checkpoint(scan_key, json.dumps(scan))
+                    if exc.code not in info["error_codes"]:
+                        info["error_codes"].append(exc.code)
+                    if exc.retry_after:
+                        raise
+                    continue
+                if included:
+                    yield version, batch
+            # The global notifications endpoint caps pages at 50, unlike issue
+            # comments. A short server-capped page must not imply end of source.
+            if len(notices) >= 50:
+                scan["page"] += 1
+            elif scan["feed"] == "changed":
+                scan.update(feed="unread", page=1)
+            else:
+                info["listing_complete"] = True
+                info["completed_until"] = scan["before"]
+                checkpoint(scan_key, "")
+                return
+            checkpoint(scan_key, json.dumps(scan))
+        raise RelayError("github_page_limit_pending")
     return info, groups()
 
 
@@ -744,29 +797,90 @@ def gmail_events(get: Callable, config: dict, since: str, seen: Callable = lambd
     return collect_delivery_groups(gmail_delivery_groups, get, config, since, seen)
 
 
-def gmail_delivery_groups(get: Callable, config: dict, since: str, seen: Callable = lambda key: "") -> tuple[dict, Iterator[tuple[str, list[Event]]]]:
+def gmail_message_ids(get: Callable, query: str, info: dict, scope: str,
+                      seen: Callable, checkpoint: Callable | None = None) -> Iterator[str]:
+    """Yield ID pages with a scoped continuation after successful consumption."""
+    key = "gmail.listing." + scope
+    saved = seen(key)
+    try:
+        prior = json.loads(saved) if saved else {}
+    except (TypeError, ValueError):
+        raise RelayError("gmail_listing_checkpoint_invalid") from None
+    if (not isinstance(prior, dict) or (prior and prior.get("scope") != scope)
+            or type(prior.get("pending", False)) is not bool):
+        raise RelayError("gmail_listing_checkpoint_invalid")
+    token = prior.get("page_token", "")
+    if not isinstance(token, str):
+        raise RelayError("gmail_listing_checkpoint_invalid")
+    info["message_listing_resumed"] = bool(token)
+    info["prior_source_items_pending"] = bool(prior.get("pending"))
+    def save(next_token: str | None):
+        if checkpoint is not None:
+            checkpoint(key, "" if next_token is None else json.dumps({
+                "scope": scope, "page_token": next_token,
+                "pending": bool(prior.get("pending") or info.get("source_items_pending"))}, sort_keys=True))
+    requested_tokens: set[str] = set()
+    seen_ids: set[str] = set()
+    for _ in range(20):
+        if token in requested_tokens:
+            raise RelayError("gmail_page_cursor_repeated")
+        requested_tokens.add(token)
+        params = {"q": query, "maxResults": 100}
+        if token:
+            params["pageToken"] = token
+        try:
+            page = get("messages", params)
+        except RelayError as exc:
+            if token and exc.code == "http_400":
+                # An expired/invalid continuation must not trap every future
+                # pass. Retain item markers and report this provider error;
+                # the next pass can restart the same query from page one.
+                save(None)
+            raise
+        if not isinstance(page, dict) or not isinstance(page.get("messages", []), list):
+            raise RelayError("gmail_list_shape")
+        # Until every yielded group returns from delivery, a retry must start
+        # with this page; per-message markers skip its completed deliveries.
+        save(token)
+        info["message_pages"] += 1
+        for item in page.get("messages", []):
+            mid = item.get("id") if isinstance(item, dict) else None
+            if not isinstance(mid, str) or not mid:
+                raise RelayError("gmail_list_shape")
+            if mid in seen_ids:
+                info["duplicate_message_ids"] += 1
+                continue
+            seen_ids.add(mid)
+            info["messages"] += 1
+            yield mid
+        token = page.get("nextPageToken", "")
+        if not isinstance(token, str):
+            raise RelayError("gmail_list_shape")
+        if not token:
+            save(None)
+            info["message_listing_complete"] = True
+            return
+        if token in requested_tokens:
+            raise RelayError("gmail_page_cursor_repeated")
+        save(token)
+    raise RelayError("gmail_page_limit_pending")
+
+
+def gmail_delivery_groups(get: Callable, config: dict, since: str, seen: Callable = lambda key: "",
+                          checkpoint: Callable | None = None) -> tuple[dict, Iterator[tuple[str, list[Event]]]]:
     profile = get("profile")
     if str(profile.get("emailAddress", "")).lower() != config["gmail_address"].lower():
         raise RelayError("gmail_account_mismatch")
     # Sliding overlap intentionally re-reads IDs; per-part dedup prevents repeat posts.
     query = config.get("gmail_query", "{newer_than:14d is:unread is:starred} -in:spam -in:trash -in:sent -in:drafts")
-    ids: list[str] = []
-    token = ""
-    for _ in range(20):
-        params = {"q": query, "maxResults": 100}
-        if token:
-            params["pageToken"] = token
-        page = get("messages", params)
-        ids.extend(str(item["id"]) for item in page.get("messages", []))
-        token = page.get("nextPageToken", "")
-        if not token:
-            break
-    if token:
-        raise RelayError("gmail_page_limit_pending")
-    info = {"mode": "work-mail-poll", "messages": len(ids), "unchanged": 0, "private_or_auth_omitted": 0,
+    info = {"mode": "work-mail-poll", "messages": 0, "message_pages": 0,
+            "message_listing_complete": False, "message_listing_resumed": False, "duplicate_message_ids": 0,
+            "unchanged": 0, "private_or_auth_omitted": 0,
             "promotional_omitted": 0, "github_mail_deduped": 0, "unclassified_pending": 0, "source_items_pending": 0, "body_pending": 0}
     def groups() -> Iterator[tuple[str, list[Event]]]:
-        for mid in dict.fromkeys(ids):
+        scope = digest(json.dumps([config["gmail_address"].lower(),
+                                   config.get("gmail_channel", ""), query]))
+        for mid in gmail_message_ids(get, query, info, scope, seen, checkpoint):
             # Received message IDs are immutable. Skip only a completed content
             # delivery; omitted/partial mail remains eligible on every poll.
             version = "gmail.delivered." + digest(json.dumps([
@@ -854,7 +968,7 @@ def run(config: dict, state: State, providers: Providers) -> dict:
         collecting = True
         try:
             getter = providers.github if name == "github" else providers.gmail
-            info, groups = source(getter, config, since, state.get)
+            info, groups = source(getter, config, since, state.get, state.set)
             report["sources"][name] = info
             while True:
                 collecting = False
@@ -872,12 +986,15 @@ def run(config: dict, state: State, providers: Providers) -> dict:
                 if version:
                     state.set(version, "1")
             state.set(name + "_last_poll", iso())
-            if info.get("source_items_pending", 0):
+            if info.get("source_items_pending", 0) or info.get("prior_source_items_pending"):
                 report["errors"][name] = "source_items_pending"
             else:
                 state.set(name + "_last_success", iso())
                 if name == "github":
-                    state.set("github_since", iso(now - timedelta(minutes=10)))
+                    # A resumed listing may have started in an earlier run.
+                    # Advancing to wall time would skip arrivals during that scan.
+                    completed = datetime.fromisoformat(info["completed_until"].replace("Z", "+00:00"))
+                    state.set("github_since", iso(completed - timedelta(minutes=10)))
         except RelayError as exc:
             report["errors"][name] = exc.code
             if exc.code == "delivery_budget_pending":
