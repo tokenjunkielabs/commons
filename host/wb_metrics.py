@@ -602,9 +602,10 @@ def axis_with_purity(pair_rows, *, place_row=None) -> dict:
         raise WbMetricsError("all pair directions are zero")
     purity = None
     if len(dirs) >= 2:
-        sims = [sum(x * y for x, y in zip(dirs[i], dirs[j]))
-                for i in range(len(dirs)) for j in range(i + 1, len(dirs))]
-        purity = sum(sims) / len(sims)
+        n = len(dirs)
+        sims = (sum(x * y for x, y in zip(dirs[i], dirs[j]))
+                for i in range(n) for j in range(i + 1, n))
+        purity = sum(sims) / (n * (n - 1) // 2)
     mean_dir = mean_vec(dirs)
     axis = unit(mean_dir)
     result = {
