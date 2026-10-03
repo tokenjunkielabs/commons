@@ -99,13 +99,18 @@ def _page(value):
         return [], None, False, {"parse_state": "source_schema_pending"}
     rows = value.get("messages")
     if rows is None:
-        rows = value.get("thread_messages") or value.get("thread") or value.get("events")
+        rows = next((value[field] for field in ("thread_messages", "thread", "events")
+                     if value.get(field) is not None), None)
+    parsed_empty = False
     if isinstance(rows, list):
         messages = [{**row["event"], "native_event_source": dict(row)} if isinstance(row.get("event"), Mapping) else dict(row) for row in rows if isinstance(row, Mapping)]
     else:
         text = rows if isinstance(rows, str) else value.get("formatted_source") or value.get("result") or value.get("text")
         messages = []
         if isinstance(text, str):
+            # The native channel reader represents an empty page as its
+            # channel header alone. A nonempty unknown format is still unread.
+            parsed_empty = bool(re.fullmatch(r"Channel: [^\n]+ \([CGD][A-Z0-9]{7,}\)\s*", text.strip()))
             boundaries = list(re.finditer(r"(?m)^=== (?:Message|Reply) from (.*?) ===[^\n]*\nMessage TS:\s*(\d{9,}\.\d+)\s*\n", text))
             for index, marker in enumerate(boundaries):
                 end = boundaries[index + 1].start() if index + 1 < len(boundaries) else len(text)
@@ -146,8 +151,16 @@ def _page(value):
     elif isinstance(value.get("pagination_info"), str):
         pagination = value["pagination_info"]
         next_page = re.search(r"(?:use\s+cursor|next_cursor|cursor)\s*[:=]\s*`?([^`\s]+)", pagination, re.I)
-        cursor = next_page.group(1) if next_page else ""
-        terminal = not next_page and not re.search(r"more messages available|next page|has_more.{0,5}true", pagination, re.I)
+        if next_page:
+            cursor, terminal = next_page.group(1), False
+        elif re.search(r"\b(?:no more (?:messages|pages)|end of results)\b", pagination, re.I):
+            # Check the explicit end marker before its contained phrase
+            # "more messages available", or empty tails never finish.
+            cursor, terminal = "", True
+        elif re.search(r"more messages available|next page|has_more.{0,5}true", pagination, re.I):
+            cursor, terminal = "", False
+        else:
+            cursor, terminal = None, False
     elif value.get("has_more") is False:
         cursor, terminal = "", True
     elif isinstance(rows, list) and len(rows) < 100 and "has_more" not in value:
@@ -156,7 +169,7 @@ def _page(value):
         cursor, terminal = None, False
     else:
         cursor, terminal = None, False
-    return messages, cursor, terminal, {"parse_state": "parsed" if messages or isinstance(rows, list) else "source_schema_pending",
+    return messages, cursor, terminal, {"parse_state": "parsed" if messages or isinstance(rows, list) or parsed_empty else "source_schema_pending",
                                       "normalized_records": len(messages), "pagination_known": cursor is not None,
                                       "source_pagination": value.get("pagination_info") or metadata}
 
@@ -223,7 +236,7 @@ def _default_reader(config):
             raise SourceReadError("native_file_reader_binding_pending")
         short = "slack_read_thread" if name == THREAD_TOOL else "slack_read_channel"
         fields = {"channel_id": config.get("_dm_channel_mapping", {}).get(args["channel_id"], args["channel_id"]), "limit": args.get("limit", 100)}
-        for field in ("cursor", "oldest", "latest"):
+        for field in ("cursor", "oldest", "latest", "response_format"):
             if field in args:
                 fields[field] = args[field]
         if "message_ts" in args:
@@ -365,6 +378,9 @@ def collect_slack_activity(config=None, state=None, sources=None, read_page=None
                 continue
             messages, cursor, terminal, parse = _page(raw)
             page_event["metadata"].update(parse)
+            if parse["parse_state"] != "parsed":
+                job["last_source_page_event_id"] = page_event["event_id"]
+                raise SourceReadError("source_schema_pending")
             newest = job.get("newest_ts")
             for message in messages:
                 ts = str(message.get("ts") or message.get("event_ts") or "")
