@@ -362,7 +362,7 @@ def _read_json(path):
 
 
 def _read_pulls(path, *, empty_complete=False):
-    """A JSON array, or JSON Lines as `gh api --paginate --jq '.[]|...'` writes.
+    """A JSON array, or JSON Lines containing pull objects or page arrays.
 
     Returns None when the file holds neither, so the caller names the listing
     as degraded instead of reading garbage as an empty queue.
@@ -377,8 +377,11 @@ def _read_pulls(path, *, empty_complete=False):
         try:
             value = json.loads(stripped)
         except ValueError:
-            return None
-        return value if isinstance(value, list) else None
+            # Multiple page arrays may be exported one per JSON Lines record.
+            # The line reader below still rejects an invalid or partial page.
+            pass
+        else:
+            return value if isinstance(value, list) else None
     rows = []
     for line in stripped.splitlines():
         line = line.strip()
