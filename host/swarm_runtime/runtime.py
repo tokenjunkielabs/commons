@@ -228,16 +228,16 @@ class Runtime:
             legacy_events = None
         if legacy_events:
             incoming += legacy_events(prior.get("legacy_holdings", {}), prior.get("legacy_mirror_revisions", {}))
-        candidate = copy.deepcopy(prior)
-        _append(candidate, incoming)
-        candidate["seats"] = imported.get("seats", candidate.get("seats", {}))
-        _merge_facts(candidate, imported.get("provider_facts", {}))
-        _merge_facts(candidate, provider_facts or {})
         moment = now_iso()
-        projection = _project(candidate, moment)
         fresh = {"provider_facts": {}, "calls": 0, "deferred": []}
         if refresh_providers and max_calls:
             from .providers import enrich
+            candidate = copy.deepcopy(prior)
+            _append(candidate, incoming)
+            candidate["seats"] = imported.get("seats", candidate.get("seats", {}))
+            _merge_facts(candidate, imported.get("provider_facts", {}))
+            _merge_facts(candidate, provider_facts or {})
+            projection = _project(candidate, moment)
             fresh = enrich(projection["tasks"], self.state_dir, max_calls=max_calls, now=moment)
         facts = {}
         for batch in (imported.get("provider_facts", {}), provider_facts or {},
