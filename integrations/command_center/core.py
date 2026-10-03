@@ -156,6 +156,8 @@ class CommandCenter:
                     name TEXT NOT NULL, runtime TEXT, status TEXT NOT NULL,
                     started_at TEXT NOT NULL, finished_at TEXT, summary TEXT, error TEXT
                 );
+                CREATE INDEX IF NOT EXISTS operations_started
+                    ON operations(started_at DESC);
                 CREATE TABLE IF NOT EXISTS work_refresh (
                     id INTEGER PRIMARY KEY CHECK(id=1), data TEXT NOT NULL
                 );
