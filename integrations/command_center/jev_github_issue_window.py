@@ -7,6 +7,10 @@ update rows (number + updated_at). The adapter:
 - records an explicit missing minute as incomplete LOWER_BOUND coverage
 - pages a later issue-update window without treating a cap as a census
 - emits a connector-projection packet the landed ledger adapter accepts
+
+The CLI keeps its summary receipt by default. Use ``--format projection`` for
+connector metadata or ``--format ledger`` to feed the existing event-ledger
+compiler directly. Each format retains the declared partial window and gap.
 """
 from __future__ import annotations
 
@@ -16,7 +20,7 @@ import sys
 from datetime import datetime, timezone
 from typing import Any
 
-from integrations.command_center.jev_connector_projection import project
+from integrations.command_center.jev_connector_projection import project, strict_loads
 
 SCHEMA = "commons.jev_github_issue_window/v1"
 PROJECTION_SCHEMA = "commons.jev_connector_projection/v1"
@@ -49,8 +53,16 @@ def _token(value: Any, where: str) -> str:
     return value
 
 
-def compile_window(packet: dict[str, Any]) -> dict[str, Any]:
-    """Compile provider issue-update rows into a projection packet + coverage receipt."""
+def compile_window(
+    packet: dict[str, Any], *, output_format: str = "receipt"
+) -> dict[str, Any]:
+    """Return the coverage receipt, connector projection, or ingestible ledger.
+
+    All formats use the same validated source records and coverage. The default
+    receipt retains its existing schema and fields for current callers.
+    """
+    if output_format not in ("receipt", "projection", "ledger"):
+        raise WindowError("output_format must be receipt, projection, or ledger")
     if type(packet) is not dict:
         raise WindowError("packet must be an object")
     if packet.get("schema") != SCHEMA:
@@ -155,6 +167,10 @@ def compile_window(packet: dict[str, Any]) -> dict[str, Any]:
         ],
     }
     ledger = project(projection)
+    if output_format == "projection":
+        return projection
+    if output_format == "ledger":
+        return ledger
     return {
         "schema": SCHEMA,
         "snapshot_id": snapshot_id,
@@ -173,18 +189,31 @@ def compile_window(packet: dict[str, Any]) -> dict[str, Any]:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Compile a GitHub issue-update window packet.")
     parser.add_argument("input", nargs="?", help="JSON packet path; stdin if omitted")
-    parser.add_argument("-o", "--output", help="Write JSON receipt here")
+    parser.add_argument("-o", "--output", help="Write the selected JSON output here")
+    parser.add_argument(
+        "--format", dest="output_format", choices=("receipt", "projection", "ledger"),
+        default="receipt",
+        help="Output a summary receipt (default), connector projection, or event-ledger packet",
+    )
     args = parser.parse_args(argv)
-    raw = sys.stdin.read() if args.input in (None, "-") else open(args.input, encoding="utf-8").read()
-    packet = json.loads(raw)
-    receipt = compile_window(packet)
-    text = json.dumps(receipt, indent=2, sort_keys=True) + "\n"
-    if args.output:
-        with open(args.output, "w", encoding="utf-8") as handle:
-            handle.write(text)
-    else:
-        sys.stdout.write(text)
-    return 0
+    try:
+        if args.input in (None, "-"):
+            raw = sys.stdin.read()
+        else:
+            with open(args.input, encoding="utf-8") as handle:
+                raw = handle.read()
+        packet = strict_loads(raw)
+        result = compile_window(packet, output_format=args.output_format)
+        text = json.dumps(result, indent=2, sort_keys=True) + "\n"
+        if args.output:
+            with open(args.output, "w", encoding="utf-8") as handle:
+                handle.write(text)
+        else:
+            sys.stdout.write(text)
+        return 0
+    except (OSError, ValueError) as exc:
+        print(f"jev_github_issue_window: {exc}", file=sys.stderr)
+        return 2
 
 
 if __name__ == "__main__":
