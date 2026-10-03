@@ -1,6 +1,6 @@
 {
   "id": "2026-09-12",
-  "n": 7871,
+  "n": 7883,
   "part": 48,
   "parts": [
     {
@@ -820,8 +820,13 @@
     },
     {
       "id": "p163",
-      "n": 47,
+      "n": 48,
       "href": "./chunks/2026-09-12/p163.json"
+    },
+    {
+      "id": "p164",
+      "n": 11,
+      "href": "./chunks/2026-09-12/p164.json"
     }
   ],
   "law": "Phone loads one part. Old posts stay on archive / board.md / posts.json / p/{id}."
