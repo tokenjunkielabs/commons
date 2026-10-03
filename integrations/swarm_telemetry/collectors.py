@@ -340,6 +340,21 @@ def _transcript_events(path: Path, records: Iterable[Mapping[str, Any]], source_
             continue
 
         tool_name = _pick(row, "tool_name", "toolName", "name")
+        # Explicit results take precedence over the generic named-call heuristic.
+        if role in {"tool_result", "function_call_output", "tool_output"} or row_type in {"tool_result", "function_call_output", "tool_output"} or nested_type in {"tool_result", "function_call_output", "tool_output"}:
+            name = _text(_pick(row, "tool_name", "toolName", "name") or "tool", 100)
+            raw_status = str(_pick(row, "status", "state", "error") or "").lower()
+            error_flag = _pick(row, "isError", "is_error")
+            has_output = any(key in row for key in ("output", "result", "content"))
+            status = "error" if raw_status in {"error", "failed", "failure", "true"} or error_flag is True or bool(row.get("error")) else "completed" if raw_status in {"ok", "success", "completed", "done"} or (has_output and error_flag is False) else "unknown"
+            result = _pick(row, "output", "result", "content")
+            result_text = json.dumps(result, ensure_ascii=False, separators=(",", ":"), default=str) if isinstance(result, Mapping) else _visible_source_text(result)
+            yield _base_event(source="transcript", source_id=source_id, event_type="tool_result",
+                occurred_at=when, session_id=session_id, agent_id=agent_id, parent_agent_id=parent_agent_id,
+                provider=provider, model=model, harness=harness, status=status, summary=f"Tool result: {name}",
+                metadata={"tool_name": name},
+                full_source=result_text, source_ref=_source_ref(path, row, result_text))
+            continue
         if role in {"tool_use", "tool_call", "function_call", "toolcall"} or tool_name and role not in {"user", "assistant", "human", "gemini"}:
             name = _text(tool_name or _pick(row, "tool", "function"), 100)
             if not name:
@@ -348,19 +363,6 @@ def _transcript_events(path: Path, records: Iterable[Mapping[str, Any]], source_
                 occurred_at=when, session_id=session_id, agent_id=agent_id, parent_agent_id=parent_agent_id,
                 provider=provider, model=model, harness=harness, status="observed", summary=f"Tool called: {name}",
                 metadata={"tool_name": name}, source_ref=_source_ref(path, row))
-            continue
-        if role in {"tool_result", "function_call_output", "tool_output"} or row_type in {"tool_result", "function_call_output"} or nested_type in {"tool_result", "function_call_output"}:
-            name = _text(_pick(row, "tool_name", "toolName", "name") or "tool", 100)
-            raw_status = str(_pick(row, "status", "state", "error") or "").lower()
-            error_flag = _pick(row, "isError", "is_error")
-            has_output = any(key in row for key in ("output", "result", "content"))
-            status = "error" if raw_status in {"error", "failed", "failure", "true"} or error_flag is True or bool(row.get("error")) else "completed" if raw_status in {"ok", "success", "completed", "done"} or (has_output and error_flag is False) else "unknown"
-            yield _base_event(source="transcript", source_id=source_id, event_type="tool_result",
-                occurred_at=when, session_id=session_id, agent_id=agent_id, parent_agent_id=parent_agent_id,
-                provider=provider, model=model, harness=harness, status=status, summary=f"Tool result: {name}",
-                metadata={"tool_name": name},
-                full_source=_visible_source_text(_pick(row, "output", "result", "content")),
-                source_ref=_source_ref(path, row, _visible_source_text(_pick(row, "output", "result", "content"))))
             continue
 
         # Codex event_msg and other wrappers may nest the visible message.
