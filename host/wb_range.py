@@ -1071,6 +1071,12 @@ def embed_tensor_name(index: dict) -> str:
             low = name.lower()
             if "embed" in low and "norm" not in low:
                 return name
+    # Preserve existing selections before trying the canonical GGUF spelling.
+    for source in index["sources"]:
+        if source.get("format") == "gguf":
+            for name in source["tensors"]:
+                if name.lower() == "token_embd.weight":
+                    return name
     raise WbRangeError("no embedding tensor found in index")
 
 
