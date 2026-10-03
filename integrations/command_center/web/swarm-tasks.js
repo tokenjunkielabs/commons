@@ -170,7 +170,7 @@
     lastAttempt = Date.now(); refreshButton.disabled = true;
     inFlight = (async () => {
       try {
-        const {body} = await api.request('/api/swarm/tasks?limit=1000');
+        const {body} = await api.request('/api/swarm/tasks?limit=1000' + (explicit ? '&refresh=1' : ''));
         if (!body || body.ok !== true || !Array.isArray(body.tasks)) {
           const failure = new Error(body?.message || body?.reason || body?.error || 'Canonical task response is missing its task list.');
           failure.body = body; throw failure;
