@@ -268,10 +268,13 @@ class Runner:
     def dispatch_notifications(self):
         channel=self.config.get("notification_channel")
         if not channel: return {"sent":0,"enabled":False,"scanned":0,"pages":0}
+        from datetime import datetime,timezone,timedelta
+        max_age=float(self.config.get("notification_max_age_seconds",3600))
+        cutoff=(datetime.now(timezone.utc)-timedelta(seconds=max_age)).isoformat()
         sent=scanned=pages=0
         cursor=""
         while True:
-            page=self.store.records("notifications",limit=1000,cursor=cursor)
+            page=self.store.records("notifications",limit=1000,cursor=cursor,delivery_state="available",since=cutoff)
             pages+=1
             for note in page["notifications"]:
                 scanned+=1
@@ -280,9 +283,8 @@ class Runner:
                 occurred=note.get("occurred_at")
                 if not isinstance(occurred,str) or not occurred: continue
                 try:
-                    from datetime import datetime,timezone
                     age=(datetime.now(timezone.utc)-datetime.fromisoformat(occurred.replace("Z","+00:00"))).total_seconds()
-                    if age>float(self.config.get("notification_max_age_seconds",3600)): continue
+                    if age>max_age: continue
                 except (ValueError,TypeError,KeyError): continue
                 if note.get("owner_attention"): continue
                 text=note.get("title","Swarm update")+"\n"+note.get("body","")
