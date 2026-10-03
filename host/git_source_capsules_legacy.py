@@ -362,10 +362,10 @@ def _validate_packet_capsule(row: Any) -> tuple[bool, str]:
     return True, "ok"
 
 
-def verify_git_source(bundle: Any, repository: str | Path) -> tuple[bool, str]:
-    """Re-read committed objects and verify packet source metadata/text against them."""
+def _verified_git_source(bundle: Any, repository: str | Path) -> tuple[dict[str, Any] | None, str]:
+    """Return the checked collection for reuse within this verification call."""
     if type(bundle) is not dict or set(bundle) != GIT_SOURCE_KEYS:
-        return False, "git-source-shape"
+        return None, "git-source-shape"
     commit = bundle.get("commit")
     tree_sha = bundle.get("tree_sha")
     observed_main = bundle.get("observed_main_head")
@@ -374,51 +374,57 @@ def verify_git_source(bundle: Any, repository: str | Path) -> tuple[bool, str]:
     max_file_bytes = bundle.get("max_file_bytes")
     capsules = bundle.get("capsules")
     if type(commit) is not str or not HEX40.fullmatch(commit):
-        return False, "git-source-commit"
+        return None, "git-source-commit"
     if type(tree_sha) is not str or not HEX40.fullmatch(tree_sha):
-        return False, "git-source-tree-sha"
+        return None, "git-source-tree-sha"
     if observed_main is not None and (type(observed_main) is not str or not HEX40.fullmatch(observed_main)):
-        return False, "git-source-observed-main-head"
+        return None, "git-source-observed-main-head"
     if source_matches_main is not None and type(source_matches_main) is not bool:
-        return False, "git-source-main-match"
+        return None, "git-source-main-match"
     if type(max_file_bytes) is not int or not (1 <= max_file_bytes <= MAX_FILE_BYTES_CEILING):
-        return False, "git-source-max-file-bytes"
+        return None, "git-source-max-file-bytes"
     if type(requested) is not list or not all(type(path) is str for path in requested) or type(capsules) is not list:
-        return False, "git-source-shape"
+        return None, "git-source-shape"
     for packet_row in capsules:
         valid, reason = _validate_packet_capsule(packet_row)
         if not valid:
-            return False, reason
+            return None, reason
     try:
         expected = collect_git_source(repository, commit, requested, max_file_bytes=max_file_bytes)
     except (GitSourceError, TypeError):
-        return False, "git-source-read"
+        return None, "git-source-read"
     for key in ("commit", "tree_sha", "max_file_bytes", "requested_paths"):
         if bundle.get(key) != expected.get(key):
-            return False, f"git-source-{key.replace('_', '-')}"
+            return None, f"git-source-{key.replace('_', '-')}"
     # observed main is drift metadata, never source authority; it may legitimately move later.
     actual_by_path = {row["path"]: row for row in expected["capsules"]}
     if len(actual_by_path) != len(capsules):
-        return False, "git-source-capsule-count"
+        return None, "git-source-capsule-count"
     for packet_row in capsules:
         path = packet_row["path"]
         actual = actual_by_path.get(path)
         if actual is None:
-            return False, "git-source-path"
+            return None, "git-source-path"
         for key in ("mode", "blob_sha", "content_sha256", "bytes"):
             if packet_row[key] != actual.get(key):
-                return False, f"git-source-{key.replace('_', '-')}"
+                return None, f"git-source-{key.replace('_', '-')}"
         if packet_row["text_included"] is True:
             if packet_row["text"] != actual.get("text") or actual.get("text") is None:
-                return False, "git-source-text"
+                return None, "git-source-text"
         else:
             reason = packet_row["omission_reason"]
             if actual.get("text") is None:
                 if reason != actual.get("source_omission_reason"):
-                    return False, "git-source-omission"
+                    return None, "git-source-omission"
             elif reason != "PACKET_BUDGET":
-                return False, "git-source-omission"
-    return True, "ok"
+                return None, "git-source-omission"
+    return expected, "ok"
+
+
+def verify_git_source(bundle: Any, repository: str | Path) -> tuple[bool, str]:
+    """Re-read committed objects and verify packet source metadata/text against them."""
+    actual, reason = _verified_git_source(bundle, repository)
+    return actual is not None, reason
 
 
 def _canonical(value: Any) -> str:
@@ -434,16 +440,10 @@ def verify_packet_git_source(packet: Any, repository: str | Path) -> tuple[bool,
         return True, "ok"
     if not isinstance(source, dict):
         return False, "git-source-shape"
-    ok, _ = verify_git_source(source, repository)
-    if not ok:
+    actual, _ = _verified_git_source(source, repository)
+    if actual is None:
         return False, "git-source-readback"
     try:
-        actual = collect_git_source(
-            repository,
-            source["commit"],
-            source["requested_paths"],
-            max_file_bytes=source["max_file_bytes"],
-        )
         limits = packet["limits"]
         max_chars = limits["max_chars"]
         omitted_final = packet["omitted"]
