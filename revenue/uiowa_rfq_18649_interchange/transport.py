@@ -159,13 +159,14 @@ def from_rows(rows: Iterable[Iterable[str]]) -> Any:
             raise InterchangeError("pointer must be a JSON string")
         return pointer, kind, value
 
-    def take(expected: str, depth: int) -> Any:
+    def take(expected: str, depth: int,
+             decoded: tuple[str, str, Any] | None = None) -> Any:
         nonlocal index
         if depth > MAX_DEPTH:
             raise InterchangeError(f"JSON nesting exceeds supported depth {MAX_DEPTH}")
         if index >= len(table):
             raise InterchangeError(f"missing node at {expected!r}")
-        pointer, kind, value = parse_row(table[index])
+        pointer, kind, value = parse_row(table[index]) if decoded is None else decoded
         index += 1
         if pointer != expected:
             raise InterchangeError(f"expected pointer {expected!r}; got {pointer!r}")
@@ -179,7 +180,8 @@ def from_rows(rows: Iterable[Iterable[str]]) -> Any:
                     continue
                 if index >= len(table):
                     raise InterchangeError(f"missing object child at {pointer!r}")
-                next_pointer, _, _ = parse_row(table[index])
+                child_row = parse_row(table[index])
+                next_pointer = child_row[0]
                 prefix = pointer + "/"
                 if not next_pointer.startswith(prefix):
                     raise InterchangeError(f"object child not under {pointer!r}")
@@ -189,7 +191,7 @@ def from_rows(rows: Iterable[Iterable[str]]) -> Any:
                 key = _unescape(segment)
                 if key in children:
                     raise InterchangeError(f"duplicate object member at {next_pointer!r}")
-                children[key] = take(next_pointer, depth + 1)
+                children[key] = take(next_pointer, depth + 1, child_row)
             return children
         types = {"string": str, "integer": int, "float": float,
                  "boolean": bool, "null": type(None)}

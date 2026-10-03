@@ -33,9 +33,17 @@ class Observer:
             while len(events)<self.batch_size:
                 try: events.append(self.queue.get_nowait())
                 except Empty: break
+            serialized=[]
+            for event in events:
+                try: serialized.append(json.dumps(event))
+                except Exception:
+                    self.failed+=1
+                    self.queue.task_done()
+            if not serialized: continue
             try:
-                req=urllib.request.Request(self.base_url+"/api/telemetry/observe",data=json.dumps({"events":events}).encode(),headers={"Content-Type":"application/json"})
+                body='{"events":['+','.join(serialized)+']}'
+                req=urllib.request.Request(self.base_url+"/api/telemetry/observe",data=body.encode(),headers={"Content-Type":"application/json"})
                 with urllib.request.urlopen(req,timeout=2) as response: response.read(1024)
-            except Exception: self.failed+=len(events)
+            except Exception: self.failed+=len(serialized)
             finally:
-                for _ in events: self.queue.task_done()
+                for _ in serialized: self.queue.task_done()
