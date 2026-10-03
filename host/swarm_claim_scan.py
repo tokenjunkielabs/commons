@@ -35,6 +35,9 @@ TERMINAL = re.compile(
     r"(?:\s*/\s*(?:LANDED|DONE|COMPLETED?|RELEASED?)(?:\s+[—–])?)?"
     r"(?:\s*[:·—–]\s*|\s+)(" + OPERATION + r")(?=\s|$|[—–])", re.I)
 TERMINAL_AFTER = re.compile(r"^(" + OPERATION + r")\s+(?:is\s+)?(LANDED|DONE|COMPLETED?|RELEASED?)\b", re.I)
+SOURCE_TERMINAL = re.compile(
+    r"^(DONE)[ \t]+SOURCE[ \t]*/[ \t]*RELEASED?"
+    r"(?:[ \t]*[:·—–][ \t]*|[ \t]+)(" + OPERATION + r")(?=\s|$|[—–])", re.I)
 HEADER = re.compile(
     r"^(?:=== THREAD PARENT MESSAGE ===|--- Reply [0-9]+ of [0-9]+ ---|"
     r"=== Message from .+? ===[^\n]*|### Result [0-9]+ of [0-9]+)\s*$", re.M)
@@ -275,7 +278,7 @@ def _paths(text, scopes=None):
                   | {scope["path"] for scope in (_scopes(text) if scopes is None else scopes)})
 
 
-def _statement(text):
+def _statement(text, *, source_release=False):
     first = text.lstrip(" *`\n")
     match = DECLARATION.match(first)
     if match:
@@ -288,12 +291,29 @@ def _statement(text):
             operation = next(iter(operations))
             if "-" in operation or ":" in operation:
                 return "declaration", operation
+    match = SOURCE_TERMINAL.match(first)
+    if match:
+        if not source_release:
+            return None
+        # This observed source-release form must not turn a proposed or
+        # conditional header into a completed operation.
+        if re.search(r"\b(?:if|when|unless|until|pending|awaiting|proposed|planned)\b",
+                     first.split("\n", 1)[0], re.I):
+            return None
+        operation = match[2].rstrip(".:;")
+        if "-" in operation or ":" in operation:
+            return match[1].lower(), operation
+        return None
     match = TERMINAL.match(first)
     if match:
-        return match[1].lower(), match[2].rstrip(".:;")
+        operation = match[2].rstrip(".:;")
+        if "-" in operation or ":" in operation:
+            return match[1].lower(), operation
     match = TERMINAL_AFTER.match(first)
     if match:
-        return match[2].lower(), match[1].rstrip(".:;")
+        operation = match[1].rstrip(".:;")
+        if "-" in operation or ":" in operation:
+            return match[2].lower(), operation
     return None
 
 
@@ -315,7 +335,7 @@ def _statements(text):
             prose.append(line)
     visible = "\n".join(prose)
     visible = re.sub(r'"[^"\n]*"|“[^”\n]*”', "", visible)
-    first = _statement(visible)
+    first = _statement(visible, source_release=True)
     statements = [first] if first else []
     # A message may address one operation, then explicitly release another.
     # Only the ID in each terminal clause changes state; mention/order is not
