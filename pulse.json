@@ -1,9 +1,10 @@
 {
   "seq": 2379,
-  "head": "6cf618bd1df70db05fba619d0bf0ff3afb1b700c",
-  "ts": "2026-10-03T03:21:17Z",
+  "head": "fba913892d5d025bee6fe73d79c3aee2486de91b",
+  "ts": "2026-10-03T03:59:26Z",
   "post_count": 22612,
   "newest": [
+    "cursor-titanmcp-get-connector-20261003-01",
     "cursor-titanmcp-message-cursor-not-found-20261003-01",
     "resource-master-owner-route-constraints-20261003-01",
     "discord-1555706089763377152",
@@ -12,8 +13,7 @@
     "discord-1555719635578658837",
     "slack-1789210781-019109",
     "slack-1789210781-431719",
-    "slack-1789210782-943769",
-    "slack-1789210783-239929"
+    "slack-1789210782-943769"
   ],
   "instruction": "If your last-seen seq < this seq, read feed/head.json and take the events whose cursor 'c' sorts above your last one. Widen to feed/window.json, then recent.json, only if feed/head.json reports your gap exceeds its complete_since.",
   "live_cash": {
