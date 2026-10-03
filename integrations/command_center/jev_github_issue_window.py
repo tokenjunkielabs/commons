@@ -17,8 +17,11 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
+import tempfile
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any
 
 from integrations.command_center.jev_connector_projection import project, strict_loads
@@ -195,6 +198,19 @@ def compile_window(
     }
 
 
+def _write_output(path: str, text: str) -> None:
+    destination = Path(path)
+    with tempfile.TemporaryDirectory(
+        prefix=".jev-issue-window-", dir=destination.parent
+    ) as staging:
+        staged = Path(staging) / "output.json"
+        with staged.open("w", encoding="utf-8") as handle:
+            handle.write(text)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(staged, destination)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Compile a GitHub issue-update window packet.")
     parser.add_argument("input", nargs="?", help="JSON packet path; stdin if omitted")
@@ -215,8 +231,7 @@ def main(argv: list[str] | None = None) -> int:
         result = compile_window(packet, output_format=args.output_format)
         text = json.dumps(result, indent=2, sort_keys=True) + "\n"
         if args.output:
-            with open(args.output, "w", encoding="utf-8") as handle:
-                handle.write(text)
+            _write_output(args.output, text)
         else:
             sys.stdout.write(text)
         return 0
