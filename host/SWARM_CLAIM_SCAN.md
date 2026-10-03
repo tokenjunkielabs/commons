@@ -50,6 +50,10 @@ The response size limit is 64 MiB per input. No third-party package is required.
 - `terminal_observations` records explicit `LANDED`, `DONE`, `COMPLETE`, or
   `RELEASE` statements naming the exact operation ID. A shortened name, a PR link,
   or someone mentioning another operation does not silently close a claim.
+  An explicit terminal clause in a later sentence names its own operation: a
+  message can address one operation and release another without closing the
+  addressee. Quoted text, fenced examples, and conditional secondary clauses
+  do not supply terminal observations.
 - `coverage` keeps each page's continuation and unknown pagination, unparsed
   statement headers, and message identities supplied with contradictory text.
   Conflicting versions are left uninterpreted rather than guessed to be edits.
