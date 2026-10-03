@@ -8,6 +8,7 @@ from pathlib import Path
 from urllib.parse import urlsplit, parse_qs
 from .core import CommandCenter, CoreError
 from .telemetry import with_host
+from .workstreams import WorkRevisionConflict
 from . import work_feed_evidence
 
 WEB = Path(__file__).with_name("web")
@@ -217,6 +218,9 @@ class Handler(BaseHTTPRequestHandler):
             else:
                 result = self.server.center.call_tool(payload) if path == "/api/tools/call" else self.server.center.mutate(ROUTES[path], payload)
             self.send_json(200, result)
+        except WorkRevisionConflict as exc:
+            self.send_json(409, {"error": str(exc), "status": "rejected",
+                                 "code": "work_revision_conflict", "current_work": exc.work})
         except CoreError as exc:
             self.send_json(exc.status, {"error": str(exc)})
         except (ValueError, UnicodeError) as exc:
