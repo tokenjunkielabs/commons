@@ -26,9 +26,28 @@ python lotlens/lotlens.py assumptions
 ```
 
 Open `lotlens/app.html` in a browser and load `report.json` to read the same
-report as a page: filter by status or kind, click an item for its evidence
+report as a page: filter by status or kind, activate an item for its evidence
 path, add notes and download them as an annotations file to apply with the
 CLI. The page reads a file you give it and nothing else.
+
+Item identifiers are native buttons: Tab to an item and press Enter or Space
+to inspect it. Keyboard activation moves focus to the evidence detail; the
+next Tab reaches the note field. Clicking elsewhere in an item row still
+opens the same detail. On narrow screens the evidence table scrolls within
+its labeled region; focus that region and use the arrow keys to reach later
+columns. The detail and note field remain within the page width.
+
+Native browser execution on 2026-10-03 used the three unchanged published
+sample reports with Chromium 153.0.8010.0 directly from a file, plus the
+backward report over loopback HTTP. Enter opened a documented BATCH-P1 path, Space opened the
+filtered potential PKG-ORPHAN-1 path with its named assumption intact, and
+keyboard note entry/download produced the two intended target/text records.
+The reports retained 16, 18 and 8 affected rows and their original content
+hashes. The measured 390 px page overflow (819 px) is repaired to 390 px;
+keyboard scrolling moved the table 40 px and focus reached detail then notes.
+No page errors or external requests occurred. This viewer continuation does
+not repeat or replace the completed graph and second-investigator acceptance;
+no engine command or project test was run, and no fixture or dependency was added.
 
 Viewer operator columns (FORGE follow-up): the table includes a **what**
 column (lot material+supplier, batch/package product, shipment customer) and
