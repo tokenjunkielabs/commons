@@ -394,6 +394,8 @@ class _Handler(BaseHTTPRequestHandler):
         if status == 405:
             self.send_header("Allow", "POST")
         self.end_headers()
+        if self.command == "HEAD":
+            return
         try:
             self.wfile.write(body)
         except (BrokenPipeError, ConnectionResetError):
