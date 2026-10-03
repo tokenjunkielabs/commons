@@ -5,6 +5,8 @@ Dirty paths and commits absent from all observed remote refs need checkpointing.
 A clean, remotely preserved branch ahead of main is a merge candidate. Comparisons
 use local remote-tracking refs, not a claim about the current provider head. Missing
 refs or incomplete history remain unknown instead of becoming a clean bill.
+Submodule work is included even when local Git settings hide it from ordinary
+status. The dirty inventory names the containing submodule path.
 
   python3 host/session_export.py --root /path/to/clone
   python3 host/session_export.py --main-ref origin/master --max-items 50
@@ -130,7 +132,7 @@ def measure_clone(root, main_ref="origin/main", max_items=200):
         row["error"] = "; ".join(row["errors"])
         return row
     root = row["root"] = top
-    code, status, error = git("status", "--porcelain=v1", "-z", "--untracked-files=all")
+    code, status, error = git("status", "--porcelain=v1", "-z", "--untracked-files=all", "--ignore-submodules=none")
     if code:
         row["errors"].append("status: " + (error.strip() or "Git status failed"))
     else:
