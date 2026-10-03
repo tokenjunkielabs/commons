@@ -28,8 +28,9 @@ export async function collectNativePass({baseURL='http://127.0.0.1:8893', readPa
   let deferred=0, nextAttempt=null;
   for (const job of jobs) {
     if (!job.tool_name || job.complete || (available && !available.has(job.tool_name))) continue;
-    const retryAt=Number(job.next_attempt_epoch);
-    if (Number.isFinite(retryAt) && retryAt>now) {
+    const retryAt=[job.next_attempt_epoch,job.retry_at_epoch].reduce((latest,value)=>
+      Number.isFinite(Number(value)) ? Math.max(latest,Number(value)) : latest,0);
+    if (retryAt>now) {
       deferred++;
       nextAttempt=nextAttempt===null ? retryAt : Math.min(nextAttempt,retryAt);
     } else pending.push(job);
