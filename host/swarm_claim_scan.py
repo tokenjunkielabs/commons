@@ -50,6 +50,14 @@ ADJACENT_SYMBOL = re.compile(
     r"`?[ \t]+(?P<symbol>`?[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*(?:\(\))?`?)")
 
 
+GITHUB_WORK_REFERENCE = re.compile(
+    r"https://github\.com/([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+)/(issues|pull)/"
+    r"([1-9][0-9]*)(?=[/?#\s<>|)\].,;:]|$)", re.I)
+AVAILABLE_WORK = re.compile(
+    r"^(?:available(?:[ \t]+(?:next|implementation|product|work)){0,3}[ \t]+"
+    r"(?:scope|follow-on)|next[ \t]+usable[ \t]+work)\b", re.I)
+
+
 class ScanError(ValueError):
     pass
 
@@ -322,6 +330,40 @@ def _comparison_text(text):
     return re.sub(r"\n\*Sent using\* <@U[A-Z0-9]+\|ChatGPT>\Z", "", text)
 
 
+def _work_urls(text):
+    """Keep issue/PR identity explicit; a URL never becomes a source-file scope."""
+    return sorted({f"https://github.com/{match[1].lower()}/{match[2].lower()}/"
+                   f"{match[3].lower()}/{match[4]}"
+                   for match in GITHUB_WORK_REFERENCE.finditer(text)})
+
+
+def _availability_hints(messages, operations):
+    """Join availability wording and declaration references, without claiming work."""
+    declarations_by_message = defaultdict(list)
+    for operation in operations.values():
+        for declaration in operation["declarations"]:
+            declarations_by_message[(declaration["channel_id"], declaration["message_ts"])].append(operation)
+    available, declared = defaultdict(list), defaultdict(list)
+    for message in messages:
+        reference = {key: message[key] for key in ("channel_id", "message_ts", "permalink", "source")}
+        declarations = declarations_by_message.get((message["channel_id"], message["message_ts"]), ())
+        if declarations:
+            for url in _work_urls(message["text"]):
+                for operation in declarations:
+                    declared[url].append({"operation_id": operation["operation_id"],
+                                          "observed_state": operation["state"], **reference})
+            continue
+        for paragraph in re.split(r"\n[ \t]*\n", message["text"]):
+            if not AVAILABLE_WORK.match(paragraph.strip(" *\n")):
+                continue
+            for url in _work_urls(paragraph):
+                available[url].append({"availability_text": paragraph.strip(), **reference})
+    return [{"github_url": url, "status": "availability_has_declaration_reference",
+             "availability_observations": available[url],
+             "declaration_observations": declared[url]}
+            for url in sorted(available.keys() & declared.keys())]
+
+
 def scan(messages, pages, *, workspace_url=None):
     workspace = _workspace(workspace_url)
     identities = defaultdict(dict)
@@ -413,13 +455,15 @@ def scan(messages, pages, *, workspace_url=None):
                 "unscoped_operation_ids": sorted(op for op, symbols in symbols_by_operation.items() if not symbols),
                 "shared_symbols": sorted(symbol for symbol, symbol_ops in by_symbol.items() if len(symbol_ops) > 1),
                 "path_resolution": "relative_path" if "/" in path else "basename_only"})
+    availability_hints = _availability_hints(ordered, operations)
     return {"schema": SCHEMA, "advisory_only": True,
         "scope": "Supplied Slack observations only. Declarations do not establish ownership; shared files can contain compatible work. Refresh the linked sources and existing ledger before acting.",
         "counts": {"messages_supplied": len(messages), "distinct_message_ids": len(identities),
                    "interpreted_message_ids": len(ordered), "operations": len(operations),
                    "declarations_without_exact_paths": sum(not row["observed_paths"] for row in operations.values()),
                    "possible_overlap_paths": len(overlaps), "possible_symbol_overlaps": len(scoped_overlaps),
-                   "unparsed_statement_headers": len(unparsed)},
+                   "unparsed_statement_headers": len(unparsed),
+                   "availability_hints": len(availability_hints)},
         "coverage": {"provider_history_complete": False,
                      "basis": "Caller-supplied pages; terminal pages alone do not prove the history or all claims were supplied.",
                      "pages": pages, "pages_with_continuation": sum(page["terminal_page"] is False for page in pages),
@@ -431,6 +475,7 @@ def scan(messages, pages, *, workspace_url=None):
         "possible_overlaps": overlaps,
         "possible_symbol_overlaps": scoped_overlaps,
         "shared_file_scopes": scoped_files,
+        "availability_hints": availability_hints,
         "unmatched_terminal_observations": [row for row in terminals
             if row.get("resolved_operation_id", row["operation_id"]) not in operations]}
 
@@ -493,7 +538,7 @@ def _select_report(report, *, operation_ids=(), paths=()):
         "returned_counts": {key: len(selected[key]) for key in (
             "operations", "terminal_observations", "possible_overlaps", "possible_symbol_overlaps",
             "shared_file_scopes", "unmatched_terminal_observations")},
-        "global_evidence_retained": ["counts", "coverage", "inputs"],
+        "global_evidence_retained": ["counts", "coverage", "inputs", "availability_hints"],
         "basis": "Selected observations and their possible-overlap peers; absent matches do not establish available work.",
     }
     return selected

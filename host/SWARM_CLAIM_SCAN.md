@@ -44,6 +44,7 @@ matches from related operations and gives the returned collection counts.
 The original `counts`, `coverage` and `inputs` remain unchanged and describe
 **all supplied sources**, including unparsed headers, ambiguity, unread cursors
 and input hashes. An empty selection is still not evidence that work is available.
+`availability_hints` also remains supplied-history context under selection.
 No flags preserves the complete report. Selection changes no claim states or exit
 codes and performs no additional source reads.
 
@@ -79,6 +80,16 @@ codes and performs no additional source reads.
   message can address one operation and release another without closing the
   addressee. Quoted text, fenced examples, and conditional secondary clauses
   do not supply terminal observations.
+- `availability_hints` pairs an explicit "Available … scope/follow-on" or
+  "Next usable work" paragraph with recognized declarations referencing the
+  same GitHub issue or PR URL. It retains the availability text, both message
+  links and each declaration's observed lifecycle state, so an old work pointer
+  can be checked against later claims even when their operation IDs differ.
+  Matching uses explicit GitHub repository, resource kind and number, ignoring
+  URL fragments/query strings and repository-name case. Bare issue numbers and
+  repository nicknames are not resolved. The URL may describe a dependency or
+  excluded work, so this is a reference hint, not an ownership or stale-state
+  decision. Existing file/function scopes and claim states do not change.
 - `coverage` keeps each page's continuation and unknown pagination, unparsed
   statement headers, and message identities supplied with contradictory text.
   The known trailing `*Sent using* <@USER_ID|ChatGPT>` connector signature is
