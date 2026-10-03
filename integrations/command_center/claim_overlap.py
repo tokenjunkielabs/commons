@@ -242,7 +242,7 @@ def _events(record: dict[str, Any]) -> tuple[list[dict[str, Any]], list[dict[str
     events: list[dict[str, Any]] = []
     unresolved: list[dict[str, Any]] = []
     terminal_prefix = re.compile(rf"^(?:DONE|LANDED|RELEASED?|Completed)(?:\s*/\s*(?:DONE|LANDED|RELEASED?))?\s+({_OP})(?=\s|[.,:;—]|$)", re.I)
-    terminal_suffix = re.compile(rf"^({_OP})\s+(?:(?:is|has been)\s+)?(?:complete(?:d)?|done|landed|released)\b", re.I)
+    terminal_suffix = re.compile(rf"^({_OP})\s+(?:[—–-]\s+)?(?:(?:is|has been)\s+)?(?:complete(?:d)?|done|landed|released)\b", re.I)
     terminal_own = re.compile(rf"^I\s+(?:have\s+)?(?:completed|released|landed)\s+({_OP})(?=\s|[.,:;—]|$)", re.I)
     for sentence in sentences:
         match = terminal_prefix.match(sentence) or terminal_suffix.match(sentence) or terminal_own.match(sentence)

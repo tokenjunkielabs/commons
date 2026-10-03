@@ -46,7 +46,10 @@ and any explicit function scope attached to them. Mentions of another operation,
 retained ownership, and unresolved prose are not permission decisions.
 
 Explicit completion and scope updates are reconciled only with the operation
-they name. A shortened operation core can resolve to one earlier dated claim
+they name. A terminal statement can put a spaced dash between its operation key
+and completion word, as in `OPERATION-KEY — COMPLETE / RELEASED`; its original
+source remains attached to the observed terminal state. A shortened operation
+core can resolve to one earlier dated claim
 when that match is unique, with the alias retained in the evidence. Ambiguous
 references remain visible for reconciliation. Operations without a reconciled
 terminal statement are `unknown_active`; the view does not infer worker
