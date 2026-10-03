@@ -456,7 +456,9 @@ def project(events, now=None, seats=None, provider_facts=None):
         except (ValueError, TypeError) as exc:
             rejected.append({"id": event["id"], "reason": str(exc)})
             continue
-        record = tasks.setdefault(key, _record(key, event))
+        record = tasks.get(key)
+        if record is None:
+            record = tasks[key] = _record(key, event)
         _provenance(record, event)
         worker = event.get("worker") or UNKNOWN
         if action == "TAKE" and record["state"] == "ACTIVE" and worker != record["worker"]:
