@@ -2,7 +2,42 @@
   "schema": "indiana-iot-observability-authority/v1",
   "opportunity_id": "27-87814",
   "event_id": "000670000087814",
-  "generation_id": "AUTHORITY_EMPTY_20260917",
-  "sources": [],
-  "evidence": []
+  "generation_id": "OFFICIAL_ZIP_20261003",
+  "sources": [
+    {
+      "id": "idoa-bid-package",
+      "authority": "OFFICIAL_CONTROLLING_PACKAGE",
+      "relpath": "retained/000670000087814.zip",
+      "sha256": "cf0ef21dbf8f9bc59cc54220fe9155a705ad98c1a5e8a312921cf138dfc9e55e",
+      "subject": "27-87814",
+      "scope": "RFP_MAIN_AND_ATTACHMENTS",
+      "generation_id": "OFFICIAL_ZIP_20261003"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "state-package-20261003",
+      "source_id": "idoa-bid-package",
+      "requirement_id": "controlling_package",
+      "subject": "27-87814",
+      "scope": "RFP_MAIN_AND_ATTACHMENTS",
+      "generation_id": "OFFICIAL_ZIP_20261003"
+    },
+    {
+      "id": "submission-rules-20261003",
+      "source_id": "idoa-bid-package",
+      "requirement_id": "submission_mechanics",
+      "subject": "27-87814",
+      "scope": "RFP_MAIN_AND_ATTACHMENTS",
+      "generation_id": "OFFICIAL_ZIP_20261003"
+    },
+    {
+      "id": "published-schedule-20261003",
+      "source_id": "idoa-bid-package",
+      "requirement_id": "questions_and_prebid",
+      "subject": "27-87814",
+      "scope": "RFP_MAIN_AND_ATTACHMENTS",
+      "generation_id": "OFFICIAL_ZIP_20261003"
+    }
+  ]
 }
