@@ -62,8 +62,11 @@ separate. Unknown repositories and unqualified filenames retain their scope
 uncertainty instead of silently becoming a fully qualified source identity.
 
 Use `--path` or `--operation` to narrow the result. The default output is JSON;
-`--text` provides a compact operator view. Overlaps do not cause a failed exit:
-a successful read and projection exits zero.
+`--text` provides a compact operator view. It lists every selected operation's
+observed state, source scope and statement references, including a single claim
+or completed operation with no matched pair. Filtered results retain any
+overlapping counterpart so both source statements remain available. Overlaps do
+not cause a failed exit: a successful read and projection exits zero.
 
 Existing task ownership continues through `state/claims`,
 `host/coordination_state.py`, and the command-center work-item API. This tool is
