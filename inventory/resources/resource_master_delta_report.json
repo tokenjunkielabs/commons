@@ -132,13 +132,6 @@
         "source_id": "slack:todo:1788305911.000000"
       },
       {
-        "canonical_id": "root-master-sessions-full-rotation-20260901-02",
-        "channel": "delegations",
-        "kind": "STEWARD_RECEIPT",
-        "native_ts": "1788306087.000000",
-        "source_id": "slack:delegations:1788306087.000000"
-      },
-      {
         "canonical_id": "kca-ky-medical-cannabis-intake-lims-01",
         "channel": "todo",
         "kind": "TESTED_HOLD",
@@ -151,6 +144,15 @@
         "kind": "BUILD_ORDER_ROUTED",
         "native_ts": "1788306848.732999",
         "source_id": "slack:delegations:1788306848.732999"
+      }
+    ],
+    "previously_observed_events": [
+      {
+        "canonical_id": "root-master-sessions-full-rotation-20260901-02",
+        "channel": "delegations",
+        "kind": "STEWARD_RECEIPT",
+        "native_ts": "1788306087.000000",
+        "source_id": "slack:delegations:1788306087.000000"
       }
     ],
     "routed_build_orders": [
@@ -171,8 +173,9 @@
     "material_changed_paths": 0,
     "new_business_gmail_receipts": 0,
     "new_open_pull_requests": 4,
-    "new_slack_events": 5,
+    "new_slack_events": 4,
     "plugin_route_changes": 0,
+    "previously_observed_slack_events": 1,
     "projection_only_paths": 8,
     "routed_build_orders": 1
   }
