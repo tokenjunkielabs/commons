@@ -71,8 +71,12 @@ def _selected(value):
             out[name] = [_text(x, 120) for x in field[:30] if isinstance(x, str)]
         elif name == "artifact" and isinstance(field, dict):
             out[name] = {k: _text(v, 500) for k, v in field.items()
-                         if k in {"url", "repo", "pr", "branch", "head_sha", "merge_sha", "path", "sha"}
+                         if k in {"url", "repo", "pr", "branch", "head_sha", "merge_sha",
+                                  "path", "sha", "kind", "target_branch"}
                          and isinstance(v, (str, int))}
+            # Completion is semantic, so preserve the Boolean without text coercion.
+            if isinstance(field.get("complete"), bool):
+                out[name]["complete"] = field["complete"]
     return out
 
 
