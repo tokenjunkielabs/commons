@@ -325,6 +325,28 @@ class Store:
                 row = db.execute("SELECT payload FROM runtime_state WHERE key=?", (key,)).fetchone()
         return json.loads(row[0]) if row else None
 
+    def _native_response_rows(self, db):
+        values={row["key"]:json.loads(row["payload"]) for row in db.execute(
+            "SELECT key,payload FROM runtime_state WHERE key IN (?,?)",
+            ("native_response_refs","native_response_metadata"))}
+        return values.get("native_response_refs") or {}, values.get("native_response_metadata") or {}
+
+    def native_responses(self):
+        """Read sealed response references and request metadata in one snapshot."""
+        with self.connect() as db:
+            return self._native_response_rows(db)
+
+    def record_native_response(self, job_id, ref, metadata):
+        """Merge one response pair atomically, including across writer processes."""
+        with self._write_lock, self.connect() as db:
+            db.execute("BEGIN IMMEDIATE")
+            responses, records=self._native_response_rows(db)
+            responses[job_id]=ref
+            records[job_id]=redact(metadata)
+            db.executemany("INSERT OR REPLACE INTO runtime_state VALUES (?,?)", (
+                ("native_response_refs",json.dumps(responses)),
+                ("native_response_metadata",json.dumps(records))))
+
     def events(self, *, cursor=0, limit=100, source=None, provider=None, harness=None, q=None, session_id=None, work_id=None, operation_id=None, event_id=None, order="asc"):
         descending = order == "desc"
         where = ["seq<?"] if descending and int(cursor)>0 else ["seq>?"]
