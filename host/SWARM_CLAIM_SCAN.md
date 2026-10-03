@@ -1,0 +1,64 @@
+# Read scoped work claims from Slack exports
+
+`swarm_claim_scan.py` turns retained Slack responses into a compact inventory of
+explicit work declarations and possible exact-file overlaps. Use it while
+choosing or composing work so the same thread does not need to be read in full
+for every path comparison.
+
+It reads files or stdin, writes JSON to stdout, and uses only Python's standard
+library. It never contacts a provider, changes a claim, dispatches work, sends a
+warning, or creates a schedule. The existing claims ledger and source threads
+remain the places to coordinate work.
+
+## Run on a real connector response
+
+Save the actual JSON result of a Slack channel, thread, or message-search read.
+Keep that source export outside the source repository. For a native thread
+response, supply the channel ID because its rendered message body can omit it:
+
+```sh
+python3 host/swarm_claim_scan.py /path/to/thread-response.json \
+  --channel-id C0BU51F1PL3 \
+  --workspace-url https://tokenjunkielabs.slack.com
+```
+
+The reader accepts raw Slack `messages` pages and the native connector's
+`messages` or `results` text wrapped in MCP `content` / `structuredContent`.
+Several source files can be passed together; `-` reads one response from stdin.
+The response size limit is 64 MiB per input. No third-party package is required.
+
+## Read the result
+
+- `operations` lists recognized declarations, extracted source paths, source
+  timestamps and message links. `declaration_observed` means only that the input
+  contains a declaration without a later recognized explicit terminal statement.
+- `possible_overlaps` groups that state by exact file path. Two operations sharing
+  a file can still own different functions or compatible additive changes. Read
+  their links and compose the work; this report does not decide who may proceed.
+- `terminal_observations` records explicit `LANDED`, `DONE`, `COMPLETE`, or
+  `RELEASE` statements naming the exact operation ID. A shortened name, a PR link,
+  or someone mentioning another operation does not silently close a claim.
+- `coverage` keeps each page's continuation and unknown pagination, unparsed
+  statement headers, and message identities supplied with contradictory text.
+  Conflicting versions are left uninterpreted rather than guessed to be edits.
+- `inputs` binds each supplied export to its SHA-256 and byte count.
+
+The parser recognizes declarations beginning with `CLAIM`, `TAKE`, `RESUME`, or
+`TAKING`, followed by an operation identifier. It extracts explicit relative
+file paths, including a simple `path/{one.py,two.py}` list. It deliberately does
+not infer paths from a GitHub URL or expand directory-wide or wildcard scopes.
+Paths mentioned elsewhere in the same declaration may describe dependencies or
+exclusions, so a match remains a possible overlap for human/peer interpretation.
+Natural-language scope changes and short operation names require the full thread.
+
+All supplied message IDs are counted. Exact duplicate observations count once;
+unrecognized ordinary messages do not become declarations. A missing declaration
+or an empty report is never evidence that work is available or a project is done.
+Even a terminal page cannot establish that earlier pages, other channels, edits,
+or the canonical claim ledger were supplied. `provider_history_complete` is
+therefore always false.
+
+Exit 0 means the response was read and the report was produced. Possible overlaps
+do not change the exit code: they are an advisory, not a work gate. Invalid JSON,
+failed provider responses, unsupported layouts, missing channel identities, and
+file errors exit 2 with a clear stderr message and no report on stdout.
