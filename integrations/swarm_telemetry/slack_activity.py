@@ -161,6 +161,33 @@ def _page(value):
                                       "source_pagination": value.get("pagination_info") or metadata}
 
 
+def _message_revision(message):
+    """Hash message content, independently of its history/thread read wrapper.
+
+    Exact envelopes and formatted blocks remain in source custody. Pagination,
+    thread counters and presentation metadata describe the read, not an edit.
+    Content, edit timestamps, files, attachments and reactions still contribute
+    to the revision so genuine message changes retain distinct event identities.
+    """
+    inner = message.get("message") if isinstance(message.get("message"), Mapping) else message
+    snapshot = dict(inner)
+    for field in ("native_formatted_source", "native_event_source", "source_format",
+                  "thread_ts", "reply_count", "reply_users", "reply_users_count", "latest_reply",
+                  "last_read", "subscribed", "unread_count", "parent_user_id",
+                  "user_profile", "bot_profile"):
+        snapshot.pop(field, None)
+    # History may omit thread_ts even for a broadcast reply. The immutable
+    # message timestamp identifies the record; its parent remains in metadata.
+    if message.get("source_format") == "native_formatted_projection":
+        body = str(snapshot.get("text") or "")
+        body = re.sub(r"\n=== THREAD REPLIES \(\d+ total\) ===\s*$", "", body)
+        body = re.sub(r"\nThread:\s*\d+\s+repl(?:y|ies)(?:\s+\(latest:[^\r\n]*\))?\s*$", "", body)
+        snapshot["text"] = body.rstrip("\r\n")
+        snapshot["files"] = [{key: value for key, value in file.items() if key != "formatted_metadata"}
+                             if isinstance(file, Mapping) else file for file in snapshot.get("files", [])]
+    return _digest("slack-message-content-v1", snapshot)
+
+
 def _base_event(job, kind, identity, occurred_at, full_source, summary, metadata=None):
     return {"event_id": "slack:" + _digest(job["account_ref"], job.get("workspace_id"), job.get("channel_id"), kind, identity),
             "source": "slack", "source_id": str(identity), "event_type": kind, "occurred_at": occurred_at,
@@ -344,17 +371,22 @@ def collect_slack_activity(config=None, state=None, sources=None, read_page=None
                 subtype = str(message.get("subtype") or "")
                 inner = message.get("message") if isinstance(message.get("message"), Mapping) else message
                 identity_ts = str(inner.get("ts") or message.get("deleted_ts") or ts)
-                revision = _digest(message)
+                revision = _message_revision(message)
                 key = job["account_ref"] + ":" + str(job.get("channel_id")) + ":" + identity_ts
-                changed = key in observations and observations[key] != revision
-                kind = "message_deleted" if subtype == "message_deleted" else "message_changed" if subtype == "message_changed" or inner.get("edited") else "message_snapshot_changed" if changed else "message"
-                event = _base_event(job, kind, identity_ts + ":" + revision, _timestamp(ts or identity_ts), message.get("native_formatted_source") or message.get("native_event_source") or message, inner.get("text") or "Slack message source",
+                previous = observations.get(key)
+                previous = previous if isinstance(previous, Mapping) else {}
+                # Old checkpoints used wrapper hashes. Their first canonical
+                # observation is a baseline, not evidence of a message edit.
+                changed = bool(previous.get("revision")) and previous["revision"] != revision
+                kind = "message_deleted" if subtype == "message_deleted" else "message_changed" if subtype == "message_changed" or inner.get("edited") else "message_snapshot_changed" if changed else previous.get("event_type", "message")
+                event = _base_event(job, "message", identity_ts + ":" + revision, _timestamp(ts or identity_ts), message.get("native_formatted_source") or message.get("native_event_source") or message, inner.get("text") or "Slack message source",
                                     {"message_ts": identity_ts, "event_ts": ts or None, "thread_ts": inner.get("thread_ts"), "subtype": subtype,
                                      "source_page_event_id": page_event["event_id"], "source_format": message.get("source_format", "slack_api"), "revision": revision,
                                      "original_event_id": "slack-message:" + _digest(job.get("workspace_id"), job.get("channel_id"), identity_ts, revision)})
+                event["event_type"] = kind
                 event["peer_id"] = inner.get("user") or message.get("user")
                 events.append(event)
-                observations[key] = revision
+                observations[key] = {"revision": revision, "event_type": kind}
                 if _TS.fullmatch(identity_ts) and (newest is None or Decimal(identity_ts) > Decimal(str(newest))):
                     newest = identity_ts
                 thread_ts = inner.get("thread_ts") or (identity_ts if inner.get("reply_count", 0) else None)
