@@ -14,13 +14,24 @@
       "file": "buyer-page.html",
       "url": "https://www.sanleandro.org/bids.aspx?bidID=104",
       "final_url": "https://www.sanleandro.org/bids.aspx?bidID=104",
-      "bytes": 125677,
-      "sha256": "c4ccb89cfc8905b0dcb13f6eac9bcf5638e5deae3ac9715dfadcf8459362a22e",
+      "bytes": 125664,
+      "sha256": "ea8975ce10cd8759935e67fc635bea1d7a55a03bef783dd86dd78485325819f5",
       "content_type": "text/html; charset=utf-8",
       "captured_at": "2026-10-03T18:43:27Z",
       "path": "retained/buyer-page.html",
       "review_scope": "document index and displayed schedule",
-      "access_method": "PUBLIC_OFFICIAL_HTTP_WITHOUT_ACCOUNT_OR_SUBMISSION"
+      "access_method": "PUBLIC_OFFICIAL_HTTP_WITHOUT_ACCOUNT_OR_SUBMISSION",
+      "original_capture": {
+        "bytes": 125677,
+        "sha256": "c4ccb89cfc8905b0dcb13f6eac9bcf5638e5deae3ac9715dfadcf8459362a22e"
+      },
+      "retention_transform": {
+        "kind": "BROWSER_API_KEY_REDACTION",
+        "field": "GoogleMapsKey",
+        "replacement": "[REDACTED_GOOGLE_MAPS_KEY]",
+        "redacted_occurrences": 1,
+        "note": "Published HTML is a redacted derivative. Original public capture byte count and digest are preserved in original_capture; other bytes are unchanged."
+      }
     },
     {
       "file": "base-rfp.pdf",
