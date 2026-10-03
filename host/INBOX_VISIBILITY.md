@@ -27,13 +27,20 @@ ordinary authentication/permission HTTP failures remain distinct from quota
 limits. Native stderr and provider error bodies stay out of relay reports.
 
 The GitHub Actions workflow attempts a run on these files' main-branch push,
-allows manual dispatch, and polls at UTC minutes 03/18/33/48. Its existing-secret
-inputs are `GH_NOTIFICATIONS_TOKEN`, `SLACK_BOT_TOKEN`, and
-`GMAIL_AUTHORIZED_USER_JSON` (authorized-user client_id/client_secret/refresh_token
-JSON with Gmail read access). No credential values are committed. An Actions
-installation token or ordinary `GITHUB_TOKEN` is **not** a substitute for a user
-credential accepted by the native notifications API. A missing credential is a
-visible BLOCKED/DEGRADED receipt, never an empty inbox or successful delivery.
+allows manual dispatch, and has an existing hourly schedule at UTC minute 03.
+Queued runners can delay that poll. Its existing-secret inputs are
+`GH_NOTIFICATIONS_TOKEN`, `SLACK_BOT_TOKEN`, and `GMAIL_AUTHORIZED_USER_JSON`
+(authorized-user client_id/client_secret/refresh_token JSON with Gmail read
+access). No credential values are committed. An Actions installation token or
+ordinary `GITHUB_TOKEN` is **not** a substitute for a user credential accepted by
+the native notifications API.
+
+The hosted preflight requires the Slack delivery binding. If it is absent,
+source polling is skipped and the workflow summary records BLOCKED. If Slack is
+bound but a source binding is missing, the worker still attempts its independent
+sources and publishes their actual health. A source failure is a visible
+DEGRADED receipt while any working source can continue. Presence of a binding,
+a green configuration step, and a skipped poll are not delivery evidence.
 
 As an alternative, from an **existing** Windows checkout/runtime:
 
