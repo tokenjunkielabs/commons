@@ -528,7 +528,19 @@ class LiveCollectors:
         # refresh after the upstream ref may have advanced.
         with self._document_heads_lock:
             self._document_heads.clear()
-        results, tasks, deferred = [], [], []
+        results, tasks, deferred, receipts = [], [], [], []
+
+        def ingest(batch):
+            # Commit completed sources on this thread while other readers run.
+            # Provider workers never share a Store transaction, and each
+            # receipt stays in the same order as its finalized source batch.
+            payload = {key: value for key, value in batch.items() if key != "operation_id"}
+            batch["operation_id"] = "collect:" + hashlib.sha256(
+                json.dumps(payload, sort_keys=True, default=str).encode()).hexdigest()
+            receipt = self.store.ingest(batch)
+            results.append(batch)
+            receipts.append(receipt)
+
         for channel in self.slack_config.get("channels", []):
             if not isinstance(channel, dict) or not re.fullmatch(r"[CG][A-Z0-9]+", str(channel.get("id", ""))):
                 raise ValueError("Slack channels need an existing provider id.")
@@ -550,7 +562,7 @@ class LiveCollectors:
                     try:
                         self._check_deadline()
                     except SourceFailure as exc:
-                        results.append(self._batch(source, [], False, error=exc.code,
+                        ingest(self._batch(source, [], False, error=exc.code,
                             notes=["Collection stopped before dispatch; previous items remain available."]))
                         continue
                     futures.add(executor.submit(self._safe, source, reader))
@@ -562,7 +574,8 @@ class LiveCollectors:
                     futures.remove(future)
                     if future is discovery:
                         batches, discovered, held = future.result()
-                        results.extend(batches)
+                        for batch in batches:
+                            ingest(batch)
                         deferred.extend(held)
                         # Discovered work uses the same worker cap, deadline,
                         # and request budget as already-dispatched readers.
@@ -572,13 +585,7 @@ class LiveCollectors:
                         if "deferred" in batch:
                             deferred.append(batch["deferred"])
                         else:
-                            results.append(batch)
-        # Serialize writes; provider concurrency never shares a Store transaction.
-        for batch in results:
-            payload = {key: value for key, value in batch.items() if key != "operation_id"}
-            batch["operation_id"] = "collect:" + hashlib.sha256(
-                json.dumps(payload, sort_keys=True, default=str).encode()).hexdigest()
-        receipts = [self.store.ingest(batch) for batch in results]
+                            ingest(batch)
         return {"observed_at": self.clock(), "sources": [batch["source"] for batch in results],
                 "items_observed": sum(len(batch["items"]) for batch in results), "receipts": receipts,
                 "deferred_sources": sorted(deferred, key=lambda row: row["source_id"]),
