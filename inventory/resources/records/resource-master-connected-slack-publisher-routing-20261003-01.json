@@ -80,6 +80,25 @@
       "accounting": "Queued and in-progress checks were observed explicitly. Local focused, schema, projection, open-door, zero-fabrication, secret, privacy and diff checks passed before merge; no pending conclusion is invented."
     }
   },
+  "terminal_watermark": {
+    "terminal_slack_ts": "1791034421.748419",
+    "terminal_slack_link": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791034421748419",
+    "terminal_slack_readback": "CONFIRMED_EXACT_FINAL_BODY",
+    "current_main_before_watermark_closure": "ddd622b8ca14d6598ba4dd81c1e72be0a2909d30",
+    "activation_pull_request": 30844,
+    "activation_merge_sha": "639de225748314253ba472eb3d6ebcf9de01d79f",
+    "receipt_pull_request": 30846,
+    "receipt_merge_sha": "ddd622b8ca14d6598ba4dd81c1e72be0a2909d30",
+    "activation_head_workflows": {
+      "capability-entrypoints": {"run": 37126224641, "conclusion": "success"},
+      "open-door-guard": {"run": 37126224642, "conclusion": "success"},
+      "path-manifest": {"run": 37126224645, "conclusion": "success"},
+      "job-watchdog": {"run": 37126224655, "conclusion": "success"},
+      "muhlnickel-spec-guard": {"run": 37126224666, "conclusion": "success"},
+      "resources-tab-freshness": {"run": 37126224755, "conclusion": "success"}
+    },
+    "lower_bound_rule": "Next wake must start strictly after terminal_slack_ts and compare repository state from current_main_before_watermark_closure plus this durable record."
+  },
   "build_order_decision": {
     "state": "NO_NEW_INDEPENDENT_NON_DUPLICATIVE_BUILD_LANE",
     "reason": "The only reusable capability gaps found in the moving-main tail were already merged in PRs 30834, 30838, and 30839 with existing owners. The selected Slack publisher is producing; worker-capacity and GitHub-publisher work are landed, so another order would duplicate completed implementation.",
