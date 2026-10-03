@@ -521,12 +521,26 @@ def _read(path: str) -> Any:
 
 def _as_text(result: dict[str, Any]) -> str:
     summary = result["summary"]
+    coverage = result["coverage"]
     lines = ["Advisory claim overlap — supplied snapshots only",
+        f"Coverage: {coverage['read_extent']}; supplied messages: {coverage['messages_read']}; "
+        f"exact duplicates: {coverage['exact_duplicate_messages']}."]
+    lines.extend(
+        f"  {snapshot['snapshot']}: {snapshot['messages_read']} messages; {snapshot['pagination_state']}"
+        for snapshot in coverage["snapshots"]
+    )
+    for name, values in result["filters"].items():
+        if values:
+            lines.append(f"Filter {name}: {', '.join(values)}")
+    lines.extend([
         f"Operations: {summary['operations']}; active or unresolved: {summary['active_or_unresolved']}; "
         f"terminal observations: {summary['terminal_observed']}; potential pairs: {summary['potential_overlap_pairs']}.",
-        "No liveness, semantic conflict, permission, or global queue conclusion is made."]
+        "A source-end marker describes its supplied page; earlier history may still be omitted.",
+        "No liveness, semantic conflict, permission, or global queue conclusion is made."])
     if result["claims"]:
         lines.extend(["", "Operation details:"])
+    else:
+        lines.append("No selected operations were found in these supplied messages.")
     for claim in result["claims"]:
         repository = ", ".join(claim["repositories"]) or "repository unknown"
         lines.append(f"  {claim['operation_id']} [{claim['state']}; {repository}]")
