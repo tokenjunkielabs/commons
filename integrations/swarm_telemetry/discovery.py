@@ -375,6 +375,11 @@ def _connector_channels(value):
                      "display_name": heading, "type": kind, "is_private": kind in {"Private Channel", "Direct Message", "Group DM"},
                      "is_im": kind == "Direct Message", "is_mpim": kind == "Group DM", "is_archived": fields.get("Archived") == "Yes" if "Archived" in fields else None,
                      "user_id": fields.get("User ID"), "members_text": fields.get("Members"), "purpose": fields.get("Purpose"), "source_fields": fields})
+    next_page = re.search(r'(?m)^Pagination:\s*More results available\.\s*Use cursor:\s*"([^"\r\n]+)"\s*$', text)
+    if next_page:
+        # Native cursors are opaque, including their padding. Retain the exact
+        # value so a host can continue this incomplete conversation listing.
+        return rows, next_page.group(1), False
     totals = re.search(r"showing\s+(\d+)\s+of\s+(\d+)\s+total", text)
     complete = bool(totals) and int(totals.group(1)) == int(totals.group(2)) == len(rows)
     return rows, "" if complete else None, complete
