@@ -4,13 +4,13 @@ id,domain,required,summary,posture
 3,AUDIT_SECURITY,Y,Complete timestamped/user audit trail,SPECIALIST_WORKSHARE
 4,AUDIT_SECURITY,Y,Online audit-trail viewing,SPECIALIST_WORKSHARE
 5,AUDIT_SECURITY,Y,Multi-time-zone date/time synchronization,SPECIALIST_WORKSHARE
-6,AUDIT_SECURITY,Y,FIPS 140-2/140-3 encryption for confidential data,PRIME_PRODUCT_EVIDENCE
+6,AUDIT_SECURITY,Y,FIPS 140-3 encryption (Amendment 2 Q42),PRIME_PRODUCT_EVIDENCE
 7,AUDIT_SECURITY,Y,Cyber-liability insurance,PRIME_PRODUCT_EVIDENCE
 8,AUDIT_SECURITY,Y,Payment-card confidentiality,PRIME_PRODUCT_EVIDENCE
 9,AUDIT_SECURITY,Y,No full PAN storage,PRIME_PRODUCT_EVIDENCE
 10,AUDIT_SECURITY,Y,PCI DSS v4.0.1 shared-responsibility/AOC evidence,PRIME_PRODUCT_EVIDENCE
 11,AUDIT_SECURITY,Y,Current SOC 2 Type II,PRIME_PRODUCT_EVIDENCE
-12,AUDIT_SECURITY,Y,Continental-US data residency,PRIME_PRODUCT_EVIDENCE
+12,AUDIT_SECURITY,Y,Data-residency boundaries per AMENDMENTS.md (Q104),PRIME_PRODUCT_EVIDENCE
 13,AUDIT_SECURITY,Y,Fine-grained access management,PRIME_PRODUCT_EVIDENCE
 14,AUDIT_SECURITY,Y,15-character standard-user password minimum,PRIME_PRODUCT_EVIDENCE
 15,AUDIT_SECURITY,Y,14-day password-expiration notice,PRIME_PRODUCT_EVIDENCE

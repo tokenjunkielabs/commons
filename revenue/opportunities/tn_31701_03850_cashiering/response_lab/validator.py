@@ -104,7 +104,7 @@ def validate(manifest_path: str | Path) -> dict:
     if doc['schema'] != SCHEMA or doc['solicitation'] != '31701-03850':
         raise ResponseLabError('wrong solicitation/schema')
     if (doc['questions_due_ct'] != '2026-09-25T14:00:00-05:00'
-            or doc['response_due_ct'] != '2026-10-05T14:00:00-05:00'):
+            or doc['response_due_ct'] != '2026-10-13T14:00:00-05:00'):
         raise ResponseLabError('deadline drift')
     for key, expected in {'response_page_limit': 20, 'minimum_font_points': 12,
                           'question_submissions_per_vendor': 1,
