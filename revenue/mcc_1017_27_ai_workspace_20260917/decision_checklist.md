@@ -2,7 +2,9 @@
 
 ## Gate A — recover controlling buyer bytes
 
-Acquire and hash the literal IFB package, pricing form, vendor instructions, all addenda and current buyer Q&A. Preserve source URLs, capture times, document hashes and precedence.
+The three named base documents were recovered and hashed on October 3 from public mirror links; see sources.md. Their literal dates correct the packet to a response cutoff before October 5 at 11:00 AM CT and questions before noon September 25, while preserving noncontrolling discovery status.
+
+The remaining step is current buyer-portal confirmation: compare the IFB package, pricing form and vendor instructions with the recovered originals, then acquire every addendum and current buyer Q&A. Preserve source URLs, capture times, document hashes and precedence. A later amendment may supersede the base dates.
 
 If the controlling packet cannot be acquired, remain HOLD_MISSING_BUYER_PACKAGE.
 
