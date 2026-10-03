@@ -1173,7 +1173,7 @@ def metric_op(op: str, index: dict, archive: Archive, cache_dir: Path,
         shape = t["shape"]
         if len(shape) < 3:
             raise WbRangeError("expert health needs a >= 3-D (MoE) tensor")
-        n_exp = shape[-1]
+        n_exp = shape[0] if source["format"] == "safetensors" else shape[-1]
         per_expert_rows = 1
         for dim in shape[1:-1]:
             per_expert_rows *= dim
