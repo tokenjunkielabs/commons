@@ -92,14 +92,15 @@ def _expanded_budget_packet(packet: dict[str, Any], repository: str | Path) -> t
         original_limit = packet["limits"]["max_chars"]
         if type(original_limit) is not int:
             return None, "git-source-packet-shape"
+        added_fields = {key: value for key, value in expanded_source.items() if key not in source}
+        # Inserting fields into the nonempty source object adds their encoded
+        # object length minus one: braces give way to separating commas.
+        source_growth = len(_canonical(added_fields)) - 1 if added_fields else 0
+        original_width = len(str(original_limit))
         adjusted = original_limit
         for _ in range(8):
             expanded["limits"]["max_chars"] = adjusted
-            probe_expanded = copy.deepcopy(expanded)
-            probe_original = copy.deepcopy(packet)
-            probe_expanded["semantic_sha256"] = "0" * 64
-            probe_original["semantic_sha256"] = "0" * 64
-            delta = len(_canonical(probe_expanded)) - len(_canonical(probe_original))
+            delta = source_growth + len(str(adjusted)) - original_width
             new_adjusted = original_limit + delta
             if new_adjusted == adjusted:
                 break
