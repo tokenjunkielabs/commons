@@ -204,7 +204,18 @@
   }
   function renderFleet() {
     const sessions=arr(state&&state.sessions),counts=sessionStats(sessions);$('session-count').textContent=state?counts.sessions+' sessions · '+counts.machines+' '+(counts.machines===1?'machine':'machines')+' · activity is last reported':'Unknown';
-    replace('session-list',sessions.length?sessions.map(s=>{const c=recordCard(s,'session VM');c.className='panel session-card';c.append(meta([['Provider',s.provider],['CPU',s.cpu],['RAM',finite(s.ram_gib)?s.ram_gib.toLocaleString([], {maximumFractionDigits:2})+' GiB':null],['GPU',s.gpu],['Workspace',s.workspace]]));if(s.objective)c.append(make('div','session-objective',s.objective));const existingSessionURL=sessionURL(s);if(existingSessionURL)c.append(link('Open existing session ↗',existingSessionURL,'button button-small button-quiet'));c.append(button('Update record',()=>sessionForm(s)));return c;}):[empty('No session records returned. Existing GPT/Claude VM capacity must be bound to its actual session and route.')]);
+    replace('session-list',sessions.length?sessions.map(s=>{
+      const c=recordCard(s,'session VM');c.className='panel session-card';
+      const gib=value=>finite(value)?value.toLocaleString([], {maximumFractionDigits:2})+' GiB':null;
+      const machine=s.kind==='machine',capacityCPU=machine&&finite(s.cpu_capacity),capacityRAM=machine&&finite(s.ram_capacity_gib);
+      const metrics=[['Provider',s.provider],[capacityCPU?'CPU capacity':'CPU',capacityCPU?s.cpu_capacity:s.cpu],[capacityRAM?'RAM capacity':'RAM',gib(capacityRAM?s.ram_capacity_gib:s.ram_gib)],['GPU',s.gpu],['Workspace',s.workspace]];
+      if(capacityCPU)metrics.push(['Host logical CPUs',s.cpu]);
+      if(capacityRAM)metrics.push(['Host RAM',gib(s.ram_gib)]);
+      if(machine&&finite(s.ram_cgroup_headroom_gib)){const bytes=s.process_limits&&s.process_limits.memory_headroom_bytes;const headroom=finite(bytes)&&bytes>0&&bytes<0.01*2**30?'<0.01 GiB':gib(s.ram_cgroup_headroom_gib);metrics.push(['Container memory headroom',headroom]);}
+      c.append(meta(metrics));
+      if(machine&&s.process_limits)c.append(make('p','source-note','CPU capacity is a sustained ceiling. Memory headroom reflects current usage across processes sharing the limit and excludes possible cache reclaim. Limit coverage: '+str(s.process_limits.cgroup_status)+'.'));
+      if(s.objective)c.append(make('div','session-objective',s.objective));const existingSessionURL=sessionURL(s);if(existingSessionURL)c.append(link('Open existing session ↗',existingSessionURL,'button button-small button-quiet'));c.append(button('Update record',()=>sessionForm(s)));return c;
+    }):[empty('No session records returned. Existing GPT/Claude VM capacity must be bound to its actual session and route.')]);
     const runtimes=arr(state&&state.runtimes);
     replace('runtime-list',runtimes.length?runtimes.map(r=>{const c=recordCard(r,'runtime');c.append(meta([['Gateway',r.gateway_url],['Schemas',arr(r.tools).length]]));if(r.error)c.append(make('p','source-error',r.error));c.append(button('Inspect tools →',()=>{ $('tool-search').value=str(r.id);renderTools();navigate('tools');}));return c;}):[empty('No runtime catalog returned. Account metadata alone does not make service operations callable here.')]);
   }
