@@ -720,7 +720,7 @@ class _Collector:
                 if row.get("stripe_context") and isinstance(row.get("livemode"), bool):
                     ctx = {"stripe_context": row["stripe_context"], "livemode": row["livemode"]}
                     for resource in SCOPES["stripe"][1:]:
-                        add("stripe_stripe_api_search", {**ctx, "intent": "read/list all retained " + resource, "resource": resource, "limit": 100}, context={**ctx, "resource": resource})
+                        add("stripe_stripe_api_search", {**ctx, "intent": "read/list all retained " + resource, "resource": resource, "limit": 20}, context={**ctx, "resource": resource})
         elif action == "stripe_stripe_api_search":
             operations = [row for row in _rows(value, "data") if row.get("method", "").upper() == "GET"]
             matches = [row for row in operations if "{" not in row.get("path", "")]
