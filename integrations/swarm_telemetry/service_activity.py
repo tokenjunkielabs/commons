@@ -516,6 +516,10 @@ class _Collector:
             for row in _rows(value, "tables"):
                 if row.get("id"):
                     fields = [field["id"] for field in row.get("fields", []) if field.get("id")]
+                    # Table summaries omit type-specific options such as select
+                    # choices and formula configuration. Retain the full schema
+                    # alongside record values through the same native queue.
+                    add("airtable_get_table_schema", {"baseId": args["baseId"], "tables": [{"tableId": row["id"]}]})
                     add("airtable_list_records_for_table", {"baseId": args["baseId"], "tableId": row["id"], "fieldIds": fields, "pageSize": 100})
         elif action == "airtable_list_records_for_table":
             for row in _rows(value, "records"):
