@@ -31,14 +31,17 @@ jobs:
           import os
           names = ('GH_NOTIFICATIONS_TOKEN', 'SLACK_BOT_TOKEN', 'GMAIL_AUTHORIZED_USER_JSON')
           missing = [name for name in names if not os.environ.get(name)]
+          ready = bool(os.environ.get('SLACK_BOT_TOKEN'))
           with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
-              f.write('ready=' + ('false' if missing else 'true') + '\n')
+              f.write('ready=' + ('true' if ready else 'false') + '\n')
           with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as f:
-              if missing:
+              if not ready:
                   f.write('## BLOCKED — no automatic inbox delivery\n\nMissing runtime bindings: ' + ', '.join(missing) + '.\n\nThe configuration probe completed, not inbox delivery. No source was marked read/done. Resolve through existing private credential custody or use the existing-runtime installer.\n')
+              elif missing:
+                  f.write('## Partial configuration — source and health delivery will proceed\n\nMissing source bindings: ' + ', '.join(missing) + '.\n\nThe relay will report source failures independently and continue any available source. Configuration presence is not a delivery receipt.\n')
               else:
                   f.write('## Configuration present — delivery still requires the receipt below\n')
-          print('BLOCKED: delivery bindings missing; scheduled delivery skipped' if missing else 'Bindings present; validating actual delivery next')
+          print('BLOCKED: Slack delivery binding missing; scheduled delivery skipped' if not ready else 'Slack binding present; validating source delivery and health next')
           PY
       - uses: actions/checkout@v4
         if: steps.bindings.outputs.ready == 'true'
