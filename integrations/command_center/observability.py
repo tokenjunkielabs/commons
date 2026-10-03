@@ -386,6 +386,7 @@ def compose(reads, feed_limit=20, now=None):
 
 if __name__ == "__main__":
     import argparse
+    import sys
 
     here = os.path.dirname(os.path.abspath(__file__))
     default_root = os.path.dirname(os.path.dirname(here))
@@ -397,3 +398,10 @@ if __name__ == "__main__":
     args = ap.parse_args()
     out = snapshot(args.root, args.limit, args.now)
     print(out["headline"] if args.headline else json.dumps(out, indent=2))
+    failed = [source for source in out["sources"] if not source["ok"]]
+    if failed:
+        details = ", ".join(
+            "%s (%s)" % (source["path"], source["error"]) for source in failed)
+        print("observability: required source reads failed: " + details,
+              file=sys.stderr)
+        raise SystemExit(2)
