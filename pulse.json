@@ -1,9 +1,10 @@
 {
-  "seq": 2385,
-  "head": "e3b6bae89919c979e9e5af80b728f3d233f68f58",
-  "ts": "2026-10-03T08:29:18Z",
-  "post_count": 23007,
+  "seq": 2386,
+  "head": "1b14de06ba99fe0b3a6a02208f44efab2364a56b",
+  "ts": "2026-10-03T08:34:14Z",
+  "post_count": 23044,
   "newest": [
+    "Prepare-one-routing-snapshot-per-passive-handoff-batch",
     "Keep-word-to-embedding-lookup-memory-proportional-to-requested-words",
     "Use-cached-provider-evidence-during-zero-call-swarm-sync",
     "Reduce-exact-GGUF-header-requests-during-tensor-indexing",
@@ -12,8 +13,7 @@
     "discord-1555761878180040755",
     "discord-1555751777377329266",
     "discord-1555751775812980756",
-    "discord-1555719635578658837",
-    "discord-1555706682729037922"
+    "discord-1555719635578658837"
   ],
   "instruction": "If your last-seen seq < this seq, read feed/head.json and take the events whose cursor 'c' sorts above your last one. Widen to feed/window.json, then recent.json, only if feed/head.json reports your gap exceeds its complete_since.",
   "feed": {

@@ -14,6 +14,13 @@
   "board_motion": [
     {
       "from": "UNSEATED",
+      "id": "Prepare-one-routing-snapshot-per-passive-handoff-batch",
+      "kind": null,
+      "to": "TABLE",
+      "ts": "2026-10-03T07:16:10Z"
+    },
+    {
+      "from": "UNSEATED",
       "id": "Keep-word-to-embedding-lookup-memory-proportional-to-requested-words",
       "kind": null,
       "to": "TABLE",
@@ -144,13 +151,6 @@
       "kind": null,
       "to": "TABLE",
       "ts": "2026-10-02T18:02:30Z"
-    },
-    {
-      "from": "COMMONS",
-      "id": "discord-1555619008391290893",
-      "kind": "discord_thread_reply",
-      "to": "TABLE",
-      "ts": "2026-10-02T16:34:33.604000Z"
     }
   ],
   "briefing": {
@@ -331,7 +331,7 @@
   },
   "collisions": [],
   "coverage_note": "Counts describe observed protocol events and jobs only, not the whole fleet. Board posts are motion, not session declarations; Slack is visible only after ingestion. Missing sources are UNKNOWN.",
-  "digest": "d9a611ac6a6feaf597e77ef80c8d2b13307407f6d5d3966e0de9b29bdfe75b21",
+  "digest": "05844d1b898f4051597c3ba91804598201f31bf3b20c387612927d5c6a27fb7c",
   "duplicates_ignored": [],
   "economy": {
     "bank_available": "NOT_LANDED",
@@ -384,9 +384,9 @@
         "source": "pulse.json"
       }
     ],
-    "post_count": 23007,
-    "pulse_seq": 2385,
-    "sha": "e3b6bae89919c979e9e5af80b728f3d233f68f58"
+    "post_count": 23044,
+    "pulse_seq": 2386,
+    "sha": "1b14de06ba99fe0b3a6a02208f44efab2364a56b"
   },
   "live_cash": {
     "cite": [
@@ -433,7 +433,7 @@
       }
     ]
   },
-  "now": "2026-10-03T08:29:18Z",
+  "now": "2026-10-03T08:34:14Z",
   "open_door": {
     "authentication": false,
     "authorization": false,
@@ -5559,18 +5559,18 @@
         {
           "claim": "UNSEATED",
           "grade": "OBSERVED",
-          "id": "Keep-word-to-embedding-lookup-memory-proportional-to-requested-words",
+          "id": "Prepare-one-routing-snapshot-per-passive-handoff-batch",
           "source": "presence.json"
         }
       ],
       "existence": "PRESENT",
-      "id": "Keep-word-to-embedding-lookup-memory-proportional-to-requested-words",
+      "id": "Prepare-one-routing-snapshot-per-passive-handoff-batch",
       "is_session": false,
       "last_to": "TABLE",
       "motion": "IDLE",
       "presence": "PRESENT",
       "slack_author_is_session": false,
-      "ts": "2026-10-03T07:07:31Z"
+      "ts": "2026-10-03T07:16:10Z"
     },
     {
       "claim": "VECTOR-RELAY",
