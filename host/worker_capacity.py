@@ -87,6 +87,44 @@ def _pairs(file):
     return result
 
 
+def _memory_pressure(file):
+    result = {"source": str(file), "status": "unavailable", "some": None, "full": None}
+    try:
+        rows = {}
+        for line in file.read_text(encoding="ascii").splitlines():
+            fields = line.split()
+            if not fields or fields[0] not in ("some", "full"):
+                continue
+            kind, *tokens = fields
+            if kind in rows:
+                raise ValueError("duplicate pressure row")
+            values = {}
+            for token in tokens:
+                key, separator, raw = token.partition("=")
+                if not separator or key in values:
+                    raise ValueError("invalid pressure field")
+                values[key] = raw
+            if not {"avg10", "avg60", "avg300", "total"}.issubset(values):
+                raise ValueError("missing pressure field")
+            row = {}
+            for key in ("avg10", "avg60", "avg300"):
+                raw = values[key]
+                if not re.fullmatch(r"[0-9]+(?:\.[0-9]+)?", raw):
+                    raise ValueError("invalid pressure percentage")
+                value = float(raw)
+                if not 0 <= value <= 100:
+                    raise ValueError("pressure percentage out of range")
+                row[key + "_percent"] = value
+            row["total_us"] = _nonnegative(values["total"])
+            rows[kind] = row
+        if set(rows) != {"some", "full"}:
+            raise ValueError("missing pressure row")
+        result.update(status="ok", **rows)
+    except (OSError, UnicodeError, ValueError) as exc:
+        result["error"] = _error(exc)
+    return result
+
+
 def _cgroup_memory():
     result = {"status": "unavailable", "scope": "visible_cgroup_v2_ancestors",
               "levels": [], "smallest_observed_headroom_bytes": None}
@@ -130,12 +168,18 @@ def _cgroup_memory():
             values = _pairs(current / filename)
             if key == "stat_bytes":
                 values = {name: values[name] for name in
-                          ("anon", "file", "shmem", "kernel", "inactive_file") if name in values}
+                          ("anon", "file", "shmem", "kernel", "inactive_file", "active_file",
+                           "file_mapped", "file_dirty", "file_writeback", "slab",
+                           "slab_reclaimable", "slab_unreclaimable") if name in values}
             result[key] = values
         except (OSError, UnicodeError, ValueError) as exc:
             result[key] = None
             result.setdefault("errors", {})[filename] = _error(exc)
             result["status"] = "partial"
+    result["pressure"] = _memory_pressure(current / "memory.pressure")
+    if result["pressure"]["status"] != "ok":
+        result.setdefault("errors", {})["memory.pressure"] = result["pressure"]["error"]
+        result["status"] = "partial"
     return result
 
 
