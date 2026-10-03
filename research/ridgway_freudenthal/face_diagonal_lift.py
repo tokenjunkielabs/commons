@@ -63,7 +63,7 @@ def source_signs(cells, degree, target_labels):
     return matches[0], len(nodes)*3
 
 
-def construct(degree=4):
+def construct(degree=4, mean_repair=None):
     if degree not in (4, 5):
         raise ValueError("degree must be 4 or 5")
     if degree == 4:
@@ -93,8 +93,9 @@ def construct(degree=4):
     raw_means = [[sum(v*matrix[c][j] for c, v in row.items()) for j in range(dimension)] for row in means]
     if any(sum(row[j] for row in raw_means) for j in range(dimension)):
         raise ArithmeticError("Raw zero-boundary field has nonzero total divergence mean")
-    quartic = mean_operator()
-    if quartic["status"] != "CONSTRUCTED" or quartic["cells"] != cells:
+    quartic = mean_operator() if mean_repair is None else mean_repair
+    saved_cells = [tuple(tuple(point) for point in cell) for cell in quartic["cells"]]
+    if quartic["status"] != "CONSTRUCTED" or saved_cells != cells:
         raise ArithmeticError("Incompatible local mean correction")
     if degree == 4:
         correction = [[F(0)]*11 for _ in range(3*len(nodes))]
