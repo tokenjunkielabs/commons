@@ -20,6 +20,7 @@ from time import monotonic
 from typing import Any
 
 from integrations.shared_equipment.outcomes import effect_uncertain, tool_failed
+from integrations.shared_equipment.slack_read_arguments import normalize_slack_read_arguments
 from integrations.shared_equipment.source_bindings import SourceBindings
 from commons_publication_policy import PublicationPolicyViolation, check_outbound_identity
 from integrations.shared_equipment.provider_io import (
@@ -227,6 +228,7 @@ class ServiceEquipment(GitHubSlackEquipment):
                 "results": results}
 
     def _call(self, name: str, a: dict) -> dict:
+        a = normalize_slack_read_arguments(name, a)
         if name == "cua_s1_form":
             from cua_s1.schema import Entity
             from host.cua_s1_browser import connect_cdp

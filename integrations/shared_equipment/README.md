@@ -240,6 +240,18 @@ passes each queued service job's actual `account_ref` through this route. The
 separate native receipt bridge and its account/tool/argument matching remain
 available for hosts that call their connectors directly.
 
+#### Slack read time bounds
+
+Shared channel and thread reads accept whole-second `oldest` and `latest`
+strings, such as `"1791016200"`, and send them to Slack as
+`"1791016200.000000"`. `ServiceEquipment` and account-bound `SourceBinding`
+readers apply the same formatting. Existing fractional timestamp strings,
+cursors and caller argument objects remain unchanged.
+
+Direct native connector calls that bypass these shared readers still require
+Slack decimal timestamp strings. An integer string can silently select an
+older page instead of the requested time window.
+
 ### 3. Local Python CLI Module
 Execute catalog introspection, capability inventory, or tool calls directly via CLI:
 
