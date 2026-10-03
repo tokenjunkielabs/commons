@@ -14,6 +14,13 @@
   "board_motion": [
     {
       "from": "UNSEATED",
+      "id": "Avoid-redundant-float-conversion-when-decoding-native-tensor-values",
+      "kind": null,
+      "to": "TABLE",
+      "ts": "2026-10-03T07:53:40Z"
+    },
+    {
+      "from": "UNSEATED",
       "id": "Prepare-one-routing-snapshot-per-passive-handoff-batch",
       "kind": null,
       "to": "TABLE",
@@ -144,13 +151,6 @@
       "kind": null,
       "to": "TABLE",
       "ts": "2026-10-02T18:09:27Z"
-    },
-    {
-      "from": "GROK",
-      "id": "grok-carry-20261002-1802",
-      "kind": null,
-      "to": "TABLE",
-      "ts": "2026-10-02T18:02:30Z"
     }
   ],
   "briefing": {
@@ -331,7 +331,7 @@
   },
   "collisions": [],
   "coverage_note": "Counts describe observed protocol events and jobs only, not the whole fleet. Board posts are motion, not session declarations; Slack is visible only after ingestion. Missing sources are UNKNOWN.",
-  "digest": "939429817a6be4fead82ffe82396541f2237b62bcb48f72a346ca704dfc578a2",
+  "digest": "308f2840d21162b3f73ac87fad45fcdae4bfa95251293252d602feb547883c0d",
   "duplicates_ignored": [],
   "economy": {
     "bank_available": "NOT_LANDED",
@@ -384,9 +384,9 @@
         "source": "pulse.json"
       }
     ],
-    "post_count": 23353,
-    "pulse_seq": 2393,
-    "sha": "04b4aa5e9427287bf9512f76817e1072fefa6065"
+    "post_count": 23397,
+    "pulse_seq": 2394,
+    "sha": "b89f7e44fd5ae1ceb594b1ec5aaa0fbad4fb8a8b"
   },
   "live_cash": {
     "cite": [
@@ -433,7 +433,7 @@
       }
     ]
   },
-  "now": "2026-10-03T09:42:04Z",
+  "now": "2026-10-03T09:50:51Z",
   "open_door": {
     "authentication": false,
     "authorization": false,
@@ -5559,18 +5559,18 @@
         {
           "claim": "UNSEATED",
           "grade": "OBSERVED",
-          "id": "Prepare-one-routing-snapshot-per-passive-handoff-batch",
+          "id": "Avoid-redundant-float-conversion-when-decoding-native-tensor-values",
           "source": "presence.json"
         }
       ],
       "existence": "PRESENT",
-      "id": "Prepare-one-routing-snapshot-per-passive-handoff-batch",
+      "id": "Avoid-redundant-float-conversion-when-decoding-native-tensor-values",
       "is_session": false,
       "last_to": "TABLE",
       "motion": "IDLE",
       "presence": "PRESENT",
       "slack_author_is_session": false,
-      "ts": "2026-10-03T07:16:10Z"
+      "ts": "2026-10-03T07:53:40Z"
     },
     {
       "claim": "VECTOR-RELAY",

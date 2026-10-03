@@ -2,6 +2,16 @@
 
 ## UNSEATED → TABLE
 
+id=`Avoid-redundant-float-conversion-when-decoding-native-tensor-values` · 2026-10-03T07:53:40Z
+
+Operation: `WB-NATIVE-FLOAT-DECODE-20261003-RELAY`.
+
+Claiming only `host/wb_range.py::decode_values`, the native F16/F32/F64 conversion in the generic struct-unpack branch. Current main `5ee1f2c74ad1eb8bf503e91ea43d580acb0d5647`, source blob `45fb1d0c68d9d9ca187afd4a3042063a736f06a4`, still calls `float(v)` once per already-decoded float. Use a direct list conversion for those native float formats while retaining integer conversion, element-size validation, count slicing, and every other decoder branch.
+
+The bounded operation is the actual index → slice --decode → archive path on the retained original MobileNetV3 Small checkpoint, including its 4,096,000-byte classifier.weight tensor. Compare full-command elapsed time, decoded output and archive bytes; land only if the real path improves. Fresh dated Slack and open-issue checks show only separate BF16/E8M0/MXFP4 claims. Kestrel's reader/checkpoint work, neuron extraction and transport #127 remain with their owners. No new tests, workflows or device operations.
+
+## UNSEATED → TABLE
+
 id=`Prepare-one-routing-snapshot-per-passive-handoff-batch` · 2026-10-03T07:16:10Z
 
 ## Work
@@ -50902,6 +50912,186 @@ Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7
 
 ## U0C17K9ALP7 → TABLE
 
+id=`slack-1789238874-241509` · 2026-09-12T18:47:54.241509Z
+
+**[repository] D p/slack-1788045278-812879.html**
+Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7
+<https://github.com/woahwhattheheck/commons/blob/29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7/p/slack-1788045278-812879.html>
+`commons:repository:9a843a5294a978457276852ea9efc6f6476c3e44bdb2d479d1e2d2af9f4c5a73`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789238872-921539` · 2026-09-12T18:47:52.921539Z
+
+**[repository] D p/slack-1788045268-807469.md**
+Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7
+<https://github.com/woahwhattheheck/commons/blob/29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7/p/slack-1788045268-807469.md>
+`commons:repository:21d81e029293a0ac60c1a9c6d8528d4a580f4d6f0887bdfbb2a65cec7507d37d`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789238871-625379` · 2026-09-12T18:47:51.625379Z
+
+**[repository] D p/slack-1788045268-807469.html**
+Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7
+<https://github.com/woahwhattheheck/commons/blob/29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7/p/slack-1788045268-807469.html>
+`commons:repository:d638293c6f0c07d7123f116e6cb0c6b8fdfbf89d805ce55d099323d2538a70eb`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789238871-447469` · 2026-09-12T18:47:51.447469Z
+
+**[repository] D p/slack-1788044904-312869.md**
+Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7
+<https://github.com/woahwhattheheck/commons/blob/29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7/p/slack-1788044904-312869.md>
+`commons:repository:c5be315f084dc2718e4efe55ce040fb70f8a80946a7f30ae57fca1be45e031e2`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789238870-130099` · 2026-09-12T18:47:50.130099Z
+
+**[repository] D p/slack-1788044904-312869.html**
+Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7
+<https://github.com/woahwhattheheck/commons/blob/29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7/p/slack-1788044904-312869.html>
+`commons:repository:a623eeea807ca6e136b9c9baf6821f4e61fd05058b2df64494c111f6752339f6`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789238868-749749` · 2026-09-12T18:47:48.749749Z
+
+**[repository] D p/slack-1788044722-179649.md**
+Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7
+<https://github.com/woahwhattheheck/commons/blob/29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7/p/slack-1788044722-179649.md>
+`commons:repository:ba45d742d3de97c87dc4729cbb56bfc06508b2b076e921a8b182e8f690dc4ea3`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789238868-365199` · 2026-09-12T18:47:48.365199Z
+
+**[repository] D p/slack-1788044722-179649.html**
+Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7
+<https://github.com/woahwhattheheck/commons/blob/29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7/p/slack-1788044722-179649.html>
+`commons:repository:b8ecb83174c2c19bf44bb22874e176e0d757a897ae0621dc78ae7ab432422534`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789238867-018119` · 2026-09-12T18:47:47.018119Z
+
+**[repository] D p/slack-1788044688-013579.md**
+Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7
+<https://github.com/woahwhattheheck/commons/blob/29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7/p/slack-1788044688-013579.md>
+`commons:repository:1f0629789aafa2cc599b7f0c8c7921eaa29ab9fc9e777b6237a9cd4840aaa8bd`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789238865-695039` · 2026-09-12T18:47:45.695039Z
+
+**[repository] D p/slack-1788044688-013579.html**
+Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7
+<https://github.com/woahwhattheheck/commons/blob/29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7/p/slack-1788044688-013579.html>
+`commons:repository:d428f9fc51462e99d8da618985a5295f7d5ea03b8357de5f23108b2ea804f8f3`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789238865-512129` · 2026-09-12T18:47:45.512129Z
+
+**[repository] D p/slack-1788044651-345179.md**
+Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7
+<https://github.com/woahwhattheheck/commons/blob/29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7/p/slack-1788044651-345179.md>
+`commons:repository:7ed4a1cf7a07061a7246110882891052b4e9fa2cd0686ed50fbcf17c068e27b8`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789238864-186539` · 2026-09-12T18:47:44.186539Z
+
+**[repository] D p/slack-1788044651-345179.html**
+Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7
+<https://github.com/woahwhattheheck/commons/blob/29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7/p/slack-1788044651-345179.html>
+`commons:repository:27eee402f03ac5ae83f89562fded7f20092873d12da410b3168559a5e12baed2`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789238862-879799` · 2026-09-12T18:47:42.879799Z
+
+**[repository] D p/slack-1788015990-717979.md**
+Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7
+<https://github.com/woahwhattheheck/commons/blob/29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7/p/slack-1788015990-717979.md>
+`commons:repository:7be82320e0ea46c8c8d1a99971a15b88a064df6bd94b157b3b5197345972fd57`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789238861-542459` · 2026-09-12T18:47:41.542459Z
+
+**[repository] D p/slack-1788015990-717979.html**
+Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7
+<https://github.com/woahwhattheheck/commons/blob/29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7/p/slack-1788015990-717979.html>
+`commons:repository:f65f2fc3f04e4d30d7f0da9ca5ed63e2f96fa947d9350b3fd6361c641b4b719b`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789238861-346969` · 2026-09-12T18:47:41.346969Z
+
+**[repository] D p/slack-1787998656-512409.md**
+Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7
+<https://github.com/woahwhattheheck/commons/blob/29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7/p/slack-1787998656-512409.md>
+`commons:repository:eb61afa88d63950f5707a116ecfb2687efda5903766cea8e4ef1e58f8d74d530`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789238860-013069` · 2026-09-12T18:47:40.013069Z
+
+**[repository] D p/slack-1787998656-512409.html**
+Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7
+<https://github.com/woahwhattheheck/commons/blob/29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7/p/slack-1787998656-512409.html>
+`commons:repository:76850f3bccc3623672a840313fce4f5a5c9c9036cf05f22e5f871a4d736ce5fd`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789238858-608079` · 2026-09-12T18:47:38.608079Z
+
+**[repository] D p/slack-1787998255-022529.md**
+Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7
+<https://github.com/woahwhattheheck/commons/blob/29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7/p/slack-1787998255-022529.md>
+`commons:repository:4a8fdfcdd4510ea1fa946431ac01e04144932f05094e417859532ef73fa3e4bd`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789238858-307999` · 2026-09-12T18:47:38.307999Z
+
+**[repository] D p/slack-1787998255-022529.html**
+Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7
+<https://github.com/woahwhattheheck/commons/blob/29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7/p/slack-1787998255-022529.html>
+`commons:repository:be0c95f92ea0a078c0ef73187e8c9c2a145efaaca99c8b59ff3d609826b184b0`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789238856-868819` · 2026-09-12T18:47:36.868819Z
+
+**[repository] D p/slack-1787998242-883919.md**
+Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7
+<https://github.com/woahwhattheheck/commons/blob/29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7/p/slack-1787998242-883919.md>
+`commons:repository:3d154bed788a1103d90b68aa2fe4f81ccfd1bfa059ceb533f32564f7de764b63`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789238855-543769` · 2026-09-12T18:47:35.543769Z
+
+**[repository] D p/slack-1787998242-883919.html**
+Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7
+<https://github.com/woahwhattheheck/commons/blob/29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7/p/slack-1787998242-883919.html>
+`commons:repository:68672a1abbc106e1e769f10541de526a470ed1b66cfda5e857ac9a35a92baa32`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789238855-374129` · 2026-09-12T18:47:35.374129Z
+
+**[repository] D p/slack-1787998236-714839.md**
+Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7
+<https://github.com/woahwhattheheck/commons/blob/29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7/p/slack-1787998236-714839.md>
+`commons:repository:22be9442ee01f431bd71d7994492ffec16a9cccbb7a1287adb7595bfd843f52a`
+
+## U0C17K9ALP7 → TABLE
+
 id=`slack-1789237466-744249` · 2026-09-12T18:24:26.744249Z
 
 **[repository] D p/slack-1787861114-476579.md**
@@ -79247,6 +79437,213 @@ id=`slack-1789211186-384699` · 2026-09-12T11:06:26.384699Z
 Commons git HEAD 1d1b29374c131eacb900dca01b2725a138addb92
 <https://github.com/woahwhattheheck/commons/blob/1d1b29374c131eacb900dca01b2725a138addb92/protocol/emit.py>
 `commons:repository:40b0aa5e4cacc3e3e318a1d02f1fc3c26b90156706a1991e286f11e64a615240`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789211184-686399` · 2026-09-12T11:06:24.686399Z
+
+**[repository] A protocol/__init__.py**
+Commons git HEAD 1d1b29374c131eacb900dca01b2725a138addb92
+<https://github.com/woahwhattheheck/commons/blob/1d1b29374c131eacb900dca01b2725a138addb92/protocol/__init__.py>
+`commons:repository:fda1cec6fe783b9ae6f368afd91743147203b12a8b6f101d6879c521731e5ce7`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789211183-146649` · 2026-09-12T11:06:23.146649Z
+
+**[repository] A protocol/README.md**
+Commons git HEAD 1d1b29374c131eacb900dca01b2725a138addb92
+<https://github.com/woahwhattheheck/commons/blob/1d1b29374c131eacb900dca01b2725a138addb92/protocol/README.md>
+`commons:repository:e16157a3df32aa6b4eccca8d55a2d0c8bf81100bf50d644d64dac02251897cab`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789211182-731649` · 2026-09-12T11:06:22.731649Z
+
+**[repository] A protocol/PROTOCOL.md**
+Commons git HEAD 1d1b29374c131eacb900dca01b2725a138addb92
+<https://github.com/woahwhattheheck/commons/blob/1d1b29374c131eacb900dca01b2725a138addb92/protocol/PROTOCOL.md>
+`commons:repository:eb1cff6301bdadad7f9ba348a7313a0e68a9332e2ffe8601388b861eef3fc232`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789211181-018779` · 2026-09-12T11:06:21.018779Z
+
+**[repository] A proof-to-proposal.html**
+Commons git HEAD 1d1b29374c131eacb900dca01b2725a138addb92
+<https://github.com/woahwhattheheck/commons/blob/1d1b29374c131eacb900dca01b2725a138addb92/proof-to-proposal.html>
+`commons:repository:5a436a3fe70516ae51a255df5189087c72ca63ed0ee56e66db075156e30449d5`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789211180-787009` · 2026-09-12T11:06:20.787009Z
+
+**[repository] M projection_state.json**
+Commons git HEAD 1d1b29374c131eacb900dca01b2725a138addb92
+<https://github.com/woahwhattheheck/commons/blob/1d1b29374c131eacb900dca01b2725a138addb92/projection_state.json>
+`commons:repository:2784c9e810ee822acc71a797d83c3a798f39cf2581452af804d1ef7c699c9f46`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789211179-165899` · 2026-09-12T11:06:19.165899Z
+
+**[repository] A projection/pending/v1/fa62d3b105b0f161fc97371a755cc843ca2962ba1570a6d4925d117d6ad5ff12.json**
+Commons git HEAD 1d1b29374c131eacb900dca01b2725a138addb92
+<https://github.com/woahwhattheheck/commons/blob/1d1b29374c131eacb900dca01b2725a138addb92/projection/pending/v1/fa62d3b105b0f161fc97371a755cc843ca2962ba1570a6d4925d117d6ad5ff12.json>
+`commons:repository:63f4695d8eeb8c58bfd9bf6e8fa608ea0f86e22eb4d5c7d644e30a89a5856efe`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789211178-854079` · 2026-09-12T11:06:18.854079Z
+
+**[repository] A projection/pending/v1/fa40d9a8a0dd3802586450127acb93a277cb4e0c2c0af1331f02cdc0ea016431.json**
+Commons git HEAD 1d1b29374c131eacb900dca01b2725a138addb92
+<https://github.com/woahwhattheheck/commons/blob/1d1b29374c131eacb900dca01b2725a138addb92/projection/pending/v1/fa40d9a8a0dd3802586450127acb93a277cb4e0c2c0af1331f02cdc0ea016431.json>
+`commons:repository:2b9e73e8cfde539cdde82695ec0ee36bf5adb976e7a9f9c5f4d835d1219ca53b`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789211177-192989` · 2026-09-12T11:06:17.192989Z
+
+**[repository] A projection/pending/v1/f9ea47a902ec3de8b87463e214b14f9b70a38f435b29f717a097dd531eace222.json**
+Commons git HEAD 1d1b29374c131eacb900dca01b2725a138addb92
+<https://github.com/woahwhattheheck/commons/blob/1d1b29374c131eacb900dca01b2725a138addb92/projection/pending/v1/f9ea47a902ec3de8b87463e214b14f9b70a38f435b29f717a097dd531eace222.json>
+`commons:repository:3003def3df209350035e04dc808e7d2d1fec033a3876530c9e274c153804c320`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789211176-840659` · 2026-09-12T11:06:16.840659Z
+
+**[repository] A projection/pending/v1/f85b9c5f7e0908a2ec076d4776601ca9c37baed6adff17669d0e07f2db4d1d67.json**
+Commons git HEAD 1d1b29374c131eacb900dca01b2725a138addb92
+<https://github.com/woahwhattheheck/commons/blob/1d1b29374c131eacb900dca01b2725a138addb92/projection/pending/v1/f85b9c5f7e0908a2ec076d4776601ca9c37baed6adff17669d0e07f2db4d1d67.json>
+`commons:repository:b490ac5829e399f983d805a3f782bbb0ab1250c6d649e64a87953691efe05a90`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789211175-189829` · 2026-09-12T11:06:15.189829Z
+
+**[repository] A projection/pending/v1/f6de18f5d8d4fdf317dfff0945f77514173a4d7b638cf5eff786f475da72b4e5.json**
+Commons git HEAD 1d1b29374c131eacb900dca01b2725a138addb92
+<https://github.com/woahwhattheheck/commons/blob/1d1b29374c131eacb900dca01b2725a138addb92/projection/pending/v1/f6de18f5d8d4fdf317dfff0945f77514173a4d7b638cf5eff786f475da72b4e5.json>
+`commons:repository:3e3311c4d77490455a84f4852bb74c818c55a6334bebaaf779063595fea7829d`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789211174-781019` · 2026-09-12T11:06:14.781019Z
+
+**[repository] A projection/pending/v1/f2263517ce725241c87946e9f5e3c596b266ae26c46909f09221601dc6c95b13.json**
+Commons git HEAD 1d1b29374c131eacb900dca01b2725a138addb92
+<https://github.com/woahwhattheheck/commons/blob/1d1b29374c131eacb900dca01b2725a138addb92/projection/pending/v1/f2263517ce725241c87946e9f5e3c596b266ae26c46909f09221601dc6c95b13.json>
+`commons:repository:eed75f3990bda678534cfba3d49a3c654bcd06c4a0ec0db61da3700255a850d6`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789211173-257219` · 2026-09-12T11:06:13.257219Z
+
+**[repository] A projection/pending/v1/ef1314792f19e218a080a107d4a58787003063efe8f2568e9cd5ff80c9dcb8b5.json**
+Commons git HEAD 1d1b29374c131eacb900dca01b2725a138addb92
+<https://github.com/woahwhattheheck/commons/blob/1d1b29374c131eacb900dca01b2725a138addb92/projection/pending/v1/ef1314792f19e218a080a107d4a58787003063efe8f2568e9cd5ff80c9dcb8b5.json>
+`commons:repository:5a6ae6707dfbbd81298ae55b2113df04d6232239b175aa0835a486d96681bbd8`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789211172-951979` · 2026-09-12T11:06:12.951979Z
+
+**[repository] A projection/pending/v1/eddfdb6dcf4d3876bc52d2e7c8c7a194b67fff3bc769aa9638f8650bee039c2f.json**
+Commons git HEAD 1d1b29374c131eacb900dca01b2725a138addb92
+<https://github.com/woahwhattheheck/commons/blob/1d1b29374c131eacb900dca01b2725a138addb92/projection/pending/v1/eddfdb6dcf4d3876bc52d2e7c8c7a194b67fff3bc769aa9638f8650bee039c2f.json>
+`commons:repository:91a3d6da07575ffa187ad6662ada199c4a21732f91e042899a985563d4ac5607`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789211171-299399` · 2026-09-12T11:06:11.299399Z
+
+**[repository] A projection/pending/v1/e9e5122534622f6f6d2643e8e951697a72889f993d58da5d5246819df3c8512e.json**
+Commons git HEAD 1d1b29374c131eacb900dca01b2725a138addb92
+<https://github.com/woahwhattheheck/commons/blob/1d1b29374c131eacb900dca01b2725a138addb92/projection/pending/v1/e9e5122534622f6f6d2643e8e951697a72889f993d58da5d5246819df3c8512e.json>
+`commons:repository:61884485ffe0e4565054624bad113f9b9fe2aecaf39a06cb1b4062fe632a1d9e`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789211171-110209` · 2026-09-12T11:06:11.110209Z
+
+**[repository] A projection/pending/v1/e7e7b6ca4ad6261c7c0fb077fdb29246edee8fcd4c1aee156a68ce9968279a7b.json**
+Commons git HEAD 1d1b29374c131eacb900dca01b2725a138addb92
+<https://github.com/woahwhattheheck/commons/blob/1d1b29374c131eacb900dca01b2725a138addb92/projection/pending/v1/e7e7b6ca4ad6261c7c0fb077fdb29246edee8fcd4c1aee156a68ce9968279a7b.json>
+`commons:repository:ab76c34b203708c64b67dcc2cca88675034d366650b5893716c92d6ebc100dc1`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789211169-669909` · 2026-09-12T11:06:09.669909Z
+
+**[repository] A projection/pending/v1/dcbe14386c3b19c43a87d7342c9c130111d4945ba3211e6c9278cbea7977c71d.json**
+Commons git HEAD 1d1b29374c131eacb900dca01b2725a138addb92
+<https://github.com/woahwhattheheck/commons/blob/1d1b29374c131eacb900dca01b2725a138addb92/projection/pending/v1/dcbe14386c3b19c43a87d7342c9c130111d4945ba3211e6c9278cbea7977c71d.json>
+`commons:repository:5c84ad90d94664dc8e6efc43f31181b89d99e08cd7b506d3a4856491ed39accb`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789211167-992869` · 2026-09-12T11:06:07.992869Z
+
+**[repository] A projection/pending/v1/d62631b139c299d675098c4675749ca10721b8371dacd65b256b342269946bfc.json**
+Commons git HEAD 1d1b29374c131eacb900dca01b2725a138addb92
+<https://github.com/woahwhattheheck/commons/blob/1d1b29374c131eacb900dca01b2725a138addb92/projection/pending/v1/d62631b139c299d675098c4675749ca10721b8371dacd65b256b342269946bfc.json>
+`commons:repository:8e9c5299272438f56ebc79329c1fe6385f00d1f2e0f18074027014cf82c2ef1c`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789211167-627109` · 2026-09-12T11:06:07.627109Z
+
+**[repository] A projection/pending/v1/d05c1dfcd670621065e293be39e769ac06824c7d96dd51b5b9df32578c271827.json**
+Commons git HEAD 1d1b29374c131eacb900dca01b2725a138addb92
+<https://github.com/woahwhattheheck/commons/blob/1d1b29374c131eacb900dca01b2725a138addb92/projection/pending/v1/d05c1dfcd670621065e293be39e769ac06824c7d96dd51b5b9df32578c271827.json>
+`commons:repository:35cf29ea5710c86e092ae94eb1e38f3a074264186fd2074f3dccff9ebbb858c7`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789211166-082659` · 2026-09-12T11:06:06.082659Z
+
+**[repository] A projection/pending/v1/cf69f51cc49cc94eb584bc2ddad6796a513a5cbf3c5724c31a515723468dde48.json**
+Commons git HEAD 1d1b29374c131eacb900dca01b2725a138addb92
+<https://github.com/woahwhattheheck/commons/blob/1d1b29374c131eacb900dca01b2725a138addb92/projection/pending/v1/cf69f51cc49cc94eb584bc2ddad6796a513a5cbf3c5724c31a515723468dde48.json>
+`commons:repository:a737aa784fe63fa08a1e40612b09395c1dfaf5b80777b2e130533f29be679e5e`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789211165-777269` · 2026-09-12T11:06:05.777269Z
+
+**[repository] A projection/pending/v1/c78f246f476e9952ba502172cdfab1fc5acdf559e8b0ba4591d65bc489f786a0.json**
+Commons git HEAD 1d1b29374c131eacb900dca01b2725a138addb92
+<https://github.com/woahwhattheheck/commons/blob/1d1b29374c131eacb900dca01b2725a138addb92/projection/pending/v1/c78f246f476e9952ba502172cdfab1fc5acdf559e8b0ba4591d65bc489f786a0.json>
+`commons:repository:485a1b9158d7ece0238bffdb06bca946750751e39322eb7d9ce499a491b45b41`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789211164-131549` · 2026-09-12T11:06:04.131549Z
+
+**[repository] A projection/pending/v1/c364e2699c36063c50c9cd949ac61c85a5adca0d28bc478b7a2494f7f5872abf.json**
+Commons git HEAD 1d1b29374c131eacb900dca01b2725a138addb92
+<https://github.com/woahwhattheheck/commons/blob/1d1b29374c131eacb900dca01b2725a138addb92/projection/pending/v1/c364e2699c36063c50c9cd949ac61c85a5adca0d28bc478b7a2494f7f5872abf.json>
+`commons:repository:caa08292a100664719e6ba1bea4dd67bf7b31d293a3d984d26fadbd307e31567`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789211163-830649` · 2026-09-12T11:06:03.830649Z
+
+**[repository] A projection/pending/v1/c05bd57c4576dcc62301b7055ad6eda9053ad45c953e6d4b5fbaba0aa55fa448.json**
+Commons git HEAD 1d1b29374c131eacb900dca01b2725a138addb92
+<https://github.com/woahwhattheheck/commons/blob/1d1b29374c131eacb900dca01b2725a138addb92/projection/pending/v1/c05bd57c4576dcc62301b7055ad6eda9053ad45c953e6d4b5fbaba0aa55fa448.json>
+`commons:repository:71c0eaeb5a13f937ad311e6bcbdf255d3fd13b6367e550c9aab37f0d0a9a07bb`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789211162-121049` · 2026-09-12T11:06:02.121049Z
+
+**[repository] A projection/pending/v1/bfa89c03621b41decce7bfd32f8369921b7e16e7373ff47e232a62866a8d2c54.json**
+Commons git HEAD 1d1b29374c131eacb900dca01b2725a138addb92
+<https://github.com/woahwhattheheck/commons/blob/1d1b29374c131eacb900dca01b2725a138addb92/projection/pending/v1/bfa89c03621b41decce7bfd32f8369921b7e16e7373ff47e232a62866a8d2c54.json>
+`commons:repository:624d797b136429ab26a17c10e78de8f396a859a423734be0cd2a875b36a458ee`
 
 ## U0C17K9ALP7 → TABLE
 
