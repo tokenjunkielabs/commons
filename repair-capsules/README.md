@@ -110,6 +110,45 @@ Scope: only `repair-capsules/`; no shared runtime, policy, authentication, OneTa
 or C1 transport modifications. RIVET claim is in the Repair Capsules kickoff
 thread in Slack #coordination (`1788558472.004109`).
 
+### Native browser continuation — 2026-10-03
+
+The published page failed on both retained demos with `Cannot set properties of
+null (setting 'textContent')`: five empty render containers had been removed
+while the original script still required them. `index.html` restores exactly
+the `preview-next`, `diff-note`, `redactions`, `integrity`, and `attempts` markup
+from RIVET's [original #8755](https://github.com/woahwhattheheck/commons/pull/8755).
+The inline script, `capsule.js`, synthetic demo bodies and timestamps, privacy
+and checksum wording, and current commercial links are unchanged.
+
+Actual Chromium 153.0.8010.0 execution in the cloud workspace completed the
+ordinary loopback and `file://` workflow with browser Web Crypto and native
+downloads/file input. Both built-in demos rendered their next action, delta,
+redacted logs, checksum caveat and synthetic provenance; their downloaded
+capsules (1,179 and 1,170 bytes) reopened with `MATCH`. The fixed demo creation
+time remains `2026-09-04T00:00:00.000Z`. Two recorded operator action/result
+entries survived clear/import, reload/import, and a fresh local-file page.
+The final 1,705-byte history export was byte-identical after file-page reopen
+and re-export: SHA-256
+`08b20a8c0ed417a6caf784ada7f81ee99343ce1a4e4609d69231545b2d61c08f`.
+All five actual downloads matched their canonical-payload checksums.
+
+The 390px viewport produced a 390px document; the checksum and history wrapped
+inside the panel. Desktop/mobile screenshots were inspected. No page errors,
+console errors, failed requests or external requests were observed. Reload
+started empty, clear removed the workspace/history, and observed cookies,
+local storage and session storage were empty. Temporary browser/server
+processes were closed. No example command, project test suite, dependency
+installation, private incident input or production deployment was used.
+
+Path history identifies the deletion at
+[`b52aa7ba1368d23331dae30579863c18ece4eacb`](https://github.com/woahwhattheheck/commons/commit/b52aa7ba1368d23331dae30579863c18ece4eacb)
+in [#15784](https://github.com/woahwhattheheck/commons/pull/15784): that path
+removed the Autopsy CTA and these five unrelated render containers. This
+repair retains the intended CTA retirement. This is native browser acceptance
+of the capture/export/import component, not independent reproduction of three
+held-out real defects, automatic anonymization, verified authorship, or a
+second-peer repair/rollback acceptance claim. Those original boundaries remain.
+
 ## Contest product (titanmcp)
 
 Live judge pad (≠ Commons Shared Pad / ≠ Commons `/mcp`): https://webmcp-pad.vercel.app/ — **titanmcp 1.4.5**, 24 tools, Agent Resources, `syncConsents`. Board: [titanmcp.html](../titanmcp.html). Cite Latch Pad KEEP.
