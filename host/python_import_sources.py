@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Map literal Python import sources under one explicit local import root."""
+"""Map literal Python imports and explicitly named assets under one local root."""
 from __future__ import annotations
 
 import argparse
@@ -172,20 +172,21 @@ class SourceMap:
                         if child["status"] in ("unresolved_local", "not_local"):
                             self.imports[-1]["resolution"] = "attribute_or_missing_submodule"
 
-    def read_source(self, relative: str) -> bytes | None:
+    def read_source(self, relative: str, *, kind: str = "source",
+                    skipped: list[dict] | None = None) -> bytes | None:
         observed = self.probe(relative)
         if observed["kind"] != "file":
-            raise ImportMapError("source is " + observed["kind"])
+            raise ImportMapError(kind + " is " + observed["kind"])
         descriptor = os.open(observed["resolved"], os.O_RDONLY | getattr(os, "O_NONBLOCK", 0))
         try:
             with os.fdopen(descriptor, "rb") as stream:
                 descriptor = None
                 before = os.fstat(stream.fileno())
                 if not stat.S_ISREG(before.st_mode):
-                    raise ImportMapError("source is not a regular file")
+                    raise ImportMapError(kind + " is not a regular file")
                 if before.st_size > self.limits["max_file_bytes"]:
-                    self.skipped.append(dict(path=relative, reason="max_file_bytes",
-                                             bytes=before.st_size))
+                    (self.skipped if skipped is None else skipped).append(
+                        dict(path=relative, reason="max_file_bytes", bytes=before.st_size))
                     self.limits_reached.add("max_file_bytes")
                     return None
                 if before.st_size > self.limits["max_bytes"] - self.bytes_read:
@@ -197,7 +198,7 @@ class SourceMap:
                 if (len(raw) != before.st_size
                         or (before.st_size, before.st_mtime_ns)
                         != (after.st_size, after.st_mtime_ns)):
-                    raise ImportMapError("source changed while reading")
+                    raise ImportMapError(kind + " changed while reading")
                 return raw
         finally:
             if descriptor is not None:
@@ -252,6 +253,58 @@ class SourceMap:
         )
 
 
+    def include_assets(self, result: dict, assets: list[str]) -> dict:
+        """Append opaque file identities without importing or parsing assets."""
+        requested = list(dict.fromkeys(assets))
+        pending = deque(requested)
+        retained = {row["path"]: row for row in self.files}
+        files, skipped, errors, reused = [], [], [], []
+        source_bytes = self.bytes_read
+        interrupted = None
+        attempted = 0
+        source_observations = len(self.files) + len(self.skipped) + len(self.errors)
+        while pending:
+            relative = pending[0]
+            if relative in retained:
+                # The exact source bytes were already read within these limits.
+                files.append(dict(retained[relative], reused_source=True))
+                reused.append(relative)
+                pending.popleft()
+                continue
+            if source_observations + attempted >= self.limits["max_files"]:
+                self.limits_reached.add("max_files")
+                break
+            pending.popleft()
+            attempted += 1
+            try:
+                raw = self.read_source(relative, kind="asset", skipped=skipped)
+                if raw is None:
+                    continue
+                blob = hashlib.sha1(b"blob " + str(len(raw)).encode("ascii") + b"\0" + raw).hexdigest()
+                files.append(dict(path=relative, bytes=len(raw), blob_sha=blob,
+                                  sha256=hashlib.sha256(raw).hexdigest(),
+                                  reused_source=False))
+            except ImportLimit:
+                interrupted = relative
+                break
+            except (OSError, ValueError, RuntimeError) as exc:
+                detail = str(exc) if isinstance(exc, ImportMapError) else type(exc).__name__
+                errors.append(dict(path=relative, detail=detail))
+        assets_finished = not (pending or interrupted or skipped or errors)
+        result.update(requested_assets=requested, assets=files, asset_errors=errors)
+        result["coverage"].update(
+            scope="literal Python imports and explicit assets under the local root",
+            scan_finished=result["coverage"]["scan_finished"] and assets_finished,
+            explicit_assets_finished=assets_finished,
+            asset_files=len(files), asset_files_read=len(files) - len(reused),
+            asset_bytes_read=self.bytes_read - source_bytes,
+            total_bytes_read=self.bytes_read, reused_source_assets=reused,
+            limits_reached=sorted(self.limits_reached), skipped_assets=skipped,
+            pending_assets=list(pending), interrupted_asset=interrupted,
+        )
+        return result
+
+
 def positive(value: str) -> int:
     result = int(value)
     if result <= 0:
@@ -264,6 +317,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--root", required=True, help="one explicit local Python import root")
     parser.add_argument("--entry", action="append", required=True,
                         help="relative .py source path; repeat for multiple entries")
+    parser.add_argument("--asset", action="append", default=[],
+                        help="explicit relative resource path; read as opaque bytes; repeatable")
     parser.add_argument("--max-files", type=positive, default=256)
     parser.add_argument("--max-bytes", type=positive, default=8 * 1024 * 1024)
     parser.add_argument("--max-file-bytes", type=positive, default=1024 * 1024)
@@ -282,9 +337,19 @@ def main(argv: list[str] | None = None) -> int:
                 raise ImportMapError("entry must be a relative .py path without traversal")
             if entry not in entries:
                 entries.append(entry)
+        assets = []
+        for asset in args.asset:
+            parts = asset.split("/")
+            if (not asset or "\\" in asset or "\0" in asset or asset.startswith("/")
+                    or any(part in ("", ".", "..") for part in parts)):
+                raise ImportMapError("asset must be a relative file path without traversal")
+            if asset not in assets:
+                assets.append(asset)
         mapper = SourceMap(root, max_files=args.max_files, max_bytes=args.max_bytes,
                            max_file_bytes=args.max_file_bytes, max_imports=args.max_imports)
         result = mapper.scan(entries)
+        if assets:
+            result = mapper.include_assets(result, assets)
     except (OSError, ValueError, RuntimeError) as exc:
         detail = str(exc) if isinstance(exc, ImportMapError) else type(exc).__name__
         result = dict(error="IMPORT_MAP_INPUT", detail=detail)
@@ -295,6 +360,10 @@ def main(argv: list[str] | None = None) -> int:
     if result["errors"]:
         print("python import sources: %d source read/parse errors; see JSON errors" %
               len(result["errors"]), file=sys.stderr)
+        return 1
+    if result.get("asset_errors"):
+        print("python import sources: %d asset read errors; see JSON asset_errors" %
+              len(result["asset_errors"]), file=sys.stderr)
         return 1
     return 0
 
