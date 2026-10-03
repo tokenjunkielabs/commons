@@ -41,6 +41,21 @@ the selected filter before pagination. These reads do not refresh providers.
 Provider-confirmed shipments also appear once in the existing command-center
 feed, even when the worker never wrote a final receipt.
 
+Workers with a saved `holdings/swarm-runtime.json` from `state/claims` can use
+the same status filters and pagination without a Git clone or provider request:
+
+```bash
+python host/swarmctl.py status --ledger /tmp/swarm-runtime.json --state OPEN --limit 20
+```
+
+`--ledger` selects the saved input even when `COMMONS_SWARM_URL` is configured.
+The result reports `authority=retained_ledger`, its exact `source_ledger_sha256`,
+and no live claims tip. Ages are recomputed at read time; original provider
+observation times and source coverage remain visible. The reader does not
+refresh sources or acquire work. Fetch newer ledger bytes to refresh this view;
+combining `--ledger` with `--fresh` returns an error. `--output`, `--task`,
+`--owner`, repeated `--state`, and the returned `--after` cursor work normally.
+
 Background `sync` reconciles source events and provider outcomes without taking
 new work or renewing a worker's heartbeat. When an active task becomes terminal,
 its response may include one advisory `candidates` entry per eligible worker:

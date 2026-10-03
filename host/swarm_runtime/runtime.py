@@ -90,6 +90,26 @@ def _merge_facts(state, incoming):
     merge_facts(state.setdefault("provider_facts", {}), incoming)
 
 
+def read_status(state, *, tip=None, authority="state/claims", now=None,
+                worker=None, limit=100, task=None, states=None, owner=None, after=None):
+    """Project one retained state without Git, provider IO, or state mutation."""
+    moment = now if now is not None else now_iso()
+    seats = _seats(state)
+    view = project(state.get("events", []), now=moment, seats=seats,
+                   provider_facts=state.get("provider_facts", {}))
+    page = select_tasks(view["tasks"], limit=limit, task=task,
+                        states=states, owner=owner, after=after)
+    return {"ok": True, "authority": authority, "tip": tip,
+            "observed_at": moment, "summary": status(view["tasks"], seats, moment),
+            "tasks": page["rows"], "total": page["total"], "matched": page["matched"],
+            "truncated": page["truncated"], "next_cursor": page["next_cursor"],
+            "collisions": view.get("collisions", [])[-50:],
+            "rejected": view.get("rejected", [])[-20:],
+            "coverage": state.get("coverage", {}),
+            "feed_cursor": state.get("cursors", {}).get("commons", {}).get("feed_cursor", "UNKNOWN"),
+            "next": route(view["tasks"], worker, seats, moment) if worker else None}
+
+
 def _handoff_candidates(before, tasks, seats, moment, events):
     """Suggest distinct work within one passive reconciliation response."""
     candidates = []
@@ -193,19 +213,8 @@ class Runtime:
     def read(self, *, refresh=False, worker=None, limit=100,
              task=None, states=None, owner=None, after=None):
         tip, state = self.store.read(refresh=refresh)
-        moment = now_iso()
-        view = _project(state, moment)
-        page = select_tasks(view["tasks"], limit=limit, task=task,
-                            states=states, owner=owner, after=after)
-        return {"ok": True, "authority": "state/claims", "tip": tip,
-                "observed_at": moment, "summary": status(view["tasks"], _seats(state), moment),
-                "tasks": page["rows"], "total": page["total"], "matched": page["matched"],
-                "truncated": page["truncated"], "next_cursor": page["next_cursor"],
-                "collisions": view.get("collisions", [])[-50:],
-                "rejected": view.get("rejected", [])[-20:],
-                "coverage": state.get("coverage", {}),
-                "feed_cursor": state.get("cursors", {}).get("commons", {}).get("feed_cursor", "UNKNOWN"),
-                "next": route(view["tasks"], worker, _seats(state), moment) if worker else None}
+        return read_status(state, tip=tip, worker=worker, limit=limit,
+                           task=task, states=states, owner=owner, after=after)
 
     def sync(self, *, work_snapshot=None, provider_facts=None, events=None,
              max_calls=4, refresh_providers=True, push=True):

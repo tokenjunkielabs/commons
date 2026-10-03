@@ -101,7 +101,10 @@ def select_tasks(tasks, *, limit=100, task=None, states=None, owner=None, after=
             not isinstance(state, str) or state not in TASK_STATES for state in states):
         raise ValueError("states must contain only " + ", ".join(sorted(TASK_STATES)))
     wanted = set(states)
-    rows = _tasks(tasks)
+    # Index retained records without copying every task for a bounded page.
+    # Returned rows remain independent shallow copies, as with _tasks().
+    source = tasks.get("tasks", tasks) if isinstance(tasks, dict) else {}
+    rows = {str(key): row for key, row in source.items() if isinstance(row, dict)}
     matched, remaining, page = 0, 0, []
     for key in sorted(rows):
         row = rows[key]
@@ -116,7 +119,7 @@ def select_tasks(tasks, *, limit=100, task=None, states=None, owner=None, after=
             continue
         remaining += 1
         if len(page) < page_size:
-            page.append(row)
+            page.append(dict(row, task_key=row.get("task_key") or key))
     truncated = remaining > len(page)
     return {"rows": page, "matched": matched, "total": len(rows),
             "next_cursor": page[-1]["task_key"] if truncated else None,
@@ -249,8 +252,9 @@ def _capability_failure(seat, capability, repo=None):
     return None
 
 
-def _compatible(task, seat, required):
-    groups = _capabilities(seat)
+def _compatible(task, seat, required, *, groups=None):
+    if groups is None:
+        groups = _capabilities(seat)
     needs = _requirements(task.get("required_capabilities", task.get("required")))
     needs += _requirements(required)
     missing = []
@@ -299,6 +303,8 @@ def route(tasks: dict, worker: str, seats: dict, now: str, required=None):
     if held:
         result.update(reason="worker_active", active=held[:LIMIT])
         return result
+    # Capabilities are unchanged across candidates in this routing decision.
+    groups = _capabilities(seat)
     candidates = []
     for key, task in rows.items():
         recovery = _recoverable(task, census, now)
@@ -309,7 +315,7 @@ def route(tasks: dict, worker: str, seats: dict, now: str, required=None):
                 "task_key": key, "reason": "provider_reconciliation_needed",
                 "next_action": task.get("reconciliation_needed", UNKNOWN)})
             continue
-        missing = _compatible(task, seat, required)
+        missing = _compatible(task, seat, required, groups=groups)
         if missing:
             result["exclusions"].append({"task_key": key,
                                          "reason": missing[0]["reason"],
