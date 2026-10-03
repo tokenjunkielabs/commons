@@ -21,6 +21,25 @@ upstream source-capture authority remains responsible for proving live provenanc
 The desk never contacts a buyer, acknowledges an addendum, signs a form, submits a
 bid, commits price/staffing, moves money, or recognizes revenue.
 
+## Retaining source snapshots
+
+Before versioning captured website HTML, remove credential-bearing website
+configuration, including API-key values in hidden inputs and embedded scripts.
+Retain the procurement content, source URLs, capture time and reading scope. Do not
+copy credential values into the source manifest, reports, commit text or logs.
+
+Record the original capture's byte count and SHA-256 separately from the published
+sanitized artifact's byte count and SHA-256. The manifest must identify the
+retention transform, affected field and replacement marker, and the number of
+replacements. A sanitized HTML snapshot is a derivative; document captures that
+were not transformed keep their exact source hashes. Check the outgoing retained
+HTML for remaining credential values and verify its published digest before it
+enters Git.
+
+The San Leandro packet uses `original_capture` for the original HTML digest and
+`retention_transform` for the `GoogleMapsKey` redaction. Its top-level artifact hash
+and byte count identify the sanitized retained file.
+
 ## Schemas and lineage
 
 `commons-rfp-source-generation/v1` carries one opportunity/generation, its exact
@@ -141,7 +160,7 @@ product exists.
 ## Real source application
 
 [San Leandro CAD/RMS — October 3, 2026](packets/san_leandro_20261003/README.md)
-retains official source bytes and applies this existing CLI to the original
+retains official documents and a sanitized buyer-page snapshot, and applies this existing CLI to the original
 baseline and the two subsequent addenda. It records exact Attachment D replacement
 lineage, revised deadlines and source contradictions while keeping both partial
 generations incomplete and preserving original pursuit ownership.
