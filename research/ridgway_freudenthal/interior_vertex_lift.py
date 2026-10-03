@@ -191,7 +191,7 @@ def subtract_edge(field, raw, operator, degree, width, cell_ids):
     }
 
 
-def remove_means(cells, nodes, field, degree, width):
+def remove_means(cells, nodes, field, degree, width, shape=SHAPE):
     betas = indices(degree-1)
     means = []
     for cell in cells:
@@ -207,7 +207,7 @@ def remove_means(cells, nodes, field, degree, width):
         target = [row[column] for row in means]
         if not any(target):
             continue
-        correction = repair_means({"shape": list(SHAPE), "cell_means": [str(v) for v in target]})
+        correction = repair_means({"shape": list(shape), "cell_means": [str(v) for v in target]})
         repaired_columns += 1
         patches += sum(correction["patches_by_axis"].values())
         for node, vector in zip(correction["nodes_times_four"], correction["velocity_coefficients"]):
