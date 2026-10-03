@@ -31,7 +31,7 @@ STATEMENT_HEADER = re.compile(
 TERMINAL = re.compile(
     r"^(LANDED|DONE|COMPLETED?|RELEASED?)"
     r"(?:\s*/\s*(?:LANDED|DONE|COMPLETED?|RELEASED?)(?:\s+[—–])?)?"
-    r"\s+(" + OPERATION + r")(?=\s|$|[—–])", re.I)
+    r"(?:\s*[:·—–]\s*|\s+)(" + OPERATION + r")(?=\s|$|[—–])", re.I)
 TERMINAL_AFTER = re.compile(r"^(" + OPERATION + r")\s+(?:is\s+)?(LANDED|DONE|COMPLETED?|RELEASED?)\b", re.I)
 HEADER = re.compile(
     r"^(?:=== THREAD PARENT MESSAGE ===|--- Reply [0-9]+ of [0-9]+ ---|"
