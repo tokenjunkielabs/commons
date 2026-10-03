@@ -1214,7 +1214,7 @@ def metric_op(op: str, index: dict, archive: Archive, cache_dir: Path,
 
     elif op == "direction":
         source, t = find_tensor(index, tensor)
-        rows, width = _tensor_row_layout(t)
+        rows, width = _tensor_row_layout(t, source["format"])
         idxs = metrics.strided(rows, min(sample, 384))
         decoded = fetch_rows(index, cache_dir, tensor, idxs, limit=limit)
         result = {"tensor": tensor, "rows_sampled": len(decoded)}
