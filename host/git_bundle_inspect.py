@@ -5,6 +5,9 @@ No payload execution, Git subprocess, network, checkout, or repository mutation.
 A successfully inspected pack is NOT a verified repository restore. Prerequisite
 history and graph closure still need Git verification in the receiving repo.
 
+Bundle and base-object inputs must resolve to regular files. Symlinks to regular
+files are supported; FIFOs and devices are refused before reading.
+
 Format references: https://git-scm.com/docs/bundle-format
                    https://git-scm.com/docs/gitformat-pack
 """
@@ -17,9 +20,11 @@ from collections import defaultdict, deque
 from dataclasses import dataclass
 import hashlib
 import json
+import os
 from pathlib import Path
 import re
 import shutil
+import stat
 import struct
 import sys
 import tempfile
@@ -329,7 +334,9 @@ def _read(path: Path, maximum: int) -> bytes:
     # The allowance bounds total input, not a speculative allocation for each read.
     pieces = []
     remaining = maximum + 1
-    with path.open('rb') as stream:
+    with open(path, 'rb', opener=lambda name, flags: os.open(name, flags | getattr(os, 'O_NONBLOCK', 0))) as stream:
+        if not stat.S_ISREG(os.fstat(stream.fileno()).st_mode):
+            raise BundleError('Input must be a regular file: ' + str(path))
         while remaining:
             piece = stream.read(min(64 * 1024, remaining))
             if not piece:
