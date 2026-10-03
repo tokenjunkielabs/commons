@@ -50,6 +50,19 @@ interior class to the three coordinate-normal orientations, with exact rational
 translation and positive isotropic scaling. Other edge classes, the full census
 and global assembly remain separate.
 
+## Interior axial-edge lift
+
+[The axial-edge operator and derivation](AXIAL_EDGE_LIFT.md) construct protected
+lifts for all twelve quartic or eighteen quintic endpoint-zero target
+coefficients on a four-cube patch. The target source image is full. All other
+edge divergence traces, all 24 cell means, and the patch-boundary velocity trace
+are zero. Use `axial_edge_lift.py --all-axes` with `--degree 4` or `--degree 5`
+for the three cyclic axial directions with exact translation and isotropic scale.
+The final reference maps have 381 and 2,298 nonzeros, with conservative
+seminorm-squared bounds `5248` and `98136/49` in complete trace-coefficient norm;
+physical scaling multiplies these bounds by `h³`. The full census and
+mesh-uniform theorem remain separate.
+
 ## Original problem
 
 On a Freudenthal tetrahedral mesh of a cubical domain, let `V_h^k` be the continuous vector degree-k polynomial space with zero boundary trace, and let `Q_h^k = div V_h^k`.
