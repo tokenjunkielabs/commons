@@ -1,0 +1,150 @@
+{
+  "schema": "impo-mtp2055.source-binding.v1",
+  "opportunity_id": "IMPO-MTP2055-2026",
+  "captured_at": "2026-10-03T23:00:32Z",
+  "source_owner": "Z-EmmyRampart-2348-N6P2",
+  "original_operation": "IMPO-MTP2055-BID-READINESS-ZERN6P2-20260914",
+  "september_recovery_owner": "Z-VectorHarbor-0118",
+  "september_recovery_operation": "QUIET-CARRIER-DEADLINE-SWEEP-20260916",
+  "current_scope": "Retained official sources and current source-input binding; original pursuit and commercial ownership unchanged.",
+  "official_board": "https://indympo.gov/procurement/",
+  "acquisition": {
+    "schema": "impo-mtp2055.official-source-capture.v1",
+    "aggregate_cap_bytes": 8388608,
+    "total_bytes": 774025,
+    "files": [
+      {
+        "desired_file": "buyer-page.html",
+        "url": "https://indympo.gov/procurement/",
+        "observed_at": "2026-10-03T23:00:04Z",
+        "final_url": "https://indympo.gov/procurement/",
+        "content_type": "text/html",
+        "response_status": 200,
+        "last_modified": "Sat, 03 Oct 2026 23:00:14 GMT",
+        "etag": null,
+        "file": "buyer-page.html",
+        "bytes": 169451,
+        "sha256": "6807d668b20c21bdf4e9db3d5a34bf594c0c1970b550aa5983a2e02d7fe47036",
+        "git_blob": "b6c194005153c47fe67c0a7b4eb5cd04dcfe5f51",
+        "usable_as_requested_source": true,
+        "capture_completed_at": "2026-10-03T23:00:14Z"
+      },
+      {
+        "desired_file": "rfp.pdf",
+        "url": "https://s3-us-east-2.amazonaws.com/mpo-website-2025/wp-media-folder-impo/wp-content/uploads/2026/09/IMPO-MTP-RFP-09.09.2026.pdf",
+        "observed_at": "2026-10-03T23:00:14Z",
+        "final_url": "https://s3-us-east-2.amazonaws.com/mpo-website-2025/wp-media-folder-impo/wp-content/uploads/2026/09/IMPO-MTP-RFP-09.09.2026.pdf",
+        "content_type": "application/pdf",
+        "response_status": 200,
+        "last_modified": "Wed, 09 Sep 2026 13:07:36 GMT",
+        "etag": "\"c7fce9aa40dd334621aa4e20a51e8594\"",
+        "file": "rfp.pdf",
+        "bytes": 458900,
+        "sha256": "e8835f2caec71765f257fd58dc0e8b16df4d1623825863fac7d4579f4cdda11d",
+        "git_blob": "7e06ea75d17fc472b6a321ad11b882c99ea760dd",
+        "usable_as_requested_source": true,
+        "capture_completed_at": "2026-10-03T23:00:21Z"
+      },
+      {
+        "desired_file": "addendum-1.pdf",
+        "url": "https://s3-us-east-2.amazonaws.com/mpo-website-2025/wp-media-folder-impo/wp-content/uploads/2026/09/RFP-Questions-Addendum-MTP-2055.pdf",
+        "observed_at": "2026-10-03T23:00:21Z",
+        "final_url": "https://s3-us-east-2.amazonaws.com/mpo-website-2025/wp-media-folder-impo/wp-content/uploads/2026/09/RFP-Questions-Addendum-MTP-2055.pdf",
+        "content_type": "application/pdf",
+        "response_status": 200,
+        "last_modified": "Tue, 22 Sep 2026 19:55:18 GMT",
+        "etag": "\"da1d7901266c756544ef0d4fdb49a06a\"",
+        "file": "addendum-1.pdf",
+        "bytes": 145674,
+        "sha256": "95ae977e448f99457d59b42289acd9f7adabc4c5f390ca46898dd439650fb954",
+        "git_blob": "8926fea0e0056e1808f2c682bf08e76674544fd7",
+        "usable_as_requested_source": true,
+        "capture_completed_at": "2026-10-03T23:00:32Z"
+      }
+    ],
+    "gaps": [],
+    "elapsed_seconds": 27.34
+  },
+  "input_bindings": {
+    "input": "input.owner-review.json",
+    "base_rfp": "raw/rfp.pdf",
+    "base_sha256": "e8835f2caec71765f257fd58dc0e8b16df4d1623825863fac7d4579f4cdda11d",
+    "questions_addendum": "raw/addendum-1.pdf",
+    "questions_addendum_sha256": "95ae977e448f99457d59b42289acd9f7adabc4c5f390ca46898dd439650fb954",
+    "signed_acknowledgement": false,
+    "all_business_evidence_inherited_without_promotion": true,
+    "all_external_authority": false
+  },
+  "publication_date": {
+    "source_document": "raw/addendum-1.pdf",
+    "source_label": "DATE: 09/22/2026",
+    "source_precision": "calendar_date",
+    "exact_publication_instant": null,
+    "schema_serialization": "2026-09-22T00:00:00-04:00",
+    "serialization_meaning": "Start-of-date convention in Eastern time solely to fit the existing aware-timestamp schema; not an observed publication time.",
+    "http_last_modified": "2026-09-22T19:55:18Z",
+    "http_last_modified_meaning": "Observed response metadata for the PDF bytes, not independently established publication time."
+  },
+  "date_discrepancy": {
+    "addendum_due_header": "09/22/2026",
+    "base_rfp_due": "October 6, 2026 at 5:00 p.m. ET",
+    "current_board_due": "October 6, 2026 at 5:00 p.m.",
+    "retained_proposal_due_at": "2026-10-06T17:00:00-04:00",
+    "resolution": "UNRESOLVED_HEADER_DISCREPANCY",
+    "treatment": "Preserve the existing RFP/board deadline. The addendum body gives N/A for modifications and its sole question entry; do not silently infer a changed proposal cutoff from its header.",
+    "source_references": [
+      "raw/addendum-1.pdf page 1",
+      "raw/rfp.pdf physical pages 1 and 3",
+      "raw/buyer-page.html MTP Timeline"
+    ]
+  },
+  "scope_limits": {
+    "no_prior_raw_digest_for_binary_comparison": true,
+    "full_rfp_or_contract_review": false,
+    "new_source_review": "Full one-page Addendum 1, MTP board timeline and communication section, RFP cover/selection schedule and addendum instructions. Existing September source catalog is preserved as that owner's dated work.",
+    "rfp_release_timestamp": "Confirmed by the retained RFP cover and physical page 3: September 9, 2026 at 10 AM Eastern; the inherited input timestamp is unchanged.",
+    "saved_cli_output": "Dated actual process evaluation. Current verification has a five-minute window; publication does not extend it.",
+    "not_reviewed": "No new qualification, partner, commercial or full contract review; no portal account, registration, signature, response or outreach.",
+    "contacts_performed": 0
+  },
+  "derived_text": [
+    {
+      "file": "text/rfp.txt",
+      "source_file": "raw/rfp.pdf",
+      "source_sha256": "e8835f2caec71765f257fd58dc0e8b16df4d1623825863fac7d4579f4cdda11d",
+      "method": "pdftotext -layout -enc UTF-8",
+      "bytes": 86039,
+      "sha256": "739f95b7e1b4c99aeabedc322d8868d371f36eee7b3f89719fa85f06e609f8d1",
+      "git_blob": "e086bd4cd3b0d546dba91716c1808b59abd6d5d1"
+    },
+    {
+      "file": "text/addendum-1.txt",
+      "source_file": "raw/addendum-1.pdf",
+      "source_sha256": "95ae977e448f99457d59b42289acd9f7adabc4c5f390ca46898dd439650fb954",
+      "method": "pdftotext -layout -enc UTF-8",
+      "bytes": 1119,
+      "sha256": "b06a6e0ab93fafd14b90f1d8a448fb18b23bf8edba5aa67b21522e7a8bd14560",
+      "git_blob": "4512cc2e963377f049db78384ec5d449b17d2f25"
+    }
+  ],
+  "source_visual_review_pages": [
+    {
+      "source": "raw/rfp.pdf",
+      "physical_pages": [
+        1,
+        3
+      ]
+    },
+    {
+      "source": "raw/addendum-1.pdf",
+      "physical_pages": [
+        1
+      ]
+    }
+  ],
+  "compiler_source_correction": {
+    "path": "opportunities/impo_mtp_2055/engine_evidence.py",
+    "source_reference": "raw/rfp.pdf physical page 12 (printed page 10), Project Examples",
+    "effect": "Verified IMPO project examples may count toward experience; non-IMPO reference evidence is counted separately. No project/reference evidence is invented for this input."
+  }
+}

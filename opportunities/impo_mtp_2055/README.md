@@ -6,6 +6,16 @@ This package compiles a **non-authorizing owner-review** receipt and Markdown ga
 
 It does **not** contact IMPO, create or alter a vendor profile, register for the pre-bid meeting, sign a form, commit a price, transmit a proposal, accept a contract, or spend money. All external-authority bits are required to remain false; candidate JSON that attempts to set them true is rejected.
 
+## Retained source capture — October 3, 2026
+
+Use [captures/20261003/README.md](captures/20261003/README.md) for the dated official board, exact RFP and posted Addendum 1 bytes, source manifest, current-input binding, and actual compiler output. The original September input, page-reference catalog, public-source snapshot and owner decision packet remain historical records credited to their original owners.
+
+The capture closes the missing base-PDF and posted-addendum byte gaps. Addendum 1 remains unsigned, and its date header conflicts with the RFP and current board; the capture keeps that discrepancy visible. The owner-review input retains the October 6, 2026, 5 PM Eastern deadline and all unresolved organization, staff, project, reference, document and commercial facts.
+
+The RFP allows IMPO project examples while prohibiting IMPO references. The compiler counts experience and external-reference evidence separately; the dated input still supplies neither.
+
+A saved receipt records its actual process-time evaluation. The existing current verifier expires receipts after five minutes; the published output is an observation of that run, not a reusable current-readiness credential. A later operator should compile the dated input into a new output directory and verify immediately, while separately refreshing source evidence when required.
+
 ## Why this opportunity is consequential
 
 The published RFP states a $215,000 not-to-exceed budget, a September 16 question deadline, and an October 6 proposal deadline. The work covers a 20-24 month MTP update with regional engagement, survey work, performance measures, scenario/model integration, investment and project-scoring work, fiscal constraint, policy and implementation recommendations, public review, and editable final handoff.
@@ -23,26 +33,26 @@ Those requirements create a real owner-review problem: a persuasive narrative is
 
 ## Files
 
-- `input.owner-review.json` - truthful initial state; deliberately blocked.
-- `source_requirements.json` - page-referenced source catalog; deliberately un-hashed until exact bytes are retrieved.
+- `captures/20261003/input.owner-review.json` - the dated retained-source input; acknowledgment, qualification and commercial evidence remain unresolved.
+- `input.owner-review.json` - truthful September initial state; preserved.
+- `source_requirements.json` - original page-referenced source catalog; its historical hash field is unchanged. The new capture manifest binds the retrieved RFP generation separately.
 - `questions.json` - owner-review question queue for the published question deadline; no send authority.
 - `response_architecture.md` - 16-page allocation, delivery architecture, team shape, and commercial work breakdown.
 - `schema.py` - strict validation with exact keys and bounded values.
 - `engine.py` - historical/current compiler and verifier surfaces.
 - `cli.py` - process-current compile/verify, strict bounded no-follow reads, and create-exclusive dirfd-relative output writes.
-- `test_engine.py` - normal and optimized hostile tests.
 
 ## Run
 
 From repository root:
 
 ```bash
-python -m opportunities.impo_mtp_2055.cli compile \
-  opportunities/impo_mtp_2055/input.owner-review.json \
+python -B -m opportunities.impo_mtp_2055.cli compile \
+  opportunities/impo_mtp_2055/captures/20261003/input.owner-review.json \
   --output-dir /tmp/impo-mtp2055-packet
 
-python -m opportunities.impo_mtp_2055.cli verify \
-  opportunities/impo_mtp_2055/input.owner-review.json \
+python -B -m opportunities.impo_mtp_2055.cli verify \
+  opportunities/impo_mtp_2055/captures/20261003/input.owner-review.json \
   /tmp/impo-mtp2055-packet/receipt.json \
   /tmp/impo-mtp2055-packet/packet.md
 ```
@@ -60,4 +70,4 @@ No `SUBMISSION_READY` state is produced by this owner-review-only carrier.
 
 ## Source notes
 
-Primary source: IMPO, *Request for Proposals for Professional Services for Metropolitan Transportation Plan (MTP) 2055*, released September 9, 2026. The shipped input intentionally leaves `source_sha256` empty because the exact PDF bytes were not independently available to the build runtime. That remains a hard `SOURCE_HOLD` until a reviewer retrieves and hashes the authoritative bytes. Even after a digest is supplied, this package truth-labels it as a candidate assertion unless a separate trusted evidence system authenticates it.
+Primary source: IMPO, *Request for Proposals for Professional Services for Metropolitan Transportation Plan (MTP) 2055*, released September 9, 2026. The original September input leaves `source_sha256` empty because exact PDF bytes were unavailable to that build runtime. The October 3 capture supplies the exact retrieved RFP and posted addendum digests in a separate input. The compiler continues to label all input evidence as candidate assertions and does not authenticate external authority. Source capture does not supply a signed acknowledgment, firm qualifications, committed staff or approved pricing.

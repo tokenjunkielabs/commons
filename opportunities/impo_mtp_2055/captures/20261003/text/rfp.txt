@@ -1,0 +1,1486 @@
+Request for Proposals for
+
+
+Professional Services for
+
+
+
+
+Release Date                       All of the responses must be addressed and
+September 9, 2026, 10:00 a.m. ET   returned to:
+
+Responses Due                      Indianapolis Metropolitan Planning
+October 6, 2026, 5:00 p.m. ET      Organization
+                                   indympo.gov
+                                   200 East Washington Street – Suite 2322
+                                   Indianapolis, Indiana 46204
+                                   317.327.5135
+
+                                   procurement@indympo.gov
+Contents
+01. RFP / SELECTION SCHEDULE .......................................................................................... 1
+02. IMPO HISTORY ............................................................................................................... 1
+03. CONTEXT ....................................................................................................................... 2
+04. WORK ELEMENTS .......................................................................................................... 2
+      A. Regulatory Compliance ......................................................................................................................... 3
+      B. General Administrative and Project Management Requirements ....................................................... 3
+      i.) Regulatory and Plan Development Framework .................................................................................... 5
+      ii.) Regional Conditions and Planning Linkages ......................................................................................... 5
+      iii.) Vision, Goals, Objectives, and Performance Framework .................................................................... 6
+      iv.) Growth, Land Use, Scenario Planning, and Modeling......................................................................... 6
+      v.) Investment Framework and Project Development.............................................................................. 7
+      vi.) Policy, Program, and Implementation Framework ............................................................................. 7
+      vii.) Public Review and Final Deliverables ................................................................................................. 8
+      viii.) Optional ............................................................................................................................................. 8
+05. RESPONSE REQUIREMENTS ........................................................................................... 9
+06. EVALUATION CRITERIA ................................................................................................ 10
+07. SUPPLEMENTAL INFORMATION .................................................................................. 11
+08. VENDOR INSTRUCTIONS .............................................................................................. 11
+ATTACHMENT A: REQUIRED FORMS ................................................................................. 13
+ATTACHMENT B: SAMPLE CONTRACT ............................................................................... 16
+ATTACHMENT C: SCOPE OF SERVICES ............................................................................... 30
+ATTACHMENT D: PRICING ................................................................................................. 30
+ATTACHMENT E: TITLE VI ASSURANCES ............................................................................ 30
+01. RFP / Selection Schedule
+ RFP Released                                          September 9, 2026 (10:00 a.m. ET)
+
+ Questions due (See Section 05 Response                September 16, 2026 (10:00 a.m. ET)
+ Requirements)
+ Pre-Bid Meeting (pre-register)                        September 23, 2026 (11 to 12 p.m. ET)
+
+ Proposal Packages                                     October 6, 2026 (5:00 p.m. ET)
+
+ Shortlist interviews*                                 November 4 & 5, 2026
+
+
+The Indianapolis MPO adheres to the following selection and contracting process:
+
+    1.   Issue RFP
+    2.   Receiving RFP packages
+    3.   Review proposal with selection committee
+    4.   Interview shortlisted respondents as necessary*
+    5.   Contracting process
+
+*Optional. The IMPO reserves the right to select a consultant based solely on qualifications.
+The IMPO also reserves the right not to hold shortlist interviews or change the date and time
+if deemed necessary.
+
+02. IMPO History
+The Indianapolis Metropolitan Planning Organization (IMPO) is Central Indiana’s federally
+designated regional planning organization. The IMPO creates and implements short- and
+long-range plans to advance the region’s goals in transportation, economic development,
+housing, safety, sustainability, and other quality of life issues. The IMPO is also responsible
+for distributing certain federal transportation funds for roads, transit, trails, and other means
+of moving people and goods around Central Indiana. Our planning region includes
+approximately 1,520 square miles, 36 jurisdictions, and approximately 1.78 million
+residents.
+
+The IMPO’s planning process is collaborative including community members, member
+jurisdictions such as cities, towns, and counties, as well as partner organizations who plan
+for and/or provide transportation services within the region. The IMPO is governed by its
+Executive Committee made up of elected and appointed officials from across the region. The
+IMPO’s transportation functions are approved by the Transportation Policy Committee with
+support from the Transportation Technical Committee.
+
+Our vision is one in which Central Indiana will thrive as we continuously improve our built
+environment and expand economic opportunities for all residents. To this end, the IMPO is
+built around four core pillars including convene (bring experts and community members
+together), inform (provide reliable data to support planning and policy-making), plan (create
+
+                                                                                          Page | 1
+and adopt infrastructure plans and track their implementation), and fund (fund regionally-
+significant projects).
+
+03. Context
+The Indianapolis MPO is updating its CIRCLE 2050 Metropolitan Transportation Plan (MTP) to
+2055. This major update will incorporate IMPO activities for performance measures,
+including requirements on pavement, bridges, safety, and other measures as mandated. For
+this major update, we plan to spend 20-24 months for plan development through final
+approval.
+
+The last major update of the MTP had a horizon year of 2050 and was approved in
+December 2024. This update will engage the public, regional partners, and Transportation
+Technical and Policy Committee members to refine the region’s transportation and
+investment goals; policy and funding priorities; and the plan’s goals, objectives, performance
+measures, and project-scoring framework. The update will also strengthen linkages between
+the MTP and other IMPO plans, studies, and recommendations.
+
+The IMPO is separately updating Scenario Planning and Regional Activity Centers to
+incorporate geographic expansions and updated land-use and economic data. Those efforts
+will inform the 2055 MTP. The IMPO is also updating its Travel Demand Model (TDM) through
+2027; the current model will be available for initial analyses, but updated model outputs are
+anticipated to be available for MTP analysis in early 2028.
+
+Additional separate tasks not included in this RFP include revenue projections for the MTP's
+fiscal constraint activities, which will be completed in a separate contract.
+
+04. Work Elements
+Project Schedule
+   •   The anticipated start date for the contract will be on or around January 1, 2027.
+   •   The Metropolitan Transportation Plan is expected to be presented for adoption in
+       August or October 2028.
+   •   All final deliverables, editable source materials, data, documentation, and project
+       closeout activities must be completed no later than December 31, 2028.
+   •   Respondents shall provide a detailed project schedule identifying major tasks,
+       dependencies, review periods, engagement and committee touchpoints, decision
+       points, draft deliverables, public review, adoption, and final handoff.
+
+Project Budget
+   •   Total not-to-exceed budget: $215,000.
+   •   Proposals shall clearly distinguish between:
+       1. base-scope services required to complete and adopt the Metropolitan
+           Transportation Plan; and
+       2. separately priced optional or additive services.
+
+
+
+
+                                                                                        Page | 2
+General Scope Expectations
+The Indianapolis Metropolitan Planning Organization requests the following work as part of
+the project scope. The tasks describe the minimum required components and outcomes of
+the project.
+
+Respondents are encouraged to propose creative, efficient, or innovative methods for
+completing the work. Respondents may recommend consolidating or reorganizing tasks
+where doing so would produce a stronger and more useful MTP, provided the proposal clearly
+demonstrates how all required elements will be addressed.
+
+The IMPO reserves the right to refine the scope, schedule, deliverables, and allocation of
+responsibilities during contract negotiations.
+
+The resulting MTP should function as more than a document produced for adoption. It should
+establish an understandable and maintainable framework connecting the region’s long-range
+vision, transportation needs, investment decisions, project development, performance
+monitoring, Transportation Improvement Program, and future MTP amendments.
+
+A. Regulatory Compliance
+The IMPO’s MTP must include, at a minimum, the required items in applicable sections of the
+Code of Federal Regulations, Title 23, Section 450 Subpart C (23 CFR §450.300-340). The
+IMPO is a Transportation Management Area, which is an MPO that covers an area with more
+than 200,000 people. Other required activities for MPOs may also be recommended for
+inclusion in the MTP.
+
+B. General Administrative and Project Management Requirements
+The following requirements apply throughout the contract and shall be incorporated into the
+consultant’s approach, schedule, and fee for each applicable technical task.
+
+The IMPO will expect the consultant to:
+   • Designate a project manager who will serve as the primary point of contact for the
+       IMPO;
+   • Participate in regularly scheduled coordination meetings with the IMPO project
+       manager and designated project team;
+   • Prepare and maintain a project work plan and timeline coordinated with related IMPO
+       initiatives and deliverables;
+   • Submit monthly invoices with a summary of completed and upcoming work, budget
+       and schedule status, and matters requiring IMPO direction;
+   • Apply appropriate quality-assurance and quality-control procedures;
+   • Develop and share draft approaches and major milestone products with the IMPO
+       project manager sufficiently in advance for meaningful collaboration, review, and
+       refinement;
+   • Attend and support major milestone meetings, including preparation of applicable
+       agendas, presentations, technical summaries, and decisions.
+
+
+
+
+                                                                                        Page | 3
+The IMPO will provide overall project oversight, available plans and data, access to
+appropriate staff and committees, consolidated review comments, and formal agency
+decisions.
+
+C. General Engagement and Consultation Requirements
+Engagement and consultation should be integrated throughout the technical tasks rather
+than conducted as a separate or isolated phase of the project.
+
+Early in the project, the consultant will work with the IMPO to develop an Engagement and
+Decision Support Framework identifying:
+    • the MTP decisions that require public, stakeholder, technical, or policy input;
+    • what information is needed and how it will be used;
+    • who should be consulted and why;
+    • the most appropriate method and timing for obtaining the information;
+    • how findings will be analyzed and communicated; and
+    • how the information will influence the applicable analysis, recommendation, or
+         decision.
+
+The framework should remain flexible and may be refined as information needs and plan
+decisions become clearer.
+
+Engagement and consultation should include, as appropriate:
+   • a MTP Steering Committee; IMPO has an existing member list and will update
+   • coordination with IMPO member jurisdictions, INDOT, public transportation providers,
+      and other planning partners;
+   • topic-specific stakeholder, focus-groups, or technical discussions;
+   • consultation with populations, organizations, industries, and communities affected by
+      regional transportation decisions;
+   • public engagement at meaningful decision points;
+   • presentations and discussions with the IMPO Transportation Technical and Policy
+      Committees; and
+   • required public review and comment opportunities.
+
+The consultant should recommend engagement methods based on the information needed.
+Methods may include interviews, facilitated discussions, surveys, workshops, focus groups,
+online tools, existing community events, or other approaches.
+
+As part of this work, the consultant will adapt and administer a statistically valid regional
+survey addressing transportation priorities, funding tradeoffs, and resource-allocation goals.
+The IMPO will provide its previous MTP survey as a starting point. Proposals shall describe
+the survey approach, sampling and weighting methodology, expected representativeness,
+and any specialized survey partner or subcontractor proposed. The methodology, findings,
+and limitations should be documented. Survey findings will be considered alongside
+technical analysis and other input and will not serve as the sole basis for investment
+decisions.
+
+
+                                                                                        Page | 4
+The consultant will document the purpose, participants, methods, findings, limitations, and
+use of information collected through major engagement activities. The final MTP
+documentation should clearly demonstrate how substantive input was considered in the
+planning process.
+
+D. Technical Tasks
+
+i.) Regulatory and Plan Development Framework
+The consultant should ensure that the MTP and its development process comply with all
+applicable federal and state metropolitan transportation planning requirements in effect at
+the time of adoption. This includes requirements related to performance-based planning,
+public participation and consultation, fiscal constraint, transportation conformity,
+accessibility, environmental considerations, and development of a multimodal transportation
+plan covering the required planning horizon of 2055.
+
+ii.) Regional Conditions and Planning Linkages
+The consultant should evaluate the conditions, trends, and uncertainties most relevant to the
+region’s transportation decisions through 2055.
+
+The analysis should address as appropriate:
+   • population, households, employment, and economic activity;
+   • land use, development, and growth patterns;
+   • transportation demand for people and goods;
+   • transportation system condition, performance, safety, congestion, reliability, and
+       operations;
+   • roadway, bridge, transit, active transportation, freight, and intermodal systems;
+   • access to employment, education, healthcare, food, recreation, and other important
+       destinations;
+   • natural resources, environmental conditions, and infrastructure vulnerability;
+   • emerging trends that may materially affect transportation needs or system
+       performance;
+   • other items that federal regulations require IMPOs to review.
+
+The work should build on and create stronger connections among relevant IMPO and partner
+plans, including active transportation, transportation safety and Vision Zero, congestion
+management, transit, freight, intelligent transportation systems, housing, economic
+development, resiliency, and land-use planning.
+
+The consultant should identify which findings, strategies, projects, datasets, and
+performance measures should be incorporated into the MTP, incorporated by reference,
+maintained separately, or addressed through future work.
+
+Existing-conditions analysis and peer-region comparisons should be focused on questions
+that influence a plan decision, investment strategy, performance measure, or
+recommendation. The consultant should avoid reproducing information solely for descriptive
+purposes.
+
+
+                                                                                      Page | 5
+The base scope shall include integration of applicable Congestion Management Process
+findings and recommendations. A comprehensive update of the Congestion Management
+Process may be proposed as an optional service.
+
+iii.) Vision, Goals, Objectives, and Performance Framework
+The consultant will assess and refine the CIRCLE 2050 vision and the MOVE, PROSPER,
+MAKE SAFE, and SUSTAIN framework to reflect current regional priorities, conditions, and
+applicable requirements. Updates will be strongly influenced by engagement activities in
+Task C (above).
+
+In coordination with updating the MTP's goals and objectives, the consultant will review the
+MTP's Key Performance Indicators (KPIs) and refine them as necessary to ensure that they:
+    • meet applicable federal requirements;
+    • communicate regional conditions and progress in language understandable to
+        residents and decision-makers;
+    • rely on data that can reasonably be maintained;
+    • help guide future planning, programming, and policy decisions; and
+    • support continued use through the IMPO’s performance reporting and dashboard
+        activities.
+
+The consultant will prepare the required system performance report and supporting
+documentation. Respondents are encouraged to recommend creative ways of
+communicating regional performance and connecting measures to the goals and objectives
+as well as decisions and actions that can influence outcomes.
+
+iv.) Growth, Land Use, Scenario Planning, and Modeling
+The consultant should incorporate updated population, employment, land-use, and travel
+assumptions into the MTP. The IMPO will provide 2026 data from updates to the Preferred
+Land Use Modeling Scenario for 2055, existing and emerging Regional Activity Centers, and
+Vision Eval strategic policy modeling. The Indianapolis Travel Demand Model (ITDM) is
+undergoing a major update, but outputs will be available as requested throughout 2027.
+New modules won't be live until early 2028, and therefore timing may or may not eliminate
+them from use during this MTP update.
+
+Within the context of the aforementioned products, scenario analysis should be used where
+it can help the region understand a consequential decision, tradeoff, or uncertainty. Potential
+applications may include:
+     • alternative growth patterns;
+     • evaluation of transportation investments;
+     • preservation and expansion tradeoffs;
+     • revenue uncertainty;
+     • changes in travel behavior or technology; and
+     • growth within or outside Regional Activity Centers.
+
+
+
+
+                                                                                        Page | 6
+v.) Investment Framework and Project Development
+The consultant will facilitate updates to the IMPO’s resource allocation (transportation
+spending) goals. The analysis should consider:
+     • public, stakeholder, and IMPO-member input;
+     • regional transportation needs and performance;
+     • historical investment patterns;
+     • projected revenues;
+     • federal funding eligibility and requirements;
+     • adopted goals (such as IMPO's Vision Zero goal) and performance measures; and
+     • the tradeoffs and anticipated outcomes associated with different investment
+        approaches.
+
+Regional revenue projections for 2025-2055 will be created through a separate contract
+outside this RFP.
+
+The IMPO has maintained an objective MTP project scoring process for regionally significant
+transportation projects through several MTP updates. The process requires at least two
+passes in order to incorporate the necessary information from the ITDM and apply fiscal
+constraint. The consultant and IMPO will share development tasks for the MTP fiscally
+constrained project list, including:
+    • review and improvement of project scoring methods;
+    • a call for regionally significant transportation projects;
+    • quality control of project/scoring data;
+    • assigning project scores;
+    • incorporating ITDM outputs; and
+    • application of the fiscal constraint process.
+
+The Call for Projects application, project cost estimating, and other forms may be reused
+from previous MTP updates. The majority of the technical tasks related to project scoring will
+be the responsibility of the selected consultant.
+
+The resulting project information should support coordination among the MTP, future
+amendments, project development, transportation conformity, and the Transportation
+Improvement Program.
+
+vi.) Policy, Program, and Implementation Framework
+The consultant should develop actionable policy, program, investment, and planning
+recommendations needed to advance the adopted MTP vision and goals. An update to the
+IMPO's Strategic Plan is under development, but once completed will strongly support this
+task.
+
+Recommendations may address system preservation, safety, active transportation, transit,
+freight, congestion and operations, land use, housing and transportation coordination,
+economic development, resiliency, data, performance monitoring, project development, local
+technical assistance, and regional coordination.
+
+
+                                                                                        Page | 7
+For major recommendations, the consultant should identify:
+    • the intended outcome;
+    • the role of the IMPO and its partners;
+    • potential implementation mechanisms;
+    • near-, medium-, or long-term impact;
+    • major dependencies or barriers;
+    • potential funding or staffing implications; and
+    • how progress could be monitored.
+
+The consultant should distinguish between actions the IMPO can implement directly, with
+IMPO’s staff input, actions requiring coordination or partner leadership, and actions
+dependent on local, state, or federal decisions.
+
+The work should also identify emerging legislation, funding changes, technology, travel
+behavior, or other trends that could materially affect MTP implementation. These issues
+should inform the plan’s strategies, assumptions, and risk considerations rather than be
+presented as a general list of future trends.
+
+The resulting implementation framework should provide a practical connection between the
+MTP and the IMPO’s Transportation Improvement Program, Unified Planning Work Program,
+technical assistance, future studies, and other implementation activities.
+
+vii.) Public Review and Final Deliverables
+The consultant will prepare draft and final MTP documents that are accessible, visually
+coherent, web accessible, and concise, and supported by appropriate technical
+documentation.
+
+The consultant will support required public review and adoption activities, including
+preparation of public-facing materials, presentations, comment documentation, and
+revisions resulting from public and committee review. The final documentation should
+explain how substantive comments were considered and addressed.
+
+Final deliverables will include, at a minimum:
+    • all final pdf documents in web accessibility compliant formats;
+    • all final report documents and any supplemental reports and summaries in native
+        packaged files / editable format to allow for future amendments;
+    • all mapping files/scripts in native packaged files / editable format to allow for future
+        amendments
+
+viii.) Optional
+Respondents may separately price optional services that may enhance the project but are
+not required to complete the base MTP scope. Optional services may include:
+
+•   additional scenario or travel-model analysis beyond the tasks above;
+•   specialized digital tools or dashboards development beyond the required public project
+    map and fiscally constrained list;
+
+
+                                                                                          Page | 8
+•   additional processes or analyses that other MPOs have implemented that would be
+    applicable to the Central Indiana Region.
+
+05. Response Requirements
+Consultants must submit a digital copy of their response; no paper copies are required.
+Consultants must also provide a separate PDF that contains an estimated quote for the
+contract amount that would cover all work included in Section 04 of this document. This is
+not included in the 16-page limit. All digital files should be in PDF format. All responses must
+be sent via email to procurement@indympo.gov and should read “MTP 2055” in the subject
+line.
+
+Submissions should be prepared to provide a straightforward and concise description of the
+consultant’s qualifications. Submissions should be no more than 16 pages, with each of
+those pages using standard 8.5” x 11” sheets. Forms A, B, and C, the questions addendum,
+cover page, vendor profile information, quote, and table of contents are not included in this
+16-page limit. Only one Form A, Form B, and Form C is required for the responding vendor.
+Sub-consultants are only to be included in Form B, under “Partnering Vendor.” If there are
+multiple sub-consultants, attach additional Form B pages in this section. Any information
+beyond these limitations will not be considered in evaluating the project response.
+
+The submission should include the following items counted toward the 16-page limit:
+
+Cover Letter: (one page)
+Indicate your interest in the project and any unique qualifications that should be taken into
+consideration.
+
+Firm Overview: (one to two pages)
+Include information on the lead and any sub-consultants on the team. Please identify the
+type of organization for each firm (corporation, partnership, etc.).
+
+The lead consultant would be required to carry liability insurance for this project. The
+attached draft contract indicates the insurance requirements that must be met.
+
+Project Approach: (one to four pages)
+
+Include your approach to the project, indicating how you will incorporate the suggested tasks,
+and whether additional tasks would be recommended. Be clear and concise.
+
+Project Team/Firm Experience
+
+     Project Team (maximum two pages)
+      Identify the project manager and main point of contact for the project as well as other
+      staff to be involved. Optionally, include an organizational chart for the project team.
+     Relevant Project Sheets (maximum three pages)
+      Include at least three projects that demonstrate relevant project experience
+      according to the suggested tasks. Include client name and listing staff who worked
+      on each project and their role. The three examples should come from relevant team
+
+                                                                                           Page | 9
+      members’ experience, identifying specifically what role each team members played in
+      the projects. For teams, please include at least one relevant project per firm that
+      highlights expertise similar to the task(s) currently proposed. Listing Indianapolis
+      MPO experience is acceptable, but do not include Indianapolis MPO references.
+     Resumes for Key Staff (maximum four pages)
+      Resumes should detail educational qualifications and previous work assignments
+      related to the services proposed. Include qualifications of each employee, as well as
+      expected roles and responsibilities for this project. Project team credentials will be
+      subject to verification.
+
+The submission should include the following items not counted toward the page limit:
+
+Completed Forms: Complete one each of forms A (general information), B (qualifications
+statement), and C (references). The forms are included in this RFP packet. This information
+does not count toward the page limit.
+
+Cover page and Table of Contents: A cover page and the table of contents are optional and
+not counted towards the page limit.
+
+Indianapolis Marion County Vendor Profile Information: Include a Screenshot or PDF print of
+your Indianapolis Marion County vendor profile. If you do not have an existing vendor profile
+you will be required to register if you are selected for the contract. This information does not
+count toward the page limit.
+
+Signed Questions Addendum Form: Questions will be accepted and directed to
+procurement@indympo.gov until 09/16/2026 10:00 a.m. ET. All questions will remain
+anonymous. The Questions Addendum Form with answers to questions will be posted on the
+Indianapolis MPO website (indympo.gov/procurement) after the questions deadline. Addenda
+will not be sent directly to vendors. Vendors will be responsible for periodically checking this
+website for any related addenda up to and including the due date. Vendors should sign the
+addendum and include it in their submission. This information does not count toward the
+page limit.
+
+Separate Quote Document: Include a separate PDF that contains a quote for the scope of
+work in Section 04. Please include a minimum level of detail consistent with major tasks
+outlined in the proposal. Each major task should include costs along with rates and hours of
+key staff assigned to said tasks.
+
+06. Evaluation Criteria
+The IMPO may use an evaluation committee consisting of representatives from the IMPO
+staff and/or members. Each member of the team will be given a copy of the accepted
+responses and will evaluate each response against this RFP evaluation criteria.
+
+Project Approach: (35 points)
+
+     Points awarded based upon “Project Approach,” as submitted according to Section
+      05 Response Requirements.
+
+                                                                                         Page | 10
+Project Team (Manager / Staff): (35 Points)
+
+     Points awarded based upon “Project Team Experience,” as submitted according to
+      Section 05 Response Requirements.
+
+Past Project Experience / Examples of Work: (30 points)
+
+     Points awarded based upon “Project Team / Firm” as submitted according to Section
+      05 Response Requirements.
+
+07. Supplemental Information
+A submittal does not guarantee that the firm will be contracted to perform any services, but
+only serves as notice to the IMPO that the firm desires to be considered. The IMPO assumes
+no obligation to accept or act on any response. The IMPO assumes no liability for any costs
+incurred in preparing or submitting a response.
+
+An electronic version of the RFP can be found at: indympo.gov/procurement
+
+All consultants shall abide by the current Certifications and Assurances that the Federal
+Highway Administration (FHWA) requires including compliance with Title VI.
+
+Bonds, Insurance, and Special Requirements: The consultant selected for this project will be
+required to carry insurance as detailed in the attached boilerplate, Professional Services
+Agreement (see Attachment B).
+
+Federal Participation: The Indianapolis Metropolitan Planning Organization is a sub-recipient
+of Federal Funding through the Federal Highway Administration and Federal Transit
+Administration of the United States Department of Transportation. Specifically, this project
+will use federal planning funds as well as local match provided by the IMPO and its planning
+partners.
+
+Reserved Right: The Indianapolis Metropolitan Planning Organization reserves the right to
+withdraw this solicitation at any time in the process prior to contracting, upon notification to
+all vendors in receipt of the solicitation documents by fax, letter, or email to their last known
+business address. If such action is taken by the Indianapolis Metropolitan Planning
+Organization, no vendor will have claim for recompense.
+
+08. Vendor Instructions
+Notice to Vendors: Vendors are furnished the following instructions to clarify conditions for
+work, development and presentation of offers, clarification of contents, review of concerns,
+and other pertinent information from which knowledge of preparing and offering a
+responsible and responsive offer may be developed. All forms required in the certification
+pages must be completed or the response will be considered as non-responsive.
+
+Limitation of Responsibility: The Indianapolis Metropolitan Planning Organization is not
+responsible, and will not accept any responsibility, for the cost incurred by any vendor in the
+specific preparation or the associated activities aiding in the preparation of any project idea.
+
+                                                                                          Page | 11
+The Indianapolis Metropolitan Planning Organization is not responsible for returning
+submitted project ideas to any vendor.
+
+Vendor Warrants and Sub-Contractor Restrictions: Vendor will warrant that all information
+provided by it in connection with this offer is true and accurate, and that vendor by virtue of
+its submission is capable of supplying all work requested herein without brokering or
+delegating to a third party.
+
+Vendor will warrant that it will not delegate or sub-contract its responsibilities under the
+Agreement beyond the level revealed in the solicitation without the prior written permission
+of the Indianapolis Metropolitan Planning Organization.
+
+Taxes: The Indianapolis Metropolitan Planning Organization is tax exempt from Federal and
+State excise, use, and sales taxes.
+
+Independent Contractor: The successful vendor shall be considered and shall accept status
+as being that of an “Independent Contractor” to the Indianapolis Metropolitan Planning
+Organization, and shall recognize that they are not an employee.
+
+Contract Required: The sample contract included in this packet is the contract proposed for
+use on this procurement.
+
+
+
+
+                                                                                         Page | 12
+Attachment A: Required Forms
+Form A: General Information (submit one Form A)
+
+      Company Name:          __________________________________
+                  Street:    __________________________________
+         City, State, Zip:   __________________________________
+      Primary Contact:       __________________________________
+             Telephone:      __________________________________
+                  Email:     __________________________________
+               Web site:     __________________________________
+
+
+Type of organization:
+☐ Individual        ☐ Partnership      ☐ Other (explain) _________________________
+☐ Joint Venture ☐ Corporation
+
+
+
+Does the company presently carry errors/omissions professional liability insurance?
+☐ Yes. Amount: ________________
+
+Has the company reviewed the attached contract boilerplate?
+☐ Yes.
+
+Vendor Registration
+Vendors should be registered with Indianapolis & Marion County. To register see the Indianapolis Marion
+County Vendor Website. Vendor Number: __________________________
+
+Federal ID Unique Entity ID (generated by SAM.gov) ______________________
+
+
+
+
+                                                                                                 Page | 13
+          Form B: Qualifications Statement (submit one Form B)
+
+Project Manager
+
+                                Name:       __________________________________
+     Years of relevant experience:          __________________________________
+          % of time for this project:       __________________________________
+                               Street:      __________________________________
+                      City, State, Zip:     __________________________________
+                            Telephone:      __________________________________
+                                Email:      __________________________________
+
+Other Key Staff
+  Name:     __________________            Years of Relevant Experience: __________ % of time on this project____
+  Name:     __________________            Years of Relevant Experience: __________ % of time on this project____
+  Name:     __________________            Years of Relevant Experience: __________ % of time on this project____
+
+Partnering Vendor
+(if appropriate; if more than one vendor, attach separate sheet(s) with contact information)
+      Company Name:          __________________________________
+                  Street:    __________________________________
+       City, State, Zip:     __________________________________
+            Telephone:       __________________________________
+                  Email:     __________________________________
+             Web site:       __________________________________
+
+
+
+
+                                                                                                       Page | 14
+                              Form C: References (submit one Form C)
+
+Reference #1 (specific to project manager, no IMPO references please)
+                Name:      __________________________________
+         Organization:     __________________________________
+                Street:    __________________________________
+       City, State, Zip:   __________________________________
+           Telephone:      __________________________________
+                Email:     __________________________________
+  Referenced Project:      __________________________________
+
+
+Reference #2 (specific to project manager, no IMPO references please)
+                Name:      __________________________________
+         Organization:     __________________________________
+                Street:    __________________________________
+       City, State, Zip:   __________________________________
+           Telephone:      __________________________________
+                Email:     __________________________________
+  Referenced Project:      __________________________________
+
+
+Reference #3 (specific to project manager, no IMPO references please)
+                Name:      __________________________________
+         Organization:     __________________________________
+                Street:    __________________________________
+       City, State, Zip:   __________________________________
+           Telephone:      __________________________________
+                Email:     __________________________________
+  Referenced Project:      __________________________________
+
+
+
+
+                                                                        Page | 15
+Attachment B: Sample Contract
+
+
+
+
+                                Page | 16
+        SAMPLE CONTRACT ONLY – DO NOT FILL OUT
+  PROFESSIONAL SERVICES/ SERVICES [Choose either Professional Services or Services]
+                                 AGREEMENT
+
+                                          BETWEEN
+
+           THE INDIANAPOLIS METROPOLITAN PLANNING ORGANIZATION - XXXX
+
+                                             AND
+
+                                            XXXX
+
+                                             FOR
+
+                                            XXXX
+
+
+
+This Professional Services/Services Agreement (hereinafter referred to as “Agreement”),
+entered into by and between the Indianapolis Metropolitan Planning Organization (hereinafter
+referred to as “IMPO”) and XXXXX (hereinafter referred to as “Contractor”), is executed
+pursuant to the terms and conditions set forth herein. In consideration of those mutual
+undertakings and covenants, the parties agree as follows:
+
+SECTION I. INTERPRETATION AND INTENT
+
+
+       1.01    The “Agreement”, as referred to herein, shall mean this Agreement executed
+               by IMPO and Contractor, and shall include these Terms and Conditions, any
+               Attachments hereto, all addenda issued prior to receipt of RFPs, quotes, or
+               bids, whether or not receipt thereof has been acknowledged by Contractor, all
+               conditions, plans, specifications and standards, instructions and notice to
+               vendors, and any written supplemental agreement or modification entered into
+               between IMPO and Contractor, in writing, after the date of this Agreement.
+
+       1.02    This Agreement constitutes the entire agreement between the parties and
+               supersedes all prior agreements, written or verbal, between IMPO and
+               Contractor. No statements, promises or agreements whatsoever, in writing or
+               verbal, in conflict with the terms of the Agreement have been made by IMPO or
+               Contractor which in any way modify, vary, alter, enlarge or invalidate any of the
+               provisions and obligations herein stated. This Agreement may be amended
+               and modified only in writing signed by both IMPO and Contractor.
+
+       1.03    In resolving conflicts, errors, discrepancies and disputes concerning the scope
+               of the work or services to be performed by Contractor or other rights or
+               obligations of IMPO or Contractor the document or provision thereof expressing
+               the greater quantity, quality or scope of service or imposing the greater
+               obligation upon Contractor and affording the greater right or remedy to IMPO,
+               shall govern.
+
+
+                                                                                       Page | 17
+       1.04    Any interpretation applied to this Agreement, by the parties hereto, by an
+               arbitrator, court of law, or by any other third party, shall not be made against
+               IMPO solely by virtue of IMPO or IMPO’s representatives having drafted all or
+               any portion of this Agreement.
+
+       1.05    This Agreement shall include, and incorporate by reference, any provision,
+               covenant or condition required or provided by law or by regulation of any state
+               or federal regulatory or funding agency.
+
+       1.06    This Agreement was prepared in cooperation with the State of Indiana, Indiana
+               Department of Transportation and the Federal Highway Administration.
+
+SECTION II. DUTIES OF CONTRACTOR
+     2.01 Contractor shall provide services as specified in Attachment A, ____________,
+            attached hereto and incorporated into this Agreement. Contractor shall
+            perform and carry out the professional services relating to this Agreement in a
+            timely and professional manner consistent with industry standards.
+
+SECTION III. TERM
+
+       3.01    The term of this Agreement shall begin upon execution of this Agreement by all
+               parties and IMPO’s receipt of a Purchase Order and shall terminate on
+               _________ unless terminated earlier in accordance with this Agreement. The
+               Executive Director of the IMPO, may, for good cause shown, extend the time for
+               completion for up to six (6) months beyond the time specified in this Section;
+               provided that any such extension which also involves an increase in the
+               Contractor’s compensation or which, in the judgment of the Executive Director,
+               substantially changes the scope of the work or any extension beyond the six (6)
+               month period allowed herein must be approved by the Executive Committee of
+               the IMPO.
+
+       3.02    This Agreement may be renewed by agreement of parties. The term of the
+               renewal may be less but shall not be longer than the term of the original
+               Agreement. A renewal shall be only by written instrument signed by both IMPO
+               and Contractor and attached hereto as an amendment. All other terms and
+               conditions of the Agreement shall remain the same as set forth herein.
+
+SECTION IV. COMPENSATION
+
+       4.01    Contractor proposes to furnish all labor, materials and supplies in accordance
+               with the conditions of this Agreement necessary to complete the work as
+               defined in Attachment A at the rates set forth in Attachment B, attached hereto
+               and incorporated herein. However, in no event shall compensation for services
+               under this Agreement exceed ______________ ($XXXX.XX).
+
+       4.02    Contractor shall submit a properly itemized invoice for services performed and
+               expenses incurred under this Agreement and shall cooperate with and provide
+               any other necessary information to IMPO. IMPO will pay Contractor within thirty
+               (30) days after receipt of such properly itemized claim forms.
+
+SECTION V. GENERAL PROVISIONS
+
+
+                                                                                       Page | 18
+5.01    Independent Contractor. The parties agree that Contractor is an independent
+        contractor as that term is commonly used and is not an employee of IMPO. As
+        such, Contractor is solely responsible for all taxes and none shall be withheld
+        from the sums paid to Contractor. Contractor acknowledges that it is not
+        insured in any manner by IMPO for any loss of any kind whatsoever. Contractor
+        has no authority, express or implied, to bind or obligate IMPO in any way.
+
+5.02    Subcontracting. The parties agree that Contractor may subcontract, assign or
+        delegate any portion of this Agreement or the services to be performed
+        hereunder. In the event of any such subcontracting, assignment or delegation,
+        Contractor shall remain solely responsible for managing, directing and paying
+        the person or persons to whom such responsibilities or obligations are sublet,
+        assigned or delegated. Contractor shall be responsible for compliance by any
+        person or persons to whom such responsibilities or obligations are sublet,
+        assigned or delegated under this Agreement and Contractor shall be held liable
+        for any such person or persons not following the provisions of this Agreement.
+        IMPO shall have no obligation whatsoever toward such persons. Contractor
+        shall take sole responsibility for the quality and quantity of any services
+        rendered by such persons. Any consent given in accordance with this provision
+        shall not be construed to relieve Contractor of any responsibility for performing
+        under this Agreement.
+
+5.03 Necessary Documentation. Contractor certifies that it will furnish IMPO, if
+     requested, any and all documentation, certification, authorization, license,
+     permit, or registration required by the laws or rules, regulations and ordinances
+     of IMPO, and all other units of local government, the State of Indiana, and the
+     United States. Contractor further certifies that it is now and will remain in good
+     standing with such governmental agencies and that it is now and will maintain
+     its license, permit, registration, authorization, or certification, as applicable, in
+     force during the term of this Agreement. Failure of Contractor to comply with
+     this paragraph shall constitute a material breach of this Agreement.
+
+5.04    Confidentiality.
+
+        5.04.1 The obligations of this section shall survive the termination of this
+               Agreement and shall be applicable to the full extent permissible under
+               statutes governing access to public records. Contractor understands
+               that the information provided to it or obtained from IMPO during the
+               performance of its services is confidential and may not, without prior
+               written consent of IMPO, be disclosed to a person not in IMPO’s employ
+               except to employees or agents of Contractor who have a need to know
+               in order to provide the services. Further, Contractor’s work product
+               generated during the performance of this Agreement is confidential to
+               IMPO. The failure to comply in all material respects with this section
+               shall be considered a material breach of this Agreement. Confidential
+               information shall not include information, that: (a) was known by
+               Contractor at the time it was received; (b) is, as of the time of its
+               disclosure or thereafter becomes, part of the public domain through a
+               source other than Contractor; (c) is made known to Contractor by a
+               third person who does not impose any obligation of confidence on
+               Contractor with respect to such information; (d) is required to be
+               disclosed pursuant to governmental authority, law, regulation, duly
+
+                                                                                 Page | 19
+               authorized subpoena or court order whereupon Contractor shall
+               provide notice to IMPO prior to such disclosure; or (e) information that
+               is independently developed by Contractor without references to the
+               confidential information.
+
+       5.04.2 Contractor shall not, under any circumstances, release information
+              provided to it by, or on behalf of, IMPO that is required to be kept
+              confidential by IMPO pursuant to Indiana law except as contemplated
+              by Section 5.04.1, above.
+
+       5.04.3 Contractor acknowledges that IMPO will not treat this Agreement as
+              confidential information. Use by the public of any document or the
+              information contained therein shall not be considered an act of IMPO.
+
+5.05   Records; Audit. Contractor shall maintain books, records, documents and other
+       evidence directly pertinent to performance of services under this Agreement.
+       Contractor shall make such materials available at its offices at all reasonable
+       times during the Agreement period and for three (3) years from the date of final
+       payment under this Agreement for inspection by IMPO or any other authorized
+       representative of IMPO. Copies thereof, if requested, shall be furnished at no
+       cost to IMPO.
+
+5.06   Ownership.
+
+       5.06.1 “Works” means works of authorship fixed in any tangible medium of
+              expression by Contractor or its officers, employees, agents or
+              subcontractors in the course of performing the services under this
+              Agreement, including, but not limited to, computer programs,
+              electronic art, computer generated art, notes, specifications, drawings,
+              flow charts, memoranda, correspondence, records, notebooks,
+              documentation, reports and charts, regardless of the medium in which
+              they are fixed, and all copies thereof.
+
+       5.06.2 All Works made or created by Contractor, either solely or jointly with
+              IMPO, in the course of Contractor’s performance of services under this
+              Agreement shall be deemed to be works for hire and are and shall be
+              the exclusive property of IMPO. At IMPO’s request, Contractor will
+              execute all documents reasonably required to confirm or perfect
+              ownership of such Works and any corresponding copyright rights in and
+              to such Works in IMPO. Without the prior written consent of IMPO,
+              Contractor shall not use, copy or prepare derivative works of the Works,
+              or any parts of them, other than as related to the performance of this
+              Agreement. During the performance of this Agreement, Contractor
+              shall be responsible for loss or damage to the Works while they are in
+              Contractor’s possession or control. Any loss or damage shall be
+              restored at Contractor’s expense. IMPO shall have free and unlimited
+              access to the Works at all times and, upon demand, shall have the right
+              to claim and take possession of the Works and all copies.
+              Notwithstanding the foregoing, Contractor shall be entitled to retain a
+              set of its work papers for archival purposes only, in accordance with
+              applicable professional standards.
+
+
+
+                                                                               Page | 20
+        5.06.3 Contractor shall retain all rights in and to its know-how, methods,
+               techniques, discoveries, concepts, and ideas, whether patentable or
+               not, and whether possessed by Contractor prior to or acquired by
+               Contractor during the performance of this Agreement. Contractor also
+               shall retain all rights in and to all works of authorship fixed in a tangible
+               medium of expression which were made, created or acquired by
+               Contractor prior to the effective date of this Agreement (“Pre-Existing
+               Works”), provided that a listing of such Pre-Existing Works is attached
+               to this Agreement.
+
+5.07    Insurance. Contractor shall, as a condition precedent to this Agreement,
+        purchase and thereafter maintain such insurance as will protect it and IMPO
+        from the claims set forth below which may arise out of or result from
+        Contractor’s operations under this Agreement, whether such operations be by
+        Contractor or by its subcontractors or by anyone directly or indirectly employed
+        by any of them, or by anyone directly for whose acts any of them may be liable:
+
+       1) Claims under Worker’s Compensation and Occupational Disease Acts, and
+              any other employee benefits acts applicable to the performance of the
+              work;
+
+       2) Claims for damages because of bodily injury and personal injury, including
+              death, and;
+
+       3) Claims for damages to property.
+
+       Contractor’s insurance shall be not less than the amounts shown below:
+
+        A. Commercial General Liability (Occurrence Basis)
+           Bodily Injury, personal injury, property damage, Contractual liability,
+           product/completed          operations
+
+       Each Occurrence Limit                      $1,000,000.00
+
+       Damage to Rented Premises                 $100,000.00 (each occurrence)
+
+       Medical Expense Limit                     $5,000.00
+
+       Personal and Advertising Injury Limit     $500,000.00
+
+       General Aggregate Limit                   $2,000,000.00
+
+                                           (Other than Products Completed Operations)
+
+            NOTE: GENERAL AGGREGATE TO APPLY PER PROJECT
+
+           Products/Completed Operations                  $1,000,000.00
+
+
+
+
+                                                                                   Page | 21
+        B. Auto Liability                               $1,000,000.00       (combined
+                                                        single limit) (owned, hired &
+                                                        non-owned)
+
+       C. Excess/Umbrella Liability                    $1,000,000.00                (each
+                                                occurrence and aggregate)
+
+
+       D. Worker’s Compensation                         Statutory
+
+       E. Employer’s Liability
+
+            Bodily Injury Accident                      $100,000.00 each accident
+
+            Bodily Injury by Disease                    $100,000.00 each employee
+
+            Bodily Injury by Disease                    $500,000.00 policy limit
+
+        F. [Reserved for Professional Liability or additional riders as needed]
+
+        5.07.1 Certificates of Insurance, naming the Indianapolis Metropolitan
+               Planning Organization as an "additional insured," (A. B. and C. only)
+               showing such coverage then in force (but not less than the amount
+               shown above) shall be filed with IMPO prior to commencement of any
+               work. The coverages afforded under the policies shall not be cancelled
+               or not renewed until at least thirty (30) days after written notice has
+               been given to IMPO. Upon cancellation, Contractor shall obtain a new
+               insurance policy in accordance with Section 5.07 of this Agreement
+               and send a copy of the new policy to the IMPO.
+
+        5.07.2 With the prior approval of IMPO, Contractor may substitute different
+               types of coverage for those specified as long as the total amount of
+               required protection is not reduced. Contractor shall be responsible for
+               all deductibles.
+
+        5.07.3 Nothing in the above provisions shall operate as or be construed as
+               limiting the amount of liability of Contractor to the above enumerated
+               amounts.
+                                             --OR--
+
+
+        Insurance. Pursuant to agreement from all parties, in light of the nature of this
+        Agreement (i.e. personal and professional services) no insurance shall be
+        required.
+5.08    Termination for Cause or Convenience.
+
+        5.08.1 If Contractor becomes insolvent, or if it refuses or fails to perform the
+               work and services provided by this Agreement, or if it refuses to
+               perform disputed work or services as directed pending resolution of
+               such dispute, or if it fails to make payments to subcontractors
+
+                                                                                  Page | 22
+              employed by it, or if it replaces a project manager without the prior
+              written consent of the IMPO, or if it otherwise violates or fails to perform
+              any term, covenant or provision of this Agreement, then IMPO may,
+              without prejudice to any other right or remedy, terminate this
+              Agreement in whole or in part, in writing, provided that Contractor shall
+              be given (1) not less than ten (10) calendar days’ written notice of
+              IMPO’s intent to terminate, and (2) an opportunity for consultation with
+              IMPO prior to termination. In determining the amount of final payment
+              to be made to Contractor upon such termination for default, if any, no
+              amount shall be allowed for anticipated profit on unperformed services
+              or other work; furthermore, an adjustment shall be made to the extent
+              of any additional costs incurred or reasonably foreseen by IMPO to be
+              incurred by reason of Contractor’s default.
+
+       5.08.2 This Agreement may be terminated in whole or in part in writing by
+              IMPO for IMPO’s convenience; provided that Contractor is given (1) not
+              less than ten (10) calendar days’ written notice of intent to terminate
+              and (2) an opportunity for consultation with IMPO prior to termination.
+              If IMPO terminates for convenience, Contractor’s compensation shall
+              be equitably adjusted.
+
+       5.08.3 Upon receipt of notice of termination for default or for IMPO’s
+              convenience, Contractor shall (1) promptly discontinue all services
+              affected, unless the termination notice directs otherwise, and (2)
+              deliver or otherwise make available to IMPO all Works and such other
+              information, materials or documents as may have been accumulated
+              by Contractor in performing this Agreement, whether completed or in
+              process.
+
+       5.08.4 If, after termination for Contractor’s default, it is determined that
+              Contractor was not in default, the termination shall be deemed to have
+              been made for the convenience of IMPO. In such event, adjustment of
+              the price provided for in this Agreement shall be made as provided in
+              Section 5.08.2 and the recovery of such price adjustment shall be
+              Contractor’s sole remedy and recovery.
+
+
+5.09   Termination for Failure of Funding. Notwithstanding any other provision of this
+       Agreement, if funds for the continued fulfillment of this Agreement by IMPO are
+       at any time insufficient or not forthcoming through failure of any entity to
+       appropriate funds or otherwise, then IMPO shall have the right to terminate
+       this Agreement without penalty by giving written notice documenting the lack
+       of funding, in which instance this Agreement shall terminate and become null
+       and void on the last day of the fiscal period for which appropriations were
+       received. IMPO agrees that it will make its best efforts to obtain sufficient
+       funds, including but not limited to, requesting in its budget for each fiscal
+       period during the term hereof sufficient funds to meet its obligations
+       hereunder in full.
+
+5.10   Indemnification. Contractor agrees to indemnify, defend, and hold harmless
+       IMPO and their respective officers, agents, officials and employees for any and
+       all third party claims, actions, causes of action, judgments and liens to the
+
+                                                                                 Page | 23
+        extent they arise out of any negligent or wrongful act or omission or breach of
+        any provision of this Agreement by Contractor or any of its officers, agents,
+        employees or subcontractors regardless of whether or not it is caused in part
+        by the negligence of a party indemnified hereunder.
+
+        Such indemnity shall include attorney’s fees and all costs and other expenses
+        arising therefrom or incurred in connection therewith and shall not be limited
+        by reason of the enumeration of any insurance coverage required herein.
+        IMPO shall not provide such indemnification to Contractor, provided, however,
+        that Contractor shall be relieved of its indemnification obligation to the extent
+        any injury, damage, death or loss is attributable to the acts or omissions of
+        IMPO.
+
+5.11    IMPO Premises/Facility. Contractor agrees to take all action necessary while
+        on IMPO’s premises to ensure that anyone performing work under this
+        Agreement, shall not jeopardize, injure, threaten or in any way compromise the
+        health, safety and/or well being of the person at IMPO’s facility, including, but
+        not limited to its employees. In addition thereto, Contractor agrees to adhere
+        to any and all applicable safety and procedure policies in place and used at
+        IMPO’s facility. Contractor further agrees that any property situated on IMPO’s
+        premises and owned by IMPO, including disks and other storage media, filing
+        cabinets or other work areas, is subject to inspection by IMPO personnel at any
+        time with or without notice.
+
+5.12    Notice. Any notice required to be sent under this Agreement shall be sent by
+        internationally recognized overnight courier, certified mail, facsimile or other
+        delivery method which provides confirmation of receipt and shall be directed
+        to the persons and addresses specified below (or such other persons and/or
+        addresses as any party may indicate by giving notice to the other party):
+
+
+       To Contractor:                                   To IMPO:
+
+        _________________                       Indianapolis Metropolitan
+        _________________                       Planning Organization
+
+        _________________                       [INSERT ADDRESS]
+
+        _________________                       Attn: Executive Director
+
+                                                [INSERT PHONE NUMBER]
+
+5.13    Disputes. Contractor shall carry on all work required under this Agreement and
+        maintain the schedule for services during all disputes or disagreements with
+        IMPO. No work shall be delayed or postponed pending resolution of any
+        disputes or disagreements except as Contractor and IMPO may otherwise
+        agree in writing. Should Contractor fail to continue to perform its
+        responsibilities as regards all non-disputed work without delay, any additional
+        costs incurred by IMPO or Contractor as a result of such failure to proceed shall
+        be borne by Contractor, and Contractor shall make no claim against IMPO for
+
+
+                                                                                Page | 24
+       such costs. IMPO may withhold payments on disputed items pending
+       resolution of the dispute.
+
+5.14   Non-discrimination. Contractor and its officers, agents, employees, and
+       subcontractors shall not discriminate against any employee or applicant for
+       employment to be employed in the performance of this Agreement, with
+       respect to her or his hire, tenure, terms, conditions, or privileges of
+       employment, or any matter directly or indirectly related to employment,
+       because of her or his race, sex, sexual orientation, gender identity, religion,
+       color, national origin, ancestry, age, disability, or United States military service
+       veteran status. Contractor agrees to comply with the Title VI of the Civil Rights
+       Act assurances in Attachment C, attached hereto and incorporated into this
+       Agreement. Breach of this section shall be regarded as a material breach of
+       this Agreement.
+
+5.15   Conflict of Interest. Contractor certifies and warrants to IMPO that neither it
+       nor any of its officers, agents, employees, or subcontractors who will
+       participate in the performance of any services required by this Agreement has
+       or will have any conflict of interest, direct or indirect, with IMPO.
+
+5.16   Non-contingent Fees. Contractor warrants that no person or selling agency has
+       been employed or retained to solicit or secure this Agreement upon an
+       agreement or understanding for a commission, percentage, brokerage, or
+       contingent fee, excepting bona fide employees. For breach or violation of this
+       warranty IMPO shall have the right to annul this Agreement without liability or
+       in its discretion to deduct from the Agreement price or consideration, or
+       otherwise recover, the full amount of such commission, percentage,
+       brokerage, or contingent fee.
+
+5.17   Force Majeure. In the event that either party is unable to perform any of its
+       obligations under this Agreement – or to enjoy any of its benefits – because of
+       fire, explosion, power blackout, natural disaster , strike, embargo, labor
+       disputes, war, terrorism, acts of God, acts or decrees of governmental bodies
+       or other causes beyond such party’s reasonable control (hereinafter referred
+       to as Force Majeure Event), the party who has been so affected shall
+       immediately give notice to the other and shall take commercially reasonable
+       actions to resume performance. Upon receipt of such notice, all obligations
+       under this Agreement shall immediately be suspended except for payment
+       obligations with respect to services already provided. If the period of
+       nonperformance exceeds sixty (60) days from the receipt of the Force Majeure
+       Event, the party whose ability to perform has not been so affected may, by
+       giving written notice, terminate this Agreement.
+
+5.18   Applicable Laws; Forum.
+
+       5.18.1 Contractor agrees to comply with all applicable federal, state and local
+              laws, rules, regulations or ordinances, and all provisions required
+              thereby to be included in this Agreement are hereby incorporated by
+              reference. This includes, but is not limited to, the Federal Civil Rights
+              Act of 1964 and, if applicable, the Drug-Free Workplace Act of 1988.
+              The enactment of any state or federal statute or the promulgation of
+              regulations thereunder after execution of this Agreement shall be
+
+                                                                                  Page | 25
+               reviewed by IMPO and Contractor to determine whether the provisions
+               of the Agreement require formal modification.
+
+       5.18.2 This Agreement shall be construed in accordance with the laws of the
+              State of Indiana. Contractor hereby expressly consents to the personal
+              jurisdiction of the state and federal courts located in Marion County,
+              Indiana for any lawsuit filed there against Contractor by IMPO arising
+              from or related to this Agreement.
+
+5.19   Waiver. IMPO’s delay or inaction in pursuing its remedies set forth in this
+       Agreement, or available by law, shall not operate as a waiver of any of IMPO’s
+       rights or remedies.
+
+5.20   Severability. If any provision of this Agreement is held to be invalid, illegal, or
+       unenforceable by a court of competent jurisdiction, the provision shall be
+       stricken, and all other provisions of this Agreement which can operate
+       independently of such stricken provisions shall continue in full force and effect.
+
+5.21   Attorneys’ Fees. Contractor shall be liable to IMPO for reasonable attorneys’
+       fees incurred by IMPO in connection with the collection or attempt to collect,
+       any damages arising from the negligent or wrongful act or omission of
+       Contractor, or from Contractor’s failure to fulfill any provisions or responsibility
+       provided herein.
+
+5.22   Successors and Assigns. IMPO and Contractor each binds itself and its
+       partners, successors, executors, administrators and assigns to the other party
+       of this Agreement and to the partners, successors, executors, administrators
+       and assigns of such other party, in respect to all covenants of this Agreement;
+       except as otherwise provided herein, Contractor shall not assign, sublet or
+       transfer its interest in this Agreement without the written consent of IMPO.
+       Nothing herein shall be construed as creating any personal liability on the part
+       of any officer or agent of IMPO.
+
+5.23   Authority to Bind Contractor. Notwithstanding anything in this Agreement to
+       the contrary, the signatory for Contractor represents that he/she has been duly
+       authorized to execute agreements on behalf of Contractor and has obtained
+       all necessary or applicable approval from the home office of Contractor to
+       make this Agreement fully binding upon Contractor when his/her signature is
+       affixed and accepted by IMPO.
+
+5.24   Debarment and Suspension.
+
+       5.24.1 Contractor certifies, by entering into this Agreement, that neither it nor
+              its principals are presently debarred, suspended, proposed for
+              debarment, declared ineligible, or voluntarily excluded from or
+              ineligible for participation in any Federal assistance program by any
+              Federal department or agency, or by any department, agency or
+              political subdivision of the State of Indiana. The term “principal” for
+              purposes of this Agreement means an officer, director, owner, partner,
+              key employee, or other person with primary management or
+              supervisory responsibilities, or a person who has a critical influence on
+              or substantive control over the operations of Contractor.
+
+                                                                                  Page | 26
+       5.24.2 Contractor certifies, by entering into this Agreement, that it does not
+              engage in investment activities in Iran as more particularly described
+              in IC 5-22-16.5.
+
+       5.24.3 Contractor shall provide immediate written notice to IMPO if, at any
+              time after entering into this Agreement, Contractor learns that its
+              certifications were erroneous when submitted, or Contractor is
+              debarred, suspended, proposed for debarment, declared ineligible,
+              has been included on a list or received notice of intent to include on a
+              list created pursuant to IC 5-22-16.5, voluntarily excluded from or
+              becomes ineligible for participation in any Federal assistance program.
+              Any such event shall be cause for termination of this Agreement as
+              provided herein.
+
+       5.24.4 Contractor shall not subcontract with any party which is debarred or
+              suspended or is otherwise excluded from or ineligible for participation
+              in any Federal assistance programs by any Federal department or
+              agency, or by any department, agency or political subdivision of the
+              State of Indiana.
+
+5.25   Compliance With E-Verify Program. Pursuant to IC 22-5-1.7, Contractor shall
+       enroll in and verify the work eligibility status of all newly hired employees of
+       Contractor through the E-Verify Program (“Program”). Contractor is not required
+       to verify the work eligibility status of all newly hired employees through the
+       Program if the Program no longer exists.
+
+       5.25.1 Contractor and its subcontractors shall not knowingly employ or
+              contract with an unauthorized alien or retain an employee or contract
+              with a person that Contractor or its subcontractor subsequently learns
+              is an unauthorized alien. If Contractor violates this Section 5.25, IMPO
+              shall require Contractor to remedy the violation not later than thirty
+              (30) days after IMPO notifies Contractor. If Contractor fails to remedy
+              the violation within the thirty (30) day period, IMPO shall terminate the
+              contract for breach of contract.
+
+               If IMPO terminates the contract, Contractor shall, in addition to any
+               other contractual remedies, be liable to IMPO for actual damages.
+               There is a rebuttable presumption that Contractor did not knowingly
+               employ an unauthorized alien if Contractor verified the work eligibility
+               status of the employee through the Program.
+
+       5.25.2 If Contractor employs or contracts with an unauthorized alien but IMPO
+              determines that terminating the contract would be detrimental to the
+              public interest or public property, IMPO may allow the contract to
+              remain in effect until IMPO procures a new contractor.
+
+       5.25.3 Contractor shall, prior to performing any work, require each
+              subcontractor to certify to Contractor that the subcontractor does not
+              knowingly employ or contract with an unauthorized alien and has
+              enrolled in the Program. Contractor shall maintain on file a certification
+              from each subcontractor throughout the duration of the Project. If
+
+                                                                                Page | 27
+               Contractor determines that a subcontractor is in violation of this
+               Section 5.25, Contractor may terminate its contract with the
+               subcontractor for such violation.
+
+       5.25.4 Pursuant to IC 22-5-1.7 a fully executed affidavit affirming that the
+              business entity does not knowingly employ an unauthorized alien and
+              confirming Contractor’s enrollment in the Program, unless the Program
+              no longer exists, shall be filed with IMPO prior to the execution of this
+              Agreement. This Agreement shall not be deemed fully executed until
+              such affidavit is filed with IMPO.
+
+5.26   Key Persons. The parties agree that the work described in this Agreement to
+       be performed by Contractor is a personal service, highly professional in nature,
+       and that the identity of the individual who is to be personally responsible for
+       such work is of prime importance to IMPO. The parties therefore agree that in
+       the event of the death or disability of Contractor, or, if Contractor is a firm,
+       partnership, or corporation, in the event of the death, or disability or
+       termination of employment of anyone understood to be personally responsible
+       for the work described in this Agreement, IMPO may, without penalty and in its
+       discretion, terminate this Agreement, and make its own new Agreement with
+       any other party for completion of the work herein described.
+
+5.27   Electronic Signature. Contractor and IMPO agree to signature both in
+       counterparts and by facsimile.
+
+5.28   Method of Payment. Contractor shall submit invoices and accept invoice
+       payments as prescribed by IMPO in its sole option and discretion. All invoices
+       shall be submitted via the IMPO invoice portal. IMPO will not be responsible
+       for any card fees or other bank charges incurred by the Contractor.
+
+5.29   Additional Information upon Request. The Contractor shall, upon request of
+       IMPO, make available its policies, practices and standards for the hiring of
+       applicants, except as prohibited under IC 22-2-17-3, to the extent such
+       information is related to the provision of services under this Agreement.
+
+5.30   Wage Theft/Payroll Fraud.          The Contractor shall report, and shall require
+       its subcontractors to report, all complaints or adverse determinations of Wage
+       Theft or Payroll Fraud against the Contractor or its subcontractors to IMPO
+       within thirty (30) days of notification of the complaint or adverse determination.
+       If an adverse decision is rendered against the Contractor with respect to
+       services provided to IMPO, IMPO may terminate this Agreement, reduce the
+       incentives or subsidies to be provided under this Agreement, or seek other
+       remedies. Contractor shall provide a sworn statement on whether the
+       Contractor had any adverse determinations rendered against the Contractor
+       within the preceding three (3) years.
+
+
+
+
+                                                                                Page | 28
+       IN WITNESS WHEREOF, the parties hereto have executed this Agreement on the dates
+subscribed below.
+
+
+
+XXXXXXXXX (“Contractor”)
+
+By: _______________________________________       Date: ______________________
+
+Printed: ____________________________________
+
+Title: ______________________________________
+
+
+
+THE INDIANAPOLIS METROPOLITAN PLANNING ORGANIZATION (“IMPO”)
+
+
+
+By: ______________________________________        _       Date: _____________________
+
+   XXXXXX, XXXXXX
+
+
+
+
+                                                                               Page | 29
+ATTACHMENT C: SCOPE OF SERVICES
+In accordance with the terms and conditions of the attached Professional Services Agreement
+(hereinafter “Agreement”) by and between the Indianapolis Metropolitan Planning
+Organization (hereinafter “IMPO”) and XXXXXXX (hereinafter “Contractor”), Contractor shall do,
+perform, and carry out in a good and professional manner the following services:
+
+ATTACHMENT D: PRICING
+ATTACHMENT E: TITLE VI ASSURANCES
+During the performance of this contract, the contractor, for itself, its assignees and successors
+in interest (hereinafter referred to as the "contractor") agrees as follows:
+
+    1. Compliance with Regulations: The contractor shall comply with the Regulation
+        relative to nondiscrimination in Federally-assisted programs of the Department of
+        Transportation (hereinafter, "DOT") Title 49, Code of Federal Regulations, Part 21,
+        as they may be amended from time to time, (hereinafter referred to as the
+        Regulations), which are herein incorporated by reference and made a part of this
+        contract.
+
+    2. Nondiscrimination: The Contractor, with regard to the work performed by it during
+        the contract, shall not discriminate on the grounds of race, color, or national origin
+        in the selection and retention of subcontractors, including procurements of
+        materials and leases of equipment. The contractor shall not participate either
+        directly or indirectly in the discrimination prohibited by section 21.5 of the
+        Regulations, including employment practices when the contract covers a program
+        set forth in Appendix B of the Regulations.
+
+    3. Solicitations for Subcontractors, Including Procurements of Materials and
+        Equipment: In all solicitations either by competitive bidding or negotiation made by
+        the contractor for work to be performed under a subcontract, including
+        procurements of materials or leases of equipment, each potential subcontractor
+        or supplier shall be notified by the contractor of the contractor's obligations under
+        this contract and the Regulations relative to nondiscrimination on the grounds of
+        race, color, or national origin.
+
+    4. Information and Reports: The contractor shall provide all information and reports
+        required by the Regulations or directives issued pursuant thereto, and shall permit
+        access to its books, records, accounts, other sources of information, and its
+        facilities as may be determined by IMPO or the Federal Highway Administration to
+        be pertinent to ascertain compliance with such Regulations, orders and
+        instructions. Where any information required of a contractor is in the exclusive
+        possession of another who fails or refuses to furnish this information the
+        contractor shall so certify to IMPO, or the Federal Highway Administration as
+        appropriate, and shall set forth what efforts it has made to obtain the information.
+
+    5. Sanctions for Noncompliance: In the event of the contractor's noncompliance with
+        the nondiscrimination provisions of this contract, IMPO shall impose such contract
+        sanctions as it or the Federal Highway Administration may determine to be
+        appropriate, including, but not limited to:
+
+
+
+                                                                                         Page | 30
+            a) withholding of payments to the contractor under the contract until the
+               contractor complies, and/or
+
+            b) cancellation, termination or suspension of the contract, in whole or in part.
+
+    6. Incorporation of Provisions: The contractor shall include the provisions of
+        paragraphs (1) through (6) in every subcontract, including procurements of
+        materials and leases of equipment, unless exempt by the Regulations, or directives
+        issued pursuant thereto.
+
+The contractor shall take such action with respect to any subcontractor procurement as IMPO
+or the Federal Highway Administration may direct as a means of enforcing such provisions
+including sanctions for noncompliance: Provided, however, that, in the event a contractor
+becomes involved in, or is threatened with, litigation with a subcontractor or supplier as a
+result of such direction, the contractor may request IMPO to enter into such litigation to
+protect the interests of IMPO, and, in addition, the contractor may request the United States
+to enter into such litigation to protect the interests of the United States.
+
+
+
+
+                                                                                       Page | 31
+                                             AFFIDAVIT
+
+E-Verify. Pursuant to Indiana Code 22-5-1.7-11, the Contractor entering into a contract with
+IMPO is required to enroll in and verify the work eligibility status of all its newly hired employees
+through the E-Verify program. The Contractor is not required to verify the work eligibility status
+of all its newly hired employees through the E-Verify program if the E-Verify program no longer
+exists.
+
+The undersigned, on behalf of the Contractor, being first duly sworn, deposes and states that
+the Contractor does not knowingly employ an unauthorized alien. The undersigned further
+affirms that, prior to entering into its contract with the IMPO, the undersigned Contractor will
+enroll in and agrees to verify the work eligibility status of all its newly hired employees through
+the E-Verify program.
+
+(Contractor): _____________________________________________________________
+
+By (Written Signature): ______________________________________________________
+
+(Printed Name): __________________________________________________________
+
+(Title): __________________________________________________________________
+
+Important- Notary Signature and Seal Required in the space below if Docusign is NOT used
+
+STATE OF _________________________________ SS:
+
+COUNTY OF ________________________________
+
+Subscribed and sworn to before me this__________ day of ______________ 20_____
+
+My commission expires____________________ (Signed)______________________________
+
+Residing in _____________________________County, State of ________________________
+
+4848-8386-1501v2
+
+
+
+
+                                                                                            Page | 32
+
