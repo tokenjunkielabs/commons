@@ -84,14 +84,35 @@ def _feed(center, engine):
     """Expose canonical events through the existing retained command-center feed."""
     import hashlib
     import json
+    from host.swarm_runtime.projector import _time
     from host.swarm_runtime.runtime import _project, now_iso
     tip, state = engine.store.read(refresh=False)
     observed_at = now_iso()
-    tasks = _project(state, observed_at)["tasks"]
-    with center._db() as db:
-        db.execute("BEGIN IMMEDIATE")
+    moment = _time(observed_at)
+    # Bump this when the feed's derivation changes. Sequence alone is not a
+    # checkpoint: provider facts can land work without adding a journal event.
+    projection_version = 1
+
+    def cursor(db):
         row = db.execute("SELECT data FROM records WHERE kind='usage' AND id='swarm-feed-cursor'").fetchone()
-        consumed = json.loads(row["data"]).get("seq", 0) if row else 0
+        return json.loads(row["data"]) if row else {}
+
+    def current(checkpoint):
+        applied = _time(checkpoint.get("observed_at"))
+        return (tip not in (None, "", "UNKNOWN") and checkpoint.get("tip") == tip
+                and checkpoint.get("projection_version") == projection_version
+                and applied is not None and applied <= moment)
+
+    with center._db() as db:
+        if current(cursor(db)):
+            return
+        db.execute("BEGIN IMMEDIATE")
+        checkpoint = cursor(db)
+        # Another process may have materialized this tip while we waited.
+        if current(checkpoint):
+            return
+        tasks = _project(state, observed_at)["tasks"]
+        consumed = checkpoint.get("seq", 0)
         for event in state.get("events", []):
             if event.get("seq", 0) <= consumed:
                 continue
@@ -109,8 +130,18 @@ def _feed(center, engine):
         for item in _terminal_receipts(state, tasks, tip, observed_at):
             db.execute("INSERT OR IGNORE INTO source_events(id,observed_at,data) VALUES(?,?,?)",
                        (item["id"], item["observed_at"], json.dumps(item)))
+        # Future-dated custody can become valid without a new source revision.
+        # Keep that uncommon path uncached until its source timestamps pass.
+        cacheable = not any(
+            stamp is not None and stamp > moment
+            for event in state.get("events", [])
+            for field in ("at", "started_at", "heartbeat")
+            for stamp in (_time(event.get(field)),)
+        )
         db.execute("INSERT OR REPLACE INTO records(kind,id,data) VALUES('usage','swarm-feed-cursor',?)",
-                   (json.dumps({"seq": consumed}),))
+                   (json.dumps({"seq": consumed, "tip": tip if cacheable else None,
+                                "projection_version": projection_version,
+                                "observed_at": observed_at}),))
 
 
 def runtime(center):
