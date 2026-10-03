@@ -266,7 +266,11 @@ def collect_census(config: Mapping | None = None) -> dict:
     else:
         coverage.append({"source": "native_app_sessions", "status": "unavailable" if native_file_error else "not_connected", "error": native_file_error, "complete": False, "unread_regions": ["native desktop/cloud session lifecycle"]})
     if config.get("native_runtime_path"):
-        coverage.append({"source_id": "native_app_sessions:refresh-producer", "source": "native_app_sessions", "status": "host_caller_required", "observed_at": at, "complete": False, "continuous_refresh_producer": False, "scope": "native application lifecycle refresh producer", "unread_regions": ["no automatic native application API producer is configured in the telemetry runtime"], "snapshot_source_observed_at": native_observed_at, "refresh_requirement": "an available host caller performs the actual native API read, retains its complete response in encrypted custody, and updates native_runtime_path with the original read timestamp"})
+        producer = config.get("native_refresh_producer")
+        producer = producer if isinstance(producer, Mapping) else {}
+        configured = producer.get("configured") is True and producer.get("status") == "ACTIVE"
+        descriptor = {key: producer.get(key) for key in ("id", "kind", "status", "interval_seconds", "registered_at", "last_verified_scheduled_read_at") if producer.get(key) is not None}
+        coverage.append({"source_id": "native_app_sessions:refresh-producer", "source": "native_app_sessions", "status": "external_host_configured" if configured else "host_caller_required", "observed_at": at, "complete": False, "continuous_refresh_producer": False, "automatic_refresh_configured": configured, "refresh_producer": descriptor, "scope": "native application lifecycle refresh producer", "unread_regions": ["external host refresh execution must be established by its actual native source receipts" if configured else "no automatic native application API producer is configured in the telemetry runtime"], "snapshot_source_observed_at": native_observed_at, "refresh_requirement": "an available host caller performs the actual native API read, retains its complete response in encrypted custody, and updates native_runtime_path with the original read timestamp"})
     for snapshot in config.get("runtime_snapshots", []):
         source = str(snapshot.get("source") or "runtime_snapshot")
         try:

@@ -6,8 +6,9 @@ import copy
 import json
 import re
 import sqlite3
+import shutil
 import time
-from threading import Lock, RLock
+from threading import Lock, RLock, Thread
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
@@ -51,6 +52,9 @@ class Store:
         self.path = str(Path(path))
         self._snapshot_cache={}
         self._snapshot_lock=Lock()
+        self._dashboard_cache=None
+        self._dashboard_refresh_lock=Lock()
+        self._dashboard_refresh_error=None
         self._write_lock=_DB_WRITE_LOCK
         Path(self.path).parent.mkdir(parents=True, exist_ok=True)
         with self._write_lock, self.connect() as db:
@@ -101,6 +105,27 @@ class Store:
                 CREATE TABLE IF NOT EXISTS source_records (ref TEXT PRIMARY KEY,source_id TEXT,sha256 TEXT,byte_length INTEGER,character_length INTEGER,iv BLOB,ciphertext BLOB,mac BLOB,format TEXT,key_reference TEXT);
                 CREATE INDEX IF NOT EXISTS source_record_sizes ON source_records(byte_length,character_length);
             """)
+            projection=db.execute("SELECT sql FROM sqlite_master WHERE type='trigger' AND name='coverage_projection_insert'").fetchone()
+            self._coverage_service_projection_pending=bool(projection and "COALESCE(json_extract(new.payload,'$.source')," in projection[0])
+            if self._coverage_service_projection_pending and shutil.disk_usage(Path(self.path).parent).free>=1024**3:
+                # Earlier databases kept the source-first trigger despite the
+                # intended service-first projection in newer source code.
+                db.executescript("""
+                    BEGIN IMMEDIATE;
+                    DROP TRIGGER coverage_projection_insert;
+                    CREATE TRIGGER coverage_projection_insert AFTER INSERT ON coverage BEGIN
+                        INSERT OR REPLACE INTO coverage_projection VALUES (new.source_id,
+                            COALESCE(json_extract(new.payload,'$.service'),json_extract(new.payload,'$.source'),'unknown'),
+                            COALESCE(json_extract(new.payload,'$.account_ref'),json_extract(new.payload,'$.account_id'),''),
+                            COALESCE(json_extract(new.payload,'$.harness'),''),
+                            COALESCE(json_extract(new.payload,'$.status'),'unknown'),
+                            json_extract(new.payload,'$.complete'),json_extract(new.payload,'$.observed_at'));
+                    END;
+                    UPDATE coverage_projection SET source=(SELECT COALESCE(json_extract(coverage.payload,'$.service'),json_extract(coverage.payload,'$.source'),'unknown') FROM coverage WHERE coverage.source_id=coverage_projection.source_id)
+                        WHERE EXISTS (SELECT 1 FROM coverage WHERE coverage.source_id=coverage_projection.source_id AND coverage_projection.source!=COALESCE(json_extract(coverage.payload,'$.service'),json_extract(coverage.payload,'$.source'),'unknown'));
+                    COMMIT;
+                """)
+                self._coverage_service_projection_pending=False
         from .custody import Custody
         self.custody = Custody(self.path, key_loader=key_loader, write_lock=self._write_lock)
 
@@ -375,7 +400,29 @@ class Store:
         finally:
             self._snapshot_lock.release()
 
-    def _snapshot(self, *, detailed=False):
+    def dashboard_summary(self):
+        """Return a completed compact view immediately; refresh it independently."""
+        cache=self._dashboard_cache
+        if (cache is None or time.monotonic()-cache[0]>=5) and self._dashboard_refresh_lock.acquire(blocking=False):
+            def refresh():
+                try:
+                    value=self._snapshot(summary=True)
+                    self._dashboard_cache=(time.monotonic(),value)
+                    self._dashboard_refresh_error=None
+                except Exception as error:
+                    self._dashboard_refresh_error=type(error).__name__
+                finally:self._dashboard_refresh_lock.release()
+            Thread(target=refresh,daemon=True,name="telemetry-dashboard-summary").start()
+        cache=self._dashboard_cache
+        if cache is None:
+            return self.envelope(summary_ready=False,summary_refreshing=self._dashboard_refresh_lock.locked(),summary_state="preparing",summary_refresh_error=self._dashboard_refresh_error,observed_at=None)
+        value=dict(cache[1])
+        value.update(summary_ready=True,summary_refreshing=self._dashboard_refresh_lock.locked(),summary_cache_age_seconds=round(time.monotonic()-cache[0],3),summary_refresh_error=self._dashboard_refresh_error)
+        # The completed value already contains original source timestamps.
+        # Its serving path performs no SQL; the one refresh worker updates it.
+        return value
+
+    def _snapshot(self, *, detailed=False, summary=False):
         with self.connect() as db:
             event_count=db.execute("SELECT COUNT(*) FROM events").fetchone()[0]
             session_count=db.execute("SELECT COUNT(*) FROM sessions").fetchone()[0]
@@ -396,15 +443,21 @@ class Store:
             captured=db.execute("SELECT COUNT(*),COALESCE(SUM(byte_length),0),SUM(character_length) FROM source_records").fetchone()
         peers=self.peers(limit=10000)["peers"]
         counts={"events":event_count,"sessions":session_count,"peers":peer_count,"executing":sum(p.get("status") in {"executing","running","started"} for p in peers),"waiting":sum(p.get("status") in {"waiting","tool_wait","blocked"} for p in peers),"recently_observed":sum(bool(p.get("recently_observed")) for p in peers),"unknown":sum(p.get("status") in {None,"unknown"} for p in peers)}
-        coverage_page=self.records("coverage")
+        coverage_page=self.records("coverage") if not summary else {"coverage":[],"returned":0,"next_cursor":"","has_more":True,"result_complete":False,"corpus_complete":False}
         coverage=coverage_page["coverage"]
-        value=self.envelope(counts=counts,usage=usage,providers=providers,harnesses=harnesses,activity=activity,coverage=coverage,sources=coverage,notifications=self.records("notifications",limit=100)["notifications"],work=self.work()["work"],accounts=self.records("accounts")["accounts"],runtime=self.state("collector"),definitions={"executing":"Fresh explicit runtime execution observations; stale execution state becomes unknown.","recently_observed":"Session activity within the preceding 15 minutes, independent of execution state.","peers":"Distinct recorded peer labels; shared accounts and sessions are separate entities.","usage":"Incremental reported usage; absent monetary charges are unknown."})
+        value=self.envelope(counts=counts,usage=usage,providers=providers,harnesses=harnesses,activity=activity,coverage=coverage,sources=coverage,notifications=[] if summary else self.records("notifications",limit=100)["notifications"],work=[] if summary else self.work()["work"],accounts=[] if summary else self.records("accounts")["accounts"],runtime=self.state("collector"),definitions={"executing":"Fresh explicit runtime execution observations; stale execution state becomes unknown.","recently_observed":"Session activity within the preceding 15 minutes, independent of execution state.","peers":"Distinct recorded peer labels; shared accounts and sessions are separate entities.","usage":"Incremental reported usage; absent monetary charges are unknown."})
         value["census"]=self.state("census")
         value["storage"]=self.state("storage_guard")
         value["reader_health"]={kind:self.state("source_reader_health:"+kind) for kind in ("slack","github","services")}
         value["capture"]={"records":captured[0],"bytes":captured[1],"characters":captured[2],"exact_source_custody":True,"key_reference":"telemetry/source-custody-key"}
         value["coverage_page"]={key:coverage_page[key] for key in ("returned","next_cursor","has_more","result_complete","corpus_complete")}
-        value["source_groups"]=self.coverage_summary()
+        value["source_groups"]=self.coverage_service_summary() if summary else self.coverage_summary()
+        if summary:
+            value["summary_ready"]=True
+            value["source_grouping"]="service"
+            value["source_detail_endpoints"]={"partitions":"/api/telemetry/coverage","account_groups":"/api/telemetry/source-groups","work":"/api/telemetry/work"}
+            census=value["census"] or {}
+            value["census"]={key:census[key] for key in ("counts","peers","coverage","observed_at","complete","scope") if key in census}
         value["corpus_scope"]="All accounts and all services: Slack, GitHub, machine and cloud activity"
         value["corpus_complete"]=False
         if detailed:
@@ -412,6 +465,41 @@ class Store:
             with self.connect() as db:
                 value["events"]=[{**json.loads(row[1]),"cursor":row[0]} for row in db.execute("SELECT seq,payload FROM events ORDER BY seq DESC LIMIT 300")]
         return value
+
+    def coverage_service_summary(self):
+        """Aggregate every partition while keeping account groups paginated."""
+        groups={}
+        with self.connect() as db:
+            if getattr(self,"_coverage_service_projection_pending",False):
+                relation="(SELECT p.source_id,COALESCE(json_extract(c.payload,'$.service'),p.source) AS source,p.account_ref,p.harness,p.status,p.complete,p.observed_at FROM coverage_projection p JOIN coverage c USING(source_id))"
+            else:relation="coverage_projection"
+            # Stream metadata without large SQL DISTINCT/GROUP temporary files.
+            for row in db.execute("SELECT source,account_ref,harness,status,complete,observed_at FROM "+relation):
+                group=groups.setdefault(row["source"],{"name":row["source"],"partitions":0,"complete":0,"pending":0,"unknown":0,"statuses":{},"metrics":{},"observed_at":None,"scope":"all recorded source partitions","accounts":set(),"harnesses":set()})
+                group["partitions"]+=1
+                group["complete" if row["complete"]==1 else "pending" if row["complete"]==0 else "unknown"]+=1
+                group["statuses"][row["status"]]=group["statuses"].get(row["status"],0)+1
+                if row["account_ref"]:group["accounts"].add(row["account_ref"])
+                if row["harness"]:group["harnesses"].add(row["harness"])
+                if row["observed_at"] and (not group["observed_at"] or row["observed_at"]>group["observed_at"]):group["observed_at"]=row["observed_at"]
+        for group in groups.values():
+            group["account_references"]=len(group.pop("accounts"))
+            group["account"]=str(group["account_references"])+" account references"
+            group["harness"]=" · ".join(sorted(group.pop("harnesses")))
+        return sorted(groups.values(),key=lambda item:(-item["partitions"],item["name"]))
+
+    def coverage_group_page(self, *, limit=100,cursor=""):
+        size=max(1,min(1000,int(limit)))
+        previous=json.loads(cursor) if cursor else ["","",""]
+        if not isinstance(previous,list) or len(previous)!=3:raise ValueError("Invalid source group cursor")
+        with self.connect() as db:
+            rows=list(db.execute("SELECT source,account_ref,harness,COUNT(*) AS partitions,SUM(complete=1) AS complete,SUM(complete=0) AS pending,SUM(complete IS NULL) AS unknown,MAX(observed_at) AS observed_at FROM coverage_projection WHERE (source,account_ref,harness)>(?,?,?) GROUP BY source,account_ref,harness ORDER BY source,account_ref,harness LIMIT ?",previous+[size+1]))
+            more=len(rows)>size;rows=rows[:size];items=[]
+            for row in rows:
+                statuses={item[0]:item[1] for item in db.execute("SELECT status,COUNT(*) FROM coverage_projection WHERE source=? AND account_ref=? AND harness=? GROUP BY status",(row["source"],row["account_ref"],row["harness"]))}
+                items.append({"name":row["source"],"account":row["account_ref"],"harness":row["harness"],"partitions":row["partitions"],"complete":row["complete"] or 0,"pending":row["pending"] or 0,"unknown":row["unknown"] or 0,"statuses":statuses,"metrics":{},"observed_at":row["observed_at"],"scope":"all recorded source partitions"})
+        next_cursor=json.dumps([rows[-1][key] for key in ("source","account_ref","harness")]) if rows and more else None
+        return self.envelope(source_groups=items,returned=len(items),next_cursor=next_cursor,has_more=more,result_complete=not more,corpus_complete=False)
 
     def coverage_summary(self):
         """All recorded partitions, independent of source-list pagination."""

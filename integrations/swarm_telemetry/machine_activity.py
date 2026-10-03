@@ -837,7 +837,7 @@ def collect_machine_activity(config: Mapping[str, Any] | None = None, *,
     dirty.sort(key=lambda pair: pair[0].casefold())
     cursor = str(collector_state.get("cursor") or "")
     if cursor and dirty:
-        pivot = next((index + 1 for index, item in enumerate(dirty) if item[0].casefold() > cursor.casefold()), 0)
+        pivot = next((index for index, item in enumerate(dirty) if item[0].casefold() > cursor.casefold()), 0)
         dirty = dirty[pivot:] + dirty[:pivot]
     cap = len(dirty) if max_sources is None else max(0, int(max_sources))
     selected_items = dirty[:cap]

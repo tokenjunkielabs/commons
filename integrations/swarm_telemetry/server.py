@@ -9,6 +9,7 @@ from urllib.parse import parse_qs, urlsplit
 WEB = Path(__file__).with_name("web")
 TOOLS = [
     {"name":"get_swarm_snapshot","description":"Cached passive measurements, usage and source coverage."},
+    {"name":"get_dashboard_summary","description":"Immediate cached all-service counts with asynchronous refresh and paginated source details."},
     {"name":"list_peers","description":"Recorded peers and native sessions, with provider, harness and explicit runtime state."},
     {"name":"get_changes_since","description":"Incremental observations after a stable event cursor."},
     {"name":"get_work_context","description":"Work relationships and contributing events."},
@@ -24,7 +25,8 @@ for tool in TOOLS:
 
 def call(store, name, args=None):
     args=args or {}
-    if name=="get_swarm_snapshot": return store.snapshot(detailed=bool(args.get("detailed")))
+    if name=="get_swarm_snapshot": return store.snapshot(detailed=str(args.get("detailed","")).lower() in {"1","true","yes"})
+    if name=="get_dashboard_summary": return store.dashboard_summary()
     if name=="list_peers": return store.peers(**{k:args[k] for k in ("provider","harness","q","limit") if k in args})
     if name=="get_changes_since": return store.events(**{k:args[k] for k in ("cursor","limit","source","provider","harness","q","session_id","work_id","operation_id","event_id","order") if k in args})
     if name=="get_work_context":
@@ -74,8 +76,13 @@ class Handler(BaseHTTPRequestHandler):
             elif path=="/v1/tools": self.send(200,{"ok":True,"tools":TOOLS})
             elif path=="/api/telemetry/source-record":
                 self.send(200,self.server.store.custody.envelope(query.get("ref","")))
+            elif path=="/api/telemetry/summary":
+                value=self.server.store.dashboard_summary()
+                self.send(200 if value.get("summary_ready") else 202,value)
+            elif path=="/api/telemetry/source-groups":
+                self.send(200,self.server.store.coverage_group_page(**{key:query[key] for key in ("limit","cursor") if key in query}))
             elif path=="/api/telemetry/manifest":
-                self.send(200,{"ok":True,"version":"1","dashboard":"/","tools":"/api/telemetry/tools","mcp":"/mcp","data":"/api/telemetry/snapshot","observation":"POST /api/telemetry/observe","source_ingest":"POST /api/telemetry/source-events","source_receipt":"POST /api/telemetry/source-response","source_record":"/api/telemetry/source-record?ref=REF","policy":"Passive measurement; existing work never waits for telemetry; Jev optional."})
+                self.send(200,{"ok":True,"version":"1","dashboard":"/","tools":"/api/telemetry/tools","mcp":"/mcp","data":"/api/telemetry/snapshot","dashboard_summary":"/api/telemetry/summary","source_group_details":"/api/telemetry/source-groups?limit=100&cursor=CURSOR","observation":"POST /api/telemetry/observe","source_ingest":"POST /api/telemetry/source-events","source_receipt":"POST /api/telemetry/source-response","source_record":"/api/telemetry/source-record?ref=REF","policy":"Passive measurement; existing work never waits for telemetry; Jev optional."})
             elif path.startswith("/api/telemetry/") and path.rsplit("/",1)[-1] in routes:
                 self.send(200,call(self.server.store,routes[path.rsplit("/",1)[-1]],query))
             elif path=="/data-snapshot.json": self.send(200,self.server.store.snapshot(detailed=True))
