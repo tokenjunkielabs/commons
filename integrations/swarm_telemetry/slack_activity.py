@@ -141,6 +141,7 @@ def _page(value):
         rows = next((value[field] for field in ("thread_messages", "thread", "events")
                      if value.get(field) is not None), None)
     parsed_empty = False
+    page_counts = {}
     if isinstance(rows, list):
         messages = [{**row["event"], "native_event_source": dict(row)} if isinstance(row.get("event"), Mapping) else dict(row) for row in rows if isinstance(row, Mapping)]
     else:
@@ -170,6 +171,11 @@ def _page(value):
                 thread_markers = list(re.finditer(r"(?m)^(?:=== THREAD PARENT MESSAGE ===|--- Reply \d+ of \d+ ---)\s*\nFrom:\s*(.*?)\nTime:\s*([^\n]*)\nMessage TS:\s*(\d{9,}\.\d+)\s*\n", text))
                 parent_ts = thread_markers[0].group(3) if thread_markers else None
                 reply_total = re.search(r"=== THREAD REPLIES \((\d+) total\) ===", text)
+                if reply_total:
+                    declared = int(reply_total.group(1))
+                    returned = sum(marker.group(0).startswith("--- Reply ") for marker in thread_markers)
+                    page_counts = {"declared_replies": declared, "normalized_replies": returned,
+                                   "native_page_complete": returned == declared}
                 for index, marker in enumerate(thread_markers):
                     end = thread_markers[index + 1].start() if index + 1 < len(thread_markers) else len(text)
                     block, body = text[marker.start():end], text[marker.end():end]
@@ -208,9 +214,10 @@ def _page(value):
         cursor, terminal = None, False
     else:
         cursor, terminal = None, False
-    return messages, cursor, terminal, {"parse_state": "parsed" if messages or isinstance(rows, list) or parsed_empty else "source_schema_pending",
+    incomplete = page_counts.get("native_page_complete") is False
+    return messages, cursor, terminal and not incomplete, {"parse_state": "source_page_incomplete" if incomplete else "parsed" if messages or isinstance(rows, list) or parsed_empty else "source_schema_pending",
                                       "normalized_records": len(messages), "pagination_known": cursor is not None,
-                                      "source_pagination": value.get("pagination_info") or metadata}
+                                      "source_pagination": value.get("pagination_info") or metadata, **page_counts}
 
 
 def _message_revision(message):
@@ -254,7 +261,7 @@ def _base_event(job, kind, identity, occurred_at, full_source, summary, metadata
 def _request(job):
     if job["kind"] == "file":
         return FILE_TOOL, {"file_id": job["file_id"]}
-    args = {"channel_id": job.get("dm_user_id") or job["channel_id"], "limit": 100, "response_format": "detailed"}
+    args = {"channel_id": job.get("dm_user_id") or job["channel_id"], "limit": job.get("page_limit", 100), "response_format": "detailed"}
     if job.get("cursor"):
         args["cursor"] = job["cursor"]
     if job.get("oldest"):
@@ -419,6 +426,11 @@ def collect_slack_activity(config=None, state=None, sources=None, read_page=None
             page_event["metadata"].update(parse)
             if parse["parse_state"] != "parsed":
                 job["last_source_page_event_id"] = page_event["event_id"]
+                if parse["parse_state"] == "source_page_incomplete":
+                    # Keep the same cursor/window: even the last rendered
+                    # message can be cut off by the native response formatter.
+                    job["page_limit"] = max(1, arguments["limit"] // 2)
+                    raise SourceReadError("source_page_incomplete")
                 raise SourceReadError("source_schema_pending")
             newest = job.get("newest_ts")
             for message in messages:
@@ -505,6 +517,8 @@ def collect_slack_activity(config=None, state=None, sources=None, read_page=None
             if raw is not None:
                 events.append(_base_event(job, "slack_source_read_failure", _digest(raw), at, raw, "Slack source read requires recovery", {"error": code}))
             retry_seconds = _provider_retry_seconds(raw)
+            if code == "source_page_incomplete" and job.get("page_limit", 100) < arguments.get("limit", 100):
+                retry_seconds = 0
             if retry_seconds is None:
                 retry_seconds = float(config.get("slack_retry_seconds", 120))
             job.update(status="pending_recovery", complete=False, error=code, next_attempt_epoch=time.time() + retry_seconds,
