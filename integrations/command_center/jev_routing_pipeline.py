@@ -113,6 +113,29 @@ def _normalize_ref(raw: Any) -> dict[str, str]:
     return row
 
 
+def _latest_observation(records: list[dict[str, Any]], where: str) -> dict[str, Any]:
+    """Select the latest read while retaining one immutable event identity."""
+    if not records:
+        raise RoutingPipelineError(f"{where} is absent")
+    identity = None
+    latest = records[0]
+    latest_at = ""
+    for record in records:
+        semantic = dict(record)
+        observed_at = _stamp(semantic.pop("observed_at", None), f"{where}.observed_at")
+        semantic["provider_event_time"] = _stamp(
+            semantic.get("provider_event_time"), f"{where}.provider_event_time"
+        )
+        if identity is None:
+            identity = semantic
+        elif semantic != identity:
+            raise RoutingPipelineError(f"{where} has contradictory event metadata")
+        if observed_at > latest_at:
+            latest = record
+            latest_at = observed_at
+    return latest
+
+
 def _find_raw_record(packet: dict[str, Any], ref: dict[str, str]) -> tuple[dict[str, Any], dict[str, Any]]:
     if type(packet) is not dict or type(packet.get("sources")) is not list:
         raise RoutingPipelineError("connector packet is not source-shaped")
@@ -130,9 +153,7 @@ def _find_raw_record(packet: dict[str, Any], ref: dict[str, str]) -> tuple[dict[
         and row.get("resource_scope") == ref["resource_scope"]
         and row.get("event_type") == ref["event_type"]
     ]
-    if len(matches) != 1:
-        raise RoutingPipelineError("selected_record is absent or ambiguous")
-    return source, matches[0]
+    return source, _latest_observation(matches, "selected_record")
 
 
 def _selected_event_id(source: dict[str, Any], ref: dict[str, str]) -> str:
@@ -230,9 +251,9 @@ def compile_bundle(
     ]
     ledger_events = [row for row in report["events"] if row["event_id"] == selected_event_id]
     sources = [row for row in report["sources"] if row["source_id"] == ref["source_id"]]
-    if len(projected_events) != 1 or len(ledger_events) != 1 or len(sources) != 1:
+    if len(ledger_events) != 1 or len(sources) != 1:
         raise RoutingPipelineError("selected provider event/source is absent or ambiguous")
-    projected_event = projected_events[0]
+    projected_event = _latest_observation(projected_events, "selected projected event")
     event = ledger_events[0]
     source = sources[0]
     if projected_event["source_url"] not in event["source_urls"]:
@@ -349,11 +370,16 @@ def verify_bundle(bundle: dict[str, Any]) -> bool:
         if not event_ledger.verify_report(report):
             return False
         event_id = bundle.get("selected_event_id")
-        projected_events = [row for row in projected.get("events", []) if row.get("event_id") == event_id]
+        ref = _normalize_ref(bundle.get("selected_record"))
+        projected_events = [
+            row for row in projected.get("events", [])
+            if row.get("event_id") == event_id and row.get("source_id") == ref["source_id"]
+        ]
         report_events = [row for row in report.get("events", []) if row.get("event_id") == event_id]
-        if len(projected_events) != 1 or len(report_events) != 1:
+        if len(report_events) != 1:
             return False
-        projected_event, event = projected_events[0], report_events[0]
+        projected_event = _latest_observation(projected_events, "selected projected event")
+        event = report_events[0]
         observation = bundle.get("observation")
         if type(observation) is not dict:
             return False

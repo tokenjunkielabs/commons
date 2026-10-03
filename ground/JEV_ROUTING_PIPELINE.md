@@ -11,6 +11,7 @@ The routing pipeline does **not** read a provider, call TypeSafe, hold credentia
 - revalidates the complete connector metadata packet with the landed projection and ledger compilers;
 - binds and retains the canonical connector projection plus its digest, so downstream verification can detect projection drift rather than trusting an orphaned hash;
 - identifies the selected provider event from immutable provider identity (`provider`, resource scope, event type, native event ID) rather than message text;
+- accepts repeated reads of that unchanged event, retains every observation in the projection and ledger, and selects the latest observation within the named source for routing; contradictory event metadata remains an error;
 - preserves selected-source status, freshness, cursor/high-water-derived coverage evidence, and **fails closed** with `HOLD_SOURCE_COVERAGE` unless that selected source is `OK`, `FRESH`, complete, and has no unread page;
 - hashes and retains the structured typed Jev answers, converts the selected lane confidence to integer ppm, and maps the lane to one authorized action target;
 - compiles the landed action-loop plan, preserving its low-confidence/provider-state/idempotency holds;
@@ -35,6 +36,8 @@ The route map is deterministic controller configuration, not model-generated des
 ## Coverage semantics
 
 Connector coverage is inherited unchanged from the landed ledger. `PARTIAL`, `ERROR`, `COOLDOWN`, stale windows, and `has_more` remain visible. The composition layer never converts missing pages into zero activity, never treats an observed message count as a count of active workers, and never emits an action plan from an incomplete selected source.
+
+Callers may keep overlapping reads in one connector packet. The selected-record reference still names the source and immutable provider event, without an observation index. Compilation and bundle verification apply the same latest-observation selection, while the ledger keeps the first and last observation times and counts the event once. Repeated reads do not establish a Jev processing checkpoint or authorize an action replay.
 
 ## Live-action evidence
 
