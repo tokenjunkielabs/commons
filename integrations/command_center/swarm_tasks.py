@@ -238,10 +238,11 @@ def after_ingest(center):
 
 def tool():
     return {"name": "command_center_swarm_tasks",
-            "description": "Canonical task status, sync, take, heartbeat, ship, block and next. Atomic shared claims, provider reconciliation and automatic next-task routing; no review queue. Reuse operation_id on retries.",
+            "description": "Canonical task status, sync, take, heartbeat, release, ship, block and next. Atomic shared claims and provider reconciliation. Release requires the observed expected_started_at and returns unfinished work without taking another task. Reuse operation_id on retries.",
             "inputSchema": {"type": "object", "required": ["action"],
-                "properties": {"action": {"type": "string", "enum": ["status", "sync", "open", "take", "heartbeat", "ship", "block", "abandon", "next"]},
+                "properties": {"action": {"type": "string", "enum": ["status", "sync", "open", "take", "heartbeat", "release", "ship", "block", "abandon", "next"]},
                                "operation_id": {"type": "string"}, "task_key": {"type": "string"},
                                "worker": {"type": "string"}, "seat": {"type": "object"},
+                               "expected_started_at": {"type": "string", "description": "For release, the exact started_at from the observed ACTIVE task; keep it unchanged on retries."},
                                "max_calls": {"type": "integer", "minimum": 0, "maximum": 20}},
                 "additionalProperties": True}}
