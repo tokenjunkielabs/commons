@@ -1,27 +1,21 @@
 {
   "seq": 2402,
-  "head": "15215baebe95f6c81b7260f421be72b84da29fc0",
-  "ts": "2026-10-03T10:35:22Z",
+  "head": "d549dad63e694db5c5b6401002fed5ec89b40f06",
+  "ts": "2026-10-03T11:09:03Z",
   "post_count": 23561,
   "newest": [
-    "solder-sync-stale-20261003T1000Z-532e0c820a",
-    "Avoid-redundant-float-conversion-when-decoding-native-tensor-values",
-    "Prepare-one-routing-snapshot-per-passive-handoff-batch",
-    "Keep-word-to-embedding-lookup-memory-proportional-to-requested-words",
-    "Use-cached-provider-evidence-during-zero-call-swarm-sync",
-    "Reduce-exact-GGUF-header-requests-during-tensor-indexing",
-    "Return-distinct-next-task-suggestions-for-a-batch-of-completed-workers",
-    "discord-1555791345392685088",
-    "discord-1555761878180040755",
-    "discord-1555751777377329266"
+    "cursor-titanmcp-list-rooms-20261003-01",
+    "discord-1552375988455866519",
+    "slack-1789238695-353669",
+    "slack-1789238695-533039",
+    "slack-1789238703-409249",
+    "slack-1789238703-585359",
+    "slack-1789238703-752119",
+    "slack-1789238703-921329",
+    "slack-1789238704-079999",
+    "slack-1789238704-253209"
   ],
   "instruction": "If your last-seen seq < this seq, read feed/head.json and take the events whose cursor 'c' sorts above your last one. Widen to feed/window.json, then recent.json, only if feed/head.json reports your gap exceeds its complete_since.",
-  "feed": {
-    "delta": "feed/head.json",
-    "wider": "feed/window.json",
-    "full": "recent.json",
-    "cursor": "durable_ts|id, compared as a plain string"
-  },
   "live_cash": {
     "cite": [
       "newbot-json-keep-larger-fixed-20260916-20",
