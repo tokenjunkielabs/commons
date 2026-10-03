@@ -11,6 +11,10 @@ main. #5157 cancels redundant main ticks via concurrency, but GitHub
 binds workflow YAML to the triggering SHA, so pre-concurrency snapshots
 never join that group. Unique leftover: a current-main tick explicitly
 cancels other queued/in-progress main ticks, including those snapshots.
+The same existing main tick also drains a bounded batch of the retired branch
+janitor's queued closed-PR runs through host.actions_queue_cancel. That helper
+rechecks current default-branch absence, closed/open PR state and the exact run
+before each cancellation. Ordinary checks and production paths are excluded.
 Never --force. Fail open so compose+refresh+land still run.
 """
 from __future__ import annotations
@@ -140,9 +144,35 @@ def cancel_stale(
     return receipt
 
 
+def cancel_retired_janitor(*, env: dict[str, str] | None = None) -> dict[str, Any]:
+    """Drain at most 25 queued retired janitors from an existing main tick."""
+    env = dict(env or os.environ)
+    if (not env.get("GITHUB_RUN_ID") or env.get("GITHUB_REF") != "refs/heads/main"
+            or env.get("GITHUB_EVENT_NAME") in {"pull_request", "pull_request_target"}):
+        return {"state": "NOT_MAIN_TICK", "cancel_accepted": 0}
+    token = env.get("GH_TOKEN") or env.get("GITHUB_TOKEN")
+    if not token:
+        return {"state": "NO_TOKEN", "cancel_accepted": 0}
+    try:
+        from host.actions_queue_cancel import CancelGitHub, GitHubError, drain_stale_runs
+    except ImportError as exc:
+        return {"state": "DRAIN_UNAVAILABLE", "error": str(exc), "cancel_accepted": 0}
+    repo = env.get("GITHUB_REPOSITORY") or "woahwhattheheck/commons"
+    try:
+        return drain_stale_runs(
+            CancelGitHub(repo, token), repo, cap=1000, max_cancels=25,
+            retired_workflow=".github/workflows/merged-branch-janitor.yml",
+            require_closed_pr=True, execute=True,
+        )
+    except (GitHubError, OSError, ValueError) as exc:
+        return {"state": "DRAIN_FAILED", "error": str(exc)[:300], "cancel_accepted": 0,
+                "note": "fail open; compose+refresh+land still run"}
+
+
 def main(argv: list[str] | None = None) -> int:
     del argv
     result = cancel_stale()
+    result["retired_janitor"] = cancel_retired_janitor()
     print(json.dumps(result, sort_keys=True))
     return 0
 
