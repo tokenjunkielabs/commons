@@ -169,9 +169,15 @@ def host_observation(state_dir):
     }
     try:
         disk = shutil.disk_usage(state_dir)
-        item.update(disk_gib=round(disk.total / 2**30, 2), disk_free_gib=round(disk.free / 2**30, 2))
+        item.update(
+            disk_gib=round(disk.total / 2**30, 2),
+            disk_free_gib=round(disk.free / 2**30, 2),
+            disk_total_bytes=disk.total, disk_used_bytes=disk.used,
+            disk_free_bytes=disk.free,
+        )
     except OSError:
-        item.update(disk_gib=None, disk_free_gib=None)
+        item.update(disk_gib=None, disk_free_gib=None, disk_total_bytes=None,
+                    disk_used_bytes=None, disk_free_bytes=None)
     try:
         if system == "Windows":
             class MemoryStatus(ctypes.Structure):

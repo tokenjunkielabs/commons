@@ -35,6 +35,10 @@ for tool in TOOLS:
             "order":{"type":"string","enum":["asc","desc"],"default":"asc","description":"Event sequence order for this history."},
             "event_id":{"type":"string","description":"Optional exact event identity within this history."},
         })
+    if tool["name"]=="get_work_context":
+        tool["inputSchema"]["properties"]["limit"]["description"]="Maximum work items or work-history events per page."
+        tool["inputSchema"]["properties"]["cursor"]={"type":["integer","string"],"default":0,
+            "description":"Without work_id, use the opaque work-list next_cursor; with work_id, use the integer event next_cursor. Continue while has_more is true."}
 
 def call(store, name, args=None):
     args=args or {}
@@ -44,7 +48,7 @@ def call(store, name, args=None):
     if name=="get_changes_since": return store.events(**{k:args[k] for k in ("cursor","limit","source","provider","harness","q","session_id","work_id","operation_id","event_id","order") if k in args})
     if name=="get_work_context":
         if args.get("work_id"): return store.events(limit=args.get("limit",1000),**{k:args[k] for k in ("cursor","source","provider","harness","q","session_id","work_id","operation_id","event_id","order") if k in args})
-        return store.work()
+        return store.work(**{k:args[k] for k in ("limit","cursor") if k in args})
     if name=="trace_operation": return store.events(limit=args.get("limit",1000),**{k:args[k] for k in ("cursor","source","provider","harness","q","session_id","work_id","operation_id","event_id","order") if k in args})
     if name=="list_accounts_and_services": return store.records("accounts",**{k:args[k] for k in ("limit","cursor","q","source","provider","harness") if k in args})
     if name=="get_source_coverage": return store.records("coverage",**{k:args[k] for k in ("limit","cursor","q","source","provider","harness") if k in args})

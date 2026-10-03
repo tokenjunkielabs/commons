@@ -15,11 +15,13 @@ from __future__ import annotations
 import argparse
 import copy
 import json
+import os
 import re
 import sys
 from collections import Counter
 from pathlib import Path
 from typing import Any
+from uuid import uuid4
 
 OBSERVATION_SCHEMA = "commons-connected-capability-observations/v1"
 CATALOG_SCHEMA = "commons-connected-capabilities/v1"
@@ -197,6 +199,25 @@ def compile_catalog(data: dict[str, Any]) -> dict[str, Any]:
 def canonical_json(value: Any) -> str:
     return json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
 
+def write_catalog(output: Path, rendered: str) -> None:
+    """Keep the prior catalog readable until its replacement is fully written."""
+    output.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        previous_mode = output.stat().st_mode & 0o777
+    except FileNotFoundError:
+        previous_mode = None
+    temporary = output.with_name(f".{output.name}.{uuid4().hex}.tmp")
+    try:
+        with temporary.open("x", encoding="utf-8") as stream:
+            stream.write(rendered)
+            stream.flush()
+            os.fsync(stream.fileno())
+        if previous_mode is not None:
+            temporary.chmod(previous_mode)
+        temporary.replace(output)
+    finally:
+        temporary.unlink(missing_ok=True)
+
 def self_test() -> dict[str, Any]:
     sample = {
         "schema": OBSERVATION_SCHEMA,
@@ -277,8 +298,7 @@ def main(argv: list[str] | None = None) -> int:
         print("MATCH")
         return 0
     try:
-        output.parent.mkdir(parents=True, exist_ok=True)
-        output.write_text(rendered, encoding="utf-8")
+        write_catalog(output, rendered)
     except OSError as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 2

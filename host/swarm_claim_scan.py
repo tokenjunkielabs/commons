@@ -132,6 +132,11 @@ def _rendered(page, fallback_channel, source):
     text = page.get("messages", page.get("results"))
     if not isinstance(text, str):
         raise ScanError("rendered Slack response must contain a messages or results string")
+    if text.lstrip().startswith("THREAD:"):
+        raise ScanError(
+            'concise Slack thread responses omit exact message timestamps; '
+            'repeat the thread read with response_format="detailed" '
+            'and retain the returned JSON response')
     matches = list(HEADER.finditer(text))
     rows = []
     prefix = text[:matches[0].start()] if matches else text

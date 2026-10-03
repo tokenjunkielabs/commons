@@ -21,6 +21,7 @@ Global options precede the command:
 python host/swarmctl.py status
 python host/swarmctl.py status --state ACTIVE --owner MY_SEAT --limit 20
 python host/swarmctl.py status --task github:woahwhattheheck/commons:issue:177
+python host/swarmctl.py status --task github:woahwhattheheck/commons:issue:177 --context
 python host/swarmctl.py sync --max-calls 4
 python host/swarmctl.py take github:woahwhattheheck/commons:issue:177 --operation-id take-177-01 --data /tmp/worker.json
 python host/swarmctl.py heartbeat --feed-cursor '2026-09-26T12:00:00Z|exact-event-id'
@@ -46,6 +47,14 @@ the next compatible task. The response includes its bounded context bundle.
 Status accepts repeated `--state`, exact `--task`/`--owner`, and `--after` with
 the returned `next_cursor`. `total` counts all canonical tasks; `matched` counts
 the selected filter before pagination. These reads do not refresh providers.
+Add `--context` with `--task` to inspect the existing handoff bundle without
+acquiring work. The optional `context` result includes up to eight recent
+matching retained events, exact source IDs, next action, blocker and known
+code/artifact references. It is `null` when the selected task is absent from the
+filtered page. The same option is available as `context: true` with `task` in
+the shared status tool/POST payload, or `context=1&task=...` on the GET endpoint.
+The bundle is bounded retained evidence; the surrounding coverage and provider
+observation times still describe any missing or stale source history.
 Provider-confirmed shipments also appear once in the existing command-center
 feed, even when the worker never wrote a final receipt.
 
@@ -54,6 +63,7 @@ the same status filters and pagination without a Git clone or provider request:
 
 ```bash
 python host/swarmctl.py status --ledger /tmp/swarm-runtime.json --state OPEN --limit 20
+python host/swarmctl.py --output /tmp/task-context.json status --ledger /tmp/swarm-runtime.json --task github:woahwhattheheck/commons:issue:177 --context
 ```
 
 `--ledger` selects the saved input even when `COMMONS_SWARM_URL` is configured.

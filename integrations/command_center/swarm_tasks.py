@@ -163,7 +163,8 @@ def call(center, payload):
             result = engine.read(refresh=bool(payload.get("refresh", False)),
                                  worker=payload.get("worker"), limit=payload.get("limit", 100),
                                  task=payload.get("task"), states=payload.get("states"),
-                                 owner=payload.get("owner"), after=payload.get("after"))
+                                 owner=payload.get("owner"), after=payload.get("after"),
+                                 context=payload.get("context", False))
         elif action == "sync":
             # Source collection is already coalesced by refresh_work(). This
             # consumes its shared snapshot, never launches one reader per seat.
@@ -248,6 +249,8 @@ def tool():
                 "properties": {"action": {"type": "string", "enum": ["status", "sync", "open", "take", "heartbeat", "release", "ship", "block", "abandon", "next"]},
                                "operation_id": {"type": "string"}, "task_key": {"type": "string"},
                                "title": {"type": "string", "description": "Human-readable task title retained in the task event and context."},
+                               "task": {"type": "string", "description": "For status, an exact task identity or GitHub issue/PR URL."},
+                               "context": {"type": "boolean", "description": "For status with task, include its bounded retained event bundle without acquiring work."},
                                "worker": {"type": "string"}, "seat": {"type": "object"},
                                "expected_started_at": {"type": "string", "description": "For release, the exact started_at from the observed ACTIVE task; keep it unchanged on retries."},
                                "max_calls": {"type": "integer", "minimum": 0, "maximum": 20}},
