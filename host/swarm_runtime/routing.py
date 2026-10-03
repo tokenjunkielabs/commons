@@ -365,7 +365,10 @@ def _related(event, task, ids):
         if any(_known(task.get(key)) and _text(event.get(key)) == _text(task[key])
                for key in ("issue", "pr")):
             return True
-    text = "\n".join(_text(event.get(key)) for key in ("text", "excerpt", "body"))
+    prose = [_text(event.get(key)) for key in ("text", "excerpt", "body")]
+    if not any(prose):
+        return False
+    text = "\n".join(prose)
     needles = [task.get("task_key")]
     if _known(repo):
         for key, path in (("issue", "issues"), ("pr", "pull")):

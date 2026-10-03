@@ -23,6 +23,8 @@ The publisher then:
 6. performs exactly one `renameat2(..., RENAME_NOREPLACE)` from staging name to `output_dir` name. **That directory rename is the artifact-set publication linearization point.** Before it, the requested output namespace is absent; after it, the complete verified generation is present as one namespace object;
 7. fsyncs the parent and revalidates the retained parent/published-directory generations. Failure after the rename is reported as a partial publication and never destructively rolls the committed generation back.
 
+Retained-file readback compares 64 KiB chunks with matching slices of the original immutable payload and checks for an exact end of file. The comparison uses bounded temporary memory instead of buffering and joining another complete artifact. Caller-supplied payloads remain resident for publication; file-generation checks and receipt digests are unchanged.
+
 Platforms without the required POSIX directory-descriptor primitives or `renameat2(RENAME_NOREPLACE)` fail closed. There is no ordinary-rename fallback that can overwrite a foreign target.
 
 ## Receipt truth

@@ -6,6 +6,7 @@ Supported identifiers:
   review:5178620884 | review:12567:5178620884
   run:34594768274
   blob:830e8e9a3ddae95799142eba6bcbd03f85eb4787
+  commit:ae90064a7c0f0a2b0346a9f88b056403825a9313 | GitHub commit URL
   marker:OUTCOME-COMMERCE-PR12567-GUARDED-INTEGRATION-20260911-01
 
 The resolver deliberately does not accept a bare integer: numeric PR, review and run
@@ -32,6 +33,7 @@ DEFAULT_COORDINATION_URL = (
 )
 _HEX40 = re.compile(r"^[0-9a-fA-F]{40}$")
 _PULL_URL = re.compile(r"^https://github\.com/([^/?#]+/[^/?#]+)/pull/(\d+)(?:[/?#].*)?$")
+_COMMIT_URL = re.compile(r"^https://github\.com/([^/]+/[^/]+)/commit/([0-9a-fA-F]{40})/?(?:[?#].*)?$")
 _GITHUB_CREDENTIAL_HOSTS = frozenset({"api.github.com", "raw.githubusercontent.com"})
 
 
@@ -76,12 +78,29 @@ def parse_identifier(raw: str, repo: str = DEFAULT_REPO) -> ParsedId:
             )
         return ParsedId("pr", number)
 
+    match = _COMMIT_URL.fullmatch(value)
+    if match:
+        url_repo, sha = match.groups()
+        if url_repo.lower() != repo.lower():
+            raise ResolutionError(
+                "WRONG_REPOSITORY",
+                "commit URL points at a different repository",
+                expected=repo,
+                actual=url_repo,
+            )
+        return ParsedId("commit", sha.lower())
+
     if value.startswith("#") and value[1:].isdigit():
         return ParsedId("pr", value[1:])
     if value.lower().startswith("pr:") and value[3:].isdigit():
         return ParsedId("pr", value[3:])
     if value.lower().startswith("run:") and value[4:].isdigit():
         return ParsedId("run", value[4:])
+    if value.lower().startswith("commit:"):
+        sha = value[7:]
+        if not _HEX40.fullmatch(sha):
+            raise ResolutionError("INVALID_COMMIT", "commit id must be an exact 40-hex Git SHA")
+        return ParsedId("commit", sha.lower())
     if value.lower().startswith("blob:"):
         sha = value[5:]
         if not _HEX40.fullmatch(sha):
@@ -284,6 +303,23 @@ class Resolver:
             "event": run.get("event"),
             "run_attempt": run.get("run_attempt"),
             "updated_at": run.get("updated_at"),
+        }
+
+    def _resolve_commit(self, parsed: ParsedId) -> dict[str, Any]:
+        sha = parsed.value
+        commit = self._api(f"/git/commits/{sha}")
+        if not isinstance(commit, dict) or str(commit.get("sha", "")).lower() != sha:
+            raise ResolutionError("BAD_GITHUB_RESPONSE", "commit response did not bind requested sha")
+        tree = commit.get("tree") if isinstance(commit.get("tree"), dict) else {}
+        committer = commit.get("committer") if isinstance(commit.get("committer"), dict) else {}
+        return {
+            # An available Git object does not prove branch inclusion or deployment.
+            "state": "AVAILABLE",
+            "sha": sha,
+            "url": commit.get("html_url"),
+            "tree_sha": tree.get("sha"),
+            "parent_shas": [parent.get("sha") for parent in commit.get("parents", []) if isinstance(parent, dict)],
+            "committed_at": committer.get("date"),
         }
 
     def _resolve_blob(self, parsed: ParsedId) -> dict[str, Any]:

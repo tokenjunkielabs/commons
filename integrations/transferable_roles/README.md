@@ -176,6 +176,10 @@ successor; use `release` when the session ends without one yet.
 obligation. Purpose and sibling obligations stay. Allowed statuses:
 `open|done|blocked|deferred`. Roles still confer no credentials.
 
+Status values are trimmed and normalized to lowercase when role records are
+created, read or imported, matching obligation advancement. Incoming `OPEN`
+therefore remains visible in the open-work queue.
+
 `open-obligations` scans every role in the store and returns open rows as
 `{"open_obligations": [...]}` with `role_id`, optional `label`, `purpose`,
 `obligation_id`, `summary`, `next_action`, optional `evidence_pointer` /

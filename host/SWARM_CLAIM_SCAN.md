@@ -35,6 +35,18 @@ The response size limit is 64 MiB per input. No third-party package is required.
 - `possible_overlaps` groups that state by exact file path. Two operations sharing
   a file can still own different functions or compatible additive changes. Read
   their links and compose the work; this report does not decide who may proceed.
+- `possible_symbol_overlaps` narrows those observations to explicit matching
+  `file.py::function` or `file.py::Class.method` selectors, or an immediately
+  adjacent code-shaped symbol such as `file.py import_reads`. `shared_file_scopes`
+  lists each operation's symbols and unscoped operations beside the shared
+  symbols, so independent methods remain distinguishable within the same file.
+  Same-symbol observations still do not establish incompatible changes.
+- `operations[].observed_scopes` retains selectors with their exact source
+  links. Bare filenames are recognized when followed by `::`; their
+  `path_resolution` stays `basename_only`, because a matching filename does not
+  establish a matching repository or directory. The reader never aliases a
+  bare filename to a longer path. Refresh the linked source before combining
+  those observations.
 - `terminal_observations` records explicit `LANDED`, `DONE`, `COMPLETE`, or
   `RELEASE` statements naming the exact operation ID. A shortened name, a PR link,
   or someone mentioning another operation does not silently close a claim.
@@ -47,6 +59,11 @@ The parser recognizes declarations beginning with `CLAIM`, `TAKE`, `RESUME`, or
 `TAKING`, followed by an operation identifier. It extracts explicit relative
 file paths, including a simple `path/{one.py,two.py}` list. It deliberately does
 not infer paths from a GitHub URL or expand directory-wide or wildcard scopes.
+Explicit slash-separated selectors such as `file.py::first/second` retain both
+symbols. An adjacent symbol must follow a source-code filename and contain an
+underscore, a dotted name, empty call parentheses, or backticks; ordinary words
+such as `only` and `metadata` stay unscoped. Each scope records which notation
+was observed. The reader does not infer function names from surrounding prose.
 Paths mentioned elsewhere in the same declaration may describe dependencies or
 exclusions, so a match remains a possible overlap for human/peer interpretation.
 Natural-language scope changes and short operation names require the full thread.
