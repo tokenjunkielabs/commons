@@ -81,6 +81,10 @@ codes and performs no additional source reads.
   verbs with `/`, as in `DONE / RELEASE OPERATION_ID` or
   `DONE / RELEASE — OPERATION_ID`; its first verb remains the reported kind.
   The exact operation ID and existing quote/condition handling are preserved.
+  An ID after those primary terminal verbs may be enclosed in one balanced pair
+  of backticks, as retained by detailed native Slack exports. The same spelling
+  is accepted by the primary source-release forms below. Backticks do not change
+  the identifier's case or join differently spelled claim and completion IDs.
   The observed primary `DONE SOURCE / RELEASE OPERATION_ID` and
   `SHIP / RELEASE · OPERATION_ID` headers retain the actual operation ID and
   the first terminal kind. `SHIPPED` and `RELEASED` spellings are also accepted
