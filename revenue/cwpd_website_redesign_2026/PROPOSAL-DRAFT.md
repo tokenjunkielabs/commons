@@ -2,12 +2,14 @@
 
 **INTERNAL DRAFT — DO NOT SEND**
 
+Source update: official website-redesign addendum, incorporated October 3, 2026. Clause numbers below refer to that document; retained source details are in `captures/20261003/`. Owner facts and pricing remain unresolved.
+
 Vendor legal name: **[REQUIRED:LEGAL_NAME]**  
 Primary contact: **[REQUIRED:CONTACT]**  
 Proposal price: **[REQUIRED:PRICING]**  
 Comparable work/references: **[REQUIRED:PORTFOLIO] / [REQUIRED:REFERENCES]**  
 Key personnel: **[REQUIRED:PERSONNEL]**  
-Prior RecDesk integration experience: **[REQUIRED:RECDESK_HISTORY]**
+RecDesk experience disclosure (including none if accurate): **[REQUIRED:RECDESK_HISTORY]**
 
 ## Executive approach
 
@@ -23,7 +25,7 @@ Our default technical assumption is to preserve WordPress as the CMS during disc
 
 **Mobile performance and accessibility as product requirements.** With most traffic on mobile, define page-weight/Core Web Vitals budgets and accessibility acceptance criteria at component level from the first prototype instead of remediating after build.
 
-**RecDesk as an authoritative source instead of duplicate publishing.** Validate an official RecDesk integration surface, then automate the safe subset of public program data into the website while keeping registration actions in RecDesk. Where automation is not supported, build the least-duplicative vendor-approved workflow instead of scraping.
+**Consistent program publishing.** Build a cached read model from the confirmed RecDesk API, with field-level reconciliation and visible exception handling. Validate every displayed status and registration link against the upstream record.
 
 ### 2. What we would retain
 
@@ -31,13 +33,13 @@ Retain CWPD's established brand, the useful mental model behind the current info
 
 ### 3. RecDesk integration approach
 
-Discovery begins by treating RecDesk as the authoritative program/registration system and documenting CWPD's tenant capabilities with RecDesk. We would request the supported API, feed, embed or partner documentation, authentication model, fields, rate limits, refresh expectations, maintenance obligations and third-party costs.
+The base plan uses the read-only API confirmed in addendum §5. During discovery, obtain the endpoint/schema documentation, establish the supported access arrangement and confirm pagination, rate limits, lifecycle signals and refresh expectations.
 
-If an authorized machine-readable interface is available, the website receives only the public fields needed for discovery—such as program title/category, dates, locations and approved availability/status—through a cached read model. Registration CTAs deep-link to the authoritative RecDesk transaction. We would design for stale/upstream-unavailable states and never silently invent availability.
+Map the requested public program fields into searchable website records. Preserve upstream identifiers, record retrieval times, validate registration links and surface reconciliation exceptions. Keep transactional actions in RecDesk. Distinguish full/cancelled records from missing fields, stale snapshots and transport errors before applying automatic suppression.
 
-If full automation is not supported, we would use the most structured RecDesk-approved alternative and explicitly document which data still requires staff action. We do not propose scraping RecDesk pages as an integration.
+Prototype the adapter against the provided evaluation surface when available. Show field coverage, refresh behavior, full/cancelled-program handling and an upstream outage to the project team. Do not claim that undisclosed fields or credentials already exist. If an API limitation prevents a requested behavior, propose a documented, maintainable fallback workflow for agreement; an iframe is not the base solution.
 
-**Prior RecDesk experience:** [REQUIRED:RECDESK_HISTORY]
+**Experience disclosure:** [REQUIRED:RECDESK_HISTORY] — include a candid statement of no direct prior work if that is the supported history. Proposed capability and completed work must remain distinct.
 
 ### 4. CMS recommendation and cost
 
@@ -49,7 +51,7 @@ CMS/license/hosting costs: **[REQUIRED:PRICING]**. Any commercial plugins or ser
 
 Accessibility is built into definition-of-done criteria for navigation, search, Park Finder, forms, media, documents and reusable components. Testing combines automated tools with manual keyboard-only operation, focus/skip-link review, zoom/reflow, color/contrast, screen-reader spot checks, form/error behavior and browser/device coverage. Findings are maintained as a remediation log and retested before release.
 
-We would provide CWPD an accessibility acceptance record at launch and include regression checks in maintenance. Automated scanners alone are not treated as proof of AA conformance.
+We would provide an accessibility acceptance record at launch and resolve the third-party audit findings under addendum §10. Define audit scheduling, evidence format and issue ownership in the delivery plan. Coordinate the separate document workstream with CWPD and keep the RecDesk portal boundary explicit. Automated scanners alone are not treated as proof of AA conformance.
 
 Accessibility experience evidence: **[REQUIRED:ACCESSIBILITY_HISTORY]**.
 
@@ -76,9 +78,9 @@ Final taxonomy/navigation follows discovery and content inventory, not this draf
 
 ### 8. CWPD staff responsibilities
 
-CWPD supplies authoritative content, brand standards, current-site/hosting/analytics access, RecDesk stakeholder access, decisions on content ownership and subject-matter review. CWPD participates in discovery/prototype acceptance, flags records/content that must be retained, reviews migration batches, and nominates editors for training.
+CWPD supplies authoritative content, photography, brand material, current-site/hosting/analytics access, RecDesk stakeholder access, content selection and subject-matter review. Bind the content and accessibility work split to addendum §§8–10 before estimating migration. CWPD participates in discovery/prototype acceptance, flags records/content that must be retained, reviews migration batches, and nominates editors for training.
 
-The vendor owns project management, IA/UX/design/build, integration implementation, migration tooling, accessibility/performance/security QA, redirect mapping, launch execution, documentation and training. Migration can be shared because CWPD explicitly states staff can assist with content.
+The vendor owns project management, IA/UX/visual design/build, integration implementation, migration tooling, website accessibility/performance/security work, redirect mapping, launch execution, documentation and training. Agree migration batches and acceptance responsibilities with CWPD. Plan a complete delivery with ongoing developer support; do not assume an internal developer will complete omitted work.
 
 ### 9. Ongoing resources after launch
 
@@ -100,11 +102,11 @@ Target: kickoff January 2027; production launch in Q3/Q4 2027.
 | Training / launch | 2–3 weeks | training, runbooks, rehearsal, production cutover |
 | Stabilization | 4 weeks post-launch | monitoring, defect correction, handoff |
 
-Final schedule depends on content volume, feedback turnaround and the RecDesk/hosting integration surface.
+Final schedule depends on the confirmed retention inventory, feedback turnaround and integration details. Keep all park-page variants and essential amenity filtering in the launch plan, with additional features separately identified. Schedule audit remediation before release and reconcile the window with seasonal registration activity.
 
 ## Security, hosting and ownership
 
-We recommend retaining DataYard during initial planning unless discovery establishes a concrete reliability, security, performance or support reason to migrate. If changing hosts, the final proposal will name provider, region, uptime target, backup/restore frequency, disaster recovery, monitoring, malware controls, patch policy and outage response.
+We recommend retaining DataYard during initial planning unless discovery establishes a concrete reliability, security, performance or support reason to migrate. If changing hosts, the final proposal will name provider, region, uptime target, backup/restore frequency, disaster recovery, monitoring, malware controls, patch policy and outage response. Apply addendum §12; the incumbent service guarantee is a baseline to discuss, not an invented replacement minimum.
 
 Application controls include TLS, least-privilege CMS roles, MFA where supported, dependency/plugin minimization, patch tracking, backup restore tests, secure secrets handling, logging/monitoring and testing against common web vulnerabilities.
 
@@ -112,17 +114,19 @@ CWPD owns project-specific content, data, design files and custom code. Third-pa
 
 ## Experience, personnel and references
 
-Comparable municipal/park/public-sector projects: **[REQUIRED:PORTFOLIO]**
+Comparable projects and sample websites: **[REQUIRED:PORTFOLIO]**. Present the closest relevant work without implying that a preferred sector is mandatory.
 
 Key personnel and relevant qualifications: **[REQUIRED:PERSONNEL]**
 
 Accessibility project evidence: **[REQUIRED:ACCESSIBILITY_HISTORY]**
 
-RecDesk integration evidence: **[REQUIRED:RECDESK_HISTORY]**
+RecDesk experience disclosure: **[REQUIRED:RECDESK_HISTORY]**.
 
-References available for contact: **[REQUIRED:REFERENCES]**
+References available for contact: **[REQUIRED:REFERENCES]**. Apply the preference and contact-field guidance in addendum §24; keep private reference details outside public source control.
 
 ## Price
+
+Apply addendum §§4–5 and 23: separate redesign, hosting and maintenance prices; exclude CWPD's API subscription fee; use earned project milestones for invoicing. This draft supplies no price or deposit commitment.
 
 | Stage | Fixed / estimated amount |
 | --- | ---: |
@@ -136,6 +140,10 @@ References available for contact: **[REQUIRED:REFERENCES]**
 | Hosting / recurring third-party services | [REQUIRED:PRICING] |
 
 No price is authorized by this draft.
+
+## Later contracting checklist
+
+Before contracting, resolve addendum §1's tax-form, insurance and applicable business-registration requirements with current owner evidence. Their stated stage is pre-contract. This draft makes no present-tense compliance assertion.
 
 ## Submission control
 
