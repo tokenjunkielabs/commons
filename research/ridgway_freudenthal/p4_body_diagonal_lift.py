@@ -95,7 +95,8 @@ def right_inverse(protected, target, ncols, target_basis=None):
     return matrix, protected_rank, len(pivots)
 
 
-def construct():
+def construct(mean_repair=None):
+    """Build the lift, optionally reusing a retained exact mean-repair operator."""
     _, raw_nodes, protected, target, labels = raw_geometry()
     raw, rank_protected, rank_combined = right_inverse(protected, target, 3*len(raw_nodes))
     cells, nodes, edges, means, edge_labels = geometry()
@@ -108,9 +109,11 @@ def construct():
                  for row in means]
     if any(sum(row[j] for row in raw_means) for j in range(12)):
         raise ArithmeticError("Zero-boundary raw field has nonzero total divergence mean")
-    # Consume the existing exact local mean-repair implementation without changes.
-    correction = mean_operator()
-    if correction["status"] != "CONSTRUCTED" or correction["nodes_times_four"] != nodes:
+    # A retained operator follows the same composition path without another mean solve.
+    correction = mean_operator() if mean_repair is None else mean_repair
+    if (correction["status"] != "CONSTRUCTED"
+            or [tuple(p) for p in correction["nodes_times_four"]] != nodes
+            or [tuple(tuple(p) for p in cell) for cell in correction["cells"]] != cells):
         raise ArithmeticError("Incompatible two-cube mean-repair operator")
     for i, mean_index, coefficient in correction["basis"]:
         for j in range(12):
