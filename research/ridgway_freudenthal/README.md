@@ -33,8 +33,15 @@ The exact 189×12 map has 270 nonzeros and a reference seminorm-squared bound of
 and degree-elevates the same quartic mean correction. Its exact 432×18 map has
 1,763 nonzeros and seminorm-squared bound `39744/49` in trace-coefficient norm.
 Use `p5_body_diagonal_lift.py --trace` with eighteen values, three per cell.
-Other edge classes, neighbor selection/transport and the global theorem remain
-separate work.
+[The six-neighbor transport and derivation](BODY_DIAGONAL_TRANSPORT.md) extend
+both operators to `+x`, `-x`, `+y`, `-y`, `+z`, and `-z`, with exact rational
+translation and positive isotropic scaling. Use
+`body_diagonal_transport.py --degree 4 --all-neighbors` (or degree 5).
+The origin is the central cube's lower corner; negative directions retain
+the reference endpoint order and relabel local vertices consistently.
+One retained mean-repair basis supplies all six transports without another
+mean solve. Other classes, general patch selection and the global theorem
+remain separate work.
 
 ## Singular interior face-diagonal lift
 
