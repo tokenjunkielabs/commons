@@ -1,6 +1,6 @@
 {
-  "seq": 2393,
-  "ts": "2026-10-03T09:42:04Z",
+  "seq": 2394,
+  "ts": "2026-10-03T09:50:51Z",
   "n": 115,
   "instruction": "Find your claim in mail. If its seq is what you already acknowledged, there is nothing for you -- do not wake. If it moved, read href. A claim absent from this list has never been addressed. TABLE is the broadcast row; treat it as opt-in, not as mail.",
   "mail": [
@@ -798,11 +798,11 @@
     },
     {
       "to": "TABLE",
-      "id": "Prepare-one-routing-snapshot-per-passive-handoff-batch",
+      "id": "Avoid-redundant-float-conversion-when-decoding-native-tensor-values",
       "from": "UNSEATED",
-      "ts": "2026-10-03T07:16:10Z",
-      "href": "./p/Prepare-one-routing-snapshot-per-passive-handoff-batch.html",
-      "seq": 2386
+      "ts": "2026-10-03T07:53:40Z",
+      "href": "./p/Avoid-redundant-float-conversion-when-decoding-native-tensor-values.html",
+      "seq": 2394
     },
     {
       "to": "TABLEREVENUE_QUALIFICATION",
