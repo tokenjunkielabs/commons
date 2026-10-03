@@ -270,6 +270,40 @@ def _statement(text):
     return None
 
 
+def _statements(text):
+    """Read explicit terminal clauses without attributing them to an addressee."""
+    prose, fence = [], None
+    for line in text.splitlines():
+        stripped = line.lstrip()
+        if stripped.startswith(">"):
+            continue
+        marker = re.match(r"(`{3,}|~{3,})", stripped)
+        if marker:
+            if fence is None:
+                fence = marker[1][0]
+            elif marker[1][0] == fence:
+                fence = None
+            continue
+        if fence is None:
+            prose.append(line)
+    visible = "\n".join(prose)
+    visible = re.sub(r'"[^"\n]*"|“[^”\n]*”', "", visible)
+    first = _statement(visible)
+    statements = [first] if first else []
+    # A message may address one operation, then explicitly release another.
+    # Only the ID in each terminal clause changes state; mention/order is not
+    # an ownership or completion signal. Secondary declarations stay unparsed.
+    for clause in re.split(r"(?<=[.!?])\s+|\n", visible):
+        statement = _statement(clause)
+        if statement is None or statement[0] == "declaration":
+            continue
+        if re.search(r"\b(?:if|when|unless|until|pending|awaiting)\b", clause, re.I):
+            continue
+        if statement not in statements:
+            statements.append(statement)
+    return statements
+
+
 def scan(messages, pages, *, workspace_url=None):
     workspace = _workspace(workspace_url)
     identities = defaultdict(dict)
@@ -290,31 +324,31 @@ def scan(messages, pages, *, workspace_url=None):
     operations = {}
     terminals, unparsed = [], []
     for message in ordered:
-        statement = _statement(message["text"])
-        if statement is None:
+        statements = _statements(message["text"])
+        if not statements:
             for header in STATEMENT_HEADER.finditer(message["text"]):
                 unparsed.append({"channel_id": message["channel_id"], "message_ts": message["message_ts"],
                                  "permalink": message["permalink"], "statement_header": header[0].strip()})
             continue
-        kind, operation = statement
         reference = {key: message[key] for key in ("channel_id", "message_ts", "permalink", "source")}
-        if kind == "declaration":
-            row = operations.setdefault(operation, {"operation_id": operation,
-                "observed_paths": [], "declarations": [], "terminal_observations": [],
-                "observed_scopes": [],
-                "state": "declaration_observed"})
-            scopes = _scopes(message["text"])
-            row["observed_paths"] = sorted(set(row["observed_paths"]) | set(_paths(message["text"], scopes)))
-            for scope in scopes:
-                row["observed_scopes"].append({**scope, **reference})
-            row["declarations"].append(reference)
-            row["state"] = "declaration_observed"
-        else:
-            terminal = {"operation_id": operation, "kind": kind, **reference}
-            terminals.append(terminal)
-            if operation in operations:
-                operations[operation]["terminal_observations"].append(terminal)
-                operations[operation]["state"] = "explicit_terminal_observed"
+        for kind, operation in statements:
+            if kind == "declaration":
+                row = operations.setdefault(operation, {"operation_id": operation,
+                    "observed_paths": [], "declarations": [], "terminal_observations": [],
+                    "observed_scopes": [],
+                    "state": "declaration_observed"})
+                scopes = _scopes(message["text"])
+                row["observed_paths"] = sorted(set(row["observed_paths"]) | set(_paths(message["text"], scopes)))
+                for scope in scopes:
+                    row["observed_scopes"].append({**scope, **reference})
+                row["declarations"].append(reference)
+                row["state"] = "declaration_observed"
+            else:
+                terminal = {"operation_id": operation, "kind": kind, **reference}
+                terminals.append(terminal)
+                if operation in operations:
+                    operations[operation]["terminal_observations"].append(terminal)
+                    operations[operation]["state"] = "explicit_terminal_observed"
     by_path = defaultdict(list)
     for operation, row in operations.items():
         if row["state"] == "declaration_observed":
