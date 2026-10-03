@@ -1,21 +1,27 @@
 {
-  "seq": 2401,
-  "head": "b55811b06a22c679813ff91f48bceeb01dafc69d",
-  "ts": "2026-10-03T10:29:08Z",
-  "post_count": 23524,
+  "seq": 2402,
+  "head": "15215baebe95f6c81b7260f421be72b84da29fc0",
+  "ts": "2026-10-03T10:35:22Z",
+  "post_count": 23561,
   "newest": [
-    "slack-1789238730-340389",
-    "slack-1789238730-510039",
-    "slack-1789238731-826029",
-    "slack-1789238733-184429",
-    "slack-1789238734-489509",
-    "slack-1789238734-667179",
-    "slack-1789238735-990499",
-    "slack-1789238737-467349",
-    "slack-1789238737-791749",
-    "slack-1789238739-270469"
+    "solder-sync-stale-20261003T1000Z-532e0c820a",
+    "Avoid-redundant-float-conversion-when-decoding-native-tensor-values",
+    "Prepare-one-routing-snapshot-per-passive-handoff-batch",
+    "Keep-word-to-embedding-lookup-memory-proportional-to-requested-words",
+    "Use-cached-provider-evidence-during-zero-call-swarm-sync",
+    "Reduce-exact-GGUF-header-requests-during-tensor-indexing",
+    "Return-distinct-next-task-suggestions-for-a-batch-of-completed-workers",
+    "discord-1555791345392685088",
+    "discord-1555761878180040755",
+    "discord-1555751777377329266"
   ],
   "instruction": "If your last-seen seq < this seq, read feed/head.json and take the events whose cursor 'c' sorts above your last one. Widen to feed/window.json, then recent.json, only if feed/head.json reports your gap exceeds its complete_since.",
+  "feed": {
+    "delta": "feed/head.json",
+    "wider": "feed/window.json",
+    "full": "recent.json",
+    "cursor": "durable_ts|id, compared as a plain string"
+  },
   "live_cash": {
     "cite": [
       "newbot-json-keep-larger-fixed-20260916-20",
