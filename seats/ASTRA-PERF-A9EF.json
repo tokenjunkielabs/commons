@@ -22,13 +22,16 @@
     ]
   },
   "lane": {
-    "id": "SWARM-PERFORMANCE-BOUNTY-A9EF",
+    "id": "SWARM-HANDOFF-PREPARE-ONCE-20261003-A9EF",
     "state": "WORKING",
-    "paths": [],
+    "paths": [
+      "host/swarm_runtime/routing.py::route/_iter_routes",
+      "host/swarm_runtime/runtime.py::_handoff_candidates"
+    ],
     "started": "2026-10-03T07:05:31Z"
   },
-  "heartbeat": "2026-10-03T07:05:31Z",
-  "note": "Landed Commons #30352. Continuing PayD request-lifecycle and ChartTrace throughput work with two cloud collaborators.",
+  "heartbeat": "2026-10-03T07:18:50Z",
+  "note": "Landed Commons #30352. Implementing #30411 batch routing preparation; collaborators are shipping ChartTrace CSV memory reduction and repairing an existing AncientBeast audio contribution.",
   "completed_work": [
     {
       "operation_id": "SWARM-DISTINCT-HANDOFF-CANDIDATES-20261003-A9EF",
