@@ -19,7 +19,11 @@ from datetime import date, datetime, timezone
 from decimal import Decimal, InvalidOperation
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from urllib.parse import parse_qs, urlsplit
+from zipfile import ZIP_DEFLATED, ZipFile
+
+from supplier_enquiries import EnquiryError, build_from_desk_request, iso_date, write_pack
 
 MAX_BODY = 2 * 1024 * 1024
 FIT = {"unreviewed", "compatible", "uncertain", "incompatible"}
@@ -459,6 +463,27 @@ class Desk:
         return "\n".join(lines) + "\n"
 
 
+def enquiry_archive(desk: Desk, identity: str, parameters: dict) -> bytes:
+    """Download the existing exporter output without changing saved desk state."""
+    if not isinstance(parameters, dict):
+        raise DeskError("Enquiry export parameters must be an object")
+    effective_date = iso_date(parameters["as_of"], "as_of") if "as_of" in parameters else None
+    max_age = integer(parameters.get("max_age_days", 7), "max_age_days", 0, 36500)
+    pack = build_from_desk_request(desk.request(identity), parameters.get("option_ids"),
+                                   as_of=effective_date, max_age_days=max_age)
+    try:
+        with TemporaryDirectory(prefix="parts-enquiries-") as directory:
+            destination = Path(directory) / "pack"
+            write_pack(pack, destination)
+            output = io.BytesIO()
+            with ZipFile(output, "w", compression=ZIP_DEFLATED) as archive:
+                for path in sorted(destination.iterdir()):
+                    archive.write(path, path.name)
+            return output.getvalue()
+    except OSError as exc:
+        raise DeskError("Enquiry export storage is unavailable; check temporary storage and retry", 503) from exc
+
+
 def make_server(desk: Desk, host: str = "127.0.0.1", port: int = 8080):
     class Handler(BaseHTTPRequestHandler):
         def log_message(self, *_):
@@ -493,12 +518,20 @@ def make_server(desk: Desk, host: str = "127.0.0.1", port: int = 8080):
                     return self.reply(desk.backup(), content_type="application/vnd.sqlite3", filename="parts-desk.sqlite3")
                 if len(parts) == 3 and parts[:2] == ["api", "requests"]:
                     return self.reply(desk.request(parts[2]))
+                if len(parts) == 4 and parts[:2] == ["api", "requests"] and parts[3] == "enquiries.zip":
+                    query = parse_qs(url.query, keep_blank_values=True)
+                    parameters = {name: query[name][0] for name in ("as_of", "max_age_days") if name in query}
+                    parameters["option_ids"] = query.get("option_id")
+                    content = enquiry_archive(desk, parts[2], parameters)
+                    return self.reply(content, content_type="application/zip", filename="parts-supplier-enquiries.zip")
                 if len(parts) == 4 and parts[:2] == ["api", "orders"] and parts[3] == "handoff.txt":
                     content = desk.handoff(parts[2]).encode("utf-8")
                     return self.reply(content, content_type="text/plain; charset=utf-8", filename="parts-handoff.txt")
                 raise DeskError("Route not found", 404)
             except DeskError as exc:
                 self.reply({"error": str(exc)}, exc.status)
+            except EnquiryError as exc:
+                self.reply({"error": str(exc)}, 400)
 
         def do_POST(self):
             try:
@@ -508,6 +541,9 @@ def make_server(desk: Desk, host: str = "127.0.0.1", port: int = 8080):
                 body = json.loads(self.rfile.read(length).decode("utf-8"),
                                   parse_constant=lambda value: (_ for _ in ()).throw(ValueError(value)))
                 parts = urlsplit(self.path).path.strip("/").split("/")
+                if len(parts) == 4 and parts[:2] == ["api", "requests"] and parts[3] == "enquiries.zip":
+                    content = enquiry_archive(desk, parts[2], body)
+                    return self.reply(content, content_type="application/zip", filename="parts-supplier-enquiries.zip")
                 operation, identity = "", ""
                 if parts == ["api", "catalog", "import"]:
                     operation = "catalog"
@@ -524,6 +560,8 @@ def make_server(desk: Desk, host: str = "127.0.0.1", port: int = 8080):
                 self.reply(desk.mutate(operation, identity, body))
             except DeskError as exc:
                 self.reply({"error": str(exc)}, exc.status)
+            except EnquiryError as exc:
+                self.reply({"error": str(exc)}, 400)
             except (ValueError, UnicodeError, RecursionError):
                 self.reply({"error": "Invalid JSON or unsupported value"}, 400)
             except sqlite3.OperationalError:
