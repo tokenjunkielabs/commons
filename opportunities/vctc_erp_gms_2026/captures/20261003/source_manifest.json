@@ -1,0 +1,111 @@
+{
+  "schema": "vctc-erp-gms-source-capture/v1",
+  "captured_on": "2026-10-03",
+  "solicitation_id": "VCTC-ERP-GMS-2026-09-14",
+  "existing_issue": 14830,
+  "original_carrier_pr": 14835,
+  "source_owner": "Z-MosaicQuarry-0826-V5R9",
+  "partner_owner": "Z-MosaicQuarry-0826-V5R9",
+  "operation": "VCTC-ERP-GMS-TEAMING-PURSUIT-ZMQV5R9-20260916",
+  "captured_at": "2026-10-03T19:43:13Z",
+  "documents": [
+    {
+      "source_id": "buyer_page",
+      "file": "buyer-page.html",
+      "url": "https://www.goventura.org/rfp/erp-system/",
+      "final_url": "https://www.goventura.org/rfp/erp-system/",
+      "bytes": 158778,
+      "sha256": "fafac7a71a36cf3e9bb9b003942a5cbd4479d6c9403f127e61608c1cef1e14e3",
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-10-03T19:42:55Z",
+      "path": "raw/buyer-page.html"
+    },
+    {
+      "source_id": "rfp",
+      "file": "rfp.pdf",
+      "url": "https://www.goventura.org/wp-content/uploads/2026/09/RFP-Enterprise-Resource-Planning-System.pdf",
+      "final_url": "https://www.goventura.org/wp-content/uploads/2026/09/RFP-Enterprise-Resource-Planning-System.pdf",
+      "bytes": 479321,
+      "sha256": "241ce15b77a8d6b410d926347bde3122b181c8e131cdbc522b5ca69d4ea76c94",
+      "content_type": "application/pdf",
+      "captured_at": "2026-10-03T19:43:00Z",
+      "path": "raw/rfp.pdf"
+    },
+    {
+      "source_id": "appendix_a",
+      "file": "appendix_a.xlsx",
+      "url": "https://www.goventura.org/wp-content/uploads/2026/09/Appendix-A-Functional-Requirements-ERP-091426.xlsx",
+      "final_url": "https://www.goventura.org/wp-content/uploads/2026/09/Appendix-A-Functional-Requirements-ERP-091426.xlsx",
+      "bytes": 36281,
+      "sha256": "ee5156298e94d0000860a6d2bc854d0471a90a2f3217d1d8cd648d61e2b2a85d",
+      "content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "captured_at": "2026-10-03T19:43:04Z",
+      "path": "raw/appendix_a.xlsx"
+    },
+    {
+      "source_id": "appendix_b",
+      "file": "appendix_b.xlsx",
+      "url": "https://www.goventura.org/wp-content/uploads/2026/09/Appendix-B-Cost-Proposal-ERP-091426.xlsx",
+      "final_url": "https://www.goventura.org/wp-content/uploads/2026/09/Appendix-B-Cost-Proposal-ERP-091426.xlsx",
+      "bytes": 33955,
+      "sha256": "588ead0c09c6c8ec94fea3b9511482bd1632057071c6c82ddd8e5ecaa62fbbf5",
+      "content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "captured_at": "2026-10-03T19:43:08Z",
+      "path": "raw/appendix_b.xlsx"
+    },
+    {
+      "source_id": "appendix_c",
+      "file": "appendix_c.pdf",
+      "url": "https://www.goventura.org/wp-content/uploads/2026/09/Appendix-C-Professional-Services-Agreement-ERP.pdf",
+      "final_url": "https://www.goventura.org/wp-content/uploads/2026/09/Appendix-C-Professional-Services-Agreement-ERP.pdf",
+      "bytes": 189367,
+      "sha256": "16f3d75f22a5d49140131d7959c5be011129e0e4e691504757e0d732201969a5",
+      "content_type": "application/pdf",
+      "captured_at": "2026-10-03T19:43:13Z",
+      "path": "raw/appendix_c.pdf"
+    }
+  ],
+  "official_document_links": [
+    {
+      "url": "https://www.goventura.org/wp-content/uploads/2026/09/RFP-Enterprise-Resource-Planning-System.pdf",
+      "label": "Download RFP"
+    },
+    {
+      "url": "https://www.goventura.org/wp-content/uploads/2026/09/Appendix-A-Functional-Requirements-ERP-091426.xlsx",
+      "label": "Download Appendix A – Functional Requirements (Excel)"
+    },
+    {
+      "url": "https://www.goventura.org/wp-content/uploads/2026/09/Appendix-B-Cost-Proposal-ERP-091426.xlsx",
+      "label": "Download Appendix B – Cost Proposal (Excel)"
+    },
+    {
+      "url": "https://www.goventura.org/wp-content/uploads/2026/09/Appendix-C-Professional-Services-Agreement-ERP.pdf",
+      "label": "Download Appendix C – Professional Services Agreement"
+    }
+  ],
+  "total_retained_bytes": 897702,
+  "acquisition": {
+    "method": "DIRECT_OFFICIAL_HTTPS",
+    "stream_chunk_bytes": 65536,
+    "per_document_max_bytes": 2097152,
+    "buyer_page_max_bytes": 524288,
+    "total_max_bytes": 8388608,
+    "network_workaround": false
+  },
+  "currentness": {
+    "meaning": "EXACT_DOCUMENTS_LINKED_ON_CAPTURED_BUYER_PAGE",
+    "observed_at": "2026-10-03T19:43:13Z",
+    "new_addendum_established": false,
+    "historical_raw_byte_comparison_available": false
+  },
+  "preserved_history": [
+    "../../official_sources.json",
+    "../../example.discovery.json"
+  ],
+  "implementation_changed": false,
+  "requirement_rows_completed": 0,
+  "workbook_rows_extracted": false,
+  "qualification_evidence_added": false,
+  "commercial_state": "PROPOSED_NOT_ACCEPTED",
+  "externally_authorized": false
+}

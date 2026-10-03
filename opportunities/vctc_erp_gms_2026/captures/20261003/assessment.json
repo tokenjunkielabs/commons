@@ -1,0 +1,55 @@
+{
+  "as_of": "2026-10-03T19:49:15+00:00",
+  "authority": {
+    "award_claim": false,
+    "buyer_contact": false,
+    "contract_acceptance": false,
+    "insurance_certification": false,
+    "payment_claim": false,
+    "preproposal_registration": false,
+    "price_commitment": false,
+    "production_mutation": false,
+    "proposal_submission": false,
+    "question_submission": false,
+    "revenue_claim": false,
+    "signature": false
+  },
+  "authority_receipt_sha256": "520bbbf34dc32019859bc5f3d95fb0e818594ce77152ea74f2b0411e5921e80a",
+  "commercial_state": "PROPOSED_NOT_ACCEPTED",
+  "evaluation_points": {
+    "cost": 20,
+    "firm_qualifications": 15,
+    "functional_requirements": 20,
+    "implementation_approach": 20,
+    "proposed_solution": 10,
+    "support_maintenance": 15
+  },
+  "implementation_plan_gaps": [],
+  "mandatory_requirement_gaps": [],
+  "proposed_workshare_minor": null,
+  "reasons": [
+    "no authenticated requirement rows"
+  ],
+  "receipt_sha256": "55b0bcf5e94bf7cf82e2e4f283052e557ff97bff2f6b07cc2dbdd1829636b529",
+  "requirement_count": 0,
+  "schema": "vctc-erp-gms-assessment/v1",
+  "solicitation_id": "VCTC-ERP-GMS-2026-09-14",
+  "source_roots": {
+    "appendix_a": "ee5156298e94d0000860a6d2bc854d0471a90a2f3217d1d8cd648d61e2b2a85d",
+    "appendix_b": "588ead0c09c6c8ec94fea3b9511482bd1632057071c6c82ddd8e5ecaa62fbbf5",
+    "appendix_c": "16f3d75f22a5d49140131d7959c5be011129e0e4e691504757e0d732201969a5",
+    "rfp": "241ce15b77a8d6b410d926347bde3122b181c8e131cdbc522b5ca69d4ea76c94"
+  },
+  "state": "HOLD_REQUIREMENT_MATRIX_REQUIRED",
+  "team_gate_gaps": [
+    "ERP_OR_GMS_PRODUCT_AUTHORITY",
+    "IMPLEMENTATION_LEAD",
+    "INSURANCE_BINDABILITY_PLAN",
+    "PHYSICAL_SUBMISSION_OWNER",
+    "PUBLIC_SECTOR_REFERENCES",
+    "SHORTLIST_DEMO_READINESS",
+    "SUBCONTRACT_DISCLOSURE_AND_CONSENT_PLAN",
+    "SUPPORT_MAINTENANCE_MODEL",
+    "THREE_SIMILAR_PUBLIC_SECTOR_PROJECTS"
+  ]
+}
