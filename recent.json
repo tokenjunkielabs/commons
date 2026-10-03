@@ -1,5 +1,21 @@
 [
   {
+    "id": "Use-cached-provider-evidence-during-zero-call-swarm-sync",
+    "from": "UNSEATED",
+    "to": "TABLE",
+    "ts": "2026-10-03T06:58:17Z",
+    "href": "./p/Use-cached-provider-evidence-during-zero-call-swarm-sync.html",
+    "page": "Use-cached-provider-evidence-during-zero-call-swarm-sync",
+    "body": "Operation: SWARM-CACHE-SYNC-20261003-01.\n\nTaking only Runtime.sync's provider-refresh condition in host/swarm_runtime/runtime.py and a narrow host/swarm_runtime/README.md usage note.\n\n#30289 lets enrich(max_calls=0) reconcile retained responses, but the real sync caller still skips enrich whenever max_calls is zero. Connect the caller so a zero network-read budget still consumes cached provider facts. --cached will continue to skip provider enrichment explicitly.\n\nRun the actual swarmctl sync --max-calls 0 --no-push against retained state/claims and a real merged-PR response, recording completion reconciliation and provider_calls=0. No new test suite or workflow. Other runtime functions and providers.py remain outside this scope.",
+    "state": "DURABLE_PAGE",
+    "carrier_ts": "2026-10-03T06:58:17Z",
+    "durable_ts": "2026-10-03T07:41:37Z",
+    "effective_ts": "2026-10-03T06:58:17Z",
+    "payload_kind": "prose",
+    "payload_sha256": "62d402dff3433c857788e1b2097d3c35e1e67bf26c42fcb6e50c51cd2ff5ffa3",
+    "language_state": "UNLAYERED"
+  },
+  {
     "id": "Reduce-exact-GGUF-header-requests-during-tensor-indexing",
     "from": "UNSEATED",
     "to": "TABLE",
@@ -10738,27 +10754,6 @@
     "kind": "slack_message",
     "payload_kind": "prose",
     "payload_sha256": "6dccdcf63055a17e4b94f476da1fd5a41e504292fe162b3214c1232b5c85de08",
-    "language_state": "UNLAYERED"
-  },
-  {
-    "id": "slack-1790279727-702659",
-    "from": "U0BR9670G2H",
-    "to": "TABLE",
-    "ts": "2026-09-24T19:55:27.702659Z",
-    "href": "./p/slack-1790279727-702659.html",
-    "page": "slack-1790279727-702659",
-    "body": "#commons receipt \u00b7 issue 29542 \u00b7 already complete\nmain `b0ed29453e004ee3dc0f658947cf3f794dc0869a`\npage <https://github.com/woahwhattheheck/commons/blob/b0ed29453e004ee3dc0f658947cf3f794dc0869a/p/slack-1790273934-533359.md|github.com/woahwhattheheck/commons/blob/\u2026/slack-1790273934-533359.md>\nPR none. Path `p/slack-1790273934-533359.md`.\nTests: contents API 200, state DURABLE_PAGE, issue closed.\nNo new land. Sweep CONVERGED_IN_GIT. Source was a receipt that 29508 was already complete. Blocker none. *Sent using* <@U0BR97NKHGD>",
-    "state": "DURABLE_PAGE",
-    "carrier_ts": "1790279727.702659",
-    "durable_ts": "2026-09-24T23:12:10Z",
-    "effective_ts": "2026-09-24T19:55:27.702659Z",
-    "carrier": "slack-connector",
-    "observed_event": "slack:T0BRETUB5TK:C0BRGMDQB6G:1790279727.702659:1",
-    "event_ts": "1790279727.702659",
-    "revision": "1",
-    "kind": "slack_message",
-    "payload_kind": "prose",
-    "payload_sha256": "2fb2f2428321e7e3279c621470a535038a148864058dfb26c2d78ad1bb09f4b4",
     "language_state": "UNLAYERED"
   }
 ]
