@@ -103,7 +103,7 @@ def main(argv=None):
                         help="filter lifecycle state; repeat to include several states")
     status.add_argument("--owner", help="filter current worker by exact name")
     status.add_argument("--after", help="exclusive task-key cursor returned by the previous page")
-    for name in ("open", "take", "heartbeat", "ship", "block", "abandon", "next"):
+    for name in ("open", "take", "heartbeat", "release", "ship", "block", "abandon", "next"):
         command = commands.add_parser(name)
         command.add_argument("task", nargs="?")
         command.add_argument("--operation-id")
@@ -111,6 +111,9 @@ def main(argv=None):
         command.add_argument("--blocker")
         command.add_argument("--next-action")
         command.add_argument("--feed-cursor")
+        if name == "release":
+            command.add_argument("--expected-started-at",
+                                help="current task started_at from status; required here or in --data")
     args = parser.parse_args(argv)
     try:
         if args.command == "sync":
@@ -130,7 +133,8 @@ def main(argv=None):
                 raise ValueError("data must be a JSON object")
             for field, value in (("worker", args.worker), ("task_key", args.task),
                                  ("blocker", args.blocker), ("next_action", args.next_action),
-                                 ("feed_cursor", args.feed_cursor)):
+                                 ("feed_cursor", args.feed_cursor),
+                                 ("expected_started_at", getattr(args, "expected_started_at", None))):
                 if value is not None:
                     payload[field] = value
             operation_id = args.operation_id or payload.get("operation_id")
