@@ -55,6 +55,22 @@ def blob_sha(data: bytes) -> str:
     return digest.hexdigest()
 
 
+def _open_regular_file(path: Path, *, encoding: str | None = None):
+    """Reject special inputs before reading, including a FIFO swapped at open."""
+    if not stat.S_ISREG(path.stat().st_mode):
+        raise OSError(errno.EINVAL, os.strerror(errno.EINVAL))
+    descriptor = os.open(path, os.O_RDONLY | getattr(os, "O_NONBLOCK", 0))
+    try:
+        if not stat.S_ISREG(os.fstat(descriptor).st_mode):
+            raise OSError(errno.EINVAL, os.strerror(errno.EINVAL))
+        if encoding is None:
+            return os.fdopen(descriptor, "rb")
+        return os.fdopen(descriptor, "r", encoding=encoding)
+    except BaseException:
+        os.close(descriptor)
+        raise
+
+
 def _utf8_bytes(text: str) -> bytes:
     """Encode large Unicode sources in bounded slices; keep small/ASCII reads direct."""
     if len(text) <= 64 * 1024 or text.isascii():
@@ -134,7 +150,8 @@ def _source(entry: object) -> dict:
         raise SourceImportError("SOURCE_SHA_MISMATCH", "The response differs from the supplied request blob SHA.", name)
     if source_file is not None:
         try:
-            data = Path(source_file).expanduser().read_bytes()
+            with _open_regular_file(Path(source_file).expanduser()) as stream:
+                data = stream.read()
         except OSError as exc:
             raise SourceImportIOError(exc, operation="read_source_file", path=name,
                                       completed_files=[]) from exc
@@ -280,7 +297,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("output_directory", help="Cloud working directory for exact source files")
     args = parser.parse_args(argv)
     try:
-        with Path(args.manifest).open(encoding="utf-8") as stream:
+        with _open_regular_file(Path(args.manifest), encoding="utf-8") as stream:
             manifest = json.load(stream)
         result = materialize(manifest, args.output_directory)
     except SourceImportError as exc:
