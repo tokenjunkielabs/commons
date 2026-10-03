@@ -1,0 +1,121 @@
+{
+  "schema": "columbus-erp.source-manifest.v1",
+  "generated_at": "2026-10-03T23:52:23Z",
+  "pack_id": "columbus-ga-erp-27-0008-20261003",
+  "truth_boundary": "INTERNAL_OWNER_REVIEW_ONLY",
+  "source_census_status": "PARTIAL_BOARD_TIMEOUT",
+  "original_carrier": {
+    "issue": "https://github.com/woahwhattheheck/commons/issues/15599",
+    "owner": "Swarm Z",
+    "operation": "COLUMBUS-GA-ERP-27-0008-TYLER-WORKSHARE-SWARMZ-20260917",
+    "merged_pr": 15606,
+    "merged_commit": "d275c4d45638d92df85ad4988800e453467f5aa9",
+    "unchanged_files": [
+      {
+        "path": "revenue/columbus_ga_erp_27_0008/SOURCE_LEDGER.json",
+        "git_blob": "74aebd69398661598a0672d534b9bee14aa80946"
+      },
+      {
+        "path": "revenue/columbus_ga_erp_27_0008/WORKSHARE.md",
+        "git_blob": "70ad77a4489cdb7e4c6eb8a08f190f786c8ccfeb"
+      },
+      {
+        "path": "revenue/columbus_ga_erp_27_0008/ACCEPTANCE_MATRIX.md",
+        "git_blob": "d83d98d6c1b6730ceb2627d6b2a254cb92bdf4d1"
+      },
+      {
+        "path": "revenue/columbus_ga_erp_27_0008/OUTREACH_GATE.md",
+        "git_blob": "ff0908923b1875b3339f5320c8221096347b0922"
+      }
+    ]
+  },
+  "earlier_source_scout": "https://tokenjunkielabs.slack.com/archives/C0BTURDA3PW/p1788140422752829",
+  "sources": [
+    {
+      "source_id": "ccg-rfp-27-0008",
+      "official_url": "https://columbusga.gov/Portals/finance/adam/Content/LDQoKeGkfk6iEZfk7wkYyw/SolicitationDocument/RFP27-0008.pdf",
+      "response_url": "https://columbusga.gov/Portals/finance/adam/Content/LDQoKeGkfk6iEZfk7wkYyw/SolicitationDocument/RFP27-0008.pdf",
+      "captured_at": "2026-10-03T23:40:06Z",
+      "response_status": 200,
+      "content_type": "application/pdf",
+      "bytes": 2286639,
+      "sha256": "283afce21ae55fb1bd2c74781c7447b210038a140699d9d67474342ba884d250",
+      "git_content_identifier": "415fdc437b0025aa009168210b87e4c6a7c8c1ec",
+      "last_modified_header": "Fri, 07 Aug 2026 20:58:37 GMT",
+      "etag": "\"f99884af26dd1:0\"",
+      "pages": 51,
+      "bytes_hash_checked_before_compile": true,
+      "raw_source_publication": false,
+      "source_text_publication": false,
+      "storage_scope": "INTERMEDIATE_ONLY"
+    },
+    {
+      "source_id": "ccg-addendum-1",
+      "official_url": "https://columbusga.gov/Portals/finance/Resources/bid-opportunities/2027/Heather%20FY27/RFP27-0008Add1.pdf?ver=cv2WcenM8Clm9ZrVslwP2w%3D%3D",
+      "response_url": "https://columbusga.gov/Portals/finance/Resources/bid-opportunities/2027/Heather%20FY27/RFP27-0008Add1.pdf?ver=cv2WcenM8Clm9ZrVslwP2w%3D%3D",
+      "captured_at": "2026-10-03T23:40:14Z",
+      "response_status": 200,
+      "content_type": "application/pdf",
+      "bytes": 228116,
+      "sha256": "071497b2e50be2fc63020ba9f46299dac2f352cb1105f1e71f273d0f2225d5a0",
+      "git_content_identifier": "ef98c24df5a96cd6954f6d16db22efa3c10e6e66",
+      "last_modified_header": "Mon, 24 Aug 2026 20:42:10 GMT",
+      "etag": "\"4293119934dd1:0\"",
+      "pages": 1,
+      "bytes_hash_checked_before_compile": true,
+      "raw_source_publication": false,
+      "source_text_publication": false,
+      "storage_scope": "INTERMEDIATE_ONLY"
+    }
+  ],
+  "board_attempt": {
+    "desired_file": "buyer-page.html",
+    "url": "https://columbusga.gov/finance/bid-opportunities",
+    "observed_at": "2026-10-03T23:39:45Z",
+    "error_type": "URLError",
+    "error": "<urlopen error timed out>"
+  },
+  "capture": {
+    "aggregate_cap_bytes": 8388608,
+    "captured_pdf_bytes": 2514755,
+    "network_requests_repeated": false,
+    "full_portal_inventory_established": false,
+    "later_question_response_addendum_established": false
+  },
+  "selected_requirement_count": 36,
+  "blocking_evidence_count": 31,
+  "informational_count": 5,
+  "deadline": {
+    "value": "2026-10-14T17:00:00-04:00",
+    "source_id": "ccg-addendum-1",
+    "same_as_original_carrier": true
+  },
+  "unresolved_source_questions": [
+    "Current board/addendum census after the recorded timeout",
+    "Promised question-response addendum",
+    "One-versus-two post-award hard-copy conflict"
+  ],
+  "visual_inspection": {
+    "source_id": "ccg-rfp-27-0008",
+    "physical_pages": [
+      35,
+      36
+    ],
+    "x_marked_coverage_rows": [
+      1,
+      2,
+      3,
+      7,
+      8
+    ],
+    "x_marked_endorsement_rows": [
+      22,
+      23,
+      24,
+      25
+    ],
+    "images_publication": false
+  },
+  "meaning": "Original source-identity and interpretation receipt. Raw documents and extracted source text are intermediate; Git content identifiers do not assert repository publication. Successful normalized compile/verify does not establish source completeness, qualifications or external/commercial authority.",
+  "runtime_observation": "runtime-observation.json"
+}
