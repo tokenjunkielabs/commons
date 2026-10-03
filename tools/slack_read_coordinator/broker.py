@@ -193,6 +193,8 @@ class Broker:
             db.execute("DELETE FROM flight WHERE expires<=?", (now,))
             row = db.execute("SELECT fetched,payload FROM cache WHERE namespace=? AND key=?", (self.namespace, key)).fetchone()
             if row and max_age_seconds > 0 and 0 <= now - row[0] <= max_age_seconds:
+                # The snapshot is detached; decoding must not hold the writer.
+                db.commit()
                 return self.envelope("CACHED", fetched_at=row[0], age_seconds=now-row[0], data=loads(row[1]))
             flight = db.execute("SELECT expires FROM flight WHERE namespace=? AND key=?", (self.namespace, key)).fetchone()
             if flight:
@@ -247,7 +249,7 @@ class Broker:
                 return self.envelope("UPSTREAM_ERROR", error=error)
             db.execute("INSERT OR REPLACE INTO cache VALUES (?,?,?,?)", (self.namespace, lease.key, now, text))
             db.execute("DELETE FROM cache WHERE rowid IN (SELECT rowid FROM cache ORDER BY fetched DESC,namespace,key LIMIT -1 OFFSET ?)", (self.max_entries,))
-            return self.envelope("FETCHED", fetched_at=now, age_seconds=0, data=loads(text))
+        return self.envelope("FETCHED", fetched_at=now, age_seconds=0, data=loads(text))
 
     def read(self, method: str, params: dict, provider: Callable, max_age_seconds: int = 30):
         decision = self.acquire(method, params, max_age_seconds)
