@@ -318,12 +318,21 @@ def sign_cos_pearson(rows, *, pairs: int = 2500, seed: int = 11) -> dict:
     rng = random.Random(seed)
     n = len(rows)
     xs, ys = [], []
+    # Each sampled row is fixed for this invocation; retain only its scalar norm.
+    norms = {}
     for _ in range(pairs):
         a, b = rng.randrange(n), rng.randrange(n)
         if a == b:
             continue
-        xs.append(sign_agreement(rows[a], rows[b]))
-        ys.append(cos(rows[a], rows[b]))
+        ra, rb = rows[a], rows[b]
+        xs.append(sign_agreement(ra, rb))
+        if a not in norms:
+            norms[a] = norm(ra)
+        if b not in norms:
+            norms[b] = norm(rb)
+        na, nb = norms[a], norms[b]
+        ys.append(sum(x * y for x, y in zip(ra, rb)) / (na * nb)
+                  if na != 0.0 and nb != 0.0 else 0.0)
     m = len(xs)
     mx, my = sum(xs) / m, sum(ys) / m
     sx = math.sqrt(sum((x - mx) ** 2 for x in xs) / m)
