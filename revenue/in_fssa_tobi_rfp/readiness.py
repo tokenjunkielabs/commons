@@ -11,7 +11,8 @@ from typing import Any
 
 RFP_ID = "26-86873"
 EVENT_ID = "004100000086873"
-DUE_AT = datetime.fromisoformat("2026-09-16T15:00:00-04:00")
+# Addendum 2 and the revised RFP section 1.24, recovered 2026-10-03.
+DUE_AT = datetime.fromisoformat("2026-10-08T15:00:00-04:00")
 OFFICIAL_BOARD_URL = "https://www.in.gov/idoa/procurement/current-business-opportunities/"
 
 _SECRET_KEY_RE = re.compile(r"(?:password|passwd|secret|api[_-]?key|auth(?:orization)?[_-]?header|bearer|private[_-]?key)", re.I)
@@ -213,9 +214,7 @@ def _prime_findings(data: dict[str, Any], evaluated: datetime) -> tuple[list[Fin
     ):
         passed = _bool(authority, key)
         findings.append(Finding(key.upper(), "PASS" if passed else "HOLD", detail))
-    financial = authority.get("financial_stability")
-    financial_ok = isinstance(financial, dict) and _bool(financial, "two_completed_fiscal_years") and _bool(financial, "verifiable_records")
-    findings.append(Finding("FINANCIAL_STABILITY", "PASS" if financial_ok else "HOLD", "Two completed fiscal years of verifiable stability evidence"))
+    findings.append(Finding("FINANCIAL_RESPONSIBILITY_NOT_REQUIRED", "PASS", "The revised RFP sections 1.25 and 2.3.10 remove evidence of financial responsibility"))
     iv = authority.get("ivosb_plan")
     iv_pct = iv.get("target_percent") if isinstance(iv, dict) else None
     iv_ok = isinstance(iv_pct, (int, float)) and not isinstance(iv_pct, bool) and math.isfinite(float(iv_pct)) and float(iv_pct) >= 3 and _bool(iv, "evidence_backed")
@@ -226,7 +225,7 @@ def _prime_findings(data: dict[str, Any], evaluated: datetime) -> tuple[list[Fin
     findings.append(Finding("PROPOSAL_COMPONENTS", "PASS" if component_ok else "HOLD", "Executive, business, technical, cost, state forms and reference forms are complete"))
     ref_findings, refs_ok = _reference_findings(data, evaluated)
     findings.extend(ref_findings)
-    ok = _bool(authority, "indiana_registration") and _bool(authority, "bidder_database_registration") and financial_ok and iv_ok and component_ok and refs_ok
+    ok = _bool(authority, "indiana_registration") and _bool(authority, "bidder_database_registration") and iv_ok and component_ok and refs_ok
     return findings, ok
 
 
