@@ -125,11 +125,15 @@ async function publishGitHubChange(tools, change, options = {}) {
   let lastResponse;
   try {
     const spec = validate(change);
+    const sourceByPath = new Map(spec.files.map(file => [file.path, file]));
     const repository_full_name = spec.repository_full_name;
     Object.assign(progress, {repository_full_name, base_branch: spec.base_branch, branch_name: spec.branch_name});
     const bindings = Object.fromEntries(ACTIONS.map(action => [action,
       options.bindings?.[action] ?? `mcp__codex_apps__github_${action}`]));
-    for (const action of ACTIONS.filter(action => spec.merge || action !== 'merge_pull_request')) {
+    const required = ACTIONS.filter(action =>
+      (action !== 'merge_pull_request' || spec.merge)
+      && (action !== 'create_blob' || spec.files.some(file => file.encoding === 'base64')));
+    for (const action of required) {
       if (typeof tools?.[bindings[action]] !== 'function') {
         throw new Error(`Binding not present: ${bindings[action]}. Repeat discovery alongside independent work.`);
       }
@@ -192,20 +196,31 @@ async function publishGitHubChange(tools, change, options = {}) {
     progress.stage = 'create_blobs';
     for (let index = 0; index < spec.files.length; index++) {
       const file = spec.files[index];
+      if (file.encoding === 'utf-8') continue;
       const data = await call('create_blob', {repository_full_name, content: file.content, encoding: file.encoding});
       progress.files[index].blob_sha = sha(data.sha, 'Created blob');
       await announce();
     }
-    const changed = progress.files.filter(file => file.blob_sha !== file.previous_blob_sha || file.mode !== file.previous_mode);
-    if (!changed.length) {
+    const candidates = progress.files.filter(file => sourceByPath.get(file.path).encoding === 'utf-8'
+      || file.blob_sha !== file.previous_blob_sha || file.mode !== file.previous_mode);
+    if (!candidates.length) {
       progress.status = 'no_source_changes'; progress.stage = 'complete';
       await announce(); return progress;
     }
     progress.stage = 'create_tree';
     const createdTree = await call('create_tree', {repository_full_name, base_tree_sha: progress.base_tree_sha,
-      tree_elements: changed.map(file => ({path: file.path, mode: file.mode, type: 'blob', sha: file.blob_sha}))});
+      tree_elements: candidates.map(file => {
+        const source = sourceByPath.get(file.path);
+        return {path: file.path, mode: file.mode, type: 'blob',
+          ...(source.encoding === 'utf-8' ? {content: source.content} : {sha: file.blob_sha})};
+      })});
     progress.tree_sha = sha(createdTree.sha, 'Created tree');
     await announce();
+    if (progress.tree_sha === progress.base_tree_sha) {
+      for (const file of progress.files) file.blob_sha = file.previous_blob_sha;
+      progress.status = 'no_source_changes'; progress.stage = 'complete';
+      await announce(); return progress;
+    }
     progress.stage = 'create_commit';
     const commit = await call('create_commit', {repository_full_name, parent_sha: progress.base_commit_sha,
       tree_sha: progress.tree_sha, message: spec.commit_message});
@@ -241,14 +256,22 @@ async function publishGitHubChange(tools, change, options = {}) {
     progress.stage = 'readback';
     progress.readback_ref = progress.merge_sha ?? progress.commit_sha;
     // Every read is independent. Inspect every outcome before reporting completion.
-    const reads = await Promise.allSettled(changed.map(async file => {
+    const reads = await Promise.allSettled(candidates.map(async file => {
+      const source = sourceByPath.get(file.path);
       const data = await call('fetch_file', {repository_full_name, path: file.path,
-        ref: progress.readback_ref, encoding: 'base64'});
+        ref: progress.readback_ref, encoding: source.encoding});
+      if (source.encoding === 'utf-8') {
+        const observed = sha(data.sha, 'Published text blob');
+        const matches = data.content === source.content;
+        if (matches) file.blob_sha = observed;
+        return {path: file.path, expected_blob_sha: null, observed_blob_sha: observed,
+          content_matches: matches, matches};
+      }
       return {path: file.path, expected_blob_sha: file.blob_sha, observed_blob_sha: data.sha,
         matches: data.sha === file.blob_sha};
     }));
     progress.readback = reads.map((read, index) => read.status === 'fulfilled' ? read.value
-      : {path: changed[index].path, matches: false, error: String(read.reason?.message ?? read.reason)});
+      : {path: candidates[index].path, matches: false, error: String(read.reason?.message ?? read.reason)});
     if (progress.readback.some(read => !read.matches)) throw new Error('One or more published source readbacks did not match');
     progress.status = spec.merge ? 'merged' : 'pull_request_open';
     progress.stage = 'complete';

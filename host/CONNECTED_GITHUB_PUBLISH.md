@@ -1,7 +1,7 @@
 # Publish a source change with native GitHub tools
 
 `host/connected_github_publish.cjs` packages the connected-tool publication path
-used by cloud sessions: current base → exact file-version comparison → blobs →
+used by cloud sessions: current base → exact file-version comparison → optional binary blobs →
 tree → commit → new branch → pull request → optional merge → source readback.
 It needs no Git checkout, shell command, credential export, package install, or
 network client. The caller supplies the actual discovered GitHub tool bindings.
@@ -17,7 +17,9 @@ delete files or branches, update existing refs, run tests, or deploy anything.
 Read the current native tool definitions before first use. The shipped adapter
 uses the installed `mcp__codex_apps__github_*` schemas for `fetch`, `fetch_file`,
 `create_blob`, `create_tree`, `create_commit`, `create_branch`,
-`create_pull_request`, and optionally `merge_pull_request`. A caller may supply
+`create_pull_request`, and optionally `merge_pull_request`. `create_blob` is
+required only when the change contains base64 input; UTF-8 files use the native
+tree writer's inline `content` field together in one request. A caller may supply
 `options.bindings` to map these action names to equivalent observed bindings;
 their argument and result contracts must remain the same. A partial discovery
 is not an account-permission verdict: keep doing useful independent work and
@@ -51,7 +53,9 @@ const result = await publishGitHubChange(tools, {
 | `mode` | Optional `100644` or `100755`; otherwise retain the existing mode, or use `100644` for a new file. |
 
 Pass actual prepared source, not excerpts. The expected SHA identifies the
-**previous** file; the native blob writer supplies the new SHA. Base64 input
+**previous** file. For UTF-8 files the helper confirms the complete published
+content, then records the native SHA returned by readback. The native blob
+writer supplies new SHAs for base64 files. Base64 input
 must use ordinary padded encoding without line breaks. UTF-8 input rejects
 unpaired surrogate characters instead of silently changing them.
 
@@ -88,13 +92,20 @@ expected/observed SHA; read the changed source and compose deliberately.
 All provider writes are sequential. The commit has the observed base as its
 parent. Existing file modes are retained. The branch primitive creates a new
 branch; use a unique operation name. There is no force-update or overwrite path
-for an existing branch. Identical source/mode changes return
-`status: no_source_changes` without a tree, commit, branch, or PR.
+for an existing branch. UTF-8 entries share one tree request, saving a separate
+blob call per text file. Identical source/mode changes return
+`status: no_source_changes` without a commit, branch, or PR. An unchanged UTF-8
+batch is recognized by the returned tree SHA matching the observed base tree;
+an unchanged binary-only batch also skips the tree request.
 
-Readback requests base64 for both text and binary files, then compares each
-changed file's native Git blob SHA at the returned merge commit, or at the
-published commit when the PR stays open. Binary files are never decoded as
-UTF-8 merely to check their identity. `readback_ref` names that exact source
+Readback compares every submitted UTF-8 file's complete source with the returned
+UTF-8 content at the merge commit, or at the published commit when the PR stays
+open. Text outcomes have `content_matches` and `expected_blob_sha: null`; their
+native `observed_blob_sha` becomes the corresponding file's `blob_sha` only
+after the content matches. In a mixed batch this also checks submitted text
+files that ultimately remained unchanged. Binary files retain base64 readback
+and comparison with their created blob SHA, and are never decoded as UTF-8
+merely to check their identity. `readback_ref` names that exact source
 snapshot. It does not claim that a later current-main tip is
 unchanged, that a running service reloaded it, or that it is deployed. Source
 execution and product acceptance remain the caller's work.
@@ -104,7 +115,8 @@ execution and product acceptance remain the caller's work.
 No provider error is automatically retried. The helper throws
 `GitHubPublishError` with `progress`, the original `cause`, and the last native
 `response` when one is available. Progress records the stage, call counts,
-previous/new file SHAs, tree/commit, branch creation, PR, merge result, and all
+previous/new file SHAs (text SHAs become available at readback), tree/commit,
+branch creation, PR, merge result, and all
 readback outcomes. It does not include source contents or the PR description.
 
 ```javascript
