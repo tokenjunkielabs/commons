@@ -96,6 +96,23 @@ full source image and corrects vertex order according to permutation parity
 and boundary side. Intersections of boundary planes, the full census, and
 global assembly remain separate work.
 
+## Boundary crease-edge classes
+
+[The box-edge constructor and derivation](BOUNDARY_CREASE_EDGE_LIFT.md)
+characterize the two source stars where two coordinate Dirichlet faces meet.
+The same-side two-cell star admits all four quartic or six quintic complete
+interior trace coordinates; its protected zero-mean maps have 78 and 524
+nonzeros, with squared-seminorm bounds `1440` and `23328/49`.
+The mixed-side one-cell star forces every source trace coefficient to zero,
+and the output is the zero lift. This follows from its actual source rows.
+Use `boundary_crease_edge_lift.py --all-edges` with `--degree 4` or
+`--degree 5` for twelve tangent-axis and two-face-side choices. The batch
+accepts separate `--same-trace` and `--mixed-trace` vectors, preserving
+the different source dimensions. Exact coordinate transport preserves the
+source images, all protected edge and endpoint traces, zero cell means,
+and zero patch-boundary velocity; squared-seminorm bounds scale by `h³`.
+These are finite boundary classes; vertex work and global assembly remain.
+
 ## Original problem
 
 On a Freudenthal tetrahedral mesh of a cubical domain, let `V_h^k` be the continuous vector degree-k polynomial space with zero boundary trace, and let `Q_h^k = div V_h^k`.
