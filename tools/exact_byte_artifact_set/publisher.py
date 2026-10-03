@@ -228,28 +228,26 @@ def _write_all(fd: int, payload: bytes) -> None:
         offset += written
 
 
-def _read_exact_retained(fd: int, expected_len: int) -> bytes:
+def _retained_bytes_match(fd: int, expected: bytes) -> bool:
     os.lseek(fd, 0, os.SEEK_SET)
-    remaining = expected_len + 1
-    chunks: list[bytes] = []
-    while remaining:
-        chunk = os.read(fd, min(65536, remaining))
-        if not chunk:
-            break
-        chunks.append(chunk)
-        remaining -= len(chunk)
-    return b"".join(chunks)
+    offset = 0
+    while offset < len(expected):
+        chunk = os.read(fd, min(65536, len(expected) - offset))
+        if not chunk or chunk != expected[offset:offset + len(chunk)]:
+            return False
+        offset += len(chunk)
+    return not os.read(fd, 1)
 
 
 def _assert_retained_bytes(fd: int, expected: bytes, final_generation: _FileGeneration) -> None:
     before = _FileGeneration.from_stat(os.fstat(fd))
     if before != final_generation:
         raise PublicationError("retained artifact metadata changed before byte verification")
-    actual = _read_exact_retained(fd, len(expected))
+    matches = _retained_bytes_match(fd, expected)
     after = _FileGeneration.from_stat(os.fstat(fd))
     if after != before:
         raise PublicationError("retained artifact generation changed during byte verification")
-    if actual != expected:
+    if not matches:
         raise PublicationError("retained artifact bytes differ from expected bytes")
 
 
