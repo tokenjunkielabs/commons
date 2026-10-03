@@ -7,6 +7,7 @@ update rows (number + updated_at). The adapter:
 - records an explicit missing minute as incomplete LOWER_BOUND coverage
 - pages a later issue-update window without treating a cap as a census
 - emits a connector-projection packet the landed ledger adapter accepts
+- preserves distinct issue-update revisions under one stable work identity
 
 The CLI keeps its summary receipt by default. Use ``--format projection`` for
 connector metadata or ``--format ledger`` to feed the existing event-ledger
@@ -90,6 +91,7 @@ def compile_window(
 
     records = []
     seen = set()
+    issue_numbers = set()
     for raw in rows:
         if type(raw) is not dict:
             raise WindowError("issue row must be an object")
@@ -99,12 +101,15 @@ def compile_window(
         updated = _instant(raw.get("updated_at"), "issue.updated_at")
         if not (window_start <= updated <= window_end):
             raise WindowError(f"issue #{number} outside declared update window")
-        if number in seen:
+        updated_at = _utc(updated)
+        revision = (number, updated_at)
+        if revision in seen:
             continue
-        seen.add(number)
+        seen.add(revision)
+        issue_numbers.add(number)
         records.append({
-            "provider_event_id": str(number),
-            "provider_event_time": _utc(updated),
+            "provider_event_id": f"{number}@{updated_at}",
+            "provider_event_time": updated_at,
             "observed_at": _utc(observed_at),
             "resource_scope": f"{owner}/{repo}",
             "event_type": "ISSUE",
@@ -176,8 +181,8 @@ def compile_window(
         "snapshot_id": snapshot_id,
         "owner": owner,
         "repo": repo,
-        "processed_issue_count": len(records),
-        "processed_issue_numbers": sorted(seen),
+        "processed_issue_count": len(issue_numbers),
+        "processed_issue_numbers": sorted(issue_numbers),
         "update_window": {"start": _utc(window_start), "end": _utc(window_end), "complete": not has_more, "has_more": has_more, "page": page, "page_size": page_size},
         "gap_minute": {"start": _utc(gap_start), "end": _utc(gap_end), "complete": False, "items_read": 0, "status": "LOWER_BOUND"},
         "ledger_schema": ledger["schema"],
