@@ -237,8 +237,58 @@ For `base_branch_modified`, read the named PR and current base first. If the PR
 has already merged, continue its readback. Otherwise, confirm its retained head
 and reconcile the affected file versions before continuing that same intended
 merge with `expected_head_sha`. Keep the existing branch and PR; do not restart
-the publication sequence. The helper never performs this continuation or any
-automatic error retry.
+the publication sequence. The publisher does not automatically continue or retry
+an error. The separate explicit continuation below packages those native steps.
+
+### Continue the same known pull request
+
+`continueGitHubMerge(tools, preparedChange, previousProgress, options)` finishes
+the merge of a pull request already confirmed by this publisher. Invoke it only
+when that same merge is authorized. Keep the original prepared source and file
+versions, the complete retained progress, and set `merge: true` explicitly. This
+also supports an intentional open-PR publication followed by an authorized merge.
+
+```javascript
+const {continueGitHubMerge} = require('./host/connected_github_publish.cjs');
+const result = await continueGitHubMerge(tools, {
+  ...preparedChange,
+  merge: true,
+}, retainedPublishProgress, {
+  onProgress: state => retainOperationProgress(state),
+});
+```
+
+Load this export from the trusted source in code mode in the same way as the
+publisher. Its additional native action is `get_pr_info`; it accepts the same
+`options.bindings` override convention. It needs `fetch_file` for source readback,
+optional `fetch_blob` for omitted UTF-8, and `fetch` plus `merge_pull_request` only
+when the PR is still open. It never calls a blob, tree, commit, branch, or PR writer.
+
+The continuation validates that the retained repository, branches, commit, PR
+head, and previous file versions belong to the prepared change. The original
+prepared contents must remain unchanged; binary identity uses the native new
+blob SHA retained by publication. It then reads the named PR from GitHub and
+requires the same head commit, base branch, and source branch in that repository.
+An already-merged PR goes directly to its actual merge commit's source readback,
+recording `merge_skipped: already_merged`; no merge binding or call is needed.
+
+For an open PR, it reads the current base and its exact nonrecursive trees,
+then compares every affected previous blob and file mode. An unrelated base
+change can proceed; an affected-file change must be composed deliberately.
+It makes one merge call with the original `expected_head_sha` and requested
+merge method. A concurrent base or head change may still be refused by GitHub.
+That native result is retained without a retry. A later explicit invocation
+starts with provider reconciliation again, including checking whether the
+previous call actually merged.
+
+The result has `operation: merge_continuation`, fresh per-invocation call counts,
+the retained publication identities, any observed `current_base_commit_sha` and
+`current_base_tree_sha`, and the same frozen content readback and error metadata
+as publication. UTF-8 comparison, optional immutable-blob recovery, binary SHA
+comparison, and `onProgress` behavior use the existing contracts. A confirmed
+merge remains `publication_status: merged` even if its readback is incomplete.
+Retain the prior progress as well when keeping the history of earlier calls;
+this result does not combine call counts from separate invocations.
 
 **Do not blindly rerun a failed publication.** A timeout can occur after a
 provider accepts a write. Reconcile the named branch, PR, or merge before
