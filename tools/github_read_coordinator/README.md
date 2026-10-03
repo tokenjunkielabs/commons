@@ -20,6 +20,8 @@ It does not grant, infer or proxy any GitHub write authority. The upstream provi
 
 The coordinator is advisory infrastructure for processes that actually route reads through it. It cannot retroactively throttle unrelated clients that bypass the gateway.
 
+Repository owner and name are normalized to lowercase before request hashing. Case variants therefore share one in-flight read and cached response, matching GitHub's repository identity. File paths, refs, branch names and search text retain their original case.
+
 ## Run
 
 Set two independent secrets in the environment:
