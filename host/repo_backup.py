@@ -16,7 +16,8 @@ from pathlib import Path
 from typing import Any
 
 
-SCHEMA_VERSION = "commons-open-repo-backup/v2"
+SCHEMA_VERSION = "commons-open-repo-backup/v3"
+HEAD_SCHEMA_VERSION = "commons-open-repo-backup/v2"
 LEGACY_SCHEMA_VERSION = "commons-open-repo-backup/v1"
 DRILL_SCHEMA_VERSION = "commons-open-repo-backup-drill/v1"
 ALLOWED_STORAGE = frozenset({"github-actions-artifact"})
@@ -170,6 +171,51 @@ def _head_ref(source: Path) -> str | None:
     return completed.stdout.strip()
 
 
+def _repo_symbolic_refs(source: Path) -> list[dict[str, str]]:
+    """Read immediate targets for resolved shared symbolic refs, excluding HEAD."""
+    completed = _run(["for-each-ref", "--format=%(refname) %(symref)"], cwd=source)
+    rows = []
+    for line in completed.stdout.splitlines():
+        ref, _, target = line.partition(" ")
+        if target:
+            # %(symref) may resolve a chain; retain each immediate link instead.
+            target = _run(
+                ["symbolic-ref", "--quiet", "--no-recurse", ref], cwd=source,
+            ).stdout.strip()
+            rows.append({"ref": ref, "target": target})
+    return sorted(rows, key=lambda row: row["ref"])
+
+
+def _validate_symbolic_refs(
+    value: Any, refs: list[dict[str, str]], head_ref: str | None,
+) -> list[dict[str, str]]:
+    if not isinstance(value, list):
+        raise BackupError("manifest symbolic refs must be a list")
+    objects = {row["ref"]: row["sha"] for row in refs}
+    links = {}
+    for row in value:
+        if (not isinstance(row, dict) or set(row) != {"ref", "target"}
+                or not isinstance(row["ref"], str) or not isinstance(row["target"], str)):
+            raise BackupError("manifest symbolic ref fields drifted")
+        ref, target = row["ref"], row["target"]
+        if (not ref.startswith("refs/") or ref in links
+                or ref not in objects or target not in objects
+                or objects[ref] != objects[target]):
+            raise BackupError("manifest symbolic ref differs from bundle refs")
+        links[ref] = target
+    graph = dict(links)
+    if head_ref is not None:
+        graph["HEAD"] = head_ref
+    for ref in graph:
+        seen = set()
+        while ref in graph:
+            if ref in seen:
+                raise BackupError("manifest symbolic refs contain a cycle")
+            seen.add(ref)
+            ref = graph[ref]
+    return [{"ref": ref, "target": links[ref]} for ref in sorted(links)]
+
+
 def snapshot(source: Path, output_dir: Path) -> Path:
     source = source.resolve()
     output_dir = output_dir.resolve()
@@ -187,6 +233,7 @@ def snapshot(source: Path, output_dir: Path) -> Path:
     if not SHA_RE.fullmatch(head_sha):
         raise BackupError("HEAD is not a full object id")
     head_ref = _head_ref(source)
+    symbolic_refs = _repo_symbolic_refs(source)
     output_dir.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     bundle = output_dir / f"commons-{stamp}-{head_sha[:12]}.bundle"
@@ -209,6 +256,9 @@ def snapshot(source: Path, output_dir: Path) -> Path:
         if (_head_ref(source) != head_ref
                 or _run(["rev-parse", "HEAD"], cwd=source).stdout.strip() != head_sha):
             raise BackupError("source HEAD changed during snapshot")
+        if _repo_symbolic_refs(source) != symbolic_refs:
+            raise BackupError("source symbolic refs changed during snapshot")
+        _validate_symbolic_refs(symbolic_refs, bundle_heads, head_ref)
         try:
             os.link(staged_bundle, bundle)
         except OSError as error:
@@ -218,6 +268,7 @@ def snapshot(source: Path, output_dir: Path) -> Path:
         "created_at": _utc_now(),
         "head_sha": head_sha,
         "head_ref": head_ref,
+        "symbolic_refs": symbolic_refs,
         "bundle": bundle.name,
         "bundle_sha256": _sha256(bundle),
         "refs": bundle_heads,
@@ -245,6 +296,9 @@ def read_manifest(manifest_path: Path) -> tuple[dict[str, Any], Path]:
     if not isinstance(manifest, dict):
         raise BackupError("manifest fields drifted")
     if manifest.get("schema_version") == SCHEMA_VERSION:
+        required.add("symbolic_refs")
+        required.add("head_ref")
+    elif manifest.get("schema_version") == HEAD_SCHEMA_VERSION:
         required.add("head_ref")
     elif manifest.get("schema_version") != LEGACY_SCHEMA_VERSION:
         raise BackupError("manifest schema version drifted")
@@ -271,7 +325,7 @@ def _verify_manifest(manifest_path: Path) -> dict[str, Any]:
         raise BackupError("bundle refs differ from manifest")
     if not any(row["sha"] == manifest["head_sha"] for row in actual_refs):
         raise BackupError("manifest HEAD is absent from bundle refs")
-    if manifest["schema_version"] == SCHEMA_VERSION:
+    if manifest["schema_version"] in {SCHEMA_VERSION, HEAD_SCHEMA_VERSION}:
         head_ref = manifest["head_ref"]
         if not any(row["ref"] == "HEAD" and row["sha"] == manifest["head_sha"] for row in actual_refs):
             raise BackupError("manifest HEAD differs from bundle HEAD")
@@ -287,8 +341,12 @@ def _verify_manifest(manifest_path: Path) -> dict[str, Any]:
         "head_sha": manifest["head_sha"],
         "refs": len(actual_refs),
     }
-    if manifest["schema_version"] == SCHEMA_VERSION:
+    if manifest["schema_version"] in {SCHEMA_VERSION, HEAD_SCHEMA_VERSION}:
         receipt["head_ref"] = manifest["head_ref"]
+    if manifest["schema_version"] == SCHEMA_VERSION:
+        receipt["symbolic_refs"] = _validate_symbolic_refs(
+            manifest["symbolic_refs"], actual_refs, manifest["head_ref"],
+        )
     return receipt
 
 
@@ -328,6 +386,10 @@ def restore(manifest_path: Path, target: Path, bare: bool = False) -> dict[str, 
             _run(["symbolic-ref", "HEAD", receipt["head_ref"]], cwd=target)
         if _head_ref(target) != receipt["head_ref"]:
             raise BackupError("restored symbolic HEAD differs from manifest")
+    # Establish HEAD before links that may point to it, rather than using the
+    # branch guessed by clone while reconstructing the saved alias graph.
+    for row in receipt.get("symbolic_refs", []):
+        _run(["symbolic-ref", row["ref"], row["target"]], cwd=target)
     restored_head = _run(["rev-parse", "HEAD"], cwd=target).stdout.strip()
     if restored_head != receipt["head_sha"]:
         raise BackupError(
@@ -338,6 +400,8 @@ def restore(manifest_path: Path, target: Path, bare: bool = False) -> dict[str, 
     if not bare:
         # Only this newly created target is populated; existing targets are refused.
         _run(["reset", "--hard", "HEAD"], cwd=target)
+    if "symbolic_refs" in receipt and _repo_symbolic_refs(target) != receipt["symbolic_refs"]:
+        raise BackupError("restored symbolic ref inventory differs from manifest")
     receipt.update(
         {
             "state": "RESTORED",
@@ -522,4 +586,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
