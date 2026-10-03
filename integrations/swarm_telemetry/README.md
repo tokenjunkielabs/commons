@@ -71,6 +71,8 @@ python -m integrations.swarm_telemetry.remote_custody prepare --source-db PRIVAT
 python -m integrations.swarm_telemetry.remote_custody jobs --journal PRIVATE-custody.sqlite3 --limit 50 --cursor 0
 ```
 
+If storage fails during initial journal creation, retry the same `prepare` command after restoring storage. The journal filename is published only after its schema and operation binding are complete. Existing journals are never replaced. Preserve any incomplete journal created by an older version and choose a new journal path.
+
 `jobs` emits connector handoffs as `{object_id, action, tool_name, args}` plus `next_cursor`; execute them through the existing authenticated Drive connector. Use one native caller per journal and execute each emitted batch before requesting another. Traverse the returned cursors to finish a finite pass over the full operation snapshot. This traversal does not sample records. Complete each object's deterministic-name search before uploading or retrying an upload, then record the search result with every matching file ID. A completed search with no matches is valid: omit `--file-id` and retain `--complete`. The custody handoffs do not dispatch or throttle other work, schedule activity, or introduce peer-admission, approval, or acknowledgement gates.
 
 ```sh
