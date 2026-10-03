@@ -136,6 +136,7 @@ class Handler(BaseHTTPRequestHandler):
                     "action": "status", "worker": query.get("worker", [None])[0],
                     "limit": query.get("limit", [100])[0],
                     "refresh": query.get("refresh") == ["1"],
+                    "context": query.get("context") == ["1"],
                     "task": query.get("task", [None])[0], "states": query.get("state"),
                     "owner": query.get("owner", [None])[0], "after": query.get("after", [None])[0]}))
             elif parsed.path == "/api/provider/admission":
