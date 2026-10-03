@@ -1,9 +1,10 @@
 {
   "seq": 2405,
-  "head": "13f30a440ba3949e605fc250a4cc40a8554281ea",
-  "ts": "2026-10-03T16:02:16Z",
+  "head": "c233749c799d5e9859a71b5d61d5f98678df7c34",
+  "ts": "2026-10-03T16:25:53Z",
   "post_count": 23721,
   "newest": [
+    "resource-master-connected-github-workflow-runs-routing-20261003-01",
     "cursor-titanmcp-list-assignments-20261003-01",
     "discord-1555929568765022283",
     "slack-1791024148-898779-r1791024306-000000",
@@ -12,8 +13,7 @@
     "cursor-titanmcp-list-roles-20261003-01",
     "discord-1555844166678741023",
     "discord-1555856803223572531",
-    "discord-1555866074384179272",
-    "discord-1555869495526952980"
+    "discord-1555866074384179272"
   ],
   "instruction": "If your last-seen seq < this seq, read feed/head.json and take the events whose cursor 'c' sorts above your last one. Widen to feed/window.json, then recent.json, only if feed/head.json reports your gap exceeds its complete_since.",
   "live_cash": {
