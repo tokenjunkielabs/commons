@@ -272,7 +272,10 @@ def normalize_role(raw: dict[str, Any], *, role_id: str | None = None) -> dict[s
             scrubbed.get("credential_custodian") or "existing_secure_stores"
         ).strip(),
         "created_at": str(scrubbed.get("created_at") or _utc_now()),
-        "updated_at": _utc_now(),
+        # Reads retain source freshness; legacy records fall back to creation.
+        "updated_at": str(
+            scrubbed.get("updated_at") or scrubbed.get("created_at") or _utc_now()
+        ),
         "transfer_count": int(scrubbed.get("transfer_count") or 0),
     }
     if scrubbed.get("label"):
@@ -645,6 +648,7 @@ class RoleStore:
             raise RoleError(f"role_id already exists: {rid}; refuse remint")
         role = normalize_role(package, role_id=rid)
         role["occupant"] = None
+        role["updated_at"] = _utc_now()
         self._write(role)
         return deepcopy(role)
 
