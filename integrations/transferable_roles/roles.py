@@ -94,7 +94,7 @@ def _normalize_obligation(item: Any) -> dict[str, Any]:
         "id": _require_str(item.get("id") or uuid.uuid4().hex[:12], "obligation.id"),
         "summary": _require_str(item.get("summary"), "obligation.summary"),
         "next_action": _require_str(item.get("next_action"), "obligation.next_action"),
-        "status": str(item.get("status") or "open").strip() or "open",
+        "status": str(item.get("status") or "open").strip().lower() or "open",
     }
     if item.get("evidence_pointer"):
         out["evidence_pointer"] = _require_str(
