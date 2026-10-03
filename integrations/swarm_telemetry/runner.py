@@ -267,35 +267,45 @@ class Runner:
         return state
     def dispatch_notifications(self):
         channel=self.config.get("notification_channel")
-        if not channel: return {"sent":0,"enabled":False}
-        sent=0
-        for note in self.store.records("notifications",limit=1000)["notifications"]:
-            if note.get("delivery_state")!="available": continue
-            # Backfill remains available in the feed, without replaying old notices to Slack.
-            occurred=note.get("occurred_at")
-            if not isinstance(occurred,str) or not occurred: continue
-            try:
-                from datetime import datetime,timezone
-                age=(datetime.now(timezone.utc)-datetime.fromisoformat(occurred.replace("Z","+00:00"))).total_seconds()
-                if age>float(self.config.get("notification_max_age_seconds",3600)): continue
-            except (ValueError,TypeError,KeyError): continue
-            if note.get("owner_attention"): continue
-            text=note.get("title","Swarm update")+"\n"+note.get("body","")
-            refs=note.get("source_refs",[])
-            urls=[v.get("url") if isinstance(v,dict) else v for v in refs]
-            text+="".join("\n"+v for v in urls if isinstance(v,str) and v.startswith("https://"))
-            operation_id="telemetry-notice:"+note["notification_id"]
-            self.store.delivery_receipt(note["notification_id"],"pending",{"operation_id":operation_id})
-            try:
-                receipt=self.gateway.call("slack_post_message",{"channel_id":channel,"text":text},operation_id)
-                uncertain=bool(receipt.get("uncertain"))
-                failed=bool(receipt.get("isError") or receipt.get("error"))
-                state="uncertain" if uncertain else "failed" if failed else "sent"
-                self.store.delivery_receipt(note["notification_id"],state,receipt)
-                sent+=state=="sent"
-            except Exception as exc:
-                self.store.delivery_receipt(note["notification_id"],"uncertain",{"operation_id":operation_id,"error":type(exc).__name__})
-        return {"sent":sent,"enabled":True}
+        if not channel: return {"sent":0,"enabled":False,"scanned":0,"pages":0}
+        sent=scanned=pages=0
+        cursor=""
+        while True:
+            page=self.store.records("notifications",limit=1000,cursor=cursor)
+            pages+=1
+            for note in page["notifications"]:
+                scanned+=1
+                if note.get("delivery_state")!="available" or note.get("status")=="resolved": continue
+                # Backfill remains available in the feed, without replaying old notices to Slack.
+                occurred=note.get("occurred_at")
+                if not isinstance(occurred,str) or not occurred: continue
+                try:
+                    from datetime import datetime,timezone
+                    age=(datetime.now(timezone.utc)-datetime.fromisoformat(occurred.replace("Z","+00:00"))).total_seconds()
+                    if age>float(self.config.get("notification_max_age_seconds",3600)): continue
+                except (ValueError,TypeError,KeyError): continue
+                if note.get("owner_attention"): continue
+                text=note.get("title","Swarm update")+"\n"+note.get("body","")
+                refs=note.get("source_refs",[])
+                urls=[v.get("url") if isinstance(v,dict) else v for v in refs]
+                text+="".join("\n"+v for v in urls if isinstance(v,str) and v.startswith("https://"))
+                operation_id="telemetry-notice:"+note["notification_id"]
+                self.store.delivery_receipt(note["notification_id"],"pending",{"operation_id":operation_id})
+                try:
+                    receipt=self.gateway.call("slack_post_message",{"channel_id":channel,"text":text},operation_id)
+                    uncertain=bool(receipt.get("uncertain"))
+                    failed=bool(receipt.get("isError") or receipt.get("error"))
+                    state="uncertain" if uncertain else "failed" if failed else "sent"
+                    self.store.delivery_receipt(note["notification_id"],state,receipt)
+                    sent+=state=="sent"
+                except Exception as exc:
+                    self.store.delivery_receipt(note["notification_id"],"uncertain",{"operation_id":operation_id,"error":type(exc).__name__})
+            if not page.get("has_more"): break
+            next_cursor=page.get("next_cursor")
+            if not isinstance(next_cursor,str) or next_cursor<=cursor:
+                raise RuntimeError("Notification continuation cursor did not advance")
+            cursor=next_cursor
+        return {"sent":sent,"enabled":True,"scanned":scanned,"pages":pages}
     def start(self):
         self.thread=Thread(target=self.run,daemon=True,name="passive-swarm-measurement")
         self.thread.start()
