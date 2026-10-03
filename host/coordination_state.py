@@ -451,15 +451,18 @@ class Git:
         env = {"GIT_INDEX_FILE": index}
         try:
             self.run("read-tree", main, env=env)
-            lines = []
-            for status, path, _om, new_mode, _old, new in changes:
+            removals, lines = [], []
+            for status, path, _om, new_mode, old, new in changes:
                 if status == "D":
-                    self.run("update-index", "--force-remove", "--", path, env=env)
+                    removals.append("0 %s\t%s" % (old, path))
                 else:
                     lines.append("%s %s\t%s" % (new_mode, new, path))
-            if lines:
-                self.run("update-index", "--add", "--index-info", env=env,
-                         input_text="\n".join(lines) + "\n")
+            # Remove old entries first so file/directory replacements compose.
+            # NUL records preserve path bytes and batch every index update.
+            records = removals + lines
+            if records:
+                self.run("update-index", "--add", "-z", "--index-info", env=env,
+                         input_text="\0".join(records) + "\0")
             return self.out("write-tree", env=env).strip()
         finally:
             if os.path.exists(index):
