@@ -49,6 +49,10 @@ scripts, stylesheets, fonts, analytics, translation/model calls, or storefront c
 
 ## HTTP surface
 
+CSV and JSON catalogs keep their original filename and bytes in the portable
+workspace. Valid JSON filenames such as `translations.json` can be imported,
+reopened, edited, and packed without renaming the source file.
+
 `GET /api/status` reports the workspace schema, editable translation fields, and
 loopback-only network policy. `GET /` and `GET /desk.html` serve the single local page.
 

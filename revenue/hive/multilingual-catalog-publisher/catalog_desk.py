@@ -123,7 +123,11 @@ class CatalogDesk:
     def _write_catalog(self, directory: Path, workspace: Mapping[str, Any]) -> Path:
         name = _safe_catalog_name(workspace.get("catalog_name"))
         payload = _decode_catalog(workspace)
-        path = directory / name
+        # User filenames may also name generated translations/settings files.
+        # Keep their exact bytes separate throughout validation and publishing.
+        source_directory = directory / "source-catalog"
+        source_directory.mkdir(exist_ok=True)
+        path = source_directory / name
         path.write_bytes(payload)
         return path
 
