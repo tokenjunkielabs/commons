@@ -1056,6 +1056,7 @@ def open_worktree(peer="unseated", dest=None, repo=None, mode="clone", source=No
         attached["readiness"] = attached.get("readiness") or "READY"
         return attached
     if _dest_occupied(dest) and not git_ok(dest):
+        receipt["ok"] = False
         receipt["readiness"] = "DEST_OCCUPIED"
         receipt["actions"].append({"path": dest, "op": "refuse_occupied"})
         return receipt
@@ -1064,6 +1065,7 @@ def open_worktree(peer="unseated", dest=None, repo=None, mode="clone", source=No
         if git_ok(dest):
             pass
         elif _dest_occupied(dest):
+            receipt["ok"] = False
             receipt["readiness"] = "DEST_OCCUPIED"
             receipt["actions"].append({"path": dest, "op": "refuse_occupied"})
             return receipt
