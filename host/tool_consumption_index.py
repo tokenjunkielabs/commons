@@ -209,6 +209,7 @@ def scan(root: Path, source_commit: str) -> dict[str, Any]:
 
 def check_snapshot(root: Path, path: Path) -> dict[str, Any]:
     expected = json.loads(path.read_text(encoding="utf-8"))
+    _require(isinstance(expected, dict), f"{path} must be a JSON object")
     _require(expected.get("schema") == SCHEMA, f"{path} is not {SCHEMA}")
     actual = scan(root, _text(expected.get("source_commit")))
     if actual != expected:
@@ -278,7 +279,7 @@ def main(argv: list[str] | None = None) -> int:
         else:
             sys.stdout.write(rendered)
         return 0
-    except (ToolConsumptionError, OSError, json.JSONDecodeError) as exc:
+    except (ToolConsumptionError, OSError, UnicodeError, json.JSONDecodeError) as exc:
         sys.stderr.write(f"tool-consumption-index: {exc}\n")
         return 2
 
