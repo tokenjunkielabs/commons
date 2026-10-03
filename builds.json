@@ -353,13 +353,13 @@
  "n_open_prs": 1,
  "open_prs": [
   {
-   "number": 30613,
+   "number": 30614,
    "author": "woahwhattheheck",
-   "title": "perf(ci): keep one sparse OHSU current-authority run",
-   "html_url": "https://github.com/woahwhattheheck/commons/pull/30613",
+   "title": "Activate TitanMCP research-power catalog routing",
+   "html_url": "https://github.com/woahwhattheheck/commons/pull/30614",
    "base_freshness": {
-    "base_sha": "b67036d05c528eb79c8a44855249b412d4c8c4fa",
-    "main_sha": "6e6433305a27fe68c1115bda5a93f88e1fb3c4cd",
+    "base_sha": "5732eecaa9700e00cb3c5e4471c2bac54f838c7d",
+    "main_sha": "0caef226c697d5023ce7c38e1a28beca8ebbaf30",
     "ahead_by": null,
     "behind_by": null,
     "label": "STALE_BASE"
