@@ -17,6 +17,8 @@ python3 -B host/file_chunk_export.py /path/to/retained-file \
 
 The process first prints one JSON manifest. Send `NEXT 0` on standard input to receive the first part. For each subsequent part, send `NEXT <next_offset>` using the offset in the prior response. The shorter `NEXT` command also requests the next part, matching the existing transfer scripts. One request is followed by one part; wait for that response before requesting another part. After the last part, the process prints a completion record and exits 0.
 
+The request deadline covers the complete line, including a partial line received through a pipe; receiving a byte does not reset it.
+
 Optional `--expect-sha256` and `--expect-git-blob` bind the input to a known lowercase digest before any manifest or content is emitted. Both digests are recomputed from the opened file.
 
 | Setting | Default | Behavior |
