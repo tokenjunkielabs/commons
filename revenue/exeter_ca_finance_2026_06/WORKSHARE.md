@@ -5,6 +5,12 @@ Commercial hypothesis: **USD 24,000 fixed**
 Reference delivery window: **12 business days after agreed input readiness**  
 Operation: \`EXETER-CA-2026-06-MUNICIPAL-FINANCE-ACCEPTANCE-ZSOL-20260917\`
 
+## Current procurement source — October 3, 2026
+
+The listed proposal deadline has passed. The [retained City source capture](captures/20261003/README.md) resolves the earlier Q&A-publication gap and preserves the September 18 observation as history. [SOURCE_LEDGER.json](SOURCE_LEDGER.json) exposes the current source state.
+
+The capture includes a [source-pin fragment](captures/20261003/source_pin.json) for this engine's existing input contract. A complete accounting/conversion packet still requires actual owner-supplied implementation evidence. The source refresh does not reopen bidding or establish acceptance of the workshare below.
+
 ## Positioning
 
 This is a bounded specialist subcontract concept for a qualified municipal-finance/ERP prime pursuing City of Exeter RFP 2026-06. It is not an ERP software proposal and does not represent TJLabs as meeting the solicitation's prime-vendor qualifications.
