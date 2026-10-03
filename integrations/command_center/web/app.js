@@ -221,6 +221,27 @@
       c.append(meta(metrics));
       if(machine)c.append(make('p','source-note','Available disk space is shared across workloads on the filesystem containing the workspace path. Usage percentage is used space divided by used plus available space, excluding reserved space.'));
       if(machine&&s.process_limits)c.append(make('p','source-note','CPU capacity is a sustained ceiling. Memory headroom reflects current usage across processes sharing the limit and excludes possible cache reclaim. Limit coverage: '+str(s.process_limits.cgroup_status)+'.'));
+      if(machine){
+        const limits=s.process_limits||{},events=arr(limits.memory_events),isEventSource=value=>/(^|\/)memory\.events(?:\.local)?$/.test(str(value));
+        const unavailable=arr(limits.unavailable_interfaces).filter(isEventSource),errors=arr(limits.read_errors).filter(error=>error&&isEventSource(error.source));
+        const section=make('section','memory-events');section.append(make('h4','card-kind','Memory events · cumulative'));
+        section.append(make('p','source-note','Counters accumulate per cgroup source. Sources can overlap; each is shown separately. These observations do not identify a particular process failure.'));
+        events.forEach(event=>{
+          if(!event||typeof event!=='object')return;
+          const counters=event.counters&&typeof event.counters==='object'&&!Array.isArray(event.counters)?event.counters:{};
+          const count=value=>Number.isSafeInteger(value)&&value>=0?value:null;
+          const highlights=['oom','oom_kill'].filter(key=>Object.prototype.hasOwnProperty.call(counters,key)).map(key=>key+' '+(count(counters[key])??'Unknown'));
+          const details=make('details','raw-details');details.append(make('summary','',str(event.scope||'Scope unknown')+(highlights.length?' · '+highlights.join(' · '):' · Counters')));
+          const values=Object.entries(counters).map(([key,value])=>[key,count(value)]);
+          details.append(meta([['Source',event.source],['Scope',event.scope],...values]));
+          if(!values.length)details.append(make('p','source-note','Counters unavailable for this source.'));
+          section.append(details);
+        });
+        unavailable.forEach(source=>section.append(make('p','source-note','Unavailable: '+str(source))));
+        errors.forEach(error=>section.append(make('p','source-error','Read error: '+str(error.source)+' · '+str(error.error||'Unknown error'))));
+        if(!events.length&&!unavailable.length&&!errors.length)section.append(make('p','source-note','Memory-event observations unavailable.'));
+        c.append(section);
+      }
       if(s.objective)c.append(make('div','session-objective',s.objective));const existingSessionURL=sessionURL(s);if(existingSessionURL)c.append(link('Open existing session ↗',existingSessionURL,'button button-small button-quiet'));c.append(button('Update record',()=>sessionForm(s)));return c;
     }):[empty('No session records returned. Existing GPT/Claude VM capacity must be bound to its actual session and route.')]);
     const runtimes=arr(state&&state.runtimes);
