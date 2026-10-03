@@ -728,15 +728,28 @@ def collect_service_activity(config=None, state=None, sources=None, read_page=No
                               "pending_recovery_scopes": sum(job["status"] == "pending_recovery" for job in pending),
                               "observed_at": collector.at,
                               "unread_regions": [{"job_id": job["job_id"], "scope": job["scope"], "status": job["status"], "alternate_reader": job.get("alternate_reader")} for job in pending]})
-    # Poll only after the executable historical queue drains. Recovery scopes
-    # stay visible across refresh generations and are never erased by polling.
-    executable = [job for job in jobs.values() if job.get("tool_name") and not job["complete"]]
-    if not executable and time.time() >= collector.state.get("next_poll_epoch", 0):
+    # Each account refreshes after its own executable historical queue drains.
+    # Another account's backfill or failed reader must not freeze this account.
+    # Recovery scopes stay visible and are never erased by polling. Older
+    # checkpoints share one deadline; migrate it once into the account roots.
+    executable_scopes = {(job["service"], job["account_ref"]) for job in jobs.values()
+                         if job.get("tool_name") and not job["complete"]}
+    now_epoch = time.time()
+    ready_roots = []
+    for root in collector.state["roots"].values():
+        root.setdefault("next_poll_epoch", collector.state.get("next_poll_epoch", 0))
+        if ((root["service"], root["account_ref"]) not in executable_scopes and
+                now_epoch >= root["next_poll_epoch"]):
+            ready_roots.append(root)
+    if ready_roots:
         collector.state["cycle"] += 1
         collector.active_cycle = collector.state["cycle"]
-        for root in collector.state["roots"].values():
+        for root in ready_roots:
             collector.bootstrap(root["service"], root["account_ref"])
-        collector.state["next_poll_epoch"] = time.time() + float(config.get("poll_interval_seconds", 300))
+            root["next_poll_epoch"] = now_epoch + float(config.get("poll_interval_seconds", 300))
+    if collector.state["roots"]:
+        collector.state["next_poll_epoch"] = min(root["next_poll_epoch"]
+                                                for root in collector.state["roots"].values())
     pending = [copy.deepcopy(job) for job in jobs.values() if not job["complete"]]
     return {"events": collector.events, "coverage": {"source": "service_activity", "observed_at": collector.at,
             "complete": not pending, "services": len({root["service"] for root in collector.state["roots"].values()}),
