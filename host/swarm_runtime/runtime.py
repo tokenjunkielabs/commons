@@ -230,7 +230,7 @@ class Runtime:
             incoming += legacy_events(prior.get("legacy_holdings", {}), prior.get("legacy_mirror_revisions", {}))
         moment = now_iso()
         fresh = {"provider_facts": {}, "calls": 0, "deferred": []}
-        if refresh_providers and max_calls:
+        if refresh_providers:
             from .providers import enrich
             candidate = copy.deepcopy(prior)
             _append(candidate, incoming)
