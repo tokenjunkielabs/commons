@@ -160,6 +160,10 @@ Provider refresh and ingestion locks work on Windows and Unix using the same
 one-byte `msvcrt` / `flock` pattern as the command center. They release when a
 process exits; lock contention and an unavailable lock are reported separately.
 
+`sync --max-calls 0` reconciles reusable provider-cache evidence without making
+new provider requests. Cache misses stay deferred; a zero request budget does
+not skip retained merge or artifact evidence.
+
 `sync --cached` ingests existing evidence without provider refresh. `status` and
 heartbeat do not refresh GitHub REST data. Dispatch and terminal operations may
 refresh exact candidate identifiers within a four-call budget; canonical claims
