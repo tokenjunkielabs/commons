@@ -72,7 +72,7 @@ def write_chunks(feed: list, root: str) -> dict:
             pname = "p%02d.json" % i
             keep_part.add(pname)
             with open(os.path.join(day_dir, pname), "w", encoding="utf-8") as f:
-                json.dump(part, f, ensure_ascii=False, separators=(",", ":"))
+                f.write(json.dumps(part, ensure_ascii=False, separators=(",", ":")))
                 f.write("\n")
             part_meta.append({
                 "id": "p%02d" % i,
