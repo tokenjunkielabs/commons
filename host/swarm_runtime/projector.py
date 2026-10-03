@@ -303,7 +303,7 @@ def _fact_key(fact):
         return None
 
 
-def _provider_facts(facts, rejected):
+def _provider_facts(facts, rejected, needed_keys=None):
     normalized = {}
     items = facts.items() if isinstance(facts, Mapping) else ((_fact_key(f), f) for f in facts or [])
     for key, fact in items:
@@ -313,6 +313,10 @@ def _provider_facts(facts, rejected):
             key = task_key(key) if key else task_key(fact)
         except (ValueError, TypeError) as exc:
             rejected.append({"source": "provider", "reason": str(exc)})
+            continue
+        # Validate every identity, including aliases and unused facts, before
+        # limiting defensive copies to coordinates this projection can read.
+        if needed_keys is not None and key not in needed_keys:
             continue
         merge_facts(normalized, {key: dict(fact)})
     return normalized
@@ -551,15 +555,23 @@ def project(events, now=None, seats=None, provider_facts=None):
             record.update(state="SUPERSEDED", superseded_by=event["superseded_by"], closed_at=event.get("at") or UNKNOWN)
         elif action == "ABANDON":
             record.update(state="ABANDONED", closed_at=event.get("at") or UNKNOWN)
-    facts = _provider_facts(provider_facts, rejected)
+    needed_keys = set(tasks)
+    fallback_keys = {}
+    for key, record in tasks.items():
+        if _known(record["repo"]) and _known(record["pr"]):
+            try:
+                fallback = task_key(repo=record["repo"], kind="pr", number=record["pr"])
+            except ValueError:
+                # An exact fact can still reconcile unusable fallback fields.
+                continue
+            fallback_keys[key] = fallback
+            needed_keys.add(fallback)
+    facts = _provider_facts(provider_facts, rejected, needed_keys=needed_keys)
     for key, record in sorted(tasks.items()):
         fact = facts.get(key)
         exact_task_fact = fact is not None
-        if fact is None and _known(record["repo"]) and _known(record["pr"]):
-            try:
-                fact = facts.get(task_key(repo=record["repo"], kind="pr", number=record["pr"]))
-            except ValueError:
-                pass
+        if fact is None:
+            fact = facts.get(fallback_keys.get(key))
         if fact is not None:
             _reconcile(record, fact, moment, exact_task_fact=exact_task_fact)
     seat_map = _seats_by_name(seats)
@@ -568,3 +580,4 @@ def project(events, now=None, seats=None, provider_facts=None):
         _lease(record, seat_map.get(str(record["worker"]), {}), moment)
     return {"schema": SCHEMA, "tasks": dict(sorted(tasks.items())), "collisions": collisions,
             "rejected": rejected, "event_count": len(accepted)}
+
