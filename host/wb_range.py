@@ -347,6 +347,25 @@ class _GgufCursor:
         size = struct.calcsize(fmt)
         return struct.unpack(fmt, self.take(size))
 
+    def unpack_group(self, *formats: str):
+        grouped = "<" + "".join(fmt[1:] for fmt in formats)
+        if struct.calcsize(grouped) <= self.reader.limit:
+            # Reuse complete split-field caches from earlier parsers. Each
+            # ordinary read still checks its cached chunk's length and digest.
+            cached = self.reader.use_cache
+            offset = self.pos
+            for fmt in formats:
+                if not cached:
+                    break
+                size = struct.calcsize(fmt)
+                entry = self.reader.manifest["entries"].get(
+                    self.reader._cache_key(offset, size))
+                cached = bool(entry and entry.get("transport_contract") == RANGE_CONTRACT_VERSION)
+                offset += size
+            if not cached:
+                return self.unpack(grouped)
+        return tuple(value for fmt in formats for value in self.unpack(fmt))
+
     def string(self) -> str:
         (length,) = self.unpack("<Q")
         if length > 16 * 1024 * 1024:
@@ -366,7 +385,27 @@ def _gguf_metadata_value(cursor: _GgufCursor, value_type: int):
         if count > 1_000_000:
             raise WbRangeError("implausible gguf array length")
         if element_type == 8:
-            return [cursor.string() for _ in range(count)]
+            if not count:
+                return []
+            values = []
+            (length,) = cursor.unpack("<Q")
+            for index in range(count):
+                if length > 16 * 1024 * 1024:
+                    raise WbRangeError("implausible gguf string length")
+                if index + 1 < count:
+                    # The next length field is inside this known string array.
+                    # Pair it with this body without reading beyond metadata.
+                    if length:
+                        raw, next_length = cursor.unpack_group("<%ds" % length, "<Q")
+                    else:
+                        raw = b""
+                        (next_length,) = cursor.unpack("<Q")
+                    values.append(raw.decode("utf-8"))
+                    length = next_length
+                else:
+                    raw = cursor.take(length) if length else b""
+                    values.append(raw.decode("utf-8"))
+            return values
         if element_type not in GGUF_VALUE_TYPES:
             raise WbRangeError("unsupported gguf array element type %d" % element_type)
         fmt, size = GGUF_VALUE_TYPES[element_type]
@@ -383,11 +422,7 @@ def parse_gguf_index(reader: RangeReader, file_name: str) -> dict:
     (version,) = cursor.unpack("<I")
     if version not in (2, 3):
         raise WbRangeError("unsupported gguf version %d" % version)
-    if reader.limit >= 16:
-        tensor_count, kv_count = cursor.unpack("<QQ")
-    else:
-        (tensor_count,) = cursor.unpack("<Q")
-        (kv_count,) = cursor.unpack("<Q")
+    tensor_count, kv_count = cursor.unpack_group("<Q", "<Q")
     if tensor_count > 10_000_000 or kv_count > 1_000_000:
         raise WbRangeError("implausible gguf counts")
     metadata = {}
@@ -404,14 +439,11 @@ def parse_gguf_index(reader: RangeReader, file_name: str) -> dict:
         (n_dims,) = cursor.unpack("<I")
         if n_dims > 8:
             raise WbRangeError("implausible gguf tensor rank")
-        # These fields are contiguous; combine only their exact header bytes.
-        descriptor_format = "<%dQIQ" % n_dims
-        if struct.calcsize(descriptor_format) <= reader.limit:
-            *dims, type_id, rel_offset = cursor.unpack(descriptor_format)
-        else:
-            dims = list(cursor.unpack("<%dQ" % n_dims)) if n_dims else []
-            (type_id,) = cursor.unpack("<I")
-            (rel_offset,) = cursor.unpack("<Q")
+        # These fields are contiguous and their complete extent is now known.
+        formats = ("<%dQ" % n_dims, "<I", "<Q") if n_dims else ("<I", "<Q")
+        fields = cursor.unpack_group(*formats)
+        dims = list(fields[:-2])
+        type_id, rel_offset = fields[-2:]
         elements = 1
         for dim in dims:
             elements *= dim
