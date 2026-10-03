@@ -25,6 +25,7 @@
   "priority_queue": [],
   "production_write": false,
   "record_sources": [
+    "inventory/resources/records/resource-master-list-research-power-routing-20261003-01.json",
     "inventory/resources/records/resource-master-distinct-handoff-routing-20261003-01.json",
     "inventory/resources/records/resource-master-passive-telemetry-routing-20261003-01.json",
     "inventory/resources/records/resource-master-owner-route-constraints-20261003-01.json",
@@ -131,15 +132,15 @@
   "schema": "commons-resource-ledger/v2",
   "secrets": false,
   "shared_resource_rule": "ALL_CARRIERS_MAY_USE_ALL_SHARED_RESOURCES; CLAUDE_IS_OWNER_HANDLED",
-  "slack_ts": "1791011546.352919",
+  "slack_ts": "1791022232.039619",
   "snapshot": {
-    "base_main_sha": "2c555f56d6af63a2227ba81858da84e1da6754c9",
-    "observed_at": "2026-10-03T07:23:38.605Z",
+    "base_main_sha": "b67036d05c528eb79c8a44855249b412d4c8c4fa",
+    "observed_at": "2026-10-03T10:14:14Z",
     "privacy_rule": "Shared account identities, service roles, aggregate quotas, reset states, and operating state may be published for Commons routing. Never persist passwords, tokens, API credentials, recovery or verification links, payment credentials, personal legal identity, or private mail contents.",
     "scope": "Anything convertible into Commons capability or value, including Bryce, devices, subscriptions, models, agents, tools, repositories, builds, data, attention, and external roads.",
     "truth_rule": "Capacity, authority, lifecycle stage, and condition are independent. Declared or cached is not live; reset is not permission; activity is not value."
   },
-  "source_id": "resource-master-distinct-handoff-routing-20261003-01",
+  "source_id": "resource-master-list-research-power-routing-20261003-01",
   "stage_order": [
     "DECLARED",
     "AVAILABLE",
@@ -148,7 +149,7 @@
     "EXERCISED",
     "PRODUCING"
   ],
-  "subject": "MASTER RESOURCE LEDGER — distinct passive handoff routing activation",
+  "subject": "MASTER RESOURCE LEDGER — TitanMCP research-power catalog activation",
   "supersedes_source_ids": [
     "resource-master-passive-telemetry-routing-20261003-01",
     "resource-master-owner-route-constraints-20261003-01",
@@ -2988,7 +2989,7 @@
       "last_result": "Exact retained-ledger replay completed with distinct=true, candidate_count=0 and no state mutation.",
       "verification": "Real product helper invocation exited 0; no test suite was run; privacy, secret, open-door/no-auth, zero-fabrication and exact-diff checks are recorded in the durable receipt.",
       "stale_after": "next runtime helper contract, state/claims schema, routing order, authority, consumer or source-blob change",
-      "own_activation_this_run": true
+      "own_activation_this_run": false
     },
     {
       "name": "telemetry-observer-acknowledgment-accounting",
@@ -3015,6 +3016,32 @@
       "verification": "Owner-reported real runtime path plus exact merged PR; no test suite or fabricated observation record.",
       "stale_after": "next observer acknowledgment schema, delivery-bound, source blob, authority or consumer change",
       "own_activation_this_run": false
+    },
+    {
+      "name": "titanmcp-list-research-power-catalog",
+      "kind": "READ_ONLY_RESEARCH_CAPABILITY_CATALOG",
+      "capacity": "500 CATALOG ROWS; DEFAULT WINDOW 50; QUERY LIMIT 1 VERIFIED",
+      "stage": "PRODUCING",
+      "condition": "OPERATIONAL_BUT_UNWIRED",
+      "authority": "SHARED_DIRECT_READ; NO_SESSION_AUTHORITY; NO_CONNECTOR_WIRING; NO_BAKE; NO_DEPLOY; NO_PROVIDER_WRITE",
+      "holder": "Commons / public TitanMCP catalog; Resource Master activation claim releases after landed projection readback",
+      "consumer": "Resource Master capability discovery and existing research/tool-routing owners",
+      "value": "Turns the live 500-row research catalog into a bounded, queryable routing input without treating catalog presence as a connected account or live session.",
+      "source": "Current-main host/titanmcp_list_research_power.py from source commit 06afdecae22a2656f2df75eabc1cdc4de2c583d5; receipt p/cursor-titanmcp-list-research-power-20261003-01.md; Slack SHIP 1791012595.925449",
+      "evidence_ts": "2026-10-03T10:09:00Z",
+      "last_used_at": "2026-10-03T10:09:00Z",
+      "exact_safe_probe": "Ran the exact merged classifier against live TitanMCP: initialize titanmcp 1.4.5; list_research_power present; empty arguments HTTP 200/MCP ok=true/catalog_count=500/count=50/subject=unbound-agent/session_bound=false/wired_count=0; query=github returned one catalog GitHub row; limit=1 retained catalog_count=500; q, wrong-type query and minutes returned bounded BAD_ARGUMENT results; Commons MCP 1.4.0 did not expose the tool. MATCH rc=0. Exact same source with --bake returned REFUSED rc=2, sent=0, cash=0.",
+      "rate_plan_boundary": "Catalog rows are discovery metadata, not installed connectors, authenticated sessions, model quota, provider calls, paid capacity, deployable projects or permission. wired_count=0 and session_bound=false are retained as independent operating fields.",
+      "next_action": "Existing research/tool-routing owners may use bounded catalog reads to discover candidate surfaces, then require fresh connection, authority, rate-plan and end-to-end receipts before any provider operation.",
+      "assigned_backlog": "No build order. list_research_power and list_custom_tooling are already landed; the latter is present in current main at f618c8f8d636e6cb756c055a57ee5b8bd32510d5.",
+      "auth_surface": "Public unauthenticated MCP read only; no private data, customer data, secret, account identifier or owner-only action.",
+      "build_order": "NONE_CAPABILITIES_ALREADY_LANDED",
+      "confidence": "HIGH_FOR_LIVE_READ_CONTRACT_AND_CURRENT_MAIN_SOURCE; NONE_FOR_WIRING_SESSION_QUOTA_OR_PROVIDER_DELIVERY",
+      "last_receipt": "resource-master-list-research-power-routing-20261003-01",
+      "last_result": "Live read-only catalog classifier matched; no state mutation, provider delivery, deployment, buyer contact, submission, payment or device action.",
+      "verification": "Exact merged helper live invocation and refusal path; privacy, secret, open-door/no-auth, zero-fabrication and no-deploy boundaries retained.",
+      "stale_after": "next TitanMCP version, catalog source/count, list_research_power schema, session/wiring state, authority, rate-plan or consumer change",
+      "own_activation_this_run": true
     }
   ],
   "titan": "NOT_WRITTEN"
