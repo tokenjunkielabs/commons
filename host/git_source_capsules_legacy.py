@@ -420,6 +420,7 @@ def _verified_git_source(bundle: Any, repository: str | Path) -> tuple[dict[str,
                 return None, "git-source-omission"
     return expected, "ok"
 
+
 def verify_git_source(bundle: Any, repository: str | Path) -> tuple[bool, str]:
     """Re-read committed objects and verify packet source metadata/text against them."""
     actual, reason = _verified_git_source(bundle, repository)
