@@ -10,7 +10,7 @@ or elevated.
 
 | Format | Round trip | Limitation |
 | --- | --- | --- |
-| JSON | exact Python JSON types | duplicate keys collapse as `json` does |
+| JSON | exact Python JSON types | duplicate keys are rejected |
 | CSV | meaning-preserving typed rows | values are serialized; types live in the `type` column |
 | XLSX | same row contract | minimal OOXML writer; not Excel-formula evaluation |
 | DOCX | reader projection only | paragraph text; page layout unknown |
@@ -24,7 +24,7 @@ Missing vs empty vs null is preserved on JSON/CSV/XLSX via `presence`.
 python cli.py json-to-csv examples/synthetic_envelope.json /tmp/out.csv
 python cli.py csv-to-json /tmp/out.csv /tmp/back.json
 python cli.py json-to-xlsx examples/synthetic_envelope.json /tmp/out.xlsx
-python -m unittest -v test_transport.py
+python cli.py xlsx-to-json /tmp/out.xlsx /tmp/back-xlsx.json
 ```
 
 ## Scope
