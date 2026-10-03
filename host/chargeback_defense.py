@@ -541,9 +541,8 @@ def summary(args: argparse.Namespace) -> dict[str, Any]:
 def bundle(args: argparse.Namespace) -> dict[str, Any]:
     if not CASE_RE.fullmatch(args.case_id):
         raise DefenseError("case ID must be an opaque 3-80 character label")
-    rows = read_rows(args)
     charge_id = ref(args.charge_id, "charge ID", prefix="ch")
-    selected = [row for row in rows if row["charge_id"] == charge_id] if charge_id else []
+    selected = [row for row in read_rows(args) if row["charge_id"] == charge_id] if charge_id else []
     if charge_id and not selected:
         raise DefenseError("charge ID has no verified observation in this ledger")
     sources = []
@@ -623,10 +622,11 @@ def parser() -> argparse.ArgumentParser:
     reporting(report)
     report.add_argument("--since", help="window start; defaults to the first day of as-of's UTC month")
     report.add_argument("--deadline-hours", type=int, default=48, help="operator deadline flag horizon; never a scheduled reminder")
-    packet = commands.add_parser("packet", aliases=["bundle"], help="copy explicitly selected files and matched verified events into a new private hash packet")
+    packet = commands.add_parser("packet", aliases=["bundle"], help="copy explicitly selected files and matched verified events into a new private hash packet",
+                                 description="Copy selected files into a private hash packet. Without --charge-id, no payment ledger is required or opened.")
     reporting(packet)
     packet.add_argument("--case-id", required=True, help="opaque operator case label, never a customer name/email")
-    packet.add_argument("--charge-id", help="optional observed ch_... ID; absent means files only, no payment assertion")
+    packet.add_argument("--charge-id", help="optional observed ch_... ID; requires --db or CHARGEBACK_DB when supplied; absent means files only, no payment assertion")
     packet.add_argument("--file", action="append", required=True, help="explicit local evidence file; repeat for more files")
     packet.add_argument("--output-dir", required=True, help="new absolute private packet directory")
     return result
@@ -636,7 +636,8 @@ def main(argv: list[str] | None = None) -> int:
     os.umask(0o077)
     args = parser().parse_args(argv)
     try:
-        if not args.db:
+        requires_ledger = args.command not in {"packet", "bundle"} or args.charge_id is not None
+        if requires_ledger and not args.db:
             raise DefenseError("--db or CHARGEBACK_DB is required; there is no in-repository default store")
         if args.command == "init":
             db = connect(args.db, initialize=True)
