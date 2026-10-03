@@ -33,7 +33,10 @@ account-deletion protection. Do not mint a live Drive, Oracle, S3, or GCS
 receipt without a real provider receipt.
 
 No overwrite is part of restore. Restore into a new absent path, verify, then
-choose the recovery action from evidence.
+choose the recovery action from evidence. Existing target names, including
+dangling symlinks, are refused before a new restore directory is created.
+The requested directory must be created successfully before it is resolved
+and populated.
 
 `verify <manifest>` checks the bundle checksum and ref inventory, then restores
 it into a temporary bare repository and checks the resulting HEAD and refs.
