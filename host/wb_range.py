@@ -2034,6 +2034,11 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(summary, sort_keys=True))
         return 0 if result["status"] == "MATCH" else 1
 
+    if args.command == "archive":
+        archive = Archive(work_dir / "archive")
+        print(json.dumps(archive.manifest, sort_keys=True))
+        return 0
+
     index = load_index(args.index)
     archive = Archive(work_dir / "archive")
 
@@ -2066,9 +2071,6 @@ def main(argv: list[str] | None = None) -> int:
         result = score_rows(index, archive, cache_dir, args.tensor,
                             args.axis, rows, limit=args.limit)
         print(json.dumps(result, sort_keys=True))
-        return 0
-    if args.command == "archive":
-        print(json.dumps(archive.manifest, sort_keys=True))
         return 0
     raise WbRangeError("unhandled command")
 
