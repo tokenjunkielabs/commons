@@ -100,6 +100,8 @@ def main(argv=None):
                         help="read a saved canonical runtime ledger without Git or provider requests")
     status.add_argument("--limit", type=int, default=100)
     status.add_argument("--task", help="exact task identity or GitHub issue/PR URL")
+    status.add_argument("--context", action="store_true",
+                        help="include the retained event bundle for --task")
     status.add_argument("--state", dest="states", action="append",
                         choices=("OPEN", "ACTIVE", "SHIPPED", "BLOCKED", "SUPERSEDED", "ABANDONED"),
                         help="filter lifecycle state; repeat to include several states")
@@ -125,10 +127,14 @@ def main(argv=None):
                        "events": load(args.events, []), "max_calls": args.max_calls,
                        "refresh_providers": not args.cached}
         elif args.command == "status":
+            if args.context and not args.task:
+                raise ValueError("--context requires --task")
             payload = {"refresh": args.fresh, "limit": args.limit, "worker": args.worker}
             payload.update({key: value for key, value in
                             (("task", args.task), ("states", args.states),
                              ("owner", args.owner), ("after", args.after)) if value is not None})
+            if args.context:
+                payload["context"] = True
         else:
             payload = load(args.data, {})
             if not isinstance(payload, dict):
