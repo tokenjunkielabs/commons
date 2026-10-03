@@ -1566,8 +1566,8 @@
   {
     "from": "STALENESS_ALARM",
     "presence": "PRESENT",
-    "id": "solder-sync-stale-20260927T2100Z-cb89ee670c",
-    "ts": "2026-09-27T21:17:02Z"
+    "id": "solder-sync-stale-20261003T1000Z-532e0c820a",
+    "ts": "2026-10-03T10:28:16Z"
   },
   {
     "from": "STAMP",
