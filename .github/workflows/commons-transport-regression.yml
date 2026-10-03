@@ -8,6 +8,8 @@ on:
       - integrations/gemini_slack/**
       - integrations/claude_headless/**
       - host/toolbench.py
+      - host/titan_hands_windows/**
+      - .github/scripts/titan_hands_git_terminal_audit.py
       - toolbench/**
       - test_commons_transport_outcomes.py
       - test_claude_client_transport_outcomes.py
@@ -25,6 +27,8 @@ on:
       - integrations/gemini_slack/**
       - integrations/claude_headless/**
       - host/toolbench.py
+      - host/titan_hands_windows/**
+      - .github/scripts/titan_hands_git_terminal_audit.py
       - toolbench/**
       - test_commons_transport_outcomes.py
       - test_claude_client_transport_outcomes.py
@@ -44,18 +48,40 @@ jobs:
     name: Prepare exact transport regression sources
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           persist-credentials: false
+          fetch-depth: 2
           sparse-checkout: |
             integrations
             host
             toolbench
             .github/workflows
+            .github/scripts
           sparse-checkout-cone-mode: true
       - name: Check transport workflow trigger coverage
         run: python -m unittest -v test_commons_transport_workflow
+      - name: Verify exact clean source checkout
+        shell: bash
+        run: |
+          set -eu
+          git diff --check HEAD^
+          test -z "$(git status --porcelain=v1 --untracked-files=all)"
+          printf 'Tested source HEAD: %s\n' "$(git rev-parse HEAD)"
+      - name: Audit landed main
+        if: github.event_name != 'pull_request'
+        shell: bash
+        run: |
+          set -eu
+          git fetch --no-tags origin main
+          python -B .github/scripts/titan_hands_git_terminal_audit.py \
+            --expected-commit "$GITHUB_SHA" \
+            --required-path host/titan_hands_windows/backend.ps1 \
+            --required-path host/titan_hands_windows/tests/test_snapshot_identity.py \
+            --required-path host/titan_hands_windows/tests/snapshot_identity_fixture.ps1
       - name: Archive the selected committed test sources
         shell: python
         run: |
@@ -128,6 +154,7 @@ jobs:
         os: [ubuntu-latest, windows-latest]
     env:
       PYTHONUTF8: "1"
+      PYTHONDONTWRITEBYTECODE: "1"
       PIP_DISABLE_PIP_VERSION_CHECK: "1"
     steps:
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
@@ -187,3 +214,6 @@ jobs:
           test_client
           test_claude_headless
           integrations.shared_equipment.test_equipment
+      - name: Windows snapshot identity and traversal regressions
+        if: runner.os == 'Windows'
+        run: python -B -m unittest discover -s host/titan_hands_windows/tests -v
