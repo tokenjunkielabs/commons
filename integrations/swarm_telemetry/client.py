@@ -23,7 +23,10 @@ class Observer:
         self.failed=0
         Thread(target=self._deliver,daemon=True,name="optional-telemetry-observer").start()
     def emit(self,event):
-        try: self.queue.put_nowait(event); return True
+        # Capture once before the caller can reuse mutable event fields.
+        try: captured=json.dumps(event)
+        except Exception: self.failed+=1; return False
+        try: self.queue.put_nowait(captured); return True
         except Full: self.dropped+=1; return False
     def _deliver(self):
         while True:
@@ -33,17 +36,10 @@ class Observer:
             while len(events)<self.batch_size:
                 try: events.append(self.queue.get_nowait())
                 except Empty: break
-            serialized=[]
-            for event in events:
-                try: serialized.append(json.dumps(event))
-                except Exception:
-                    self.failed+=1
-                    self.queue.task_done()
-            if not serialized: continue
             try:
-                body='{"events":['+','.join(serialized)+']}'
+                body='{"events":['+','.join(events)+']}'
                 req=urllib.request.Request(self.base_url+"/api/telemetry/observe",data=body.encode(),headers={"Content-Type":"application/json"})
                 with urllib.request.urlopen(req,timeout=2) as response: response.read(1024)
-            except Exception: self.failed+=len(serialized)
+            except Exception: self.failed+=len(events)
             finally:
-                for _ in serialized: self.queue.task_done()
+                for _ in events: self.queue.task_done()
