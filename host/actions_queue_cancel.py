@@ -44,6 +44,10 @@ selection always uses the repository-relative YAML path, never a display name.
 Selecting alone does not make a run stale. Retired-workflow mode proves that
 the file is absent from the current default branch; closed-PR mode requires an
 exact same-repository PR head/branch match and preserves open-PR heads/branches.
+`--require-closed-pr` can additionally require an exact closed PR for a retired
+workflow. It resolves commit associations and preserves ambiguous associations,
+open PR heads/branches and non-PR events. This mode bounds candidate rechecks as
+well as cancellation POSTs, including during execution.
 Explicit run IDs avoid a repository-wide queue scan. Otherwise ``--cap`` still
 bounds the observed queue and the receipt reports incomplete coverage.
 """
@@ -102,7 +106,8 @@ def _matches_selection(run: dict[str, Any], run_ids: set[int], workflows: set[st
 
 
 def _target_context(github: GitHub, repo: str, *, closed_pr: int | None,
-                    retired_workflow: str | None) -> dict[str, Any]:
+                    retired_workflow: str | None, require_closed_pr: bool = False,
+                    run: dict[str, Any] | None = None) -> dict[str, Any]:
     if retired_workflow:
         metadata = github.get(f"/repos/{repo}")
         default = metadata.get("default_branch") if isinstance(metadata, dict) else None
@@ -114,7 +119,27 @@ def _target_context(github: GitHub, repo: str, *, closed_pr: int | None,
         except GitHubError as exc:
             if exc.status != 404:
                 raise
-            return {"kind": "retired", "path": retired_workflow, "retired": True}
+            context: dict[str, Any] = {"kind": "retired", "path": retired_workflow, "retired": True}
+            if require_closed_pr and run is not None:
+                # pull_request_target records can have an empty pull_requests
+                # list. Commit associations still identify the exact PR head.
+                associated = github.paged(f"/repos/{repo}/commits/{_head_sha(run)}/pulls")
+                matches = []
+                for pr in associated:
+                    head = pr.get("head") or {}
+                    if (type(pr.get("number")) is int
+                            and head.get("sha") == _head_sha(run)
+                            and head.get("ref") == run.get("head_branch")
+                            and (head.get("repo") or {}).get("full_name") == repo):
+                        matches.append(pr["number"])
+                context["closed_pr_context"] = None
+                if len(set(matches)) == 1:
+                    closed_context = _target_context(
+                        github, repo, closed_pr=matches[0], retired_workflow=None,
+                    )
+                    closed_context["allow_pull_request_target"] = True
+                    context["closed_pr_context"] = closed_context
+            return context
         return {"kind": "retired", "path": retired_workflow, "retired": False}
 
     pr = github.get(f"/repos/{repo}/pulls/{closed_pr}")
@@ -152,6 +177,13 @@ def _classify_target(run: dict[str, Any], context: dict[str, Any], repo: str) ->
     if context["kind"] == "retired":
         if run.get("path") != context["path"] or not context["retired"]:
             return result("KEEP_WORKFLOW_PRESENT", "selected workflow is not proven absent on default branch")
+        if "closed_pr_context" in context:
+            closed_context = context["closed_pr_context"]
+            if closed_context is None:
+                return result("UNKNOWN_KEEP", "commit associations do not identify one exact pull request")
+            closed_state = _classify_target(run, closed_context, repo)
+            if not closed_state.get("cancel_candidate"):
+                return closed_state
         return result("RETIRED_WORKFLOW_CANDIDATE", "exact workflow file is absent on current default branch", True)
 
     pr = context["pr"]
@@ -162,7 +194,8 @@ def _classify_target(run: dict[str, Any], context: dict[str, Any], repo: str) ->
             or (repo, run.get("head_branch")) in context["open_branches"]):
         return result("LIVE_PR_HEAD_KEEP", "run is still associated with an open pull request")
     head = pr.get("head") or {}
-    if (run.get("event") != "pull_request" or head.get("sha") != sha
+    events = {"pull_request", "pull_request_target"} if context.get("allow_pull_request_target") else {"pull_request"}
+    if (run.get("event") not in events or head.get("sha") != sha
             or head.get("ref") != run.get("head_branch")
             or (head.get("repo") or {}).get("full_name") != repo):
         return result("UNKNOWN_KEEP", "run does not match the named closed PR's exact repository, branch and head")
@@ -269,6 +302,7 @@ def drain_stale_runs(
     workflows: Sequence[str] = (),
     closed_pr: int | None = None,
     retired_workflow: str | None = None,
+    require_closed_pr: bool = False,
 ) -> dict[str, Any]:
     """Return a deterministic cancellation receipt; mutate only when execute=True."""
     if cap <= 0:
@@ -294,14 +328,19 @@ def drain_stale_runs(
         selected_workflows = {retired_workflow}
     if closed_pr is not None and not (selected_ids or selected_workflows):
         raise ValueError("--closed-pr requires --run-id or --workflow to select the checks")
+    if require_closed_pr and retired_workflow is None:
+        raise ValueError("--require-closed-pr requires --retired-workflow")
     target_mode = closed_pr is not None or retired_workflow is not None
     selection_active = bool(selected_ids or selected_workflows or target_mode)
     candidate_classes = TARGET_CANDIDATE_CLASSES if target_mode else CANDIDATE_CLASSES
     classifier = _classify_target if target_mode else classify_run
 
-    def refresh():
+    def refresh(run=None):
         if target_mode:
-            return _target_context(github, repo, closed_pr=closed_pr, retired_workflow=retired_workflow)
+            return _target_context(
+                github, repo, closed_pr=closed_pr, retired_workflow=retired_workflow,
+                require_closed_pr=require_closed_pr, run=run,
+            )
         return _fresh_snapshot(github, repo)
     now = now or dt.datetime.now(dt.timezone.utc)
     if now.tzinfo is None:
@@ -360,7 +399,7 @@ def drain_stale_runs(
             )
             continue
 
-        if posts_attempted >= max_cancels or (not execute and candidates_rechecked >= max_cancels):
+        if posts_attempted >= max_cancels or ((not execute or require_closed_pr) and candidates_rechecked >= max_cancels):
             results.append({**base, "outcome": "KEEP_BATCH_LIMIT"})
             continue
 
@@ -388,7 +427,7 @@ def drain_stale_runs(
             if not _matches_selection(live, selected_ids, selected_workflows):
                 results.append({**base, "outcome": "KEEP_OUTSIDE_SELECTION"})
                 continue
-            live_snapshot = refresh()
+            live_snapshot = refresh(live)
             live_class = classifier(live, live_snapshot, repo)
             live_label = live_class.get("classification")
             if not (
@@ -408,7 +447,7 @@ def drain_stale_runs(
             # before the final run read. This narrows a reopened-PR / moved-ref
             # race without making the inventory the final read and thereby
             # widening the window in which a queued run could start executing.
-            final_snapshot = refresh()
+            final_snapshot = refresh(live)
             final_class = classifier(live, final_snapshot, repo)
             final_label = final_class.get("classification")
             if not (
@@ -534,6 +573,7 @@ def drain_stale_runs(
             "workflows": sorted(selected_workflows),
             "closed_pr": closed_pr,
             "retired_workflow": retired_workflow,
+            "require_closed_pr": require_closed_pr,
             "inventory_scope": "explicit_run_ids" if selected_ids else "bounded_queued_runs",
             "observed_runs": len(runs),
             "observed_runs_in_scope": len(selected),
@@ -542,7 +582,7 @@ def drain_stale_runs(
             "initial_states": initial_states,
         }
         if target_mode:
-            receipt["safety"]["requires_final_inventory_reread"] = closed_pr is not None
+            receipt["safety"]["requires_final_inventory_reread"] = closed_pr is not None or require_closed_pr
             receipt["safety"]["requires_final_target_reread"] = True
     if rate_limit is not None:
         receipt.update(stop_reason="RATE_LIMITED", rate_limit=rate_limit)
@@ -587,6 +627,8 @@ def main(argv: list[str] | None = None) -> int:
                         help="require this PR to be closed; also name --run-id or --workflow")
     target.add_argument("--retired-workflow",
                         help="select one workflow path and require its file to be absent on current default branch")
+    parser.add_argument("--require-closed-pr", action="store_true",
+                        help="also require one exact closed PR for the retired workflow; preserve ambiguous associations")
     args = parser.parse_args(argv)
 
     if args.cap <= 0:
@@ -613,6 +655,7 @@ def main(argv: list[str] | None = None) -> int:
             workflows=args.workflow,
             closed_pr=args.closed_pr,
             retired_workflow=args.retired_workflow,
+            require_closed_pr=args.require_closed_pr,
         )
         _write_receipt(receipt, args.out)
     except (GitHubError, OSError, ValueError) as exc:
