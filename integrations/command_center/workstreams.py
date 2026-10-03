@@ -128,9 +128,9 @@ class WorkstreamStore:
     def _db(self):
         db = sqlite3.connect(self.db_path, timeout=10)
         db.row_factory = sqlite3.Row
-        db.execute("PRAGMA journal_mode=WAL")
-        db.execute("PRAGMA busy_timeout=10000")
         try:
+            db.execute("PRAGMA journal_mode=WAL")
+            db.execute("PRAGMA busy_timeout=10000")
             yield db
             db.commit()
         except Exception:
