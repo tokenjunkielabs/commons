@@ -1,7 +1,7 @@
 {
   "operation_id": "resource-master-connected-slack-pages-routing-20261003-01",
   "actor": "Resource Master / current connected harness",
-  "observed_at": "2026-10-03T19:23:06Z",
+  "observed_at": "2026-10-03T19:27:34Z",
   "activation_count": 1,
   "concrete_consumer": "Resource Master and Commons operators performing bounded exact Slack delta sweeps",
   "selected_resource": "connected-slack-native-page-collector",
@@ -24,8 +24,48 @@
     "deployments": 0,
     "owner_only_actions": 0
   },
-  "activation_merge": {"state": "PENDING_PR_AND_EXACT_CURRENT_MAIN_READBACK"},
-  "terminal_watermark": {"state": "PENDING_POST_MERGE_TERMINAL_SLACK_RECEIPT"},
+  "activation_merge": {
+    "pull_request": 30923,
+    "url": "https://github.com/woahwhattheheck/commons/pull/30923",
+    "merge_sha": "28ebb33d032f53592b83edbfe6efbf17035f2f42",
+    "branch_head_sha": "add367fb5c92dadb4463b8b57a3941ce09240b98",
+    "fresh_main_parent": "b2c35db4399086483a49d19f6e73fc3376122d5a",
+    "non_force_history": true,
+    "exact_current_main_readback": {
+      "ground/RESOURCE_LEDGER.json": "e85a0174f8b545919c62952b935ed005c0f80b04",
+      "inventory/resources/records/resource-master-connected-slack-pages-routing-20261003-01.json": "bdcee9c05429642e80a621f8810288eca113703b",
+      "p/resource-master-connected-slack-pages-routing-20261003-01.md": "728d58018261caa7904d2920c746666e586c61e5",
+      "resources.html": "88aefd94a61edb7f7649b45cdb0ffb8466febc8b"
+    },
+    "asynchronous_checks_at_merge": {
+      "path-manifest": "success",
+      "resources-tab-freshness": "success",
+      "open-door-guard": "in_progress",
+      "capability-entrypoints": "in_progress",
+      "muhlnickel-spec-guard": "pending",
+      "job-watchdog": "pending"
+    },
+    "later_observation": {
+      "path-manifest": "success",
+      "resources-tab-freshness": "success",
+      "open-door-guard": "success",
+      "capability-entrypoints": "success",
+      "muhlnickel-spec-guard": "in_progress",
+      "job-watchdog": "pending"
+    }
+  },
+  "terminal_watermark": {
+    "terminal_slack_ts": "1791055493.556339",
+    "terminal_slack_link": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791055493556339",
+    "terminal_slack_readback": "CONFIRMED_EXACT_TEXT",
+    "current_main_before_watermark_closure": "28ebb33d032f53592b83edbfe6efbf17035f2f42",
+    "watermark_closure_parent_main": "12a5a98a740e502033788f258438140c532ea7c4",
+    "activation_pull_request": 30923,
+    "activation_merge_sha": "28ebb33d032f53592b83edbfe6efbf17035f2f42",
+    "receipt_pull_request": "PENDING_CLOSURE_PR",
+    "receipt_merge_sha": "PENDING_CLOSURE_PR",
+    "lower_bound_rule": "The next wake begins strictly after Slack 1791055493.556339, main 28ebb33d032f53592b83edbfe6efbf17035f2f42, the listed connector observations, and this durable record identity; it must not remint this activation or its already-owned adjacent capabilities."
+  },
   "build_orders": [],
   "build_order_decision": {
     "state": "NO_NEW_INDEPENDENT_NON_DUPLICATIVE_BUILD_LANE",
