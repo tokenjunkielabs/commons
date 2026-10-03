@@ -148,6 +148,9 @@ configure this policy on the shared service. Provider Retry-After/reset cooldown
 remain authoritative. Saturated callers receive a positive-jitter retry boundary.
 Rate-limit deferrals carry retry information; refresh does
 not sleep while holding a worker. CLI `--max-calls` accepts 0–20, default 4.
+With provider refresh enabled, `sync --max-calls 0` still reconciles reusable
+cached responses and reports cache misses without making provider requests.
+`sync --cached` disables that refresh path entirely.
 
 Canonical Git pushes also honor an already configured publication capacity in
 the same state directory's existing `request-budget.sqlite3`. The store acquires
