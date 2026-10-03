@@ -88,7 +88,7 @@ class Handler(BaseHTTPRequestHandler):
         try:
             if path in {"/health","/api/telemetry/health"}:
                 runner=self.server.runner
-                self.send(200,{"ok":True,"service":"commons-swarm-telemetry","version":"1.0.0","mode":"passive","jev_required":False,"runtime":self.server.store.state("collector"),"storage":self.server.store.state("storage_guard"),"readers":{kind:self.server.store.state("source_reader_health:"+kind) for kind in ("slack","github","services")},"collector_threads":[{"name":worker.name,"alive":worker.is_alive()} for worker in ([runner.thread]+runner.provider_threads) if worker] if runner else [],"collector_errors":dict(runner.errors) if runner else {}})
+                self.send(200,{"ok":True,"service":"commons-swarm-telemetry","version":"1.0.0","mode":"passive","jev_required":False,"runtime":self.server.store.state("collector"),"storage":self.server.store.state("storage_guard"),"readers":{kind:self.server.store.state("source_reader_health:"+kind) for kind in ("slack","github","services")},"collector_progress":dict(runner.last_provider) if runner else {},"collector_threads":[{"name":worker.name,"alive":worker.is_alive()} for worker in ([runner.thread]+runner.provider_threads) if worker] if runner else [],"collector_errors":dict(runner.errors) if runner else {}})
             elif path=="/api/telemetry/tools": self.send(200,{"ok":True,"tools":TOOLS,"access":"shared open discovery"})
             elif path=="/v1/tools": self.send(200,{"ok":True,"tools":TOOLS})
             elif path=="/api/telemetry/source-record":
