@@ -142,7 +142,8 @@ class RangeReader:
     """HTTP Range reader with a content-addressed local chunk cache."""
 
     def __init__(self, url: str, cache_dir: Path, *, limit: int = DEFAULT_LIMIT_BYTES,
-                 use_cache: bool = True, stats: dict | None = None):
+                 use_cache: bool = True, stats: dict | None = None,
+                 checkpoint_every: int = 1):
         parsed = urllib.parse.urlsplit(url)
         if parsed.username or parsed.password or not parsed.hostname:
             raise WbRangeError("remote URL must not contain credentials and must have a host")
@@ -156,6 +157,10 @@ class RangeReader:
         self.cache_dir = Path(cache_dir)
         self.limit = int(limit)
         self.use_cache = use_cache
+        self.checkpoint_every = int(checkpoint_every)
+        if self.checkpoint_every < 1:
+            raise WbRangeError("manifest checkpoint interval must be positive")
+        self._pending_manifest_ranges = 0
         self.stats = stats if stats is not None else {}
         for key, value in _range_counters().items():
             self.stats.setdefault(key, value)
@@ -174,7 +179,7 @@ class RangeReader:
         return {"schema_version": SCHEMA_VERSION, "entries": {}}
 
     def _save_manifest(self) -> None:
-        # This manifest is rewritten after each fetched range; keep encoding compact.
+        # Each checkpoint encodes the complete manifest; keep encoding compact.
         encoded = json.dumps(self.manifest, ensure_ascii=False,
                              separators=(",", ":"), sort_keys=True) + "\n"
         # Finish an owned sibling file before replacing the last usable manifest.
@@ -192,6 +197,12 @@ class RangeReader:
         finally:
             if temporary_path is not None:
                 temporary_path.unlink(missing_ok=True)
+
+    def flush_manifest(self) -> None:
+        """Persist fetched ranges that have not reached their checkpoint yet."""
+        if self._pending_manifest_ranges:
+            self._save_manifest()
+            self._pending_manifest_ranges = 0
 
     def _cache_key(self, offset: int, length: int) -> str:
         return hashlib.sha1(
@@ -230,7 +241,9 @@ class RangeReader:
             "transport_contract": RANGE_CONTRACT_VERSION,
             "fetched_utc": _utc_now(),
         }
-        self._save_manifest()
+        self._pending_manifest_ranges += 1
+        if self._pending_manifest_ranges >= self.checkpoint_every:
+            self.flush_manifest()
         return data
 
     def _strict_range(self, offset: int, length: int, *, timeout: int) -> tuple[bytes, int | None]:
@@ -550,11 +563,21 @@ def build_index(repo_or_url: str, cache_dir: Path, *, revision: str = "main",
     for file_entry in files:
         if pattern and not pattern.search(file_entry["name"]):
             continue
-        reader = RangeReader(file_entry["url"], cache_dir, limit=limit, stats=stats)
-        if file_entry["name"].endswith(".safetensors"):
-            parsed = parse_safetensors_index(reader, file_entry["name"])
-        else:
-            parsed = parse_gguf_index(reader, file_entry["name"])
+        reader = RangeReader(file_entry["url"], cache_dir, limit=limit, stats=stats,
+                             checkpoint_every=64)
+        try:
+            if file_entry["name"].endswith(".safetensors"):
+                parsed = parse_safetensors_index(reader, file_entry["name"])
+            else:
+                parsed = parse_gguf_index(reader, file_entry["name"])
+        except BaseException:
+            try:
+                reader.flush_manifest()
+            except Exception:
+                # Keep the parser/transport error if cache publication also fails.
+                pass
+            raise
+        reader.flush_manifest()
         parsed["url"] = file_entry["url"]
         parsed["declared_size"] = file_entry.get("size")
         total_tensor_bytes += sum(t["bytes"] or 0 for t in parsed["tensors"].values())
