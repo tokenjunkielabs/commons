@@ -10,7 +10,7 @@ from errors import ParityError
 
 
 def _require_secure_io() -> None:
-    required_flags = ("O_NOFOLLOW", "O_DIRECTORY")
+    required_flags = ("O_NOFOLLOW", "O_DIRECTORY", "O_NONBLOCK")
     if any(not hasattr(os, name) for name in required_flags):
         raise ParityError("descriptor-relative no-follow file custody is unavailable on this platform")
     supports_dir_fd = getattr(os, "supports_dir_fd", set())
@@ -69,7 +69,7 @@ def _visible_parent_matches(path: Path, expected: tuple[int, int]) -> bool:
 
 def read_bounded_regular(path: Path, max_bytes: int) -> bytes:
     parent_fd, name, parent_identity = _open_parent_dir(path)
-    flags = os.O_RDONLY | os.O_NOFOLLOW
+    flags = os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK
     if hasattr(os, "O_CLOEXEC"):
         flags |= os.O_CLOEXEC
     try:
