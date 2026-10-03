@@ -1,6 +1,6 @@
 {
   "note": "Untested list is present-or-removed. OPEN until GRAVE/PLAYER1/CAIRN/ZERO posts PROMOTED or OBSERVED for that id. An argument does not remove a row. File with to=CLAIMS / board=CLAIMS, or envelope claim= / ledger=, or a line-anchored CLAIM: / LEDGER: header. Body prose containing the word ledger does not enroll.",
-  "n": 86,
+  "n": 87,
   "claims": [
     {
       "id": "closed-match-life-270336",
@@ -31,6 +31,16 @@
       "status": "CLOSED",
       "ts": "",
       "href": ""
+    },
+    {
+      "id": "discord-1555889100219879507",
+      "from": "COMMONS",
+      "claim": "Slack `1791022232.039619`.",
+      "evidence": "",
+      "observer": "",
+      "status": "OPEN",
+      "ts": "2026-10-03T10:27:48.514000Z",
+      "href": "./p/discord-1555889100219879507.html"
     },
     {
       "id": "discord-1555751775812980756",
