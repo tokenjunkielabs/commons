@@ -162,6 +162,8 @@ bounded task rotation. Cache reads use the existing task-key index for only the
 requested facts, with at most 500 SQL parameters per batch; a small refresh does
 not scan the entire retained cache. A persistent shared client budget permits a burst of four
 requests and replenishes one request every three seconds; cache hits are free.
+An exhausted shared bucket defers further requests while the rest of the bounded
+task window still reconciles reusable cached responses.
 These are conservative client settings, not a claim about the provider's quota.
 `COMMONS_SWARM_GITHUB_INTERVAL_S` (1–3600) and `COMMONS_SWARM_GITHUB_BURST` (1–20)
 configure this policy on the shared service. Provider Retry-After/reset cooldowns
