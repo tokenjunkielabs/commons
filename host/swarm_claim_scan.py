@@ -149,6 +149,15 @@ def _rendered(page, fallback_channel, source):
             'repeat the thread read with response_format="detailed" '
             'and retain the returned JSON response')
     matches = list(HEADER.finditer(text))
+    declared = re.search(r"^=== THREAD REPLIES \(([0-9]+) total\) ===\s*$", text, re.M)
+    if declared:
+        reply_count = sum(heading[0].startswith("--- Reply ") for heading in matches)
+        if int(declared[1]) != reply_count:
+            raise ScanError(
+                f"{source}: rendered Slack thread page declares {declared[1]} replies "
+                f"but contains {reply_count}; retain this source response and repeat "
+                'the same thread/cursor/time window with a smaller limit and '
+                'response_format="detailed"')
     rows = []
     prefix = text[:matches[0].start()] if matches else text
     channel_match = CHANNEL.search(prefix)

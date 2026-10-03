@@ -27,6 +27,14 @@ The reader accepts raw Slack `messages` pages and the native connector's
 Several source files can be passed together; `-` reads one response from stdin.
 The response size limit is 64 MiB per input. No third-party package is required.
 
+For detailed native thread pages, the declared reply count must match the
+rendered reply blocks. A contradictory page exits 2 before interpreting its
+messages, even when pagination says there are no more messages. Keep the source
+response and repeat the same thread, cursor and time window with a smaller
+`limit` and `response_format="detailed"`; retain the new JSON for the next scan.
+The scanner performs no retry itself. A consistent page keeps its reported
+pagination, and still cannot establish complete provider history.
+
 ## Select a path or operation
 
 Add `--path host/wb_range.py` or `--operation OPERATION_ID` to focus the same
