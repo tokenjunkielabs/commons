@@ -95,6 +95,16 @@ def event_id_for(fields: dict[str, Any]) -> str:
     return digest
 
 
+def _malformed_event_id(raw: Any) -> str:
+    """Keep distinct malformed JSON visible after normalization loses fields."""
+    try:
+        identity = canonical_json({"malformed_raw": raw})
+    except (TypeError, ValueError, RecursionError):
+        # Non-JSON direct callers remain accepted by the shape-tolerant parser.
+        identity = canonical_json({"malformed_raw_type": type(raw).__name__})
+    return hashlib.sha256(identity.encode("utf-8", "surrogatepass")).hexdigest()[:32]
+
+
 def classify_runtime(value: Any, harness: str = "", tools: list[str] | None = None) -> str:
     supplied = _text(value, maximum=32).upper()
     if supplied in CLASSIFICATIONS:
@@ -118,7 +128,7 @@ def parse_event(raw: Any) -> dict[str, Any]:
             "protocol": PROTOCOL_ID,
             "protocol_version": PROTOCOL_VERSION,
             "kind": UNKNOWN,
-            "event_id": event_id_for({"kind": UNKNOWN, "ts": "", "session_id": ""}),
+            "event_id": _malformed_event_id(raw),
             "parse_state": "MALFORMED",
             "session_id": UNKNOWN,
             "task_id": UNKNOWN,
@@ -237,6 +247,10 @@ def parse_event(raw: Any) -> dict[str, Any]:
         # Keep the label; do not mint a replacement identity.
         event["fields_inferred"].append("session_id_noncanonical")
     event["event_id"] = event_id_for({**event, "event_id": raw.get("event_id")})
+    malformed = (kind == UNKNOWN or not isinstance(raw.get("kind"), str)
+                 or ("ts" in raw and event["ts"] == UNKNOWN) or bool(artifact_errors))
+    if malformed and not _ID.fullmatch(_text(raw.get("event_id"), maximum=80)):
+        event["event_id"] = _malformed_event_id(raw)
     if kind == UNKNOWN:
         event["evidence"].append({"source": "event", "grade": "UNKNOWN", "detail": "kind missing or not in v0.1 set"})
     else:
