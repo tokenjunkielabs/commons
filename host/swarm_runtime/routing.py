@@ -249,8 +249,9 @@ def _capability_failure(seat, capability, repo=None):
     return None
 
 
-def _compatible(task, seat, required):
-    groups = _capabilities(seat)
+def _compatible(task, seat, required, *, groups=None):
+    if groups is None:
+        groups = _capabilities(seat)
     needs = _requirements(task.get("required_capabilities", task.get("required")))
     needs += _requirements(required)
     missing = []
@@ -299,6 +300,8 @@ def route(tasks: dict, worker: str, seats: dict, now: str, required=None):
     if held:
         result.update(reason="worker_active", active=held[:LIMIT])
         return result
+    # Capabilities are unchanged across candidates in this routing decision.
+    groups = _capabilities(seat)
     candidates = []
     for key, task in rows.items():
         recovery = _recoverable(task, census, now)
@@ -309,7 +312,7 @@ def route(tasks: dict, worker: str, seats: dict, now: str, required=None):
                 "task_key": key, "reason": "provider_reconciliation_needed",
                 "next_action": task.get("reconciliation_needed", UNKNOWN)})
             continue
-        missing = _compatible(task, seat, required)
+        missing = _compatible(task, seat, required, groups=groups)
         if missing:
             result["exclusions"].append({"task_key": key,
                                          "reason": missing[0]["reason"],
