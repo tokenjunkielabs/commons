@@ -198,6 +198,27 @@ try {
 }
 ```
 
+Sequential native tool refusals add a bounded `tool_error` object to the thrown error and
+failure progress, with the action, a stable error code, an HTTP status when the
+native structured response supplies one, and its connector error code when
+available. The message is generated locally; raw provider bodies are not copied
+into progress. Failed parallel readback rows retain their own `tool_error`
+objects so their provider facts stay attached to the affected file.
+
+The exported `inspectToolError(action, nativeResponse)` returns the same metadata
+for an already-retained native tool error, or `null` for a non-error response. It
+performs no provider call. Current specific codes are `base_branch_modified`
+for GitHub's explicit HTTP 405 base-move refusal and `transport_closed` for the
+native transport failure; other reported errors remain `native_tool_error`.
+These describe observations, not retry permission or account-wide capability.
+
+For `base_branch_modified`, read the named PR and current base first. If the PR
+has already merged, continue its readback. Otherwise, confirm its retained head
+and reconcile the affected file versions before continuing that same intended
+merge with `expected_head_sha`. Keep the existing branch and PR; do not restart
+the publication sequence. The helper never performs this continuation or any
+automatic error retry.
+
 **Do not blindly rerun a failed publication.** A timeout can occur after a
 provider accepts a write. Reconcile the named branch, PR, or merge before
 continuing with the existing native tools. For example, a readback failure after
