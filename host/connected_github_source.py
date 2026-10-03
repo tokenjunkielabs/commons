@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import base64
 import binascii
+import errno
 import hashlib
 import json
 import os
@@ -19,6 +20,32 @@ class SourceImportError(ValueError):
     def __init__(self, code: str, detail: str, path: str | None = None):
         self.code, self.detail, self.path = code, detail, path
         super().__init__(detail)
+
+
+class SourceImportIOError(OSError):
+    """Keep source context without exposing a raw operating-system exception."""
+
+    def __init__(self, cause: OSError, *, operation: str, path: str | None,
+                 completed_files: list[dict]):
+        super().__init__(cause.errno, cause.strerror)
+        self.cause_type = type(cause).__name__
+        self.operation = operation
+        self.source_path = path
+        self.completed_files = list(completed_files)
+
+
+def _io_error_result(exc: OSError, *, operation: str, path: str | None,
+                     completed_files: list[dict]) -> dict:
+    # errno-derived text is safe to return; str(exc) may contain private paths.
+    reason = os.strerror(exc.errno) if exc.errno is not None else "Operating-system I/O failure"
+    result = {"ok": False, "error": "SOURCE_IMPORT_IO", "errno": exc.errno,
+              "errno_name": errno.errorcode.get(exc.errno),
+              "error_type": getattr(exc, "cause_type", type(exc).__name__),
+              "operation": operation, "completed_files": completed_files,
+              "detail": reason + ": import did not complete; rerun the same export after recovery."}
+    if path is not None:
+        result["path"] = path
+    return result
 
 
 def blob_sha(data: bytes) -> str:
@@ -143,33 +170,58 @@ def materialize(manifest: object, output_directory: str | Path) -> dict:
     for name in files:
         if any(str(parent) in files for parent in PurePosixPath(name).parents if str(parent) != "."):
             raise SourceImportError("SOURCE_PATH_CONFLICT", "A source file is also another file's parent directory.", name)
-    root = Path(output_directory).expanduser().resolve()
-    if root.exists() and not root.is_dir():
-        raise SourceImportError("DESTINATION_CONFLICT", "Output must be a directory.")
-    for item in files.values():
-        _destination(root, item)
+    source_path = None
+    try:
+        root = Path(output_directory).expanduser().resolve()
+        if root.exists() and not root.is_dir():
+            raise SourceImportError("DESTINATION_CONFLICT", "Output must be a directory.")
+        for item in files.values():
+            source_path = item["path"]
+            _destination(root, item)
+    except OSError as exc:
+        raise SourceImportIOError(exc, operation="inspect_destination", path=source_path,
+                                  completed_files=[]) from exc
     results = []
     for item in files.values():
-        destination = _destination(root, item)
-        outcome = "unchanged"
-        if not destination.exists():
-            destination.parent.mkdir(parents=True, exist_ok=True)
-            _destination(root, item)
-            descriptor, staging = tempfile.mkstemp(prefix=".github-source-", dir=destination.parent)
-            try:
-                with os.fdopen(descriptor, "wb") as stream:
-                    stream.write(item["data"])
-                    stream.flush()
-                    os.fsync(stream.fileno())
-                    os.fchmod(stream.fileno(), int((item["mode"] or "100644")[-3:], 8))
+        operation = "inspect_destination"
+        try:
+            destination = _destination(root, item)
+            outcome = "unchanged"
+            if not destination.exists():
+                operation = "create_parent"
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                operation = "inspect_destination"
+                _destination(root, item)
+                operation = "create_staging"
+                descriptor, staging = tempfile.mkstemp(prefix=".github-source-", dir=destination.parent)
                 try:
-                    # Atomic create-only publication preserves a concurrent edit.
-                    os.link(staging, destination)
-                    outcome = "written"
-                except FileExistsError:
-                    _destination(root, item)
-            finally:
-                Path(staging).unlink(missing_ok=True)
+                    operation = "write_staging"
+                    with os.fdopen(descriptor, "wb") as stream:
+                        stream.write(item["data"])
+                        stream.flush()
+                        operation = "sync_staging"
+                        os.fsync(stream.fileno())
+                        operation = "set_mode"
+                        os.fchmod(stream.fileno(), int((item["mode"] or "100644")[-3:], 8))
+                        operation = "close_staging"
+                    operation = "publish_file"
+                    try:
+                        # Atomic create-only publication preserves a concurrent edit.
+                        os.link(staging, destination)
+                        outcome = "written"
+                    except FileExistsError:
+                        operation = "inspect_destination"
+                        _destination(root, item)
+                finally:
+                    # Preserve the failed operation label when cleanup succeeds.
+                    try:
+                        Path(staging).unlink(missing_ok=True)
+                    except OSError:
+                        operation = "remove_staging"
+                        raise
+        except OSError as exc:
+            raise SourceImportIOError(exc, operation=operation, path=item["path"],
+                                      completed_files=results) from exc
         result = {"path": item["path"], "blob_sha": item["blob_sha"],
                   "bytes": len(item["data"]), "state": outcome}
         if item["mode"] is not None:
@@ -195,8 +247,14 @@ def main(argv: list[str] | None = None) -> int:
         result = {"ok": False, "error": exc.code, "detail": exc.detail}
         if exc.path is not None:
             result["path"] = exc.path
-    except (OSError, UnicodeError, ValueError, RecursionError) as exc:
-        result = {"ok": False, "error": "SOURCE_IMPORT_IO" if isinstance(exc, OSError) else "SOURCE_IMPORT_JSON",
+    except SourceImportIOError as exc:
+        result = _io_error_result(exc, operation=exc.operation, path=exc.source_path,
+                                  completed_files=exc.completed_files)
+    except OSError as exc:
+        result = _io_error_result(exc, operation="read_manifest", path=args.manifest,
+                                  completed_files=[])
+    except (UnicodeError, ValueError, RecursionError) as exc:
+        result = {"ok": False, "error": "SOURCE_IMPORT_JSON",
                   "detail": type(exc).__name__ + ": import did not complete; existing files were preserved."}
     print(json.dumps(result, ensure_ascii=True, sort_keys=True))
     return 0 if result["ok"] else 1
