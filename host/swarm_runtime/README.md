@@ -152,6 +152,13 @@ of repeating event bodies; `UNKNOWN` placeholders are omitted. Immediate
 and retried operations still return full current context. Context without backing
 journal events remains inline, and structured no-assignment results stay intact.
 
+Treat event IDs as opaque references. New operation events use
+`swarm-operation-v2:` followed by the full SHA-256 of the exact operation ID's
+UTF-8 bytes and the event's role suffix. This keeps caller IDs containing colons
+distinct from implicit OPEN, recovery and next-task events. Existing journal
+IDs and stored operation receipts remain unchanged; retries keep the original
+operation identity and do not emit replacement events.
+
 ## Rate limits and deployment
 
 Use one shared `--url` deployment for the fleet. The command-center adapter uses

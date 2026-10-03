@@ -353,6 +353,7 @@ class Runtime:
                     raise ValueError("heartbeat needs task_key unless worker owns exactly one ACTIVE task")
                 selected_key = active[0]
 
+            event_prefix = "swarm-operation-v2:" + hashlib.sha256(operation_id.encode("utf-8")).hexdigest()
             emitted_ids = set()
 
             def emit(verb, target, suffix="", **extra):
@@ -360,7 +361,7 @@ class Runtime:
                            "merge_sha", "blocker", "next_action", "required_capabilities",
                            "priority", "source_event_ids", "exact_error", "model", "harness", "title")
                 event = {field: payload[field] for field in allowed if field in payload}
-                event.update(id="swarm:" + operation_id + suffix, action=verb, task_key=target,
+                event.update(id=event_prefix + suffix, action=verb, task_key=target,
                              worker=worker or "UNKNOWN", at=moment, source="swarmctl",
                              feed_cursor=payload.get("feed_cursor") or state.get("workers", {}).get(worker, {}).get("feed_cursor", "UNKNOWN"))
                 event.update(extra)
@@ -408,7 +409,7 @@ class Runtime:
                 elif _time(row.get("started_at")) != expected_started:
                     reason = "claim_generation_changed"
                 if reason:
-                    release_rejected.append({"id": "swarm:" + operation_id,
+                    release_rejected.append({"id": event_prefix,
                                              "task_key": selected_key, "reason": reason,
                                              "state": row.get("state") if row else None})
                 else:
