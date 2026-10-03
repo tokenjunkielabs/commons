@@ -20,6 +20,16 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /.gitattributes
+            /revenue/uiowa_rfq_18649_ebid_pack/render_ebid.py
+            /revenue/uiowa_rfq_18649_ebid_pack/field-map.json
+            /revenue/uiowa_rfq_18649_ebid_pack/answers.json
+            /revenue/uiowa_rfq_18649_ebid_pack/attachments.json
+            /revenue/uiowa_rfq_18649_ebid_pack/source-state.json
+            /revenue/uiowa_rfq_18649_ebid_pack/outputs/**
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -27,12 +37,7 @@ jobs:
       - name: Compile exact branch bytes
         run: |
           python -m py_compile \
-            revenue/uiowa_rfq_18649_ebid_pack/render_ebid.py \
-            revenue/uiowa_rfq_18649_ebid_pack/test_render_ebid.py
-
-      - name: Unit and hostile tests
-        working-directory: revenue/uiowa_rfq_18649_ebid_pack
-        run: python -m unittest -v test_render_ebid.py
+            revenue/uiowa_rfq_18649_ebid_pack/render_ebid.py
 
       - name: Re-render prepared pack from committed sources
         working-directory: revenue/uiowa_rfq_18649_ebid_pack

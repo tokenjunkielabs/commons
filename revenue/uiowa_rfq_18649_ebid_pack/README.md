@@ -68,6 +68,8 @@ References, personnel, supplier contacts, audited financials, offshoring positio
 - generates `submission-index.csv`, `combined-preview.md`, and `validation-report.json`;
 - separates `prepared` mode from `submit-ready` mode.
 
+With `--out DIR`, all generated files, including `attributes/attr-*.txt`, stay under `DIR`. Boolean values in `submission-index.csv` use lowercase `true`/`false`, matching the retained prepared pack.
+
 ## Run
 
 ```bash
@@ -86,6 +88,6 @@ Authored-fixture verification before publication:
 - prepared text fields all fit recovered character limits.
 - all 36 attributes are accounted for.
 
-Hosted CI in this carrier re-runs the same suite and renderer against the exact GitHub branch bytes.
+Hosted CI compiles the renderer, regenerates all ten output files from the committed inputs, compares their exact bytes with the retained pack, and executes the existing closed submission gate and source-overlay checks. Its sparse checkout contains the renderer, four input JSON files, and complete output baseline.
 
 No eBid login, portal mutation, buyer contact, bid submission, agreement selection, or signature action is performed by this carrier.
