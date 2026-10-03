@@ -27,6 +27,26 @@ purchase lines. Unit-price multiplication uses `Decimal`. Different currencies
 remain separate. Shipping's charging basis and taxes are not inferred, so no
 invented all-in purchase total is generated.
 
+## Download from the browser desk
+
+Open the existing Parts Desk and select a saved workshop job. Attach the options
+you want to ask about, then check **Include in supplier enquiry pack** on each
+chosen option. The **Supplier enquiry drafts** section shows the selection count,
+as-of date and source-age reminder in days. **Download selected enquiries** uses
+the same saved-request exporter described below and downloads a ZIP containing
+the individual text drafts, internal HTML/JSON and manifest.
+
+Extract the ZIP and review each supplier's own `.txt` file before sharing. The
+combined HTML and JSON contain the selected suppliers' alternatives and remain
+an internal working pack. The export preserves saved quotes and fit findings,
+including stale-source and existing-order notices; it does not refresh them or
+write any activity to the desk. An empty browser selection asks you to choose an
+option, and invalid server input is returned as a visible error instead of a ZIP.
+
+Selections survive a reload of the same saved job within the page; switching
+jobs clears them. The chosen date and reminder remain visible for the next
+download. No terminal command or saved-request JSON transfer is needed.
+
 ## Run in an existing cloud workspace
 
 Python 3.11+; no third-party dependencies, server or new infrastructure.
