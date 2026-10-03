@@ -2,7 +2,7 @@
   "activation_count": 1,
   "actor": "Resource Master / current connected harness",
   "operation_id": "resource-master-connected-github-workflow-runs-routing-20261003-01",
-  "observed_at": "2026-10-03T16:08:56Z",
+  "observed_at": "2026-10-03T16:29:21Z",
   "concrete_consumer": "Resource Master and Commons operators that need exact asynchronous workflow identities and honest pagination coverage",
   "selected_resource": "connected-github-workflow-run-reader",
   "material_new_resources": [
@@ -100,26 +100,46 @@
     "owner_only_actions": 0
   },
   "activation_merge": {
-    "pull_request": null,
-    "url": null,
-    "merge_sha": null,
-    "branch_head_sha": null,
+    "pull_request": 30882,
+    "url": "https://github.com/woahwhattheheck/commons/pull/30882",
+    "merge_sha": "c233749c799d5e9859a71b5d61d5f98678df7c34",
+    "branch_head_sha": "1802f57f07c33882c90a6273a13af6cb4f6c1474",
     "fresh_main_parent": "e8e1cb93133cd62ccf9f81cdb3e8a9e538939277",
+    "receipt_reconciled_main_sha": "f5fa16fb36ac0ae95cc702f69f92afb74d0bb6de",
     "non_force_history": true,
-    "exact_current_main_readback": {},
-    "asynchronous_checks_at_merge": {}
+    "exact_current_main_readback": {
+      "ground/RESOURCE_LEDGER.json": "4ff1725b089123232dcb7c75ad3134029c28d0d2",
+      "inventory/resources/records/resource-master-connected-github-workflow-runs-routing-20261003-01.json": "7b881885f9edf74bdc9a83800636361aca549dc6",
+      "p/resource-master-connected-github-workflow-runs-routing-20261003-01.md": "006225a6cb6aeab58684f2c827a0382c76d178af",
+      "resources.html": "17e852f450ade052c8146c213b49dd4a0758e5e1"
+    },
+    "asynchronous_checks_at_merge": {
+      "path-manifest": "success",
+      "resources-tab-freshness": "success",
+      "open-door-guard": "success",
+      "muhlnickel-spec-guard": "in_progress",
+      "capability-entrypoints": "in_progress",
+      "job-watchdog": "in_progress"
+    }
   },
   "terminal_watermark": {
-    "terminal_slack_ts": null,
-    "terminal_slack_link": null,
-    "terminal_slack_readback": "PENDING",
-    "current_main_before_watermark_closure": null,
-    "activation_pull_request": null,
-    "activation_merge_sha": null,
-    "receipt_pull_request": null,
-    "receipt_merge_sha": null,
-    "activation_head_workflows": {},
-    "lower_bound_rule": "PENDING_TERMINAL_CLOSURE"
+    "terminal_slack_ts": "1791044717.224249",
+    "terminal_slack_link": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791044717224249",
+    "terminal_slack_readback": "CONFIRMED_EXACT_TEXT",
+    "current_main_before_watermark_closure": "f5fa16fb36ac0ae95cc702f69f92afb74d0bb6de",
+    "activation_pull_request": 30882,
+    "activation_merge_sha": "c233749c799d5e9859a71b5d61d5f98678df7c34",
+    "receipt_pull_request": 30882,
+    "receipt_merge_sha": "c233749c799d5e9859a71b5d61d5f98678df7c34",
+    "activation_head_workflows": {
+      "path-manifest": {"run_id": 37136695206, "status": "completed", "conclusion": "success"},
+      "open-door-guard": {"run_id": 37136695232, "status": "completed", "conclusion": "success"},
+      "resources-tab-freshness": {"run_id": 37136695211, "status": "completed", "conclusion": "success"},
+      "muhlnickel-spec-guard": {"run_id": 37136695196, "status": "completed", "conclusion": "success"},
+      "capability-entrypoints": {"run_id": 37136695240, "status": "completed", "conclusion": "success"},
+      "job-watchdog": {"run_id": 37136695229, "status": "completed", "conclusion": "success"}
+    },
+    "lower_bound_rule": "The next wake begins strictly after Slack 1791044717.224249, main f5fa16fb36ac0ae95cc702f69f92afb74d0bb6de, the listed provider observations, and this durable record identity; it must not remint this activation or its already-owned adjacent capabilities."
   },
   "build_order_decision": {
     "state": "NO_NEW_INDEPENDENT_NON_DUPLICATIVE_BUILD_LANE",
@@ -144,7 +164,7 @@
     "prior_terminal_slack_ts": "1791034421.748419",
     "prior_terminal_main_sha": "0e7f917787f82f69d5f6478ca2db0f4abb4cd5d2",
     "observed_main_sha": "95a6fba75af005ab29089d913d3c15b1ecbca4aa",
-    "fresh_main_reconciled_sha": "e8e1cb93133cd62ccf9f81cdb3e8a9e538939277",
+    "fresh_main_reconciled_sha": "f5fa16fb36ac0ae95cc702f69f92afb74d0bb6de",
     "implementation_claim_ts": "1791043748.342799",
     "required_channels": {
       "C0BRGMDQB6G": {"lower_exclusive": "1791034421.748419", "source_timestamps": ["1791034618.374619", "1791040289.503679", "1791043100.824539"], "latest_new_root_ts": "1791043748.342799", "pagination_exhausted": true},
@@ -181,26 +201,29 @@
     },
     "github": {
       "first_parent": {"base": "0e7f917787f82f69d5f6478ca2db0f4abb4cd5d2", "head": "95a6fba75af005ab29089d913d3c15b1ecbca4aa", "total": 38, "generated_projection": 7, "non_generated": 31},
-      "pull_requests": {"updated_results": 42, "open_at_sweep": 0, "material_capability_pull_requests": [30848, 30863, 30877]},
+      "pull_requests": {"initial_updated_results": 42, "late_tail": [30879, 30880, 30881, 30882], "open_at_sweep": 0, "material_capability_pull_requests": [30848, 30863, 30877, 30881]},
       "issues": {"updated_objects": 63, "accounting": "Slack and Discord mirrors plus already-owned product and delivery work; no independent unclaimed producing lane inferred."},
       "workflow_runs": {"selected_path": ".github/workflows/resources-tab-freshness.yml", "closed_interval_rows": 206, "matches": [37126745511, 37126732551], "coverage_complete": true, "snapshot": false},
       "branches": {
         "prior_count": 4724,
-        "current_count": 4764,
-        "added_count": 40,
+        "current_count": 4768,
+        "added_count": 44,
         "moved_count": 3,
         "removed_count": 0,
-        "current_snapshot_sha256": "d4e474cf0615f77870c23b133369281a1be59e935bdbbb2f1d3e30b80d7ee917",
+        "current_snapshot_sha256": "a3ec17f416fb86a7dabd0db4497a0f8543aa8b85608a7a047bb4dce64e1b8954",
         "added": {
+          "a3dea/counterfactual-native-ui-20261003": "636ff2b828cde3b355a52091c966e3b9e69b2857",
           "a3dea/lotlens-keyboard-evidence-20261003": "708eaf531390401e7c93d8dc88530659be8fb2d1",
           "a3dea/repair-capsules-native-roundtrip-20261003": "a8a95020d1df111aa0967786724fc59571ee5569",
           "a3dea/toolbench-native-checkpoint-20261003": "4800423c8dff41738b6133642566810a59a5884b",
           "codex/resource-master-connected-slack-publisher-receipt-20261003-01": "abec6e054e600004aef2939857a57161ff6fc7ed",
           "codex/resource-master-connected-slack-publisher-routing-20261003-01": "e7cfdcd43ba5ae817ad933752f805c0fbe837347",
           "codex/resource-master-connected-slack-publisher-watermark-20261003-01": "a1a816e7e28620c0b7b85146258d0edd1a298478",
+          "codex/resource-master-workflow-runs-routing-20261003-01": "1802f57f07c33882c90a6273a13af6cb4f6c1474",
           "coldchain-detail-browser-20261003-a3dea": "e7105a2aa699b53def75b44c1fe60d39c856d563",
           "cursor/titanmcp-list-assignments-6e83": "13f30a440ba3949e605fc250a4cc40a8554281ea",
           "delivery/hive043-native-browser-a3dea-20261003": "445206845d23e362f7ba7d9eb75e5690d88cd3e8",
+          "delivery/parity-native-plan-reload-a3dea-20261003": "4dace3698f5da52ac95be4be91485b92507a0b17",
           "delivery/waste-native-preview-a3dea-20261003": "e801df74dc5701f5fbab0fd5944853fe0721492d",
           "fix/fourfold-handoff-revision-a3dea": "3b8222c6ac4381b55812a209c56537d1a90d5c0c",
           "fix/hive042-qr-landing-path-a3dea": "4f05c19d43cebfbc711a3744789cb3e4a4e697bd",
@@ -209,6 +232,7 @@
           "media-rights-mobile-review-20261003-a3dea": "ec2cc361144ed6b324c516af7fd5aa354198bfdd",
           "swarm-release-sentence-20261003-a3dea": "bcb3405c3467565060c4c0555ba808f86b31c37a",
           "swarm/workflow-run-lookup-20261003-7ca6": "f8eff610cee8aa1f6aea511119315186d6490852",
+          "swarm/worker-pressure-20261003-7ca6": "b4f8578dae573df1af9d24af1f3edd5d828a8dc3",
           "uiowa056-workbook-delivery-20261003-a3dea": "5228e8b5b8f6472a68711748ad7c9e46a6dce377",
           "uiowa059-portable-review-20261003-a3dea": "4d0cfce28eca4240c8b1aad073656e3253e4c848",
           "warranty-event-tie-order-a3dea-20261003": "279e971f12be8207c83eb392f191ea9a48f1c412",
@@ -234,7 +258,7 @@
           "work/workstream-setup-close-20261003-7ca6": "6f647ad7f7b4cb059dfc6b40fc9a8f7ae765f1c4"
         },
         "moved": {
-          "main": {"previous_sha": "0e7f917787f82f69d5f6478ca2db0f4abb4cd5d2", "sha": "95a6fba75af005ab29089d913d3c15b1ecbca4aa"},
+          "main": {"previous_sha": "0e7f917787f82f69d5f6478ca2db0f4abb4cd5d2", "sha": "f5fa16fb36ac0ae95cc702f69f92afb74d0bb6de"},
           "state/claims": {"previous_sha": "18be69e2c541ce1c72b4b38859d9cb7f9cbbc64b", "sha": "5900ad5d17f8f10295a0e7305480862efd6f8d2f"},
           "state/coordination": {"previous_sha": "b920d2dc3a1628047f65d1364b4395d0a9fe9112", "sha": "a3dcb3b352a7046afd516d5867dfb1fe51f1782f"}
         }
