@@ -334,8 +334,12 @@ def _log_delivery(method: str, path: str, status: int, payload: Mapping[str, Any
     secrets, customer fields, account identifiers, or private paths."""
     event_id = payload.get("event_id", "-") if isinstance(payload, Mapping) else "-"
     outcome = payload.get("status", payload.get("error", "-")) if isinstance(payload, Mapping) else "-"
+    # Request targets can contain customer data or credentials, even when the
+    # route is unknown. Log only the route category and a bounded method name.
+    route = "unmatched" if status == 404 else "ingest"
+    logged_method = method if method in {"GET", "HEAD", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"} else "OTHER"
     LOG.info("method=%s route=%s status=%d outcome=%s event_id=%s body_bytes=%d duration_ms=%d",
-             method, path, status, outcome, event_id, body_bytes,
+             logged_method, route, status, outcome, event_id, body_bytes,
              int((time.time() - started) * 1000))
 
 
@@ -422,8 +426,15 @@ class _Handler(BaseHTTPRequestHandler):
     def do_OPTIONS(self) -> None:
         self._dispatch("OPTIONS")
 
+    def log_request(self, code: int | str = "-", size: int | str = "-") -> None:
+        # BaseHTTPRequestHandler otherwise logs the complete request line.
+        status = code if isinstance(code, int) else "-"
+        response_bytes = size if isinstance(size, int) else "-"
+        LOG.info("http_server: status=%s response_bytes=%s", status, response_bytes)
+
     def log_message(self, format: str, *args: Any) -> None:  # noqa: A002 - stdlib signature
-        LOG.info("http_server: " + format, *args)
+        # Parser error text can echo untrusted methods, targets and headers.
+        LOG.info("http_server: protocol_error")
 
 
 def serve_forever(config: ReceiverConfig) -> tuple[ThreadingHTTPServer, threading.Thread]:
