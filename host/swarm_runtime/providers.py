@@ -476,8 +476,8 @@ def enrich(tasks: dict, state_dir: Path, equipment=None, max_calls=4, now=None):
             ordered = [key for key in keys if key > cursor] + [key for key in keys if key <= cursor]
             visited = []
             for key in ordered[:200]:
-                if refresh.calls >= max_calls:
-                    break
+                # get() checks reusable responses before enforcing the network
+                # budget, so cached facts can still reconcile after it is spent.
                 match = TASK.fullmatch(key)
                 try:
                     if key in artifacts and (match is None or match[2].lower() != "pr"):
