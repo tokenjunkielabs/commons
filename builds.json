@@ -350,8 +350,89 @@
   }
  ],
  "pr_note": "Open GitHub PRs from public unauthenticated /pulls. PR-road work sits beside ntfy-road posts. Descriptive only. Not a merge gate. A PR is not main.",
- "n_open_prs": 0,
- "open_prs": [],
+ "n_open_prs": 5,
+ "open_prs": [
+  {
+   "number": 30270,
+   "author": "woahwhattheheck",
+   "title": "Preserve unique identities in Windows UIA snapshots",
+   "html_url": "https://github.com/woahwhattheheck/commons/pull/30270",
+   "base_freshness": {
+    "base_sha": "23063bdeddb328637c4ddf367c8fc89eaf4d9602",
+    "main_sha": "287890c90df26354a058363189e04d862a8311f9",
+    "ahead_by": null,
+    "behind_by": null,
+    "label": "STALE_BASE"
+   },
+   "status": "PR_OPEN",
+   "road": "pr",
+   "note": "PR-road work. A PR is not main. Not a merge gate."
+  },
+  {
+   "number": 30450,
+   "author": "woahwhattheheck",
+   "title": "Reuse scalar row norms during Whitebox semantic walks",
+   "html_url": "https://github.com/woahwhattheheck/commons/pull/30450",
+   "base_freshness": {
+    "base_sha": "a0569703e1ec26445807736325ef13b280df111f",
+    "main_sha": "287890c90df26354a058363189e04d862a8311f9",
+    "ahead_by": null,
+    "behind_by": null,
+    "label": "STALE_BASE"
+   },
+   "status": "PR_OPEN",
+   "road": "pr",
+   "note": "PR-road work. A PR is not main. Not a merge gate."
+  },
+  {
+   "number": 30455,
+   "author": "woahwhattheheck",
+   "title": "Reopen saved individual and batch caption handoffs",
+   "html_url": "https://github.com/woahwhattheheck/commons/pull/30455",
+   "base_freshness": {
+    "base_sha": "8372aebed2b90767df9872538634ac77764c196f",
+    "main_sha": "287890c90df26354a058363189e04d862a8311f9",
+    "ahead_by": null,
+    "behind_by": null,
+    "label": "STALE_BASE"
+   },
+   "status": "PR_OPEN",
+   "road": "pr",
+   "note": "PR-road work. A PR is not main. Not a merge gate."
+  },
+  {
+   "number": 30456,
+   "author": "woahwhattheheck",
+   "title": "Append distinct handoff activation receipt",
+   "html_url": "https://github.com/woahwhattheheck/commons/pull/30456",
+   "base_freshness": {
+    "base_sha": "212a70b82cd0243bd91e5989683148dde663a5a1",
+    "main_sha": "287890c90df26354a058363189e04d862a8311f9",
+    "ahead_by": null,
+    "behind_by": null,
+    "label": "STALE_BASE"
+   },
+   "status": "PR_OPEN",
+   "road": "pr",
+   "note": "PR-road work. A PR is not main. Not a merge gate."
+  },
+  {
+   "number": 30443,
+   "author": "woahwhattheheck",
+   "title": "Honor explicit claim releases after the opening sentence",
+   "html_url": "https://github.com/woahwhattheheck/commons/pull/30443",
+   "base_freshness": {
+    "base_sha": "a0569703e1ec26445807736325ef13b280df111f",
+    "main_sha": "287890c90df26354a058363189e04d862a8311f9",
+    "ahead_by": null,
+    "behind_by": null,
+    "label": "STALE_BASE"
+   },
+   "status": "PR_OPEN",
+   "road": "pr",
+   "note": "PR-road work. A PR is not main. Not a merge gate."
+  }
+ ],
  "live_cash": {
   "cite": [
    "newbot-json-doors-live-cash-20260916-06",
