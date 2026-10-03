@@ -15,6 +15,7 @@ from typing import Any, Iterable, Iterator, Mapping
 
 _MAX_SUMMARY_CHARS = 480
 _TRANSCRIPT_SUFFIXES = {".jsonl", ".ndjson", ".json"}
+_TRANSCRIPT_PREFIX_BYTES = 4096
 
 
 def _text(value: Any, limit: int | None = None) -> str:
@@ -413,19 +414,42 @@ def _transcript_events(path: Path, records: Iterable[Mapping[str, Any]], source_
                   "provider": provider, "model": model, "harness": harness, "prior_usage": prior_usage})
 
 
+def _file_stamp(stat: os.stat_result) -> dict[str, Any]:
+    return {"size": stat.st_size, "mtime_ns": stat.st_mtime_ns,
+            "ctime_ns": stat.st_ctime_ns, "file_identity": [stat.st_dev, stat.st_ino]}
+
+
+def _prefix_fingerprint(handle: Any, length: int) -> dict[str, Any]:
+    position = handle.tell()
+    try:
+        handle.seek(0)
+        prefix = handle.read(min(max(0, length), _TRANSCRIPT_PREFIX_BYTES))
+    finally:
+        handle.seek(position)
+    return {"prefix_bytes": len(prefix), "prefix_sha256": hashlib.sha256(prefix).hexdigest()}
+
+
+def _prefix_matches(handle: Any, checkpoint: Mapping[str, Any]) -> bool:
+    length = checkpoint.get("prefix_bytes")
+    if not isinstance(length, int) or not 0 <= length <= _TRANSCRIPT_PREFIX_BYTES:
+        return False
+    fingerprint = _prefix_fingerprint(handle, length)
+    return all(checkpoint.get(key) == value for key, value in fingerprint.items())
+
+
+def _file_unchanged(path: Path, checkpoint: Mapping[str, Any], stat: os.stat_result) -> bool:
+    stamp = _file_stamp(stat)
+    if any(checkpoint.get(key) != value for key, value in stamp.items()):
+        return False
+    with path.open("rb") as handle:
+        return _file_stamp(os.fstat(handle.fileno())) == stamp and _prefix_matches(handle, checkpoint)
+
+
 def _parse_file(path: Path, checkpoint: Mapping[str, Any] | None, *,
                 max_bytes: int = 1024 * 1024, max_records: int = 256) -> tuple[list[Mapping[str, Any]], dict[str, Any], str | None]:
-    stat = path.stat()
     ck = dict(checkpoint or {})
     if path.suffix.lower() in {".jsonl", ".ndjson"}:
         offset = int(ck.get("offset", 0) or 0)
-        rewound = False
-        if ck.get("size") == stat.st_size and ck.get("mtime_ns") not in (None, stat.st_mtime_ns):
-            offset = 0  # same-size rewrite; resume from the beginning
-            rewound = True
-        if offset < 0 or offset > stat.st_size:
-            offset = 0
-            rewound = True
         rows: list[Mapping[str, Any]] = []
         malformed = 0
         bytes_read = 0
@@ -434,6 +458,19 @@ def _parse_file(path: Path, checkpoint: Mapping[str, Any] | None, *,
         quantum_deferred = False
         incomplete_trailing_record = False
         with path.open("rb") as handle:
+            # Bind the checkpoint to the opened file, including a replacement
+            # between discovery and open. Legacy checkpoints replay once so an
+            # offset of unknown identity cannot skip a new transcript's header.
+            stat = os.fstat(handle.fileno())
+            stamp = _file_stamp(stat)
+            rewound = offset < 0 or offset > stat.st_size or bool(ck) and (
+                ck.get("file_identity") != stamp["file_identity"]
+                or isinstance(ck.get("size"), int) and stat.st_size < ck["size"]
+                or ck.get("size") == stat.st_size and (
+                    ck.get("mtime_ns") != stat.st_mtime_ns or ck.get("ctime_ns") != stat.st_ctime_ns)
+                or not _prefix_matches(handle, ck))
+            if rewound:
+                offset = 0
             handle.seek(offset)
             start = offset
             while True:
@@ -471,10 +508,13 @@ def _parse_file(path: Path, checkpoint: Mapping[str, Any] | None, *,
                     start += len(line)
                     bytes_read += len(line)
                     continue
+            # Compare only the previously committed prefix on the next read.
+            # A normal append to a short file must not change its old fingerprint.
+            fingerprint = _prefix_fingerprint(handle, start)
         final_stat = path.stat()
-        changed = final_stat.st_size != stat.st_size or final_stat.st_mtime_ns != stat.st_mtime_ns
+        changed = _file_stamp(final_stat) != stamp
         incomplete_trailing_record = incomplete_trailing_record and not changed
-        return rows, {"offset": start, "size": stat.st_size, "mtime_ns": stat.st_mtime_ns,
+        return rows, {**stamp, **fingerprint, "offset": start,
                       "malformed_records": malformed, "pending_bytes": max(0, final_stat.st_size - start),
                       "batch_bytes_read": bytes_read, "batch_bytes_examined": bytes_examined,
                       "batch_records_read": records_read,
@@ -482,12 +522,18 @@ def _parse_file(path: Path, checkpoint: Mapping[str, Any] | None, *,
                       "incomplete_trailing_record": incomplete_trailing_record,
                       "rewound": rewound, "changed_during_read": changed}, None
     try:
-        if ck.get("size") == stat.st_size and ck.get("mtime_ns") == stat.st_mtime_ns:
-            return [], {"size": stat.st_size, "mtime_ns": stat.st_mtime_ns}, None
-        if stat.st_size > max_bytes:
-            return [], ck, f"json_snapshot_exceeds_batch_byte_limit:{stat.st_size}"
-        raw = path.read_text(encoding="utf-8")
-        value = json.loads(raw)
+        with path.open("rb") as handle:
+            stat = os.fstat(handle.fileno())
+            stamp = _file_stamp(stat)
+            if all(ck.get(key) == value for key, value in stamp.items()) and _prefix_matches(handle, ck):
+                return [], {**stamp, **_prefix_fingerprint(handle, stat.st_size)}, None
+            if stat.st_size > max_bytes:
+                return [], ck, f"json_snapshot_exceeds_batch_byte_limit:{stat.st_size}"
+            raw = handle.read(max_bytes + 1)
+            if len(raw) > max_bytes:
+                return [], ck, f"json_snapshot_exceeds_batch_byte_limit:{len(raw)}"
+            value = json.loads(raw.decode("utf-8"))
+            fingerprint = _prefix_fingerprint(handle, len(raw))
         final_stat = path.stat()
         # Snapshot JSON is reprocessed on change; downstream event IDs dedupe it.
         snapshot_rows = []
@@ -497,10 +543,10 @@ def _parse_file(path: Path, checkpoint: Mapping[str, Any] | None, *,
             enriched = dict(record)
             enriched["__source_index"] = index
             snapshot_rows.append(enriched)
-        return snapshot_rows, {"size": stat.st_size, "mtime_ns": stat.st_mtime_ns,
-                               "batch_bytes_read": stat.st_size, "batch_bytes_examined": stat.st_size,
+        return snapshot_rows, {**stamp, **fingerprint, "rewound": bool(ck),
+                               "batch_bytes_read": len(raw), "batch_bytes_examined": len(raw),
                                "batch_records_read": len(snapshot_rows),
-                               "changed_during_read": final_stat.st_size != stat.st_size or final_stat.st_mtime_ns != stat.st_mtime_ns}, None
+                               "changed_during_read": _file_stamp(final_stat) != stamp}, None
     except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
         return [], ck, f"unreadable_json:{type(exc).__name__}"
 
@@ -514,6 +560,9 @@ def iter_transcript_events(path: str | os.PathLike[str], checkpoint: Mapping[str
         rows, proposed, error = _parse_file(file_path, context)
         if error:
             return
+        if proposed.get("rewound"):
+            context.clear()
+            offset = 0
         yield from _transcript_events(file_path, rows, "transcript", context)
         next_offset = int(proposed.get("offset", offset) or 0)
         if file_path.suffix.lower() not in {".jsonl", ".ndjson"} or next_offset <= offset:
@@ -574,13 +623,14 @@ def collect_transcripts(roots: Iterable[str | os.PathLike[str]], checkpoints: Ma
         ck = prior.get(key) if isinstance(prior.get(key), Mapping) else None
         try:
             stat = path.stat()
+            unchanged = ck is not None and _file_unchanged(path, ck, stat)
         except OSError as exc:
             coverage["files_skipped"] += 1
             coverage["unread_reasons"].append({"source": path.name, "reason": type(exc).__name__})
             continue
         if ck is None:
             dirty.append((True, key, path))
-        elif (ck.get("size") != stat.st_size or ck.get("mtime_ns") != stat.st_mtime_ns
+        elif (not unchanged
               or (path.suffix.lower() in {".jsonl", ".ndjson"} and int(ck.get("offset", 0) or 0) < stat.st_size)):
             dirty.append((False, key, path))
         else:

@@ -159,22 +159,24 @@ class Custody:
             db.execute("PRAGMA busy_timeout=30000")
             self.insert_prepared(db,[record])
         return reference
-    def envelope(self,ref):
+    def _record(self,ref):
         with sqlite3.connect(self.path,timeout=30) as db:
             db.execute("PRAGMA busy_timeout=30000")
             db.row_factory=sqlite3.Row
             row=db.execute("SELECT * FROM source_records WHERE ref=?",(ref,)).fetchone()
         if not row: raise KeyError(ref)
-        result=dict(row)
+        return dict(row)
+    def envelope(self,ref):
+        result=self._record(ref)
         for field in ("iv","ciphertext","mac"): result[field]=base64.b64encode(result[field]).decode("ascii")
         result.update(encryption="AES-256-CBC + HMAC-SHA256",source_exact=True,credential_access="Existing direct shared secure facility",key_reference=KEY_REFERENCE)
         return result
     def read(self,ref):
-        envelope=self.envelope(ref)
-        iv,cipher,mac=(base64.b64decode(envelope[field]) for field in ("iv","ciphertext","mac"))
+        record=self._record(ref)
+        iv,cipher,mac=(record[field] for field in ("iv","ciphertext","mac"))
         key=self.key()
         expected=hmac.new(key[32:],b"swarm-source-v1"+iv+cipher,hashlib.sha256).digest()
         if not hmac.compare_digest(expected,mac): raise ValueError("Source authentication failed")
         raw=_aes(cipher,key[:32],iv,decrypt=True)
-        if hashlib.sha256(raw).hexdigest()!=envelope["sha256"]: raise ValueError("Source content mismatch")
+        if hashlib.sha256(raw).hexdigest()!=record["sha256"]: raise ValueError("Source content mismatch")
         return raw
