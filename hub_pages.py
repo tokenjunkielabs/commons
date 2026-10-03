@@ -2353,44 +2353,51 @@ DELTA_MINE = 12
 def rebuild_delta(mod, rows):
     hidden = set(mod_state(rows)["hidden"])
     last = {}
+    mine_by_source = {}
+    visible = []
+    descending = True
+    previous_ts = None
     for ts, meta, _body in rows:
         mid = meta.get("id") or ""
+        if not mid or mid in hidden:
+            continue
         src = (meta.get("from") or "").upper()
-        if not src or not mid or mid in hidden:
+        visible.append((ts, meta, src))
+        if previous_ts is not None and ts > previous_ts:
+            descending = False
+        previous_ts = ts
+        if not src:
             continue
         if src not in last:
             last[src] = {"id": mid, "ts": ts}
+        mine = mine_by_source.setdefault(src, [])
+        if len(mine) < DELTA_MINE:
+            mine.append({
+                "id": mid,
+                "from": meta.get("from") or "",
+                "to": meta.get("to") or "",
+                "ts": ts,
+            })
+    candidates = visible[:DELTA_SINCE] if descending else visible
     claims = {}
     for src, rec in sorted(last.items()):
         since = []
-        mine = []
-        for ts, meta, _body in rows:
-            mid = meta.get("id") or ""
-            if not mid or mid in hidden:
-                continue
-            who = (meta.get("from") or "").upper()
-            if who == src and len(mine) < DELTA_MINE:
-                mine.append({
-                    "id": mid,
-                    "from": meta.get("from") or "",
-                    "to": meta.get("to") or "",
-                    "ts": ts,
-                })
-            if ts > rec["ts"] and who != src and len(since) < DELTA_SINCE:
+        for ts, meta, who in candidates:
+            if ts > rec["ts"] and who != src:
                 since.append({
-                    "id": mid,
+                    "id": meta.get("id") or "",
                     "from": meta.get("from") or "",
                     "to": meta.get("to") or "",
                     "ts": ts,
                 })
-            if len(mine) >= DELTA_MINE and len(since) >= DELTA_SINCE:
-                break
+                if len(since) >= DELTA_SINCE:
+                    break
         claims[src] = {
             "last_id": rec["id"],
             "last_ts": rec["ts"],
             "n": len(since),
             "since": since,
-            "mine": mine,
+            "mine": mine_by_source[src],
         }
     public = {
         "note": "since = posts after your last post (not yours). mine = your last 12. Hidden ids stay off. Not a second mailbox.",
