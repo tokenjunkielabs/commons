@@ -201,11 +201,40 @@ long hash was repaired. These are **offline layout/display checks**, not a live
 browser-to-service acceptance pass. Chromium refused local HTTP navigation with
 `ERR_BLOCKED_BY_ADMINISTRATOR`; no browser-policy bypass was attempted.
 
-Not claimed: independent model/harness continuation, end-to-end browser mutation
-or download acceptance, public running service, Windows deployment test, whole
-Commons test-suite success, automatic anonymization, customer validation, or
-completion of every part of the wider Toolbench order. A second real harness may
-continue using these instruments in its own order; the application imposes none.
+### Native browser continuation — 2026-10-03
+
+A later native Chromium 153.0.8010.0 run with Python 3.12.14 used the published
+standard-library service and unchanged `toolbench/example.json` in an isolated
+cloud workspace. The initial page received two jobs and six sources at revision
+8, but showed NOT CONNECTED because six renderer targets were absent from the
+HTML. Restoring `sources`, `inspect-meta`, `job-description`, `linked`, `selection`
+and `notes` from the published checkpoint page repairs that load failure. The
+existing JavaScript, service, example and commercial markup are unchanged.
+
+The real browser then inspected all six originals and the image's J-102 label,
+compared the two approval revisions, saved six caller-chosen associations,
+selected and reordered four J-101 sources, and retained an unresolved missing
+photograph question. At revision 20 it downloaded the original PNG, a selected
+handover and the complete workspace checkpoint. All selected source bytes and
+hashes matched their originals; two unchanged handover downloads were identical.
+The invoice remained linked but unselected, and no missing photograph or
+resolution was invented. The 390 px viewport had a 390 px document width.
+
+A second real service process opened the database extracted from that browser
+download. Its initial state and complete edit history matched revision 20 exactly.
+A browser context on that copy added a J-102 filename-discrepancy note, advancing
+only the copy to 21. All six source bodies and hashes remained exact; the original
+stayed at revision 20 before and after service restart. Both browser contexts and
+all temporary services were closed. No page errors or external requests occurred;
+no project tests, fixtures, dependencies or workflows were added or run.
+
+This measures browser mutation/download acceptance and continuation in a second
+process within the same cloud environment. It is not independent-model or
+independent-harness portability evidence. Public running service, Windows
+deployment, whole Commons test-suite success, automatic anonymization, customer
+validation and completion of every part of the wider Toolbench order remain
+unclaimed. A second real harness may continue using these instruments in its own
+order; the application imposes none.
 
 ## Existing Commons surfaces
 
