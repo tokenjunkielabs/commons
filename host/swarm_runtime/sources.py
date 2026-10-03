@@ -27,12 +27,15 @@ _ACTIONS = {"OPEN": "OPEN", "TAKE": "TAKE", "CLAIM": "TAKE",
             "SHIPPED": "SHIP", "DONE": "SHIP", "BLOCK": "BLOCK",
             "BLOCKED": "BLOCK", "SUPERSEDE": "SUPERSEDE",
             "SUPERSEDED": "SUPERSEDE", "ABANDON": "ABANDON",
-            "ABANDONED": "ABANDON", "RECOVER": "RECOVER"}
-_START = re.compile(r"^\s*(?:[#*`]+\s*)?(OPEN|TAKE|CLAIM|ACTIVE|HEARTBEAT|SHIP|SHIPPED|DONE|BLOCK|BLOCKED|SUPERSEDE|SUPERSEDED|ABANDON|ABANDONED|RECOVER)\b", re.I)
+            "ABANDONED": "ABANDON", "RECOVER": "RECOVER",
+            "RELEASE": "RELEASE", "RELEASED": "RELEASE"}
+_START = re.compile(r"^\s*(?:[#*`]+\s*)?(OPEN|TAKE|CLAIM|ACTIVE|HEARTBEAT|SHIP|SHIPPED|DONE|BLOCK|BLOCKED|SUPERSEDE|SUPERSEDED|ABANDON|ABANDONED|RECOVER|RELEASE|RELEASED)\b", re.I)
 _REF = re.compile(r"https?://github\.com/[\w.-]+/[\w.-]+/(?:issues|pull)/[1-9][0-9]*|(?:github:)?[\w.-]+/[\w.-]+:(?:issue|pr):[1-9][0-9]*|(?:issue|pr):[\w.-]+/[\w.-]+:[1-9][0-9]*", re.I)
 _FIELDS = ("repo", "issue", "pr", "base_sha", "head_sha", "branch", "merge_sha",
            "artifact", "blocker", "next_action", "superseded_by", "model", "harness",
-           "required_capabilities", "exact_error", "feed_cursor")
+           "required_capabilities", "exact_error", "feed_cursor",
+           "started_at", "heartbeat", "expected_started_at", "expected_worker",
+           "expected_heartbeat")
 
 
 def _digest(value):
@@ -56,6 +59,9 @@ def _key(value):
 
 def _selected(value):
     """Bounded source metadata; never copy a Slack message body into the log."""
+    # Lifecycle clocks and expectations belong to the source event. Dropping
+    # them loses releases or lets recovery refer to a different claim; the
+    # projector decides whether the supplied generation is still current.
     out = {}
     for name in _FIELDS:
         field = value.get(name)
