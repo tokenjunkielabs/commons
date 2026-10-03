@@ -373,10 +373,10 @@ def _discover_files(roots: Iterable[str | os.PathLike[str]]) -> tuple[list[Path]
     return [item[0] for _, item in sorted(found.items(), key=lambda pair: pair[0].casefold())], issues
 
 
-def _file_identity(path: Path) -> tuple[int, int, str]:
+def _file_identity(path: Path, sample_bytes: int = 4096) -> tuple[int, int, str]:
     stat = path.stat()
     with path.open("rb") as handle:
-        sample = handle.read(4096)
+        sample = handle.read(sample_bytes)
     signature = _hash(path.name, sample, stat.st_dev, stat.st_ino)
     return stat.st_size, stat.st_mtime_ns, signature
 
@@ -428,6 +428,12 @@ def _read_log_chunk(path: Path, key: str, checkpoint: Mapping[str, Any] | None,
     offset = int(ck.get("offset", 0) or 0)
     old_size = ck.get("size")
     old_mtime = ck.get("mtime_ns")
+    prior_prefix_signature = signature
+    if ck.get("signature") and old_size is not None and 0 <= old_size < min(size, 4096):
+        # A short log's normal append extends the sampled prefix. Compare the
+        # exact previous sample length so appends keep their byte checkpoint,
+        # while a replaced inode or rewritten prefix starts a new version.
+        _, _, prior_prefix_signature = _file_identity(path, sample_bytes=old_size)
     if offset < 0 or offset > size:
         offset = 0
         version += 1
@@ -435,7 +441,7 @@ def _read_log_chunk(path: Path, key: str, checkpoint: Mapping[str, Any] | None,
         # A same-size rewrite is a new source version, not an empty append.
         offset = 0
         version += 1
-    elif ck.get("signature") and ck.get("signature") != signature and old_size == size:
+    elif ck.get("signature") and ck.get("signature") != prior_prefix_signature:
         offset = 0
         version += 1
     with path.open("rb") as handle:
@@ -474,9 +480,9 @@ def _source_needs_scan(path: Path, checkpoint: Mapping[str, Any] | None) -> bool
         return True
     if checkpoint.get("size") != size or checkpoint.get("mtime_ns") != mtime_ns:
         return True
+    if checkpoint.get("signature") != signature:
+        return True
     if _is_sqlite(path):
-        if checkpoint.get("signature") != signature:
-            return True
         return any(not bool(state.get("done")) for state in (checkpoint.get("tables") or {}).values()
                    if isinstance(state, Mapping))
     return int(checkpoint.get("offset", 0) or 0) < size
