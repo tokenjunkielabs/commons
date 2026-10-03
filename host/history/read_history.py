@@ -34,11 +34,15 @@ def segments(record):
 
 def batches(records):
     current=[]
+    current_chars=2  # JSON list brackets; each additional member adds ', '.
     for record in records:
         for segment in segments(record):
-            if current and (len(json.dumps(current+[segment]))>90000 or len(current)>=20):
+            segment_chars=len(json.dumps(segment))
+            if current and (current_chars+2+segment_chars>90000 or len(current)>=20):
                 yield current
                 current=[]
+                current_chars=2
+            current_chars+=segment_chars+(2 if current else 0)
             current.append(segment)
     if current:yield current
 
