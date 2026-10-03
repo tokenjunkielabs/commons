@@ -68,6 +68,13 @@ approval explanations. Unchanged unread notifications are not re-enriched every
 run. Updated comments produce new content versions. Closed/merged events retain
 the distinction between accepted code and payment.
 
+Comment delivery identity includes the comment's source ID, contents, author,
+timestamp and review context, but excludes action text inherited from its parent.
+A close or merge therefore produces a subject update without replaying unchanged
+historical comments. Existing comment receipts under the previous open, closed
+or merged action text are recognized in SQLite and in the same bounded Slack
+history scan; the upgrade does not require clearing the delivery ledger.
+
 Gmail verifies the mailbox and replays a configured sliding query: recent 14 days
 plus older unread/starred mail, excluding sent, drafts, trash and spam. It reads
 full message MIME bodies, favors plain text, and lists attachment names without
