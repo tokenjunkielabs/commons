@@ -92,9 +92,11 @@ def normalize(route: str, params: dict) -> dict:
     if "owner" in out:
         if not isinstance(out["owner"], str) or OWNER_RE.fullmatch(out["owner"]) is None:
             raise ValueError("invalid owner")
+        out["owner"] = out["owner"].lower()
     if "repo" in out:
         if not isinstance(out["repo"], str) or REPO_RE.fullmatch(out["repo"]) is None:
             raise ValueError("invalid repo")
+        out["repo"] = out["repo"].lower()
     if route == "contents.get":
         if "path" not in out:
             raise ValueError("path is required")
