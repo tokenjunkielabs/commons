@@ -60,6 +60,9 @@ SAFETENSORS_DTYPES = {
     "F4": (None, 1),
 }
 
+# The existing E8M0 decoder has only 256 possible immutable float results.
+E8M0_TABLE = tuple(2.0 ** (byte - 127) for byte in range(256))
+
 # OCP MX E2M1 magnitudes indexed by (exp << 1 | mantissa).
 E2M1_TABLE = (0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 6.0)
 
@@ -559,7 +562,7 @@ def decode_values(dtype: str, data: bytes, count: int | None = None) -> list[flo
     elif dtype == "F8_E5M2":
         values = [_f8_decode(byte, 5, 2) for byte in data]
     elif dtype == "F8_E8M0":
-        values = [2.0 ** (byte - 127) for byte in data]
+        values = [E8M0_TABLE[byte] for byte in data]
     elif dtype == "F4":
         values = []
         for index in range(len(data) * 2):
