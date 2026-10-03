@@ -45,28 +45,106 @@ def _unwrap(raw):
     """Decode for traversal only; the unmodified envelope is retained separately."""
     value = raw
     for _ in range(12):
+        # Some native tools JSON-encode a complete JSON response inside a text
+        # block. Decode every wrapper before declaring its source traversed.
+        # Plain document text remains a valid leaf response.
+        if isinstance(value, str):
+            try:
+                value = json.loads(value)
+            except ValueError:
+                return value
+            continue
         if not isinstance(value, Mapping):
-            break
+            return value
         if value.get("isError") or value.get("ok") is False or value.get("error"):
             raise RuntimeError("native_service_read_error")
-        if isinstance(value.get("structuredContent"), (dict, list)):
+        if isinstance(value.get("structuredContent"), (dict, list, str)):
             value = value["structuredContent"]
-        elif isinstance(value.get("result"), (dict, list)):
+        elif isinstance(value.get("result"), (dict, list, str)):
             value = value["result"]
         elif isinstance(value.get("content"), list):
             decoded = []
+            text = []
             for block in value["content"]:
                 if isinstance(block, Mapping) and block.get("type") == "text":
+                    if not isinstance(block.get("text"), str):
+                        raise ValueError("native_service_invalid_text_block")
+                    text.append(block["text"])
                     try:
                         decoded.append(json.loads(block["text"]))
                     except (TypeError, ValueError):
                         pass
             if not decoded:
-                break
+                return "\n".join(text)
             value = decoded[0] if len(decoded) == 1 else {"decoded_blocks": decoded}
         else:
-            break
-    return value
+            return value
+    raise ValueError("native_service_response_nesting_exceeded")
+
+
+def _response_values(value):
+    if isinstance(value, Mapping) and set(value) == {"decoded_blocks"}:
+        for block in value["decoded_blocks"]:
+            yield from _response_values(_unwrap(block))
+    else:
+        yield value
+
+
+def _has_collection(value, keys):
+    """Distinguish an empty provider collection from an unrecognized shape."""
+    if isinstance(value, list):
+        return True
+    if not isinstance(value, Mapping):
+        return False
+    for key in keys:
+        rows = value.get(key)
+        if isinstance(rows, list) or isinstance(rows, Mapping) and isinstance(rows.get("nodes"), list):
+            return True
+    return any(_has_collection(value[key], keys) for key in ("data", "results", "response") if key in value)
+
+
+def _collection_keys(job):
+    # These are the collections used by successors/continuation below. Content
+    # reads have no collection requirement, including plain-text documents.
+    action = (job.get("tool_name") or "").removeprefix(PREFIX)
+    collections = {
+        "gmail_search_email_ids": ("messages", "emails", "message_ids", "ids"),
+        "gmail_list_drafts": ("drafts",),
+        "gmail_read_email_thread": ("messages", "emails"),
+        "google_drive_search": ("files", "results", "items"),
+        "google_drive_list_file_revisions": ("revisions",),
+        "google_drive_get_file_comments": ("comments",),
+        "dropbox_list_folder": ("entries",),
+        "dropbox_list_restore_events": ("events",),
+        "dropbox_list_file_requests": ("file_requests",),
+        "dropbox_list_file_revisions": ("entries",),
+        "airtable_list_bases": ("bases",),
+        "airtable_list_tables_for_base": ("tables",),
+        "airtable_list_records_for_table": ("records",),
+        "airtable_list_automations": ("automations",),
+        "vercel_list_teams": ("teams",),
+        "vercel_list_projects": ("projects",),
+        "vercel_list_deployments": ("deployments",),
+        "vercel_list_agent_runs": ("runs", "agentRuns", "items"),
+        "railway_list_projects": ("projects",),
+        "railway_list_services": ("services",),
+        "railway_list_deployments": ("deployments",),
+        "stripe_list_available_accounts_or_orgs": ("accounts",),
+        "stripe_stripe_api_search": ("data",),
+        "apollo_io_apollo_find_tools": ("tools",),
+        "chatgpt_space_list_spaces": ("spaces", "items"),
+        "chatgpt_space_list_pages": ("items", "pages"),
+        "chatgpt_space_list_page_comments": ("items", "comments"),
+        "pets_list_pets": ("pets", "items"),
+        "sites_list_sites": ("items", "sites"),
+        "sites_list_site_versions": ("items", "versions"),
+    }
+    operation = job.get("args", {}).get("selectSchema", {}).get("operation")
+    if action == "netlify_netlify_team_services_reader" and operation == "get-teams":
+        return ("teams", "accounts")
+    if action == "netlify_netlify_project_services_reader" and operation == "get-projects":
+        return ("sites", "projects")
+    return collections.get(action)
 
 
 def _rows(value, *keys):
@@ -703,10 +781,14 @@ def collect_service_activity(config=None, state=None, sources=None, read_page=No
             digest = collector.retain(job, raw)
             if job["job_id"] in receipts and isinstance(receipt, Mapping) and receipt.get("source_ref"):
                 collector.events[-1]["source_ref"]["native_receipt"] = copy.deepcopy(receipt["source_ref"])
-            value = _unwrap(raw)
-            collector.continuation(job, value)
-            collector.time_partition(job, value)
-            collector.successors(job, value)
+            values = list(_response_values(_unwrap(raw)))
+            keys = _collection_keys(job)
+            if keys and not any(_has_collection(value, keys) for value in values):
+                raise ValueError("native_service_unrecognized_collection")
+            for value in values:
+                collector.continuation(job, value)
+                collector.time_partition(job, value)
+                collector.successors(job, value)
             job.update(status="observed", complete=True, observed_at=collector.at,
                        response_envelope_sha256=digest, unread_regions=[], retry_at_epoch=None)
         except Exception as error:
