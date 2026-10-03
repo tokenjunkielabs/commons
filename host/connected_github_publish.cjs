@@ -101,9 +101,45 @@ function validate(input) {
     merge: input.merge === true, merge_method: method};
 }
 
+function inspectToolError(action, result) {
+  if (!result || typeof result !== 'object' || result.isError !== true) return null;
+  const structured = result.structuredContent;
+  const data = structured && typeof structured === 'object' ? structured.error_data : undefined;
+  const status = data && /^[1-5][0-9]{2}$/.test(String(data.status))
+    ? Number(data.status) : null;
+  const details = {
+    action,
+    error_code: 'native_tool_error',
+    http_status: status,
+    message: action + ' returned a native tool error'
+      + (status === null ? '' : ' (GitHub HTTP ' + status + ')'),
+  };
+  if (typeof structured?.error_code === 'string'
+      && /^[A-Z0-9_]{1,64}$/.test(structured.error_code)) {
+    details.connector_error_code = structured.error_code;
+  }
+  if (status === 405 && data.message === 'Base branch was modified. Review and try the merge again.') {
+    details.error_code = 'base_branch_modified';
+    details.message = action + ' was refused because the base branch moved; '
+      + 'read the current PR and base before continuing the same merge';
+  } else if (Array.isArray(result.content) && result.content.some(block =>
+    block?.type === 'text' && typeof block.text === 'string'
+    && /\bTransport closed\b/.test(block.text.slice(-1024)))) {
+    details.error_code = 'transport_closed';
+    details.message = action + ' returned no usable result because its transport closed; '
+      + 'reconcile provider state before retrying a write';
+  }
+  return details;
+}
+
 function unpack(result, action) {
   object(result, `${action} response`);
-  if (result.isError) throw new Error(`${action} returned a tool error`);
+  if (result.isError) {
+    const details = inspectToolError(action, result);
+    const error = new Error(details?.message ?? action + ' returned a tool error');
+    if (details) error.tool_error = details;
+    throw error;
+  }
   if (result.structuredContent !== undefined) return object(result.structuredContent, `${action} payload`);
   if (Array.isArray(result.content)) {
     for (const block of result.content) {
@@ -285,7 +321,8 @@ async function publishGitHubChange(tools, change, options = {}) {
       return inspectReadback(file, source, data);
     }));
     progress.readback = reads.map((read, index) => read.status === 'fulfilled' ? read.value
-      : {path: candidates[index].path, matches: false, error: String(read.reason?.message ?? read.reason)});
+      : {path: candidates[index].path, matches: false, error: String(read.reason?.message ?? read.reason),
+        ...(read.reason?.tool_error ? {tool_error: read.reason.tool_error} : {})});
     const unavailable = progress.readback.some(read => read.error_code === 'readback_content_unavailable');
     progress.readback_status = unavailable ? 'content_unavailable'
       : progress.readback.some(read => !read.matches) ? 'incomplete' : 'complete';
@@ -296,13 +333,15 @@ async function publishGitHubChange(tools, change, options = {}) {
     await announce();
     return progress;
   } catch (error) {
+    if (error.tool_error) progress.tool_error = error.tool_error;
     await announce();
     const failure = new GitHubPublishError(String(error.message ?? error), progress, error);
+    if (error.tool_error) failure.tool_error = error.tool_error;
     failure.response = lastResponse;
     throw failure;
   }
 }
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {GitHubPublishError, publishGitHubChange, inspectReadback};
+  module.exports = {GitHubPublishError, publishGitHubChange, inspectReadback, inspectToolError};
 }
