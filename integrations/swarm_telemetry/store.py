@@ -478,16 +478,22 @@ class Store:
             providers=[dict(row) for row in db.execute("SELECT COALESCE(provider,'unknown') AS provider,COUNT(*) AS events,COUNT(DISTINCT session_id) AS sessions FROM events GROUP BY provider ORDER BY events DESC")]
             harnesses=[dict(row) for row in db.execute("SELECT COALESCE(harness,'unknown') AS harness,COUNT(*) AS events,COUNT(DISTINCT session_id) AS sessions FROM events GROUP BY harness ORDER BY events DESC")]
             activity=[dict(row) for row in db.execute("SELECT SUBSTR(occurred_at,1,10) AS date,COUNT(*) AS events FROM events WHERE occurred_at IS NOT NULL GROUP BY date ORDER BY date DESC LIMIT 90")][::-1]
-            usage={"input_tokens":0,"output_tokens":0,"cached_tokens":0,"reasoning_tokens":0,"cost_usd":None,"sessions_with_usage":0}
+            usage_fields=("input_tokens","output_tokens","cached_tokens","reasoning_tokens","cost_usd")
+            usage={key:None for key in usage_fields}
+            usage["sessions_with_usage"]=0
+            metric_sessions={key:0 for key in usage_fields}
             for row in db.execute("SELECT payload FROM sessions"):
                 item=json.loads(row[0]).get("usage",{})
                 if item:
                     usage["sessions_with_usage"]+=1
-                for key in ("input_tokens","output_tokens","cached_tokens","reasoning_tokens"):
-                    usage[key]+=item.get(key,0)
-                if item.get("cost_usd") is not None:
-                    usage["cost_usd"]=(usage["cost_usd"] or 0)+item["cost_usd"]
+                for key in usage_fields:
+                    value=item.get(key)
+                    if value is not None:
+                        usage[key]=(usage[key] or 0)+value
+                        metric_sessions[key]+=1
             usage["accounting_coverage"] = usage["sessions_with_usage"]/session_count if session_count else None
+            usage["metric_sessions"]=metric_sessions
+            usage["metric_coverage"]={key:count/session_count if session_count else None for key,count in metric_sessions.items()}
             captured=db.execute("SELECT COUNT(*),COALESCE(SUM(byte_length),0),SUM(character_length) FROM source_records").fetchone()
         peers=self.peers(limit=10000)["peers"]
         counts={"events":event_count,"sessions":session_count,"peers":peer_count,"executing":sum(p.get("status") in {"executing","running","started"} for p in peers),"waiting":sum(p.get("status") in {"waiting","tool_wait","blocked"} for p in peers),"recently_observed":sum(bool(p.get("recently_observed")) for p in peers),"unknown":sum(p.get("status") in {None,"unknown"} for p in peers)}
