@@ -78,8 +78,10 @@ AGENT_VIEW tells every seat to keep the `c` of the newest feed event it has
 processed. A seat that also writes that string into its file as
 `feed_cursor` gets `derived.feed`: CURRENT, BEHIND with a count of newer
 events in feed/window.json, BEYOND_WINDOW when the cursor predates the whole
-shard, or FINDER-FAILED when the shard was not read. `feed_lag` lists those
-seats furthest behind first. A seat that does not refresh is otherwise
+shard, UNORDERED_GAP when the shard names undated posts, or FINDER-FAILED when
+the shard was not read. An unordered gap names recent.json as the next read
+and leaves the full lag unknown. `feed_lag` lists those seats furthest behind
+first. A seat that does not refresh is otherwise
 indistinguishable from one that has nothing new to read; this makes the
 difference visible without asking anyone.
 
@@ -458,8 +460,9 @@ def recent_activity(headed, reference, posts_state="READ"):
 def read_feed_window(root=ROOT, status=None):
     """The window shard's cursors, for measuring declared read cursors.
 
-    Returns {"cursors": sorted list, "complete_since": str, "newest": str}, or
-    None when the shard could not be read, with the reason in `status`.
+    Returns cursors, complete_since and newest, plus undated IDs when the shard
+    cannot establish complete ordering. Returns None when the shard could not
+    be read, with the reason in `status`.
     """
     status = {} if status is None else status
     path = os.path.join(root, FEED_WINDOW)
@@ -475,13 +478,21 @@ def read_feed_window(root=ROOT, status=None):
     if not isinstance(doc, dict) or not isinstance(doc.get("events"), list):
         status[FEED_WINDOW] = {"state": "NOT_A_SHARD"}
         return None
+    undated = doc.get("undated", [])
+    if not isinstance(undated, list) or any(not isinstance(i, str) for i in undated):
+        status[FEED_WINDOW] = {"state": "NOT_A_SHARD"}
+        return None
     cursors = sorted({_s(e.get("c")) for e in doc["events"]
                       if isinstance(e, dict) and _s(e.get("c"))})
     since = _s(doc.get("complete_since"))
     status[FEED_WINDOW] = {"state": "READ", "events": len(cursors),
                            "complete_since": since or UNKNOWN}
-    return {"cursors": cursors, "complete_since": since,
-            "newest": cursors[-1] if cursors else ""}
+    window = {"cursors": cursors, "complete_since": since,
+              "newest": cursors[-1] if cursors else ""}
+    if undated:
+        window["undated"] = list(undated)
+        status[FEED_WINDOW]["undated_records"] = len(undated)
+    return window
 
 
 def _cursor_time(cursor):
@@ -494,7 +505,8 @@ def feed_position(cursor, window):
     `feed_cursor` is the `c` of the newest feed event the seat has processed,
     the same string AGENT_VIEW tells every seat to keep. Measured against
     feed/window.json: CURRENT (nothing newer), BEHIND with a count,
-    BEYOND_WINDOW when the cursor predates everything the shard holds, or
+    BEYOND_WINDOW when the cursor predates everything the shard holds,
+    UNORDERED_GAP when undated posts require a full recent.json read, or
     FINDER-FAILED when the shard was not read. behind_s is the landing-time
     distance from the cursor to the newest event, not a clock reading, so it
     does not age on read.
@@ -505,6 +517,11 @@ def feed_position(cursor, window):
     if window is None:
         return {"cursor": cursor, "state": "FINDER-FAILED",
                 "behind_events": UNKNOWN, "behind_s": UNKNOWN}
+    if window.get("undated"):
+        return {"cursor": cursor, "state": "UNORDERED_GAP",
+                "behind_events": UNKNOWN, "behind_s": UNKNOWN,
+                "undated": list(window["undated"]), "requires_full_read": True,
+                "next_read": "recent.json"}
     newest_t, mine_t = _cursor_time(window["newest"]), _cursor_time(cursor)
     behind_s = (max(0, int((newest_t - mine_t).total_seconds()))
                 if newest_t and mine_t else UNKNOWN)
