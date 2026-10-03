@@ -349,7 +349,7 @@ class Runtime:
             def emit(verb, target, suffix="", **extra):
                 allowed = ("base_sha", "head_sha", "branch", "pr", "issue", "repo", "artifact",
                            "merge_sha", "blocker", "next_action", "required_capabilities",
-                           "priority", "source_event_ids", "exact_error", "model", "harness")
+                           "priority", "source_event_ids", "exact_error", "model", "harness", "title")
                 event = {field: payload[field] for field in allowed if field in payload}
                 event.update(id="swarm:" + operation_id + suffix, action=verb, task_key=target,
                              worker=worker or "UNKNOWN", at=moment, source="swarmctl",
