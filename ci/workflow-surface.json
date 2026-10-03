@@ -32,7 +32,6 @@
     ".github/workflows/llms-txt.yml",
     ".github/workflows/local-compute-guard.yml",
     ".github/workflows/main-range-verify.yml",
-    ".github/workflows/merged-branch-janitor.yml",
     ".github/workflows/moving-main-mirror.yml",
     ".github/workflows/muhlnickel-foundry-cloud.yml",
     ".github/workflows/muhlnickel-spec-guard.yml",
@@ -71,6 +70,9 @@
     ".github/workflows/uiowa-100-operator-portability.yml",
     ".github/workflows/uiowa-100-run-evidence.yml",
     ".github/workflows/uiowa096-compatibility.yml"
+  ],
+  "retired": [
+    ".github/workflows/merged-branch-janitor.yml"
   ],
   "archived": [
     {
