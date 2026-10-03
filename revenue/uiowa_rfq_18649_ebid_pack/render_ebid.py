@@ -157,7 +157,7 @@ def render_pack(field_map, answers, attachments, source_state, out_dir: Path):
             errors.append(f"{fid}: unknown attachment refs: {', '.join(missing_refs)}")
 
         rel = f"outputs/attributes/attr-{aid:02d}.txt"
-        dest = out_dir.parent / rel
+        dest = attr_dir / f"attr-{aid:02d}.txt"
         dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_text(text, encoding="utf-8")
         if dest.read_text(encoding="utf-8") != text:
@@ -241,7 +241,12 @@ def render_pack(field_map, answers, attachments, source_state, out_dir: Path):
     cols=["surface","field_id","number","title","response_type","required","character_limit","status",
           "draft_location","owner_action","source_page","certification_or_agreement"]
     with (out_dir/"submission-index.csv").open("w",encoding="utf-8",newline="") as h:
-        w=csv.DictWriter(h,fieldnames=cols); w.writeheader(); w.writerows(rows)
+        w=csv.DictWriter(h,fieldnames=cols); w.writeheader()
+        for row in rows:
+            w.writerow({
+                key: str(value).lower() if isinstance(value, bool) else value
+                for key, value in row.items()
+            })
     (out_dir/"combined-preview.md").write_text("\n".join(preview),encoding="utf-8")
     report={
         "rfq_number":field_map.get("rfq_number"),"attribute_count":len(field_map.get("attributes",[])),
