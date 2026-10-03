@@ -890,7 +890,9 @@ def collect_github_activity(config=None, state=None, sources=None):
                     task.update(status="graphql_source_unavailable", complete=False, retry_epoch=_retry_epoch(headers))
                     continue
                 task["records"] += len((connection or {}).get("nodes") or [])
-            elif not headers and len(_page_items(payload, task["kind"])) >= 100 and "per_page=100" in task["endpoint"]:
+            # Matching refs returns the entire namespace and ignores page and
+            # per_page. Inferring pages would reread that namespace forever.
+            elif task["kind"] != "refs" and not headers and len(_page_items(payload, task["kind"])) >= 100 and "per_page=100" in task["endpoint"]:
                 parts = urllib.parse.urlsplit(task["next_endpoint"])
                 params = urllib.parse.parse_qsl(parts.query, keep_blank_values=True)
                 params = [(k, v) for k, v in params if k != "page"] + [("page", str(task["page"] + 1))]
