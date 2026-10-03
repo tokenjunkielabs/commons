@@ -712,29 +712,87 @@ def gmail_events(get: Callable, config: dict, since: str, seen: Callable = lambd
     return collect_delivery_groups(gmail_delivery_groups, get, config, since, seen)
 
 
-def gmail_delivery_groups(get: Callable, config: dict, since: str, seen: Callable = lambda key: "") -> tuple[dict, Iterator[tuple[str, list[Event]]]]:
+def gmail_message_ids(get: Callable, query: str, info: dict, scope: str,
+                      seen: Callable, checkpoint: Callable | None = None) -> Iterator[str]:
+    """Yield ID pages with a scoped continuation after successful consumption."""
+    key = "gmail.listing." + scope
+    saved = seen(key)
+    try:
+        prior = json.loads(saved) if saved else {}
+    except (TypeError, ValueError):
+        raise RelayError("gmail_listing_checkpoint_invalid") from None
+    if not isinstance(prior, dict) or (prior and prior.get("scope") != scope):
+        raise RelayError("gmail_listing_checkpoint_invalid")
+    token = prior.get("page_token", "")
+    if not isinstance(token, str):
+        raise RelayError("gmail_listing_checkpoint_invalid")
+    info["message_listing_resumed"] = bool(token)
+    def save(next_token: str | None):
+        if checkpoint is not None:
+            checkpoint(key, "" if next_token is None else json.dumps({
+                "scope": scope, "page_token": next_token}, sort_keys=True))
+    requested_tokens: set[str] = set()
+    seen_ids: set[str] = set()
+    for _ in range(20):
+        if token in requested_tokens:
+            raise RelayError("gmail_page_cursor_repeated")
+        requested_tokens.add(token)
+        params = {"q": query, "maxResults": 100}
+        if token:
+            params["pageToken"] = token
+        try:
+            page = get("messages", params)
+        except RelayError as exc:
+            if token and exc.code == "http_400":
+                # An expired/invalid continuation must not trap every future
+                # pass. Retain item markers and report this provider error;
+                # the next pass can restart the same query from page one.
+                save(None)
+            raise
+        if not isinstance(page, dict) or not isinstance(page.get("messages", []), list):
+            raise RelayError("gmail_list_shape")
+        # Until every yielded group returns from delivery, a retry must start
+        # with this page; per-message markers skip its completed deliveries.
+        save(token)
+        info["message_pages"] += 1
+        for item in page.get("messages", []):
+            mid = item.get("id") if isinstance(item, dict) else None
+            if not isinstance(mid, str) or not mid:
+                raise RelayError("gmail_list_shape")
+            if mid in seen_ids:
+                info["duplicate_message_ids"] += 1
+                continue
+            seen_ids.add(mid)
+            info["messages"] += 1
+            yield mid
+        token = page.get("nextPageToken", "")
+        if not isinstance(token, str):
+            raise RelayError("gmail_list_shape")
+        if not token:
+            save(None)
+            info["message_listing_complete"] = True
+            return
+        if token in requested_tokens:
+            raise RelayError("gmail_page_cursor_repeated")
+        save(token)
+    raise RelayError("gmail_page_limit_pending")
+
+
+def gmail_delivery_groups(get: Callable, config: dict, since: str, seen: Callable = lambda key: "",
+                          checkpoint: Callable | None = None) -> tuple[dict, Iterator[tuple[str, list[Event]]]]:
     profile = get("profile")
     if str(profile.get("emailAddress", "")).lower() != config["gmail_address"].lower():
         raise RelayError("gmail_account_mismatch")
     # Sliding overlap intentionally re-reads IDs; per-part dedup prevents repeat posts.
     query = config.get("gmail_query", "{newer_than:14d is:unread is:starred} -in:spam -in:trash -in:sent -in:drafts")
-    ids: list[str] = []
-    token = ""
-    for _ in range(20):
-        params = {"q": query, "maxResults": 100}
-        if token:
-            params["pageToken"] = token
-        page = get("messages", params)
-        ids.extend(str(item["id"]) for item in page.get("messages", []))
-        token = page.get("nextPageToken", "")
-        if not token:
-            break
-    if token:
-        raise RelayError("gmail_page_limit_pending")
-    info = {"mode": "work-mail-poll", "messages": len(ids), "unchanged": 0, "private_or_auth_omitted": 0,
+    info = {"mode": "work-mail-poll", "messages": 0, "message_pages": 0,
+            "message_listing_complete": False, "message_listing_resumed": False, "duplicate_message_ids": 0,
+            "unchanged": 0, "private_or_auth_omitted": 0,
             "promotional_omitted": 0, "github_mail_deduped": 0, "unclassified_pending": 0, "source_items_pending": 0, "body_pending": 0}
     def groups() -> Iterator[tuple[str, list[Event]]]:
-        for mid in dict.fromkeys(ids):
+        scope = digest(json.dumps([config["gmail_address"].lower(),
+                                   config.get("gmail_channel", ""), query]))
+        for mid in gmail_message_ids(get, query, info, scope, seen, checkpoint):
             # Received message IDs are immutable. Skip only a completed content
             # delivery; omitted/partial mail remains eligible on every poll.
             version = "gmail.delivered." + digest(json.dumps([
