@@ -1396,7 +1396,7 @@ class CommandCenter:
             if final.get("status") in ("completed", "completed_with_errors"):
                 final["last_completed_at"] = final["finished_at"]
                 from .swarm_tasks import after_ingest
-                after_ingest(self)
+                after_ingest(self, refresh_providers=True)
             try:
                 self._save_work_refresh(final)
             finally:

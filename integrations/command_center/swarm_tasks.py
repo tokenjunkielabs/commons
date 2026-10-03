@@ -198,12 +198,13 @@ def call(center, payload):
         raise
 
 
-def after_ingest(center):
+def after_ingest(center, *, refresh_providers=False):
     """Existing provider/peer ingestion mechanically refreshes task projection.
 
     A nonblocking lock collapses simultaneous source batches. The next batch or
     explicit sync retries after contention; a failed task sync never falsifies
-    the already-stored provider observation.
+    the already-stored provider observation. Only a completed collector cycle
+    opts into bounded history reconciliation; ordinary ingestion stays cached.
     """
     from host.swarm_runtime.locks import LockUnavailable, release, take
     try:
@@ -215,10 +216,14 @@ def after_ingest(center):
 
     def run():
         try:
-            result = call(center, {"action": "sync", "refresh_providers": False, "max_calls": 0})
+            result = call(center, {"action": "sync", "refresh_providers": refresh_providers,
+                                   "max_calls": 4 if refresh_providers else 0})
             import json
             # Operational error classification only, never provider payloads.
             outcome = {key: result.get(key) for key in ("ok", "tip", "error", "published")}
+            sync_result = result.get("result") or result.get("proposed_result") or {}
+            if "provider_calls" in sync_result:
+                outcome["provider_calls"] = sync_result["provider_calls"]
             if "feed_sync" in result:
                 outcome["feed_sync"] = result["feed_sync"]
             (center.state_dir / "swarm-last-sync.json").write_text(json.dumps(outcome), encoding="utf-8")
