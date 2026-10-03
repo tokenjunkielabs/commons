@@ -1,0 +1,258 @@
+{
+  "schema": "douglas-ks-public-packet-retrieval/v1",
+  "operation_id": "DOUGLAS-PUBLIC-PACKET-20261003-7CA6",
+  "opportunity_id": "RFP-2026-0012",
+  "buyer": "Douglas County, Kansas",
+  "retrieval_date_utc": "2026-10-03",
+  "original_packet_retrieval_issue": "https://github.com/woahwhattheheck/commons/issues/15862",
+  "original_commercial_issue": "https://github.com/woahwhattheheck/commons/issues/15848",
+  "original_package_pr": "https://github.com/woahwhattheheck/commons/pull/15853",
+  "state": "PUBLIC_MANIFEST_RETAINED_DOCUMENT_CONTENTS_UNRETAINED",
+  "sources": [
+    {
+      "source_id": "county-purchasing",
+      "requested_url": "https://www.dgcoks.gov/administration/purchasing",
+      "final_url": "https://www.dgcoks.gov/administration/purchasing",
+      "http_status": 200,
+      "content_type": "text/html; charset=UTF-8",
+      "server_date": "Sat, 03 Oct 2026 21:55:46 GMT",
+      "body_complete": true,
+      "captured_file": "county-purchasing.html",
+      "captured_bytes": 109859,
+      "sha256": "456b4e7425c8218c56b28286f6bb86687698f7871e524ca43fda1cd495c79c2a",
+      "git_blob_sha": "ac6667296fc83c760871b685a11a627dfec1cdd4",
+      "retrieval_started_at_utc": "2026-10-03T21:55:38.818588Z",
+      "retrieval_completed_at_utc": "2026-10-03T21:55:46.764987Z"
+    },
+    {
+      "source_id": "portal-home",
+      "requested_url": "https://douglascountyks.bidsandtenders.net/",
+      "final_url": "https://douglascountyks.bidsandtenders.net/",
+      "http_status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "server_date": "Sat, 03 Oct 2026 21:55:52 GMT",
+      "body_complete": true,
+      "captured_file": "portal-home.html",
+      "captured_bytes": 29955,
+      "sha256": "88aae8305e1ba44fb61af868728df25cbf340db39a066ee82f2bb12c4307e203",
+      "git_blob_sha": "6eafae0b19c052a87b18fbf0b646088273eccd00",
+      "retrieval_started_at_utc": "2026-10-03T21:55:46.765731Z",
+      "retrieval_completed_at_utc": "2026-10-03T21:55:52.330991Z"
+    },
+    {
+      "source_id": "tender-detail",
+      "requested_url": "https://douglascountyks.bidsandtenders.net/Module/Tenders/en/Tender/Detail/75e76acb-87a3-4199-9fae-d5736d38e590",
+      "final_url": "https://douglascountyks.bidsandtenders.net/Module/Tenders/en/Tender/Detail/75e76acb-87a3-4199-9fae-d5736d38e590",
+      "http_status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "server_date": "Sat, 03 Oct 2026 21:56:03 GMT",
+      "body_complete": true,
+      "captured_file": "tender-detail.html",
+      "captured_bytes": 35671,
+      "sha256": "fa8709fc60a1f7bb48b07d6c1b66b3dadab66031ffdc24acd41058b278f93a78",
+      "git_blob_sha": "02db335e881ed753ecdcfc49456d64865ed71944",
+      "retrieval_started_at_utc": "2026-10-03T21:55:52.331758Z",
+      "retrieval_completed_at_utc": "2026-10-03T21:56:03.354529Z"
+    },
+    {
+      "source_id": "download-all-public-action",
+      "requested_url": "https://douglascountyks.bidsandtenders.net/Module/Tenders/en/Tender/DownloadBidDocuments/75e76acb-87a3-4199-9fae-d5736d38e590",
+      "final_url": "https://douglascountyks.bidsandtenders.net/Module/Tenders/en/Tender/DownloadBidDocuments/75e76acb-87a3-4199-9fae-d5736d38e590",
+      "request_method": "GET",
+      "http_status": 302,
+      "content_type": "text/html; charset=utf-8",
+      "server_date": "Sat, 03 Oct 2026 22:25:21 GMT",
+      "retrieval_started_at_utc": "2026-10-03T22:25:12.964082Z",
+      "retrieval_completed_at_utc": "2026-10-03T22:25:21.861041Z",
+      "body_complete": true,
+      "captured_file": "download-all-response.html",
+      "captured_bytes": 141,
+      "sha256": "32b9f70036afb6c3a52ad24a61afcc9b7712b376a6543b712f1530c7a06e28e3",
+      "git_blob_sha": "3d691dd4d961c4d51ebad883a205b5075b8a7a35",
+      "redirect_location": "/Module/Tenders/en/Login",
+      "redirects": [
+        {
+          "from": "https://douglascountyks.bidsandtenders.net/Module/Tenders/en/Tender/DownloadBidDocuments/75e76acb-87a3-4199-9fae-d5736d38e590",
+          "status": 302,
+          "to": "https://douglascountyks.bidsandtenders.net/Module/Tenders/en/Login"
+        }
+      ],
+      "redirect_followed": false
+    }
+  ],
+  "portal_observation": {
+    "source_id": "tender-detail",
+    "bid_status": "Open",
+    "published_local": "2026-09-15T14:30:00",
+    "closing_local": "2026-10-20T14:00:00",
+    "question_deadline_local": "2026-09-30T16:00:00",
+    "time_zone_label": "CDT",
+    "submission_type": "Online Submissions Only",
+    "embedded_document_rows": 8,
+    "embedded_addendum_rows": 2,
+    "manifest_scope": "Only records embedded in the captured anonymous tender-detail response; contents and historical completeness are not established."
+  },
+  "documents": [
+    {
+      "group": "document",
+      "portal_document_id": "86610fb7-c0bf-44ae-a7b2-796b2a3c4085",
+      "portal_display_name": "RFP-2026-0012.pdf",
+      "portal_created_local": "2026-09-15T14:17:39.620",
+      "created_time_zone": "not stated in document row",
+      "portal_listed_pages": 0,
+      "contents_retained": false,
+      "content_sha256": null
+    },
+    {
+      "group": "document",
+      "portal_document_id": "f012d770-fcef-4919-909f-917a5a7ce0d3",
+      "portal_display_name": "RFP-2026-0012 Enterprise Resource Planning (ERP) System",
+      "portal_created_local": "2026-09-15T13:00:46.630",
+      "created_time_zone": "not stated in document row",
+      "portal_listed_pages": 33,
+      "contents_retained": false,
+      "content_sha256": null
+    },
+    {
+      "group": "document",
+      "portal_document_id": "af122ee1-af7f-4fa0-9a8d-06f87eed611d",
+      "portal_display_name": "Attachment 11 (Data Conversions)",
+      "portal_created_local": "2026-09-15T13:11:42.823",
+      "created_time_zone": "not stated in document row",
+      "portal_listed_pages": 1,
+      "contents_retained": false,
+      "content_sha256": null
+    },
+    {
+      "group": "document",
+      "portal_document_id": "3c5c4b58-ba62-4e24-ae31-1e2baa539903",
+      "portal_display_name": "Attachment 12 (Project Staffing)",
+      "portal_created_local": "2026-09-15T13:14:05.313",
+      "created_time_zone": "not stated in document row",
+      "portal_listed_pages": 2,
+      "contents_retained": false,
+      "content_sha256": null
+    },
+    {
+      "group": "document",
+      "portal_document_id": "03f91b7e-3f7a-4697-9331-ec44ac80d65c",
+      "portal_display_name": "Attachment 13 (Functional Requirements)",
+      "portal_created_local": "2026-09-15T13:15:36.457",
+      "created_time_zone": "not stated in document row",
+      "portal_listed_pages": 21,
+      "contents_retained": false,
+      "content_sha256": null
+    },
+    {
+      "group": "document",
+      "portal_document_id": "7d718c57-f38b-47f6-8ac6-1c8bee02d11c",
+      "portal_display_name": "Attachment 14 (Cost)",
+      "portal_created_local": "2026-09-15T13:17:59.430",
+      "created_time_zone": "not stated in document row",
+      "portal_listed_pages": 5,
+      "contents_retained": false,
+      "content_sha256": null
+    },
+    {
+      "group": "document",
+      "portal_document_id": "d9747aab-718a-47f5-8232-2d4dbe9c56cf",
+      "portal_display_name": "Attachment 15 (Business Process Documentation)",
+      "portal_created_local": "2026-09-15T13:22:34.703",
+      "created_time_zone": "not stated in document row",
+      "portal_listed_pages": 41,
+      "contents_retained": false,
+      "content_sha256": null
+    },
+    {
+      "group": "document",
+      "portal_document_id": "12ad519c-61fe-4072-ad58-4e37c2f7bb46",
+      "portal_display_name": "Attachments 1, 4-10 in Word Format",
+      "portal_created_local": "2026-09-16T12:53:03.013",
+      "created_time_zone": "not stated in document row",
+      "portal_listed_pages": 8,
+      "contents_retained": false,
+      "content_sha256": null
+    },
+    {
+      "group": "addendum",
+      "portal_document_id": "e78978bd-4fd9-4769-8785-651743e01567",
+      "portal_display_name": "Addendum #2",
+      "portal_created_local": "2026-09-30T08:26:02.077",
+      "created_time_zone": "not stated in document row",
+      "portal_listed_pages": 7,
+      "contents_retained": false,
+      "content_sha256": null
+    },
+    {
+      "group": "addendum",
+      "portal_document_id": "c65a269a-a4e3-44d4-a83e-73742185135d",
+      "portal_display_name": "Addendum #1",
+      "portal_created_local": "2026-09-24T15:30:19.863",
+      "created_time_zone": "not stated in document row",
+      "portal_listed_pages": 1,
+      "contents_retained": false,
+      "content_sha256": null
+    }
+  ],
+  "access_observation": {
+    "anonymous_detail_page_returned": true,
+    "individual_document_and_addendum_commands_configured_hidden": true,
+    "registered_plan_taker_notices_present_in_source": true,
+    "registered_plan_taker_alert_panels_configured_hidden": true,
+    "top_level_download_all_action_configured_hidden": false,
+    "download_all_anonymous_get_http_status": 302,
+    "download_all_redirect_location": "/Module/Tenders/en/Login",
+    "login_redirect_followed": false,
+    "download_all_requests": 1,
+    "hidden_download_endpoints_invoked": false,
+    "individual_document_payload_requests": 0,
+    "registration_or_terms_submitted": false,
+    "credentials_used": false,
+    "cookies_sent": false,
+    "conclusion": "The anonymous GET to the page's top-level download-all action returned HTTP 302 to /Module/Tenders/en/Login. The redirect was not followed. The complete 141-byte redirect response is retained; no controlling document payload was returned. Hidden per-document endpoints were not invoked."
+  },
+  "coverage": {
+    "captured_page_bodies": 3,
+    "captured_page_bytes": 175485,
+    "captured_redirect_bodies": 1,
+    "captured_redirect_bytes": 141,
+    "captured_http_response_bodies": 4,
+    "captured_http_response_bytes": 175626,
+    "retained_bid_document_payloads": 0,
+    "controlling_packet_complete": false,
+    "mandatory_requirements_extracted": false,
+    "raw_response_capture_complete": true,
+    "scope": "Three official page bodies and one observed public download-action redirect. Embedded document metadata is not controlling-document content or complete historical coverage."
+  },
+  "native_capture": {
+    "elapsed_seconds": 24.536913,
+    "peak_rss_kib": 17280,
+    "admission_headroom_bytes": 529448960,
+    "aggregate_body_limit_bytes": 4194304,
+    "no_process_remaining": true,
+    "download_all_followup": {
+      "elapsed_seconds": 8.896964,
+      "peak_rss_kib": 15872,
+      "admission_headroom_bytes": 157696000,
+      "body_limit_bytes": 8388608,
+      "no_process_remaining": true
+    }
+  },
+  "authority": {
+    "buyer_contact": false,
+    "partner_contact": false,
+    "registration": false,
+    "sign_in": false,
+    "terms_acceptance": false,
+    "question_submission": false,
+    "pricing_commitment": false,
+    "proposal_submission": false,
+    "payment": false,
+    "revenue_recognition": false
+  },
+  "lineage": {
+    "original_six_package_files_preserved": true,
+    "original_commercial_owner_credit_preserved": true,
+    "qualification_and_commercial_state_changed": false
+  }
+}
