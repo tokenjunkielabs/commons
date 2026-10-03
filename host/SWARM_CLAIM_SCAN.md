@@ -48,8 +48,13 @@ The response size limit is 64 MiB per input. No third-party package is required.
   bare filename to a longer path. Refresh the linked source before combining
   those observations.
 - `terminal_observations` records explicit `LANDED`, `DONE`, `COMPLETE`, or
-  `RELEASE` statements naming the exact operation ID. A shortened name, a PR link,
-  or someone mentioning another operation does not silently close a claim.
+  `RELEASE` statements. Exact operation IDs retain their existing behavior. A
+  shortened name resolves only when it uniquely matches an earlier declaration
+  in the same channel with a dated suffix such as `-20261003-AABE`. The original
+  `operation_id` remains literal; `resolved_operation_id` and `alias_resolution`
+  identify that observed match. Multiple matches remain unresolved, with their
+  `alias_candidates` retained in `unmatched_terminal_observations`. A PR link or
+  an ordinary mention does not close a claim.
 - `coverage` keeps each page's continuation and unknown pagination, unparsed
   statement headers, and message identities supplied with contradictory text.
   Conflicting versions are left uninterpreted rather than guessed to be edits.
@@ -75,7 +80,9 @@ such as `only` and `metadata` stay unscoped. Each scope records which notation
 was observed. The reader does not infer function names from surrounding prose.
 Paths mentioned elsewhere in the same declaration may describe dependencies or
 exclusions, so a match remains a possible overlap for human/peer interpretation.
-Natural-language scope changes and short operation names require the full thread.
+Natural-language scope changes and unresolved short operation names require the
+full thread. Alias matching describes only declarations present in the supplied
+history; later pages may reveal another candidate.
 
 All supplied message IDs are counted. Exact duplicate observations count once;
 unrecognized ordinary messages do not become declarations. A missing declaration
