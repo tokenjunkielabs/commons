@@ -189,17 +189,25 @@ class Reader:
             status = exc.code
             headers = {name.lower(): value for name, value in (exc.headers or {}).items()}
             secondary = False
-            if status in (403, 429):
+            empty_repository = False
+            if status in (403, 409, 429):
                 try:
                     error = json.loads(exc.read(65536))
                     message = str(error.get('message', '')).lower() if isinstance(error, dict) else ''
                     secondary = any(term in message for term in ('secondary rate limit', 'abuse detection mechanism'))
+                    empty_repository = (status == 409 and message.strip() == 'git repository is empty.' and
+                        bool(re.fullmatch(r'/(?:repos/[^/]+/[^/]+|repositories/\d+)/commits', parsed.path)))
                 except (OSError, ValueError, TypeError):
                     pass
             limited = status == 429 or status == 403 and (
                 headers.get('x-ratelimit-remaining') == '0' or
                 bool(headers.get('retry-after')) or secondary)
             exc.close()
+            if empty_repository:
+                # Preserve an empty batch and advance the normal commit cursor.
+                for scope in ('global', resource):
+                    self.state.get('cooldown_backoff', {}).pop(scope, None)
+                return [], {}, url
             if limited:
                 primary = (headers.get('x-ratelimit-remaining') == '0' and not secondary
                            and headers.get('x-ratelimit-resource') in (None, resource))
