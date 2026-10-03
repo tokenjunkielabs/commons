@@ -834,16 +834,24 @@ class CommandCenter:
                 "SELECT * FROM operations ORDER BY started_at DESC LIMIT 300").fetchall()
             source_events = db.execute(
                 "SELECT data FROM source_events ORDER BY observed_at DESC LIMIT 300").fetchall()
-            moderation = {row["event_id"]: dict(row)
-                          for row in db.execute("SELECT * FROM moderation")}
         feed = self._get_records("feed")
         feed.extend(self._operation_event(row) for row in operations)
         feed.extend(json.loads(row["data"]) for row in source_events)
+        feed = sorted(feed, key=lambda item: item.get("observed_at") or "", reverse=True)[:300]
+        if not feed:
+            return feed
+        # The retained moderation history can outgrow this bounded view. Its
+        # primary key already supports exact lookups for the events we return.
+        with self._db() as db:
+            placeholders = ",".join("?" for _ in feed)
+            moderation = {row["event_id"]: dict(row) for row in db.execute(
+                "SELECT * FROM moderation WHERE event_id IN (" + placeholders + ")",
+                [event["id"] for event in feed])}
         for event in feed:
             mod = moderation.get(event["id"])
             event["hidden"] = bool(mod["hidden"]) if mod else False
             event["moderation"] = mod
-        return sorted(feed, key=lambda item: item.get("observed_at") or "", reverse=True)[:300]
+        return feed
 
 
 
