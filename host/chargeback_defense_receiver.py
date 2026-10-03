@@ -160,9 +160,9 @@ def _inspect_signature_header(header: str, tolerance: int) -> tuple[bool, bool]:
     Returns (well_formed, stale). This function never verifies anything: it
     only decides which deterministic HTTP status a rejected delivery maps to.
     ``_core.verify()`` remains the authoritative check and runs on every
-    request afterwards with the exact same bytes and header. The shape rules
-    mirror ``_core.verify()`` exactly so the mapping cannot disagree with the
-    core's own malformed/stale classification.
+    request afterwards with the exact same bytes and header. Timestamp text
+    must be bounded ASCII decimal digits: ``str.isdigit()`` also accepts
+    Unicode characters that cannot be converted to an integer.
     """
     if not header or len(header) > 8192 or "\n" in header or "\r" in header:
         return False, False
@@ -176,9 +176,10 @@ def _inspect_signature_header(header: str, tolerance: int) -> tuple[bool, bool]:
             timestamps.append(value)
         elif key == "v1":
             signatures.append(value)
-    if len(timestamps) != 1 or not timestamps[0].isdigit() or not signatures:
+    if (len(timestamps) != 1 or not re.fullmatch(r"[0-9]{1,12}", timestamps[0])
+            or not signatures):
         return False, False
-    if len(timestamps[0]) > 12 or any(not _V1_HEX_RE.fullmatch(item) for item in signatures):
+    if any(not _V1_HEX_RE.fullmatch(item) for item in signatures):
         return False, False
     stamp = int(timestamps[0])
     return True, abs(int(time.time()) - stamp) > tolerance
@@ -356,6 +357,10 @@ class _Handler(BaseHTTPRequestHandler):
         if method != "POST" or self.path != self.config.route:
             # Method/path mapping never needs a body; Content-Length is only
             # required for POST deliveries to the ingest route.
+            # Do not let an unread rejected body become the next request line.
+            if (any(value.strip() != "0" for value in self.headers.get_all("Content-Length", []))
+                    or "Transfer-Encoding" in self.headers):
+                self.close_connection = True
             headers = {name.lower(): value for name, value in self.headers.items()}
             started = time.time()
             status, payload = handle_delivery(method, self.path, headers, b"", self.config)
@@ -395,6 +400,8 @@ class _Handler(BaseHTTPRequestHandler):
         self.send_response(status, _STATUS_PHRASES.get(status, "Unknown"))
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(body)))
+        if self.close_connection:
+            self.send_header("Connection", "close")
         if status == 405:
             self.send_header("Allow", "POST")
         self.end_headers()
