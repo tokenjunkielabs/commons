@@ -151,7 +151,10 @@ class SourceEngine:
         for job_id in seen:
             if job_id in receipts: consumed[job_id]=responses[job_id]
         self.store.state("native_consumed:"+kind,consumed)
-        health={"observed_at":now(),"events":len(events),"pending":len(pending),"complete":bool(rows) and not mismatches and all(row.get("complete",False) for row in rows),"full_source_retained":True,"sampling":False,"native_receipts_available":len(receipts),"native_receipts_consumed":len(consumed),"native_identical_observations":identical_observations,"native_receipt_mismatches":mismatches}
+        native_pending=len(pending)
+        # GitHub retains selector coverage separately from native handoff jobs.
+        # Its incomplete rows include aliases, templates and account recovery.
+        health={"observed_at":now(),"events":len(events),"pending":result.get("pending_selectors",native_pending),"pending_native_jobs":native_pending,"complete":bool(rows) and not mismatches and all(row.get("complete",False) for row in rows),"full_source_retained":True,"sampling":False,"native_receipts_available":len(receipts),"native_receipts_consumed":len(consumed),"native_identical_observations":identical_observations,"native_receipt_mismatches":mismatches}
         self.store.state("source_reader_health:"+kind,health)
         return {"kind":kind,**health}
     def jobs(self,reader=None,limit=None,cursor=0):
