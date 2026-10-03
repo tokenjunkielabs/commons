@@ -89,6 +89,22 @@
     });
     return normalized;
   }
+  function captureReviewState(report, packet, hash) {
+    if (typeof hash !== "string") throw new Error("Review locator must be text.");
+    // One owned packet snapshot accompanies the existing parked workspace. It
+    // uses the current intake/record bounds and is never a second history cache.
+    return Object.freeze({
+      report_receipt_sha256: report ? validateReceipt(report.receipt_sha256) : null,
+      packet: packet === null ? null : validatePacket(packet, report),
+      hash
+    });
+  }
+  function restoreReviewState(snapshot, report) {
+    if (!object(snapshot) || snapshot.report_receipt_sha256 !== (report ? report.receipt_sha256 : null)) {
+      throw new Error("Parked review records do not match the restored report.");
+    }
+    return captureReviewState(report, snapshot.packet, snapshot.hash);
+  }
   function catalog(report, packet) {
     const records = sourceRecords(report);
     // Refuse to mix a stale manifest even when a caller bypasses validatePacket.
@@ -171,7 +187,7 @@
     let report = null, packet = null, importGeneration = 0;
     const make = (tag, content, attrs = {}) => { const e = document.createElement(tag); if (content !== undefined) e.textContent = content; for (const [k,v] of Object.entries(attrs)) e.setAttribute(k,v); return e; };
     const panel = make("section", undefined, {class: "panel", "aria-labelledby": "review-heading", id: "review-navigation"});
-    panel.append(make("h2", "5. Linked review records", {id: "review-heading"}), make("p", "Open an exact source, finding, recommendation or review-comment link. Review JSON stays in this browser tab; all records are cleared on every report import. Links contain IDs and revisions, not evidence text."));
+    panel.append(make("h2", "5. Linked review records", {id: "review-heading"}), make("p", "Open an exact source, finding, recommendation or review-comment link. Review JSON stays in this browser tab. Evidence imports clear review records; a temporary sample parks them until you leave. Links contain IDs and revisions, not evidence text."));
     const input = make("input", undefined, {id: "reviewFile", type: "file", accept: "application/json,.json"});
     const label = make("label", "Review-navigation JSON"); label.append(input);
     const demo = make("button", "Load synthetic linked review queue", {id: "reviewDemoBtn", type: "button"});
@@ -240,6 +256,17 @@
     function setReport(value) {
       importGeneration += 1; report = value; packet = null; input.value = ""; error.textContent = ""; render();
     }
+    function captureState() { return captureReviewState(report, packet, window.location.hash); }
+    function restoreState(snapshot) {
+      const restored = restoreReviewState(snapshot, report);
+      // Replace only this entry's fragment: leaving a sample does not add a
+      // history entry or let a pending sample-file read reinstall its packet.
+      if (window.location.hash !== restored.hash) {
+        window.history.replaceState(window.history.state, "", window.location.href.split("#", 1)[0] + restored.hash);
+      }
+      importGeneration += 1; packet = restored.packet; input.value = ""; error.textContent = ""; render();
+    }
+    function clearSampleState() { restoreState(captureReviewState(report, null, "")); }
     input.addEventListener("change", async () => {
       const generation = ++importGeneration;
       packet = null; error.textContent = ""; render();
@@ -256,7 +283,8 @@
     exportPacket.addEventListener("click", () => { if (packet) download(JSON.stringify(packet, null, 2) + "\n", "application/json", "uiowa-review-navigation.json"); });
     const onHash = () => follow(true); window.addEventListener("hashchange", onHash);
     render();
-    return {setReport, importPacket, dispose: () => {window.removeEventListener("hashchange", onHash); panel.remove();}};
+    return {setReport, importPacket, captureState, restoreState, clearSampleState,
+      dispose: () => {window.removeEventListener("hashchange", onHash); panel.remove();}};
   }
-  return Object.freeze({SCHEMA, identity, key, routeFor, parseRoute, sourceRecords, validatePacket, catalog, resolve, relatedCells, anchorFor, guideHTML, syntheticPacket, attach});
+  return Object.freeze({SCHEMA, identity, key, routeFor, parseRoute, sourceRecords, validatePacket, captureReviewState, restoreReviewState, catalog, resolve, relatedCells, anchorFor, guideHTML, syntheticPacket, attach});
 });
