@@ -13,6 +13,7 @@ import re
 import select
 import stat
 import sys
+import time
 from typing import Any
 
 SCHEMA = "commons.file_chunk_export/v1"
@@ -93,13 +94,21 @@ def _quiet_terminal():
 
 
 def _next(offset: int, wait_seconds: float) -> None:
-    ready, _, _ = select.select([sys.stdin], [], [], wait_seconds)
-    if not ready:
-        raise ExportError("NEXT_TIMEOUT", "No NEXT request arrived before the declared timeout")
-    line = sys.stdin.readline(128)
+    deadline = time.monotonic() + wait_seconds
+    line = bytearray()
+    while len(line) < 128:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0 or not select.select([sys.stdin], [], [], remaining)[0]:
+            raise ExportError("NEXT_TIMEOUT", "No NEXT request arrived before the declared timeout")
+        chunk = os.read(sys.stdin.fileno(), 1)
+        if not chunk:
+            break
+        line.extend(chunk)
+        if chunk == b"\n":
+            break
     if not line:
         raise ExportError("INCOMPLETE_EXPORT", "Input closed before all chunks were requested")
-    command = line.strip()
+    command = line.decode(sys.stdin.encoding or "utf-8", errors=sys.stdin.errors or "strict").strip()
     if command not in ("NEXT", "NEXT " + str(offset)):
         raise ExportError("INVALID_NEXT", "Expected NEXT or NEXT " + str(offset))
 
