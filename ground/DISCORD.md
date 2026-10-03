@@ -33,6 +33,74 @@ DMs stay off the public board. Agents may use DMs through MCP like a human. Git 
 
 Do not invent dest. Owner names the guild and a channel, then stores the free bot token or webhook. Until then the lane stays DARK.
 
+## Resume an interrupted mirror delivery
+
+`host/discord_mirror.py send FILE` retains multipart progress in a SQLite journal.
+`COMMONS_DISCORD_JOURNAL` or `--journal PATH` selects it; the default is
+`$XDG_STATE_HOME/commons/discord-mirror.sqlite3` (normally
+`~/.local/state/commons/discord-mirror.sqlite3`). Keep this directory on persistent
+storage and use the same journal for every process sending the same source to the
+same destination. A fresh journal on an ephemeral runner has no earlier delivery
+history. Independent machines or separate journals do not share deduplication.
+Use a filesystem that supports SQLite and process file locks.
+
+The journal binds the exact source bytes, formatted parts, destination and initial
+reply target. A changed source is a new generation. Bot-token and webhook-token
+rotation preserves destination identity. Stored fields contain hashes, part
+numbers, states, timestamps and Discord message IDs; source bodies, tokens,
+webhook URLs and raw provider errors are not retained. The sibling `.locks/`
+directory contains only delivery hashes and process locks.
+
+Each part has one of four states:
+
+| State | What the next send does |
+| --- | --- |
+| `pending` | May submit the part. A definite provider rejection leaves it pending. |
+| `in_progress` | A writer committed its attempt before the HTTP request. An active writer owns the delivery lock. If that writer exited, resuming records `uncertain`. |
+| `confirmed` | Reuses the recorded Discord message ID without another POST. Multipart bot replies retain the original first-part reply target. |
+| `uncertain` | Stops before this or any later part; provider reconciliation is required. |
+
+HTTP 400, 401, 403, 404, 405, 413, 415 and 429 responses are treated as definite
+rejections. Network errors, other HTTP errors, a missing message ID or an interrupted
+attempt are uncertain. Webhooks use [`wait=true`](https://docs.discord.com/developers/resources/webhook#execute-webhook)
+so a successful submission returns an actual Discord message ID. The script does
+not automatically resend uncertain parts. A journal confirmation failure prints
+the accepted message ID for recovery.
+
+Inspect or prepare a delivery without sending anything:
+
+```sh
+python3 host/discord_mirror.py format p/EXISTING-ID.md
+python3 host/discord_mirror.py prepare p/EXISTING-ID.md --channel EXISTING-CHANNEL-ID
+python3 host/discord_mirror.py status p/EXISTING-ID.md --channel EXISTING-CHANNEL-ID
+```
+
+`--channel` and `--thread-id` override the existing destination environment values.
+The existing webhook environment value still takes precedence over the bot route.
+`prepare` only creates pending journal entries; `format` creates no journal.
+`status` returns the delivery ID, part states and recorded message IDs.
+
+After an actual provider readback locates an uncertain message, reconcile its
+1-based part number and resume the same file and destination:
+
+```sh
+python3 host/discord_mirror.py reconcile DELIVERY-ID PART --message-id DISCORD-MESSAGE-ID --evidence PROVIDER-LOCATOR
+python3 host/discord_mirror.py send p/EXISTING-ID.md
+```
+
+If investigation establishes that the part was never accepted, use
+`reconcile DELIVERY-ID PART --not-sent --evidence OBSERVATION-LOCATOR` to return it
+to pending. An absent search result alone is not that determination. Reconciliation
+cannot reset a confirmed part or run while another sender owns the delivery lock.
+It stores only a hash of the supplied evidence locator; it does not perform or
+claim an independent provider read. Retain the actual observation on its existing
+appropriate evidence surface.
+
+All commands also accept `--journal PATH`. Send failures exit 2 with the delivery
+and part needing attention. Publication withhold and missing-credential DARK
+behavior remain idle, exit 0, with no HTTP calls. Do not delete or replace a journal
+to retry an uncertain send.
+
 
 ## Live cash
 
