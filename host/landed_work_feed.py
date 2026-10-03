@@ -60,24 +60,60 @@ def harness_of(author: str) -> str:
     return name.replace(" ", "-").lower() or "UNSEATED"
 
 
+class ChangedPathsUnavailable(RuntimeError):
+    """A commit's first parent is absent from the local object database."""
+
+    def __init__(self, first_parent: str):
+        self.first_parent = first_parent
+        super().__init__(f"first parent {first_parent} is unavailable locally")
+
+
 def paths_of(sha: str, cwd: Path | None = None) -> list[str]:
-    # NUL-delimited bytes preserve Git filenames, including whitespace/Unicode.
-    out = subprocess.check_output(
-        ["git", "diff-tree", "--no-commit-id", "--name-only", "-r",
-         "--diff-merges=first-parent", "--root", "-z", sha],
-        cwd=str(cwd or ROOT),
+    """Compare the real first parent; a shallow boundary is not a root."""
+    root = str(cwd or ROOT)
+    env = os.environ.copy()
+    env["GIT_NO_LAZY_FETCH"] = "1"
+    raw_commit = subprocess.check_output(
+        ["git", "cat-file", "commit", sha], cwd=root, env=env,
     )
+    headers = raw_commit.split(b"\n\n", 1)[0].splitlines()
+    first_parent = next(
+        (line[7:].decode("ascii") for line in headers if line.startswith(b"parent ")),
+        None,
+    )
+    revisions = [first_parent, sha] if first_parent else ["--root", sha]
+    # NUL-delimited bytes preserve Git filenames, including whitespace/Unicode.
+    try:
+        out = subprocess.check_output(
+            ["git", "diff-tree", "--no-commit-id", "--name-only", "-r",
+             "--diff-merges=first-parent", "-z", *revisions, "--"],
+            cwd=root, env=env, stderr=subprocess.PIPE,
+        )
+    except subprocess.CalledProcessError as error:
+        if first_parent:
+            parent = subprocess.run(
+                ["git", "cat-file", "-e", first_parent + "^{commit}"],
+                cwd=root, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            )
+            if parent.returncode:
+                raise ChangedPathsUnavailable(first_parent) from error
+        raise
     return [os.fsdecode(path) for path in out.split(b"\0") if path]
 
 
 def parse_commit(sha: str, author: str, subject: str, cwd: Path | None = None) -> dict[str, Any] | None:
     if subject.startswith(BAKE_SUBJECT):
         return None
-    paths = paths_of(sha, cwd)
+    unavailable_parent = None
+    try:
+        paths = paths_of(sha, cwd)
+    except ChangedPathsUnavailable as error:
+        paths = []
+        unavailable_parent = error.first_parent
     if paths and set(paths) <= BAKE_PATHS:
         return None
     pr_match = PR_RE.search(subject)
-    return {
+    row = {
         "repo": REPO,
         "pr": int(pr_match.group(1)) if pr_match else None,
         "sha": sha,
@@ -86,6 +122,13 @@ def parse_commit(sha: str, author: str, subject: str, cwd: Path | None = None) -
         "paths": paths,
         "author": author,
     }
+    if unavailable_parent:
+        row["paths_coverage"] = {
+            "state": "UNAVAILABLE",
+            "reason": "FIRST_PARENT_UNAVAILABLE",
+            "first_parent_sha": unavailable_parent,
+        }
+    return row
 
 
 def _line_label(text: str, delimiters: str = "") -> str:
