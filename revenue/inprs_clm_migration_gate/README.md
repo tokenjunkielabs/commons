@@ -2,13 +2,13 @@
 
 This package is a **data-free acceptance harness** derived from Indiana Public Retirement System RFP 26-04. It is intended to help a qualified CLM prime prove a bounded migration/publication workstream; it is not a CLM product, an Icertis implementation, an INPRS submission, or evidence of agency acceptance.
 
-## Why this exists
+## Source scope and planning
 
-The September 8, 2026 RFP describes a mostly manual contracting flow backed by Microsoft Word, DocuSign, Conga Contracts, Outlook/email, and a SharePoint/Excel tracking log. It states that roughly 5,000 contracts are in Conga Contracts, with about one third originals/masters and two thirds amendments/addenda, and requires the proposed solution to transfer contracts and data from Conga to the new CLM system. It also requires a no-login public portal for executed contracts, keyword search over contract metadata, and redaction of confidential information before public release. The system must preserve document version history and support vendor-attorney participation in drafting/redlining.
+Use the [original RFP](https://www.in.gov/inprs/files/rfp-documents/RFP26-04ContractLifecycleManagement(CLM)System.pdf) together with the [published inquiry answers](https://www.in.gov/inprs/files/rfp-documents/RFP26-04ContractLifecycleManagementCRMSystemResponsestoInquiries.pdf). The [current qualification record](https://github.com/woahwhattheheck/commons/issues/14580) maps the answered questions and separates the delivered source from remaining partner and proposal work.
 
-Official source: `https://www.in.gov/inprs/files/rfp-documents/RFP26-04ContractLifecycleManagement(CLM)System.pdf` (Scope of Services, pp. 11–13; milestones p. 7).
+The schema and fictional fixture demonstrate verifier behavior. They do not define INPRS's inventory, migration scope, reference qualifications or acceptance criteria. In particular, a version-history field in this package is not evidence that legacy Word histories must be migrated; consult inquiry answers 8–9 before proposing the source asset set. Future CLM version-management functionality and legacy-export acceptance are separate workstreams.
 
-The RFP inquiry deadline is September 18, 2026 at 3:00 PM EDT; proposals are due October 16, 2026 at 3:00 PM EDT. Those dates can change only through the official procurement/addendum process, so re-check the INPRS procurement page before relying on them.
+The original RFP specifies proposals due October 16, 2026 at 3:00 PM EDT (cover, §1.7 and §1.16). Re-check the [official procurement page](https://www.in.gov/inprs/about-us/procurement) for changes before relying on that deadline.
 
 ## What the gate proves
 
@@ -31,7 +31,7 @@ This is deliberately narrower than full CLM acceptance. It does **not** prove Mi
 
 ## Bundle shape
 
-`fixtures/golden_bundle.json` is a synthetic six-contract fixture with the RFP's stated 1:2 master-to-amendment shape. It includes full publication, redacted publication, an explicit legal-review hold, version histories, and three internal vendor documents. It contains no INPRS or vendor production data.
+`fixtures/golden_bundle.json` is a synthetic six-contract example with two masters and four amendments. Its counts and historical revisions exercise the schema and are not a current INPRS inventory or migration requirement. It includes full publication, redacted publication, an explicit legal-review hold, version histories, and three internal vendor documents. It contains no INPRS or vendor production data.
 
 A real evidence run should be generated from immutable source/export manifests. The `expectations` counts must be populated from that independently frozen manifest rather than calculated from the candidate migration itself; otherwise a dropped row could lower both the data and the expectation together.
 
@@ -40,8 +40,6 @@ A real evidence run should be generated from immutable source/export manifests. 
 ```bash
 python revenue/inprs_clm_migration_gate/verify_bundle.py \
   revenue/inprs_clm_migration_gate/fixtures/golden_bundle.json
-
-python -m unittest -v test_inprs_clm_migration_gate.py
 ```
 
 A passing CLI run exits `0`. Any invariant failure exits `2`. Use `--report PATH` to write the same canonical receipt that is printed to stdout.

@@ -2,6 +2,12 @@
 
 This layer binds a normalized CLM migration bundle to independently pinned source and handoff bytes for a qualified-prime review. It does not make Token Junkie Labs a CLM prime, assert buyer acceptance, or create submission/payment/revenue authority.
 
+## Scope before preparing a handoff
+
+Start with the source scope agreed by the prime and buyer, informed by the [current qualification record](https://github.com/woahwhattheheck/commons/issues/14580) and its official sources. This package validates the assets declared in an independently retained manifest; its schema does not decide which agency assets belong in the migration.
+
+Historical-version checks apply to the revisions included in that agreed manifest. Do not invent historical files to satisfy the fictional example, expand the priced scope merely because the verifier supports a field, or silently omit agreed source assets. An adapter must preserve the retained source bytes and document any normalization separately.
+
 ## Trust boundary
 
 The canonical `file_backed_acceptance.py` is v2. The independently pinned canonical manifest binds each source record, source byte digest/size, target path, publication classification, and **every historical version as an exact `(revision, path, sha256)` tuple**. Candidate `version_history` must equal those pinned tuples, and the verifier rereads the actual version files and compares them to the manifest-owned digests. A candidate cannot rewrite an old version file and rewrite its own hash alongside it.
