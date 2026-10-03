@@ -57,6 +57,10 @@ def compile_window(packet: dict[str, Any]) -> dict[str, Any]:
         raise WindowError("unsupported schema")
     owner = _token(packet.get("owner"), "owner")
     repo = _token(packet.get("repo"), "repo")
+    # Existing unscoped IDs belong to Commons. Other repositories need their
+    # own namespace so equally numbered issues and coverage sources compose.
+    repository = f"{owner}/{repo}".lower()
+    namespace = "" if repository == "woahwhattheheck/commons" else f":{repository}"
     snapshot_id = _token(packet.get("snapshot_id"), "snapshot_id")
     observed_at = _instant(packet.get("observed_at"), "observed_at")
     gap_start = _instant(packet.get("gap_start"), "gap_start")
@@ -97,8 +101,8 @@ def compile_window(packet: dict[str, Any]) -> dict[str, Any]:
             "resource_scope": f"{owner}/{repo}",
             "event_type": "ISSUE",
             "actor_id": None,
-            "work_id": f"github-issue-{number}",
-            "operation_id": f"jev-16537-issue-window-{number}",
+            "work_id": f"github-issue{namespace}-{number}",
+            "operation_id": f"jev-16537-issue-window{namespace}-{number}",
             "source_url": f"https://github.com/{owner}/{repo}/issues/{number}",
         })
 
@@ -109,7 +113,7 @@ def compile_window(packet: dict[str, Any]) -> dict[str, Any]:
         "max_source_age_seconds": 3600,
         "sources": [
             {
-                "source_id": "github-issue-update-window",
+                "source_id": "github-issue-update-window" + namespace,
                 "connector": "github-issues-list",
                 "provider": "github",
                 "scope": [f"{owner}/{repo}"],
@@ -131,7 +135,7 @@ def compile_window(packet: dict[str, Any]) -> dict[str, Any]:
                 "records": records,
             },
             {
-                "source_id": "github-gap-minute-1924",
+                "source_id": "github-gap-minute-1924" + namespace,
                 "connector": "github-issues-list",
                 "provider": "github",
                 "scope": [f"{owner}/{repo}"],
