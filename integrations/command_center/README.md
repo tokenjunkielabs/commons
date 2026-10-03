@@ -156,6 +156,16 @@ after 90 seconds even if surrounding refresh signals stop; source coverage has i
 own clocks and may already be partial. Landing these UI files does not establish
 that an owner-host process loaded them.
 
+## Operation claim overlaps
+
+`python -m integrations.command_center.claim_overlap` projects explicit operation
+and source-scope declarations from saved detailed Slack responses. It reuses
+the supplied snapshots, preserves original claim links, and shows potential
+path overlaps without changing custody or calling a provider. See
+[Operation scope overlap view](CLAIM-OVERLAP.md) for input, filtering, coverage
+and unresolved-claim behavior. Existing `state/claims` and work-item APIs remain
+the ownership and work roads.
+
 ## Live cash
 
 Verified product pages only — no invented Stripe links.
