@@ -122,3 +122,14 @@ The import is atomic per file, not a transaction across the whole directory.
 A storage error or a new conflict after preflight may leave earlier completed
 files. Rerun the same export to continue; those exact files become `unchanged`.
 Do not interpret a failed import as a complete checkout.
+
+I/O failures retain `error: "SOURCE_IMPORT_IO"` and exit one, with `errno`,
+`errno_name` (for example `ENOSPC` or `EFBIG`), a system-derived explanation,
+the failed `operation`, and the affected relative source `path` when known.
+A manifest-read failure instead identifies the supplied manifest path.
+`completed_files` contains the confirmed per-file outcomes before the failure;
+it is a completed prefix, not an inventory of every file that now exists. A
+failure during staging cleanup can occur after that file was already published.
+Recover the reported storage condition and rerun the same retained export to
+reconcile existing exact files and continue. Diagnostics do not include raw
+exception messages or source contents.
