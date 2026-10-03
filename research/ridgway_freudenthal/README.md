@@ -80,6 +80,22 @@ The derivation records the vertex and Bernstein-index relabelling for upper
 faces. This is one boundary class; the full census and global theorem remain
 separate.
 
+## Boundary axial-edge lift
+
+[The boundary axial-edge operator and derivation](BOUNDARY_AXIAL_EDGE_LIFT.md)
+realize every six-coordinate quartic or nine-coordinate quintic endpoint-zero
+trace on the three-cell Dirichlet source star. The protected two-cube outputs
+have zero other-edge and endpoint divergence, all twelve means zero, and zero
+patch-boundary velocity trace. Their final reference maps have 150 and 916
+nonzeros, with seminorm-squared bounds `1500` and `25632/49` in complete
+trace-coefficient norm. Use `boundary_axial_edge_lift.py --all-orientations`
+with `--degree 4` or `--degree 5` for all twelve ordered tangent/normal
+lower/upper choices; translation and positive isotropic scale are exact,
+with squared seminorm bounds multiplied by `h³`. The construction retains the
+full source image and corrects vertex order according to permutation parity
+and boundary side. Intersections of boundary planes, the full census, and
+global assembly remain separate work.
+
 ## Original problem
 
 On a Freudenthal tetrahedral mesh of a cubical domain, let `V_h^k` be the continuous vector degree-k polynomial space with zero boundary trace, and let `Q_h^k = div V_h^k`.
