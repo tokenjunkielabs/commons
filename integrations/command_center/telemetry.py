@@ -185,6 +185,61 @@ def _linux_process_limits():
     return result
 
 
+def _linux_cpu_stats(limits):
+    """Read cumulative CPU accounting from the already discovered hierarchy."""
+    result = {
+        "scope": "visible_cgroup_v2_ancestors",
+        "status": "unavailable", "sources": [],
+        "unavailable_interfaces": [], "read_errors": [],
+        "notes": (
+            "Cumulative counters per source; *_usec values are microseconds. "
+            "Usage includes descendants. cpu.stat bandwidth counters describe "
+            "this group's limit; cpu.stat.local describes this group's runqueues "
+            "including ancestor throttling. Keep sources separate: they overlap "
+            "and are not a command's elapsed time or current utilization. "
+            "Ancestors outside the visible mount are unmeasured."
+        ),
+    }
+    if "cgroup_path" not in limits or "cgroup_mount" not in limits:
+        return result
+    leaf, mount = Path(limits["cgroup_path"]), Path(limits["cgroup_mount"])
+    for directory in (leaf, *leaf.parents):
+        if not directory.is_relative_to(mount):
+            break
+        for interface in ("cpu.stat", "cpu.stat.local"):
+            source = directory / interface
+            try:
+                lines = source.read_text().splitlines()
+            except FileNotFoundError:
+                result["unavailable_interfaces"].append(str(source))
+                continue
+            except OSError as exc:
+                result["read_errors"].append({"source": str(source),
+                                              "error": type(exc).__name__})
+                continue
+            try:
+                counters = {}
+                for line in lines:
+                    name, count = line.split()
+                    if (name in counters or not count.isascii()
+                            or not count.isdecimal()):
+                        raise ValueError("invalid CPU counter")
+                    counters[name] = int(count)
+                # cpu.stat.local may be empty when the controller is disabled.
+                if not counters and interface == "cpu.stat":
+                    raise ValueError("empty CPU counters")
+                result["sources"].append({"source": str(source),
+                                          "counters": counters})
+            except ValueError:
+                result["read_errors"].append({"source": str(source),
+                                              "error": "invalid_cpu_stats"})
+    if result["sources"]:
+        result["status"] = "observed"
+    if result["read_errors"] or (result["sources"] and result["unavailable_interfaces"]):
+        result["status"] = "partial"
+    return result
+
+
 def host_observation(state_dir):
     system = platform.system()
     item = {
@@ -238,6 +293,7 @@ def host_observation(state_dir):
     if system == "Linux":
         limits = _linux_process_limits()
         item["process_limits"] = limits
+        item["cpu_cgroup_stats"] = _linux_cpu_stats(limits)
         cpu = [value for value in (item["cpu"], limits["cpu_affinity_processors"],
                                   limits["cpu_quota_processors"]) if value is not None]
         item["cpu_capacity"] = min(cpu) if cpu else None
