@@ -52,6 +52,34 @@
     "deployments": 0,
     "owner_only_actions": 0
   },
+  "activation_merge": {
+    "pull_request": 30844,
+    "url": "https://github.com/woahwhattheheck/commons/pull/30844",
+    "merge_sha": "639de225748314253ba472eb3d6ebcf9de01d79f",
+    "branch_head_sha": "e7cfdcd43ba5ae817ad933752f805c0fbe837347",
+    "fresh_main_parent": "a22079e39dbf9ea6556f3611ff303da557638b8d",
+    "receipt_reconciled_main_sha": "52777684d8fac7e3000a1d7a8d742be4260ad456",
+    "non_force_history": true,
+    "exact_current_main_readback": {
+      "ground/RESOURCE_LEDGER.json": "18bb1949552ddd9ec702ef49f1d9b2142f5f8a26",
+      "inventory/resources/records/resource-master-connected-slack-publisher-routing-20261003-01.json": "81a87f818371fe132f532181b961c4d587adeea5",
+      "p/resource-master-connected-slack-publisher-routing-20261003-01.md": "47afd1cfd62c3dfddc6ab2ddf26e345f000e7a54",
+      "resources.html": "c4e242988c7580a79b3dabd61d3d6099d8a6103f"
+    },
+    "asynchronous_checks_at_merge": {
+      "success": {
+        "resources-tab-freshness": 37126224755,
+        "path-manifest": 37126224645
+      },
+      "in_progress": {
+        "capability-entrypoints": 37126224641,
+        "open-door-guard": 37126224642,
+        "muhlnickel-spec-guard": 37126224666
+      },
+      "pending": {"job-watchdog": 37126224655},
+      "accounting": "Queued and in-progress checks were observed explicitly. Local focused, schema, projection, open-door, zero-fabrication, secret, privacy and diff checks passed before merge; no pending conclusion is invented."
+    }
+  },
   "build_order_decision": {
     "state": "NO_NEW_INDEPENDENT_NON_DUPLICATIVE_BUILD_LANE",
     "reason": "The only reusable capability gaps found in the moving-main tail were already merged in PRs 30834, 30838, and 30839 with existing owners. The selected Slack publisher is producing; worker-capacity and GitHub-publisher work are landed, so another order would duplicate completed implementation.",
