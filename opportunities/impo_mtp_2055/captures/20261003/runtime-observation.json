@@ -1,0 +1,264 @@
+{
+  "schema": "impo-mtp2055.actual-use.v1",
+  "observed_at": "2026-10-03T23:15:26Z",
+  "completed_at": "2026-10-03T23:15:26Z",
+  "runtime_base_sha": "1c088ff1cb0e88f818ef9d0253954e32746c5767",
+  "runtime_files": [
+    {
+      "path": "opportunities/impo_mtp_2055/cli.py",
+      "bytes": 8784,
+      "sha256": "e5ebe0ae52aa22651aef53b3c4656eae9d46e6e3d536de0f56e6e86c93676503",
+      "git_blob": "25c0383c9e418a2c8fd6906cb2a73fd0c1dfbc48"
+    },
+    {
+      "path": "opportunities/impo_mtp_2055/engine.py",
+      "bytes": 637,
+      "sha256": "f3f52761716865690ba4cbe35765013f4c9e4bd77eb74623ded45e0abd7eb3a1",
+      "git_blob": "88ee9e269b2192be69fb07ec713a36cd22b5026a"
+    },
+    {
+      "path": "opportunities/impo_mtp_2055/engine_compile.py",
+      "bytes": 7754,
+      "sha256": "df5c0aebd98fb3038577bf27dd6d6664e62a0b2cc860c113f3977d2df050ad61",
+      "git_blob": "7fddc5f4c0e54a3758931be1a77a41fa54f84e3f"
+    },
+    {
+      "path": "opportunities/impo_mtp_2055/engine_core.py",
+      "bytes": 3390,
+      "sha256": "674812c72c16c8cf12968004dada2c6e93c217d3557b452884c5aef29ed9785d",
+      "git_blob": "ac7cdf4342b01782ba64fb1c5bec2bf7d33fa1fb"
+    },
+    {
+      "path": "opportunities/impo_mtp_2055/engine_source.py",
+      "bytes": 5557,
+      "sha256": "4022ad1a7ffdb713add98cf54b2121ab9cfceeee4f1df8a3e8fa3d7a863d9d31",
+      "git_blob": "8f0429dfdf28065daeb98ad6aefbf9533cafb7e8"
+    },
+    {
+      "path": "opportunities/impo_mtp_2055/schema.py",
+      "bytes": 411,
+      "sha256": "67051190fe31b9b3e2a6acc8a058d4e489df3111e1c67e75f246bb346ce8357b",
+      "git_blob": "c6560fa8b2502149ba9748fc54e432303716089b"
+    },
+    {
+      "path": "opportunities/impo_mtp_2055/schema_core.py",
+      "bytes": 4016,
+      "sha256": "70656da4c01290402321347a51f8ec60102c1173f8c3dc8e861495e04686e14e",
+      "git_blob": "12c8907ecc860176bd6309cfca947d5697e5f1fd"
+    },
+    {
+      "path": "opportunities/impo_mtp_2055/schema_validate_source.py",
+      "bytes": 5196,
+      "sha256": "909445f6fe2bb8b838d25165ee7eafa108cd6a9d83cc6e8057a9ad122f480db8",
+      "git_blob": "6383aef8e5b9cf5ebb52646e4aa7eba08df90917"
+    },
+    {
+      "path": "opportunities/impo_mtp_2055/__init__.py",
+      "bytes": 624,
+      "sha256": "6193660590bc7c77184f9b24a4a0fb6f9824ebcde92b9e3085f4cd8f185122ab",
+      "git_blob": "ff785452a7ef6f12bc8ab5dcdf91116d6b719232"
+    },
+    {
+      "path": "opportunities/impo_mtp_2055/engine_evidence.py",
+      "bytes": 7577,
+      "sha256": "c31794470d5f7a6d8706decdd2781116b30831b6700f2d408785fb2923555261",
+      "git_blob": "9faef935add30664c42cf741313ecb67b1445cf5"
+    },
+    {
+      "path": "opportunities/impo_mtp_2055/engine_organization.py",
+      "bytes": 5896,
+      "sha256": "380989fc1911a03083690d850bf92c8c6d5b3eb8b4d0fcfdcdf809eb9aa26535",
+      "git_blob": "e213e10b2f4d2bcd351f78bcd8a7fd82ea457399"
+    },
+    {
+      "path": "opportunities/impo_mtp_2055/engine_render.py",
+      "bytes": 5975,
+      "sha256": "63c94c20f044fc1196f9d3d9fe7d98845c648c19615038b3c4066caf76003ef0",
+      "git_blob": "9d417b15dad36937531d073711f1fcb002c8f8d2"
+    },
+    {
+      "path": "opportunities/impo_mtp_2055/schema_entities.py",
+      "bytes": 5228,
+      "sha256": "5d887de35c90c560a5b7477b4f1dccc41fdf22ae8c5c161de81b326daad6a8ac",
+      "git_blob": "ca150236db2bad0adc6651b9859e8a1fdad7a713"
+    },
+    {
+      "path": "opportunities/impo_mtp_2055/schema_validate.py",
+      "bytes": 2177,
+      "sha256": "ec6bc0a7e677f88544baf6217b372d90c011d5294272b8a12a7a856ac44a9f3b",
+      "git_blob": "d5aea594af390dd7497dbd012bd0a67e9e1145dd"
+    },
+    {
+      "path": "opportunities/impo_mtp_2055/schema_validate_commercial.py",
+      "bytes": 3052,
+      "sha256": "f99a53799d75359ad9b3284d0608ee43439026aa68616b51ba0670f1046a5d59",
+      "git_blob": "8d428a15878c8bfaa2c1095b3c356d701276305e"
+    },
+    {
+      "path": "opportunities/impo_mtp_2055/schema_validate_qualification.py",
+      "bytes": 4235,
+      "sha256": "7d82663a602f91b1437b6b108a53bbf2002bb313224aa3474a8b6122fb6b8a02",
+      "git_blob": "56fd30437664c2d722b2608d6b1a57393d9bba60"
+    },
+    {
+      "path": "opportunities/__init__.py",
+      "bytes": 68,
+      "sha256": "ffb738aacf05ab7718e8abff34b112a24c6be0ccec1cb8514a63ca23b539275d",
+      "git_blob": "837d82c93ca876e42d829e735f0e43643ffc013b"
+    }
+  ],
+  "changed_runtime_paths": [
+    "opportunities/impo_mtp_2055/engine_evidence.py"
+  ],
+  "admission_headroom_bytes": 1020731392,
+  "admission_floor_bytes": 33554432,
+  "source_capture_bytes": 774025,
+  "source_acquisition_repeated": false,
+  "source_render_repeated": false,
+  "source_visual_review": "Retained RFP physical pages 1 and 3 and Addendum 1 page 1 visually inspected from the first source-stage render before this corrected input was compiled.",
+  "input": {
+    "bytes": 11340,
+    "sha256": "25fe1f728b174c803d30741bc7ab0c11458300b5bec32671334505fc68d93ce0",
+    "git_blob": "adbe9b0e262738c0bc8a4022662a1cce86507e8a"
+  },
+  "compile": {
+    "argv": [
+      "python3",
+      "-B",
+      "-m",
+      "opportunities.impo_mtp_2055.cli",
+      "compile",
+      "opportunities/impo_mtp_2055/captures/20261003/input.owner-review.json",
+      "--output-dir",
+      "opportunities/impo_mtp_2055/captures/20261003/compiled"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 0.048981,
+    "stdout": "{\"evaluation_mode\": \"CURRENT_PROCESS_UTC\", \"output_dir\": \"opportunities/impo_mtp_2055/captures/20261003/compiled\", \"receipt_sha256\": \"4a0031a2ce8dabe9fdaf4433070c7fec6a7e0f9c0fae3018656e5b6e0e1ff709\", \"status\": \"SOURCE_HOLD\", \"submission_ready\": false}\n",
+    "stderr": ""
+  },
+  "verify": {
+    "argv": [
+      "python3",
+      "-B",
+      "-m",
+      "opportunities.impo_mtp_2055.cli",
+      "verify",
+      "opportunities/impo_mtp_2055/captures/20261003/input.owner-review.json",
+      "opportunities/impo_mtp_2055/captures/20261003/compiled/receipt.json",
+      "opportunities/impo_mtp_2055/captures/20261003/compiled/packet.md"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 0.052245,
+    "stdout": "{\"evaluation_mode\": \"CURRENT_PROCESS_UTC\", \"receipt_sha256\": \"4a0031a2ce8dabe9fdaf4433070c7fec6a7e0f9c0fae3018656e5b6e0e1ff709\", \"status\": \"SOURCE_HOLD\", \"submission_ready\": false, \"verified\": true}\n",
+    "stderr": ""
+  },
+  "compile_result": {
+    "evaluation_mode": "CURRENT_PROCESS_UTC",
+    "output_dir": "opportunities/impo_mtp_2055/captures/20261003/compiled",
+    "receipt_sha256": "4a0031a2ce8dabe9fdaf4433070c7fec6a7e0f9c0fae3018656e5b6e0e1ff709",
+    "status": "SOURCE_HOLD",
+    "submission_ready": false
+  },
+  "verify_result": {
+    "evaluation_mode": "CURRENT_PROCESS_UTC",
+    "receipt_sha256": "4a0031a2ce8dabe9fdaf4433070c7fec6a7e0f9c0fae3018656e5b6e0e1ff709",
+    "status": "SOURCE_HOLD",
+    "submission_ready": false,
+    "verified": true
+  },
+  "gate_counts": {
+    "AT_RISK": 2,
+    "BLOCKED": 36,
+    "DEFERRED": 1,
+    "READY": 6
+  },
+  "source_gates": [
+    {
+      "blocking": false,
+      "disposition": "READY",
+      "evidence_reference": "sha256:e8835f2caec71765f257fd58dc0e8b16df4d1623825863fac7d4579f4cdda11d",
+      "id": "SRC-001",
+      "reason": "Candidate input asserts that the base RFP bytes were captured and bound to this SHA-256; this package does not independently authenticate that assertion.",
+      "stage": "SOURCE",
+      "title": "Exact base RFP bytes and SHA-256"
+    },
+    {
+      "blocking": false,
+      "disposition": "READY",
+      "evidence_reference": "2026-10-03T23:00:32+00:00",
+      "id": "SRC-002",
+      "reason": "Candidate reports an official-source check 894 seconds before as_of.",
+      "stage": "SOURCE",
+      "title": "Current candidate official-source check"
+    },
+    {
+      "blocking": true,
+      "disposition": "BLOCKED",
+      "evidence_reference": null,
+      "id": "SRC-003",
+      "reason": "Candidate marks these discovered addenda unsigned: IMPO-MTP2055-ADDENDUM-1",
+      "stage": "SOURCE",
+      "title": "All discovered addenda acknowledged"
+    },
+    {
+      "blocking": false,
+      "disposition": "READY",
+      "evidence_reference": "opportunities/impo_mtp_2055/captures/20261003/raw/addendum-1.pdf",
+      "id": "SRC-004",
+      "reason": "Candidate input marks this evidence VERIFIED; this package does not independently authenticate it. Candidate note: Exact directly linked official Addendum 1 PDF retained with byte count and SHA-256 in source_manifest.json; this verifies the public source capture only, not a signature or response document.",
+      "stage": "SOURCE",
+      "title": "Questions addendum candidate evidence"
+    },
+    {
+      "blocking": false,
+      "disposition": "READY",
+      "evidence_reference": "2026-10-06T17:00:00-04:00",
+      "id": "SRC-005",
+      "reason": "Proposal deadline is 251073 seconds after the evaluation timestamp.",
+      "stage": "SOURCE",
+      "title": "Proposal deadline remains open"
+    }
+  ],
+  "experience_gates": [
+    {
+      "blocking": true,
+      "disposition": "BLOCKED",
+      "evidence_reference": null,
+      "id": "EXP-001",
+      "reason": "Only 0 relevant examples are verified; at least three are required.",
+      "stage": "SUBMISSION",
+      "title": "Three relevant, verifiable project examples"
+    },
+    {
+      "blocking": true,
+      "disposition": "BLOCKED",
+      "evidence_reference": null,
+      "id": "EXP-002",
+      "reason": "Three distinct, project-manager-specific, non-IMPO reference routes are not yet verified.",
+      "stage": "SUBMISSION",
+      "title": "Three project-manager-specific external references"
+    }
+  ],
+  "evaluation_as_of": "2026-10-03T23:15:26.790854+00:00",
+  "receipt_sha256": "4a0031a2ce8dabe9fdaf4433070c7fec6a7e0f9c0fae3018656e5b6e0e1ff709",
+  "submission_ready": false,
+  "external_authority_authenticated": false,
+  "peak_child_rss_kib": 12544,
+  "peak_child_scope": "Two sequential actual CLI child processes; no PDF or acquisition replay",
+  "earlier_candidate_actual_use": {
+    "observed_at": "2026-10-03T23:10:26Z",
+    "input": {
+      "bytes": 11168,
+      "sha256": "03280b572f94e9649eb9d9f4c52ecc692052aae705f8e3a4e6d61108922429cc",
+      "git_blob": "fd562cb8bba54cb8a8c495f38d634b9a4365d61c"
+    },
+    "receipt_sha256": "84b415fa476956b1f7f694aea2b9378dc7c8b9694d590ddfc5072c52af58c2d7",
+    "compile_exit": 0,
+    "verify_exit": 0,
+    "status": "SOURCE_HOLD",
+    "correction_reason": "Source inspection confirmed the RFP's explicit release time and the project-example versus external-reference distinction; input notes and one source-derived gate are corrected."
+  },
+  "tests_run": false,
+  "prior_proof_replayed": false
+}
