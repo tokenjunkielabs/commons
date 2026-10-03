@@ -423,26 +423,16 @@ class Store:
         with self.connect() as db:
             rows = list(db.execute("SELECT payload FROM sessions"+(" WHERE "+" AND ".join(where) if where else "")+" ORDER BY last_activity_at DESC LIMIT ?", args+[max(1,min(int(limit),10000))]))
         current = datetime.now(timezone.utc)
-        peers = []
-        for row in rows:
-            item = json.loads(row[0])
-            item["reported_status"] = item.get("status")
-            try:
-                age = (current-datetime.fromisoformat(item["last_activity_at"].replace("Z","+00:00"))).total_seconds()
-            except (KeyError,ValueError):
-                age = None
-            item["activity_age_seconds"] = age
-            if item.get("status") in {"executing", "running", "started", "waiting", "tool_wait"} and (age is None or age>300):
-                item["status"] = "unknown"
-            item["recently_observed"] = age is not None and 0<=age<=900
-            peers.append(item)
+        peers = [json.loads(row[0]) for row in rows]
         census=self.state("census") or {}
         by_id={item.get("session_id") or item.get("agent_id"):item for item in peers}
+        census_observed_at={}
         for observation in census.get("peers",[]):
             sid=observation.get("session_id") or observation.get("agent_id")
             if sid:
                 previous=by_id.get(sid,{})
                 by_id[sid]={**previous,**{k:v for k,v in observation.items() if v is not None},"usage":previous.get("usage",observation.get("usage",{}))}
+                census_observed_at[sid]=observation.get("observed_at")
         peers=list(by_id.values())
         if provider: peers=[p for p in peers if p.get("provider")==provider]
         if harness: peers=[p for p in peers if p.get("harness")==harness]
@@ -459,6 +449,22 @@ class Store:
                     [json.dumps(fields),pattern,pattern,pattern])}
             peers=[p for index,p in enumerate(peers) if index in matched]
         peers=peers[:max(1,min(int(limit),10000))]
+        def age_seconds(value):
+            stamp=iso(value)
+            return (current-datetime.fromisoformat(stamp.replace("Z","+00:00"))).total_seconds() if stamp else None
+        for item in peers:
+            # A retained census must age when served, just like stored events.
+            # Runtime status is observed at the source read, independently of
+            # the session's last activity; neither clock is refreshed here.
+            sid=item.get("session_id") or item.get("agent_id")
+            age=age_seconds(item.get("last_activity_at") or item.get("observed_at"))
+            status_age=age_seconds(census_observed_at[sid]) if sid in census_observed_at else age
+            item["reported_status"]=item.get("status")
+            item["activity_age_seconds"]=age
+            item["status_age_seconds"]=status_age
+            if item.get("status") in {"executing","running","started","waiting","tool_wait"} and (status_age is None or status_age>300):
+                item["status"]="unknown"
+            item["recently_observed"]=age is not None and 0<=age<=900
         return self.envelope(peers=peers, returned=len(peers),complete=False,census_coverage=census.get("coverage",[]))
 
     def records(self, table, *, limit=1000, cursor="", q=None, source=None, provider=None, harness=None, delivery_state=None, since=None):
