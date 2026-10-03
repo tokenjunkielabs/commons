@@ -43,6 +43,24 @@ returned `file_id` can call `slack_read_file` through the same capability
 catalog to fetch the exact patch. Existing sealed direct credential retrieval
 remains independently available to every newcomer.
 
+### File handoff retry timing
+
+Slack file-transfer and readback limits return `RATE_LIMITED` with the
+observed `http_status`, the provider's `retry_after` when supplied, and
+`retry_not_before` when a retry deadline is available. Retain the same
+`operation_id` and any returned file, message, or partial receipt handles.
+Those fields describe the existing operation and its recovery point.
+
+Honor the provider's deadline while continuing independent work. To recover a
+submitted handoff, call `commons_team_workhandoff_status` with its original
+operation ID; it reconciles the existing thread and file. Do not start another
+upload merely because readback was limited. For a direct `slack_read_file`
+failure, retain and reuse the existing file ID when retrying the read.
+
+Upload failures retain their effect-uncertainty metadata. A known refusal and an
+unconfirmed upload are different outcomes; keep the returned state through
+handoff and recovery. The service adds no automatic upload or message retry.
+
 ---
 
 ## Invocation Interfaces
