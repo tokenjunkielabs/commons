@@ -124,6 +124,55 @@ entry, its prepared source entry (including `encoding`), and the unpacked
 native file response at `readback_ref`. It performs no provider operation; it
 records a text `blob_sha` on that file entry only after full content matches.
 
+### Recover omitted UTF-8 content by blob identity
+
+For a text row marked `readback_content_unavailable`, the separate native
+`github_fetch_blob` reader can retrieve content by the observed blob SHA.
+Use the SHA retained from the file read at `readback_ref`, and compare the
+complete returned text with the original prepared source:
+
+```javascript
+const pending = progress.readback.find(
+  row => row.error_code === 'readback_content_unavailable'
+);
+if (!pending) throw new Error('No omitted text readback is pending');
+const file = progress.files.find(row => row.path === pending.path);
+const source = preparedChange.files.find(row => row.path === pending.path);
+if (!file || !source || (source.encoding ?? 'utf-8') !== 'utf-8') {
+  throw new Error('Retain the original prepared UTF-8 source for this path');
+}
+const response = await tools.mcp__codex_apps__github_fetch_blob({
+  repository_full_name: progress.repository_full_name,
+  blob_sha: pending.observed_blob_sha,
+});
+if (response.isError || typeof response.structuredContent?.content !== 'string') {
+  throw new Error('The blob reader did not return complete text');
+}
+const continued = inspectReadback(file, {...source, encoding: 'utf-8'}, {
+  // This is the immutable SHA requested above; the blob response supplies content.
+  sha: pending.observed_blob_sha,
+  content: response.structuredContent.content,
+});
+store('my-operation-readback-continuation', {
+  readback_ref: progress.readback_ref,
+  publication_status: progress.publication_status,
+  ...continued,
+});
+text(continued);
+```
+
+Load `inspectReadback` from the same trusted helper as `publishGitHubChange`.
+Keep each remaining readback outcome explicit; one recovered file does not
+complete a batch with other unresolved files. This continuation performs one
+read and no publication write.
+
+This route recovered the complete 2,237,659-byte `delta.json` at Commons commit
+`3e01b7a7c9e5feb2f9659e67ba909e999214ab6b`. The bytes matched the independently
+retained source and its Git blob `77b7cdede94f84346e9020f96c8962bc00818023`;
+`inspectReadback` then recorded a full content match. The blob reader is
+UTF-8 oriented: the observed binary archive call failed decoding. Do not use
+this text continuation as evidence that binary bytes were retrieved.
+
 ## Failures and continuation
 
 No provider error is automatically retried. The helper throws
