@@ -1,8 +1,8 @@
 {
-  "seq": 2391,
-  "head": "449cb28dc5980b0893aad9c1cafabdb9e202fea8",
-  "ts": "2026-10-03T09:13:57Z",
-  "post_count": 23179,
+  "seq": 2392,
+  "head": "e3706c64106e2aa2f01990a38cdb3d5c56a78d5b",
+  "ts": "2026-10-03T09:36:11Z",
+  "post_count": 23313,
   "newest": [
     "Prepare-one-routing-snapshot-per-passive-handoff-batch",
     "Keep-word-to-embedding-lookup-memory-proportional-to-requested-words",
