@@ -15,6 +15,7 @@ import os
 import re
 import sqlite3
 import sys
+import tempfile
 from contextlib import contextmanager
 from pathlib import Path
 
@@ -167,32 +168,13 @@ def _insert_source(db, rowid, values, size):
                ",".join(slots) + ")", bindings)
 
 
-def prepare(source_db, journal, operation_id, account_ref, folder_id,
-            chunk_bytes=4 * 1024 * 1024):
-    """Capture all rows at one SQLite read snapshot; repeating reuses that snapshot."""
-    _require(hasattr(sqlite3.Connection, "blobopen"), "SQLITE_BLOBOPEN_REQUIRED")
-    _require(isinstance(operation_id, str) and operation_id.strip(), "OPERATION_ID_REQUIRED")
-    _require(isinstance(account_ref, str) and account_ref.strip(), "ACCOUNT_REFERENCE_REQUIRED")
-    _require(type(chunk_bytes) is int and 0 < chunk_bytes <= 64 * 1024 * 1024,
-             "INVALID_CHUNK_BYTES")
-    folder_id = _provider_id(folder_id)
-    source_path, journal = Path(source_db).resolve(), Path(journal).resolve()
-    _require(source_path != journal, "SOURCE_JOURNAL_COLLISION")
-    _require(source_path.is_file(), "SOURCE_DATABASE_NOT_FOUND")
-    source_stat = source_path.stat()
-    source_identity = {"path": str(source_path), "device": source_stat.st_dev,
-                       "inode": source_stat.st_ino}
-    destination = {"provider": "google_drive", "account_ref": account_ref,
-                   "folder_id": folder_id}
-    destination_key = _digest(destination)
-    operation_key = _digest({"operation_id": operation_id, "source": source_identity,
-                             "destination_key": destination_key})
-    binding = {"operation_id": operation_id, "source_identity": source_identity,
-               "destination": destination, "destination_key": destination_key,
-               "operation_key": operation_key, "chunk_bytes": chunk_bytes}
-    if not journal.exists():
-        _private_file(journal)
-        with _db(journal) as db:
+def _initialize_journal(journal, binding):
+    """Publish a complete empty journal without replacing an existing file."""
+    journal.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+    with tempfile.TemporaryDirectory(prefix=".custody-bootstrap-", dir=journal.parent) as directory:
+        temporary = Path(directory) / "journal.sqlite3"
+        _private_file(temporary)
+        with _db(temporary) as db:
             db.executescript("""
                 CREATE TABLE metadata(key TEXT PRIMARY KEY,value TEXT NOT NULL);
                 CREATE TABLE records(seq INTEGER PRIMARY KEY,source_rowid INTEGER UNIQUE,
@@ -217,6 +199,39 @@ def prepare(source_db, journal, operation_id, account_ref, folder_id,
                 _set_meta(db, "prepared", False)
                 for key, value in binding.items():
                     _set_meta(db, key, value)
+        # A concurrent initializer may have published first. Reuse that file
+        # through prepare's existing binding checks; never overwrite it.
+        try:
+            os.link(temporary, journal)
+        except FileExistsError:
+            pass
+
+
+def prepare(source_db, journal, operation_id, account_ref, folder_id,
+            chunk_bytes=4 * 1024 * 1024):
+    """Capture all rows at one SQLite read snapshot; repeating reuses that snapshot."""
+    _require(hasattr(sqlite3.Connection, "blobopen"), "SQLITE_BLOBOPEN_REQUIRED")
+    _require(isinstance(operation_id, str) and operation_id.strip(), "OPERATION_ID_REQUIRED")
+    _require(isinstance(account_ref, str) and account_ref.strip(), "ACCOUNT_REFERENCE_REQUIRED")
+    _require(type(chunk_bytes) is int and 0 < chunk_bytes <= 64 * 1024 * 1024,
+             "INVALID_CHUNK_BYTES")
+    folder_id = _provider_id(folder_id)
+    source_path, journal = Path(source_db).resolve(), Path(journal).resolve()
+    _require(source_path != journal, "SOURCE_JOURNAL_COLLISION")
+    _require(source_path.is_file(), "SOURCE_DATABASE_NOT_FOUND")
+    source_stat = source_path.stat()
+    source_identity = {"path": str(source_path), "device": source_stat.st_dev,
+                       "inode": source_stat.st_ino}
+    destination = {"provider": "google_drive", "account_ref": account_ref,
+                   "folder_id": folder_id}
+    destination_key = _digest(destination)
+    operation_key = _digest({"operation_id": operation_id, "source": source_identity,
+                             "destination_key": destination_key})
+    binding = {"operation_id": operation_id, "source_identity": source_identity,
+               "destination": destination, "destination_key": destination_key,
+               "operation_key": operation_key, "chunk_bytes": chunk_bytes}
+    if not journal.exists():
+        _initialize_journal(journal, binding)
     with _db(journal) as db:
         _check_journal(db)
         for key, value in binding.items():
