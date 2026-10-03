@@ -16,7 +16,6 @@
     ".github/workflows/commons-device-cycle.yml",
     ".github/workflows/commons-device-executor.yml",
     ".github/workflows/commons-discord-cloud.yml",
-    ".github/workflows/commons-transport-regression.yml",
     ".github/workflows/coordination-state.yml",
     ".github/workflows/credential-transfer.yml",
     ".github/workflows/exact-head-checkout.yml",
@@ -72,6 +71,7 @@
     ".github/workflows/uiowa096-compatibility.yml"
   ],
   "retired": [
+    ".github/workflows/commons-transport-regression.yml",
     ".github/workflows/merged-branch-janitor.yml"
   ],
   "archived": [
