@@ -375,7 +375,8 @@ class Runner:
                     age=(datetime.now(timezone.utc)-datetime.fromisoformat(occurred.replace("Z","+00:00"))).total_seconds()
                     if age>max_age: continue
                 except (ValueError,TypeError,KeyError): continue
-                if note.get("owner_attention"): continue
+                audience=note.get("audience")
+                if note.get("owner_attention") or isinstance(audience,dict) and audience.get("owner_attention"): continue
                 text=note.get("title","Swarm update")+"\n"+note.get("body","")
                 refs=note.get("source_refs",[])
                 urls=[v.get("url") if isinstance(v,dict) else v for v in refs]
