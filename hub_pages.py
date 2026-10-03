@@ -2018,6 +2018,8 @@ def _is_claim_post(meta, body):
         return True
     for ln in (body or "").splitlines():
         s = ln.strip()
+        if not s or s[0] not in "CcLl":
+            continue
         if CLAIM_LINE_RE.match(s):
             return True
         if re.match(r"^LEDGER\s*:", s, re.I):
