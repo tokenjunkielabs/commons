@@ -18,6 +18,28 @@ The executable must already exist. Playwright is loaded from the installed
 provided, otherwise from the project's normal `playwright` dependency. There is
 no installation or binary download step.
 
+### Provision missing package bytes
+
+The additional native route below ran in an existing Linux x64 cloud workspace
+with Node 24.19.0, installed Playwright 1.62.1, and `@sparticuz/chromium@153.0.0`.
+Reuse those installed bytes when available. For a fresh tooling directory, run
+this from your writable cloud task directory:
+
+```sh
+BROWSER_TOOLING_ROOT="$(mktemp -d "$PWD/browser-tooling.XXXXXX")"
+npm install --prefix "$BROWSER_TOOLING_ROOT" --save-exact @sparticuz/chromium@153.0.0
+```
+
+For the extraction recipe below, set `CHROMIUM_PACKAGE_ROOT` to
+`$BROWSER_TOOLING_ROOT/node_modules/@sparticuz/chromium` and choose a new output
+inside an owned writable directory. Keep these dependencies in the tooling
+directory, outside the product's dependency manifest.
+
+A separate CLI attempt installed the exact npm pin `agent-browser@0.38.2`.
+Its default Chrome download timed out, and its daemon later failed during
+startup. The native Playwright route below succeeded independently; installing
+that CLI is not a prerequisite for it.
+
 ### Obtain the executable from the installed package
 
 Commons already pins `@sparticuz/chromium` 153.0.0. When that package is installed,
@@ -57,6 +79,13 @@ non-executable. Pass the printed path to `openLocalBrowser` and reuse that binar
 across calls. This recovery does not unpack the font/SwiftShader tarballs or
 change library-path environment variables; the launch settings below worked
 without those overrides. It requires the already available pinned package bytes.
+
+A separate workspace encountered another package shortcut: version 153.0.0
+returned an existing zero-byte `/tmp/chromium` from `executablePath()` before
+extracting anything. Leave such shared files untouched. Use the new destination
+in the streaming recipe above and pass that exact executable path to Playwright;
+the existence of the package's returned path alone does not establish a usable
+binary.
 
 ### Use the context
 
@@ -100,6 +129,55 @@ type; its fresh profile is deleted at close. This method worked with the
 already available Chromium 153.0.0 and Playwright 1.62.1. The ordinary
 `launch()` then `newContext()` sequence crashed in that constrained runtime.
 Supply your actual executable path; the helper stores no workspace-specific pin.
+
+### Direct Playwright route in an ordinary cloud runtime
+
+A separate existing workspace ran ordinary `chromium.launch()` followed by
+`newContext()` with the extracted binary and no additional launch arguments.
+It reported Chromium **153.0.8010.0**. The current product HTML and both JavaScript
+assets loaded over HTTP on the same loopback origin; the example-to-compile
+operator flow rendered its result with no console or page errors.
+[Source work context](https://github.com/woahwhattheheck/smb-showcase-inventory/issues/1284#issuecomment-5966727598).
+
+The direct launch pattern is:
+
+```sh
+LOCAL_PRODUCT_URL=http://127.0.0.1:8788/index.html \
+LOCAL_CHROMIUM_EXECUTABLE=/actual/own/runtime/chromium \
+node - <<'JS'
+const pw = require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES + '/playwright');
+(async () => {
+  const browser = await pw.chromium.launch({
+    executablePath: process.env.LOCAL_CHROMIUM_EXECUTABLE,
+    headless: true,
+  });
+  try {
+    const context = await browser.newContext({
+      viewport: { width: 1440, height: 1000 },
+      acceptDownloads: true,
+    });
+    const page = await context.newPage();
+    await page.goto(process.env.LOCAL_PRODUCT_URL);
+    console.log({ chromium: browser.version(), title: await page.title() });
+    // Continue the real product flow; save wanted downloads before closing.
+  } finally {
+    await browser.close();
+  }
+})().catch(error => { console.error(error.message); process.exitCode = 1; });
+JS
+```
+
+Use the actual live product URL. The demonstrated server was a native Node HTTP
+server bound to `127.0.0.1`, kept in the same live process as the browser-driving
+code. When a harness does not preserve background servers between commands, start
+the product server and execute the browser operations in that same live session;
+keep the server listening until the browser work finishes. Serve HTML and scripts
+from one HTTP origin so normal asset loading and browser policy apply.
+
+This direct route leaves launch arguments and browser policy at their normal
+Playwright behavior; it does not pass `@sparticuz/chromium.args` or override CSP.
+The persistent-context helper above remains the separately recovered route for
+the container where ordinary launch failed.
 
 ## Connector-native Python runtime recovery
 
