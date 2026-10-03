@@ -4,10 +4,12 @@ from __future__ import annotations
 import hashlib
 import inspect
 import json
+import math
 import re
 import sqlite3
 import threading
 import time
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 from typing import Any
 
@@ -95,6 +97,75 @@ class WorkHandoff:
     def payload_hash(item: dict[str, Any]) -> str:
         raw = json.dumps(item, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
         return hashlib.sha256(raw).hexdigest()
+
+    @staticmethod
+    def _provider_failure(failure, *, operation_id=None, phase=None) -> dict[str, Any]:
+        """Retain retry evidence without changing the existing recovery action."""
+        read = failure.get if isinstance(failure, dict) else lambda key, default=None: getattr(failure, key, default)
+        status = read("http_status") or read("status")
+        code = read("code") or read("error")
+        limited = status == 429 or code in ("ratelimited", "slack_rate_limited")
+        result = {"ok": False, "state": "RATE_LIMITED" if limited else "RECONCILE_REQUIRED"}
+        if operation_id is not None:
+            result["operation_id"] = operation_id
+        if phase is not None:
+            result["phase"] = phase
+        if status is not None:
+            result["http_status"] = status
+        if isinstance(read("uncertain"), bool):
+            result["uncertain"] = read("uncertain")
+        retry_after = read("retry_after")
+        if retry_after is not None:
+            result["retry_after"] = retry_after
+        if limited:
+            result["code"] = "slack_rate_limited"
+            if retry_after is not None and not isinstance(retry_after, bool):
+                now = time.time()
+                try:
+                    seconds = float(retry_after)
+                    deadline = now + seconds if math.isfinite(seconds) and seconds >= 0 else None
+                except (ValueError, TypeError, OverflowError):
+                    try:
+                        deadline = parsedate_to_datetime(str(retry_after)).timestamp()
+                    except (ValueError, TypeError, OverflowError):
+                        deadline = None
+                if deadline is not None and math.isfinite(deadline):
+                    result["retry_not_before"] = max(now, deadline)
+        return result
+
+    def _record_failure(self, item, digest, failure, metadata=None):
+        """Keep prior receipts and partial handles available for reconciliation."""
+        prior = self._journal(item["operation_id"])
+        details = {**((prior or {}).get("metadata") or {}), **(metadata or {})}
+        previous_failure = details.get("provider_failure")
+        if (failure.get("phase") == "readback" and isinstance(previous_failure, dict)
+                and previous_failure.get("uncertain") is True):
+            failure["uncertain"] = True
+        if prior and prior.get("receipt"):
+            failure["receipt"] = prior["receipt"]
+        details["provider_failure"] = failure
+        state = "delivered" if prior and prior["state"] == "delivered" else "reconcile_required"
+        self._save(item["operation_id"], digest, state, metadata=details)
+        return failure
+
+    def _readback_failure(self, failure, item, digest, *, file_id=None, message_ts=None):
+        result = self._provider_failure(failure, operation_id=item["operation_id"], phase="readback")
+        if result.get("code") != "slack_rate_limited":
+            return None
+        # A refused read says nothing new about an earlier unknown write.
+        result.pop("uncertain", None)
+        result.update(readback_state="rate_limited", channel_id=item["channel_id"], thread_ts=item["thread_ts"])
+        if file_id is not None:
+            result["file_id"] = file_id
+        if message_ts is not None:
+            result["message_ts"] = message_ts
+        return self._record_failure(item, digest, result)
+
+    def _transfer_failure(self, failure, item, digest, metadata, *, phase, file_id=None):
+        result = self._provider_failure(failure, operation_id=item["operation_id"], phase=phase)
+        if file_id is not None:
+            result["file_id"] = file_id
+        return self._record_failure(item, digest, result, metadata)
 
     def sender_verified(self) -> bool:
         if self._auth_checked_at and time.monotonic() - self._auth_checked_at < 60:
@@ -198,11 +269,13 @@ class WorkHandoff:
         info_result = self._slack_read("files.info", {"file": file_id})
         file_info = info_result.get("file") if info_result.get("ok") is True else None
         if not isinstance(file_info, dict) or file_info.get("user") != SENDER_USER_ID:
-            return None
+            return self._readback_failure(info_result, item, payload_sha256,
+                                          file_id=file_id, message_ts=message.get("ts"))
         try:
             file_bytes = self.equipment.slack_download_file(file_info, max_bytes=MAX_PATCH_BYTES)
-        except Exception:
-            return None
+        except Exception as exc:
+            return self._readback_failure(exc, item, payload_sha256,
+                                          file_id=file_id, message_ts=message.get("ts"))
         expected_patch_sha256 = item.get("patch_sha256")
         if isinstance(item.get("patch"), str):
             expected_patch_sha256 = hashlib.sha256(item["patch"].encode("utf-8")).hexdigest()
@@ -287,6 +360,8 @@ class WorkHandoff:
         if receipt and receipt["readback_state"] == "confirmed":
             self._save(operation_id, prior["payload_sha256"], "delivered", receipt, metadata)
             return {"ok": True, "state": "DELIVERED", "receipt": receipt, "reconciled": True}
+        if receipt and receipt.get("state") == "RATE_LIMITED":
+            return receipt
         return {"ok": False, "state": "RECONCILE_REQUIRED", "operation_id": operation_id,
                 "payload_sha256": prior["payload_sha256"], "readback_available": True}
 
@@ -306,6 +381,8 @@ class WorkHandoff:
             if reconciled and reconciled["readback_state"] == "confirmed":
                 self._save(item["operation_id"], digest, "delivered", reconciled)
                 return {"ok": True, "state": "DELIVERED", "receipt": reconciled, "reconciled": True}
+            if reconciled and reconciled.get("state") == "RATE_LIMITED":
+                return reconciled
             return {"ok": False, "state": "RECONCILE_REQUIRED", "operation_id": item["operation_id"]}
         if not self.sender_verified():
             return {"ok": False, "state": "OUTBOUND_ROUTE_BLOCKED", "code": "slack_sender_identity_unverified"}
@@ -322,6 +399,8 @@ class WorkHandoff:
             if reconciled and reconciled["readback_state"] == "confirmed":
                 self._save(item["operation_id"], digest, "delivered", reconciled, metadata)
                 return {"ok": True, "state": "DELIVERED", "receipt": reconciled, "reconciled": True}
+            if reconciled and reconciled.get("state") == "RATE_LIMITED":
+                return reconciled
             return {"ok": False, "state": "RECONCILE_REQUIRED", "operation_id": item["operation_id"]}
         filename = f"handoff-{item['operation_id']}.patch"
         patch_bytes = item["patch"].encode("utf-8")
@@ -329,31 +408,32 @@ class WorkHandoff:
         if len(body) > 4500:
             self._save(item["operation_id"], digest, "denied", metadata=metadata)
             return {"ok": False, "state": "DENIED", "operation_id": item["operation_id"], "code": "handoff_comment_too_long"}
+        phase, file_id = "upload_url", None
         try:
             upload = self.equipment.slack("files.getUploadURLExternal", {"filename": filename, "length": len(patch_bytes)})
             if upload.get("ok") is not True:
-                self._save(item["operation_id"], digest, "reconcile_required", metadata=metadata)
-                return {"ok": False, "state": "RECONCILE_REQUIRED", "operation_id": item["operation_id"]}
+                return self._transfer_failure(upload, item, digest, metadata, phase=phase)
             file_id = upload.get("file_id")
             url = upload.get("upload_url")
             if not isinstance(file_id, str) or not isinstance(url, str):
                 self._save(item["operation_id"], digest, "reconcile_required", metadata=metadata)
                 return {"ok": False, "state": "RECONCILE_REQUIRED", "operation_id": item["operation_id"]}
+            phase = "file_upload"
             raw_upload = self.equipment.slack_upload_bytes(url, patch_bytes)
             if raw_upload.get("ok") is not True:
-                self._save(item["operation_id"], digest, "reconcile_required", metadata=metadata)
-                return {"ok": False, "state": "RECONCILE_REQUIRED", "operation_id": item["operation_id"]}
+                return self._transfer_failure(raw_upload, item, digest, metadata, phase=phase, file_id=file_id)
+            phase = "completion"
             complete = self.equipment.slack("files.completeUploadExternal", {
                 "files": [{"id": file_id, "title": filename}],
                 "channel_id": item["channel_id"], "thread_ts": item["thread_ts"], "initial_comment": body,
             })
             if complete.get("ok") is not True:
-                self._save(item["operation_id"], digest, "reconcile_required", metadata=metadata)
-                return {"ok": False, "state": "RECONCILE_REQUIRED", "operation_id": item["operation_id"]}
-        except Exception:
-            self._save(item["operation_id"], digest, "reconcile_required", metadata=metadata)
-            return {"ok": False, "state": "RECONCILE_REQUIRED", "operation_id": item["operation_id"]}
+                return self._transfer_failure(complete, item, digest, metadata, phase=phase, file_id=file_id)
+        except Exception as exc:
+            return self._transfer_failure(exc, item, digest, metadata, phase=phase, file_id=file_id)
         receipt = self._verify(item, digest)
+        if receipt and receipt.get("state") == "RATE_LIMITED":
+            return receipt
         if not receipt or receipt["readback_state"] != "confirmed":
             self._save(item["operation_id"], digest, "reconcile_required", receipt, metadata)
             return {"ok": False, "state": "RECONCILE_REQUIRED", "operation_id": item["operation_id"],
@@ -370,11 +450,17 @@ class WorkHandoff:
         info_result = self._slack_read("files.info", {"file": file_id})
         info = info_result.get("file") if info_result.get("ok") else None
         if not isinstance(info, dict) or info.get("user") != SENDER_USER_ID:
+            failure = self._provider_failure(info_result, phase="file_info")
+            if failure.get("code") == "slack_rate_limited":
+                return {**failure, "file_id": file_id}
             return {"ok": False, "error": "file_unavailable"}
         try:
             content = self.equipment.slack_download_file(info, max_bytes=MAX_PATCH_BYTES)
             text = content.decode("utf-8")
-        except Exception:
+        except Exception as exc:
+            failure = self._provider_failure(exc, phase="file_read")
+            if failure.get("code") == "slack_rate_limited":
+                return {**failure, "file_id": file_id}
             return {"ok": False, "error": "file_readback_failed"}
         return {"ok": True, "file_id": file_id, "title": info.get("title"),
                 "content": text, "bytes": len(content), "sha256": hashlib.sha256(content).hexdigest()}

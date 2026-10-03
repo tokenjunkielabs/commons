@@ -257,17 +257,21 @@ class GitHubSlackEquipment:
         try:
             with self.opener(request, timeout=90) as response:
                 status = int(response.status)
+                retry_after = response.headers.get("Retry-After")
                 response.read(256)
         except urllib.error.HTTPError as exc:
             status = exc.code
+            retry_after = exc.headers.get("Retry-After") if exc.headers is not None else None
             exc.close()
             return {"ok": False, "error": "slack_upload_http_error", "status": status,
+                    "retry_after": retry_after,
                     "uncertain": status not in (400, 401, 403, 404, 413, 429)}
         except Exception:
             raise EquipmentError("Slack file upload response unavailable; reconcile before retry",
                                  code="slack_upload_unconfirmed", uncertain=True) from None
         if status < 200 or status >= 300:
             return {"ok": False, "error": "slack_upload_http_error", "status": status,
+                    "retry_after": retry_after,
                     "uncertain": status >= 500}
         return {"ok": True, "http_status": status, "bytes_uploaded": len(body)}
 
@@ -282,6 +286,13 @@ class GitHubSlackEquipment:
         try:
             with self.opener(request, timeout=45) as response:
                 data = response.read(max_bytes + 1)
+        except urllib.error.HTTPError as exc:
+            status = exc.code
+            retry_after = exc.headers.get("Retry-After") if exc.headers is not None else None
+            exc.close()
+            raise EquipmentError("Slack file readback rate limited" if status == 429 else "Slack file readback unavailable",
+                                 code="slack_rate_limited" if status == 429 else "slack_file_read_failed",
+                                 http_status=status, retry_after=retry_after) from None
         except Exception:
             raise EquipmentError("Slack file readback unavailable", code="slack_file_read_failed") from None
         if len(data) > max_bytes:
