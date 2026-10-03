@@ -1,0 +1,1273 @@
+{
+  "activation_count": 1,
+  "actor": "Resource Master / current connected harness",
+  "operation_id": "resource-master-list-research-power-routing-20261003-01",
+  "observed_at": "2026-10-03T10:33:52Z",
+  "concrete_consumer": "Resource Master capability discovery and existing research/tool-routing owners",
+  "selected_resource": "titanmcp-list-research-power-catalog",
+  "material_new_resources": [
+    {
+      "name": "titanmcp-list-research-power-catalog",
+      "source_commit": "06afdecae22a2656f2df75eabc1cdc4de2c583d5",
+      "source_blob": "97d035b1",
+      "source_receipt_blob": "03648499",
+      "stage": "PRODUCING",
+      "condition": "OPERATIONAL_BUT_UNWIRED",
+      "own_activation_this_run": true
+    },
+    {
+      "name": "lda-pr75-baseline-build-artifact-preserved",
+      "source_commit": "7c5125c205c08e170045fcf8cb66a42feeb2a087",
+      "source_workflow_run": 36981214724,
+      "source_artifact_id": 11216060794,
+      "byte_count": 24813160,
+      "sha256": "86e5129e6abcc978f862c4a77e49324d21a6541315ae842f34dfc5113f86fde2",
+      "stage": "AVAILABLE",
+      "condition": "SUPERSEDED_BASELINE",
+      "own_activation_this_run": false,
+      "boundary": "Retained baseline only; the existing 220/228 successor assembly remains with its current owner. No device act, install, deployment or successor completion is inferred."
+    }
+  ],
+  "activation_result": {
+    "live_classifier": {
+      "endpoint_role": "TitanMCP public read-only MCP",
+      "server_name": "titanmcp",
+      "server_version": "1.4.5",
+      "verdict": "MATCH",
+      "exit_code": 0,
+      "empty_arguments": {
+        "http_status": 200,
+        "ok": true,
+        "catalog_count": 500,
+        "count": 50,
+        "subject": "unbound-agent",
+        "session_bound": false,
+        "wired_count": 0,
+        "catalog_source": "connectors/catalog.json",
+        "featured_count": 13
+      },
+      "query_github": {
+        "ok": true,
+        "count": 1,
+        "catalog_count": 500,
+        "first_id": "github",
+        "first_oauth": "stub"
+      },
+      "limit_one": {
+        "ok": true,
+        "count": 1,
+        "catalog_count": 500
+      },
+      "bounded_errors": {
+        "extra_q": "BAD_ARGUMENT",
+        "wrong_type_query": "BAD_ARGUMENT",
+        "extra_minutes": "BAD_ARGUMENT"
+      },
+      "commons_mcp_has_tool": false
+    },
+    "refusal": {
+      "flag": "--bake",
+      "verdict": "REFUSED",
+      "exit_code": 2,
+      "sent": 0,
+      "cash": 0
+    },
+    "provider_calls": "READ_ONLY_MCP_PROBE_ONLY",
+    "delivery_attempts": 0,
+    "state_mutations": 0,
+    "connector_wiring": 0,
+    "deployments": 0
+  },
+  "activation_merge": {
+    "pull_request": 30614,
+    "url": "https://github.com/woahwhattheheck/commons/pull/30614",
+    "merge_sha": "af6e1c32f4748323d2febadc2756c7a07b7e939a",
+    "exact_current_main_readback": {
+      "ground/RESOURCE_LEDGER.json": "d355c2e76431939eb2d9327e733d8d63ea64ad39",
+      "p/resource-master-list-research-power-routing-20261003-01.md": "4059823b4feade9f3ebc1a588c3755211fcf04d1",
+      "resources.html": "e6f5d5379ebfd9c23937701372291432d2ee3728"
+    },
+    "asynchronous_checks_at_merge": {
+      "queued": [
+        "open-door-guard",
+        "job-watchdog",
+        "resources-tab-freshness",
+        "capability-entrypoints",
+        "muhlnickel-spec-guard",
+        "path-manifest"
+      ],
+      "accounting": "Queued checks were observed explicitly; local focused, open-door, schema, diff, secret and privacy checks passed before merge. No queued conclusion was invented."
+    }
+  },
+  "build_order_decision": {
+    "state": "NO_NEW_INDEPENDENT_NON_DUPLICATIVE_BUILD_LANE",
+    "reason": "list_research_power and list_custom_tooling are already landed on current main; the exact custom-tooling branch remains visible; TODO and product lanes completed or retain existing owners; other fresh implementation lanes were already claimed or merged.",
+    "collision_evidence": {
+      "list_custom_tooling_landed_commit": "f618c8f8d636e6cb756c055a57ee5b8bd32510d5",
+      "list_custom_tooling_branch": "cursor/titanmcp-list-custom-tooling-6e83",
+      "open_pull_requests_at_terminal_snapshot": 0
+    },
+    "dedupe_sources": "Current main, exact branch refs, open and recently closed/merged PRs and issues, all seven required Slack channels plus relevant threads, coordination thread, durable receipts and active claims"
+  },
+  "build_orders": [],
+  "checks": {
+    "focused_live_classifier": "PASS",
+    "refusal_path": "PASS",
+    "ledger_schema_and_single_activation": "PASS",
+    "resources_projection": "PASS",
+    "open_door_no_auth": "PASS",
+    "zero_fabrication": "PASS",
+    "secret_scan": "PASS_NO_SECRET_VALUE",
+    "privacy": "PASS_NO_PRIVATE_ACCOUNT_IDENTIFIER_CUSTOMER_DATA_OR_PRIVATE_FILENAME",
+    "diff_check": "PASS"
+  },
+  "delta": {
+    "prior_terminal_record_id": "resource-master-distinct-handoff-routing-20261003-01",
+    "prior_terminal_slack_ts": "1791012444.166279",
+    "prior_terminal_main_sha": "ae4f8a8dc5b565aa368b83d4cb5a41eb0454dc5d",
+    "observed_main_sha": "3913de98818b8f649f42d36c5eb5d031f2068900",
+    "activation_merge_sha": "af6e1c32f4748323d2febadc2756c7a07b7e939a",
+    "implementation_claim_ts": "1791022232.039619",
+    "required_channels": {
+      "C0BRGMDQB6G": {
+        "lower_exclusive": "1791012444.166279",
+        "latest_new_root_ts": "1791022232.039619",
+        "source_ship_ts": "1791012595.925449",
+        "pagination_exhausted": true
+      },
+      "C0BTB4SUCP9": {
+        "lower_exclusive": "1791012444.166279",
+        "latest_new_ts": null,
+        "pagination_exhausted": true
+      },
+      "C0BU2V38CBC": {
+        "lower_exclusive": "1791012444.166279",
+        "latest_new_root_ts": "1791015252.077989",
+        "latest_new_thread_ts": "1791015578.333699",
+        "pagination_exhausted": true
+      },
+      "C0BTVA3C0G3": {
+        "lower_exclusive": "1791012444.166279",
+        "latest_new_ts": null,
+        "pagination_exhausted": true
+      },
+      "C0BTA20SU95": {
+        "lower_exclusive": "1791012444.166279",
+        "latest_new_root_ts": "1791020186.675869",
+        "latest_new_thread_ts": "1791020452.594479",
+        "pagination_exhausted": true
+      },
+      "C0BTURDA3PW": {
+        "lower_exclusive": "1791012444.166279",
+        "latest_new_ts": null,
+        "pagination_exhausted": true
+      },
+      "C0BTTA66TK3": {
+        "lower_exclusive": "1791012444.166279",
+        "latest_new_ts": null,
+        "pagination_exhausted": true
+      }
+    },
+    "coordination": {
+      "thread_ts": "1790977806.441259",
+      "lower_exclusive": "1791012444.166279",
+      "latest_reply_ts": "1791013672.260659",
+      "pagination_exhausted": true,
+      "material_receipt": "Prior baseline build artifact preserved for the existing LDA successor owner; no new owner, install, device action or successor completion inferred."
+    },
+    "automations": {
+      "total": 25,
+      "enabled": 2,
+      "disabled": 23,
+      "enabled_titles": [
+        "Brago cEDH Watch",
+        "Commons Resource Master"
+      ],
+      "mutation": false
+    },
+    "connected_apps": {
+      "github": "Installed read/write route succeeded; activation PR merged and exact blobs read back.",
+      "slack": "All required public channels and relevant threads exhaustively read; claim write succeeded.",
+      "airtable": "One known business CRM base reachable; no write.",
+      "stripe": "One known live business account reachable; payment, balance, settlement, revenue and cash remain receipt-bound; no write."
+    },
+    "quota_reset": {
+      "checked_once": true,
+      "official_or_direct_meter_reset_observed": false,
+      "action": "retain_prior_state_no_speculation_no_purchase"
+    },
+    "github": {
+      "terminal_reconciliation": {
+        "prior_sweep_head": "847ad20fc2598c09fe54e136e9787dd71b16e43e",
+        "fresh_main_sha": "3913de98818b8f649f42d36c5eb5d031f2068900",
+        "first_parent_commits": 5,
+        "overlap_with_claimed_paths": false,
+        "material_new_resource_or_uncovered_build_lane": false,
+        "accounting": "Fresh main contained two merged, already-owned implementation changes plus board/generated projection churn. Neither touched the claimed ledger, receipt or resources projection paths; no duplicate claim or build order was created."
+      },
+      "compare": {
+        "base": "ae4f8a8dc5b565aa368b83d4cb5a41eb0454dc5d",
+        "head": "847ad20fc2598c09fe54e136e9787dd71b16e43e",
+        "ahead_by": 402,
+        "behind_by": 0,
+        "total_commits": 402,
+        "changed_file_cap": 300
+      },
+      "first_parent": {
+        "total": 252,
+        "generated_projection": 89,
+        "non_generated": 163
+      },
+      "pull_requests": {
+        "closed_pages_scanned": 6,
+        "relevant_closed_or_merged": 144,
+        "merged": 144,
+        "closed_unmerged": 0,
+        "open_at_terminal_snapshot": 0
+      },
+      "issues": {
+        "pages_scanned": 16,
+        "relevant_items": 1055,
+        "pull_items": 309,
+        "issues_only": 746,
+        "open": 12,
+        "closed": 1043,
+        "pagination_exhausted": true
+      },
+      "workflow_runs": {
+        "pages_scanned": 15,
+        "relevant_created": 1133,
+        "success": 561,
+        "failure": 19,
+        "cancelled": 213,
+        "skipped": 24,
+        "queued": 298,
+        "in_progress": 15,
+        "pending": 3,
+        "oldest_created": "2026-10-03T07:28:52Z",
+        "latest_created": "2026-10-03T10:10:15Z",
+        "pagination_exhausted_for_delta": true
+      },
+      "branches": {
+        "current_count": 4687,
+        "prior_count": 4750,
+        "delta_reconstruction": "Apply added/moved/removed below to prior record's exact full branch_refs array.",
+        "added": [
+          {
+            "name": "astra/publish-content-unavailable-20261003-6d8a",
+            "sha": "80d45a23a081491658dfdecd0f41b14ce9ad8679"
+          },
+          {
+            "name": "astra/publish-large-text-continuation-20261003-6d8a",
+            "sha": "f58ef5b415abf71caee1ccb945a6bcf0b8682403"
+          },
+          {
+            "name": "bryce/coordination-pr-battery-20261003-7ca6",
+            "sha": "f12e7fd2e47f3e73a444ac72000d7caa2b33ac5d"
+          },
+          {
+            "name": "bryce/local-compute-checkout-20261003-7ca6",
+            "sha": "0a243b5c871e252c50849f4d0f3a64e6698a0a8a"
+          },
+          {
+            "name": "bryce/reply-funnel-checkout-20261003-7ca6",
+            "sha": "f2826218233e1e84378e4b0c7f278666f0e95d27"
+          },
+          {
+            "name": "bryce/staleness-checkout-20261003-7ca6",
+            "sha": "35f847fc500fa765221d6f0be307c63cfd4090a1"
+          },
+          {
+            "name": "bryce/swarm-claim-ship-release-20261003-530b",
+            "sha": "9d76ea3a062119d072319abdb4d5ef60ec235c16"
+          },
+          {
+            "name": "bryce/transport-battery-retirement-20261003-7ca6",
+            "sha": "ff9dd66910b3c0535fa5b60af8176af4cf522c74"
+          },
+          {
+            "name": "bryce/workflow-surface-retirement-capacity-20261003-7ca6",
+            "sha": "11c1f52c7f88670ab448594ec140f348ecd82bc9"
+          },
+          {
+            "name": "cb4c/inprs-current-scope-20261003",
+            "sha": "5343d126a9c55f80131a961d1aa985b831706d9e"
+          },
+          {
+            "name": "census-unknown-header-output-20261003-443d",
+            "sha": "f596249832f3a727984cfc9f174782dd78f8f6c5"
+          },
+          {
+            "name": "checkout-census-nonregular-input-20261003-443d",
+            "sha": "6fe86332ba633d90a092646110a8490dda0b9963"
+          },
+          {
+            "name": "codex/peer-census-freshness-20261003-600c",
+            "sha": "55ad6f3fcaff55fc0e95fdd72ba0ad3b1973d44f"
+          },
+          {
+            "name": "codex/resource-master-list-research-power-receipt-20261003-01",
+            "sha": "847ad20fc2598c09fe54e136e9787dd71b16e43e"
+          },
+          {
+            "name": "codex/resource-master-list-research-power-routing-20261003-01",
+            "sha": "1b87e4033c9f117fbf6e3dcc3dd1515e66b67e13"
+          },
+          {
+            "name": "command-center-capacity-20261003-7ca6",
+            "sha": "8bcdf3636c8d9658a1a05e3859b554c51379c681"
+          },
+          {
+            "name": "creator-workshop-fixed-supplies-20261003-636c",
+            "sha": "5a13321c504f6bdc331ed215655d9219a45b64a2"
+          },
+          {
+            "name": "cursor/titanmcp-get-setup-status-6e83",
+            "sha": "4380d1afbafbc5d3009e4d3f53ef3eeb80ff1d73"
+          },
+          {
+            "name": "cursor/titanmcp-list-custom-tooling-6e83",
+            "sha": "6befc8f90a797e5b958087d4e638f9c5963b2593"
+          },
+          {
+            "name": "cursor/titanmcp-list-research-power-6e83",
+            "sha": "06afdecae22a2656f2df75eabc1cdc4de2c583d5"
+          },
+          {
+            "name": "deliver/workshop-kit-reserves-20261003",
+            "sha": "8974481c4becb70d3c075bb1dca42b2b4a759fa5"
+          },
+          {
+            "name": "delivery/tencent-internal-brain-20261003",
+            "sha": "054bf1744b0659b6c4ff46f30d7070caedefb626"
+          },
+          {
+            "name": "docs/learn2design-evidence-closeout-20261003-ebae21c",
+            "sha": "ebae21c518a09b2708a198e75b64732b486ff51e"
+          },
+          {
+            "name": "docs/nci-review-14017-20261003-6a47b8d",
+            "sha": "6a47b8d5d845659dd7d3e8bfc79b18f3aea0342f"
+          },
+          {
+            "name": "docs/pinellas-addendum-recovery-20261003-606d45a",
+            "sha": "606d45a7cdfcc98ca5dabae40b52fc179c140356"
+          },
+          {
+            "name": "feat/sec-facts-batch-20261003-01",
+            "sha": "a02c0b5895f1b8152de8c22d5f8fd6b015ef71c4"
+          },
+          {
+            "name": "fix/actions-queue-exact-selection-20261003-7ca6",
+            "sha": "2287c2b2363d6e1d03f046597b552631717778aa"
+          },
+          {
+            "name": "fix/alias-index-output-recovery-20261003",
+            "sha": "204567974c570d1a2cf0892879be125eff7a1309"
+          },
+          {
+            "name": "fix/backup-json-recovery-20261003-b08b",
+            "sha": "8fcddc364b8f31eac2f3801acc80ec1ce6faada0"
+          },
+          {
+            "name": "fix/claim-page-completeness-20261003-f4b8",
+            "sha": "2468f0ce086966a80f9e6911e1c6c7102e7d99a8"
+          },
+          {
+            "name": "fix/claim-source-terminal-20261003-f4b8",
+            "sha": "172a8ee70f92bfe91d22789e985ddb29f3a0a1a5"
+          },
+          {
+            "name": "fix/command-center-task-refresh-20261003-b08b",
+            "sha": "60b8ad0327a8c83853419be0ebca9b840ada5d52"
+          },
+          {
+            "name": "fix/fleetline-mobile-status-20261003-1b6b",
+            "sha": "c7bc14924fe57333ee64ea6fb3da3b729bec862c"
+          },
+          {
+            "name": "fix/github-pr-record-identity-20261003-b08b",
+            "sha": "60a02322db51d2550c33bb1fd80be6761c73deea"
+          },
+          {
+            "name": "fix/github-refs-pagination-20261003-600c",
+            "sha": "71a1c95947a46065d9c38305c1ae5412ac6d3c2f"
+          },
+          {
+            "name": "fix/mcc1017-base-deadlines-20261003-84a3",
+            "sha": "b86e6ef1234445aff7dbb6089770d16a0ade0c10"
+          },
+          {
+            "name": "fix/saas-csv-field-limit-20261003-01",
+            "sha": "486027199c3c1248e77adedfb2435d4cf8ea3b5c"
+          },
+          {
+            "name": "fix/slack-coordinator-transaction-clock-20261003",
+            "sha": "c497e3b7b28df547ccf268a2f029a8a453c0ae82"
+          },
+          {
+            "name": "fix/slack-cursor-regression-20261003-3a68",
+            "sha": "2b62cb2dd322eb32f27407913a03a876a0ab933e"
+          },
+          {
+            "name": "fix/swarm-provider-resume-20261003-relay",
+            "sha": "7e72b935260470834dad537c53457618d5416dcf"
+          },
+          {
+            "name": "fix/telemetry-cli-summary-20261003-21724",
+            "sha": "6d6ed49b06bf54e922db2ab35f35e4659f056c6e"
+          },
+          {
+            "name": "fix/uiowa128-review-text-delivery-20261003",
+            "sha": "14d8ffab2029fe3c1377dc908975838d6eb62da9"
+          },
+          {
+            "name": "fix/watchdog-main-queue-20261003-7ca6",
+            "sha": "64419f19296a8da353308310a80243ce4edb632d"
+          },
+          {
+            "name": "fix/watchdog-retired-janitor-drain-20261003-7ca6",
+            "sha": "196721ba2b146c0e1bb4d58079c6b047f38ec7c6"
+          },
+          {
+            "name": "fix/wb-gguf-embedding-auto-20261003-6a9e",
+            "sha": "fa88bdadae003379fcb43b352c6024033601ad10"
+          },
+          {
+            "name": "fix/write-pacemaker-transaction-clock-20261003",
+            "sha": "7e67fc35e1fb03b1006e1849451ad78e5060a497"
+          },
+          {
+            "name": "handoff/grazer363-amount-context-20261003-84a3",
+            "sha": "6220170733fd8ef56d8614eec1021b03a94ae230"
+          },
+          {
+            "name": "perf/capability-ci-capacity-20261003-7ca6",
+            "sha": "5a95e2d9d259bc5da74cd6cefb7b4dce7379f0d6"
+          },
+          {
+            "name": "perf/credential-battery-retirement-20261003-7ca6",
+            "sha": "cf9e470ab5ce7b37e7a0c913771d5653fd517f39"
+          },
+          {
+            "name": "perf/fsu-qualification-capacity-20261003-7ca6",
+            "sha": "a73e2b7b5c8668754532ff687b86803fd7c55217"
+          },
+          {
+            "name": "perf/housing-matrix-retirement-20261003-7ca6",
+            "sha": "69d143c7b0323ecf788fad8b6fa92d3278c53a2f"
+          },
+          {
+            "name": "perf/ohsu-evidence-capacity-20261003-7ca6",
+            "sha": "0c8dd0401c5a470abe84f3b2fc6a405010cf7342"
+          },
+          {
+            "name": "perf/open-door-checkout-20261003-7ca6",
+            "sha": "ab3c326f27c9b9d136a81bf80ef61b82ce4e3cba"
+          },
+          {
+            "name": "perf/path-manifest-capacity-20261003-7ca6",
+            "sha": "2452039ca03ace60a13eefd092015d80dcc68b8a"
+          },
+          {
+            "name": "perf/resources-checkout-capacity-20261003-7ca6",
+            "sha": "b132c3243eba157f905b9fa5b088e0b2ee1b6245"
+          },
+          {
+            "name": "perf/revenue-hardening-capacity-20261003-7ca6",
+            "sha": "e4f4240743464a746f5e1f3ec1d2ecadbd5e164b"
+          },
+          {
+            "name": "perf/slack-mirror-read-transactions-20261003-84a3",
+            "sha": "45d9f03ac7184b09df35419efef48ec476797d8d"
+          },
+          {
+            "name": "procurement-remediation-browser-20261003-a3dea",
+            "sha": "6c1a5d81899ea08a36cd5dc34b17b1bcaea32bfc"
+          },
+          {
+            "name": "repair/landed-repo-identity-20261003-01",
+            "sha": "f453e93a5ae346aeb234234c2666a79547fea992"
+          },
+          {
+            "name": "repo-pulse-capacity-20261003-7ca6",
+            "sha": "a4022372b3d98db8457b2b3523df8c00181d340a"
+          },
+          {
+            "name": "swarm-jev-routing-observations-20261003-b08b",
+            "sha": "b2ba13a4dbfebf4a29153fbf65bce4a7148a2677"
+          },
+          {
+            "name": "swarm-slack-whole-second-bounds-20261003-cb4cfc",
+            "sha": "0e03ee6b8202509db1654f158460f9bbee71f042"
+          },
+          {
+            "name": "swarm-workdir-capacity-20261003-94bf",
+            "sha": "144b3c06124ad43144198fa00b21b7b1dc61e802"
+          },
+          {
+            "name": "swarm/bundle-bounded-read-20261003-01",
+            "sha": "b28deb733fc1ea4b73b4f066ea5dda0b10f62c0b"
+          },
+          {
+            "name": "swarm/capsule-control-scan-20261003-f747",
+            "sha": "f8c8bf99a235a086dfc860f50d67ed1f2595de97"
+          },
+          {
+            "name": "swarm/context-size-copy-20261003-01",
+            "sha": "85abaccf740f33a58560e4d4df51906d03ec6382"
+          },
+          {
+            "name": "uiowa096-battery-retirement-20261003-7ca6",
+            "sha": "23e2fb604e77631df82718456ce149cb82955479"
+          },
+          {
+            "name": "whitebox/contiguous-row-ranges-f6a516a61ae9",
+            "sha": "8488c2f693a7e14bb1cbef1f70547302aaaeabc5"
+          },
+          {
+            "name": "work/claim-coverage-text-20261003-dbed",
+            "sha": "017222251c269909a75e9e3712499d5c52b0dc4e"
+          },
+          {
+            "name": "work/claim-inline-code-id-20261003-01",
+            "sha": "705a6aa951b8e0f3efb52e28f3cd92c32ef04a13"
+          },
+          {
+            "name": "work/claim-overlap-terminal-separator-20261003-dbed",
+            "sha": "71b0179afb020892a8ac1fdfe480782b83af215f"
+          },
+          {
+            "name": "work/claim-terminal-format-20261003-3119",
+            "sha": "bfea38f16af12721541f1d18f1efadd51406261f"
+          },
+          {
+            "name": "work/connected-publish-error-context-20261003-01",
+            "sha": "a51c38f68f1c1c41a2df3fa114a69d92ae5ce054"
+          },
+          {
+            "name": "work/connected-source-local-bytes-20261003-01",
+            "sha": "73fd540a8392f107e5a75325cfcee8907938dc94"
+          },
+          {
+            "name": "work/connected-source-nonregular-read-20261003-7ca6",
+            "sha": "b6cb6f60cdcff19ed2f60939a3863c1dfe9b69b7"
+          },
+          {
+            "name": "work/fleet-memory-events-cc67",
+            "sha": "30641f558cf7d574a0afd6a2548005842aaecefe"
+          },
+          {
+            "name": "work/github-lease-clock-20261003-dbed",
+            "sha": "eb114e08ce8fe956616266c726e850d42a775ecd"
+          },
+          {
+            "name": "work/guard-noncode-reads-20261003",
+            "sha": "92034caadd8243e9bdb7df75ac0ad95f1fe70f4e"
+          },
+          {
+            "name": "work/inbox-partial-bindings-20261003",
+            "sha": "c02beb989fea57f5ff820d74397da835683cdea0"
+          },
+          {
+            "name": "work/jev-issue-window-atomic-output-20261003-01",
+            "sha": "ff72a7d1bd9ba13e0ee18fd4fe7c733809ad98a3"
+          },
+          {
+            "name": "work/opportunity-native-work-export-20261003",
+            "sha": "ed366e0f02601cc76c57060c1b91faeac13f69f7"
+          },
+          {
+            "name": "work/pacing-cache-tail-20261003-02e093",
+            "sha": "b513b360d3796d575f2394376e9901837201a318"
+          },
+          {
+            "name": "work/retire-branch-janitor-20261003",
+            "sha": "431c97cccc85b7709664bf689ac48917e3e8b288"
+          },
+          {
+            "name": "work/swarm-claim-declaration-separators-20261003-b08b",
+            "sha": "749317979358b53049f1be1456d80b0212a6d826"
+          },
+          {
+            "name": "work/swarm-collection-diagnostic-recovery-20261003-b08b",
+            "sha": "5947ecb74d97f3172ec48fc91112f872477352c1"
+          },
+          {
+            "name": "work/swarm-collector-progress-health-20261003-b08b",
+            "sha": "1045d03026c53ca0246388ec52aeb680b25207c2"
+          },
+          {
+            "name": "work/swarm-operation-id-namespace-20261003-8341",
+            "sha": "3ab872323913920146143205de0582e6b2c6aee7"
+          },
+          {
+            "name": "work/talagrand-cardinality-q3-recovery-20261003-cb4c",
+            "sha": "be61b897c0a87247d0c5ff4b9cb2c28727273d78"
+          },
+          {
+            "name": "work/tool-consumption-output-recovery-20261003-01",
+            "sha": "bd045474618b8d7a014e66192f40830e769b0626"
+          },
+          {
+            "name": "work/toolbench-compare-source-projection-20261003-01",
+            "sha": "87458da3e142d1b80b926495dd877fff5ae2f1a6"
+          },
+          {
+            "name": "work/ypf-misfuel-simulation-20261003-01",
+            "sha": "980cf0da3fa9e7821e68e9bc8d19ec3154068875"
+          }
+        ],
+        "moved": [
+          {
+            "name": "codex/titan-hands-windows-snapshot-publish-20261003",
+            "sha": "551745cd460657272938f2630e6699ecc805d529",
+            "previous_sha": "df825c931d9d3f6a782dbecdc990c2fe4403efc8"
+          },
+          {
+            "name": "main",
+            "sha": "847ad20fc2598c09fe54e136e9787dd71b16e43e",
+            "previous_sha": "2c555f56d6af63a2227ba81858da84e1da6754c9"
+          },
+          {
+            "name": "state/claims",
+            "sha": "48f782da932cb61260907b9febf318a8971ceb57",
+            "previous_sha": "00ef8bcc0573e670c3e5bf5f58582ea85100c664"
+          }
+        ],
+        "removed": [
+          {
+            "name": "astra-rate-668a/slack-file-cooldown-20261003",
+            "sha": "2d42f087acdfb49a2aa148d7c8fcaba6f7225409"
+          },
+          {
+            "name": "clipping-empty-keep-20261003-01",
+            "sha": "d88d5d8888fa2ca7471f2b7159985348ebe2bcba"
+          },
+          {
+            "name": "feat/swarm-commit-receipts-20261003-01",
+            "sha": "5e7adeb48463f458951b61c52d84116a6eadd08e"
+          },
+          {
+            "name": "fix/bounty-close-spent-followup-20261003-47",
+            "sha": "4f4ff665ee9acbe9f2426ce840fde822dfbf9de3"
+          },
+          {
+            "name": "fix/bundle-export-recovery-20261003-01",
+            "sha": "018e2a5ee1631f69327ddf7257a84157c43defeb"
+          },
+          {
+            "name": "fix/capability-catalog-write-recovery-20261003-443d",
+            "sha": "f6486c45d05cf0490137766dd4727674363e587e"
+          },
+          {
+            "name": "fix/chargeback-receiver-timestamp-20261003-01",
+            "sha": "f36ce96ae2d2f3f79c6ed36807cc94b5b07da9a6"
+          },
+          {
+            "name": "fix/claim-continuation-evidence-20261003-01",
+            "sha": "b75fcb06087359c54e1d6649a47dddb7d452699f"
+          },
+          {
+            "name": "fix/claim-scan-input-allocation-20261003-0ee6",
+            "sha": "18b1fb3c43a74cd3cccf5890020139cf016a2343"
+          },
+          {
+            "name": "fix/completed-empty-pr-listing-20261003",
+            "sha": "1db52d8180e10190d78a466ce7efefca9d321739"
+          },
+          {
+            "name": "fix/coordination-git-path-bytes-20261003-b08b",
+            "sha": "4da25488af4c4d92a1b4cbbaeb8bb146c5b1b450"
+          },
+          {
+            "name": "fix/discord-multipart-20261003-3a68",
+            "sha": "b44d8384e5847c84ddb12a11627b30562b9236bc"
+          },
+          {
+            "name": "fix/equipment-json-request-text-20261003-1cda",
+            "sha": "dac8e875980e9c0b61d78a96f2f3fe89c22ebc0a"
+          },
+          {
+            "name": "fix/feed-landing-provenance-20261003",
+            "sha": "d92eda29931cf8b7c57dbcbfd332641822885539"
+          },
+          {
+            "name": "fix/fence-write-recovery-eb6b-20261003",
+            "sha": "f8146afa31e6991e85ef1713a13d334c7833ce7a"
+          },
+          {
+            "name": "fix/github-history-batch-versions-20261003-01",
+            "sha": "578208e96c3ea41aba01f2a560bcae32389521ba"
+          },
+          {
+            "name": "fix/github-page-array-jsonl-20261003",
+            "sha": "7909baa8c4895e37df1000e21c1fbc002ea1c0f4"
+          },
+          {
+            "name": "fix/github-read-repository-case-20261003-aca31f",
+            "sha": "af0746791e6a70d913d8a547cf348fc098e4b40a"
+          },
+          {
+            "name": "fix/history-empty-repository-20261003-01",
+            "sha": "ca0f54f7de43f1542f5024c151d3efb87b374f28"
+          },
+          {
+            "name": "fix/history-issue-detail-routing-20261003-01",
+            "sha": "aaa9f53668f4c5cfc6b5b9d0c1afd8d7c6b203e0"
+          },
+          {
+            "name": "fix/inbox-source-pagination-20261003",
+            "sha": "30430f5ac65fbf611a63b3c0bb009135be1fbc76"
+          },
+          {
+            "name": "fix/jev-native-cursors-20261003-a7ec",
+            "sha": "cffd3a84d70f1a68261f4a217823ac31412f9407"
+          },
+          {
+            "name": "fix/native-hook-file-put-mapping-20261003",
+            "sha": "1fc04ff892400814f1647eb6fb6d7e04cf61dfec"
+          },
+          {
+            "name": "fix/outbox-persistence-retry-20261003-01",
+            "sha": "cefbd51862552a4263fba3a8ac3921f201810f07"
+          },
+          {
+            "name": "fix/peer-census-filter-20261003-6ab5",
+            "sha": "73055b111d61a5a2f6c40733d517e6a824b6c07a"
+          },
+          {
+            "name": "fix/product-refusal-before-replay-20261003-1b6b",
+            "sha": "c00cace07095cef96e7c3a1961a08dac0cffd989"
+          },
+          {
+            "name": "fix/proofpatch-real-process-16339-20261003",
+            "sha": "811f09ecc983d31012ea47002e2346a9edf840d2"
+          },
+          {
+            "name": "fix/publishing-schema-retention-20261003-1e48",
+            "sha": "83d384c2f4825b67f84a0426ad958d7dd372aa5f"
+          },
+          {
+            "name": "fix/receipt-pull-permalink-20261003-443d",
+            "sha": "c27d1772c5f38f2c4a63723ad7c51e8298213967"
+          },
+          {
+            "name": "fix/referral-browser-replay-20261003-1b6b",
+            "sha": "d7014796e1d9500b979c532332a14b64c8843b90"
+          },
+          {
+            "name": "fix/swarm-apollo-read-arguments-20261003-f75e",
+            "sha": "ab6368887774881b9c307443d1c8cd93ee0d46cd"
+          },
+          {
+            "name": "fix/swarm-native-service-retry-20261003-01",
+            "sha": "0aaeba2acf55ac3741fad2062bb7cd71a009e768"
+          },
+          {
+            "name": "fix/swarm-sites-source-arguments-20261003-f75e",
+            "sha": "a294167e5340d8cb0298c21f36efd48e400729cf"
+          },
+          {
+            "name": "fix/telemetry-collection-failure-isolation-20261003-01",
+            "sha": "cfe3bd8f913193eab99918ad38bb36e6b9a3dcf6"
+          },
+          {
+            "name": "fix/telemetry-named-result-retention-20261003-01",
+            "sha": "790f7040c505e1caf376f9d8a5f56cfdcc84e7ab"
+          },
+          {
+            "name": "fix/telemetry-observer-emission-snapshot-20261003-01",
+            "sha": "ee0cebc0d52d19547b0439b275e93ad82851bed7"
+          },
+          {
+            "name": "fix/telemetry-observer-queue-ack-20261003-01",
+            "sha": "479503bc13e9bc06fb842edf5075201c5f7ebafa"
+          },
+          {
+            "name": "fix/transcript-rotation-20261003-1e48",
+            "sha": "f3dc236d7adeb993e666545537f38c6a2aaba9a7"
+          },
+          {
+            "name": "fix/work-list-continuation-20261003-6ab5",
+            "sha": "d3a3ca62a944aca6249bad6bf6706f5fd89c73f2"
+          },
+          {
+            "name": "kestrel/gguf-string-array-ranges-20261003",
+            "sha": "8e36129267b14d0114312d405563e2d5a477da38"
+          },
+          {
+            "name": "kestrel/wb-archive-cli-20261003",
+            "sha": "9a983991a115934fa87b6ef1682e6e59a6388daa"
+          },
+          {
+            "name": "kestrel/wb-strict-range-body-20261003",
+            "sha": "e6f2a759370c194d6262c2c40ebc4276d25fb4c9"
+          },
+          {
+            "name": "parts-enquiry-browser-20261003-443d",
+            "sha": "3b41054ef7cff4e50cfe956651074b97ac0cfa0c"
+          },
+          {
+            "name": "perf/artifact-registry-identity-20261003-1b6b",
+            "sha": "dcd68169d6a4e06577f48837e709697ec03374f7"
+          },
+          {
+            "name": "perf/history-batch-serialization-20261003-01",
+            "sha": "b2ea93a75c174b997de2affbc57b4c4b43392812"
+          },
+          {
+            "name": "perf/mxfp4-block-decode-20261003-7dc3",
+            "sha": "b49e1ce4a974420b79e968db1656a50a66730c7c"
+          },
+          {
+            "name": "perf/notification-candidates-20261003-01",
+            "sha": "bb6105d6b1ae5cca109387cc981b5ea804ca47b9"
+          },
+          {
+            "name": "perf/swarm-feed-tip-20261003-333b",
+            "sha": "244cd6a9478890bab2d21aa4f8d5f670fb2fffe7"
+          },
+          {
+            "name": "perf/toolbench-selection-lookup-20261003-1b6b",
+            "sha": "3c5dcf577add6a30412324e26c7e794d6647c770"
+          },
+          {
+            "name": "perf/wb-bf16-decode-e8de-20261003",
+            "sha": "b048c2b93d0110fccbd0c964f6ec90846cb4da78"
+          },
+          {
+            "name": "perf/wb-gguf-descriptor-ranges-20261003-relay",
+            "sha": "01d6a250380f6ca0d7a47bb68f07e585a12fd564"
+          },
+          {
+            "name": "perf/wb-word-lookup-e869-20261003",
+            "sha": "4352e4819abb6cc26696007e64b47bc30ee83be3"
+          },
+          {
+            "name": "relay/equipment-transport-readiness-docs-20261003-614d",
+            "sha": "5b30d6a65f773b85ea7b5ba39b976fa05ed2640c"
+          },
+          {
+            "name": "relay/github-cache-decode-20261003-614d",
+            "sha": "dacd754aa79e77b56c914d25b987d2bbeabe1b8e"
+          },
+          {
+            "name": "relay/slack-cache-connection-close-20261003-f6a516a61ae9",
+            "sha": "662f8bf28d11bc217809972c89c6af42bb85a6b6"
+          },
+          {
+            "name": "relay/slack-provider-retry-20261003-614d",
+            "sha": "26f4105994f6c0af043fc5496a94b44d7c98e49b"
+          },
+          {
+            "name": "relay/swarm-cache-sync-20261003",
+            "sha": "bbe8a776041cec13b6e8046d6147746b8af7600a"
+          },
+          {
+            "name": "repair/machine-log-rotation-20261003-1e48",
+            "sha": "128f2fc852dec2e06cc30453ef965a83e87aa7e4"
+          },
+          {
+            "name": "swarm/board-chunk-writes-20261003-e8f6",
+            "sha": "7a6c8c2ca6d35716c27f8f5cbe1c9a4fbcc7dcc6"
+          },
+          {
+            "name": "swarm/capability-inventory-token-prefix-20261003",
+            "sha": "8bf2b6917ad05f751b60bdf4e9ec6717de2d2872"
+          },
+          {
+            "name": "swarm/comment-replay-20261003-44d8ad10",
+            "sha": "f5703fb9cb9fa6906efcce590c6d7ec85f353526"
+          },
+          {
+            "name": "swarm/context-select-20261003-d086",
+            "sha": "0bd4e274d34fa737b5325415bade7b74f192aaa7"
+          },
+          {
+            "name": "swarm/coverage-bootstrap-20261003-7dc3",
+            "sha": "0ea78bf63ed17202c91f6299a96c39b41b39268a"
+          },
+          {
+            "name": "swarm/coverage-summary-e869-20261003",
+            "sha": "f2ae929504d11246015263e5dc46e0a7670456e8"
+          },
+          {
+            "name": "swarm/github-commit-file-pagination-20261003",
+            "sha": "7483c0b2daa5235ce395584521495b9169d3a47d"
+          },
+          {
+            "name": "swarm/github-native-envelope-20261003-6b0b",
+            "sha": "e26a767d813ed24c53b911c4e58ea44967783819"
+          },
+          {
+            "name": "swarm/incident-action-csv-context-20261003-6b0b",
+            "sha": "bd6d857726b3bf8c224643a6a0ba0df6acda1976"
+          },
+          {
+            "name": "swarm/jev-brief-output-recovery-20261003",
+            "sha": "499b1d4968822581695cfb20e95f4f5d5d10a643"
+          },
+          {
+            "name": "swarm/memory-event-selection-20261003-e8f6",
+            "sha": "5f0fa268e20c09e30fa6c97b7f2bc211b0b55eff"
+          },
+          {
+            "name": "swarm/native-receipt-source-match-20261003-723b",
+            "sha": "b3aad8fb5e0b74f75c7729aa9e26ce8b1a3c410b"
+          },
+          {
+            "name": "swarm/notification-delivery-outcome-070254",
+            "sha": "043ec9d95658047cf47679afd625d85e09bcc768"
+          },
+          {
+            "name": "swarm/notification-owner-routing-20261003",
+            "sha": "2e5f022b99b046bd60381f834cfbd62e4d6532c7"
+          },
+          {
+            "name": "swarm/notification-resolution-order-20261003-01",
+            "sha": "f83e4a4a22150ff2d7ac6a82136e18cad5a007d0"
+          },
+          {
+            "name": "swarm/observer-burst-4196-20261003",
+            "sha": "1d78ded2c796991057698eac6cd0d9ace3ee5b77"
+          },
+          {
+            "name": "swarm/open-work-sparse-source-20261003-acba",
+            "sha": "e602a17f828a873d5d4ec4763d9a48d381fb7e8b"
+          },
+          {
+            "name": "swarm/operations-time-index-20261003-a11",
+            "sha": "0f4b2abab303c5260db662bb7ce3b21afbc0e30e"
+          },
+          {
+            "name": "swarm/projector-next-action-20261003-01",
+            "sha": "513605c664d29e44d0cdbe913a9bc1c083c71354"
+          },
+          {
+            "name": "swarm/provider-cache-budget-20261003-f747",
+            "sha": "e1e172f4b7057cb4e31a02157f68e22bdb9d7b0a"
+          },
+          {
+            "name": "swarm/provider-cache-lookup-20261003",
+            "sha": "d4de54ac2c9848822f436cfe8468c9918c137fd1"
+          },
+          {
+            "name": "swarm/reader-binding-isolation-20261003",
+            "sha": "2f54c660aacdc525902c85683c4f13151a5ecf27"
+          },
+          {
+            "name": "swarm/remote-custody-20261003-d0ee",
+            "sha": "3a9224094319e31dd0204fc518a0979109100dbd"
+          },
+          {
+            "name": "swarm/role-read-cards-20261003-9748",
+            "sha": "34cb5cd47929a227d3b271efe00cf7c259b46425"
+          },
+          {
+            "name": "swarm/sqlite-context-e869-20261003",
+            "sha": "67c6f0f5d25aad8c25a63d841b56eabf0c7cb05b"
+          },
+          {
+            "name": "swarm/state-operation-reuse-20261003-a11",
+            "sha": "ae24d3fac86641bab403f5850d5453b4c156b590"
+          },
+          {
+            "name": "swarm/summary-bounded-attention-20261003-d0ee",
+            "sha": "d3110d87b57fbaf97f00d4ca5ef88390d0e19cde"
+          },
+          {
+            "name": "swarm/task-identity-reuse-20261003-7dc3",
+            "sha": "a700dbddbf7f1c40e08292151b79539958fa2a1f"
+          },
+          {
+            "name": "swarm/telemetry-collect-exit-20261003-d086",
+            "sha": "ae501d63b71392f5d04a78c5687984dda20ea955"
+          },
+          {
+            "name": "swarm/telemetry-export-preservation-20261003-743b",
+            "sha": "391f359a78e4550741d174e447ccb3af7f2235ff"
+          },
+          {
+            "name": "swarm/telemetry-usage-availability-20261003-44d8",
+            "sha": "10cdb302f94628ab9d66fe0ffcebe08b48906c92"
+          },
+          {
+            "name": "swarm/wb-range-reader-reuse-20261003-6ab5",
+            "sha": "fd2e389966f606600fbe9308d1975d511ae2d038"
+          },
+          {
+            "name": "swarm/work-history-pagination-20261003-44d8ad10",
+            "sha": "9d413e4d9a36383046bf68b1374d86a0c261f78a"
+          },
+          {
+            "name": "swarm/work-item-provider-chronology-20261003",
+            "sha": "6693778932a8a2384ce2c2c781784a8f82e57339"
+          },
+          {
+            "name": "swarm/work-overview-query-20261003-743b",
+            "sha": "2e304ced34752df38800870c59681877dc3f32e6"
+          },
+          {
+            "name": "work/artifact-readback-stream-20261003-aca31f",
+            "sha": "556c347f09b4ea0d1b5ee86e2f235b63707e2709"
+          },
+          {
+            "name": "work/backup-restore-destination-20261003-1b6b",
+            "sha": "e672ec2609adfe1a982062dad2aa166342143adf"
+          },
+          {
+            "name": "work/capsule-packet-single-collection-20261003-1b6b",
+            "sha": "8c3a12cba68384ff4498f764e313eb3a1bde1758"
+          },
+          {
+            "name": "work/cc-mail-bare-address-20261003-4aa2",
+            "sha": "7c2eb2c28ebb3261fbc99523df813d67b418902f"
+          },
+          {
+            "name": "work/cc-slack-thread-activity-20261003-4aa2",
+            "sha": "34ac137254681d81f226d4009dc1588258a2379e"
+          },
+          {
+            "name": "work/cc-workflow-required-action-20261003-4aa2",
+            "sha": "4b7b42263e217432534cc176c5c1dedfacec02c1"
+          },
+          {
+            "name": "work/chargeback-document-packet-20261003-a7ec",
+            "sha": "2544d56e709c4b559ce2231c03aa9c185389f1d9"
+          },
+          {
+            "name": "work/claim-overlap-view-20261003-dbed",
+            "sha": "53c2a98d3bd5fa87641fc6bfe0c82559f1d45fdf"
+          },
+          {
+            "name": "work/claim-text-details-20261003-dbed",
+            "sha": "8d693a1b90ab34586dc78a5a1b908ab214ab5df8"
+          },
+          {
+            "name": "work/cloud-capacity-observation-20261003-01",
+            "sha": "5272223c0eff9dd3bbefaf7256ce9051a0f21776"
+          },
+          {
+            "name": "work/cloud-write-preservation-20261003-acba",
+            "sha": "d1984fd2c0e58c20d6dca162432dff35464e8034"
+          },
+          {
+            "name": "work/command-feed-moderation-20261003-636c",
+            "sha": "00bc86635fea2bd6ef20cad996909dc8bba1be8e"
+          },
+          {
+            "name": "work/connected-github-source-import-20261003-6b0b",
+            "sha": "725efd3384024896e7de95060fdd9fd5e161515b"
+          },
+          {
+            "name": "work/crm-brief-freshness-20261003-01",
+            "sha": "7ba3eabf8032e564256d267a3dccedd162157238"
+          },
+          {
+            "name": "work/custody-raw-replay-20261003-relay",
+            "sha": "a3143edf2b257193604043739959ee4c03a8b290"
+          },
+          {
+            "name": "work/equipment-envelope-parsing-20261003-01",
+            "sha": "e8587d1f38bb22dff299be971edb3061dfdf26a9"
+          },
+          {
+            "name": "work/explicit-source-binding-20261003-01",
+            "sha": "f3d05af56b33b76024ca31f38d2eb174ee9a7d18"
+          },
+          {
+            "name": "work/feature-registry-sparse-source-20261003-acba",
+            "sha": "8cc885dc2bd853c3d1136d4aa5a903fe719455c6"
+          },
+          {
+            "name": "work/github-quota-nondelivery-20261003-668a",
+            "sha": "46b24de06495641e7b862e78ae169060e5654581"
+          },
+          {
+            "name": "work/issue-window-export-20261003-f75e",
+            "sha": "1f4c32da407bbee5115d9fc0d3089ea3592d06cb"
+          },
+          {
+            "name": "work/preclaim-source-progress-20261003-667147",
+            "sha": "273345cf3e1ea6305561aeb9915b2b8c76f13dec"
+          },
+          {
+            "name": "work/rcap-addendum-20261003-743b",
+            "sha": "5f8f2f8e587b4b49cd6170f2f70e6b912792add1"
+          },
+          {
+            "name": "work/referral-durable-output-path-20261003-1b6b",
+            "sha": "65f313982127129819f3d9fdc5179f286f667868"
+          },
+          {
+            "name": "work/service-poll-isolation-20261003-28a7",
+            "sha": "f5f6a0fa3cd08b9821ac228f2fa6a2299c11f88e"
+          },
+          {
+            "name": "work/status-page-allocation-e8de-20261003",
+            "sha": "7b83beb2797a5e036cfe56581fb6f7669a6fe186"
+          },
+          {
+            "name": "work/swarm-airtable-schema-20261003-0868",
+            "sha": "16eae5490f6a30d90b2f4ca3ad9eeb3be77b3a84"
+          },
+          {
+            "name": "work/swarm-airtable-schema-checkpoints-20261003-0868",
+            "sha": "e331c9bf9dfd5f9fed93be49ba81d59359bc2b5b"
+          },
+          {
+            "name": "work/swarm-claim-function-scope-cc67",
+            "sha": "7422560c6919f2b76b1006e36ace20fcfe1301e4"
+          },
+          {
+            "name": "work/swarm-claim-reader-20261003-3119",
+            "sha": "70c7fca1df125c00a174f17eccffd42c62d51c22"
+          },
+          {
+            "name": "work/swarm-claims-same-tip-read-20261003-90e5",
+            "sha": "bfd1feecb0a12116453e435dff9db5f39731c785"
+          },
+          {
+            "name": "work/swarm-collector-history-20261003-01",
+            "sha": "886edb5bd4c82c14d42020b2b68fc9677b15b8ed"
+          },
+          {
+            "name": "work/swarm-context-empty-prose-20261003-8341",
+            "sha": "c6c9faf2f5e970643f509b6dca74a42ddb435019"
+          },
+          {
+            "name": "work/swarm-coverage-group-page-20261003-6a9e",
+            "sha": "b806f2558f51eee48c377d2ceca8fea847dc0c98"
+          },
+          {
+            "name": "work/swarm-distinct-handoff-20261003-a9ef",
+            "sha": "6a9c911044c5445b04f00b6e0ca178c91994ad8c"
+          },
+          {
+            "name": "work/swarm-handoff-prepare-once-20261003-a9ef",
+            "sha": "0c05e078e1ba88b5823c32065139c38df3f213c5"
+          },
+          {
+            "name": "work/swarm-native-response-pair-20261003-01",
+            "sha": "5c9afe1dec39017d1e76c481b0589da865d3c5fb"
+          },
+          {
+            "name": "work/swarm-offline-status-20261003-636c",
+            "sha": "6196dfc3e7cefc2d1ee87d6bedf942f7fc1158d8"
+          },
+          {
+            "name": "work/swarm-projection-record-allocation-20261003-743b",
+            "sha": "9f983f0fd03c508997644c3241cdb665a7d2d999"
+          },
+          {
+            "name": "work/swarm-projector-fact-selection-20261003-47",
+            "sha": "b802c78b07e821b8907abfa479231b21495867a6"
+          },
+          {
+            "name": "work/swarm-release-command-20261003-2bc3",
+            "sha": "08fc59dab18efd6472016372b10d31589bbbaa81"
+          },
+          {
+            "name": "work/swarm-role-identity-20261003-9748",
+            "sha": "3f8c30bd681ef7508ad39981d42a50fcef0ebba0"
+          },
+          {
+            "name": "work/swarm-role-status-20261003-9748",
+            "sha": "628f2cbc8612553f7662580a1249e3370169ab37"
+          },
+          {
+            "name": "work/swarm-role-write-preservation-20261003-9748",
+            "sha": "950313211e8b5602c64e993f4b2cf5b48aed5296"
+          },
+          {
+            "name": "work/swarm-route-capability-reuse-20261003-47",
+            "sha": "3e92d4f456e573366f70457e3aba0120d5b96b24"
+          },
+          {
+            "name": "work/swarm-service-response-recovery-20261003-01",
+            "sha": "b861830acfe8cb28b63fc3d317c64229e665ed02"
+          },
+          {
+            "name": "work/swarm-shipped-order-20261003-bbf1",
+            "sha": "5103060e06217095b93162e44f9c87fd75142f76"
+          },
+          {
+            "name": "work/swarm-slack-thread-time-bounds-20261003-01",
+            "sha": "2cb5b64ed6bd7b4457c7387d689cc08fcd95d0e6"
+          },
+          {
+            "name": "work/swarm-snapshot-recovery-fields-20261003-01",
+            "sha": "54c68d09583c94aed6d60884746768f5949b1217"
+          },
+          {
+            "name": "work/swarm-source-job-page-copy-20261003-aabe",
+            "sha": "75e00c6f3a539635fa581c0a4d0693a5f42479b3"
+          },
+          {
+            "name": "work/swarm-source-job-sql-page-20261003-aabe",
+            "sha": "5665628cc0e01088277ced073c95c2a61a047a9e"
+          },
+          {
+            "name": "work/swarm-sync-projection-cost-20261003-358f",
+            "sha": "a74e5151d886200caeb4b2bcbbd2d2681454f2e1"
+          },
+          {
+            "name": "work/swarm-task-title-20261003-2bc3",
+            "sha": "c39d8e5740493589e6caebf531980f114b4eb4c5"
+          },
+          {
+            "name": "work/swarm-unchanged-corpus-20261003-f5ae",
+            "sha": "334c1273c5602030882a301afc09526ea452555f"
+          },
+          {
+            "name": "work/swarm-zero-budget-cache-20261003-02e093",
+            "sha": "6f0ef245d9ef0630d5313a41f381b62630e655ce"
+          },
+          {
+            "name": "work/switchyard-github-discovery-identity-20261003-16b7",
+            "sha": "bb9fe5268441117336587d227bee685481d48fb7"
+          },
+          {
+            "name": "work/switchyard-iowa-csv-decode-20261003-16b7",
+            "sha": "321877b1100b28c6e680c25e5f78873bd94e5044"
+          },
+          {
+            "name": "work/switchyard-slack-discovery-cursor-20261003-16b7",
+            "sha": "ea7186b83d97cbe3b0c9dc48e868085ceff66c96"
+          },
+          {
+            "name": "work/uiowa-081-planning-20261003-f5ae",
+            "sha": "dbed2fe4af4b8a6a4bc8b6a61c97c68007a9f29a"
+          },
+          {
+            "name": "work/unbuilt-commit-snapshot-20261003-acba",
+            "sha": "2f09cbc70b2b7b3a0dd585b2212d0a2c9c5bf2cc"
+          },
+          {
+            "name": "work/whitebox-category-pair-reuse-cc67",
+            "sha": "f680a3fc7a27e8ad63ca46e53c3ef2b8c734eaa7"
+          },
+          {
+            "name": "work/worktree-occupied-exit-20261003-3119",
+            "sha": "1c063250b8f218d83e58e4ba838847702ea5aa0d"
+          }
+        ],
+        "pagination_exhausted": true
+      }
+    }
+  },
+  "preserved_boundaries": [
+    "Cursor hold",
+    "Claude suspension and no-tester/no-verifier boundary",
+    "Titan mutation hold",
+    "No-resend rule for delivered prospects",
+    "Grok dry/no-submit state",
+    "Open-door/no-auth law",
+    "Private-data boundary",
+    "Peer deletion-vote rule",
+    "Bryce owner-only identity, payment, policy, call, signing, submission and physical-device actions",
+    "NO CONTACT OR RELAY TO MICHAEL CLARK",
+    "No personal meeting commitment without exact date, time, timezone and purpose approval"
+  ]
+}
