@@ -34,7 +34,11 @@ def main(argv=None):
             result=store.export(args.output,public=args.public)
         elif args.command=="query":
             from .server import call
-            result=call(store,args.tool,json.loads(args.arguments))
+            arguments=json.loads(args.arguments)
+            if args.tool=="get_dashboard_summary":
+                # This one-shot process cannot reuse a background refresh cache.
+                result=store._snapshot(summary=True)
+            else: result=call(store,args.tool,arguments)
         elif args.command=="ingest":
             data=json.loads(args.input.read_text(encoding="utf-8-sig")) if args.input else json.load(sys.stdin)
             if args.source=="events": events=data if isinstance(data,list) else data.get("events",[])
