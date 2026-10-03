@@ -21,6 +21,15 @@ KEY_TARGET = "commons:swarm-telemetry:source-custody-key"
 KEY_REFERENCE = "telemetry/source-custody-key"
 _CUSTODY_WRITE_LOCK = RLock()
 
+class ClosingConnection(sqlite3.Connection):
+    """Retain SQLite transaction semantics and close each completed context."""
+    def __exit__(self, exc_type, exc_value, traceback):
+        try:
+            return super().__exit__(exc_type, exc_value, traceback)
+        finally:
+            self.close()
+
+
 class _Credential(ctypes.Structure):
     _fields_=[("Flags",wintypes.DWORD),("Type",wintypes.DWORD),("TargetName",wintypes.LPWSTR),("Comment",wintypes.LPWSTR),("LastWritten",wintypes.FILETIME),("CredentialBlobSize",wintypes.DWORD),("CredentialBlob",ctypes.POINTER(ctypes.c_ubyte)),("Persist",wintypes.DWORD),("AttributeCount",wintypes.DWORD),("Attributes",ctypes.c_void_p),("TargetAlias",wintypes.LPWSTR),("UserName",wintypes.LPWSTR)]
 
@@ -116,7 +125,7 @@ class Custody:
         self._key_lock=Lock()
         self._key_loader=key_loader
         self._write_lock=write_lock or _CUSTODY_WRITE_LOCK
-        with self._write_lock,sqlite3.connect(self.path,timeout=30) as db:
+        with self._write_lock,sqlite3.connect(self.path,timeout=30,factory=ClosingConnection) as db:
             db.execute("PRAGMA busy_timeout=30000")
             db.execute("CREATE TABLE IF NOT EXISTS source_records (ref TEXT PRIMARY KEY,source_id TEXT,sha256 TEXT,byte_length INTEGER,character_length INTEGER,iv BLOB,ciphertext BLOB,mac BLOB,format TEXT,key_reference TEXT)")
     def key(self):
@@ -155,12 +164,12 @@ class Custody:
 
     def seal(self,value,source_id):
         reference,record=self.prepare(value,source_id)
-        with self._write_lock,sqlite3.connect(self.path,timeout=30) as db:
+        with self._write_lock,sqlite3.connect(self.path,timeout=30,factory=ClosingConnection) as db:
             db.execute("PRAGMA busy_timeout=30000")
             self.insert_prepared(db,[record])
         return reference
     def _record(self,ref):
-        with sqlite3.connect(self.path,timeout=30) as db:
+        with sqlite3.connect(self.path,timeout=30,factory=ClosingConnection) as db:
             db.execute("PRAGMA busy_timeout=30000")
             db.row_factory=sqlite3.Row
             row=db.execute("SELECT * FROM source_records WHERE ref=?",(ref,)).fetchone()

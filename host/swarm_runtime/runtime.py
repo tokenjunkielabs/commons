@@ -110,6 +110,32 @@ def read_status(state, *, tip=None, authority="state/claims", now=None,
             "next": route(view["tasks"], worker, seats, moment) if worker else None}
 
 
+def _handoff_candidates(before, tasks, seats, moment, events):
+    """Suggest distinct work within one passive reconciliation response."""
+    candidates = []
+    candidate_workers = set()
+    available = dict(tasks)
+    for closed_key, previous in sorted(before.items()):
+        closed = tasks.get(closed_key, {})
+        worker = previous.get("worker")
+        if (previous.get("state") != "ACTIVE" or closed.get("state") not in TERMINAL
+                or not worker or worker == "UNKNOWN"):
+            continue
+        if worker in candidate_workers:
+            continue
+        candidate_workers.add(worker)
+        choice = route(available, worker, seats, moment)
+        target = choice.get("task_key")
+        if not target:
+            continue
+        # Exclusion is local to these suggestions: no custody, heartbeat or
+        # task state changes. Actual dispatch reconciles and takes work again.
+        available.pop(target)
+        candidates.append({"worker": worker, "after_task_key": closed_key,
+                           "task": context_bundle(tasks[target], events)})
+    return candidates
+
+
 class Runtime:
     def __init__(self, root, *, store=None, state_dir=None):
         self.root = Path(root).resolve()
@@ -233,25 +259,8 @@ class Runtime:
                 state["cursors"] = imported.get("cursors", state.get("cursors", {}))
                 state["coverage"] = imported.get("coverage", {})
             view = _project(state, moment)
-            candidates = []
-            candidate_workers = set()
-            for closed_key, previous in sorted(before.items()):
-                closed = view["tasks"].get(closed_key, {})
-                worker = previous.get("worker")
-                if previous.get("state") != "ACTIVE" or closed.get("state") not in TERMINAL or not worker or worker == "UNKNOWN":
-                    continue
-                if worker in candidate_workers:
-                    continue
-                candidate_workers.add(worker)
-                choice = route(view["tasks"], worker, _seats(state), moment)
-                target = choice.get("task_key")
-                if not target:
-                    continue
-                # Reconciliation observed completion, not worker activity or a
-                # delivery. Leave custody available to the existing dispatcher
-                # or an explicit worker operation, which reconciles it again.
-                candidates.append({"worker": worker, "after_task_key": closed_key,
-                                   "task": context_bundle(view["tasks"][target], state["events"])})
+            candidates = _handoff_candidates(before, view["tasks"], _seats(state),
+                                              moment, state["events"])
             return {"action": "sync", "ingested": added, "tasks": len(view["tasks"]),
                     "summary": status(view["tasks"], _seats(state), moment),
                     "provider_calls": fresh.get("calls", 0),
@@ -263,7 +272,7 @@ class Runtime:
         if type(worker_activity) is not bool:
             raise ValueError("worker_activity must be a boolean")
         action = str(action).lower()
-        if action not in {"open", "take", "heartbeat", "ship", "block", "abandon", "next"}:
+        if action not in {"open", "take", "heartbeat", "release", "ship", "block", "abandon", "next"}:
             raise ValueError("Unknown swarm action: " + action)
         if not isinstance(payload, dict):
             raise ValueError("Expected operation object")
@@ -281,6 +290,12 @@ class Runtime:
             raise ValueError("task_key is required")
         if action == "block" and (not payload.get("blocker") or not payload.get("next_action")):
             raise ValueError("BLOCKED requires blocker and exact next_action")
+        expected_started = None
+        if action == "release":
+            expected_started_at = payload.get("expected_started_at")
+            if not isinstance(expected_started_at, str) or _time(expected_started_at) is None:
+                raise ValueError("release requires expected_started_at from the observed ACTIVE task")
+            expected_started = _time(expected_started_at)
         request_identity = {"action": action, "payload": payload}
         if not worker_activity:
             # A coordinator choosing a seat is not evidence that seat is live.
@@ -343,6 +358,7 @@ class Runtime:
                 _append(state, [event])
 
             collision = None
+            release_rejected = []
             if action == "open":
                 emit("OPEN", selected_key)
             elif action == "take":
@@ -370,6 +386,26 @@ class Runtime:
                             emit("RECOVER", selected_key, ":recover", expected_worker=row.get("worker"),
                                  expected_heartbeat=row.get("heartbeat"))
                         emit("TAKE", selected_key)
+            elif action == "release":
+                row = view["tasks"].get(selected_key)
+                reason = None
+                if row is None:
+                    reason = "task_not_found"
+                elif row.get("state") != "ACTIVE":
+                    reason = "task_not_active"
+                elif row.get("worker") != worker:
+                    reason = "custody_changed"
+                elif _time(row.get("started_at")) != expected_started:
+                    reason = "claim_generation_changed"
+                if reason:
+                    release_rejected.append({"id": "swarm:" + operation_id,
+                                             "task_key": selected_key, "reason": reason,
+                                             "state": row.get("state") if row else None})
+                else:
+                    # Keep the caller's generation fixed across CAS retries.
+                    # A release returns work to OPEN without claiming a result.
+                    emit("RELEASE", selected_key,
+                         expected_started_at=payload["expected_started_at"])
             elif action != "next":
                 emit({"heartbeat": "HEARTBEAT", "ship": "SHIP", "block": "BLOCK",
                       "abandon": "ABANDON"}[action], selected_key)
@@ -377,7 +413,7 @@ class Runtime:
             current = view["tasks"].get(selected_key) if selected_key else None
             next_job = None
             should_roll = action == "next" or collision is not None or (
-                current and current.get("state") in TERMINAL and action != "open")
+                current and current.get("state") in TERMINAL and action not in {"open", "release"})
             if should_roll:
                 choice = route(view["tasks"], worker, _seats(state), moment)
                 next_key = choice.get("task_key")
@@ -395,7 +431,7 @@ class Runtime:
                       "task": context_bundle(current, state["events"]) if current else None,
                       "collision": collision, "next": next_job,
                       "deferred": deferred,
-                      "rejected": [row for row in view.get("rejected", [])
+                      "rejected": release_rejected + [row for row in view.get("rejected", [])
                                    if operation_id in str(row.get("id", row.get("event_id", "")))]}
             operations[operation_id] = {"request_hash": request_hash, "result": result}
             return result

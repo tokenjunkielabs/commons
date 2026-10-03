@@ -31,14 +31,48 @@ The carrier:
 From this directory:
 
 ```bash
-python -m unittest -v test_proofpatch test_hardening
-python -O -m unittest -v test_proofpatch test_hardening
 python proofpatch.py demo > proof.json
 python proofpatch.py verify proof.json
 python proofpatch.py demo-verify
 ```
 
 `verify proof.json` must report `STRUCTURAL_EVIDENCE_VERIFIED` + `replay_required=true`. `demo-verify` must report `EXECUTOR_REPLAY_VERIFIED` for the fixed synthetic executor.
+
+### Execute the retained repair in real processes
+
+```bash
+python proofpatch.py real-process > ratio-run.json
+python proofpatch.py real-process-verify ratio-run.json > ratio-replay.json
+```
+
+The first command writes the retained floor-division baseline to fresh temporary
+directories, observes `ratio(5, 2) = 2`, applies the existing one-file division fix
+on disk, and observes `2.5`. It runs focused, regression and replay phases, builds
+the existing evidence bundle from the captured outputs, and invokes the existing
+verifier with a fresh process for every receipt. A successful run reports
+`ok=true`, eight child processes, six actual patch applications, and
+`EXECUTOR_REPLAY_VERIFIED`. The regression phase also evaluates zero, negative,
+integral and fractional ratios. No test framework or test suite is invoked.
+
+The second command reads the saved report (or its bundle directly) and launches
+four more processes with three new patch applications. It uses the fixed source
+in the installed product; saved outcome text never replaces execution. To use
+the structural-only `verify` command, extract the report's `bundle` object first.
+
+Each report retains exact UTF-8 stdout/stderr, their original bytes in base64,
+native return codes, logical and actual argument vectors, complete pre/post root
+snapshots, and the actual baseline/patched file contents. A timeout, launch error,
+unexpected file mutation, wrong baseline diagnostic or replay mismatch returns
+exit 2 with `ok=false`; any captured process evidence remains in the JSON report.
+The child gets an empty environment, closed inherited file descriptors, no input
+stream and no shell. Temporary demonstration directories are removed afterward.
+
+This completes the local operator scope of #16339 / operation
+`proofpatch-real-process-kiln73-20260919`. It remains a fixed synthetic process
+rehearsal on the operator's Python installation. It does not execute a supplied
+repository or arbitrary command, isolate hostile code, authenticate a provider,
+or establish live Nebius or competition execution. The original fake demo,
+structural verifier and source/recovery credit are preserved.
 
 ## Current external gate
 

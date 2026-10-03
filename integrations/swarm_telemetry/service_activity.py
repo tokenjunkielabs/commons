@@ -325,6 +325,9 @@ class _Collector:
             add("apollo_io_apollo_find_tools", {"intent": "read", "query": "Enumerate all saved account contacts, conversations, message content, campaigns, deals, tasks, custom object records and historical activity with pagination schemas"})
             for action in ("apollo_users_api_profile", "apollo_email_accounts_index", "apollo_contacts_search", "apollo_conversations_search", "apollo_emailer_messages_search", "apollo_emailer_campaigns_search", "apollo_deals_search", "apollo_tasks_search", "apollo_users_search", "apollo_custom_objects_show", "apollo_labels_index", "apollo_fields_index"):
                 add("apollo_io_apollo_find_tools", {"intent": "read", "query": action + " exact input schema, complete account enumeration and pagination"}, context={"target_action": action})
+                if action == "apollo_custom_objects_show":
+                    self.add(service, account, None, scope="Apollo collection identities and contents", context={"target_action": action}, gap="native collection detail requires an existing collection ID; recover exact IDs from retained account source or authenticated provider inventory before binding reads")
+                    continue
                 parameters = {"action": action}
                 if action in {"apollo_contacts_search", "apollo_conversations_search"}:
                     parameters.update(page=1, per_page=50)
@@ -397,16 +400,20 @@ class _Collector:
             schema = self.state.get("apollo_action_schemas", {}).get(subaction, {})
             properties = schema.get("properties", {})
             pagination = value.get("pagination") or {}
-            current = args.get("page", pagination.get("page", 1))
-            total = pagination.get("total_pages") or value.get("total_pages")
-            more = bool(value.get("next_page") or value.get("has_more") or total and current < total)
-            rows = _rows(value, "contacts", "conversations", "emailer_messages", "messages", "campaigns", "deals", "tasks", "users", "records")
-            if len(rows) >= args.get("per_page", 50):
+            current = int(str(args.get("page", pagination.get("page", 1))))
+            page_size = int(str(args.get("per_page", pagination.get("per_page", 50))))
+            raw_total = pagination.get("total_pages", value.get("total_pages"))
+            total = None if raw_total is None else int(str(raw_total))
+            if current < 1 or page_size < 1 or total is not None and total < 0:
+                raise ValueError("native_apollo_invalid_pagination")
+            more = bool(value.get("next_page") or value.get("has_more") or total is not None and current < total)
+            rows = _rows(value, "contacts", "conversations", "emailer_messages", "messages", "emailer_campaigns", "campaigns", "deals", "tasks", "users", "records")
+            if total is None and len(rows) >= page_size:
                 more = True
             if more:
                 if "page" in properties and "per_page" in properties:
-                    args["page"] = current + 1
-                    args.setdefault("per_page", min(50, properties["per_page"].get("maximum", 50)))
+                    for field, number in (("page", current + 1), ("per_page", page_size)):
+                        args[field] = str(number) if properties[field].get("type") == "string" else number
                     self.add(job["service"], job["account_ref"], action, args, context=job["context"])
                 else:
                     self.gap(job, "Apollo continuation:" + str(subaction), "provider has more source; recover exact action pagination schema via native Apollo tool discovery")

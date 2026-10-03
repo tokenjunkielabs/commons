@@ -24,6 +24,7 @@ python host/swarmctl.py status --task github:woahwhattheheck/commons:issue:177
 python host/swarmctl.py sync --max-calls 4
 python host/swarmctl.py take github:woahwhattheheck/commons:issue:177 --operation-id take-177-01 --data /tmp/worker.json
 python host/swarmctl.py heartbeat --feed-cursor '2026-09-26T12:00:00Z|exact-event-id'
+python host/swarmctl.py release github:woahwhattheheck/commons:issue:177 --operation-id release-177-01 --expected-started-at '2026-09-26T12:00:00Z'
 python host/swarmctl.py ship github:woahwhattheheck/commons:issue:177 --operation-id ship-177-01
 python host/swarmctl.py block github:woahwhattheheck/commons:issue:177 --operation-id block-177-01 --blocker 'Exact provider error' --next-action 'Exact action needed'
 python host/swarmctl.py next --operation-id next-02
@@ -33,6 +34,13 @@ Use real task IDs and consumed cursors. `open` adds a task without taking it;
 `abandon` closes unfinished work explicitly. `heartbeat` can omit the task only
 when that worker owns exactly one active task. `ship` records a shipment claim;
 provider reconciliation supplies the actual merged SHA. It does not merge code.
+`release` returns the specified unfinished ACTIVE task to OPEN and releases its
+matching legacy holding without marking completion or taking another task. Copy
+the task's exact `started_at` from `status` into `--expected-started-at` (or
+`expected_started_at` in `--data`/the shared API), and retain it with the same
+operation ID for retries. A changed claim generation, another current worker, or
+a task that is no longer ACTIVE returns an explicit rejected outcome; it cannot
+release newer work. Run `next` separately when ready to take another task.
 After a terminal outcome or a collision, the same transaction attempts to take
 the next compatible task. The response includes its bounded context bundle.
 Status accepts repeated `--state`, exact `--task`/`--owner`, and `--after` with
@@ -60,9 +68,13 @@ Background `sync` reconciles source events and provider outcomes without taking
 new work or renewing a worker's heartbeat. When an active task becomes terminal,
 its response may include one advisory `candidates` entry per eligible worker:
 `{"worker": "SEAT", "after_task_key": "completed-key", "task": {"task_key": "candidate-key", "...": "bounded context"}}`.
-The candidate retains its current task state and ownership; it is not an
-assignment or delivery. The compatibility `assignments` field is empty. Actual
-dispatch and direct `take`/`next`/terminal operations still acquire the next claim
+Each task is suggested at most once within that response. Later workers use the
+remaining compatible tasks in the existing recovery/priority order; a worker
+gets no suggestion if that batch has exhausted its eligible work. The candidate
+retains its current task state and ownership; it is not an assignment or
+delivery, and another caller may still claim it. The compatibility `assignments`
+field remains empty. Actual dispatch and direct `take`/`next`/terminal operations
+still acquire the next claim
 atomically after fresh reconciliation. Repeated sync alone cannot keep an idle
 worker live or reserve work ahead of its execution callback.
 

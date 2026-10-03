@@ -11,6 +11,7 @@ import time
 from threading import Lock, RLock, Thread
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
+from .custody import ClosingConnection
 
 SCHEMA_VERSION = 1
 _DB_WRITE_LOCK = RLock()
@@ -170,7 +171,7 @@ class Store:
         self.custody = Custody(self.path, key_loader=key_loader, write_lock=self._write_lock)
 
     def connect(self):
-        db = sqlite3.connect(self.path, timeout=30)
+        db = sqlite3.connect(self.path, timeout=30, factory=ClosingConnection)
         db.execute("PRAGMA busy_timeout=30000")
         db.row_factory = sqlite3.Row
         return db
@@ -333,6 +334,40 @@ class Store:
                 row = db.execute("SELECT payload FROM runtime_state WHERE key=?", (key,)).fetchone()
         return json.loads(row[0]) if row else None
 
+    def source_job_page(self, readers, *, cursor=0, limit=None):
+        """Decode only selected jobs; counts and rows share one read snapshot."""
+        readers=list(readers)
+        start=max(0,int(cursor or 0))
+        stop=None if limit is None else start+max(1,int(limit))
+        keys=["source_jobs:"+reader for reader in readers]
+        items=[]
+        total=0
+        if keys:
+            with self.connect() as db:
+                db.execute("BEGIN")
+                placeholders=",".join("?" for _ in keys)
+                counts={}
+                for row in db.execute("SELECT key,json_type(payload) AS kind,json_array_length(payload) AS count "
+                                      "FROM runtime_state WHERE key IN ("+placeholders+")",keys):
+                    if row["kind"] not in {"array","null"}:
+                        raise ValueError("Source job state must be a JSON array: "+row["key"])
+                    counts[row["key"]]=int(row["count"] or 0)
+                total=sum(counts.get(key,0) for key in keys)
+                offset=0
+                for reader,key in zip(readers,keys):
+                    count=counts.get(key,0)
+                    first=max(0,start-offset)
+                    last=count if stop is None else min(count,stop-offset)
+                    offset+=count
+                    if last<=first: continue
+                    rows=db.execute("SELECT value FROM json_each((SELECT payload FROM runtime_state WHERE key=?)) "
+                                    "WHERE key>=? AND key<? ORDER BY key",(key,first,last))
+                    for row in rows:
+                        items.append({**json.loads(row["value"]),"reader":reader})
+        end=total if stop is None else min(total,stop)
+        return self.envelope(jobs=items,total_jobs=total,next_cursor=str(end) if end<total else None,
+                             scope="All accounts and all services",corpus_complete=False,sampling=False)
+
     def _native_response_rows(self, db):
         values={row["key"]:json.loads(row["payload"]) for row in db.execute(
             "SELECT key,payload FROM runtime_state WHERE key IN (?,?)",
@@ -411,6 +446,19 @@ class Store:
         peers=list(by_id.values())
         if provider: peers=[p for p in peers if p.get("provider")==provider]
         if harness: peers=[p for p in peers if p.get("harness")==harness]
+        if q and peers:
+            # Census observations can add peers or replace searchable fields.
+            # Match the merged view with SQLite's existing LIKE semantics, using
+            # only the three search fields rather than copying full peer payloads.
+            fields=[[p.get(key) for key in ("summary","session_id","peer_id")] for p in peers]
+            pattern="%"+str(q)+"%"
+            with self.connect() as db:
+                matched={row[0] for row in db.execute(
+                    "SELECT key FROM json_each(?) WHERE json_extract(value,'$[0]') LIKE ? "
+                    "OR json_extract(value,'$[1]') LIKE ? OR json_extract(value,'$[2]') LIKE ?",
+                    [json.dumps(fields),pattern,pattern,pattern])}
+            peers=[p for index,p in enumerate(peers) if index in matched]
+        peers=peers[:max(1,min(int(limit),10000))]
         return self.envelope(peers=peers, returned=len(peers),complete=False,census_coverage=census.get("coverage",[]))
 
     def records(self, table, *, limit=1000, cursor="", q=None, source=None, provider=None, harness=None, delivery_state=None, since=None):
