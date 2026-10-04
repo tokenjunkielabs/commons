@@ -10,6 +10,8 @@ import sqlite3
 import time
 from contextlib import contextmanager
 from dataclasses import dataclass
+from datetime import timezone
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 from typing import Any, Callable
 
@@ -150,11 +152,22 @@ def normalize(route: str, params: dict) -> dict:
     return out
 
 
-def retry_after_seconds(value: Any) -> int | None:
+def retry_after_seconds(value: Any, now: float | None = None) -> int | None:
     text = str(value).strip()
-    if not re.fullmatch(r"[0-9]{1,10}", text):
+    if re.fullmatch(r"[0-9]{1,10}", text):
+        return max(1, int(text))
+    try:
+        deadline = parsedate_to_datetime(text)
+        # The obsolete asctime HTTP-date form has no explicit zone; HTTP
+        # dates are UTC. Do not let the machine's local zone change the wait.
+        if deadline.tzinfo is None:
+            deadline = deadline.replace(tzinfo=timezone.utc)
+        observed = time.time() if now is None else now
+        if type(observed) not in (int, float) or not math.isfinite(observed):
+            return None
+        return max(1, math.ceil(deadline.timestamp() - observed))
+    except (TypeError, ValueError, OverflowError, OSError):
         return None
-    return min(MAX_COOLDOWN, max(1, int(text)))
 
 
 def reset_delay(reset_value: Any, now: float) -> int | None:
@@ -322,7 +335,7 @@ class Broker:
         if not isinstance(result, Upstream):
             result = Upstream(502)
         secondary = type(result.secondary_limited) is bool and result.secondary_limited
-        retry = retry_after_seconds(result.retry_after)
+        retry = retry_after_seconds(result.retry_after, now)
         remaining_zero = str(result.rate_remaining).strip() == "0"
         primary_limited = result.status in {403, 429} and remaining_zero
         generic_429 = result.status == 429 and not secondary
