@@ -76,6 +76,7 @@ def response_evidence(value):
     for envelope in _envelopes(value):
         for key in ("http_status", "retry_after", "retry_not_before", "quota_remaining",
                     "rate_limit_remaining", "rate_limit_reset", "rate_limit_buckets",
+                    "rate_limit_kind", "rate_limit_resource",
                     "delivered", "effect", "code", "error_code"):
             if key in envelope and envelope[key] is not None:
                 evidence.setdefault(key, envelope[key])
@@ -114,6 +115,27 @@ def response_evidence(value):
                                or not 100 <= status <= 599):
         raise EquipmentError("provider http_status must be an HTTP status integer")
     evidence["failed"] = failed or bool(status and status >= 400)
+    # A permission 403 is not quota exhaustion. Read rate-refusal prose only
+    # from failed transport envelopes, never from returned jobs or page bodies.
+    if evidence["failed"] and status in {403, 429}:
+        messages = []
+        for envelope in _envelopes(value):
+            for key in ("message", "error"):
+                if isinstance(envelope.get(key), str):
+                    messages.append(envelope[key].lower())
+            native_error = envelope.get("error_data")
+            if isinstance(native_error, dict) and isinstance(native_error.get("message"), str):
+                messages.append(native_error["message"].lower())
+        secondary = any(term in message for message in messages
+                        for term in ("secondary rate limit", "abuse detection mechanism"))
+        if secondary:
+            evidence["rate_limit_kind"] = "secondary"
+        code = str(evidence.get("code", evidence.get("error_code", ""))).lower()
+        evidence["rate_limited"] = bool(status == 429 or secondary
+            or evidence.get("rate_limit_kind") in ("primary", "secondary")
+            or code in {"github_rate_limited", "rate_limited", "rate_limit_exceeded"}
+            or evidence.get("rate_limit_remaining") in (0, "0")
+            or evidence.get("retry_after") is not None)
     return evidence
 
 
@@ -175,6 +197,12 @@ class ConnectedToolRouter:
                 limits = {key: value for key, value in limits.items()
                           if key not in {"quota_remaining", "reset_at"}}
             row.update({key: limits[key] for key in ("cooldown_until", "quota_remaining") if key in limits})
+            client_deadline = _time(limits.get("client_cooldown_until"))
+            if client_deadline:
+                provider_deadline = _time(row.get("cooldown_until"))
+                row["cooldown_until"] = _iso(max(provider_deadline, client_deadline)
+                                              if provider_deadline else client_deadline)
+                row["client_cooldown_policy"] = copy.deepcopy(limits.get("client_cooldown_policy"))
             for bucket in limits.get("rate_limit_buckets", {}).values():
                 reset_at = _time(bucket.get("reset_at"))
                 if reset_at and reset_at <= _now():
@@ -385,6 +413,29 @@ class ConnectedToolRouter:
                 limits["reset_at"] = _iso(deadline)
             elif isinstance(window, int) and 0 < window <= 86400:
                 limits["reset_at"] = _iso(observed + timedelta(seconds=window))
+        # With no provider retry deadline, a new operation must not immediately
+        # hit the same observed limited domain again. This is optional bridge
+        # client policy, not a claimed quota/reset or a mandatory fleet gate.
+        # GitHub documents at least one minute for headerless secondary limits.
+        exhausted_reset = remaining == 0 and reset is not None
+        if evidence.get("rate_limited") and deadline is None and not exhausted_reset:
+            previous_attempts = limits.get("client_backoff_attempts", 0)
+            if type(previous_attempts) is not int or previous_attempts < 0:
+                raise EquipmentError("runtime client_backoff_attempts must be a nonnegative integer")
+            attempts = min(previous_attempts + 1, 32)
+            seconds = min(60 * 2 ** min(attempts - 1, 4), 900)
+            client_deadline = observed + timedelta(seconds=seconds)
+            existing_client = _time(limits.get("client_cooldown_until"))
+            limits["client_cooldown_until"] = _iso(max(existing_client, client_deadline)
+                                                   if existing_client else client_deadline)
+            limits["client_backoff_attempts"] = attempts
+            limits["client_cooldown_policy"] = {
+                "kind": "client_policy", "reason": "observed_rate_refusal_without_provider_deadline",
+                "attempt": attempts, "seconds": seconds}
+        elif not evidence.get("failed") and not evidence.get("uncertain"):
+            # A successful response resets escalation, without declaring an
+            # active cooldown or another pending request globally recovered.
+            limits.pop("client_backoff_attempts", None)
         buckets = evidence.get("rate_limit_buckets", {})
         if not isinstance(buckets, dict):
             raise EquipmentError("provider rate_limit_buckets must be an object")
