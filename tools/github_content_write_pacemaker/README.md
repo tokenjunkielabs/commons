@@ -20,6 +20,28 @@ It is not caller admission, permission, approval, or distributed consensus.
 Raw GitHub writers remain open and can bypass the queue. Cooperating callers
 must share one SQLite generation; one database per worker is split brain.
 
+## Dispatch timing hints
+
+When `claim-next` cannot dispatch because a known deadline is still ahead, its
+existing exit 4 / `NO_DISPATCH` response includes `retryAt` (canonical UTC seconds)
+and `retryAfterSeconds` (remaining whole seconds at the claim observation).
+The deadline is the later of the retained provider cooldown and minimum claim
+interval. Python callers receive the same values as `retry_at` and
+`retry_after_seconds` on `NoDispatchableMutation`.
+
+```json
+{"state":"NO_DISPATCH","reason":"provider cooldown is active","retryAt":"2026-10-04T12:00:00Z","retryAfterSeconds":60}
+```
+
+Use `retryAt` to defer the next attempt in the existing publisher while doing
+other useful work; transport time makes the returned relative delay age.
+The hint is a snapshot, not a reservation or a promise that work will remain.
+Another cooperative caller or provider result can change the next claim.
+If neither pacing deadline is active, both fields are omitted. An uncertain
+prior effect still returns exit 5 / `RECONCILE_REQUIRED`, with no timing hint:
+elapsed time never replaces readback.
+No dispatch, sleep, timer, retry, or provider request is added by these fields.
+
 ## SQLite generation custody
 
 The pacemaker database is persistent coordination authority, so initialization

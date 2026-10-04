@@ -40,7 +40,12 @@ def main(argv=None):
         elif a.command=="list": emit({"receipts":store.list_receipts()})
         elif a.command=="verify": emit(store.verify())
         return 0
-    except NoDispatchableMutation as exc: emit({"state":"NO_DISPATCH","reason":str(exc)}); return 4
+    except NoDispatchableMutation as exc:
+        result = {"state":"NO_DISPATCH","reason":str(exc)}
+        if exc.retry_at is not None:
+            result.update(retryAt=exc.retry_at, retryAfterSeconds=exc.retry_after_seconds)
+        emit(result)
+        return 4
     except AmbiguousOutcome as exc: emit({"state":"RECONCILE_REQUIRED","reason":str(exc)}); return 5
     except (PacemakerError,OSError) as exc: print(f"HOLD: {exc}",file=sys.stderr); return 2
 
