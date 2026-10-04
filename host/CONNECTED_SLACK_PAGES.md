@@ -139,6 +139,10 @@ Each entry exposes:
 
 The content range excludes recognized envelope headers and fixed inter-message separators. Channel content retains any trailing provider `Thread:` summary. Footers, Markdown, autolinks, entities and authored whitespace inside the range are preserved. These fields describe the connector rendering, not Slack's raw stored text or authenticated author identity. Channel provenance is `retained_request_and_rendered_header` for channel reads and `retained_request` for thread reads.
 
+Channel headers may contain the ordinary `=== Message from … at … ===` line or the observed authorless `=== Message at … ===` line. Both must be followed immediately by an exact decimal-string `Message TS:` line. An authorless entry keeps the same `channel_message` kind and source ranges; the projector does not supply a missing author or identify the message as a system event. The timestamp and header are rendered metadata, not authenticated identity.
+
+The authorless form was observed around a native high-volume application notice. That notice remains literal content. `all_rendered_messages_included: true` describes only the captured rendering; it does not recover messages the notice says are not displayed or establish complete channel history.
+
 The top-level status is `PROJECTED`, `EMPTY_RENDERING`, or `REFUSED`. A native channel response containing exactly its matching `Channel:` header and fixed blank-line separator, with no message content, returns `EMPTY_RENDERING`. Any unframed content after that header still refuses. Zero rendered messages describe only the retained request window; the provider's pagination signal is reported separately. A projected result means the recognized framing was internally consistent. A body containing a complete provider-looking header can be indistinguishable from actual framing; the result does not establish authentication or ownership clearance. Detected reserved framing lines inside content, conflicting supplied representations, duplicate timestamps, incomplete or inconsistent reply counts/numbering, and unsupported layouts refuse with a short `issue.code` and no projected messages. Invalid API arguments throw `TypeError`. Original native envelopes stay with the caller in all cases.
 
 Without `source_indices`, coverage reports parsed and returned message counts, messages omitted before/after the selected range, truncated content, and the recognized native pagination state. `next_index` advances through message entries in the same retained page. It is not a provider cursor. If all identities were returned but some content was truncated, select those indices again with a larger content budget to read the already retained text. Zero content budgets are useful for identity-only navigation.
@@ -305,6 +309,12 @@ An actual retained channel response containing only its matching header now retu
 
 One fresh channel read through the unchanged collector returned the same empty form and projected successfully. Its provider ending applies only to the captured time window. The original native responses and the collector source remain unchanged; no OS process, suite or fixture was used.
 
+
+### Authorless channel header use, 2026-10-04
+
+The next unread native channel page contained 12 entries, including one authorless timestamped header. The previous parser refused the whole page as `AMBIGUOUS_LAYOUT`. The two header-pattern changes now project all 12 entries and all 1,228 content code units with exact original ranges, including the 148-code-unit notice. The retained native response is unchanged.
+
+The adjacent captured channel page and an actual targeted thread read remain JSON-identical. One subsequent, needed unread channel call returned another 12 entries and 1,152 complete content code units; its projection stayed JSON-identical to the prior parser and its next cursor was preserved. The collector and search projector are unchanged. This is retained/native source use, with no generated fixture, suite, OS process or earlier request replay.
 
 ## Project a retained search result page
 
