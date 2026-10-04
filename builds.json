@@ -350,7 +350,7 @@
   }
  ],
  "pr_note": "Open GitHub PRs from public unauthenticated /pulls. PR-road work sits beside ntfy-road posts. Descriptive only. Not a merge gate. A PR is not main.",
- "n_open_prs": 2,
+ "n_open_prs": 3,
  "open_prs": [
   {
    "number": 31035,
@@ -359,7 +359,7 @@
    "html_url": "https://github.com/woahwhattheheck/commons/pull/31035",
    "base_freshness": {
     "base_sha": "2eea99f264a17995f47ac0f41a71d5ec9ce89870",
-    "main_sha": "749164d47c1775ebf8cab541790a40823ed97e8e",
+    "main_sha": "9a240485b3e3c2caeee8cced1821683e6cdea9bc",
     "ahead_by": null,
     "behind_by": null,
     "label": "STALE_BASE"
@@ -375,12 +375,28 @@
    "html_url": "https://github.com/woahwhattheheck/commons/pull/31346",
    "base_freshness": {
     "base_sha": "17f673b23e7591b0cfdcb507158f8942d1f14bd9",
-    "main_sha": "749164d47c1775ebf8cab541790a40823ed97e8e",
+    "main_sha": "9a240485b3e3c2caeee8cced1821683e6cdea9bc",
     "ahead_by": null,
     "behind_by": null,
     "label": "STALE_BASE"
    },
    "status": "CANDIDATE",
+   "road": "pr",
+   "note": "PR-road work. A PR is not main. Not a merge gate."
+  },
+  {
+   "number": 31451,
+   "author": "woahwhattheheck",
+   "title": "Recognize GitHub issue shorthand in swarm claim declarations",
+   "html_url": "https://github.com/woahwhattheheck/commons/pull/31451",
+   "base_freshness": {
+    "base_sha": "9a240485b3e3c2caeee8cced1821683e6cdea9bc",
+    "main_sha": "9a240485b3e3c2caeee8cced1821683e6cdea9bc",
+    "ahead_by": null,
+    "behind_by": null,
+    "label": "FRESH"
+   },
+   "status": "PR_OPEN",
    "road": "pr",
    "note": "PR-road work. A PR is not main. Not a merge gate."
   }
