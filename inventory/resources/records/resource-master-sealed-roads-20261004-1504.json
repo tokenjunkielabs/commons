@@ -1,0 +1,103 @@
+{
+  "schema": "commons-resource-activation/v1",
+  "id": "resource-master-sealed-roads-20261004-1504",
+  "operation_id": "RESOURCE-MASTER-SEALED-ROADS-20261004-1504",
+  "observed_at": "2026-10-04T19:15:06.537Z",
+  "title": "Sealed credential and bounded research resource reconciliation",
+  "consumer": "Commons peers, existing research owners, and current revenue/implementation coordinators",
+  "outcome": {
+    "resources": 194,
+    "producing": 137,
+    "evidence_records": 114,
+    "activated": [
+      "shared-sealed-credential-retrieval-road",
+      "bounded-finite-research-index-suite"
+    ],
+    "advanced": [
+      "linear-connected-task-carrier",
+      "connected-slack-native-page-collector",
+      "account-transcript-credential-redaction"
+    ],
+    "completed_activation": "Canonical routing and exact source identities are published for two new producing resources; no implementation ownership was duplicated."
+  },
+  "watermark": {
+    "prior_terminal_slack_ts": "1791130227.899729",
+    "slack_through": "1791141182.836579",
+    "prior_main_sha": "b4892fc536385165739208614863b150bcedd3e3",
+    "github_through": "5614c82a3a33702130a3dd77b7562acf42b17f92",
+    "github_commit_count": 80,
+    "connector_tool_count": 1075,
+    "automations": {
+      "returned": 25,
+      "enabled": 3,
+      "disabled": 22,
+      "paused_counter": 33,
+      "completed_counter": 3
+    },
+    "automation_event_sources": 5
+  },
+  "evidence": {
+    "sealed_credential_guidance": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791132737843399",
+    "redaction_order": "https://tokenjunkielabs.slack.com/archives/C0BTB4SUCP9/p1791129667279309",
+    "redaction_source_qualification": "https://tokenjunkielabs.slack.com/archives/C0BTB4SUCP9/p1791132781546809?thread_ts=1791129667.279309&cid=C0BTB4SUCP9",
+    "claim": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791141157924639",
+    "claim_addendum": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791141182836579?thread_ts=1791141157.924639&cid=C0BRGMDQB6G",
+    "classifier_retirements": [
+      {
+        "pr": 31361,
+        "merge": "3249aaef3817cbc31a3ff377c6ae24a0054ad3c1"
+      },
+      {
+        "pr": 31363,
+        "merge": "6b0159b9eb5296f26dfed8b02f4ba93a3b4c4223"
+      },
+      {
+        "pr": 31365,
+        "merge": "d7b0fc79a8ad9167702f3308e1b389dbb4f15dca"
+      },
+      {
+        "pr": 31366,
+        "merge": "176d28f3269e1fe8a676ecd61ef14a87daddb2db"
+      },
+      {
+        "pr": 31367,
+        "merge": "0f7a24dbfcda9b1c3640830269929cd3b04b1b71"
+      },
+      {
+        "pr": 31369,
+        "merge": "87f2697d23f8cec929e049bb686ae9a231754e3b"
+      },
+      {
+        "pr": 31370,
+        "merge": "a5e01cc55ef34dc09fd65ae351eb1a40e0ec783d"
+      }
+    ]
+  },
+  "revenue": {
+    "stripe_available_usd": "0.00",
+    "stripe_pending_usd": "0.00",
+    "rcap": "DRAFT_UNSENT_NO_ATTACHMENT",
+    "accepted_work": 0,
+    "payment_receipts": 0,
+    "payout_receipts": 0,
+    "cash_receipts": 0
+  },
+  "quota": {
+    "official_or_direct_reset": false,
+    "action": "Retain prior lifecycle state; no purchase or banked-reset activation."
+  },
+  "safety": {
+    "credentials_or_private_identifiers_persisted": false,
+    "external_contact": false,
+    "michael_clark_contact_or_relay": false,
+    "provider_mutation": false,
+    "titan_mutation": false,
+    "deployment": false,
+    "submission": false,
+    "buyer_acceptance": false,
+    "payment": false,
+    "payout": false,
+    "revenue": false,
+    "cash": false
+  }
+}
