@@ -398,9 +398,9 @@ function projectSlackMessages(response, request, options = {}) {
       const prefix = /^Channel: [^\n]+ \(([CGD][A-Z0-9]+)\)\n\n/.exec(rendered);
       if (!prefix || prefix[1] !== channel) bad('CHANNEL_MISMATCH', 'Rendered channel header does not match the retained request.');
       result.source.channel_binding = 'retained_request_and_rendered_header';
-      const pattern = /^=== Message from [^\n]+ at [^\n]+ ===[ \t]*\nMessage TS: ([0-9]+\.[0-9]+)\n/gm;
+      const pattern = /^=== Message (?:from [^\n]+ )?at [^\n]+ ===[ \t]*\nMessage TS: ([0-9]+\.[0-9]+)\n/gm;
       const headers = Array.from(rendered.matchAll(pattern));
-      const markerCount = (rendered.match(/^=== Message from /gm) || []).length;
+      const markerCount = (rendered.match(/^=== Message (?:from |at )/gm) || []).length;
       if ((headers.length === 0 && rendered !== prefix[0]) ||
           (headers.length > 0 && headers[0].index !== prefix[0].length) ||
           markerCount !== headers.length) {
