@@ -42,6 +42,7 @@
     "providers.dropbox-basic": "2026-10-04",
     "providers.e2b": "2026-09-18T03:00:37Z",
     "providers.exa-research": "2026-10-03T03:47:15Z",
+    "providers.figma": "2026-10-04T08:33:13.265Z",
     "providers.firecrawl": "2026-10-04",
     "providers.gemini-developer-api": "2026-10-04",
     "providers.github-account-and-repository-fleet": "2026-10-04",
@@ -55,6 +56,7 @@
     "providers.jina-public-reader": "2026-10-04",
     "providers.kaggle-account-binding": "2026-09-18T03:00:37Z",
     "providers.langfuse": "2026-09-18T03:00:37Z",
+    "providers.lovable": "2026-10-04T08:33:13.265Z",
     "providers.mega": "2026-09-18T03:00:37Z",
     "providers.mistral-free-api": "2026-10-04",
     "providers.neon": "2026-10-04",
@@ -66,6 +68,7 @@
     "providers.posthog": "2026-10-04T07:26:02.747Z",
     "providers.railway": "2026-10-04",
     "providers.render": "2026-10-04",
+    "providers.replit": "2026-10-04T08:33:13.265Z",
     "providers.revenuecat": "2026-09-18T03:00:37Z",
     "providers.secondary-gmail": "2026-09-18T03:00:37Z",
     "providers.shopify": "2026-09-18T03:00:37Z",
@@ -82,8 +85,8 @@
     "providers.zep": "2026-09-18T03:00:37Z",
     "tool_fleet": "2026-10-04T07:27:15.256Z",
     "tool_fleet.automations": "2026-09-07T04:08:47Z",
-    "tool_fleet.current_confirmed_plugin_connections": "2026-10-04T07:27:15.256Z",
-    "tool_fleet.free_pool_routes": "2026-10-04T07:31Z",
+    "tool_fleet.current_confirmed_plugin_connections": "2026-10-04T08:33:13.265Z",
+    "tool_fleet.free_pool_routes": "2026-10-04T08:33:13.265Z",
     "tool_fleet.historical_plugin_search_findings": "2026-09-07T04:08:47Z",
     "tool_fleet.installed_plugins": "2026-09-07T04:08:47Z",
     "tool_fleet.plugin_eligibility_observations": "2026-10-04",
@@ -244,7 +247,8 @@
     "This audit performed no paid purchase, plan upgrade, card entry, new schedule, deployment, security scan, message send or project/inbox creation. Firecrawl official pricing research consumed two existing included credits.",
     "PostHog default insight metadata is not deployed telemetry. Hugging Face metadata access is not free inference. Firecrawl current credits do not identify its billing price. AgentMail public Free pricing does not identify this connected account plan.",
     "Supabase Free organization and public $0 allowance are verified, but cost/confirmation methods return UNAVAILABLE; project creation and immutable checkpoint schema remain unexecuted. Neon target project discovery and account plan are pending.",
-    "AgentMail first inbox and unsent draft are now actual included use; this does not establish a measured send balance."
+    "AgentMail first inbox and unsent draft are now actual included use; this does not establish a measured send balance.",
+    "Directory install confirmation for Lovable/Figma/Replit is separate from method auth, account balance or accepted build; child1079 and parent989 are different carrier observations."
   ],
   "policy": {
     "admission_gate": false,
@@ -803,6 +807,36 @@
       "value": "Existing Exa source adapter exposes exa_search and exa_contents; key/login verification remains pending under the existing AccountChad owner."
     },
     {
+      "account_plan": "UNMEASURED",
+      "allocation": "ACTIVATE_FIRST",
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "AVAILABLE",
+      "condition": "DEGRADED",
+      "consumers": [
+        "Shared source-linked design diagrams/assets for an existing product task; cache exact frames/screenshots so many builders reuse the same20readcall pool."
+      ],
+      "evidence": "Directory reports installed+ENABLED and child carrier advertises 42 Figma methods. Native whoami returns UNAUTHORIZED requiring OAuth; owned plan/files/remaining API allowance not observed. This is a per-carrier authenticated-method failure, not plugin absence.",
+      "freshness": "DIRECTORY_AND_CURRENT_CARRIER_NATIVE_OBSERVATION",
+      "holder": "Commons",
+      "id": "figma",
+      "installed": true,
+      "kind": "DESIGN_CONTEXT",
+      "last_use": "profile_probe_unauthorized",
+      "mutation": "TASK_SCOPED_ELIGIBLE_FREE_CAPACITY_NO_PAID_UPGRADE",
+      "observation_precision": "timestamp",
+      "observation_scope": "Fresh child carrier; parent tool census retained independently.",
+      "observed_at": "2026-10-04T08:33:13.265Z",
+      "plugin_name": "Figma",
+      "remaining_allowance": null,
+      "route_state": "ACTIVATE_FIRST",
+      "setup_pending": "Use existing Starter resources/seat and inspect whoami. Do not upgrade seat/plan, purchase Make credits, or assume beta tool stays free. Card requirement not independently verified.",
+      "source_kind": "CONNECTED_PLUGIN_SCOPED_NATIVE_METHOD",
+      "stage": "AVAILABLE",
+      "tool_count": 42,
+      "user_enabled": true,
+      "value": "Directory reports installed+ENABLED and child carrier advertises 42 Figma methods. Native whoami returns UNAUTHORIZED requiring OAuth; owned plan/files/remaining API allowance not observed. This is a per-carrier authenticated-method failure, not plugin absence."
+    },
+    {
       "account_plan": "PRICE_UNMEASURED",
       "allocation": "CALLABLE_WITH_CONSTRAINT",
       "audit_refreshed_at": "2026-10-04T07:27:15.256Z",
@@ -1227,6 +1261,36 @@
       "value": "Shared Langfuse provider capacity is vaulted; a callable Commons adapter is not yet proven."
     },
     {
+      "account_plan": "free",
+      "allocation": "CALLABLE_WITH_CONSTRAINT",
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "AVAILABLE",
+      "condition": "CONSTRAINED",
+      "consumers": [
+        "Bounded independent UI/prototype or provider-status artifact using public/authorized input; retain source/result in canonical task and actual credit receipt."
+      ],
+      "evidence": "Actual list_workspaces returns one owned Free workspace and zero projects, pagination complete. Credit balance was not returned; no build, app creation, deploy, database, or paid commitment was started. Build tool advertised; accepted build ability and remaining build credit are unmeasured.",
+      "freshness": "DIRECTORY_AND_CURRENT_CARRIER_NATIVE_OBSERVATION",
+      "holder": "Commons",
+      "id": "lovable",
+      "installed": true,
+      "kind": "APP_SOURCE_BUILD",
+      "last_use": "owned_free_workspace_inventory_consumed",
+      "mutation": "TASK_SCOPED_ELIGIBLE_FREE_CAPACITY_NO_PAID_UPGRADE",
+      "observation_precision": "timestamp",
+      "observation_scope": "Fresh child carrier; parent tool census retained independently.",
+      "observed_at": "2026-10-04T08:33:13.265Z",
+      "plugin_name": "Lovable",
+      "remaining_allowance": null,
+      "route_state": "CALLABLE_WITH_CONSTRAINT",
+      "setup_pending": "No card required advertised. Use owned Free workspace's actual grant balances; no top-up, paid upgrade or paid underlying connected API. Plan/Build/media may consume credits even if ordinary chat is free.",
+      "source_kind": "CONNECTED_PLUGIN_SCOPED_NATIVE_METHOD",
+      "stage": "EXERCISED",
+      "tool_count": 40,
+      "user_enabled": true,
+      "value": "Actual list_workspaces returns one owned Free workspace and zero projects, pagination complete. Credit balance was not returned; no build, app creation, deploy, database, or paid commitment was started. Build tool advertised; accepted build ability and remaining build credit are unmeasured."
+    },
+    {
       "allocation": "ACTIVATE_FIRST",
       "authority": "SHARED_ALL_CARRIERS",
       "capacity": "DECLARED",
@@ -1590,6 +1654,36 @@
         "render_list_workspaces",
         "render_list_services:explicit_workspace"
       ]
+    },
+    {
+      "account_plan": "UNMEASURED",
+      "allocation": "DISCOVER_IN_CARRIER",
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "AVAILABLE",
+      "condition": "UNMEASURED",
+      "consumers": [
+        "Small isolated Lite-build preview or design artifact for an existing task, then export/retain source and output in canonical custody before30daylink expiry."
+      ],
+      "evidence": "Parent current directory search verifies installed. Child registry advertises Replit methods, but no native profile/project/balance request was completed in this activation scope; exact account plan and credits unmeasured.",
+      "freshness": "DIRECTORY_AND_CURRENT_CARRIER_NATIVE_OBSERVATION",
+      "holder": "Commons",
+      "id": "replit",
+      "installed": true,
+      "kind": "APP_SOURCE_BUILD",
+      "last_use": "directory_install_confirmed_native_probe_not_completed",
+      "mutation": "TASK_SCOPED_ELIGIBLE_FREE_CAPACITY_NO_PAID_UPGRADE",
+      "observation_precision": "timestamp",
+      "observation_scope": "Fresh child carrier; parent tool census retained independently.",
+      "observed_at": "2026-10-04T08:33:13.265Z",
+      "plugin_name": "Replit",
+      "remaining_allowance": null,
+      "route_state": "CONNECTOR_DISCOVERY",
+      "setup_pending": "No card required advertised for starting; verify Starter/balance and stop at grants. No upgrade, pay-as-you-go, purchase or new paid cloud resources; keep only the permitted bounded app.",
+      "source_kind": "CONNECTED_PLUGIN_SCOPED_NATIVE_METHOD",
+      "stage": "AVAILABLE",
+      "tool_count": 8,
+      "user_enabled": true,
+      "value": "Parent current directory search verifies installed. Child registry advertises Replit methods, but no native profile/project/balance request was completed in this activation scope; exact account plan and credits unmeasured."
     },
     {
       "allocation": "ACTIVATE_FIRST",
@@ -2054,32 +2148,34 @@
     "truth_rule": "Exposure, successful probe, lifecycle stage, condition, authority, mutation, consumption, and value are independent facts."
   },
   "summary": {
-    "activation_or_discovery": 20,
+    "activation_or_discovery": 22,
     "allocation_counts": {
-      "ACTIVATE_FIRST": 12,
+      "ACTIVATE_FIRST": 13,
       "CALLABLE": 6,
-      "CALLABLE_WITH_CONSTRAINT": 26,
-      "DISCOVER_IN_CARRIER": 8,
+      "CALLABLE_WITH_CONSTRAINT": 27,
+      "DISCOVER_IN_CARRIER": 9,
       "OWNER_HANDLED": 1,
       "WAIT_FOR_RESET": 2
     },
     "authority_counts": {
       "OWNER_ONLY": 1,
-      "SHARED_ALL_CARRIERS": 54
+      "SHARED_ALL_CARRIERS": 57
     },
-    "callable_now": 32,
+    "callable_now": 33,
     "condition_counts": {
       "ACTIVE_UNKNOWN": 10,
-      "CONSTRAINED": 37,
+      "CONSTRAINED": 38,
+      "DEGRADED": 1,
       "HELD": 1,
-      "LIVE": 7
+      "LIVE": 7,
+      "UNMEASURED": 1
     },
     "owner_handled": 1,
-    "resources": 55,
+    "resources": 58,
     "stage_counts": {
-      "AVAILABLE": 21,
+      "AVAILABLE": 23,
       "DECLARED": 1,
-      "EXERCISED": 11,
+      "EXERCISED": 12,
       "PRODUCING": 14,
       "REACHABLE": 8
     },
@@ -2132,6 +2228,20 @@
       "total": 14
     },
     "callable_tools": 989,
+    "carrier_tool_registry_observations": [
+      {
+        "advertised_tools": 1079,
+        "carrier": "/root/new_connections",
+        "native_method_success_separate": true,
+        "new_advertised_families": {
+          "figma": 42,
+          "lovable": 40,
+          "replit": 8
+        },
+        "observed_at": "2026-10-04T08:32:15.132Z",
+        "parent_census_retained": 989
+      }
+    ],
     "connected_app_tools": 977,
     "core_tools": 12,
     "current_confirmed_plugin_connections": [
@@ -2237,6 +2347,59 @@
         ],
         "observed_at": "2026-10-04T07:27:15.256Z",
         "provider": "Firecrawl",
+        "user_enabled": true
+      },
+      {
+        "advertised_tools": 42,
+        "installed": true,
+        "native_constraint": "advertised_auth_unavailable",
+        "native_working_methods": [],
+        "observed_at": "2026-10-04T08:33:13.265Z",
+        "provider": "Figma",
+        "user_enabled": true
+      },
+      {
+        "advertised_tools": 40,
+        "installed": true,
+        "native_constraint": "workspace_inventory_callable",
+        "native_working_methods": [
+          "lovable_list_workspaces"
+        ],
+        "observed_at": "2026-10-04T08:33:13.265Z",
+        "provider": "Lovable",
+        "user_enabled": true
+      },
+      {
+        "advertised_tools": 8,
+        "installed": true,
+        "native_constraint": "advertised_unprobed",
+        "native_working_methods": [],
+        "observed_at": "2026-10-04T08:33:13.265Z",
+        "provider": "Replit",
+        "user_enabled": true
+      },
+      {
+        "advertised_tools": 2,
+        "installed": true,
+        "native_working_methods": [
+          "parallel_search_web_search",
+          "parallel_search_web_fetch"
+        ],
+        "observation_scope": "Retained successful native task results; no new global auth probe.",
+        "observed_at": "2026-10-04T08:18:48Z",
+        "provider": "Parallel Search",
+        "user_enabled": true
+      },
+      {
+        "advertised_tools": 20,
+        "installed": true,
+        "native_working_methods": [
+          "tinyfish_search",
+          "tinyfish_fetch_content"
+        ],
+        "observation_scope": "Retained successful native task results; no new global auth probe.",
+        "observed_at": "2026-10-04T08:18:48Z",
+        "provider": "TinyFish",
         "user_enabled": true
       }
     ],
@@ -2516,19 +2679,22 @@
       {
         "allowance_type": "recurring_free",
         "backend": "figma",
-        "binding_state": "unbound",
+        "binding_state": "advertised_auth_unavailable",
         "capabilities": [
           "design"
         ],
-        "connection_state": "suggested_unconfirmed",
-        "consumption_state": "not_observed",
+        "connection_state": "oauth_required",
+        "consumption_state": "profile_probe_unauthorized",
         "free_evidence": "https://www.figma.com/pricing/",
         "free_plan_verified": false,
         "id": "figma-free-capability",
         "input_sensitivity": [
           "public"
         ],
-        "observed_at": "2026-10-04",
+        "native_tool": "mcp__codex_apps__figma_whoami",
+        "native_tools_advertised_count": 42,
+        "observation_note": "Directory reports installed+ENABLED and child carrier advertises 42 Figma methods. Native whoami returns UNAUTHORIZED requiring OAuth; owned plan/files/remaining API allowance not observed. This is a per-carrier authenticated-method failure, not plugin absence.",
+        "observed_at": "2026-10-04T08:33:13.265Z",
         "onboarding_consumer": "Shared source-linked design diagrams/assets for an existing product task; cache exact frames/screenshots so many builders reuse the same20readcall pool.",
         "onboarding_instruction": "Use existing Starter resources/seat and inspect whoami. Do not upgrade seat/plan, purchase Make credits, or assume beta tool stays free. Card requirement not independently verified.",
         "owner": "existing capability owner",
@@ -2769,28 +2935,33 @@
         ]
       },
       {
+        "account_plan": "free",
         "allowance_type": "recurring_free",
         "backend": "lovable",
-        "binding_state": "unbound",
+        "binding_state": "workspace_inventory_callable",
         "capabilities": [
           "app_build",
           "hosting"
         ],
-        "connection_state": "suggested_unconfirmed",
-        "consumption_state": "not_observed",
+        "connection_state": "authenticated",
+        "consumption_state": "owned_free_workspace_inventory_consumed",
         "free_evidence": "https://lovable.dev/pricing",
-        "free_plan_verified": false,
+        "free_plan_verified": true,
         "id": "lovable-free-capability",
         "input_sensitivity": [
           "public"
         ],
-        "observed_at": "2026-10-04",
+        "native_tool": "mcp__codex_apps__lovable_send_message",
+        "native_tools_advertised_count": 40,
+        "observation_note": "Actual list_workspaces returns one owned Free workspace and zero projects, pagination complete. Credit balance was not returned; no build, app creation, deploy, database, or paid commitment was started. Build tool advertised; accepted build ability and remaining build credit are unmeasured.",
+        "observed_at": "2026-10-04T08:33:13.265Z",
         "onboarding_consumer": "Bounded independent UI/prototype or provider-status artifact using public/authorized input; retain source/result in canonical task and actual credit receipt.",
         "onboarding_instruction": "No card required advertised. Use owned Free workspace's actual grant balances; no top-up, paid upgrade or paid underlying connected API. Plan/Build/media may consume credits even if ordinary chat is free.",
+        "owned_project_count": 0,
         "owner": "existing capability owner",
         "provider": "lovable",
         "published_allowance": "5buildcredits/day capped30/month;20Cloudcredits/month;4app-AIfeaturecredits granted (current-account cadence to verify). Daily build grants expire daily. Credits are workspace shared.",
-        "quota_domain": "lovable:existing-account-unresolved",
+        "quota_domain": "lovable:workspace:804d3671aad5541c78fe",
         "quota_remaining": null,
         "task_domains": [
           "*"
@@ -3060,20 +3231,21 @@
       {
         "allowance_type": "recurring_free",
         "backend": "replit",
-        "binding_state": "unbound",
+        "binding_state": "advertised_unprobed",
         "capabilities": [
           "app_build",
           "hosting"
         ],
-        "connection_state": "suggested_unconfirmed",
-        "consumption_state": "not_observed",
+        "connection_state": "connected",
+        "consumption_state": "directory_install_confirmed_native_probe_not_completed",
         "free_evidence": "https://docs.replit.com/billing/plans/starter-plan",
         "free_plan_verified": false,
         "id": "replit-free-capability",
         "input_sensitivity": [
           "public"
         ],
-        "observed_at": "2026-10-04",
+        "observation_note": "Parent current directory search verifies installed. Child registry advertises Replit methods, but no native profile/project/balance request was completed in this activation scope; exact account plan and credits unmeasured.",
+        "observed_at": "2026-10-04T08:33:13.265Z",
         "onboarding_consumer": "Small isolated Lite-build preview or design artifact for an existing task, then export/retain source and output in canonical custody before30daylink expiry.",
         "onboarding_instruction": "No card required advertised for starting; verify Starter/balance and stop at grants. No upgrade, pay-as-you-go, purchase or new paid cloud resources; keep only the permitted bounded app.",
         "owner": "existing capability owner",
@@ -3425,6 +3597,41 @@
           "firecrawl_firecrawl_credit_usage",
           "firecrawl_firecrawl_search"
         ]
+      },
+      {
+        "account_plan": "UNMEASURED",
+        "binding_constraints": [
+          {
+            "error_code": "UNAUTHORIZED",
+            "method": "figma_whoami",
+            "recovery": "Current authenticated action requires OAuth"
+          }
+        ],
+        "consumption_state": "profile_probe_unauthorized",
+        "id": "figma",
+        "observed_at": "2026-10-04T08:33:13.265Z",
+        "stage": "AVAILABLE",
+        "working_methods": []
+      },
+      {
+        "account_plan": "free",
+        "binding_constraints": [],
+        "consumption_state": "owned_free_workspace_inventory_consumed",
+        "id": "lovable",
+        "observed_at": "2026-10-04T08:33:13.265Z",
+        "stage": "EXERCISED",
+        "working_methods": [
+          "lovable_list_workspaces"
+        ]
+      },
+      {
+        "account_plan": "UNMEASURED",
+        "binding_constraints": [],
+        "consumption_state": "directory_install_confirmed_native_probe_not_completed",
+        "id": "replit",
+        "observed_at": "2026-10-04T08:33:13.265Z",
+        "stage": "AVAILABLE",
+        "working_methods": []
       }
     ],
     "plugin_eligibility_observations": [
