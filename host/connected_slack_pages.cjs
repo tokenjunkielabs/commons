@@ -110,7 +110,15 @@ async function collectSlackPages(tools, request, options = {}) {
     if (!spec.fields.includes(key)) throw new TypeError('Unsupported native argument: ' + key);
   }
   const args = copy(suppliedArgs);
-  if (operation !== 'search') nonempty(args.channel_id, 'channel_id');
+  if (operation !== 'search') {
+    nonempty(args.channel_id, 'channel_id');
+    for (const field of ['oldest', 'latest']) {
+      if (args[field] !== undefined &&
+          (typeof args[field] !== 'string' || !/^[0-9]+\.[0-9]+$/.test(args[field]))) {
+        throw new TypeError(field + ' must be a decimal Slack timestamp string');
+      }
+    }
+  }
   if (operation === 'read_thread') {
     nonempty(args.message_ts, 'message_ts');
     if (!/^[0-9]+\.[0-9]+$/.test(args.message_ts)) {

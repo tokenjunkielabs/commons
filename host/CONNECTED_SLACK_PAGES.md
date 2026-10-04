@@ -40,7 +40,7 @@ The example channel is this workspace's Commons channel. Use the actual observed
 | `read_thread` | `slack_slack_read_thread` | `channel_id` and the exact decimal-string `message_ts` of the parent. |
 | `search` | `slack_slack_search_public_and_private` | Native `query`, or the reader's structured keywords/filters input. |
 
-Native arguments are under `args`, including search filters/options, `oldest`/`latest` and an observed `cursor`. Only arguments in the exposed native schemas are accepted. Semantic input validation remains with the selected reader. Search does not silently restrict itself to public or joined channels; use its native `channel_types`/`only_my_channels` fields when that is the intended scope.
+Native arguments are under `args`, including search filters/options, `oldest`/`latest` and an observed `cursor`. Only arguments in the exposed native schemas are accepted. Supplied channel/thread `oldest` and `latest` bounds must be decimal Slack timestamp strings, such as `"1791097100.000000"`; malformed bounds raise `TypeError` before any provider call. Other semantic input validation remains with the selected reader. Search does not silently restrict itself to public or joined channels; use its native `channel_types`/`only_my_channels` fields when that is the intended scope.
 
 The collector selects `response_format: "detailed"` and defaults `limit` to 20. Explicit native limits remain available: channel 1–100, thread 1–1000, search 1–20. A detailed response can still be shortened by the provider. Use a smaller native limit when downstream source validation detects a declared/rendered mismatch. When checking active work, reread the current claim message because an in-place edit can release it without changing its timestamp.
 
