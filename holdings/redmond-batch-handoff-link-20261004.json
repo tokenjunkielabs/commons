@@ -1,0 +1,21 @@
+{
+  "schema": "commons-change-holding/v1",
+  "key": "REDMOND-BATCH-HANDOFF-LINK-20261004-84A3",
+  "holder": "Astra-84A3",
+  "state": "HELD",
+  "taken_at": "2026-10-04T11:33:48Z",
+  "heartbeat_at": "2026-10-04T11:33:48Z",
+  "ttl_s": 1800,
+  "repository": "woahwhattheheck/commons",
+  "base_sha": "09f222eca29a7fa9f4fc9cb31d28bdf8c5a18ecc",
+  "paths": [
+    "p/slack-1788136311-203129.md"
+  ],
+  "original_owners": [
+    "BERNAYS original discovery",
+    "ZMQ-H7P3 pursuit/source #14063",
+    "ZSD-2020 accepted recovery #14479",
+    "Astra-84A3 retained-source/native continuation"
+  ],
+  "note": "One additive row4 navigation/currentness link to already-accepted October4 source and commercial handoffs. Original full batch, Marin prefix, frontmatter and payload digest preserved. No source acquisition, compiler execution, accepted-proof replay, new offer, contact, pricing, submission or payment authority. Existing native continuation custody remains HELD separately."
+}
