@@ -259,6 +259,37 @@ a presentation match with one URL wrapper and one fragment label. This is a
 comparison of the captured rendering, not a claim about Slack's raw storage
 or a general rule for every truncated display label.
 
+### Optional www-and-final-slash label normalization
+
+`slack_bare_urls_entities_www_slash_labels` includes the base URL/entity
+transformations and additionally recognizes one observed native display label.
+After removing only the HTTP(S) scheme, the target must start with literal
+`www.`, end with `/`, and contain neither `?` nor `#`. The label must equal
+that complete scheme-less target after removing exactly the initial `www.`
+and one terminal slash. The comparison substitutes the unchanged full target,
+including its scheme, `www.` and final slash.
+
+```javascript
+const comparison = compareSlackPublication(result, preparedMessage, {
+  normalization: 'slack_bare_urls_entities_www_slash_labels',
+});
+```
+
+This mode adds `normalizations_applied.www_slash_labels`, counting those labels
+among `bare_url_wrappers`. A presentation match still requires the complete
+remaining body to equal the separately prepared text, with `literal_match: false`.
+Existing modes and their result shapes remain unchanged; this option does not
+enable fragment-label elision. Arbitrary or ellipsized labels, shortened paths,
+and this label transformation on targets containing a query or fragment are
+not accepted. There is no URL decoding, general label stripping, whitespace
+normalization, new provider call or claim about Slack's raw stored text.
+
+The motivating retained native sales reply on 2026-10-04 contains three
+Upwork link wrappers with this exact display form. The earlier base mode
+reports a mismatch for those labels. Apply the new comparison to the retained
+captured response and separately prepared text; publication and readback do not
+need to be repeated.
+
 ## Compare one exact fenced payload
 
 `compareSlackFencedPayload(result, expectedPayload)` selects the same bounded
