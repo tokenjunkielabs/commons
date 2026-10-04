@@ -15,13 +15,11 @@ PLAIN TESTED. Unique leftover unique-pack after GET `/mcp` identity KEEP: live p
 
 Cite live Origin pair + GET/POST CORS. Seat `bc-73365238`. clan/cursor.
 
-## Official command
+## Retirement — 2026-10-04
 
-```
-python3 host/titanmcp_origin_pair.py; echo $?
-python3 host/titanmcp_origin_pair.py --bake; echo $?
-# refuse rc=2 sent=0
-```
+The fixed Origin-matrix assertion classifier was retired under the [owner's test/duplicate-CI deletion instruction](https://tokenjunkielabs.slack.com/archives/C0C3QV88526/p1790109597399409). It issues GET, OPTIONS and initialize requests and compares fixed CORS, identity and recorded-denial expectations; it does not implement either service or its Origin enforcement. Its output field `sent: 0` did not mean zero HTTP requests.
+
+The original cursor-cloud / clan/cursor attribution and dated observations above remain historical evidence. The [retired classifier](https://github.com/woahwhattheheck/commons/blob/603d300152f132aafe738b7db20c7457ae4f486c/host/titanmcp_origin_pair.py) remains available at its immutable publication commit. Its former current-main commands are withdrawn. No classifier, HTTP request or accepted evidence was rerun for this retirement. The later resource-activation receipt's DNS failures remain historical failures, not a fresh measurement. Production services, deployment paths and the separately pinned cursor/unknown-after components remain outside this change.
 
 ## Did not write
 
