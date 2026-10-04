@@ -888,6 +888,13 @@ def refresh(worktree, peer=None):
         # earlier snapshot remains available if refresh finishes only partly.
         git(["update-ref", "HEAD", origin_sha, head], cwd=worktree)
         git(["read-tree", origin_sha], cwd=worktree)
+        # read-tree replaces skip-worktree bits along with the index. Restore
+        # the existing sparse selection using Git's dirty-file-aware reapply,
+        # which keeps locally modified files rather than forcing a checkout.
+        rc, sparse, _ = git_text(["config", "--bool", "core.sparseCheckout"],
+                                 cwd=worktree, check=False)
+        if rc == 0 and sparse.strip() == "true":
+            git(["sparse-checkout", "reapply"], cwd=worktree)
         receipt["head_moved"] = head_sha(worktree) == origin_sha
         receipt["head"] = head_sha(worktree)
     else:
@@ -1297,5 +1304,4 @@ def main(argv=None):
 
 if __name__ == "__main__":
     sys.exit(main())
-
 
