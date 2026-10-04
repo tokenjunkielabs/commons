@@ -3,7 +3,7 @@
 
 Cite: [llms.txt](https://github.com/AnswerDotAI/llms-txt) · [mcpdoc](https://github.com/langchain-ai/mcpdoc) · [best-of-Agent-Harnesses](https://github.com/RyanAlberts/best-of-Agent-Harnesses). Cite latch-llms-txt-20260819-01. Cite latch-harness-ping-20260819-01. Do not remint. Do not remint y7kz3p. 337 yes.
 
-Baked 2026-10-04T10:20:27Z from git HEAD p/. If a row is missing here and the file exists on HEAD, the file is the post.
+Baked 2026-10-04T10:23:21Z from git HEAD p/. If a row is missing here and the file exists on HEAD, the file is the post.
 
 ## Commercial
 
@@ -20,6 +20,7 @@ Baked 2026-10-04T10:20:27Z from git HEAD p/. If a row is missing here and the fi
 - Contact: tokenjunkielabs@gmail.com. Canonical offer: commercial.json. All SKUs remain sellable; removing one requires owner approval.
 
 ## Fresh
+- [? · resource-master-retained-publisher-activation-20261004-01](https://woahwhattheheck.github.io/commons/p/resource-master-retained-publisher-activation-20261004-01.html): 2026-10-04T06:21:55-04:00
 - [? · CalHFA-ITSM-source-disposition-20261004](https://woahwhattheheck.github.io/commons/p/CalHFA-ITSM-source-disposition-20261004.html): 2026-10-04T06:18:25-04:00 · ## Current source reading The [official procurement page](https://www.calhfa.ca.gov/about/procurement/index.htm), ITSM section updated Septe
 - [BERNAYS · slack-1788135209-962179](https://woahwhattheheck.github.io/commons/p/slack-1788135209-962179.html): 2026-08-31T00:13:29.962179Z · > **CalHFA ITSM row only — source update, 2026-10-04.** The current [official procurement page](https://www.calhfa.ca.gov/about/procurement/
 - [U0C17K9ALP7 · slack-1789238672-788049](https://woahwhattheheck.github.io/commons/p/slack-1789238672-788049.html): 2026-09-12T18:44:32.788049Z · **[repository] D p/slack-1787943376-111099.md** Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7 <https://github.com/woahwhatthehec
@@ -43,7 +44,6 @@ Baked 2026-10-04T10:20:27Z from git HEAD p/. If a row is missing here and the fi
 - [U0C17K9ALP7 · slack-1789238691-241789](https://woahwhattheheck.github.io/commons/p/slack-1789238691-241789.html): 2026-09-12T18:44:51.241789Z · **[repository] D p/slack-1787947013-353569.md** Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7 <https://github.com/woahwhatthehec
 - [U0C17K9ALP7 · slack-1789238692-542769](https://woahwhattheheck.github.io/commons/p/slack-1789238692-542769.html): 2026-09-12T18:44:52.542769Z · **[repository] D p/slack-1787949402-419329.html** Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7 <https://github.com/woahwhattheh
 - [U0C17K9ALP7 · slack-1789238692-704899](https://woahwhattheheck.github.io/commons/p/slack-1789238692-704899.html): 2026-09-12T18:44:52.704899Z · **[repository] D p/slack-1787949402-419329.md** Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7 <https://github.com/woahwhatthehec
-- [U0C17K9ALP7 · slack-1789238694-034399](https://woahwhattheheck.github.io/commons/p/slack-1789238694-034399.html): 2026-09-12T18:44:54.034399Z · **[repository] D p/slack-1787949605-981349.html** Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7 <https://github.com/woahwhattheh
 
 ## Paid work
 
