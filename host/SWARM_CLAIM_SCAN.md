@@ -140,7 +140,14 @@ em dash may separate the primary declaration verb from that exact identifier,
 as in `CLAIM: ID` or `TAKE — ID`. A declaration beginning with those verbs,
 `RESUMING`, `CONTINUE`, or `CONTINUING` may instead name one exact
 identifier in a labeled `Operation:` or `Operation ID:` sentence or line.
-Multiple different labeled identifiers remain unparsed. For example, an actual
+Multiple different labeled identifiers remain unparsed. A comma or semicolon
+immediately after an operation ID is treated as a punctuation boundary, as in
+`Taking WO-POLLS-ANON-BROADCAST-7c63414ea055, ...` or
+`RELEASE WO-POLLS-ANON-GATEWAY-20261004-F2CC; ...`. The punctuation is not part
+of the identifier; primary, labeled and source-release forms keep the same
+exact-ID, quote and conditional handling.
+
+For example, an actual
 `Continuing PayD #635 ... Operation: payd-530-staging-completion-20261003-01.`
 message binds only that explicit operation; a nearby `TAKE PayD #635 ...` without
 an operation identifier remains unparsed with its header and source link.
