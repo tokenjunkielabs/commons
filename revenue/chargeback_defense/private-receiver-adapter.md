@@ -56,6 +56,12 @@ A `--secret-file` (mode-600 file in a mode-700 private directory) may replace
 `--secret-env`. The process sets umask 077. Any WSGI server can serve
 `create_app(config)` instead of the bundled stdlib server.
 
+For missing, invalid, or oversized `Content-Length`, the bundled HTTP/1.1
+listener returns its existing `411` / `400` / `413` JSON response with
+`Connection: close`. Reconnect before sending the next request. The rejected
+body stays outside the next request parser, following the HTTP persistence
+requirement in [RFC 9112 §9.3](https://www.rfc-editor.org/rfc/rfc9112.html#section-9.3).
+
 ## Verifying without a provider
 
 ```bash
