@@ -19,6 +19,7 @@ MAX_REQUEST = 32768
 MAX_RESPONSE = 1048576
 MAX_AGE = 300
 MAX_COOLDOWN = 86400
+MAX_SECONDARY_FALLBACK = 3600
 BURST_INTERVAL = 0.5
 
 ROUTES = {
@@ -188,6 +189,7 @@ class Lease:
     params: dict
     bucket: str
     expires_at: float
+    acquired_at: float | None = None
 
 
 @dataclass(frozen=True)
@@ -234,6 +236,8 @@ class Broker:
                   PRIMARY KEY(scope,bucket));
                 CREATE TABLE IF NOT EXISTS blocked (
                   namespace TEXT PRIMARY KEY, reason TEXT);
+                CREATE TABLE IF NOT EXISTS secondary_backoff (
+                  scope TEXT PRIMARY KEY, failures INTEGER NOT NULL);
                 PRAGMA user_version=1;
             """)
 
@@ -322,7 +326,7 @@ class Broker:
                 "INSERT INTO rate VALUES (?,?,?) ON CONFLICT(scope,bucket) DO UPDATE SET next_at=max(rate.next_at,excluded.next_at)",
                 (self.scope, "burst", now + self.burst_interval),
             )
-            return Lease(key, nonce, route, params, bucket, expires)
+            return Lease(key, nonce, route, params, bucket, expires, now)
 
     def _extend(self, db, bucket: str, next_at: float):
         db.execute(
@@ -370,7 +374,31 @@ class Broker:
             # Lock waits must not extend a lease. Keep the response observation
             # time above for payload freshness and provider cooldown deadlines.
             transaction_now = self.now()
+            row = db.execute("SELECT nonce,expires FROM flight WHERE namespace=? AND key=?", (self.namespace, lease.key)).fetchone()
             if limited:
+                if limit_bucket == "secondary" and retry is None:
+                    previous = db.execute(
+                        "SELECT failures FROM secondary_backoff WHERE scope=?", (self.scope,),
+                    ).fetchone()
+                    floor = db.execute(
+                        "SELECT next_at FROM rate WHERE scope=? AND bucket='secondary'", (self.scope,),
+                    ).fetchone()
+                    # Several responses can already be in flight when a limit
+                    # arrives. Only a request admitted after the previous pause
+                    # is a failed retry; older responses keep the same streak.
+                    after_pause = lease.acquired_at is not None and (
+                        floor is None or lease.acquired_at >= floor["next_at"])
+                    failures = previous["failures"] if previous else 0
+                    if row and row["nonce"] == lease.nonce and (after_pause or floor is None):
+                        failures = min(7, failures + 1)
+                    if failures:
+                        delay = min(MAX_SECONDARY_FALLBACK, 60 * 2 ** (failures - 1))
+                        if previous is None or failures != previous["failures"]:
+                            db.execute(
+                                "INSERT INTO secondary_backoff VALUES (?,?) "
+                                "ON CONFLICT(scope) DO UPDATE SET failures=excluded.failures",
+                                (self.scope, failures),
+                            )
                 self._extend(db, limit_bucket, now + delay)
             # Primary exhaustion can coincide with a secondary limit. Keep its
             # reset floor independently so a shorter Retry-After cannot reopen
@@ -382,7 +410,6 @@ class Broker:
             if result.status == 401:
                 db.execute("INSERT OR REPLACE INTO blocked VALUES (?,?)", (self.namespace, "bad_credentials"))
                 db.execute("DELETE FROM cache WHERE namespace=?", (self.namespace,))
-            row = db.execute("SELECT nonce,expires FROM flight WHERE namespace=? AND key=?", (self.namespace, lease.key)).fetchone()
             if not row or row["nonce"] != lease.nonce or row["expires"] <= transaction_now:
                 return self.envelope("DISCARDED", retry_after_seconds=1)
             db.execute("DELETE FROM flight WHERE namespace=? AND key=? AND nonce=?", (self.namespace, lease.key, lease.nonce))
@@ -397,6 +424,14 @@ class Broker:
                 db.execute("DELETE FROM cache WHERE namespace=? AND key=?", (self.namespace, lease.key))
                 safe = "not_found" if result.status == 404 else "forbidden" if result.status == 403 else "upstream_error"
                 return self.envelope("UPSTREAM_ERROR", error=safe)
+            # An old in-flight success is not a successful retry. It must not
+            # erase the fallback streak merely because completion was delayed.
+            floor = db.execute(
+                "SELECT next_at FROM rate WHERE scope=? AND bucket='secondary'", (self.scope,),
+            ).fetchone()
+            if floor is None or (
+                    lease.acquired_at is not None and lease.acquired_at >= floor["next_at"]):
+                db.execute("DELETE FROM secondary_backoff WHERE scope=?", (self.scope,))
             db.execute("INSERT OR REPLACE INTO cache VALUES (?,?,?,?)", (self.namespace, lease.key, now, payload_text))
             db.execute(
                 "DELETE FROM cache WHERE rowid IN (SELECT rowid FROM cache ORDER BY fetched DESC,namespace,key LIMIT -1 OFFSET ?)",
@@ -418,3 +453,4 @@ class Broker:
         except Exception:
             result = Upstream(502)
         return self.finish(decision, result)
+
