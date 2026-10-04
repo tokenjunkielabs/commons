@@ -430,11 +430,18 @@ async function publishGitHubChange(tools, change, options = {}) {
     }
     await announce();
     progress.stage = 'create_blobs';
+    const createdBlobs = {'utf-8': new Map(), base64: new Map()};
     for (let index = 0; index < spec.files.length; index++) {
       const file = spec.files[index];
       if (file.encoding === 'utf-8' && file.expected_new_blob_sha === undefined) continue;
-      const data = await call('create_blob', {repository_full_name, content: file.content, encoding: file.encoding});
-      progress.files[index].blob_sha = sha(data.sha, 'Created blob');
+      const blobs = createdBlobs[file.encoding];
+      let blobSha = blobs.get(file.content);
+      if (blobSha === undefined) {
+        const data = await call('create_blob', {repository_full_name, content: file.content, encoding: file.encoding});
+        blobSha = sha(data.sha, 'Created blob');
+        blobs.set(file.content, blobSha);
+      }
+      progress.files[index].blob_sha = blobSha;
       checkNewBlobPin(progress.files[index], file);
       await announce();
     }
@@ -952,11 +959,18 @@ async function contributionOperation(tools, change, options, readOnly, previousP
     await announce();
     if (!readOnly) {
       progress.stage = 'create_blobs';
+      const createdBlobs = {'utf-8': new Map(), base64: new Map()};
       for (let index = 0; index < spec.files.length; index++) {
         const source = spec.files[index], file = progress.files[index];
         if (source.encoding === 'utf-8' && source.expected_new_blob_sha === undefined) continue;
-        const blob = await call('create_blob', {repository_full_name, content: source.content, encoding: source.encoding});
-        file.blob_sha = sha(blob.sha, 'Created contribution blob');
+        const blobs = createdBlobs[source.encoding];
+        let blobSha = blobs.get(source.content);
+        if (blobSha === undefined) {
+          const blob = await call('create_blob', {repository_full_name, content: source.content, encoding: source.encoding});
+          blobSha = sha(blob.sha, 'Created contribution blob');
+          blobs.set(source.content, blobSha);
+        }
+        file.blob_sha = blobSha;
         checkNewBlobPin(file, source);
         await announce();
       }
