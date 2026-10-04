@@ -12,6 +12,20 @@ the conjecture `a(n) > 0` for every `n > 7`, reports verification through
 `2*10^10`, and records a $2,500 prize for the first proof and $250 for the
 first explicit counterexample.
 
+## Shared parity catalog API
+
+[The shared offset catalog](offset_catalog.cjs) prepares exact squarefree base
+offsets once for consumers working with both parities. It preserves every
+exponent pair, including pairs with equal numeric offsets, and returns the
+corresponding odd prime candidates without evaluating their primality. Its
+inclusive `max_n` is bounded at `10^12`.
+
+See [PARITY_CATALOG.md](PARITY_CATALOG.md) for the attributed parity reduction,
+API, integer and multiplicity conventions, and actual source-example use.
+[The complete base catalog](base_offset_catalog_20261004.json) retains the
+366 computed exponent-pair rows through the documented bound for later
+consumers. Candidate counts from this API are not the sequence values `a(n)`.
+
 ## Build
 
 ```bash
