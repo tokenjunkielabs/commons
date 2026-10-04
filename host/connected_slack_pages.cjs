@@ -173,6 +173,12 @@ async function collectSlackPages(tools, request, options = {}) {
   }
   if (args.cursor === '') delete args.cursor;
   if (args.cursor !== undefined) nonempty(args.cursor, 'cursor');
+  // New search chains need matched messages by default. Preserve explicit
+  // context options and the original semantics of a resumed native cursor.
+  if (['search', 'search_public'].includes(operation) && args.cursor === undefined
+      && args.include_context === undefined && args.max_context_length === undefined) {
+    args.include_context = false;
+  }
   args.limit = positive(args.limit ?? 20, 'limit', spec.maximumLimit);
   if (args.response_format !== undefined && args.response_format !== 'detailed') {
     throw new TypeError('This collector retains detailed native responses');
