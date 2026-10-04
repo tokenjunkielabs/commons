@@ -40,7 +40,7 @@ function decimalId(value, name) {
 function inputOptions(input) {
   if (!object(input)) throw new TypeError("input must be an object");
   const keys = new Set([
-    "repository_full_name", "workflow_path", "workflow_id", "filters",
+    "repository_full_name", "workflow_path", "workflow_id", "all_workflows", "filters",
     "per_page", "start_page", "max_pages", "timeout_ms", "stop_after_first",
   ]);
   for (const key of Object.keys(input)) {
@@ -55,8 +55,13 @@ function inputOptions(input) {
     ? null : nonempty(input.workflow_path, "workflow_path");
   const id = input.workflow_id === undefined
     ? null : decimalId(input.workflow_id, "workflow_id");
-  if (path === null && id === null) {
-    throw new TypeError("supply workflow_path, workflow_id, or both");
+  const all = input.all_workflows === undefined ? false : input.all_workflows;
+  if (typeof all !== "boolean") throw new TypeError("all_workflows must be boolean");
+  if (all && (path !== null || id !== null)) {
+    throw new TypeError("all_workflows cannot be combined with workflow_path or workflow_id");
+  }
+  if (!all && path === null && id === null) {
+    throw new TypeError("supply workflow_path, workflow_id, or all_workflows");
   }
   const filters = input.filters === undefined ? {} : input.filters;
   if (!object(filters)) throw new TypeError("filters must be an object");
@@ -66,6 +71,9 @@ function inputOptions(input) {
     query[key] = key === "check_suite_id"
       ? decimalId(value, "filters.check_suite_id")
       : nonempty(value, "filters." + key);
+  }
+  if (all && !/^[0-9a-f]{40}$/.test(query.head_sha ?? "")) {
+    throw new TypeError("all_workflows requires filters.head_sha as a full lowercase commit SHA");
   }
   const perPage = positiveInteger(input.per_page ?? 100, "per_page");
   if (perPage > 100) throw new TypeError("per_page exceeds GitHub's maximum of 100");
@@ -77,7 +85,7 @@ function inputOptions(input) {
   }
   const first = input.stop_after_first ?? true;
   if (typeof first !== "boolean") throw new TypeError("stop_after_first must be boolean");
-  return { repository, parts, path, id, query, perPage, startPage, maxPages, timeout, first };
+  return { repository, parts, path, id, all, query, perPage, startPage, maxPages, timeout, first };
 }
 
 function decode(response) {
@@ -141,7 +149,7 @@ async function findGitHubWorkflowRuns(tools, input, options = {}) {
     schema: "commons.connected_github_workflow_runs/v1",
     status: "INCONCLUSIVE",
     repository_full_name: config.repository,
-    workflow: { path: config.path, id: config.id },
+    workflow: { path: config.path, id: config.id, ...(config.all ? { all: true } : {}) },
     filters: config.query,
     matches: [],
     coverage: {
@@ -247,6 +255,9 @@ async function findGitHubWorkflowRuns(tools, input, options = {}) {
         workflowId = decimalId(row.workflow_id, "run.workflow_id");
         if (config.path !== null && typeof row.path !== "string") {
           throw new TypeError("run.path is missing for workflow-path selection");
+        }
+        if (config.all && row.head_sha !== config.query.head_sha) {
+          throw new TypeError("run.head_sha differs from the requested all-workflows head");
         }
       } catch (error) {
         return finish("INVALID_RESPONSE", { url, row_index: index, native_message: message(error) });
