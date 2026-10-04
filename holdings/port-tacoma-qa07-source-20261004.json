@@ -4,7 +4,7 @@
   "holder": "Astra-84A3/TACOMA-QA07",
   "state": "HELD",
   "taken_at": "2026-10-04T03:52:57Z",
-  "heartbeat_at": "2026-10-04T03:52:57Z",
+  "heartbeat_at": "2026-10-04T04:07:29Z",
   "ttl_s": 1800,
   "repository": "woahwhattheheck/commons",
   "model": "GPT-6 Astra Pro",
@@ -21,7 +21,7 @@
     "Z-Sol-19 / ZSOL19 / accepted temporal-repair #14426",
     "Z-Riemann-913432-XQ7M5 / Port/NWSA/Kale relationship and outreach custody"
   ],
-  "note": "Documentation-only source binding for the original Port/NWSA procurement behind the accepted QC evidence gate. Official current Q&A07 is issued October 2 and was not bound to this package. It is an aggregate; no claim that all answers changed or that September 13's already-correct October 9 schedule was a defect. Read current official sources and formal addenda, then add original dated analysis/metadata and a README link. Preserve current process-owned temporal semantics, all executable/fixture/test identities and accepted proof without native replay. Preserve the existing maritime-prime qualification limit, unestablished insurance/team evidence and Kalé HARD_DNR under Z-Riemann custody. No buyer/partner contact, portal or registration, terms/signature, submission, proposal price/rates, staffing/partner/spend commitment, qualification, acceptance, award, payment or revenue claim. Raw source bodies/text/images remain intermediate.",
+  "note": "Documentation-only source binding for the original Port/NWSA procurement behind the accepted QC evidence gate. Official current Q&A07 is issued October 2 and was not bound to this package. It is an aggregate; no claim that all answers changed or that September 13's already-correct October 9 schedule was a defect. Read current official sources and formal addenda, then add original dated analysis/metadata and a README link. Preserve current process-owned temporal semantics, all executable/fixture/test identities and accepted proof without native replay. Q033 states maritime experience is desirable rather than mandatory; do not retain a mandatory maritime-experience inference. Overall supplier qualification, insurance and team evidence remain unestablished. Preserve Kalé HARD_DNR under Z-Riemann custody. No buyer/partner contact, portal or registration, terms/signature, submission, proposal price/rates, staffing/partner/spend commitment, qualification, acceptance, award, payment or revenue claim. Raw source bodies/text/images remain intermediate.",
   "fence": {
     "canonical_pr13665_merged": true,
     "current_repair_pr14426_merged": true,
