@@ -1038,7 +1038,7 @@ def _dest_occupied(dest):
     return bool(names)
 
 
-def open_worktree(peer="unseated", dest=None, repo=None, mode="clone", source=None):
+def open_worktree(peer="unseated", dest=None, repo=None, mode="clone", source=None, blobless=False):
     peer = (peer or os.environ.get("COMMONS_PEER") or "unseated").strip() or "unseated"
     repo = (repo or os.environ.get("COMMONS_REPO") or DEFAULT_REPO).strip()
     if "x-access-token:" in repo or "@github.com" in repo and repo.startswith("https://") and ":" in repo.split("https://", 1)[1].split("@", 1)[0]:
@@ -1047,6 +1047,8 @@ def open_worktree(peer="unseated", dest=None, repo=None, mode="clone", source=No
     mode = (mode or "clone").strip().lower()
     if mode not in ("clone", "worktree"):
         raise CloudCurrentError("mode must be clone or worktree")
+    if blobless and mode != "clone":
+        raise CloudCurrentError("--blobless requires --mode clone (new clones only)")
     sid = new_id(peer, "sess")
     if not dest:
         root = os.environ.get("COMMONS_WORKTREE_ROOT", "").strip()
@@ -1080,7 +1082,10 @@ def open_worktree(peer="unseated", dest=None, repo=None, mode="clone", source=No
             receipt["actions"].append({"path": dest, "op": "refuse_occupied"})
             return receipt
         else:
-            git(["clone", "--origin", "origin", repo, dest], cwd=None, timeout=300)
+            clone_argv = ["clone", "--origin", "origin"]
+            if blobless:
+                clone_argv.append("--filter=blob:none")
+            git(clone_argv + [repo, dest], cwd=None, timeout=300)
         branch = ""
         rc, out, _ = git_text(["rev-parse", "--abbrev-ref", "HEAD"], cwd=dest, check=False)
         branch = (out or "").strip()
@@ -1242,6 +1247,8 @@ def main(argv=None):
     p_open.add_argument("--dest", default="")
     p_open.add_argument("--repo", default=DEFAULT_REPO)
     p_open.add_argument("--mode", default="clone", choices=("clone", "worktree"))
+    p_open.add_argument("--blobless", action="store_true",
+                        help="request lazy historical blobs for a new clone; needs server filter support")
     p_open.add_argument("--source", default="")
     sub.add_parser("refresh")
     sub.add_parser("current")
@@ -1265,6 +1272,7 @@ def main(argv=None):
                 repo=args.repo,
                 mode=args.mode,
                 source=args.source or None,
+                blobless=args.blobless,
             )
         elif args.cmd in ("refresh", "current"):
             receipt = refresh(find_worktree(args.worktree), peer=args.peer)
