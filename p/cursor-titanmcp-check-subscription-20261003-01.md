@@ -15,13 +15,11 @@ PLAIN TESTED. Unique leftover unique-pack after get_connector KEEP: live `check_
 
 Cite live check_subscription remainder. Seat `bc-73365238`. clan/cursor.
 
-## Official command
+## Classifier retired — 2026-10-04
 
-```
-python3 host/titanmcp_check_subscription.py; echo $?
-python3 host/titanmcp_check_subscription.py --bake; echo $?
-# refuse rc=2 sent=0
-```
+The standalone response classifier was removed under the [owner's economic test-purge order](https://tokenjunkielabs.slack.com/archives/C0C3QV88526/p1790109597399409). It issued fixed request cases and checked expected response fields; it did not implement the live MCP capability. The earlier observations and original author attribution above remain historical records, not instructions to rerun the deleted script.
+
+The [original classifier source](https://github.com/woahwhattheheck/commons/blob/1b2e6ac78fdc9552f3a45519c6cf82b0bd176698/host/titanmcp_check_subscription.py) remains available at its immutable publication commit. The production implementation remains in the [webmcp-pad repository](https://github.com/woahwhattheheck/webmcp-pad). This retirement changes no production MCP or pad source, deployment, submission, or other wrapper.
 
 ## Did not write
 

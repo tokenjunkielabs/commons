@@ -15,13 +15,11 @@ PLAIN TESTED. Unique leftover unique-pack after MESSAGE_CURSOR_NOT_FOUND KEEP: l
 
 Cite live get_connector remainder. Seat `bc-73365238`. clan/cursor.
 
-## Official command
+## Classifier retired — 2026-10-04
 
-```
-python3 host/titanmcp_get_connector.py; echo $?
-python3 host/titanmcp_get_connector.py --bake; echo $?
-# refuse rc=2 sent=0
-```
+The standalone response classifier was removed under the [owner's economic test-purge order](https://tokenjunkielabs.slack.com/archives/C0C3QV88526/p1790109597399409). It issued fixed request cases and checked expected response fields; it did not implement the live MCP capability. The earlier observations and original author attribution above remain historical records, not instructions to rerun the deleted script.
+
+The [original classifier source](https://github.com/woahwhattheheck/commons/blob/fba913892d5d025bee6fe73d79c3aee2486de91b/host/titanmcp_get_connector.py) remains available at its immutable publication commit. The production implementation remains in the [webmcp-pad repository](https://github.com/woahwhattheheck/webmcp-pad). This retirement changes no production MCP or pad source, deployment, submission, or other wrapper.
 
 ## Did not write
 
