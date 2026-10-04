@@ -5,7 +5,8 @@
 **Buyer:** New York State Education Department (NYSED), Office of College and University Evaluation (OCUE)  
 **Procurement:** RFP #144 — Office of College & University Evaluation (OCUE) Modernization  
 **Published:** August 17, 2026  
-**Proposal deadline:** October 13, 2026 at 3:00 PM Eastern Time  
+**Source-currentness check:** October 4, 2026 — [dated source record](nysed_rfp144_ocue_20261004/SOURCE_CURRENTNESS.md)  
+**Proposal deadline:** October 27, 2026 at 3:00 PM Eastern Time  
 **Anticipated contract term:** January 1, 2027 through August 31, 2032 (68 months)  
 **Confirmed buyer budget:** **UNKNOWN**  
 **Our proposed price:** none  
@@ -16,7 +17,7 @@
 
 This is a real, current, potentially material software procurement, but the truthful disposition today is **HOLD**, not BID.
 
-The official NYSED landing page establishes a single-contract procurement for a **Software as a Service (SaaS), Low-Code, Cloud-based, Forms Management Platform**, a 68-month anticipated term, a 30% subcontracting ceiling, an M/WBE compliance obligation, and an October 13 electronic-bid deadline. It also publishes the controlling RFP plus supporting attachments.
+The official NYSED landing page establishes a single-contract procurement for a **Software as a Service (SaaS), Low-Code, Cloud-based, Forms Management Platform**, a 68-month anticipated term, a 30% subcontracting ceiling, an M/WBE compliance obligation, and an October 27 electronic-bid deadline. It also publishes the controlling RFP plus supporting attachments.
 
 What is not yet established here is equally important: the controlling RFP/attachments have not been retained and source-bound in Commons, the buyer does not publish a dollar ceiling on the landing page, and this repo currently provides no evidence that TJLabs/woahwhattheheck owns or is an authorized reseller/implementation partner for a qualifying enterprise low-code SaaS forms platform. A greenfield software-services pitch is therefore not enough to claim prime-bid readiness.
 
@@ -28,6 +29,8 @@ Controlling public landing page:
 
 - https://www.nysed.gov/funding-opportunities/rfp-144-office-college-university-evaluation-ocue-modernization
 
+**October 4 source check:** NYSED's indexed September 21 notice supplies the revised dates below. Direct capture of the landing page and RFP returned HTTP 502 error bodies. The [source record and exact capture metadata](nysed_rfp144_ocue_20261004/SOURCE_CURRENTNESS.md) preserve that unresolved document-custody gap; the promised Q&A is not treated as already posted.
+
 The official page establishes:
 
 1. **Buyer / office:** New York State Education Department, Office of College and University Evaluation.
@@ -36,8 +39,8 @@ The official page establishes:
 4. **Term:** anticipated January 1, 2027 through August 31, 2032.
 5. **Subcontracting:** limited to 30% of total contract budget, including non-employee direct personal services and related incidental expenses.
 6. **M/WBE:** bidders must comply with participation goals through one of the methods defined in the RFP.
-7. **Questions:** bidder questions were due September 11, 2026. NYSED says a Q&A summary will be posted no later than September 22, 2026.
-8. **Proposal deadline:** October 13, 2026 at 3:00 PM ET through NYSED's electronic submission road.
+7. **Questions:** bidder questions were due September 11, 2026. NYSED says a Q&A summary will be posted no later than October 6, 2026.
+8. **Proposal deadline:** October 27, 2026 at 3:00 PM ET through NYSED's electronic submission road.
 9. **Required proposal packages:** Submission Documents, Technical Proposal, Cost Proposal, and M/WBE Documents.
 10. **Signature boundary:** documents requiring signature must use an accepted signed/e-signature method; a typed script-font name is not an acceptable signature.
 11. **Published source packet:** RFP document, submission documents, workflow/as-is attachments, OCUE/PEPR as-is documents, report list, mainframe batch-process inventory, milestones/deliverables, functional/non-functional requirements, change-request form, cost proposal spreadsheet, and NYSED security policies.
@@ -93,7 +96,7 @@ This architecture is an internal delivery model only. It is not a representation
 
 Move from HOLD to BID-READY only after all of the following are source-bound:
 
-1. Full current RFP + addenda + September 22 Q&A, with publication/supersession order.
+1. Full current RFP + any addenda + the Q&A scheduled for October 6, with publication/supersession order.
 2. Mandatory responsiveness checklist separated from scored preferences and demonstration criteria.
 3. Named qualifying SaaS platform plus documented authority to sell/implement/support it under the required commercial model.
 4. Every required firm/key-person reference is real, comparable, consented for use, and satisfies any prime-only/state-sector/minimum-year gate.
@@ -111,7 +114,7 @@ Move from HOLD to BID-READY only after all of the following are source-bound:
 ### GREEN — established from the official page
 
 - real NYSED procurement and identifier;
-- active proposal deadline of October 13, 2026 at 3:00 PM ET;
+- active proposal deadline of October 27, 2026 at 3:00 PM ET;
 - one long-term contract;
 - SaaS / low-code / cloud forms-management category;
 - 30% subcontracting ceiling;
@@ -157,11 +160,11 @@ Move to NO-BID if the full packet establishes a mandatory prime-only gate that c
 
 This is not a quick-cash lane. Even a winning proposal would pass through evaluation, possible demonstration/negotiation, contracting, and a planned January 2027 start. Treat it as a potentially material pipeline opportunity, not booked revenue.
 
-Because bidder questions closed September 11, unknowns cannot be solved by an unauthorized late buyer contact from this lane. The next public evidence checkpoint is NYSED's promised Q&A posting by September 22.
+Because bidder questions closed September 11, unknowns cannot be solved by an unauthorized late buyer contact from this lane. The next public evidence checkpoint is NYSED's revised Q&A posting date of October 6.
 
 ## Next authorized action
 
-1. Recover and retain the RFP PDF/Word, Submission Documents, Attachments 6/7/9/10, and then the September 22 Q&A from the official NYSED page.
+1. Recover and retain the RFP PDF/Word, Submission Documents, Attachments 6/7/9/10, and then the Q&A scheduled for October 6 from the official NYSED page.
 2. Build a mandatory-vs-scored matrix and exact compliance checklist.
 3. Identify a truthful prime/OEM/partner road and evidence the commercial relationship before any proposal narrative.
 4. Resolve references, M/WBE/SDVOB, vendor responsibility, insurance, security, accessibility, and signer gates.
