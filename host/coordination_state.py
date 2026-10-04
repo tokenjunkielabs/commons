@@ -411,8 +411,13 @@ class Git:
     def has_commit(self, sha):
         return self.run("cat-file", "-e", sha + "^{commit}", check=False).returncode == 0
 
-    def fetch(self, shas, remote="origin", chunk=40):
-        """Fetch commits (trees, no blobs) for any SHA not already present."""
+    def fetch(self, shas, remote="origin", chunk=40, *, depth=None):
+        """Fetch missing commits and trees, optionally bounding snapshot history."""
+        if depth is not None and (type(depth) is not int or depth < 1):
+            raise ValueError("fetch depth must be a positive integer")
+        fetch_args = ["fetch", "--no-tags", "--filter=blob:none"]
+        if depth is not None:
+            fetch_args.append("--depth=%d" % depth)
         candidates = [s for s in shas if s and s != UNKNOWN]
         missing = None
         if len(candidates) > 1 and all(
@@ -429,10 +434,10 @@ class Git:
         failed = []
         for start in range(0, len(missing), chunk):
             part = missing[start:start + chunk]
-            done = self.run("fetch", "--no-tags", "--filter=blob:none", remote, *part, check=False)
+            done = self.run(*fetch_args, remote, *part, check=False)
             if done.returncode != 0:
                 for sha in part:
-                    one = self.run("fetch", "--no-tags", "--filter=blob:none", remote, sha, check=False)
+                    one = self.run(*fetch_args, remote, sha, check=False)
                     if one.returncode != 0:
                         failed.append(sha)
         return failed
@@ -1570,7 +1575,9 @@ def holdings_list(git, remote="origin", branch=HOLDINGS_BRANCH, now=None, key=No
     now = now or _now()
     tip = _remote_tip(git, branch, remote)
     if tip:
-        git.fetch([tip], remote)
+        # Current holdings require the tip tree, never the ledger's ancestors.
+        # Keep history-aware build/drift and publication fetches unchanged.
+        git.fetch([tip], remote, depth=1)
     if key is None:
         holdings = _read_holdings(git, tip)
     else:
