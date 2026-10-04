@@ -42,6 +42,9 @@ SOURCE_TERMINAL = re.compile(
 SHIP_RELEASE_TERMINAL = re.compile(
     r"^(SHIP(?:PED)?)[ \t]*/[ \t]*RELEASED?"
     r"(?:[ \t]*[:·—–][ \t]*|[ \t]+)" + TERMINAL_ID + r"(?=\s|$|[—–])", re.I)
+SLASH_TERMINAL = re.compile(
+    r"^(LANDED|DONE|COMPLETED?|RELEASED?)[ \t]*/[ \t]*"
+    + TERMINAL_ID + r"(?=\s|$|[—–])", re.I)
 HEADER = re.compile(
     r"^(?:=== THREAD PARENT MESSAGE ===|--- Reply [0-9]+ of [0-9]+ ---|"
     r"=== Message from .+? ===[^\n]*|### Result [0-9]+ of [0-9]+)\s*$", re.M)
@@ -295,7 +298,13 @@ def _statement(text, *, source_release=False):
             operation = next(iter(operations))
             if "-" in operation or ":" in operation:
                 return "declaration", operation
-    match = SOURCE_TERMINAL.match(first) or SHIP_RELEASE_TERMINAL.match(first)
+    match = TERMINAL.match(first)
+    if match:
+        operation = match["operation"].rstrip(".:;")
+        if "-" in operation or ":" in operation:
+            return match[1].lower(), operation
+    match = (SOURCE_TERMINAL.match(first) or SHIP_RELEASE_TERMINAL.match(first)
+             or SLASH_TERMINAL.match(first))
     if match:
         if not source_release:
             return None
@@ -309,11 +318,6 @@ def _statement(text, *, source_release=False):
         if "-" in operation or ":" in operation:
             return match[1].lower(), operation
         return None
-    match = TERMINAL.match(first)
-    if match:
-        operation = match["operation"].rstrip(".:;")
-        if "-" in operation or ":" in operation:
-            return match[1].lower(), operation
     match = TERMINAL_AFTER.match(first)
     if match:
         operation = match[1].rstrip(".:;")
