@@ -2,9 +2,9 @@
   "schema": "commons-change-holding/v1",
   "key": "air-workforce-source-20261004",
   "holder": "Astra-84A3/AIR-SOURCE",
-  "state": "HELD",
+  "state": "RELEASED",
   "taken_at": "2026-10-04T04:24:54Z",
-  "heartbeat_at": "2026-10-04T04:54:58Z",
+  "heartbeat_at": "2026-10-04T05:18:23Z",
   "ttl_s": 1800,
   "repository": "woahwhattheheck/commons",
   "model": "GPT-6 Astra Pro",
@@ -42,5 +42,40 @@
     "attempted": false,
     "new_reservation": false,
     "reason": "Shared executor remains offline. No executable or runtime source-input change; dated observation is not compiler input and creates no runtime result."
+  },
+  "released_at": "2026-10-04T05:18:23Z",
+  "publication": {
+    "pull_request": 31068,
+    "head_sha": "a6afbeec5d61db42ba110c94b96c4c2becb0f80d",
+    "merge_sha": "edd8645b4a331157ae21f98370b716b979aaf72a",
+    "changed_files": [
+      {
+        "path": "opportunities/air_ai_workforce_rfi_2026/README.md",
+        "git_blob": "5d32e7e05f238ed7a79f675849ad1ea84ef72837"
+      },
+      {
+        "path": "opportunities/air_ai_workforce_rfi_2026/source_updates/20261004/SOURCE_CURRENTNESS.md",
+        "git_blob": "a74c69e70b9310f6458ca053463c3f86eb049b7e"
+      },
+      {
+        "path": "opportunities/air_ai_workforce_rfi_2026/source_updates/20261004/source_observation.json",
+        "git_blob": "89b2594d615fcdcae03af6b114cdd9d279c3b76a"
+      }
+    ],
+    "unchanged_package_files": 9,
+    "pinned_and_literal_main_exact": true,
+    "exact_comparisons": 24,
+    "original_seed_comment": 5976866922,
+    "later_separate_issue_comment": 5976867060,
+    "slack_receipt": "https://tokenjunkielabs.slack.com/archives/C0BTB4SUCP9/p1791087931516629",
+    "native_execution": false,
+    "runtime_input_changed": false,
+    "readiness_claimed": false
+  },
+  "unrelated_observation": {
+    "path": ".github/workflows/air-ai-workforce-rfi.yml",
+    "observed_main": "dd8d09e1924d52436a50042b0406af2993ab5367",
+    "status": 404,
+    "scope_action": "None; absence retained separately, no restoration or workflow write."
   }
 }
