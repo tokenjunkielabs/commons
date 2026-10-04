@@ -208,6 +208,8 @@ Theorem 2 follows. The 4-adic scaling step uses the elementary witness scaling a
 
 The [dyadic growth note](DYADIC_GROWTH.md) adds the sharp necessary bound on both powers of two: if $h=v_2(n)$, then $\min(a,c)\ge\max(0,\lfloor(h-1)/2\rfloor)$. A bounded legal total attains it for every even target at all dyadic depths. It also excludes the entire infinite family $\min(a,c)\le A$ on $n\equiv0\pmod{2^{2A+3}}$, even with the other exponents unrestricted.
 
+The [primitive-palette proof](PRIMITIVE_PALETTES.md) sharpens the fixed-choice question on $4$-free targets. The three legal totals $\{2,8,10\}$ cover every individual prime at all depths, and two legal totals never suffice even eventually. That triple fits every primitive $n>1$ except $5$; adding $5$ gives bounded coverage for every primitive target, with four proved necessary for that stronger requirement.
+
 ## 4. What this settles, and what it leaves open
 
 Theorem 1 settles unrestricted residue coverage at every individual prime power for all integer targets. Theorem 2 strengthens the result on the actual domain $n>1$: the finite family of restricted pairs with total at most $n$ always contains a pair that survives every depth of any one chosen prime.
