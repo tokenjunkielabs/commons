@@ -131,17 +131,18 @@ def chunks(text: str, limit: int = SLACK_LIMIT) -> list[str]:
     if len(text) <= limit:
         return [text]
     out: list[str] = []
-    rest = text
-    while len(rest) > limit:
-        cut = rest.rfind("\n\n", 0, limit + 1)
-        if cut < limit // 2:
-            cut = rest.rfind("\n", 0, limit + 1)
-        if cut <= 0 or cut < limit // 2:
-            cut = limit
-        out.append(rest[:cut])
-        rest = rest[cut:]
-    if rest:
-        out.append(rest)
+    start = 0
+    length = len(text)
+    while length - start > limit:
+        cut = text.rfind("\n\n", start, start + limit + 1)
+        if cut - start < limit // 2:
+            cut = text.rfind("\n", start, start + limit + 1)
+        if cut <= start or cut - start < limit // 2:
+            cut = start + limit
+        out.append(text[start:cut])
+        start = cut
+    if start < length:
+        out.append(text[start:])
     return out
 
 
