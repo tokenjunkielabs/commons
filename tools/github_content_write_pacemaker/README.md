@@ -10,6 +10,12 @@ cooldowns, durable pre-dispatch state, and fail-visible reconciliation after an
 ambiguous outcome. A timeout or lost response blocks later claims until an
 external provider readback is recorded.
 
+When recording a known `rate_limited` result, preserve its canonical UTC
+`retry_at` even if that deadline has already elapsed. Delayed result recording
+must not turn a known rejection into an uncertain write. The next claim applies
+the retained provider deadline and minimum claim interval; a future deadline
+still prevents dispatch. Ambiguous outcomes continue to require readback.
+
 It is not caller admission, permission, approval, or distributed consensus.
 Raw GitHub writers remain open and can bypass the queue. Cooperating callers
 must share one SQLite generation; one database per worker is split brain.
