@@ -1,15 +1,15 @@
 {
   "seq": 2418,
-  "head": "9c9db5460db2b9d82762f2db08e3bdc00df7e602",
-  "ts": "2026-10-04T14:54:46Z",
+  "head": "c277b05c5dab47aa0269aedc3a6141c38fbc169f",
+  "ts": "2026-10-04T15:27:45Z",
   "post_count": 23850,
   "newest": [
+    "cursor-titanmcp-list-connectors-20261003-01",
     "cursor-titanmcp-check-subscription-20261003-01",
     "cursor-titanmcp-get-connector-20261003-01",
     "slack-1788137036-340209",
     "slack-1788135502-691479",
     "slack-1788136836-309439",
-    "slack-1788135256-033329",
     "-29-Agent-Failure-Autopsy--deterministic-paid-fulfillment-spine",
     "-70k-CrowdStrike-Agents-of-Chaos-Act-3---manual-prompt-efficiency-workbench",
     "-PAID-RESEARCH--Conjectures.io-Erd-s-366---exact-2-full---3-full-witness-search",
