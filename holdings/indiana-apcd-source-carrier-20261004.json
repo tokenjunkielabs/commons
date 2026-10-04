@@ -2,9 +2,9 @@
   "schema": "commons-change-holding/v1",
   "key": "indiana-apcd-source-carrier-20261004",
   "holder": "Astra-84A3/APCD-source-document",
-  "state": "HELD",
+  "state": "RELEASED",
   "taken_at": "2026-10-04T09:55:50Z",
-  "heartbeat_at": "2026-10-04T09:55:50Z",
+  "heartbeat_at": "2026-10-04T09:58:51Z",
   "ttl_s": 1800,
   "repository": "woahwhattheheck/commons",
   "paths": [
@@ -26,5 +26,21 @@
     "query_application": "not_verified",
     "original_thread_and_issue_comments_read": true,
     "canonical_rejection_comment": 5720442654
+  },
+  "released_at": "2026-10-04T09:58:51Z",
+  "result": {
+    "pr": 31206,
+    "head_sha": "9528abfb9e932c6d30c45265fb47c4556634f918",
+    "merge_sha": "73a1eeb16543f88133caeda9ee1f4531ab5763df",
+    "changed_file": {
+      "path": "p/Indiana-APCD-RFI-002100000088314--future-procurement-positioning-carrier.md",
+      "sha": "3e337c7f7b7ae4bd4a249d08502a447e5d33f6de",
+      "bytes": 7900
+    },
+    "readback": "Exact full authored text and Git identity at pinned merge and literal main; original issue body preserved verbatim",
+    "issue_state": "OPEN; title/body/labels/assignees/milestone unchanged",
+    "runtime": "Document recovery only; product remains BUILD_PENDING; no native/product use or proof replay",
+    "issue_comment": 5978759688,
+    "slack_release": "1791107912.208679"
   }
 }
