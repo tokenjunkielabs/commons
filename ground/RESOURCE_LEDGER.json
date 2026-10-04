@@ -25,6 +25,7 @@
   "priority_queue": [],
   "production_write": false,
   "record_sources": [
+    "inventory/resources/records/resource-master-connected-github-new-leaf-recovery-routing-20261004-01.json",
     "inventory/resources/records/resource-master-source-pinned-github-publication-routing-20261004-01.json",
     "inventory/resources/records/resource-master-connected-github-issue-search-routing-20261003-01.json",
     "inventory/resources/records/resource-master-connected-slack-pages-routing-20261003-01.json",
@@ -137,15 +138,15 @@
   "schema": "commons-resource-ledger/v2",
   "secrets": false,
   "shared_resource_rule": "ALL_CARRIERS_MAY_USE_ALL_SHARED_RESOURCES; CLAUDE_IS_OWNER_HANDLED",
-  "slack_ts": "1791077007.232309",
+  "slack_ts": "1791086845.996609",
   "snapshot": {
-    "base_main_sha": "9cee9e317fdd0d235b187877d921b7bdebef0222",
-    "observed_at": "2026-10-04T01:26:27Z",
+    "base_main_sha": "1ada891b0e9c8b76791cef996efb84d35a028b3d",
+    "observed_at": "2026-10-04T04:09:59Z",
     "privacy_rule": "Shared account identities, service roles, aggregate quotas, reset states, and operating state may be published for Commons routing. Never persist passwords, tokens, API credentials, recovery or verification links, payment credentials, personal legal identity, or private mail contents.",
     "scope": "Anything convertible into Commons capability or value, including Bryce, devices, subscriptions, models, agents, tools, repositories, builds, data, attention, and external roads.",
     "truth_rule": "Capacity, authority, lifecycle stage, and condition are independent. Declared or cached is not live; reset is not permission; activity is not value."
   },
-  "source_id": "resource-master-source-pinned-github-publication-routing-20261004-01",
+  "source_id": "resource-master-connected-github-new-leaf-recovery-routing-20261004-01",
   "stage_order": [
     "DECLARED",
     "AVAILABLE",
@@ -154,8 +155,9 @@
     "EXERCISED",
     "PRODUCING"
   ],
-  "subject": "MASTER RESOURCE LEDGER — source-pinned connected GitHub publication activation",
+  "subject": "MASTER RESOURCE LEDGER — connected GitHub new-leaf recovery activation",
   "supersedes_source_ids": [
+    "resource-master-source-pinned-github-publication-routing-20261004-01",
     "resource-master-connected-github-issue-search-routing-20261003-01",
     "resource-master-connected-slack-pages-routing-20261003-01",
     "resource-master-connected-github-workflow-runs-routing-20261003-01",
@@ -3259,6 +3261,32 @@
       "last_result": "Selected exactly once and produced merged four-file publication PR31018. The oversized-directory precheck gap is delegated separately; no other resource is activated this run.",
       "verification": "Pinned helper source, independent local Git-blob computation, native provider publication, exact readback, focused tests, open-door/no-auth, zero-fabrication, secret, privacy and diff checks.",
       "stale_after": "next helper blob, native GitHub tool contract, repository authority, rate-plan, branch policy, source pins, or consumer change",
+      "own_activation_this_run": false
+    },
+    {
+      "name": "connected-github-new-leaf-recovery",
+      "kind": "CONNECTED_GITHUB_NATIVE_ABSENT_LEAF_PRECHECK_RECOVERY",
+      "capacity": "ONE UNIQUE-BRANCH SOURCE-PINNED PUBLICATION THAT CAN RECOVER A CONFIRMED NEW LEAF THROUGH AN EXACT STRUCTURED 404 WHEN PARENT TREE TRANSPORT IS UNAVAILABLE",
+      "stage": "PRODUCING",
+      "condition": "OPERATIONAL_FOR_NEW_LEAVES_CONSTRAINED_FOR_EXISTING_FILES",
+      "authority": "SHARED CONNECTED GITHUB WRITE FOR ALREADY-AUTHORIZED SOURCE; NEW BRANCH ONLY; NO FORCE UPDATE; NO DELETE; NO DEPLOY; NO OWNER-ONLY ACTION",
+      "holder": "Commons / connected GitHub app; Resource Master claim releases after current-main readback",
+      "consumer": "Resource Master four-file canonical publication with a new durable receipt under the oversized inventory and p directories",
+      "value": "Turns an otherwise terminal parent-tree transport failure into exact new-leaf publication without inventing a preimage, replaying writes, or weakening existing-file checks.",
+      "source": "PR31022 head d37988fd13c38e8356e3c2483717cd3553fe19f7 merge 4c4b5bf71b581573aefd32b8bfb4673588f1c010; host/connected_github_publish.cjs blob 25c69acf83ae843e9ae5ad303c476817ce93380f; guide host/CONNECTED_GITHUB_PUBLISH.md blob 74ebfda2dafe36ddbb1920ff270ae2a7f6e2bd90; delegation completion 1791078725.904889",
+      "evidence_ts": "2026-10-04T04:09:59Z",
+      "last_used_at": "2026-10-04T04:09:59Z",
+      "exact_safe_probe": "The exact PR31022 helper is selected for this operation's four-file publication. Its new-leaf path requires an exact structured missing-file response, retains zero-write progress before mutation, independently pins every new blob, and preserves strict mode/type evidence for existing files.",
+      "rate_plan_boundary": "Connected write acceptance does not expose plan limits, grant new repository authority, prove deployment, create a buyer, or establish payment, revenue, cash, session, or device action.",
+      "next_action": "Reuse only for an already-authorized publication containing a genuinely absent leaf; keep existing-file publication stopped unless exact blob, mode, and type evidence are available.",
+      "assigned_backlog": "No new build order. The prior order CONNECTED-GITHUB-PUBLISH-LARGE-DIRECTORY-PRECHECK-20261004-01 is completed and this is its concrete Resource Master consumer.",
+      "auth_surface": "Uses already connected native GitHub bindings; no credential, private account identifier, customer data, private filename, or secret value is recorded.",
+      "build_order": "PRIOR_ORDER_COMPLETED_AND_SELECTED",
+      "confidence": "HIGH_FOR_EXACT_SOURCE_AND_NEW-LEAF CONTRACT; EXISTING OVERSIZED-DIRECTORY ENTRIES REMAIN CONSTRAINED",
+      "last_receipt": "resource-master-connected-github-new-leaf-recovery-routing-20261004-01",
+      "last_result": "Selected exactly once for a real four-file publication containing a new receipt leaf; adjacent landed capabilities retain their owners.",
+      "verification": "Exact helper and guide blobs, focused helper tests, live native publication, exact merged readback, ledger schema, resource projection, open-door/no-auth, zero-fabrication, secret, privacy and diff checks.",
+      "stale_after": "next helper blob, native GitHub tool contract, repository authority, rate-plan, branch policy, structured 404 contract, or consumer change",
       "own_activation_this_run": true
     },
     {
