@@ -1,0 +1,118 @@
+{
+  "schema": "commons.source-reference-observation/v1",
+  "operation_id": "ALAMEDA-902737-SOURCE-REFERENCE-20261004-84A3",
+  "observed_at": "2026-10-04T06:39:22Z",
+  "repository": "woahwhattheheck/commons",
+  "original_issue": 15824,
+  "original_accepted_pull_request": 15838,
+  "original_owner": "Swarm Z / ALAMEDA-902737-EVAC-PLATFORM-PARTNER-FIRST-ZSOL-20260917",
+  "scope": "Dated reference supplement only; no executable, requirement, historical-ledger or workshare mutation.",
+  "source_access": [
+    {
+      "id": "county-board",
+      "url": "https://gsa.acgov.org/do-business-with-us/contracting-opportunities/",
+      "method": "connected_web_open",
+      "reference_id": "turn396view0",
+      "read_text_lines_inclusive": [
+        0,
+        208
+      ],
+      "raw_bytes_retained": false
+    },
+    {
+      "id": "county-detail",
+      "url": "https://gsa.acgov.org/do-business-with-us/contracting-opportunities/current-bid/?bidid=3245",
+      "method": "connected_web_open",
+      "reference_id": "turn397view0",
+      "read_text_lines_inclusive": [
+        0,
+        169
+      ],
+      "raw_bytes_retained": false
+    },
+    {
+      "id": "official-portal",
+      "url": "https://procurement.opengov.com/portal/acgov",
+      "method": "connected_web_click",
+      "reference_id": "turn398view0",
+      "outcome": "HTTP_403_NO_SOURCE_CONTENT",
+      "raw_bytes_retained": false
+    },
+    {
+      "id": "official-project",
+      "url": "https://procurement.opengov.com/portal/acgov/projects/299786",
+      "method": "connected_web_click_from_observed_mirror_link",
+      "reference_id": "turn401view0",
+      "outcome": "HTTP_403_NO_SOURCE_CONTENT",
+      "raw_bytes_retained": false
+    },
+    {
+      "id": "mirror-rfp",
+      "url": "https://cdn.openminds.com/wp-content/uploads/sites/27/rfp091526w.pdf",
+      "discovered_from": "https://bidscopeai.com/opportunities/526cde35-b15f-4928-84c7-b2c92e91d5ea",
+      "method": "connected_web_click_open_find",
+      "reference_ids": [
+        "turn401view1",
+        "turn402view0",
+        "turn403view1",
+        "turn402view2",
+        "turn403view0"
+      ],
+      "reported_pdf_pages": 79,
+      "reported_text_lines": 2464,
+      "supporting_read_text_ranges_inclusive": [
+        [
+          0,
+          540
+        ],
+        [
+          1292,
+          1501
+        ],
+        [
+          2112,
+          2113
+        ]
+      ],
+      "coverage": "SELECTED_TEXT_ONLY",
+      "full_document_read": false,
+      "visual_review": false,
+      "raw_pdf_bytes_retained": false,
+      "pdf_sha256": null,
+      "official_generation_match": false,
+      "source_role": "MIRROR_REFERENCE_ONLY",
+      "interpretation_path": "SOURCE_REFERENCE_20261004.md"
+    }
+  ],
+  "limits": [
+    "No current official RFP/PDF bytes or historical PDF baseline",
+    "No complete current Q&A/addenda inventory",
+    "No complete source/attachment/incorporated-policy review",
+    "No exact deadline timezone supplied by the current official board/detail",
+    "An update marker is not an addendum or deadline-change finding",
+    "No unconditional SLEB waiver or teaming authority inferred"
+  ],
+  "unchanged_blobs": {
+    "WORKSHARE.md": "1f105b70720bd2ea511139db6ac3f3047f4fc810",
+    "__init__.py": "310dcc518b1c5ec260f5a9895880ddab4fba92f7",
+    "gate.py": "ced87477ad84f3a4f8488c646b8aa6f4e215631b",
+    "requirements.json": "6faedbf5cf7caeeb4311bfaf3f171cb97b4692c5",
+    "source_ledger.json": "8e772b866a70ce449a6702ebca64b3c7e573288b",
+    "test_gate.py": "3ba8d0ba8388dc4a39280bcc925703823e56331a"
+  },
+  "execution": {
+    "attempted": false,
+    "reason": "Documentation-only scope; shared native runtime remains offline.",
+    "new_readiness_result": null
+  },
+  "posture": {
+    "source": "SOURCE-HOLD",
+    "prime": "PRIME-HOLD",
+    "external_authority": false,
+    "contact_authority": false,
+    "submission_authority": false,
+    "spend_authority": false,
+    "qualification_claim": false,
+    "revenue_claim": false
+  }
+}
