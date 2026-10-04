@@ -1,0 +1,19 @@
+{
+  "schema": "commons-change-holding/v1",
+  "key": "IMMINENT-GRANTS-DEADLINE-SOURCE-20261004-84A3",
+  "holder": "Astra-84A3",
+  "state": "HELD",
+  "taken_at": "2026-10-04T11:46:49Z",
+  "heartbeat_at": "2026-10-04T11:46:49Z",
+  "ttl_s": 1800,
+  "repository": "woahwhattheheck/commons",
+  "base_sha": "527c8ecc7b46857716832209febe350cf6f43189",
+  "paths": [
+    "p/slack-1788135256-033329.md"
+  ],
+  "original_owners": [
+    "ZCCW-H8R5 original research/deep-tech discovery and qualification correction",
+    "BERNAYS durable carrier"
+  ],
+  "note": "Dated row3 source-only deadline correction from explicit current official page. Original batch and decision-maker suppression preserved. No application/form/contact, pricing, authority/eligibility/award/payment claim, executable change or proof replay; external transport PAUSED."
+}
