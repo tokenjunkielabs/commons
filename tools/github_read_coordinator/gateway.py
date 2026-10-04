@@ -13,6 +13,8 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+from dataclasses import replace
+from http.client import HTTPException
 from pathlib import Path
 
 from broker import Broker, MAX_REQUEST, MAX_RESPONSE, ROUTES, Upstream, dumps, loads, normalize
@@ -22,6 +24,9 @@ API_VERSION = "2022-11-28"
 USER_AGENT = "commons-github-read-coordinator/1"
 TOKEN_RE = re.compile(r"[!-~]{10,4096}")
 LOGIN_RE = re.compile(r"[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})")
+# Broker rejects non-JSON payloads without caching them, while preserving the
+# observed HTTP status and quota headers for its independent cooldown handling.
+_UNUSABLE_PAYLOAD = object()
 
 
 class NoRedirect(urllib.request.HTTPRedirectHandler):
@@ -78,6 +83,32 @@ class GitHubProvider:
     def fingerprint(self) -> str:
         return hashlib.sha256(self._token.encode()).hexdigest()
 
+    @staticmethod
+    def _read_response(response, deadline: float) -> Upstream:
+        observed = Upstream(
+            response.status,
+            _UNUSABLE_PAYLOAD,
+            response.headers.get("Retry-After"),
+            response.headers.get("X-RateLimit-Remaining"),
+            response.headers.get("X-RateLimit-Reset"),
+            False,
+        )
+        try:
+            chunks, size = [], 0
+            while True:
+                if time.monotonic() >= deadline:
+                    return observed
+                chunk = response.read1(min(16384, MAX_RESPONSE + 1 - size))
+                if not chunk:
+                    break
+                chunks.append(chunk)
+                size += len(chunk)
+                if size > MAX_RESPONSE:
+                    return observed
+            return replace(observed, payload=loads(b"".join(chunks)))
+        except (OSError, HTTPException, ValueError, RecursionError):
+            return observed
+
     def _request(self, url: str) -> Upstream:
         if not url.startswith(API_ROOT + "/") or any(c in url for c in ("\r", "\n")):
             raise ValueError("fixed GitHub API origin required")
@@ -94,29 +125,7 @@ class GitHubProvider:
         deadline = time.monotonic() + 20
         try:
             with self._opener.open(request, timeout=20) as response:
-                chunks, size = [], 0
-                while True:
-                    if time.monotonic() >= deadline:
-                        return Upstream(502)
-                    chunk = response.read1(min(16384, MAX_RESPONSE + 1 - size))
-                    if not chunk:
-                        break
-                    chunks.append(chunk)
-                    size += len(chunk)
-                    if size > MAX_RESPONSE:
-                        return Upstream(502)
-                try:
-                    payload = loads(b"".join(chunks))
-                except (ValueError, UnicodeDecodeError, RecursionError):
-                    return Upstream(502)
-                return Upstream(
-                    response.status,
-                    payload,
-                    response.headers.get("Retry-After"),
-                    response.headers.get("X-RateLimit-Remaining"),
-                    response.headers.get("X-RateLimit-Reset"),
-                    False,
-                )
+                return self._read_response(response, deadline)
         except urllib.error.HTTPError as error:
             try:
                 retry = error.headers.get("Retry-After")
