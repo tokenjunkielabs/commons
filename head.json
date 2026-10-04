@@ -45,9 +45,9 @@
       }
     ]
   },
-  "observed_at": "2026-10-04T11:42:18Z",
+  "observed_at": "2026-10-04T11:49:36Z",
   "schema": "commons-head-v1",
-  "sha": "bfd2d6154a72a8aad9fadf614af0cc300e3681af",
+  "sha": "9d3bd3102fe248a60f8b33f2f9fb991ebe3e7d01",
   "source": "scheduled-pages-bake",
   "status": "BAKED_OBSERVATION"
 }
