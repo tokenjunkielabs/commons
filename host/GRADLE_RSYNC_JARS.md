@@ -32,9 +32,14 @@ The completed run with **81 core tests + 3 API tests passing**, instrumentation
 Java compilation, and an assembled APK belongs to immutable source
 [`73793ddc4e084017a7098aade07703c40ab825bd`](https://github.com/woahwhattheheck/GmsCore/commit/73793ddc4e084017a7098aade07703c40ab825bd),
 tree `8a3f7d563ff882ec1f57e04cbde3ae044f0ee308`. Pin that commit when reproducing
-that result. The branch continues to move: after fork PR #6 it pointed to
-`360d6a9942e1e038fa7d3d4261c2d4651d17d02f`; attach successor results to their own source pins. Use your isolated cloud
-checkout of the chosen source and record its commit/tree before each run.
+that result. The branch continues to move. Its successful successor after fork
+PR #6 was source
+[`360d6a9942e1e038fa7d3d4261c2d4651d17d02f`](https://github.com/woahwhattheheck/GmsCore/commit/360d6a9942e1e038fa7d3d4261c2d4651d17d02f),
+tree `4d33a513c609a691bde089c794d4021bd82e13e7`. That warm run completed in
+3m 59s: all 81 core tests reran and passed; the 3 API test results and
+instrumentation Java compilation were reused as up to date; APK assembly
+succeeded. Use your isolated cloud checkout of the chosen source and record
+its commit/tree before each run.
 
 Retain the existing Java, Android SDK and Gradle environment. Set these checkout
 paths and run from a POSIX shell with Python 3.9 or newer:
