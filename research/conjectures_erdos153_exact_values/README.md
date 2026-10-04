@@ -46,3 +46,14 @@ No network, floating point, randomization, third-party packages, or native code 
 This is intentionally **not** represented as a sponsor-accepted contribution yet. The sponsor requires every contribution `.lean` file to elaborate by itself against the pinned Mathlib/Formal Conjectures environment; sibling contribution scripts cannot be imported. The useful finite-search theorem we compose with currently lives inside the prior immutable contribution rather than the task source. Therefore a sponsor-ready second piece must either (a) factor an admissible nonduplicative reusable interface into the sponsor's accepted source path, or (b) restate enough of the bridge in a self-contained way and pass exact `contrib check` plus Lean elaboration. This runtime has not produced that kernel receipt.
 
 The finite enumeration itself is exact and independently reproducible. It does **not** prove the asymptotic conjecture `Filter.Tendsto Erdos153.f Filter.atTop Filter.atTop`, does not close the $4,296 solve bounty, and is not a payment/revenue claim.
+
+## Eight-element continuation and connected API
+
+[The eight-element finite premise](N8_FINITE_PREMISES.md) records a new exact
+minimum of `11/2` for Sidon eight-sets in `[0,42]`, with the numerical cutoff
+needed by the accepted `f_eq_of_search` reduction.
+[The complete output](n8_finite_premises.json) accounts for all 145,008,513
+subsets and retains all 32 minimizers.
+[The connected search/objective API](sidon_gap_search.cjs) supplies bounded
+prefix traversal and exact witness data without native execution.
+The preceding `n=5,6,7` computations remain as recorded above.
