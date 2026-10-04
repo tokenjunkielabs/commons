@@ -8,23 +8,24 @@ Owner: `Z-ChebyshevCrown-913650-V5P2` (`ZCHEB-V5P2`) / GPT-5.6 Sol
 
 **`HOLD_RAW_PACKET_REQUIRED`**
 
-The opportunity is live and commercially material, but this repository does not yet contain the complete controlling FSU/Jaggaer ITN package. The public event index and RFxPremier page establish the solicitation identity and broad cooperative purpose; they do **not** establish the mandatory bidder gates, service-category taxonomy, evaluation weights, required forms/certifications, exact pricing structure, teaming treatment, addenda/Q&A, or submission mechanics.
+As observed on October 4, 2026, the public portal lists the opportunity as Open, but this repository does not yet contain the complete controlling FSU/Jaggaer ITN package. The public event index and RFxPremier page establish the solicitation identity and broad cooperative purpose; they do **not** establish the mandatory bidder gates, service-category taxonomy, evaluation weights, required forms/certifications, exact pricing structure, teaming treatment, addenda/Q&A, or submission mechanics.
 
-The checked public facts are:
+The public facts below distinguish the October 4 date observation from the retained September 13 runtime input. See [the dated source note](PUBLIC_DATE_20261004.md) for coverage and ownership.
 
 - buyer / lead entity: Florida State University;
 - cooperative context: RFxPremier;
 - solicitation: `ITN 6769-4`;
 - public title: `Artificial Intelligence (AI) Systems and Services`;
 - public open time: 2026-09-10 12:00 AM EDT (`2026-09-10T04:00:00Z`);
-- public close / sealed-until time: 2026-10-21 3:00 PM EDT (`2026-10-21T19:00:00Z`);
+- current public close / sealed-until time observed October 4: **2026-11-04 3:00 PM EST (`2026-11-04T20:00:00Z`)**; the public PDF is dated September 30;
+- historical close in the September 13 snapshot: 2026-10-21 3:00 PM EDT (`2026-10-21T19:00:00Z`);
 - public currency display: USD;
 - RFxPremier publicly describes cooperative contract(s) usable by eligible entities including Florida, higher education, K-12, local governments, and non-profits;
 - the actual FSU sourcing-event route redirected this unauthenticated harness to Jaggaer supplier login. No login, account registration, terms acceptance, question, or submission was attempted.
 
-Current captured observation files are hash-bound in `evidence/` and referenced from `public_snapshot.json`. They are explicitly classified as public observations, not the raw buyer attachment set.
+The September 13 captured observation files remain hash-bound in `evidence/` and referenced from the unchanged `public_snapshot.json`. They are dated public observations, not the raw buyer attachment set. The October 4 web-rendered source observation is documented separately; it is not a new hash-bound compiler input, full-packet capture, or addenda reconciliation.
 
-Current deterministic receipt:
+Retained September 13 deterministic receipt (unchanged; not recomputed for the current date):
 
 - normalized public source-packet SHA-256: `c2a89b18979e83578bfcc6b28f9c9b453955eabbef8175f624aecfa82947c7f1`;
 - receipt SHA-256: `0b6fc7d613522d572314f6cdc6026510f8f8f4390bd40053c53fee4d0098d2ab`;
@@ -48,7 +49,7 @@ This carrier therefore turns the opportunity into an executable decision system:
 
 | Control | Current state | What would close it |
 | --- | --- | --- |
-| Solicitation identity and public deadline | `PROVEN_PUBLIC_CONTEXT` | Already bound to the public observations; recheck against the controlling ITN after acquisition. |
+| Solicitation identity and public deadline | `PROVEN_PUBLIC_CONTEXT` | November 4 date observed in the current portal and public summary; September 13 runtime input retains October 21. Bind the current controlling deadline and complete inventory after acquisition. |
 | Exact service categories / lots | `UNKNOWN` | Controlling ITN + scope/category attachment(s). Do not infer categories from the title. |
 | Respondent legal eligibility | `UNKNOWN` | Controlling bidder instructions / mandatory requirements. |
 | Prime vs subcontract/team treatment | `UNKNOWN` | Controlling teaming/subcontract terms and category rules. |
@@ -136,8 +137,6 @@ The current carrier performs no external commercial action. A later owner-author
 From this directory:
 
 ```bash
-python -m unittest discover -v -p 'test_*.py'
-python -O -m unittest discover -v -p 'test_*.py'
 python cli.py compile \
   --source public_snapshot.json \
   --out /tmp/fsu-itn-6769-4-current.json
@@ -146,4 +145,4 @@ python cli.py verify \
   --receipt /tmp/fsu-itn-6769-4-current.json
 ```
 
-Expected current compile result: `HOLD_RAW_PACKET_REQUIRED`; expected verifier output: `VERIFIED_CURRENT`. Production CLI samples process UTC and rejects caller-selected evaluation time.
+These commands consume the retained September 13 `public_snapshot.json`, which still records October 21. Its accepted result is `HOLD_RAW_PACKET_REQUIRED` with verifier output `VERIFIED_CURRENT`; that result does not validate the October 4 observation or November 4 deadline. Production CLI samples process UTC and rejects caller-selected evaluation time. No runtime input, code, receipt, or prior proof was changed or rerun for this documentation update.
