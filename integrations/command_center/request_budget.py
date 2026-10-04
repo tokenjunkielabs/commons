@@ -309,9 +309,12 @@ class RequestBudget:
             db.execute("DELETE FROM provider_leases WHERE scope=? AND expires_at<=?", (scope, now))
             row = db.execute("SELECT * FROM provider_leases WHERE scope=? AND holder=?", (scope, holder)).fetchone()
             if row is None:
-                active = db.execute("SELECT COUNT(*),MIN(expires_at) FROM provider_leases WHERE scope=?", (scope,)).fetchone()
-                if active[0] >= policy["capacity"]:
-                    raise RequestDeferred(scope, active[1], "capacity_exhausted")
+                active = db.execute("SELECT expires_at FROM provider_leases WHERE scope=? "
+                                    "ORDER BY expires_at", (scope,)).fetchall()
+                if len(active) >= policy["capacity"]:
+                    # A capacity reduction can require several leases to expire.
+                    until = active[len(active) - policy["capacity"]]["expires_at"]
+                    raise RequestDeferred(scope, until, "capacity_exhausted")
                 db.execute("INSERT INTO provider_leases(scope,holder,lease_id,expires_at) VALUES(?,?,?,?)",
                            (scope, holder, uuid.uuid4().hex, now + ttl_seconds))
                 row = db.execute("SELECT * FROM provider_leases WHERE scope=? AND holder=?", (scope, holder)).fetchone()
@@ -357,7 +360,8 @@ class RequestBudget:
             elif policy is None:
                 reason = "capacity_unconfigured"
             elif len(active) >= policy["capacity"]:
-                reason, until = "capacity_exhausted", active[0]["expires_at"]
+                reason = "capacity_exhausted"
+                until = active[len(active) - policy["capacity"]]["expires_at"]
             return {"scope": scope, "capacity": policy["capacity"] if policy else None,
                     "active": len(active), "admission_available": reason is None,
                     "reason": reason, "retry_not_before": _iso(until),
