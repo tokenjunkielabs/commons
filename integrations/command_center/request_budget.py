@@ -371,7 +371,11 @@ class RequestBudget:
         with self._transaction(write=False) as db:
             now = self.clock()
             scopes = []
-            for row in db.execute("SELECT * FROM read_budget ORDER BY retry_until DESC,scope LIMIT 100"):
+            for row in db.execute("""SELECT * FROM read_budget
+                    ORDER BY CASE WHEN retry_until>? THEN 0 ELSE 1 END,
+                    CASE WHEN retry_until>? THEN retry_until
+                         ELSE MAX(COALESCE(last_attempt,0),COALESCE(last_limited,0)) END DESC,
+                    scope LIMIT 100""", (now, now)):
                 until = row["retry_until"]
                 scopes.append({"scope": row["scope"],
                     "state": "rate_limited" if now < until else "ready",
