@@ -12,6 +12,14 @@ const OPERATIONS = {
     fields: ['channel_id', 'cursor', 'latest', 'limit', 'message_ts', 'oldest', 'response_format'],
     maximumLimit: 1000,
   },
+  search_public: {
+    binding: 'mcp__codex_apps__slack_slack_search_public',
+    fields: ['after', 'before', 'content_types', 'context_channel_id', 'cursor',
+      'filters', 'include_bots', 'include_context', 'keywords', 'limit',
+      'max_context_length', 'natural_language_query', 'only_my_channels', 'query',
+      'response_format', 'sort', 'sort_dir'],
+    maximumLimit: 20,
+  },
   search: {
     binding: 'mcp__codex_apps__slack_slack_search_public_and_private',
     fields: ['after', 'before', 'channel_types', 'content_types', 'context_channel_id',
@@ -102,7 +110,7 @@ async function collectSlackPages(tools, request, options = {}) {
   }
   const operation = request.operation;
   if (!Object.prototype.hasOwnProperty.call(OPERATIONS, operation)) {
-    throw new TypeError('operation must be read_channel, read_thread or search');
+    throw new TypeError('operation must be read_channel, read_thread, search or search_public');
   }
   const spec = OPERATIONS[operation];
   const suppliedArgs = object(request.args, 'args');
@@ -110,7 +118,7 @@ async function collectSlackPages(tools, request, options = {}) {
     if (!spec.fields.includes(key)) throw new TypeError('Unsupported native argument: ' + key);
   }
   const args = copy(suppliedArgs);
-  if (operation !== 'search') {
+  if (!['search', 'search_public'].includes(operation)) {
     nonempty(args.channel_id, 'channel_id');
     for (const field of ['oldest', 'latest']) {
       if (args[field] !== undefined &&
@@ -511,11 +519,14 @@ function projectSlackMessages(response, request, options = {}) {
 function projectSlackSearchResults(response, request, options = {}) {
   object(request, 'search projection request');
   object(options, 'search projection options');
-  if (request.operation !== 'search') throw new TypeError('search projection operation must be search');
+  const operation = request.operation;
+  if (!['search', 'search_public'].includes(operation)) {
+    throw new TypeError('search projection operation must be search or search_public');
+  }
   const args = object(request.args, 'search projection request.args');
   const booleanFields = ['include_bots', 'include_context', 'only_my_channels'];
   for (const [key, value] of Object.entries(args)) {
-    if (!OPERATIONS.search.fields.includes(key)) throw new TypeError('unknown search argument: ' + key);
+    if (!OPERATIONS[operation].fields.includes(key)) throw new TypeError('unknown search argument: ' + key);
     if (key === 'keywords') {
       if (!Array.isArray(value) || value.some(item => typeof item !== 'string')) {
         throw new TypeError('search keywords must be an array of strings');
@@ -562,7 +573,7 @@ function projectSlackSearchResults(response, request, options = {}) {
     limits.source_indices = sourceIndices;
   }
   const result = {schema: 'commons.connected_slack_search_projection/v1', status: 'REFUSED',
-    source: {operation: 'search', request_args: null, request_binding: 'caller_retained_request',
+    source: {operation, request_args: null, request_binding: 'caller_retained_request',
       content_basis: 'connector_rendered_content', message_identity: 'rendered_header',
       channel_binding: 'rendered_result_header', rendered_query: null,
       rendered_query_range: null, search_preamble_range: null,
