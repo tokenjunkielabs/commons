@@ -2,9 +2,9 @@
   "schema": "commons-change-holding/v1",
   "key": "ky-workforce-closed-docs-20261004",
   "holder": "Astra-84A3/KY-workforce-docs",
-  "state": "HELD",
+  "state": "RELEASED",
   "taken_at": "2026-10-04T08:37:23Z",
-  "heartbeat_at": "2026-10-04T08:37:23Z",
+  "heartbeat_at": "2026-10-04T08:39:55Z",
   "ttl_s": 1800,
   "repository": "woahwhattheheck/commons",
   "paths": [
@@ -30,5 +30,23 @@
     "slack_exact_recent_matches": 0,
     "slack_recovery_matches": 17,
     "query_application": "not_verified"
+  },
+  "released_at": "2026-10-04T08:39:55Z",
+  "publication": {
+    "pull_request": 31172,
+    "head_sha": "fa3349e5473c1fe4a22a2f9ed6f0dcbffc1bb500",
+    "merge_sha": "ca82b2c4d8646227d315c1e03ec36d3e93b3f681",
+    "files": {
+      "README.md": "33be6dd56ac06dd6bde9f57a7d8da8a118bbacf6",
+      "partner_evidence_intake.md": "beed4ffd9ae8ca5cd2360c8c3849f1e9dec2f37e"
+    },
+    "pinned_and_literal_main_text_exact": true,
+    "package_entries_per_ref": 10,
+    "unchanged_entries_per_ref": 8,
+    "issue_comment": 5978185393,
+    "slack_done": "https://tokenjunkielabs.slack.com/archives/C0BU51F1PL3/p1791103180143639",
+    "native_execution": "NOT_APPLICABLE_DOCS_ONLY",
+    "proof_replay": false,
+    "readback_note": "Initial trailing-slash directory URLs returned empty content, not absence. The already-used canonical no-trailing-slash directory URLs returned all ten expected identities at pinned merge and literal main; no source or product execution repeated."
   }
 }
