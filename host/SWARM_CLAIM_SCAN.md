@@ -64,6 +64,19 @@ codes and performs no additional source reads.
 - `possible_overlaps` groups that state by exact file path. Two operations sharing
   a file can still own different functions or compatible additive changes. Read
   their links and compose the work; this report does not decide who may proceed.
+- `repeated_operation_declarations` exposes multiple distinct declaration messages
+  using the same operation ID, including declarations with no exact file paths.
+  It groups their source links under explicitly labeled hexadecimal workspace,
+  cloud-context or cloud-harness IDs (12–64 characters); declarations without
+  those labels remain in `unlabeled_declarations`. Two or more observed context
+  IDs produce `multiple_declaration_contexts_observed`; other repeated messages
+  produce `repeated_declarations_observed`. Context labels are observations, not
+  actor identities: a message can mention another workspace, a continuation can
+  reuse an operation, and multiple contributors can have compatible scopes.
+  Refresh the links to compose work. The operation's existing lifecycle state
+  remains in `observed_state`, and historical declarations are retained even
+  after an explicit terminal statement. Selection keeps these groups with their
+  selected operation; global counts still describe all supplied inputs.
 - `possible_symbol_overlaps` narrows those observations to explicit matching
   `file.py::function` or `file.py::Class.method` selectors, or an immediately
   adjacent code-shaped symbol such as `file.py import_reads`. `shared_file_scopes`
