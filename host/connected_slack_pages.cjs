@@ -263,12 +263,32 @@ function projectSlackMessages(response, request, options = {}) {
   const ceilings = {start_index: Number.MAX_SAFE_INTEGER, max_messages: 1000,
     max_body_chars: 65536, max_total_body_chars: 262144, max_input_chars: 8388608};
   for (const key of Object.keys(options)) {
-    if (!Object.prototype.hasOwnProperty.call(defaults, key)) throw new TypeError('unknown projection option: ' + key);
+    if (key !== 'source_indices' && !Object.prototype.hasOwnProperty.call(defaults, key)) {
+      throw new TypeError('unknown projection option: ' + key);
+    }
   }
   const limits = {...defaults, ...options};
   for (const [key, value] of Object.entries(limits)) {
+    if (key === 'source_indices') continue;
     if (!Number.isSafeInteger(value) || value < (['max_messages', 'max_input_chars'].includes(key) ? 1 : 0) ||
         value > ceilings[key]) throw new TypeError('invalid projection option: ' + key);
+  }
+  let sourceIndices = null;
+  if (Object.prototype.hasOwnProperty.call(options, 'source_indices')) {
+    if (Object.prototype.hasOwnProperty.call(options, 'start_index')) {
+      throw new TypeError('source_indices and start_index are mutually exclusive');
+    }
+    if (!Array.isArray(options.source_indices) || options.source_indices.length > limits.max_messages) {
+      throw new TypeError('source_indices must be an array with at most max_messages entries');
+    }
+    sourceIndices = options.source_indices.slice();
+    for (let i = 0; i < sourceIndices.length; i++) {
+      if (!Number.isSafeInteger(sourceIndices[i]) || sourceIndices[i] < 0 ||
+          (i > 0 && sourceIndices[i] <= sourceIndices[i - 1])) {
+        throw new TypeError('source_indices must contain distinct increasing nonnegative safe integers');
+      }
+    }
+    limits.source_indices = sourceIndices;
   }
   const result = {schema: 'commons.connected_slack_message_projection/v1', status: 'REFUSED',
     source: {operation, channel_id: channel,
@@ -420,10 +440,17 @@ function projectSlackMessages(response, request, options = {}) {
     }
     const from = Math.min(limits.start_index, rows.length);
     const until = Math.min(rows.length, from + limits.max_messages);
+    if (sourceIndices !== null) {
+      result.coverage.parsed_messages = rows.length;
+      if (sourceIndices.some(index => index >= rows.length)) {
+        bad('SOURCE_INDEX_OUT_OF_RANGE', 'A requested source index is outside the parsed retained page.');
+      }
+    }
+    const selected = sourceIndices === null ? rows.slice(from, until) : sourceIndices.map(index => rows[index]);
     let used = 0;
     let full = 0;
     let truncated = 0;
-    for (const row of rows.slice(from, until)) {
+    for (const row of selected) {
       const [start, end] = row.rendered_content_range;
       let length = Math.min(end - start, limits.max_body_chars, limits.max_total_body_chars - used);
       if (length > 0 && length < end - start &&
@@ -434,11 +461,32 @@ function projectSlackMessages(response, request, options = {}) {
         content_chars: end - start, returned_chars: length, truncated: clipped});
       full += end - start; used += length; truncated += clipped ? 1 : 0;
     }
-    Object.assign(result.coverage, {parsed_messages: rows.length, start_index: from,
-      returned_messages: result.messages.length, omitted_before: from, omitted_after: rows.length - until,
-      next_index: until < rows.length ? until : null, selected_content_chars: full,
-      returned_content_chars: used, truncated_messages: truncated,
-      all_rendered_messages_included: from === 0 && until === rows.length && truncated === 0});
+    if (sourceIndices === null) {
+      Object.assign(result.coverage, {parsed_messages: rows.length, start_index: from,
+        returned_messages: result.messages.length, omitted_before: from, omitted_after: rows.length - until,
+        next_index: until < rows.length ? until : null, selected_content_chars: full,
+        returned_content_chars: used, truncated_messages: truncated,
+        all_rendered_messages_included: from === 0 && until === rows.length && truncated === 0});
+    } else {
+      const omittedRanges = [];
+      let cursor = 0;
+      for (const index of sourceIndices) {
+        if (cursor < index) omittedRanges.push([cursor, index]);
+        cursor = index + 1;
+      }
+      if (cursor < rows.length) omittedRanges.push([cursor, rows.length]);
+      const first = sourceIndices.length ? sourceIndices[0] : null;
+      const last = sourceIndices.length ? sourceIndices[sourceIndices.length - 1] : null;
+      Object.assign(result.coverage, {parsed_messages: rows.length, selection_mode: 'source_indices',
+        selected_source_indices: sourceIndices.slice(), start_index: null, next_index: null,
+        navigation: 'caller_selected_indices', returned_messages: result.messages.length,
+        omitted_messages: rows.length - selected.length, omitted_before: first === null ? 0 : first,
+        omitted_interior: first === null ? 0 : last - first + 1 - selected.length,
+        omitted_after: last === null ? rows.length : rows.length - last - 1,
+        omitted_source_index_ranges: omittedRanges, source_index_range_end: 'exclusive',
+        selected_content_chars: full, returned_content_chars: used, truncated_messages: truncated,
+        all_rendered_messages_included: selected.length === rows.length && truncated === 0});
+    }
     result.status = rows.length ? 'PROJECTED' : 'EMPTY_RENDERING';
     return result;
   } catch (error) {
