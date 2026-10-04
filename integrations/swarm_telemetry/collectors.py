@@ -761,7 +761,9 @@ def normalize_github(payload: Any, repo: str | None = None) -> list[dict[str, An
         url = _text(_pick(source_entity, "html_url", "url") or _pick(issue, "html_url", "url") or _pick(row, "html_url", "url"), 500)
         merged_at = _iso(_pick(pull, "merged_at", "mergedAt") or _pick(issue, "merged_at", "mergedAt") or _pick(row, "merged_at", "mergedAt"))
         raw_state = str(_pick(source_entity, "state") or _pick(issue, "state") or _pick(row, "state", "action") or "").lower()
-        is_pr = bool(pull) or "pull" in str(_pick(row, "event", "type", "action") or "").lower() or "pull_request" in row
+        # REST pull-request records expose head/base directly, without a wrapper.
+        is_rest_pr = isinstance(row.get("head"), Mapping) and isinstance(row.get("base"), Mapping)
+        is_pr = is_rest_pr or bool(pull) or "pull" in str(_pick(row, "event", "type", "action") or "").lower() or "pull_request" in row
         is_comment = any(k in row for k in ("comment", "review", "review_comment")) or str(_pick(row, "type", "event") or "").lower() in {"issue_comment", "pull_request_review", "pull_request_review_comment"}
         event_type = "pr_merged" if is_pr and merged_at else "pr_activity" if is_pr else "comment" if is_comment else "activity"
         status = "merged" if merged_at else "closed" if raw_state == "closed" else "observed"
