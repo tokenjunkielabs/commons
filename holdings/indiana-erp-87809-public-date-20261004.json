@@ -2,9 +2,9 @@
   "schema": "commons-change-holding/v1",
   "key": "indiana-erp-87809-public-date-20261004",
   "holder": "/root/tn_amendment_review",
-  "state": "HELD",
+  "state": "RELEASED",
   "taken_at": "2026-10-04T07:50:36Z",
-  "heartbeat_at": "2026-10-04T07:50:36Z",
+  "heartbeat_at": "2026-10-04T07:53:00Z",
   "ttl_s": 1800,
   "operation_id": "INDIANA-ERP-87809-PUBLIC-DATE-20261004-7CA6",
   "repository": "woahwhattheheck/commons",
@@ -32,5 +32,22 @@
     "original_build_thread_replies": 0,
     "main_product_path": "404; not restored",
     "original_branch": "64be8b7df46791601e0ce4de8682604efd37d9f7"
+  },
+  "released_at": "2026-10-04T07:53:00Z",
+  "result": {
+    "pr": 31152,
+    "head": "85c30dc15fc9619214b7f4ba7498b7045aaeb2d8",
+    "merge": "47ac191de104b310b2bce59c8e0df313c48f4020",
+    "source_blob": "a3008b7022b017efd9d8f25d6506ccb82b7d0cef",
+    "literal_main_and_merge_exact": true,
+    "preserved_original_projection": "d51f99b298370ff5f8e0bdce07a9090c2a1ca0b3",
+    "issue_comment": 5977864825,
+    "slack_message": "1791100237.696179",
+    "native_execution": false,
+    "source_gaps": [
+      "current ZIP bytes and inventory",
+      "amendment/Q&A",
+      "exact timezone convention"
+    ]
   }
 }
