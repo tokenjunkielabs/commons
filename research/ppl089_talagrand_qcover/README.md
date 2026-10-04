@@ -31,6 +31,20 @@ The two-partition note extends the two-quota construction to arbitrarily many bl
 
 The bounded-frequency note allows arbitrary block overlap when each coordinate occurs in at most $d$ blocks. Bins of size at most three produce a conflict graph of maximum degree $2d$, so greedy coloring supplies a sufficient $(2d+1)$-fold cover. The retained one-block log-cost theorem and the classical read-$d$ Hölder inequality give cost at most $d[-\log\mu(D)]$. Forced-zero coordinates are isolated once. The source includes the finite Hölder proof and credits Finner; $q$ depends on the structural bound $d$, not on the number of coordinates when $d$ is fixed.
 
+## Exact quota-one representation API
+
+The [quota-one compression guide](QUOTA_ONE_COMPRESSION_API.md) supplies a public connected-V8 API for zero/one quotas with arbitrary overlap. It removes the forced-zero union, builds the exact pair-conflict graph and recognizes whether its components are cliques. Successful recognition gives an equivalent disjoint quota system, including free singleton coordinates; failure returns an induced three-vertex path proving that such compression would change the admissible family.
+
+| File | Purpose |
+|---|---|
+| [quota_one_compression.cjs](quota_one_compression.cjs) | Exact recognizer, complete source-pair witnesses, exported snapshots and q-cover decomposition/obstruction queries. |
+| [QUOTA_ONE_COMPRESSION_API.md](QUOTA_ONE_COMPRESSION_API.md) | Complete recognition/decomposition arguments, established graph/affine-source attribution, hard bounds and accepted-theorem boundary. |
+| [affine_f3_dimension3_quota_compression.json](affine_f3_dimension3_quota_compression.json) | All 27 finite-field points, 13 directions, 117 source lines, 351 pair witnesses, exact compression and both actual cover-query outputs. |
+
+The new finite-field input places capacity one on every affine line of $\mathbb F_3^3$. Every pair lies on one source line, so its 117 overlapping constraints compress exactly to one 27-coordinate capacity-one block. Coordinate frequency drops from 13 in the supplied representation to one. The full-set queries retain a four-coordinate obstruction for q=3 and the complete 27-singleton cover for q=27. Closed-form counts give 28 admissible sets, 3,304 three-coverable sets and 17,550 minimal four-element generators; no subset or general-coloring search was run.
+
+The accepted disjoint theorem applies to this recognized representation under its existing mass/probability hypotheses. It was not re-proved or recomputed. This API does not solve general coloring or extend the probability conclusion to unrecognized graphs. Its finite-field incidence input is separate from ordinary real-grid geometry.
+
 ## What the finite carrier proves
 
 The exact verifier establishes the following finite statement:
