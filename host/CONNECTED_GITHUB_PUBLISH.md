@@ -78,8 +78,13 @@ identify different versions. A producer-reported hash alone does not establish
 independent source identity.
 
 The optional new-source pin must be a lowercase 40-character Git SHA and is
-accepted with UTF-8 or base64 input. Pinned UTF-8 uses one native `create_blob`
-call per file, then places the verified blob SHA in the tree request. A mismatch
+accepted with UTF-8 or base64 input. Pinned UTF-8 and base64 use one native
+`create_blob` call per distinct encoding/content pair within a publication,
+then place the confirmed blob SHA in each file's tree entry. Identical entries
+reuse only a successful native blob result from that invocation. Each file's
+source pin and mode remain independent, including when its blob is reused.
+This also applies when advancing an existing contribution; separate invocations
+keep separate state. A mismatch
 throws `GitHubPublishError` at
 `create_blobs`, with the expected and actual SHA and `source_pin_matches: false`
 in the affected progress entry. Native blob objects may already have been
@@ -87,6 +92,13 @@ created, but no tree, commit, branch or PR is created by that invocation. The
 check also precedes the unchanged-source return. Matching entries record
 `source_pin_matches: true`; an unattempted check remains `null`. Omitting the
 field preserves the existing behavior, including UTF-8 batching.
+
+An actual native run on 2026-10-04 used the existing identical
+`host/slack_custom_tools_cli/manifest.json` and
+`host/slack_custom_tools_manifest.json` (2,791 bytes each). Blob calls changed
+from two to one; both runs made four reads, retained matching pins for both
+files, and returned `no_source_changes` without creating a tree, commit,
+branch or pull request.
 
 For complete UTF-8 source already retained in the caller's runtime, keep the
 default encoding and set `expected_new_blob_sha` to the independently observed
