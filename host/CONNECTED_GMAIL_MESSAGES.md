@@ -120,3 +120,55 @@ The initial implementation was consumed in code mode against one retained native
 | Additional Gmail calls for this consumption | 0 |
 
 Both messages reported 37 omitted message-header entries and one unused alternative branch, with no selected-body truncation. This observation covers that actual batch and the code-mode module load. It is not a token, latency, quota, attachment-fetch, or general MIME-corpus benchmark. The original mail content, message identifiers, and transport headers are not part of this repository receipt.
+
+## Include exact native labels and date metadata
+
+Pass `include_native_metadata: true` when intake needs the native `label_ids` or `internal_date` fields. The boolean is optional. Omitting it or passing `false` preserves the existing output shape and limits; explicit `null`, `undefined`, or any nonboolean value raises `INVALID_OPTIONS`.
+
+```js
+const metadataView = box.exports.projectGmailMessages(retained, {
+  source_indices: [0],
+  maxMessages: 1,
+  maxBodyChars: 0,
+  maxTotalBodyChars: 0,
+  include_native_metadata: true
+});
+store("mail-native-metadata-view", metadataView);
+text(metadataView.messages.map(message => ({
+  source_index: message.source_index,
+  native_metadata: message.native_metadata
+})));
+```
+
+Each selected message gains `native_metadata.label_ids` and `native_metadata.internal_date`. Both fields contain a `status` and an exact `source_path`, such as `$.structuredContent.responses[0].label_ids`. The original index survives sparse selection. A single-message source path starts at `$.structuredContent`.
+
+| Status | Meaning | `value` |
+| --- | --- | --- |
+| `included` | The complete native value has a supported shape and fits every bound. | Exact string array or exact string. |
+| `missing` | The native envelope has no own property with this field name. | Absent. |
+| `invalid` | A present value has an unsupported type, or its label array contains a hole or a nonstring entry. | Absent. |
+| `limit_exceeded` | The native field exceeds a fixed metadata bound. | Absent. |
+
+`label_ids` must be a dense array of strings. An empty array, empty strings, original order, and duplicate strings are preserved. The returned array is a copy. `internal_date` must be a string; it is copied exactly, including an empty string. Present `null` and `undefined` values are invalid. The reader does not parse a date, convert a number, validate a label's meaning, normalize text, or derive mailbox state from message headers.
+
+The enabled view reports these fixed bounds in `limits.native_metadata` and records `limits.include_native_metadata: true`:
+
+| Bound | Value |
+| --- | ---: |
+| `max_label_ids` | 100 |
+| `max_label_id_chars` | 256 per label ID |
+| `max_internal_date_chars` | 64 |
+
+Character bounds use UTF-16 code units. The label count is checked before its entries. Every admitted entry must fit; no partial array or clipped label/date string is emitted. A field's unavailable status does not suppress its sibling metadata or an otherwise valid MIME projection. The bounds are reader constants, not new caller options.
+
+These fields describe the retained native read. Consumers should check `status === "included"` before reading `value`; missing, invalid, or limited metadata is not evidence that a label is absent. The Date header remains a separate message field. Native labels and dates do not establish current mailbox state, sender authentication, or permission to change or send mail.
+
+Metadata projection runs only for selected messages. Existing full-envelope validation, MIME selection and omission counting remain unchanged. Setting body display budgets to zero hides body text while retaining the existing selected-MIME traversal and counts. Excluded message bodies remain untraversed.
+
+### Observed native metadata consumption
+
+The extension was consumed once on source index `0` of an actual retained two-message native batch, with zero body-display budgets. It returned three complete label IDs (31 characters total) and the 13-character native date string. Both source paths resolved to the original fields; the label array was copied, and the selected envelope and options were unchanged.
+
+The previously retained header/body projection for that selected message matched every existing field after removing the new metadata and the already-supported sparse-selection location fields. The other message remained omitted at `[[1,2]]`, and no body text was displayed. This consumption made zero additional Gmail calls and did not rerun the previous reader. No actual mail content, headers, identifiers, label values, or date values are published in this receipt.
+
+Missing, invalid, limit-exceeded, disabled-option, and single-message metadata branches were reviewed in source; the actual input exercised the complete native batch fields. This observation is not a general MIME, timestamp, or label corpus benchmark.
