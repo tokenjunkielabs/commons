@@ -274,6 +274,23 @@ function projectSlackMessages(response, request, options = {}) {
   if (operation === 'read_thread' && (typeof args.message_ts !== 'string' || !stamp.test(args.message_ts))) {
     throw new TypeError('projection requires an exact decimal-string parent message_ts');
   }
+  const requestWindow = {};
+  const windowBounds = {};
+  const invalidBounds = [];
+  const stampValue = value => {
+    const [seconds, fraction] = value.split('.');
+    return BigInt(seconds) * 10000000000000000n + BigInt(fraction.padEnd(16, '0'));
+  };
+  if (operation === 'read_thread') requestWindow.message_ts = args.message_ts;
+  for (const field of ['oldest', 'latest']) {
+    if (!Object.prototype.hasOwnProperty.call(args, field)) continue;
+    requestWindow[field] = args[field];
+    if (typeof args[field] === 'string' && stamp.test(args[field])) {
+      windowBounds[field] = stampValue(args[field]);
+    } else {
+      invalidBounds.push(field);
+    }
+  }
   const defaults = {start_index: 0, max_messages: 8, max_body_chars: 800,
     max_total_body_chars: 6400, max_input_chars: 1048576};
   const ceilings = {start_index: Number.MAX_SAFE_INTEGER, max_messages: 1000,
@@ -309,6 +326,7 @@ function projectSlackMessages(response, request, options = {}) {
   const result = {schema: 'commons.connected_slack_message_projection/v1', status: 'REFUSED',
     source: {operation, channel_id: channel,
       parent_message_ts: operation === 'read_thread' ? args.message_ts : null,
+      request_window: requestWindow, window_application: 'not_verified',
       content_basis: 'connector_rendered_content', message_identity: 'rendered_header',
       channel_binding: 'retained_request', representations: 0, input_chars: 0},
     limits, coverage: {scope: 'retained_response_only', snapshot: false}, messages: [], issue: null};
@@ -454,6 +472,33 @@ function projectSlackMessages(response, request, options = {}) {
         bad('AMBIGUOUS_LAYOUT', 'Rendered content contains reserved message-framing lines.');
       }
     }
+    const comparedBounds = Object.keys(windowBounds);
+    const windowCoverage = {
+      scope: operation === 'read_thread' ? 'rendered_replies_only' : 'rendered_channel_messages',
+      compared_bounds: comparedBounds, invalid_bounds: invalidBounds,
+      bounds_order: comparedBounds.length === 2
+        ? (windowBounds.oldest <= windowBounds.latest ? 'ordered' : 'inverted') : null,
+      compared_messages: 0, excluded_thread_parents: 0,
+      before_oldest: 'oldest' in windowBounds ? 0 : null,
+      after_latest: 'latest' in windowBounds ? 0 : null,
+      outside_compared_bounds: comparedBounds.length ? 0 : null,
+      outside_source_indices: [],
+    };
+    for (const row of rows) {
+      if (row.kind === 'thread_parent') { windowCoverage.excluded_thread_parents++; continue; }
+      if (!comparedBounds.length) continue;
+      windowCoverage.compared_messages++;
+      const value = stampValue(row.message_ts);
+      const before = 'oldest' in windowBounds && value < windowBounds.oldest;
+      const after = 'latest' in windowBounds && value > windowBounds.latest;
+      if (before) windowCoverage.before_oldest++;
+      if (after) windowCoverage.after_latest++;
+      if (before || after) {
+        windowCoverage.outside_compared_bounds++;
+        windowCoverage.outside_source_indices.push(row.source_index);
+      }
+    }
+    result.coverage.request_window = windowCoverage;
     const from = Math.min(limits.start_index, rows.length);
     const until = Math.min(rows.length, from + limits.max_messages);
     if (sourceIndices !== null) {
