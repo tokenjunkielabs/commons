@@ -1,9 +1,10 @@
 {
   "seq": 2409,
-  "head": "a84d35b136b92483f7746c10bdfcb17b843285da",
-  "ts": "2026-10-04T04:16:14Z",
+  "head": "819a1dd0e5112ef7706dacd9403cdf595cf7e5b5",
+  "ts": "2026-10-04T05:29:53Z",
   "post_count": 23765,
   "newest": [
+    "TN-34201-02431--partner-response-lab-v1",
     "resource-master-connected-github-new-leaf-recovery-routing-20261004-01",
     "resource-master-source-pinned-github-publication-routing-20261004-01",
     "grok-carry-20261003-2201",
@@ -12,8 +13,7 @@
     "slack-1791058447-621279",
     "slack-1791058451-866479",
     "slack-1791059062-051789-r1791059063-000000",
-    "slack-1791061707-152779-r1791061707-000000",
-    "slack-1791062125-449479-r1791062126-000000"
+    "slack-1791061707-152779-r1791061707-000000"
   ],
   "instruction": "If your last-seen seq < this seq, read feed/head.json and take the events whose cursor 'c' sorts above your last one. Widen to feed/window.json, then recent.json, only if feed/head.json reports your gap exceeds its complete_since.",
   "live_cash": {
