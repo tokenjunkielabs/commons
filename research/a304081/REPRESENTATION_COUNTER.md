@@ -114,3 +114,58 @@ An evaluated candidate replaced the bounded primality loop's BigInt arithmetic w
 These are one elapsed observation per operation and variant, not a statistical benchmark or a comparison with the C++ search. Neither count call showed an observed speedup, so the Number candidate was not adopted. The published counter remains `599ec2d630307c4ab1bd548ef01269b2e15cd6c5` and continues to use the BigInt classification described above.
 
 These are two additional individual exact point counts, including the maximum supported input. They do not extend the historical interval search, establish worldwide priority, or prove the conjecture. The earlier point-count data, source examples and mathematical attribution remain unchanged.
+
+## Optional deterministic fast counter
+
+`createFastRepresentationCounter(max_n, catalogFactory)` is an additional export from the same source file. It accepts the same arguments and inclusive maximum as the original constructor. Its shared offset preparation, exponent multiplicity, per-query candidate deduplication and exact composite factor witnesses are unchanged.
+
+```javascript
+const {createFastRepresentationCounter} = require("./representation_counter.cjs");
+const fast = createFastRepresentationCounter("1000000000000");
+const result = fast.count("999999999989");
+console.log(result.representation_count); // 51
+```
+
+In a connected runtime, use the existing two-source loading example and select `counterBox.exports.createFastRepresentationCounter(max_n, catalogBox.exports.createOffsetCatalog)`. The dependency/provenance qualification for a supplied catalog factory still applies.
+
+The original `createRepresentationCounter` export continues to use complete trial division and the original schemas. The optional constructor returns `commons.a304081.fast_representation_counter/v1`; its result schema is `commons.a304081.fast_representation_count/v1`. All mathematical result fields have the same meanings. The fast result additionally records `modular_multiplications`, `strong_base_evaluations`, and `primality_evidence` for each distinct candidate.
+
+### Exactness and retained evidence
+
+The fast classifier first tries the complete ascending prime prefix through 37, stopping sooner if a factor or the square-root boundary is reached. Surviving candidates use the strong-prime criterion with the fixed bases **2, 3, 5, 7 and 11**.
+
+Gerhard Jaeschke, [*On strong pseudoprimes to several bases*](https://doi.org/10.1090/S0025-5718-1993-1192971-8), *Mathematics of Computation* 61 (1993), 915–926, establishes the first-five-base bound **2,152,302,898,747**. An accessible primary application, [*A complete Vinogradov 3-primes theorem*, Section 4](https://ftp.gwdg.de/pub/misc/EMIS/journals/ERA-AMS/1997-01-015/1997-01-015.tex.html), explicitly records that numerical bound and these five bases when describing its prime generation. The counter's admitted maximum remains **1,000,000,000,000**, strictly below the bound. Within this finite domain, passing all five bases gives a deterministic primality decision.
+
+For an odd candidate `p`, the source writes `p - 1 = 2^s d` with `d` odd. Each base passes when its initial residue `a^d mod p` is 1 or when the initial residue or one of its next `s - 1` squares equals `p - 1`. A failing base proves compositeness. The code then resumes ascending trial division immediately after the already-tested small primes to retain the least prime divisor and exact cofactor. If that factor search cannot find a divisor within its complete sieve, the call raises an error.
+
+Every strong-base decision retains `odd_part`, `two_power`, each attempted base, its initial residue, its subsequent squared residues, and its pass/fail decision. A prime row includes all five passing base records and the exclusive bound. A composite row retains the attempted prefix through the first failing base plus the exact least-divisor witness. Rows settled entirely by small trial division report `complete_trial_division` or `least_prime_divisor`. All arithmetic in these classifications uses BigInt.
+
+`trial_divisions` counts only attempted modulus operations by sieve primes. `modular_multiplications` counts the product-reduction operations in modular exponentiation and the strong-test square chains. `strong_base_evaluations` counts actual attempted bases, including the first failing one. These operation counts are distinct and should not be interpreted as equal-cost units.
+
+### Actual new point consumers
+
+One actual connected-runtime invocation prepared the unchanged original catalog at the existing maximum and shared that complete prepared object with the original and edited constructors. It evaluated three new point inputs through both the original trial-division counter and the optional fast counter:
+
+| Input `n` | Candidate pairs | Distinct candidates | `a(n)` | Original count | Fast count |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 3215031757 | 323 | 320 | **27** | 21 ms | 6 ms |
+| 999999999989 | 508 | 505 | **51** | 315 ms | 36 ms |
+| 999999999990 | 548 | 545 | **47** | 287 ms | 37 ms |
+
+The complete mathematical fields matched for every point: every exponent pair, representation, per-query classification index, primality decision, least divisor and cofactor. All composite factor products were exact. The 27 representations of the first point use 25 distinct prime candidates; the last point's 47 representations use 46. Exponent multiplicity therefore remains visible.
+
+| Input `n` | Original trial divisions | Fast trial divisions | Modular multiplications | Strong-base evaluations |
+| --- | ---: | ---: | ---: | ---: |
+| 3215031757 | 176683 | 36120 | 9416 | 199 |
+| 999999999989 | 4292944 | 428464 | 22708 | 401 |
+| 999999999990 | 4027258 | 486076 | 20548 | 364 |
+
+The first point contains candidate **3,215,031,751** at base offset 3. Its actual records pass bases 2, 3, 5 and 7, then fail base 11 with initial residue **2,129,160,099**. The retained least-divisor witness is **151 × 21,291,601**. This records the fifth base's effect in an actual representation-count consumer.
+
+The edited original constructor was also used on the first of these new inputs. Its **entire JSON result**, including original schema, preparation and operation counts, matched the pre-change constructor exactly. In total, this run made seven complete count calls: three original, three fast and that one default-compatibility call.
+
+[point_counts_fast_20261004.json](point_counts_fast_20261004.json) retains all three complete original results, all three complete fast results, every strong-base residue trace, source identities, actual call order, preparation times and comparison outcomes. It contains 1,379 exponent-pair rows and 1,370 classifications per variant, with 125 successful representations per variant. The duplicate default result is represented by its complete-JSON equality observation.
+
+Each table entry is one elapsed observation in this runtime. Shared catalog preparation took 161 ms; original and fast counter preparation took 61 and 77 ms, respectively. Count timings exclude preparation. The observations support adopting the optional path for these bounded point consumers; they are not a statistical benchmark, a native-runtime measurement, or a comparison with the C++ search.
+
+The previous catalog, point-count artifacts and historical C++ search remain unchanged. These are three individual counts, with no interval search, global conjecture proof, mathematical-priority claim or prize action.
