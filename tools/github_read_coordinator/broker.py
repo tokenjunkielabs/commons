@@ -9,7 +9,7 @@ import secrets
 import sqlite3
 import time
 from contextlib import contextmanager
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import timezone
 from email.utils import parsedate_to_datetime
 from pathlib import Path
@@ -37,6 +37,14 @@ SEARCH_ROUTES = {"search.issues", "search.code"}
 OWNER_RE = re.compile(r"[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})")
 REPO_RE = re.compile(r"[A-Za-z0-9_.-]{1,100}")
 HEX64_RE = re.compile(r"[a-f0-9]{64}")
+
+
+def usable_etag(value: Any) -> str | None:
+    # HTTP entity-tags are opaque quoted values, optionally weak. Ignore an
+    # unusable validator without discarding an otherwise valid JSON response.
+    if isinstance(value, str) and len(value) <= 1024 and re.fullmatch(r'(?:W/)?"[\x21\x23-\x7e\x80-\xff]*"', value):
+        return value
+    return None
 
 
 def dumps(value: Any) -> str:
@@ -190,6 +198,8 @@ class Lease:
     bucket: str
     expires_at: float
     acquired_at: float | None = None
+    # Exact validated representation retained privately for this request only.
+    validator: tuple[str, str] | None = field(default=None, repr=False)
 
 
 @dataclass(frozen=True)
@@ -200,6 +210,8 @@ class Upstream:
     rate_remaining: Any = None
     rate_reset: Any = None
     secondary_limited: bool = False
+    etag: str | None = None
+    validated_etag: str | None = None
 
 
 class Broker:
@@ -238,6 +250,9 @@ class Broker:
                   namespace TEXT PRIMARY KEY, reason TEXT);
                 CREATE TABLE IF NOT EXISTS secondary_backoff (
                   scope TEXT PRIMARY KEY, failures INTEGER NOT NULL);
+                CREATE TABLE IF NOT EXISTS validators (
+                  namespace TEXT, key TEXT, fetched REAL, etag TEXT, digest TEXT,
+                  PRIMARY KEY(namespace,key));
                 PRAGMA user_version=1;
             """)
 
@@ -300,6 +315,7 @@ class Broker:
             if blocked:
                 return self.envelope("AUTH_BLOCKED", error=blocked[0])
             db.execute("DELETE FROM cache WHERE fetched<?", (now - MAX_AGE,))
+            self._prune_validators(db)
             db.execute("DELETE FROM flight WHERE expires<=?", (now,))
             row = db.execute("SELECT fetched,payload FROM cache WHERE namespace=? AND key=?", (self.namespace, key)).fetchone()
             if row and max_age_seconds > 0 and 0 <= now - row["fetched"] <= max_age_seconds:
@@ -326,7 +342,26 @@ class Broker:
                 "INSERT INTO rate VALUES (?,?,?) ON CONFLICT(scope,bucket) DO UPDATE SET next_at=max(rate.next_at,excluded.next_at)",
                 (self.scope, "burst", now + self.burst_interval),
             )
-            return Lease(key, nonce, route, params, bucket, expires, now)
+            saved = db.execute(
+                "SELECT etag,digest FROM validators WHERE namespace=? AND key=? AND fetched=?",
+                (self.namespace, key, row["fetched"]),
+            ).fetchone() if row and 0 <= now - row["fetched"] <= MAX_AGE else None
+            # Hashing a retained body must not occupy the shared writer slot.
+            db.commit()
+            validator = None
+            if saved and usable_etag(saved["etag"]) and hashlib.sha256(row["payload"].encode()).hexdigest() == saved["digest"]:
+                validator = (saved["etag"], row["payload"])
+            return Lease(key, nonce, route, params, bucket, expires, now, validator)
+
+    @staticmethod
+    def _prune_validators(db):
+        # A side table keeps the original four-column cache compatible with
+        # older processes. Remove metadata when they evict or replace a row.
+        db.execute(
+            "DELETE FROM validators WHERE NOT EXISTS (SELECT 1 FROM cache "
+            "WHERE cache.namespace=validators.namespace AND cache.key=validators.key "
+            "AND cache.fetched=validators.fetched)"
+        )
 
     def _extend(self, db, bucket: str, next_at: float):
         db.execute(
@@ -360,7 +395,10 @@ class Broker:
             delay = None
             limit_bucket = None
 
-        payload_text = None
+        revalidated = (result.status == 304 and lease.validator is not None
+                       and result.validated_etag == lease.validator[0])
+        payload_text = lease.validator[1] if revalidated else None
+        etag = usable_etag(result.etag) or (lease.validator[0] if revalidated else None)
         if result.status == 200:
             try:
                 encoded = dumps(result.payload)
@@ -368,6 +406,7 @@ class Broker:
                     payload_text = encoded
             except (ValueError, TypeError, RecursionError):
                 pass
+        digest = hashlib.sha256(payload_text.encode()).hexdigest() if payload_text is not None and etag else None
 
         with self.connect() as db:
             db.execute("BEGIN IMMEDIATE")
@@ -404,12 +443,13 @@ class Broker:
             # reset floor independently so a shorter Retry-After cannot reopen
             # that quota bucket early. Successful final requests keep their
             # payload, and expired leases still carry quota observations.
-            if remaining_zero and result.status in {200, 403, 429}:
+            if remaining_zero and result.status in {200, 304, 403, 429}:
                 primary_delay = max(retry or 0, reset_delay(result.rate_reset, now) or 0) or 60
                 self._extend(db, lease.bucket, now + primary_delay)
             if result.status == 401:
                 db.execute("INSERT OR REPLACE INTO blocked VALUES (?,?)", (self.namespace, "bad_credentials"))
                 db.execute("DELETE FROM cache WHERE namespace=?", (self.namespace,))
+                db.execute("DELETE FROM validators WHERE namespace=?", (self.namespace,))
             if not row or row["nonce"] != lease.nonce or row["expires"] <= transaction_now:
                 return self.envelope("DISCARDED", retry_after_seconds=1)
             db.execute("DELETE FROM flight WHERE namespace=? AND key=? AND nonce=?", (self.namespace, lease.key, lease.nonce))
@@ -418,10 +458,12 @@ class Broker:
                 return self.envelope("AUTH_BLOCKED", error=blocked[0])
             if limited:
                 db.execute("DELETE FROM cache WHERE namespace=? AND key=?", (self.namespace, lease.key))
+                db.execute("DELETE FROM validators WHERE namespace=? AND key=?", (self.namespace, lease.key))
                 wait = self._cooldown(db, lease.bucket, transaction_now) or 1
                 return self.envelope("COOLDOWN", retry_after_seconds=wait)
             if payload_text is None:
                 db.execute("DELETE FROM cache WHERE namespace=? AND key=?", (self.namespace, lease.key))
+                db.execute("DELETE FROM validators WHERE namespace=? AND key=?", (self.namespace, lease.key))
                 safe = "not_found" if result.status == 404 else "forbidden" if result.status == 403 else "upstream_error"
                 return self.envelope("UPSTREAM_ERROR", error=safe)
             # An old in-flight success is not a successful retry. It must not
@@ -433,21 +475,32 @@ class Broker:
                     lease.acquired_at is not None and lease.acquired_at >= floor["next_at"]):
                 db.execute("DELETE FROM secondary_backoff WHERE scope=?", (self.scope,))
             db.execute("INSERT OR REPLACE INTO cache VALUES (?,?,?,?)", (self.namespace, lease.key, now, payload_text))
+            if etag:
+                db.execute("INSERT OR REPLACE INTO validators VALUES (?,?,?,?,?)",
+                           (self.namespace, lease.key, now, etag, digest))
+            else:
+                db.execute("DELETE FROM validators WHERE namespace=? AND key=?", (self.namespace, lease.key))
             db.execute(
                 "DELETE FROM cache WHERE rowid IN (SELECT rowid FROM cache ORDER BY fetched DESC,namespace,key LIMIT -1 OFFSET ?)",
                 (self.max_entries,),
             )
+            self._prune_validators(db)
             # Persist the completed response before decoding its return value,
             # so JSON parsing does not hold the shared write transaction.
             db.commit()
-            return self.envelope("FETCHED", fetched_at=now, age_seconds=0, data=loads(payload_text))
+            return self.envelope("FETCHED", fetched_at=now, age_seconds=0, data=loads(payload_text),
+                                 **({"revalidated": True} if revalidated else {}))
 
     def read(self, route: str, params: dict, provider: Callable, max_age_seconds: int = 30):
         decision = self.acquire(route, params, max_age_seconds)
         if not isinstance(decision, Lease):
             return decision
         try:
-            result = provider(decision.route, decision.params)
+            revalidate = getattr(provider, "revalidate", None)
+            if decision.validator is not None and callable(revalidate):
+                result = revalidate(decision.route, decision.params, decision.validator[0])
+            else:
+                result = provider(decision.route, decision.params)
             if not isinstance(result, Upstream):
                 result = Upstream(502)
         except Exception:
