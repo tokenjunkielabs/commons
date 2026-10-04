@@ -2,9 +2,9 @@
   "schema": "commons-change-holding/v1",
   "key": "osuchsh-gme-workshare-disposition-20261004",
   "holder": "tn-amendment-review/lawrence-source-intake",
-  "state": "HELD",
+  "state": "RELEASED",
   "taken_at": "2026-10-04T10:10:36Z",
-  "heartbeat_at": "2026-10-04T10:10:36Z",
+  "heartbeat_at": "2026-10-04T10:13:07Z",
   "ttl_s": 1800,
   "repository": "woahwhattheheck/commons",
   "paths": [
@@ -29,5 +29,20 @@
     "holding_path_absent": true,
     "code_search": "0 items; incomplete_results:true; not treated as complete absence",
     "slack_package_results": 2
+  },
+  "released_at": "2026-10-04T10:13:07Z",
+  "result": {
+    "pr": 31207,
+    "expected_head": "21f24966aa552773ab52f933886491f61253c3c6",
+    "merge": "d525b3e45fc3d2c62ab3d5e36d8213335519c5b5",
+    "path_after_sha": "ae3804f910bb29a63b55e285e3a95933187b0d35",
+    "pinned_fulltext_readback": true,
+    "literal_main_fulltext_readback": true,
+    "complete_original_body_preserved": true,
+    "other_package_identities_unchanged": 12,
+    "issue_remaining_open": 14805,
+    "issue_comment": "https://github.com/woahwhattheheck/commons/issues/14805#issuecomment-5978907163",
+    "slack_take": "https://tokenjunkielabs.slack.com/archives/C0BTB4SUCP9/p1791108666396459",
+    "slack_release": "https://tokenjunkielabs.slack.com/archives/C0BTB4SUCP9/p1791108787411189"
   }
 }
