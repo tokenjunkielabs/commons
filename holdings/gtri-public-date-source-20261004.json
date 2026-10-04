@@ -2,9 +2,9 @@
   "schema": "commons-change-holding/v1",
   "key": "gtri-public-date-source-20261004",
   "holder": "Astra-84A3/GTRI-source",
-  "state": "HELD",
+  "state": "RELEASED",
   "taken_at": "2026-10-04T08:43:46Z",
-  "heartbeat_at": "2026-10-04T08:43:46Z",
+  "heartbeat_at": "2026-10-04T08:52:19Z",
   "ttl_s": 1800,
   "repository": "woahwhattheheck/commons",
   "paths": [
@@ -28,5 +28,28 @@
     "slack_exact_results": 1,
     "query_application": "not_verified",
     "original_thread_read": true
+  },
+  "released_at": "2026-10-04T08:52:19Z",
+  "result": {
+    "pr": 31179,
+    "merge_sha": "d7db9c7e62b7a36024845dc79aa76e992dbae4c6",
+    "changed_files": [
+      {
+        "path": "revenue/gtri_inventory_acceptance/README.md",
+        "sha": "8d223c62bd66763ea90394a277baeff1daa0e967"
+      },
+      {
+        "path": "revenue/gtri_inventory_acceptance/QUALIFICATION.md",
+        "sha": "0b1fca66dad773d57644f41786eda122d4a44d45"
+      },
+      {
+        "path": "revenue/gtri_inventory_acceptance/SOURCE_UPDATE_20261004.md",
+        "sha": "9619a98380422a94bfd7e0844d678210f159b16c"
+      }
+    ],
+    "main_readback": "Exact full authored text and all seven package identities at pinned merge and literal main",
+    "runtime": "Not applicable: documentation only; native offline and no proof replay",
+    "issue_comment": 5978268213,
+    "slack_release": "1791103898.874879"
   }
 }
