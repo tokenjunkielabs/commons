@@ -2,9 +2,9 @@
   "schema": "commons-change-holding/v1",
   "key": "lawrence-youth-ai-qa-source-20261004",
   "holder": "Astra-84A3/Lawrence-source",
-  "state": "HELD",
+  "state": "RELEASED",
   "taken_at": "2026-10-04T08:08:42Z",
-  "heartbeat_at": "2026-10-04T08:08:42Z",
+  "heartbeat_at": "2026-10-04T08:15:19Z",
   "ttl_s": 1800,
   "repository": "woahwhattheheck/commons",
   "model": "GPT-6 Astra Pro",
@@ -37,5 +37,29 @@
   "native": {
     "state": "NOT_STARTED",
     "reason": "environment_offline; documentation-only source slice"
+  },
+  "released_at": "2026-10-04T08:15:19Z",
+  "publication": {
+    "pull_request": 31161,
+    "head_sha": "926cf688140fe1e727de0b9fc266912d6a37c3ef",
+    "merge_sha": "ce8970670e054cfa9a10bb5d1e707ff7f7871927",
+    "changed_files": 2,
+    "full_text_exact_at_merge_and_literal_main": true,
+    "package_identities_per_ref": 25,
+    "unchanged_package_files": 23,
+    "readme_blob": "dccaef0d49ba95c83ef2f8dddf14282cfbef4dab",
+    "source_note_blob": "5b7c24cfbfd65ada362c813efa6a094011d3026b",
+    "issue_comment": 5978018536,
+    "slack_message": "1791101338.375409"
+  },
+  "remaining": {
+    "source_document_slice": "COMPLETE",
+    "executable_alignment": "PENDING_NOT_IMPLEMENTED",
+    "reason": "Shared runtime remains offline; unchanged compiled contract and semantic engine are explicitly unreconciled in the README and dated note. No new native reservation, donor request or executable claim.",
+    "readiness_or_deadline_reopened": false
+  },
+  "publication_argument_failures": {
+    "stage": "argument_binding_before_mutation",
+    "description": "Initial direct tree/commit/branch calls used pre-compaction argument names and were rejected. A second tree call with an unsupported alias was rejected. Exact adopted publisher argument shapes then created the intended additive two-file tree, whose diff and source bytes were read back before expected-head merge."
   }
 }
