@@ -29,7 +29,9 @@ LABELED_OPERATION = re.compile(
     r"(?:^[ \t]*|(?<=[.!?])[ \t]+)Operation(?:[ \t]+ID)?[ \t]*:[ \t]*`?(" + OPERATION
     + r")`?(?=\s|$|[—–,;])", re.I | re.M)
 STATEMENT_HEADER = re.compile(
-    r"^[ \t*`]*(?:CLAIM|TAKE|RESUME|RESUMING|TAKING|CONTINUE|CONTINUING|"
+    # A leading actor label is coverage only, never an inferred claim or release.
+    r"^[ \t*`]*(?:[A-Za-z0-9_][A-Za-z0-9_.-]{0,63}[ \t]+)?"
+    r"(?:CLAIM|TAKE|RESUME|RESUMING|TAKING|CONTINUE|CONTINUING|"
     r"LANDED|DONE|COMPLETED?|RELEASED?|SHIP(?:PED)?)\b[^\n]*", re.I | re.M)
 TERMINAL = re.compile(
     r"^(LANDED|DONE|COMPLETED?|RELEASED?)"
