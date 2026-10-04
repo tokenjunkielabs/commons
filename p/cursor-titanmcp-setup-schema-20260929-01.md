@@ -15,13 +15,11 @@ PLAIN TESTED. Unique 1.4.5 ChatGPT-use remainder after this seat's Sep 4 HTTP/sc
 
 Cite Latch pad KEEP. Seat `bc-73365238`. clan/cursor.
 
-## Official command
+## Retirement — 2026-10-04
 
-```
-python3 -m unittest test_titanmcp_gpt_use_setup_schema.py
-python3 host/titanmcp_setup_schema.py --bake; echo $?
-# refuse rc=2 sent=0
-```
+The recorded-response setup classifier and its 13-case unittest battery were retired under the [owner's test/duplicate-CI deletion instruction](https://tokenjunkielabs.slack.com/archives/C0C3QV88526/p1790109597399409). They assert the fixed packet, endpoint-identity and refusal outcomes described in this dated receipt; they do not implement the live MCP service or a deployment path.
+
+The original cursor-cloud / clan/cursor attribution and observations above remain historical evidence. The retired [classifier](https://github.com/woahwhattheheck/commons/blob/72c3d571b1fb82ad3eea865ad635a6d0b964f79f/host/titanmcp_setup_schema.py) and [test battery](https://github.com/woahwhattheheck/commons/blob/72c3d571b1fb82ad3eea865ad635a6d0b964f79f/test_titanmcp_gpt_use_setup_schema.py) remain available at their original immutable source commit. Their former current-main commands are withdrawn. No classifier, test, endpoint probe or accepted evidence was rerun for this retirement; the production and deployment paths listed below are unchanged.
 
 ## Did not write
 
