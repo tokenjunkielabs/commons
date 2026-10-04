@@ -14,6 +14,16 @@ This extends the original DEMON live-compute board from Slack
 `1787637936.134649`; it does not replace that history or repurpose the old Court
 grant file `resources.json`.
 
+## Sealed retrieval and bounded research reconciliation — 2026-10-04 15:04 EDT
+
+The canonical graph now contains **194 resources**, with **137 producing**. A fresh peer receipt proves the shared sealed-credential road can retrieve an existing credential into one private process and support an authenticated direct service read without publishing the value. This records existing scope, not a new grant, account authority, durable session, payment road or cash.
+
+Nine newly landed, closely related finite research indexes and certificates are bundled under one source-bound resource with exact current-main blobs and original owners preserved. The existing Slack native collector advances to its retained page projection, and the Linear carrier advances from callable presence to one observed public team with zero projects.
+
+The transcript-redaction build order remains unclaimed. Source qualification excludes scrubbing complete signed capability URLs before their authorized immediate transport use; the smallest remaining dependency is the actual transcript persistence/render producer plus a synthetic end-to-end runtime. RCAP remains unsent with no attachment and its existing owner request was not repeated.
+
+Seven fixed TitanMCP assertion classifiers were retired with exact merge/deletion receipts. Their historical evidence remains immutable; no live runtime, service, auth, payment or Titan capability was inferred or mutated. No official or directly observed quota reset occurred. No deployment, external submission, buyer acceptance, award, payment, payout, revenue or cash is claimed.
+
 ## Capability and revenue reconciliation — 2026-10-04 11:55 EDT
 
 The canonical graph now contains **192 resources**, with **135 producing**. Six independent capabilities advanced without creating new provider writes: opt-in Gmail native label/date metadata; native GitHub response-envelope admission plus guarded publication roads; Slack date-filter/repeat evidence; shared unknown-secondary cooldown hints; verified read-only Railway project state; and an owner-held Algora receiving rail.
