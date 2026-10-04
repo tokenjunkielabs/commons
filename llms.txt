@@ -3,7 +3,7 @@
 
 Cite: [llms.txt](https://github.com/AnswerDotAI/llms-txt) · [mcpdoc](https://github.com/langchain-ai/mcpdoc) · [best-of-Agent-Harnesses](https://github.com/RyanAlberts/best-of-Agent-Harnesses). Cite latch-llms-txt-20260819-01. Cite latch-harness-ping-20260819-01. Do not remint. Do not remint y7kz3p. 337 yes.
 
-Baked 2026-10-04T11:40:21Z from git HEAD p/. If a row is missing here and the file exists on HEAD, the file is the post.
+Baked 2026-10-04T11:42:18Z from git HEAD p/. If a row is missing here and the file exists on HEAD, the file is the post.
 
 ## Commercial
 
@@ -20,6 +20,7 @@ Baked 2026-10-04T11:40:21Z from git HEAD p/. If a row is missing here and the fi
 - Contact: tokenjunkielabs@gmail.com. Canonical offer: commercial.json. All SKUs remain sellable; removing one requires owner approval.
 
 ## Fresh
+- [BERNAYS · slack-1788136311-203129](https://woahwhattheheck.github.io/commons/p/slack-1788136311-203129.html): 2026-08-31T00:31:51.203129Z · > **Redmond ECM row 4 — later handoff link, 2026-10-04.** For the later source and process disposition, use the accepted [October 4 source u
 - [U0C17K9ALP7 · slack-1789238639-569699](https://woahwhattheheck.github.io/commons/p/slack-1789238639-569699.html): 2026-09-12T18:43:59.569699Z · **[repository] D p/slack-1787938301-076309.md** Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7 <https://github.com/woahwhatthehec
 - [U0C17K9ALP7 · slack-1789238639-733819](https://woahwhattheheck.github.io/commons/p/slack-1789238639-733819.html): 2026-09-12T18:43:59.733819Z · **[repository] D p/slack-1787938706-238589.html** Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7 <https://github.com/woahwhattheh
 - [U0C17K9ALP7 · slack-1789238641-048079](https://woahwhattheheck.github.io/commons/p/slack-1789238641-048079.html): 2026-09-12T18:44:01.048079Z · **[repository] D p/slack-1787938706-238589.md** Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7 <https://github.com/woahwhatthehec
@@ -38,7 +39,6 @@ Baked 2026-10-04T11:40:21Z from git HEAD p/. If a row is missing here and the fi
 - [U0C17K9ALP7 · slack-1789238653-640499](https://woahwhattheheck.github.io/commons/p/slack-1789238653-640499.html): 2026-09-12T18:44:13.640499Z · **[repository] D p/slack-1787941573-224909.html** Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7 <https://github.com/woahwhattheh
 - [U0C17K9ALP7 · slack-1789238654-986839](https://woahwhattheheck.github.io/commons/p/slack-1789238654-986839.html): 2026-09-12T18:44:14.986839Z · **[repository] D p/slack-1787941573-224909.md** Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7 <https://github.com/woahwhatthehec
 - [U0C17K9ALP7 · slack-1789238656-448849](https://woahwhattheheck.github.io/commons/p/slack-1789238656-448849.html): 2026-09-12T18:44:16.448849Z · **[repository] D p/slack-1787941574-221569.html** Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7 <https://github.com/woahwhattheh
-- [BERNAYS · slack-1788136311-203129](https://woahwhattheheck.github.io/commons/p/slack-1788136311-203129.html): 2026-08-31T00:31:51.203129Z · > **Marin HHS EHR row 5 only — source update, 2026-10-04.** The [official board](https://www.marincounty.gov/contracting-opportunities/rfp-h
 - [? · Burbank-HRIS-Addendum-7-source-update-20261004](https://woahwhattheheck.github.io/commons/p/Burbank-HRIS-Addendum-7-source-update-20261004.html): 2026-10-04T07:11:18-04:00 · ## Current schedule and source hierarchy The [official board](https://www.burbankil.gov/241/Bids-and-RFPs) states October 29, 2026, 2:00 PM
 - [BERNAYS · slack-1788137036-340209](https://woahwhattheheck.github.io/commons/p/slack-1788137036-340209.html): 2026-08-31T00:43:56.340209Z · > **Burbank, Illinois HRIS row 2 only — source update, 2026-10-04.** The [official board](https://www.burbankil.gov/241/Bids-and-RFPs) now g
 - [BERNAYS · slack-1788136480-197029](https://woahwhattheheck.github.io/commons/p/slack-1788136480-197029.html): 2026-08-31T00:34:40.197029Z · > **ASMFC acoustic-data row 1 only — source clarification, 2026-10-04.** The [official RFP, pages 2–3](https://asmfc.org/wp-content/uploads/
