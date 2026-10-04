@@ -54,6 +54,8 @@ def _source(s):
     if not isinstance(tracks,list) or len(tracks)!=4 or not all(_text(x) for x in tracks): raise PreflightError("source tracks are malformed")
     if not isinstance(qs,dict) or set(qs)!=set(tracks) or not all(isinstance(x,list) and len(x)==4 and all(_text(q) for q in x) for x in qs.values()): raise PreflightError("source track questions are malformed")
     if "track_count_ambiguity_resolved" in s and not isinstance(s["track_count_ambiguity_resolved"],bool): raise PreflightError("track_count_ambiguity_resolved must be boolean")
+    categories=s.get("qualifying_experience_categories",sorted(ALLOWED_EXPERIENCE))
+    if not isinstance(categories,list) or not categories or not all(isinstance(x,str) and x in ALLOWED_EXPERIENCE|{"government"} for x in categories) or len(categories)!=len(set(categories)): raise PreflightError("qualifying_experience_categories are malformed")
     pdf=s.get("rfp_pdf_sha256")
     if pdf is not None and (not isinstance(pdf,str) or not re.fullmatch(r"[0-9a-f]{64}",pdf)): raise PreflightError("rfp_pdf_sha256 must be null or canonical SHA-256")
     if s.get("rfp_pdf_bytes_locally_acquired") is not False and pdf is None: raise PreflightError("source cannot claim local PDF bytes without a digest")
@@ -87,12 +89,12 @@ def evaluate(s,o,*,trusted_now):
     if unknown: blockers.append("UNKNOWN_SELECTED_TRACK:"+",".join(unknown))
     if s.get("track_count_ambiguity_resolved") is not True and o.get("track_count_ambiguity_reviewed") is not True: blockers.append("REVIEW_FOUR_TRACKS_VS_ALL_THREE_SOURCE_AMBIGUITY")
     if o.get("deadline_time_label_reviewed") is not True: blockers.append("REVIEW_SOURCE_EST_TIMEZONE_LABEL")
-    qualifying=[]
+    qualifying=[]; allowed_experience=set(s.get("qualifying_experience_categories",ALLOWED_EXPERIENCE))
     for i,row in enumerate(o["qualifying_experience"]):
         if not isinstance(row,dict): blockers.append(f"EXPERIENCE_{i}_MALFORMED"); continue
         req=("engagement_name","category","client_type","scope","outcomes","evidence_ref")
         if not all(_text(row.get(k)) for k in req): blockers.append(f"EXPERIENCE_{i}_INCOMPLETE"); continue
-        if row["category"] in ALLOWED_EXPERIENCE: qualifying.append(row)
+        if row["category"] in allowed_experience: qualifying.append(row)
     if not qualifying: blockers.append("QUALIFYING_PUBLIC_HEALTH_NONPROFIT_OR_GOVERNMENT_EXPERIENCE_REQUIRED")
     refs=o["references"]
     if len(refs)<2: blockers.append("TWO_PROFESSIONAL_REFERENCES_REQUIRED")
