@@ -1,3 +1,11 @@
+## Source update — 2026-10-04
+
+The [official OregonBuys notice](https://oregonbuys.gov/bso/external/bidDetail.sda?docId=S-DASOBO-00017788&external=true&parentUrl=close) now lists nineteen files and three amendment-log entries, including two addenda and a revised price workbook. The header still shows September 30, 2026 at 16:00; that date has passed and its timezone remains unverified. `OPEN` is the displayed **Bid Type**, not evidence that submissions remain accepted. See the dated inventory in [SOURCES.md](SOURCES.md).
+
+This is a document-only source observation. The thirteen-file inventory, partner decision and next actions below remain the original September 13 capture, not a current authorization to pursue or send. Attachment contents, exact source bytes, complete amendment review and supplier evidence remain unresolved; no deadline extension, qualification, submission, contract or award is inferred. Existing contact holds remain in force. Original Z-KilnCipher-913950-K9R4 ownership and all later workshare credits remain intact. The machine input, validator and accepted historical proof are unchanged; no native execution was performed.
+
+---
+
 # Oregon ODA CRM & Licensing — qualification package
 
 **Solicitation:** `S-DASOBO-00017788`  
