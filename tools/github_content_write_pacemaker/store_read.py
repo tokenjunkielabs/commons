@@ -12,6 +12,29 @@ from .intent import normalize_intent
 
 
 class StoreReadMixin:
+    def export_intent(self, key: str) -> Dict[str, Any]:
+        """Recover retained request content without claiming or changing it."""
+        db = self._connect()
+        try:
+            row = db.execute("SELECT * FROM mutations WHERE mutation_key=?", (key,)).fetchone()
+            if not row:
+                raise PacemakerError("unknown mutation key")
+            self._verify_row(row)
+            return {
+                "schema": "commons-github-content-write-recovery/v1",
+                "intent": {
+                    "schema": SCHEMA,
+                    "mutationKey": row["mutation_key"],
+                    "method": row["method"],
+                    "apiPath": row["api_path"],
+                    "description": row["description"],
+                    "body": parse_json(bytes(row["body_json"])),
+                },
+                "receipt": self._receipt(row),
+            }
+        finally:
+            db.close()
+
     def inspect(self, key: str) -> Dict[str, Any]:
         db = self._connect()
         try:

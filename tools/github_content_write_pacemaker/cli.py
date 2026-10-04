@@ -21,6 +21,7 @@ def build_parser():
     x=s.add_parser("record-result"); x.add_argument("--key",required=True); x.add_argument("--attempt",required=True,type=int); x.add_argument("--classification",required=True,choices=("committed","rejected","rate_limited","ambiguous")); x.add_argument("--reason",required=True); x.add_argument("--provider-status",type=int); x.add_argument("--provider-receipt-sha256"); x.add_argument("--retry-at")
     x=s.add_parser("reconcile"); x.add_argument("--key",required=True); x.add_argument("--outcome",required=True,choices=("committed","rejected","retry")); x.add_argument("--observation-ref",required=True); x.add_argument("--observation-sha256",required=True)
     x=s.add_parser("inspect"); x.add_argument("--key",required=True)
+    x=s.add_parser("export-intent"); x.add_argument("--key",required=True)
     s.add_parser("list"); s.add_parser("verify")
     return p
 
@@ -35,6 +36,7 @@ def main(argv=None):
         elif a.command=="record-result": emit(store.record_result(a.key,attempt=a.attempt,classification=a.classification,reason=a.reason,provider_status=a.provider_status,provider_receipt_sha256=a.provider_receipt_sha256,retry_at=a.retry_at))
         elif a.command=="reconcile": emit(store.reconcile(a.key,outcome=a.outcome,observation_ref=a.observation_ref,observation_sha256=a.observation_sha256))
         elif a.command=="inspect": emit(store.inspect(a.key))
+        elif a.command=="export-intent": emit(store.export_intent(a.key))
         elif a.command=="list": emit({"receipts":store.list_receipts()})
         elif a.command=="verify": emit(store.verify())
         return 0
