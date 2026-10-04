@@ -1,6 +1,6 @@
 # Collect native Slack pages with explicit continuation
 
-`host/connected_slack_pages.cjs` collects a bounded sequence of native connected Slack reads. It returns the original response envelopes, per-call request/cursor metadata and a compact summary. It reads channels, threads or public-and-private search results. It does not interpret claims or change provider state.
+`host/connected_slack_pages.cjs` collects a bounded sequence of native connected Slack reads. It returns the original response envelopes, per-call request/cursor metadata and a compact summary. It reads channels, threads, public-only search results or public-and-private search results. It does not interpret claims or change provider state.
 
 Use `projectSlackMessages` below for a bounded view of retained detailed channel or thread renderings. Use the existing `host/swarm_claim_scan.py` for advisory claim interpretation and its broader input handling. Existing mirror clients retain their separate roles.
 
@@ -38,11 +38,64 @@ The example channel is this workspace's Commons channel. Use the actual observed
 | --- | --- | --- |
 | `read_channel` | `slack_slack_read_channel` | `channel_id`; a supported user ID can select DM history. |
 | `read_thread` | `slack_slack_read_thread` | `channel_id` and the exact decimal-string `message_ts` of the parent. |
-| `search` | `slack_slack_search_public_and_private` | Native `query`, or the reader's structured keywords/filters input. |
+| `search_public` | `slack_slack_search_public` | Native structured `keywords` and/or `filters` input. |
+| `search` | `slack_slack_search_public_and_private` | Native structured `keywords` and/or `filters` input. |
 
-Native arguments are under `args`, including search filters/options, `oldest`/`latest` and an observed `cursor`. Only arguments in the exposed native schemas are accepted. Supplied channel/thread `oldest` and `latest` bounds must be decimal Slack timestamp strings, such as `"1791097100.000000"`; malformed bounds raise `TypeError` before any provider call. Other semantic input validation remains with the selected reader. Search does not silently restrict itself to public or joined channels; use its native `channel_types`/`only_my_channels` fields when that is the intended scope.
+Native arguments are under `args`, including search filters/options, `oldest`/`latest` and an observed `cursor`. Only arguments in the exposed native schemas are accepted. Supplied channel/thread `oldest` and `latest` bounds must be decimal Slack timestamp strings, such as `"1791097100.000000"`; malformed bounds raise `TypeError` before any provider call. Other semantic input validation remains with the selected reader. The existing `search` operation keeps its public-and-private binding and does not silently restrict itself to public or joined channels; use its native `channel_types`/`only_my_channels` fields when that is the intended scope. `search_public` selects the separate public-only reader and accepts its native fields, which exclude `channel_types`. Its `only_my_channels` option refers to joined public channels. Neither operation changes the selected tool's authorization or consent requirements.
 
 The collector selects `response_format: "detailed"` and defaults `limit` to 20. Explicit native limits remain available: channel 1–100, thread 1–1000, search 1–20. A detailed response can still be shortened by the provider. Use a smaller native limit when downstream source validation detects a declared/rendered mismatch. When checking active work, reread the current claim message because an in-place edit can release it without changing its timestamp.
+
+## Continue public-only search pages
+
+Use explicit `operation: "search_public"` when the original request used
+`slack_slack_search_public`. This is a separate native binding, not a restriction
+inferred from search text or a wrapper around the public-and-private tool.
+The existing `search` operation remains unchanged.
+
+For a public search whose next cursor is already retained:
+
+```js
+const publicRead = await box.exports.collectSlackPages(tools, {
+  operation: "search_public",
+  args: {...actualPublicArguments, cursor: observedPublicCursor},
+  max_pages: 1,
+  timeout_ms: 30000
+});
+store("public-search-pages", publicRead);
+text(publicRead.summary);
+
+const page = publicRead.pages[0];
+if (page?.response_index !== null && page?.response_index !== undefined) {
+  const view = box.exports.projectSlackSearchResults(
+    publicRead.responses[page.response_index],
+    {operation: publicRead.operation, args: page.request_args},
+    {max_results: 12, max_body_chars: 800, max_total_body_chars: 8000}
+  );
+  store("public-search-view", view);
+  text(view);
+}
+```
+
+Retain the original public reader's complete arguments and cursor. A cursor from
+the public-and-private reader is not interchangeable with a public-search cursor.
+Do not change an existing collection's operation or filters to resume it through
+another binding. Its returned `next_request` retains `search_public`, the actual
+arguments and the next observed public cursor.
+
+Follow the selected native tool's input contract: lexical terms belong in
+`keywords`; channel, person and date constraints belong in `filters`.
+Supply at least keywords or filters, and use `natural_language_query: ""` for
+a structural query. Keep any actual `query` argument separately; a rendered
+heading never proves which selectors were applied. For the pure search
+projector, select detailed message results with `include_context: false`.
+
+The collector's returned `binding` identifies the invoked tool. The pure
+projector retains the supplied `operation` in `source.operation`; it does not
+independently authenticate the request-response pair or classify a result's
+visibility. There is no automatic widening, alternate reader, retry or private
+discovery when the public binding is absent or a read fails. Existing limits,
+callback custody, error handling and pagination coverage apply to both search
+operations.
 
 ## Project a bounded view
 
@@ -259,7 +312,11 @@ projects the detailed message-only search format. It consumes an already retaine
 response and the exact arguments of the call that produced it. It does not make
 a search, follow a link, parse claims, filter source records or modify either input.
 
-Pass `{operation: 'search', args: actualNativeArguments}`. With the collector,
+Pass `{operation: 'search_public', args: actualNativeArguments}` for a public-only
+read, or retain the existing `{operation: 'search', args: actualNativeArguments}`
+form for public-and-private or previously captured generic search projections.
+The supplied operation is preserved as `source.operation`; existing `search`
+outputs are unchanged. With the collector,
 use `pages[].request_args` and its corresponding `responses[response_index]`,
 as with the message projector. With a direct native search, retain its actual
 argument object beside the original response. Do not reconstruct arguments from
@@ -282,7 +339,7 @@ content prefix is insufficient for that decision. This example uses a caller-own
 exclusion function and reuses one retained response throughout:
 
 ```js
-const request = {operation: 'search', args: page.request_args};
+const request = {operation: collection.operation, args: page.request_args};
 const response = collection.responses[page.response_index];
 const index = box.exports.projectSlackSearchResults(response, request, {
   max_results: 20,
@@ -510,3 +567,25 @@ matches its recorded ranges and the original native responses remain unchanged.
 Only the search-header grammar changes; the collector and channel/thread projector
 remain byte-identical. No provider call, OS process or repository test was used
 for these retained-source observations.
+
+
+### Public search continuation use, 2026-10-04
+
+The new operation consumed the next still-unread cursor from an actual public
+tooling-intake search. One connected call selected only
+`slack_slack_search_public`, retaining the original query arguments and native
+response. It returned 12 detailed results in 37,526 rendered code units and
+stopped at the one-page budget with the next public cursor preserved.
+
+Projection retained `source.operation: search_public`, all 12 rendered
+identities and exact source ranges. It returned 13,820 content code units;
+10 bodies were explicitly truncated. Every returned prefix matched its original
+source slice. The callback copy matched the retained native response, and the
+request and response stayed unchanged.
+
+The existing `search` projection of this same newly obtained page was
+JSON-identical under the previous and current source. Source composition
+preserved all earlier behavior except the explicit additional operation,
+its field validation and its projected operation label. The schema check used
+the current exposed public tool definition; no private search, old provider
+request replay, OS process, fixture or repository test was run.
