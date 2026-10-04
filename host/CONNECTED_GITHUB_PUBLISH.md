@@ -10,7 +10,9 @@ Use this for an already-authorized change to regular source files. Existing
 repository rules, source ownership, permission boundaries, and required product
 execution still apply. The helper does not grant permission or decide whether a
 change is ready. It does not discover tools, merge another worker's patch,
-delete files or branches, update existing refs, run tests, or deploy anything.
+delete files or branches, run tests, or deploy anything. The separate
+`advanceGitHubContribution` export advances an existing contribution ref;
+`reconcileGitHubContribution` reads a retained outcome without writing.
 
 ## Call contract
 
@@ -126,8 +128,8 @@ expected/observed SHA; read the changed source and compose deliberately.
 
 All provider writes are sequential. The commit has the observed base as its
 parent. Existing file modes are retained. The branch primitive creates a new
-branch; use a unique operation name. There is no force-update or overwrite path
-for an existing branch. Unpinned UTF-8 entries share one tree request, saving a
+branch; use a unique operation name. `publishGitHubChange` does not update an existing branch; the explicit
+contribution operation below provides a nonforce continuation on the original PR. Unpinned UTF-8 entries share one tree request, saving a
 separate blob call per text file. Identical source/mode changes return
 `status: no_source_changes` without a commit, branch, or PR. An unchanged UTF-8
 batch with unpinned text is recognized by the returned tree SHA matching the
@@ -398,3 +400,138 @@ steps. Its errors are collected in `progress_callback_errors` and do not block
 the already-authorized publication. This is an observer, not a dispatch or
 approval mechanism. Durable execution/restart is not built in; retain progress
 using the existing host and reconcile provider truth after interruption.
+
+## Advance an existing contribution pull request
+
+Use `advanceGitHubContribution` for an already-authorized continuation on the
+original contribution branch. It does not create a branch or PR, edit the PR
+body, merge upstream, or rewrite prior commits. The new commit's sole parent is
+the exact observed contribution head.
+
+```javascript
+const {advanceGitHubContribution} = require('./host/connected_github_publish.cjs');
+const result = await advanceGitHubContribution(tools, {
+  repository_full_name: 'CONTRIBUTOR/FORK',
+  pull_request_repository_full_name: 'UPSTREAM/REPOSITORY',
+  pull_request_number: existingPullRequestNumber,
+  branch_name: existingContributionBranch,
+  base_branch: observedUpstreamBaseBranch,
+  expected_head_sha: observedContributionHead,
+  expected_base_sha: observedUpstreamBase,
+  commit_message: preparedCommitMessage,
+  files: preparedFiles,
+}, {onProgress: state => retainOperationProgress(state)});
+```
+
+The two repositories may be the same. Branch names may also be the same when
+the contribution is in a fork. Both SHAs and both branch names are required:
+they identify the PR context that the caller actually inspected. `files` uses
+the existing complete-content, previous-blob, encoding, optional new-blob pin,
+and mode contract. Supply no title, body, merge options, or force option to this
+operation. PR description publishing and external acceptance remain separate
+operations with their own existing permission boundaries.
+
+The native bindings are `fetch`, `fetch_file`, `create_tree`, `create_commit`,
+and `update_ref`, plus `create_blob` when base64 or a source pin needs it, and
+optional `fetch_blob` for omitted UTF-8 content. The generic reader accesses the
+full native PR, Git commit, tree and branch-ref resources. It uses the same
+`options.bindings`, `onProgress`, `GitHubPublishError`, and bounded native-error
+diagnostics as the other exports.
+
+The operation performs these steps:
+
+1. Read the original PR and compare its repositories, branches, open/unmerged
+   state, head and base with the supplied observations.
+2. Read that immutable head's commit and complete recursive tree. Compare every
+   affected previous blob and regular-file mode before creating any object.
+3. Create the prepared tree and a commit with that head as its sole parent.
+   Pinned UTF-8 and base64 use the existing native blob checks; unpinned UTF-8
+   stays in one inline tree request. An identical tree returns
+   `no_source_changes` without a commit or ref update.
+4. Read the created commit and complete recursive tree. Require the intended
+   sole parent, tree and exact commit message. Compare every unrequested leaf
+   and its mode/type, as well as directories outside the prepared paths'
+   ancestors. Record `tree_comparison.changed_paths` and
+   `unchanged_leaf_count`; do not copy the complete tree into progress.
+5. Read every prepared file at that immutable commit. UTF-8 must match the
+   complete submitted text and the tree's blob SHA. Base64 retains the existing
+   native-created-blob identity comparison. Optional immutable blob recovery
+   handles omitted text as in ordinary publication.
+6. Read the PR and original branch ref again. Both must still identify the
+   observed old head; the PR must remain open/unmerged at the observed base.
+   Persist the known commit and an uncertain ref-update state, then make one
+   native `update_ref` call with `force: false`.
+7. Read the same PR and ref again. Both must identify the prepared commit.
+   The earlier content comparison remains bound to that immutable commit; the
+   helper does not duplicate those file reads. The final PR state and
+   `base_changed` observation remain explicit.
+
+This is a fresh-head comparison plus GitHub's nonforce update, not an atomic
+compare-and-swap API. The exposed ref writer has no expected-old-head argument.
+A concurrent divergent branch update can cause GitHub to refuse the write.
+A concurrent base movement after the last comparison can appear in the final
+observation. A PR closure or merge by someone else is reported as observed;
+this helper never requests either action. No failed or inconclusive operation
+is automatically retried, and no previous ref is restored.
+
+Both recursive tree responses must be complete and identify the requested
+immutable tree. A truncated, malformed, oversized, or unavailable tree stops
+the operation. This full unchanged-path comparison does not infer coverage
+from partial listings and does not use the new-leaf fallback described for
+`publishGitHubChange`. Before the first object write, an unreadable parent
+therefore leaves the original branch untouched. A later failure may leave
+unreferenced prepared objects; their known identities remain in progress.
+
+Progress has `operation: contribution_advance`, the original PR and repository
+identities, `parent_commit_sha`, `parent_tree_sha`, prepared `tree_sha` and
+`commit_sha`, file versions/modes, immutable readback and per-call counts.
+Each bounded current-head observation records the PR head/base/state and
+branch-ref SHA. Source strings and commit-message contents are not copied.
+
+| Outcome | Meaning |
+|---|---|
+| `status: contribution_branch_updated` | Both final reads identify the prepared commit, and immutable source readback is complete. |
+| `publication_status: update_confirmed` | The native ref writer returned success; a later readback may still be incomplete. |
+| `publication_status: unknown` | The ref request was about to be sent or did not return a confirmed result. Reconcile provider state before another write. |
+| `ref_update_state: not_converged` | Current PR/ref observations do not both identify the prepared commit. Their actual SHAs remain available. |
+| `status: no_source_changes` | No contribution commit or ref update was needed; any earlier native blob/tree creation is still counted. |
+
+### Reconcile a retained contribution without writing
+
+After an uncertain update or incomplete readback, retain the same complete
+prepared change and all progress. Call `reconcileGitHubContribution` explicitly:
+
+```javascript
+const {reconcileGitHubContribution} = require('./host/connected_github_publish.cjs');
+const result = await reconcileGitHubContribution(
+  tools, preparedContribution, retainedContributionProgress,
+  {onProgress: state => retainReconciliationProgress(state)}
+);
+```
+
+This export requires a known prepared commit and tree. It does not require or
+call any writer binding. It checks the retained operation identity and previous
+versions/modes, re-reads the original parent and prepared commit/trees, compares
+the complete prepared text, and reads the current original PR/ref. Requested
+source pins cannot be changed or removed; adding a pin needs a matching
+retained blob identity. Base64 uses the original native-created blob identity,
+so the caller must retain the original binary input rather than substituting
+new base64 under an old progress record.
+
+If both current heads equal the prepared commit, the result is
+`contribution_branch_updated`. If both equal the original parent, it is
+`contribution_branch_not_updated` with
+`publication_status: previous_head_observed`; the prepared objects exist,
+but this read-only call did not publish them. Any other combination stays
+incomplete with the actual observations. Current upstream base movement is
+recorded without blocking these read-only checks. Historical confirmed/uncertain
+writer status remains in `previous_publication_status` and
+`previous_ref_update_state`.
+
+There is deliberately no automatic write continuation. When a later deliberate
+publication is appropriate, use the existing native tools with the retained
+commit and freshly reconciled branch/PR context. Do not rerun the object
+creation path, create a replacement PR, force the branch, or infer successful
+maintainer checks from source publication. Reconciliation can finish a known
+source/readback outcome; it cannot establish deployment, sponsor acceptance or
+test execution.
