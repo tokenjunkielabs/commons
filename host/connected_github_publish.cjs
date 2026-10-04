@@ -127,6 +127,45 @@ function inspectToolError(action, result) {
       && /^[A-Z0-9_]{1,64}$/.test(structured.error_code)) {
     details.connector_error_code = structured.error_code;
   }
+  const metadata = [data?.headers, data, structured?.headers, structured,
+    result.headers, result].filter(value => value && typeof value === 'object' && !Array.isArray(value))
+    .map(value => Object.fromEntries(Object.entries(value).map(([key, item]) => [key.toLowerCase(), item])));
+  const number = value => {
+    if (typeof value === 'string' && /^\d+(?:\.\d+)?$/.test(value.trim())) value = Number(value.trim());
+    return typeof value === 'number' && Number.isFinite(value) && value >= 0 ? value : undefined;
+  };
+  const integer = value => {
+    const parsed = number(value);
+    return Number.isSafeInteger(parsed) ? parsed : undefined;
+  };
+  const first = (keys, normalize) => {
+    for (const fields of metadata) {
+      for (const key of keys) {
+        const value = normalize(fields[key]);
+        if (value !== undefined) return value;
+      }
+    }
+  };
+  const retryAfter = value => {
+    if (number(value) !== undefined) return typeof value === 'string' ? value.trim() : value;
+    if (typeof value !== 'string') return undefined;
+    const header = value.trim();
+    if (/^(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun), \d{2} (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{4} \d{2}:\d{2}:\d{2} GMT$/.test(header)
+        && Number.isFinite(Date.parse(header)) && new Date(header).toUTCString() === header) return header;
+  };
+  const retrySeconds = first(['retry_after_seconds'], number);
+  const retry = first(['retry-after', 'retry_after'], retryAfter);
+  if (retrySeconds !== undefined) details.retry_after_seconds = retrySeconds;
+  if (retry !== undefined || retrySeconds !== undefined) details.retry_after = retry ?? retrySeconds;
+  for (const [field, keys, normalize] of [
+    ['rate_limit_remaining', ['x-ratelimit-remaining', 'rate_limit_remaining'], integer],
+    ['rate_limit_reset', ['x-ratelimit-reset', 'rate_limit_reset'], integer],
+    ['rate_limit_resource', ['x-ratelimit-resource', 'rate_limit_resource'],
+      value => typeof value === 'string' && /^[a-z][a-z0-9_]{0,63}$/.test(value) ? value : undefined],
+  ]) {
+    const value = first(keys, normalize);
+    if (value !== undefined) details[field] = value;
+  }
   if (status === 405 && data.message === 'Base branch was modified. Review and try the merge again.') {
     details.error_code = 'base_branch_modified';
     details.message = action + ' was refused because the base branch moved; '
