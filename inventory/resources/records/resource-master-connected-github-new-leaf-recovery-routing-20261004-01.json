@@ -30,12 +30,22 @@
     ]
   },
   "activation_result": {
-    "state": "PREPARED_FOR_EXACT_SOURCE_HELPER",
-    "fresh_main_parent": "1ada891b0e9c8b76791cef996efb84d35a028b3d",
-    "publication_pull_request": null,
-    "publication_head_sha": null,
-    "publication_merge_sha": null,
-    "exact_merged_readback": {},
+    "state": "MERGED_AND_READ_BACK",
+    "fresh_main_parent": "df6d2c8cf40424b5a21d045b565c97c02976aea6",
+    "fresh_main_tree": "00b7922df3cd34db3530e8d41ed9f582883881a5",
+    "publication_pull_request": 31055,
+    "publication_url": "https://github.com/woahwhattheheck/commons/pull/31055",
+    "publication_head_sha": "7fe2749b99f589fcec9bd1649b35f38a6de32916",
+    "publication_tree_sha": "181b7af00402dda44227ff9e8dca4b7a2aa946bf",
+    "publication_merge_sha": "a84d35b136b92483f7746c10bdfcb17b843285da",
+    "helper_calls": {"fetch": 7, "fetch_file": 5, "create_blob": 4, "create_tree": 1, "create_commit": 1, "create_branch": 1, "create_pull_request": 1, "merge_pull_request": 1},
+    "new_leaf_recovery": {"path": "p/resource-master-connected-github-new-leaf-recovery-routing-20261004-01.md", "parent_tree_sha": "28c90070cca0ee89d83d7d5683222e7d8a170c7e", "tree_error": "transport_closed", "direct_leaf_result": "structured NOT_FOUND / HTTP 404", "write_calls_before_recovery": 0},
+    "exact_merged_readback": {
+      "ground/RESOURCE_LEDGER.json": "49771ca82832b82b2fc2589acc9c84bf35ccb75f",
+      "inventory/resources/records/resource-master-connected-github-new-leaf-recovery-routing-20261004-01.json": "d74054f157631111ee8507b8313432e851f7cc11",
+      "p/resource-master-connected-github-new-leaf-recovery-routing-20261004-01.md": "0eb7fee31ae386a831371f2ecc4ed28891ba466d",
+      "resources.html": "941dd5181da6d09439f794fcb469d8d2f58b1987"
+    },
     "new_leaf_paths": [
       "inventory/resources/records/resource-master-connected-github-new-leaf-recovery-routing-20261004-01.json",
       "p/resource-master-connected-github-new-leaf-recovery-routing-20261004-01.md"
@@ -94,19 +104,27 @@
     "reason": "The only new gap selected here was already implemented by the completed prior order. Adjacent capabilities are landed under existing owners; existing-file oversized-directory mode/type evidence remains an explicit safety boundary, not a duplicate order."
   },
   "terminal_watermark": {
-    "state": "ACTIVATION_PUBLICATION_PENDING",
-    "terminal_slack_ts": null,
-    "terminal_slack_link": null,
+    "state": "SLACK_CONFIRMED_CLOSURE_PR_PENDING",
+    "terminal_slack_ts": "1791087358.282879",
+    "terminal_slack_link": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791087358282879",
+    "terminal_slack_readback": "PROVIDER_ACKNOWLEDGED_EXACT_TEXT",
+    "activation_pull_request": 31055,
+    "activation_merge_sha": "a84d35b136b92483f7746c10bdfcb17b843285da",
+    "closure_parent_main": "a84d35b136b92483f7746c10bdfcb17b843285da",
+    "closure_merge_sha_accounting": "The closure merge SHA cannot exist in this record's own preimage; the next wake reads the merged closure PR or current-main commit. The lower bound is exact on terminal Slack, activation merge, closure parent, durable record identity and closure file blobs.",
     "lower_bound_rule": "The next wake starts after the terminal Slack receipt, merged closure SHA and exact current-main blobs recorded by this operation; it must not remint this activation."
   },
   "checks": {
-    "ledger_schema_and_single_activation": "PENDING_PUBLICATION",
+    "ledger_schema_and_single_activation": "PASS_137_RESOURCES_EXACTLY_ONE_SELECTED_ACTIVATION",
     "source_helper_exact_blob": "PASS_25c69acf83ae843e9ae5ad303c476817ce93380f",
+    "new_leaf_recovery": "PASS_TRANSPORT_CLOSED_TO_EXACT_STRUCTURED_404_ZERO_PRIOR_WRITES",
+    "native_publication": "PASS_4_PINNED_BLOBS_ONE_TREE_COMMIT_BRANCH_PR_MERGE_AND_FOUR_EXACT_READBACKS",
+    "resources_projection": "PASS_137_RESOURCES_106_PRODUCING_105_INVENTORY_RECORDS",
     "open_door_no_auth": "PASS",
     "zero_fabrication": "PASS",
-    "secret_scan": "PENDING",
+    "secret_scan": "PASS_NO_SECRET_VALUE",
     "privacy": "PASS",
-    "diff_check": "PENDING"
+    "diff_check": "PASS"
   },
   "preserved_boundaries": [
     "Cursor hold",
