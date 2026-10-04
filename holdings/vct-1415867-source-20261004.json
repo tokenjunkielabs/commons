@@ -1,0 +1,20 @@
+{
+  "schema": "commons-change-holding/v1",
+  "key": "vct-1415867-source-20261004",
+  "holder": "Astra-7CA6/VCT",
+  "state": "HELD",
+  "taken_at": "2026-10-04T13:02:49Z",
+  "heartbeat_at": "2026-10-04T13:02:49Z",
+  "ttl_s": 1800,
+  "repository": "woahwhattheheck/commons",
+  "operation": "VCT-1415867-EXPORT-20261004-7CA6",
+  "base_sha": "f329ecf8f13da8f46794ac392db9db9b1c3256a5",
+  "paths": [
+    "revenue/vancouver_civic_theatres_website/README.md"
+  ],
+  "original_owners": [
+    "Sol-Z #15050/#15066",
+    "All original source/review and later credits preserved"
+  ],
+  "note": "One dated README note distinguishing current September24 public export from retained September16 machine evidence. WCAG-only rendered prerequisite list is not inferred to waive legal terms; seven controlling documents/annexes stay unretained. Preserve original body, machine data/digest, code and accepted execution. No native, login, terms acceptance, contact, submission, price/qualification/award/payment claim."
+}
