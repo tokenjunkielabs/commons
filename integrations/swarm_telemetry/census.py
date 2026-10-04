@@ -188,7 +188,7 @@ ConvertTo-Json -InputObject $censusRows -Depth 5 -Compress
     return _rows(json.loads(result.stdout or "[]"))
 
 
-def collect_census(config: Mapping | None = None) -> dict:
+def collect_census(config: Mapping | None = None, *, state: Mapping | None = None) -> dict:
     """Return live census plus separately preserved declared peer discovery.
 
     Config: gateway_url; timeout_seconds; stale_after_seconds; processes;
@@ -199,6 +199,8 @@ def collect_census(config: Mapping | None = None) -> dict:
     tool_reader(name, arguments) can bind the existing service connector road.
     Native snapshots with fresh_read=True must be returned by a read in this
     collection run. Provider rows and bakes never inherit a fresh fetch time.
+    Pass the returned state into the next collection to resume provider event
+    pages and retain requests still awaiting fresh inspection.
     """
     config = dict(config or {})
     at = _now()
@@ -340,10 +342,16 @@ def collect_census(config: Mapping | None = None) -> dict:
         except Exception as error:
             coverage.append({"source": source, "status": "unavailable", "error": type(error).__name__, "complete": False})
 
+    previous_events = (state or {}).get("provider_events", {})
+    provider_events = {tool: {**saved, "pending": {key: dict(value) for key, value in saved.get("pending", {}).items()}}
+                       for tool, saved in previous_events.items()}
     if config.get("provider_events", True):
         for tool, inspector, identifier in (("gemini_events", "gemini_get_request", "request_id"), ("grokbot_events", "grokbot_inspect", "run_id")):
-            cursor, pages, read, latest = 0, 0, 0, {}
+            checkpoint = provider_events.setdefault(tool, {"cursor": 0, "pending": {}})
+            cursor, pages, read = checkpoint.get("cursor", 0), 0, 0
+            latest = checkpoint.setdefault("pending", {})
             done = False
+            inspected = 0
             try:
                 for _ in range(max(1, min(int(config.get("max_event_pages", 20)), 100))):
                     args = {"after": cursor, "limit": 200}
@@ -356,18 +364,30 @@ def collect_census(config: Mapping | None = None) -> dict:
                     for event in page:
                         ident = event.get(identifier)
                         if ident:
-                            latest[str(ident)] = event
+                            ident = str(ident)
+                            if str(event.get("status") or "").lower() in {"queued", "running", "working", "waiting", "active", "pending"}:
+                                # Persist only cursor/inspection metadata, not
+                                # provider message bodies or tool results.
+                                latest[ident] = {**latest.get(ident, {}), **{key: event[key] for key in (identifier, "status", "peer", "ts", "observed_at") if key in event}}
+                            else:
+                                latest.pop(ident, None)
                     next_cursor = result.get("next_cursor")
-                    if not page or next_cursor is None or str(next_cursor) == str(cursor):
+                    finished = not page or next_cursor is None or str(next_cursor) == str(cursor)
+                    if next_cursor is not None:
+                        cursor = next_cursor
+                    checkpoint["cursor"] = cursor
+                    if finished:
                         done = True
                         break
-                    cursor = next_cursor
-                pending = [event for event in latest.values() if str(event.get("status") or "").lower() in {"queued", "running", "working", "waiting", "active", "pending"}]
+                pending = list(latest.values())
                 pending.sort(key=lambda row: str(row.get("ts") or row.get("observed_at") or ""), reverse=True)
+                # Oldest inspection first preserves the entire outstanding set
+                # when the per-pass inspection budget is smaller than it.
+                pending.sort(key=lambda row: row.get("last_inspected_at") or "")
                 limit = max(0, min(int(config.get("max_inspects", 12)), 100))
-                inspected = 0
                 for event in pending[:limit]:
                     args = {identifier: event[identifier], "wait_ms": 0}
+                    event["last_inspected_at"] = at
                     current = read_tool(inspector, args)
                     rows = _rows(current) or [dict(current)]
                     for row in rows:
@@ -376,12 +396,14 @@ def collect_census(config: Mapping | None = None) -> dict:
                         row.setdefault("harness", "shared-equipment")
                         row.setdefault("peer_id", event.get("peer"))
                     add_rows(rows, inspector, fresh_read=True)
+                    if any(str(row.get("status") or row.get("state") or "").lower() in {"complete", "completed", "completed_observed", "completed_reported", "cancelled", "canceled", "failed", "error", "closed", "archived", "terminated", "stopped", "interrupted"} for row in rows):
+                        latest.pop(str(event[identifier]), None)
                     inspected += 1
                 coverage.append({"source": tool, "status": "observed" if done else "partial", "pages_read": pages, "records_read": read, "next_cursor": cursor,
-                                 "inspected_requests": inspected, "complete": done and len(pending) <= limit, "unread_regions": ([] if done else ["events after cursor " + str(cursor)]) + ([] if len(pending) <= limit else ["remaining nonterminal provider requests"])})
+                                 "inspected_requests": inspected, "pending_requests": len(latest), "complete": done and len(pending) <= limit, "unread_regions": ([] if done else ["events after cursor " + str(cursor)]) + ([] if len(pending) <= limit else ["remaining nonterminal provider requests"])})
             except Exception as error:
                 coverage.append({"source": tool, "status": "partial" if read else "unavailable", "error": type(error).__name__, "attempts": 2,
-                                 "pages_read": pages, "records_read": read, "next_cursor": cursor, "complete": False, "unread_regions": ["events after cursor " + str(cursor), "nonterminal request readbacks"]})
+                                 "pages_read": pages, "records_read": read, "next_cursor": cursor, "inspected_requests": inspected, "pending_requests": len(latest), "complete": False, "unread_regions": ["events after cursor " + str(cursor), "nonterminal request readbacks"]})
 
     def dedupe(rows):
         merged = {}
@@ -405,5 +427,6 @@ def collect_census(config: Mapping | None = None) -> dict:
               "waiting": sum(peer["status"] == "waiting" for peer in peers), "unknown": sum(peer["status"] == "unknown" for peer in peers), "declared_instances": len(declarations),
               "loaded_idle_sessions": sum(peer["status"] == "idle_session" for peer in declarations)}
     return {"peers": peers, "declared_peers": declarations, "counts": counts, "coverage": coverage, "observed_at": at,
+            "state": {"provider_events": provider_events},
             "complete": bool(coverage) and all(row.get("complete") for row in coverage),
             "scope": "observed instances across connected runtime roads; protocol declarations and provider tabs reported separately"}
