@@ -236,12 +236,16 @@ function compareSlackPublication(published, expectedMessage, options = {}) {
     if (key !== 'normalization') throw new TypeError('Unsupported comparison option: ' + key);
   }
   const normalization = options.normalization === undefined ? 'none' : options.normalization;
-  if (!['none', 'slack_bare_urls_entities'].includes(normalization)) {
-    throw new TypeError('normalization must be none or slack_bare_urls_entities');
+  if (!['none', 'slack_bare_urls_entities',
+    'slack_bare_urls_entities_fragment_labels'].includes(normalization)) {
+    throw new TypeError('normalization must be none, slack_bare_urls_entities, '
+      + 'or slack_bare_urls_entities_fragment_labels');
   }
+  const allowFragmentLabels = normalization === 'slack_bare_urls_entities_fragment_labels';
   const result = {status: 'uncomparable', matches: null, literal_match: null,
     body_source: 'native_read_thread_rendering', channel_binding: 'retained_readback_request',
     normalization, normalizations_applied: {bare_url_wrappers: 0, entities: 0}};
+  if (allowFragmentLabels) result.normalizations_applied.fragment_labels = 0;
   const refuse = reason => ({...result, reason});
   if (published.message_state !== 'edit_confirmed' || published.readback_status !== 'captured') {
     return refuse('confirmed_edit_and_capture_required');
@@ -323,9 +327,15 @@ function compareSlackPublication(published, expectedMessage, options = {}) {
   // Only observed bare-URL label forms are eligible; the URL target is unchanged.
   let comparable = observed.replace(/<(https?:\/\/[^<>\s|]+)(?:\|([^<>\r\n]+))?>/g,
     (whole, target, label) => {
-      if (label !== undefined && label !== target && label !== target.replace(/^https?:\/\//, '')) {
+      const withoutScheme = target.replace(/^https?:\/\//, '');
+      const fragment = withoutScheme.indexOf('#');
+      const fragmentLabel = allowFragmentLabels && fragment >= 0
+        && fragment < withoutScheme.length - 1
+        && label === withoutScheme.slice(0, fragment + 1) + '\u2026';
+      if (label !== undefined && label !== target && label !== withoutScheme && !fragmentLabel) {
         return whole;
       }
+      if (fragmentLabel) result.normalizations_applied.fragment_labels += 1;
       result.normalizations_applied.bare_url_wrappers += 1;
       return target;
     });
