@@ -1,13 +1,13 @@
 {
   "counts": {
-    "open_issues": 6030,
-    "open_pull_requests": 2,
-    "runs_in_progress": 2,
+    "open_issues": 5997,
+    "open_pull_requests": 3,
+    "runs_in_progress": 1,
     "runs_queued": 70
   },
   "counts_source": "graphql",
   "degraded": [],
-  "drafts": 1,
+  "drafts": 2,
   "longest_open": [
     {
       "author": "woahwhattheheck",
@@ -30,9 +30,31 @@
       "number": 31041,
       "title": "Align BPHC preflight with dated sources; native use pending",
       "updated_at": "2026-10-04T03:13:56Z"
+    },
+    {
+      "author": "woahwhattheheck",
+      "base": "main",
+      "branch": "fix/zero-scrape-count-01a10632-20261004",
+      "created_at": "2026-10-04T09:55:30Z",
+      "draft": true,
+      "head_sha": "8c3da6665b7c218d174621dd40feff39c84d5139",
+      "number": 31205,
+      "title": "Allow literal zero-error counts in technical publication reports",
+      "updated_at": "2026-10-04T09:55:30Z"
     }
   ],
   "newest_pulls": [
+    {
+      "author": "woahwhattheheck",
+      "base": "main",
+      "branch": "fix/zero-scrape-count-01a10632-20261004",
+      "created_at": "2026-10-04T09:55:30Z",
+      "draft": true,
+      "head_sha": "8c3da6665b7c218d174621dd40feff39c84d5139",
+      "number": 31205,
+      "title": "Allow literal zero-error counts in technical publication reports",
+      "updated_at": "2026-10-04T09:55:30Z"
+    },
     {
       "author": "woahwhattheheck",
       "base": "main",
@@ -58,12 +80,52 @@
   ],
   "open_heads": {
     "31035": "861b3094a115d3acad8041908b0bc175fde94458",
-    "31041": "3058d40942b21d3840cef61ab9b0a442435cbb34"
+    "31041": "3058d40942b21d3840cef61ab9b0a442435cbb34",
+    "31205": "8c3da6665b7c218d174621dd40feff39c84d5139"
   },
-  "pulls_listed": 2,
+  "pulls_listed": 3,
   "pulls_listing": "COMPLETE",
-  "queue_depth_per_runner": 35.0,
+  "queue_depth_per_runner": 70.0,
   "recently_closed": [
+    {
+      "author": "woahwhattheheck",
+      "base": "main",
+      "branch": "indiana-apcd-document-20261004-84a3",
+      "closed_at": "2026-10-04T09:57:41Z",
+      "head_sha": "9528abfb9e932c6d30c45265fb47c4556634f918",
+      "merge_commit_sha": "73a1eeb16543f88133caeda9ee1f4531ab5763df",
+      "merged_at": "2026-10-04T09:57:41Z",
+      "number": 31206,
+      "state": "MERGED",
+      "title": "docs: recover Indiana APCD positioning carrier",
+      "updated_at": "2026-10-04T09:57:41Z"
+    },
+    {
+      "author": "woahwhattheheck",
+      "base": "main",
+      "branch": "research/erdos412-geometric-products-20261004-7ca6",
+      "closed_at": "2026-10-04T09:53:35Z",
+      "head_sha": "fdd42ce4978bff7d183294ea277e86dece7fdb54",
+      "merge_commit_sha": "2eec9640257e5b542e7534699c417f5b5ad614bd",
+      "merged_at": "2026-10-04T09:53:34Z",
+      "number": 31204,
+      "state": "MERGED",
+      "title": "research: continue sigma orbits through cached geometric products",
+      "updated_at": "2026-10-04T09:53:35Z"
+    },
+    {
+      "author": "woahwhattheheck",
+      "base": "main",
+      "branch": "perf/wb-neuron-dot-20261004-4716",
+      "closed_at": "2026-10-04T09:52:44Z",
+      "head_sha": "71bcbfbb3b5ad853d32ef142c6840ab56ee374ea",
+      "merge_commit_sha": "bf524474a16f69b65f400cb5df9dd802e75f1615",
+      "merged_at": "2026-10-04T09:52:44Z",
+      "number": 31203,
+      "state": "MERGED",
+      "title": "perf: reduce Whitebox neuron scoring overhead",
+      "updated_at": "2026-10-04T09:52:44Z"
+    },
     {
       "author": "woahwhattheheck",
       "base": "main",
@@ -219,49 +281,10 @@
       "state": "MERGED",
       "title": "fix: preserve cooldowns after truncated GitHub error responses",
       "updated_at": "2026-10-04T09:22:22Z"
-    },
-    {
-      "author": "woahwhattheheck",
-      "base": "main",
-      "branch": "docs/irs-current-disposition-20261004",
-      "closed_at": "2026-10-04T09:21:38Z",
-      "head_sha": "af95c383d247ab9bdb6e547b7c8793659f424718",
-      "merge_commit_sha": "19eedb2186b3a02f52f187facc9bbc72c0620a48",
-      "merged_at": "2026-10-04T09:21:38Z",
-      "number": 31190,
-      "state": "MERGED",
-      "title": "docs: clarify IRS 5000233302 current disposition",
-      "updated_at": "2026-10-04T09:21:38Z"
-    },
-    {
-      "author": "woahwhattheheck",
-      "base": "main",
-      "branch": "fix/slack-ingest-cooldown-7be0",
-      "closed_at": "2026-10-04T09:18:26Z",
-      "head_sha": "1ae25816c2118c4baed7a19e9f3ce18e8493c3ea",
-      "merge_commit_sha": "dbf9e8726ea19a479f6a1aada6773706c60dda3f",
-      "merged_at": "2026-10-04T09:18:26Z",
-      "number": 31189,
-      "state": "MERGED",
-      "title": "Honor full GitHub retry cooldowns during Slack ingest",
-      "updated_at": "2026-10-04T09:18:27Z"
-    },
-    {
-      "author": "woahwhattheheck",
-      "base": "main",
-      "branch": "fix/capacity-retry-deadline-c5d6",
-      "closed_at": "2026-10-04T09:17:35Z",
-      "head_sha": "418bd90be3365482df7ef3898992d155a9642549",
-      "merge_commit_sha": "e0e26562dc1816230691b6dfc04fe804621898cc",
-      "merged_at": "2026-10-04T09:17:35Z",
-      "number": 31188,
-      "state": "MERGED",
-      "title": "Correct lease retry deadlines after lowering provider capacity",
-      "updated_at": "2026-10-04T09:17:36Z"
     }
   ],
   "repository": "woahwhattheheck/commons",
   "schema": "commons-github-state/v1",
-  "unchanged_since": "2026-10-04T09:51:55Z",
+  "unchanged_since": "2026-10-04T10:09:30Z",
   "undatable_pulls": []
 }
