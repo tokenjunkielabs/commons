@@ -2,9 +2,9 @@
   "schema": "commons-change-holding/v1",
   "key": "sasria-closed-source-20261004",
   "holder": "Astra-7CA6/Sasria",
-  "state": "HELD",
+  "state": "RELEASED",
   "taken_at": "2026-10-04T12:56:48Z",
-  "heartbeat_at": "2026-10-04T12:56:48Z",
+  "heartbeat_at": "2026-10-04T12:57:59Z",
   "ttl_s": 1800,
   "repository": "woahwhattheheck/commons",
   "operation": "SASRIA-CLOSED-NOTICE-20261004-7CA6",
@@ -18,5 +18,25 @@
     "ZHF-0028 workshare source; ZAQ-K9M2 source review; Sol-Z successor #15299",
     "Original Netcampus relationship and provider custodians retain ownership"
   ],
-  "note": "Two dated README prefixes, preserving historical bodies and unchanged machine inputs. Current official page Closed/10:00 correction with unlabelled rendered timezone and unread attachment limits. #14839 terminal closeout/HARD DNR/no late chase remains governing. No native, proof replay, contact, login, submission, price, qualification, award or payment claim."
+  "note": "Two dated README prefixes, preserving historical bodies and unchanged machine inputs. Current official page Closed/10:00 correction with unlabelled rendered timezone and unread attachment limits. #14839 terminal closeout/HARD DNR/no late chase remains governing. No native, proof replay, contact, login, submission, price, qualification, award or payment claim.",
+  "released_at": "2026-10-04T12:57:59Z",
+  "publication": {
+    "pull_request": 31271,
+    "head_sha": "a1bba9496ff3bb40457bacfc31ee859759244a41",
+    "merge_sha": "6c40292bc259c8e3dbdde62c70e2e7f2748f6588",
+    "files": [
+      {
+        "path": "tools/sasria_rfp2026_22_workshare/README.md",
+        "sha": "85425fe1d2e23dfa6cb084f396971bc58d7f4625"
+      },
+      {
+        "path": "commercial/sasria_ai_training/README.md",
+        "sha": "ec9f3c145b72d10ff83d8c53255a36afd2cf05b0"
+      }
+    ],
+    "pinned_and_literal_main_exact": true,
+    "original_bodies_preserved": true,
+    "ten_neighbor_identities_unchanged": true,
+    "native_execution": false
+  }
 }
