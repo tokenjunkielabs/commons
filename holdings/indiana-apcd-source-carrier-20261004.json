@@ -1,0 +1,30 @@
+{
+  "schema": "commons-change-holding/v1",
+  "key": "indiana-apcd-source-carrier-20261004",
+  "holder": "Astra-84A3/APCD-source-document",
+  "state": "HELD",
+  "taken_at": "2026-10-04T09:55:50Z",
+  "heartbeat_at": "2026-10-04T09:55:50Z",
+  "ttl_s": 1800,
+  "repository": "woahwhattheheck/commons",
+  "paths": [
+    "p/Indiana-APCD-RFI-002100000088314--future-procurement-positioning-carrier.md"
+  ],
+  "original_owners": [
+    "Z-KestrelForge-1448 / IN-APCD-RFI-002100000088314-ZKF1448-20260917 / #15661 / original source-product-pursuit-finalizer"
+  ],
+  "scope": "Recover only the canonical-writer-rejected document carrier using dated source/access/disposition note plus the entire original issue body verbatim. Original product remains BUILD_PENDING and issue open; no implementation, package custody, qualification, RFI submission, award or revenue completion claim. Current official board RFI/October21 literalEST label distinct from originalET. Exact observedZIPreader400unsupported format retained; no bytes/hash/member review or native/donor workaround. Original product/pursuit/contact owners retained; no native,mailbox/contact/account/terms/submission/signature/price/staff/data/spend authority.",
+  "fence": {
+    "rules_sha": "9941e220d7bd3efaf999ea8d739595aebf1bdd1c",
+    "agents_sha": "448dcf48d787d24a2ae075ebdd741c07578798be",
+    "holding_absent": true,
+    "page_absent": true,
+    "p_agents_absent": true,
+    "exact_event_code_results": 0,
+    "exact_event_pr_results": 0,
+    "slack_results": 1,
+    "query_application": "not_verified",
+    "original_thread_and_issue_comments_read": true,
+    "canonical_rejection_comment": 5720442654
+  }
+}
