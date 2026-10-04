@@ -119,3 +119,10 @@ creating a new schedule or moving the job onto the owner's PC. Verify an
 actual hosted run and private Git state readback before declaring operation
 live. A successful local check does not establish either hosted execution or
 outward delivery.
+
+## Manual GitHub author operations
+
+[Cloud author publication](CLOUD_AUTHOR_PUBLICATION.md) records the verified
+public Actions credential binding, the existing named-operation contract, and
+the observed classifier outage. It provides a concrete carrier for prepared
+original-PR descriptions and keeps job completion distinct from target delivery.
