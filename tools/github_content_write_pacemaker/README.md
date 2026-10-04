@@ -69,6 +69,12 @@ commitments and state. Intents are read through one bounded no-follow regular
 file descriptor. SQLite integrity and all semantic digests are rechecked by
 `verify`.
 
+`list` and `verify` consume stored mutations one row at a time, retaining each
+request body only while checking its digests. Listing still returns every
+body-free receipt in sequence order; verification returns the same counts and
+integrity result without retaining historical request bodies. Both operations
+stop on the first invalid row and close their database connection.
+
 ## Recover an existing intent
 
 `export-intent` reads an existing mutation and prints its complete canonical

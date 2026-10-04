@@ -49,10 +49,11 @@ class StoreReadMixin:
     def list_receipts(self) -> List[Dict[str, Any]]:
         db = self._connect()
         try:
-            rows = db.execute("SELECT * FROM mutations ORDER BY seq").fetchall()
-            for row in rows:
+            receipts = []
+            for row in db.execute("SELECT * FROM mutations ORDER BY seq"):
                 self._verify_row(row)
-            return [self._receipt(row) for row in rows]
+                receipts.append(self._receipt(row))
+            return receipts
         finally:
             db.close()
 
@@ -61,15 +62,16 @@ class StoreReadMixin:
         try:
             if db.execute("PRAGMA integrity_check").fetchone()[0] != "ok":
                 raise StoreInvariantError("SQLite integrity check failed")
-            rows = db.execute("SELECT * FROM mutations ORDER BY seq").fetchall()
-            for row in rows:
+            mutation_count = 0
+            unresolved = 0
+            for row in db.execute("SELECT * FROM mutations ORDER BY seq"):
                 self._verify_row(row)
-            unresolved = sum(
-                row["state"] in {DISPATCHING, RECONCILE_REQUIRED} for row in rows)
+                mutation_count += 1
+                unresolved += row["state"] in {DISPATCHING, RECONCILE_REQUIRED}
             if unresolved > 1:
                 raise StoreInvariantError("more than one unresolved provider effect")
             return {"schema": DB_SCHEMA, "integrity": "VALID",
-                    "mutationCount": len(rows),
+                    "mutationCount": mutation_count,
                     "unresolvedEffectCount": unresolved,
                     "authority": {"callerAdmissionRequired": False,
                     "approvalGrantedByPacemaker": False,
