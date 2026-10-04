@@ -1,6 +1,6 @@
 # Inspect connected publishing tools
 
-`connected_publishing_tools.mjs` inspects a real supplied dynamic tool inventory. It counts the GitHub/Slack subset, maps the requested write primitives and harmless account probes to their actual callable names, and can return one requested schema. It does not call providers, publish, authenticate, change permissions, or decide whether an operation is permitted.
+`connected_publishing_tools.mjs` inspects a real supplied dynamic tool inventory. It counts the GitHub/Slack subset, maps the requested write primitives and harmless account probes to their actual callable names, and can return one requested schema or a selected batch. It does not call providers, publish, authenticate, change permissions, or decide whether an operation is permitted.
 
 Use the harness's available discovery first. Keep working and repeat that same discovery at normal work boundaries after a partial result, as described in [RULES.md, rule 34](../RULES.md). A registry can contain hundreds of unrelated provider tools. Counting the whole registry does not identify the GitHub/Slack result; searching descriptions for provider names can also include unrelated tools and print a very large amount of documentation.
 
@@ -12,10 +12,23 @@ Export the actual registry as an array of names or `{name, description, ...}` en
 node host/connected_publishing_tools.mjs --input /private/current-tools.json
 node host/connected_publishing_tools.mjs --input /private/current-tools.json --names
 node host/connected_publishing_tools.mjs --input /private/current-tools.json --schema github.create_commit
+node host/connected_publishing_tools.mjs --input /private/current-tools.json --schema github.create_commit --schema github.update_ref
 node host/connected_publishing_tools.mjs --input /private/current-tools.json --previous /private/prior-tools.json
 ```
 
 Standard input is supported with `--input -`, the default. The module also exports `inspectPublishingTools(snapshot, options)` and `publishingToolDefinitions(snapshot, selector)` for an existing Node host. Importing the module performs no collection or scheduled work.
+
+For several definitions, use `publishingToolDefinitionsBatch(snapshot, selectors)` or repeat the CLI's `--schema` option. The batch indexes the supplied inventory once and returns `{schema: "commons-connected-publishing-tool-definitions/v1", results: [...]}`. Each result has the existing single-selector shape, in the requested order; missing definitions remain explicit beside the definitions that were found. A single `--schema` keeps its original output shape. The CLI exits 2 if any requested definition is missing or name-only, while still printing the complete selected batch.
+
+```js
+import {publishingToolDefinitionsBatch} from './connected_publishing_tools.mjs';
+const selected = publishingToolDefinitionsBatch(snapshot, [
+  'github.create_blob', 'github.create_tree', 'github.create_commit',
+  'github.create_branch', 'github.update_ref', 'github.create_pull_request',
+]);
+```
+
+Actual October 4 use selected 15 definitions from a live 1,181-entry registry. Every returned definition matched the prior single-selector result, and the inventory report remained unchanged. Seven alternating V8 timing pairs, each averaging 20 selections, measured median local lookup time of 13.8 ms for separate lookups and 0.95 ms for one batch. This measures in-memory inventory processing, not provider throughput. The CLI previously retained only the last repeated `--schema`; a real two-definition export now returns both in one invocation.
 
 For a native code-mode registry, a compact first inspection can use:
 
