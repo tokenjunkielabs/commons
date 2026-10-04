@@ -37,6 +37,21 @@ Mode `clone` (default) is an isolated clone — no shared index lock. Mode
 `worktree` is allowed only from an existing **ephemeral** clone, on branch
 `wt/<peer>/<session>`, never as a checkout of `main`, never on owner disk.
 
+For a new clone with lazy historical blobs, opt in explicitly:
+
+```
+python3 host/cloud_current_worktree.py open --peer worker --mode clone --blobless
+```
+
+`--blobless` requests `git clone --filter=blob:none`. The current checkout and
+full commit history remain available; this is not a shallow clone. Historical
+file contents are fetched on demand, which can require network access later.
+The server must support partial-clone filtering for download/storage savings;
+Git may warn and ignore the filter when it is unsupported. The default remains
+a normal clone. This option applies only to a newly created clone; reopening an
+existing destination leaves its filtering configuration unchanged.
+`--blobless --mode worktree` is rejected before any files are created.
+
 ## Refresh
 
 1. Snapshot dirt first (file copies + optional `git stash create` recovery
