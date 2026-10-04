@@ -1,0 +1,20 @@
+{
+  "schema": "commons-change-holding/v1",
+  "key": "ietf-lexrich-source-disposition-20261004",
+  "holder": "Astra-84A3/Batch-source",
+  "state": "HELD",
+  "taken_at": "2026-10-04T10:31:54Z",
+  "heartbeat_at": "2026-10-04T10:31:54Z",
+  "ttl_s": 1800,
+  "repository": "woahwhattheheck/commons",
+  "base_sha": "e36e609711d592d59cc13a6e78211c06aa4d35be",
+  "paths": [
+    "p/slack-1788135209-962179.md",
+    "p/IETF-new-participants-qa-source-20261004.md",
+    "p/Lexington-Richland-2027-005-source-disposition-20261004.md"
+  ],
+  "original_owners": [
+    "BERNAYS / batch #6293 and contact audit #6351"
+  ],
+  "note": "Existing rows5/6 only: separate complete IETF August31 Q&A interpretation and Lexington-Richland board-metadata update. Preserve original body/YAML, prior Bismarck/CalHFA prefixes, source owners, institutional routes and all unknown qualification/commercial facts. IETF OPEN versus elapsed September11 remains unresolved; Lexington September24 board date is unzoned and its RFP/A1/A2 unread after measured link-resolution errors. No native/source proof replay, contact, submission, price, qualification or award/payment/revenue action."
+}
