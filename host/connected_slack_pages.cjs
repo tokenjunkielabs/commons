@@ -513,8 +513,8 @@ function projectSlackMessages(response, request, options = {}) {
 }
 
 /**
- * Project detailed message-only search results from an already retained response.
- * Whole-result ranges include channel headers; content is connector-rendered text.
+ * Project detailed message search results from an already retained response.
+ * Context stays in the retained source; only matched text consumes the body budget.
  */
 function projectSlackSearchResults(response, request, options = {}) {
   object(request, 'search projection request');
@@ -524,6 +524,7 @@ function projectSlackSearchResults(response, request, options = {}) {
     throw new TypeError('search projection operation must be search or search_public');
   }
   const args = object(request.args, 'search projection request.args');
+  const withContext = args.include_context !== false;
   const booleanFields = ['include_bots', 'include_context', 'only_my_channels'];
   for (const [key, value] of Object.entries(args)) {
     if (!OPERATIONS[operation].fields.includes(key)) throw new TypeError('unknown search argument: ' + key);
@@ -591,10 +592,11 @@ function projectSlackSearchResults(response, request, options = {}) {
     charge(serializedArgs);
     result.source.request_args = JSON.parse(serializedArgs);
     if ((args.response_format !== undefined && args.response_format !== 'detailed') ||
-        args.include_context !== false ||
         (args.content_types !== undefined && args.content_types !== 'messages')) {
-      bad('UNSUPPORTED_REQUEST', 'Projection requires detailed message results with explicit include_context:false.');
+      bad('UNSUPPORTED_REQUEST', withContext ? 'Projection requires detailed message results.'
+        : 'Projection requires detailed message results with explicit include_context:false.');
     }
+    if (withContext) result.source.context_projection = 'matched_text_only';
     if (!response || typeof response !== 'object' || Array.isArray(response) || response.isError === true) {
       bad('NATIVE_ERROR', 'Expected a successful retained native search response.');
     }
@@ -665,7 +667,9 @@ function projectSlackSearchResults(response, request, options = {}) {
       const markers = (rendered.match(/^### Result\b/gm) || []).length;
       result.coverage.declared_results = declared;
       result.coverage.observed_result_headers = headers.length;
-      if (headers.length !== declared || markers !== declared ||
+      if ((!withContext && headers.length !== declared) ||
+          (withContext && (headers.length === 0 || headers.length > declared)) ||
+          markers !== headers.length ||
           headers[0]?.index !== prefix[0].length + section[0].length ||
           (args.limit !== undefined && declared > args.limit)) {
         bad('RESULT_COUNT_MISMATCH', 'Declared results and complete rendered headers differ.');
@@ -674,7 +678,11 @@ function projectSlackSearchResults(response, request, options = {}) {
       const ids = new Set();
       for (let i = 0; i < headers.length; i++) {
         const header = headers[i];
-        if (Number(header[1]) !== i + 1 || Number(header[2]) !== declared) {
+        const resultNumber = Number(header[1]);
+        if (Number(header[2]) !== declared ||
+            (!withContext && resultNumber !== i + 1) ||
+            (withContext && (resultNumber > declared ||
+              (i > 0 && resultNumber <= Number(headers[i - 1][1]))))) {
           bad('RESULT_SEQUENCE_MISMATCH', 'Rendered result numbering is inconsistent.');
         }
         const end = i + 1 < headers.length ? headers[i + 1].index : rendered.length;
@@ -691,13 +699,38 @@ function projectSlackSearchResults(response, request, options = {}) {
         if (!link || link[1] !== header[3] || link[2] !== header[4].replace('.', '')) {
           bad('PERMALINK_MISMATCH', 'Rendered permalink and result identity differ.');
         }
-        const body = rendered.slice(bodyStart, bodyEnd);
+        let contentEnd = bodyEnd;
+        const contextSections = [];
+        if (withContext) {
+          const body = rendered.slice(bodyStart, bodyEnd);
+          const contexts = Array.from(body.matchAll(/^Context (before|after):[ \t]*\n/gm));
+          if (contexts.length > 2 ||
+              (contexts.length === 2 && (contexts[0][1] !== 'before' || contexts[1][1] !== 'after'))) {
+            bad('AMBIGUOUS_LAYOUT', 'Context sections are repeated or out of order.');
+          }
+          if (contexts.length) contentEnd = bodyStart + contexts[0].index;
+          for (let j = 0; j < contexts.length; j++) {
+            const context = contexts[j];
+            const start = bodyStart + context.index;
+            const textStart = start + context[0].length;
+            const end = j + 1 < contexts.length ? bodyStart + contexts[j + 1].index : bodyEnd;
+            if (!/^- (?:From: |\[See result above\] From: )/.test(rendered.slice(textStart, end))) {
+              bad('UNSUPPORTED_CONTEXT', 'Expected native context list framing.');
+            }
+            contextSections.push({kind: context[1], header_range: [start, textStart],
+              rendered_content_range: [textStart, end], content_chars: end - textStart});
+          }
+        }
+        const body = rendered.slice(bodyStart, contentEnd);
         if (/^(?:# Search Results for:|## (?:Messages|Files)\b|### Result\b|Context (?:before|after):)/m.test(body)) {
           bad('AMBIGUOUS_LAYOUT', 'Result content contains reserved search or context framing.');
         }
-        rows.push({source_index: i, channel_id: header[3], message_ts: header[4],
+        const row = {source_index: i, channel_id: header[3], message_ts: header[4],
           permalink: header[5], rendered_result_range: [header.index, bodyEnd],
-          header_range: [header.index, bodyStart], rendered_content_range: [bodyStart, bodyEnd]});
+          header_range: [header.index, bodyStart], rendered_content_range: [bodyStart, contentEnd]};
+        if (withContext) Object.assign(row, {result_number: resultNumber,
+          context_sections: contextSections, context_chars: bodyEnd - contentEnd});
+        rows.push(row);
       }
     }
     const from = Math.min(limits.start_index, rows.length);
@@ -750,7 +783,16 @@ function projectSlackSearchResults(response, request, options = {}) {
         selected_content_chars: full, returned_content_chars: used, truncated_results: truncated,
         all_rendered_results_included: selected.length === rows.length && truncated === 0});
     }
-    result.status = rows.length ? 'PROJECTED' : 'EMPTY_RENDERING';
+    if (withContext) Object.assign(result.coverage, {
+      unrendered_results: declared - rows.length,
+      rendered_result_numbers: rows.map(row => row.result_number),
+      selected_context_chars: selected.reduce((total, row) => total + row.context_chars, 0),
+      returned_context_chars: 0,
+      all_declared_results_included: rows.length === declared && result.coverage.all_rendered_results_included,
+    });
+    result.status = rows.length
+      ? (withContext && rows.length < declared ? 'PARTIAL' : 'PROJECTED')
+      : 'EMPTY_RENDERING';
     return result;
   } catch (error) {
     if (!error?.searchProjection) throw error;

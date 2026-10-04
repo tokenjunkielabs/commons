@@ -87,7 +87,8 @@ Follow the selected native tool's input contract: lexical terms belong in
 Supply at least keywords or filters, and use `natural_language_query: ""` for
 a structural query. Keep any actual `query` argument separately; a rendered
 heading never proves which selectors were applied. For the pure search
-projector, select detailed message results with `include_context: false`.
+projector, prefer `include_context: false` for new message-only intake; an already
+retained context-enabled response can also be projected without another read.
 
 The collector's returned `binding` identifies the invoked tool. The pure
 projector retains the supplied `operation` in `source.operation`; it does not
@@ -308,28 +309,68 @@ One fresh channel read through the unchanged collector returned the same empty f
 ## Project a retained search result page
 
 The separate pure export `projectSlackSearchResults(response, request, options?)`
-projects the detailed message-only search format. It consumes an already retained
+projects detailed message search results, including retained context-enabled pages. It consumes an already retained
 response and the exact arguments of the call that produced it. It does not make
 a search, follow a link, parse claims, filter source records or modify either input.
 
 Pass `{operation: 'search_public', args: actualNativeArguments}` for a public-only
 read, or retain the existing `{operation: 'search', args: actualNativeArguments}`
 form for public-and-private or previously captured generic search projections.
-The supplied operation is preserved as `source.operation`; existing `search`
-outputs are unchanged. With the collector,
+The supplied operation is preserved as `source.operation`; existing context-free
+`search` outputs are unchanged. With the collector,
 use `pages[].request_args` and its corresponding `responses[response_index]`,
 as with the message projector. With a direct native search, retain its actual
 argument object beside the original response. Do not reconstruct arguments from
 the query heading or substitute a narrower query after capture.
 
-The request must explicitly contain `include_context: false`. Its format may be
-`detailed` or omitted when the returned grammar is detailed. If `content_types`
-was supplied, this projector supports only `messages`. Context-enabled, concise
+`include_context: false` keeps the existing strict context-free projection.
+`true` or the native default (omitted) also admits the recognized context framing
+below. Format may be `detailed` or omitted when the returned grammar is detailed.
+If `content_types` was supplied, this projector supports only `messages`. Concise
 and file-inclusive requests return `REFUSED / UNSUPPORTED_REQUEST`; the original
 native response remains available for other consumers. An omitted content-types
 option is accepted only when the actual response has the supported messages
 format. Unknown argument fields, invalid argument types and invalid options
 throw `TypeError`.
+
+### Reuse a context-enabled capture
+
+The projector returns each rendered match's text while preserving its surrounding
+context in the original response. `rendered_result_range` still spans the whole
+result; `rendered_content_range` stops before the first recognized context heading.
+Each context-enabled result adds its original `result_number`, `context_chars`
+and `context_sections`. A section records `kind` (`before` or `after`),
+`header_range`, `rendered_content_range` and `content_chars`. These exact half-open
+ranges address the same retained `results` string; no context body is copied into
+the projected output. The body budget applies only to matched text.
+
+Native context expansion can collapse several declared matches into one rendered
+result. Such a page returns `PARTIAL`, `unrendered_results` and
+`rendered_result_numbers`; it never synthesizes the missing messages from context
+references. Result numbers must remain distinct, increasing and within the declared
+count. `source_indices` selects rendered entries, not original result numbers.
+`all_declared_results_included` stays false when any declared match is unrendered.
+`all_rendered_results_included` concerns only rendered match bodies, not context.
+`selected_context_chars` reports retained context, while `returned_context_chars`
+is zero. Neither complete rendered text nor a partial view establishes claim
+clearance or a complete search. Inspect retained ranges or make a needed explicit
+read when missing source matters; the projector never makes that decision.
+
+Context headings must use the observed `Context before:` / `Context after:`
+framing, in that order when both exist, followed by native list framing. Repeated,
+out-of-order or unsupported sections refuse. As with other rendered headers,
+authored text can imitate this framing; the output is a source view, not an
+authenticity assertion. Collector defaults, native calls, cursors, original
+responses and the channel/thread projector remain unchanged.
+
+Actual use on two retained October 4 searches recovered an 848-code-unit match
+from each previously refused response. Both declared 12 matches but rendered one,
+so both correctly remain `PARTIAL` with 11 unrendered results. One full response
+serialized to 695,387 UTF-16 code units; its complete projected JSON was 2,891.
+Its 668,641 context code units remain addressable in the retained source.
+Four existing context-free intake projections stayed JSON-identical. This measures
+local output size and retained-source reuse, not provider latency, quota savings
+or access to the missing matches. No additional provider request was made.
 
 ### Inspect full source blocks before selecting text
 
@@ -429,9 +470,11 @@ agreement describe the captured rendering, not Slack's raw stored text.
 A fully provider-looking record authored inside content can be indistinguishable
 from framing; successful parsing is not an authenticity assertion.
 
-Detected incomplete framing, count or numbering mismatch, repeated identities,
+Detected incomplete framing, invalid counts or numbering, repeated identities,
 inconsistent permalinks, conflicting representations, file sections and reserved
-search/context framing lines refuse with an issue code and no result entries.
+framing inside matched text refuse with an issue code and no result entries.
+The context-free count check remains strict; only context-enabled pages admit
+the explicitly partial rendered-result form described above.
 The original response is unchanged. A structurally complete rendering does not
 prove that the provider returned the complete authored message body.
 
@@ -478,8 +521,9 @@ Inputs were unchanged; no request was replayed, fixture created or OS process ru
 
 ### Page coverage and navigation
 
-The statuses are `PROJECTED`, `EMPTY_RENDERING` and `REFUSED`. Only the exact
-observed `No results found.` rendering after the search preamble is accepted
+The statuses are `PROJECTED`, `PARTIAL`, `EMPTY_RENDERING` and `REFUSED`.
+`PARTIAL` means a context-enabled page rendered fewer matches than it declared.
+Only the exact observed `No results found.` rendering after the search preamble is accepted
 as an empty page. It describes that retained query and cursor, not a global
 empty work queue or full workspace search.
 
@@ -535,8 +579,9 @@ matched the recorded source offset exactly. Selecting `next_index: 1` returned
 the remaining two complete content ranges without another native call.
 
 An actual exact-name search with the native zero-result rendering returned
-`EMPTY_RENDERING`. A separately retained context-enabled search returned
-`REFUSED / UNSUPPORTED_REQUEST` using its actual request. The DM Participants
+`EMPTY_RENDERING`. At that initial implementation, a separately retained
+context-enabled search returned `REFUSED / UNSUPPORTED_REQUEST` using its actual
+request; the later context projection above extends that unsupported case. The DM Participants
 form was observed in a header excerpt supplied by the immediate consumer;
 that excerpt alone is not a complete positive-response observation.
 
