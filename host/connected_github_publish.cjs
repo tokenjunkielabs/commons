@@ -170,6 +170,89 @@ function checkNewBlobPin(file, source) {
   }
 }
 
+function isMissingFileResponse(response) {
+  const payload = response?.structuredContent;
+  return response?.isError === true && payload?.error_code === 'NOT_FOUND'
+    && [404, '404'].includes(payload.error_data?.status)
+    && payload.error_data?.message === 'Not Found';
+}
+
+/** Resolve exact entries; only an absent leaf can replace an unreadable tree. */
+function baseFileReader({api, repository_full_name, commitSha, treeSha,
+  fetchJSON, readPreimage, progress, treeLabel}) {
+  const trees = new Map();
+  const unavailable = new Map();
+  const tree = async current => {
+    if (unavailable.has(current)) throw unavailable.get(current);
+    if (!trees.has(current)) {
+      let data;
+      try { data = await fetchJSON(`${api}/git/trees/${current}`); }
+      catch (error) {
+        if (error.tool_error?.error_code === 'transport_closed'
+            && error.tool_error.http_status === null) unavailable.set(current, error);
+        throw error;
+      }
+      if (data.sha !== current || !Array.isArray(data.tree) || data.truncated !== false) {
+        const error = new Error(`The ${treeLabel} tree could not be read completely: ${current}`);
+        if (data.sha === current && Array.isArray(data.tree) && data.truncated === true) {
+          error.truncated_tree = true;
+          unavailable.set(current, error);
+        }
+        throw error;
+      }
+      trees.set(current, data.tree);
+    }
+    return trees.get(current);
+  };
+  return async (path, expectedBlob) => {
+    let current = treeSha;
+    const parts = path.split('/');
+    for (let index = 0; index < parts.length; index++) {
+      let entries;
+      try { entries = await tree(current); }
+      catch (error) {
+        // The successful prefix reads must already establish the immediate parent.
+        if (index === 0 || index !== parts.length - 1 || !unavailable.has(current)) throw error;
+        const request = {repository_full_name, path, ref: commitSha, encoding: 'utf-8',
+          start_line: 1, end_line: 1};
+        const record = {path, base_commit_sha: commitSha, parent_tree_sha: current,
+          reason: error.truncated_tree ? 'truncated_tree' : 'transport_closed',
+          ...(error.tool_error ? {tree_error: error.tool_error} : {}),
+          request, outcome: 'pending'};
+        (progress.preimage_fallbacks ??= []).push(record);
+        let response;
+        try { response = await readPreimage(request); }
+        catch (readError) {
+          record.outcome = 'unavailable';
+          if (readError.tool_error) record.tool_error = readError.tool_error;
+          throw readError;
+        }
+        if (response.absent) {
+          Object.assign(record, {outcome: 'absent', observed_blob_sha: null,
+            http_status: 404, connector_error_code: 'NOT_FOUND'});
+          return null;
+        }
+        const data = response.data;
+        record.outcome = 'unavailable';
+        if (data.display_url !== `https://github.com/${repository_full_name}/blob/${commitSha}/${path}`) {
+          throw new Error(`File precheck did not identify the exact immutable path: ${path}`);
+        }
+        const observed = sha(data.sha, 'Existing file precheck');
+        Object.assign(record, {outcome: 'existing_blob', observed_blob_sha: observed,
+          file_type_observed: false, mode_observed: false});
+        // A differing blob proves a version conflict without assuming type or mode.
+        if (observed !== expectedBlob) return {sha: observed};
+        throw new Error(`The existing path's Git type and mode are unavailable: ${path}; a caller-selected mode cannot replace the unreadable tree`);
+      }
+      const item = entries.find(entry => entry.path === parts[index]);
+      if (!item) return null;
+      if (index === parts.length - 1) return item;
+      if (item.type !== 'tree') throw new Error(`A parent path is not a directory: ${path}`);
+      current = sha(item.sha, 'Parent tree');
+    }
+  };
+}
+
 function inspectReadback(file, source, data) {
   if (source.encoding === 'utf-8') {
     const observed = sha(data.sha, 'Published text blob');
@@ -242,36 +325,24 @@ async function publishGitHubChange(tools, change, options = {}) {
       const payload = await call('fetch', {url});
       return typeof payload.content === 'string' ? object(JSON.parse(payload.content), 'GitHub resource') : payload;
     };
+    const readPreimage = async args => {
+      try { return {data: await call('fetch_file', args)}; }
+      catch (error) {
+        if (isMissingFileResponse(lastResponse)) return {absent: true};
+        throw error;
+      }
+    };
     const api = `https://api.github.com/repos/${repository_full_name}`;
     progress.stage = 'read_base';
     const base = await fetchJSON(`${api}/branches/${encodeURIComponent(spec.base_branch)}`);
     progress.base_commit_sha = sha(base.commit?.sha, 'Base branch');
     progress.base_tree_sha = sha(base.commit?.commit?.tree?.sha, 'Base tree');
-    const trees = new Map();
-    const tree = async treeSha => {
-      if (!trees.has(treeSha)) {
-        const data = await fetchJSON(`${api}/git/trees/${treeSha}`);
-        if (data.sha !== treeSha || !Array.isArray(data.tree) || data.truncated !== false) {
-          throw new Error(`The base tree could not be read completely: ${treeSha}`);
-        }
-        trees.set(treeSha, data.tree);
-      }
-      return trees.get(treeSha);
-    };
-    const existingFile = async path => {
-      let current = progress.base_tree_sha;
-      const parts = path.split('/');
-      for (let index = 0; index < parts.length; index++) {
-        const item = (await tree(current)).find(entry => entry.path === parts[index]);
-        if (!item) return null;
-        if (index === parts.length - 1) return item;
-        if (item.type !== 'tree') throw new Error(`A parent path is not a directory: ${path}`);
-        current = sha(item.sha, 'Parent tree');
-      }
-    };
+    const existingFile = baseFileReader({api, repository_full_name,
+      commitSha: progress.base_commit_sha, treeSha: progress.base_tree_sha,
+      fetchJSON, readPreimage, progress, treeLabel: 'base'});
     progress.stage = 'check_file_versions';
     for (const file of spec.files) {
-      const existing = await existingFile(file.path);
+      const existing = await existingFile(file.path, file.expected_blob_sha);
       if ((existing?.sha ?? null) !== file.expected_blob_sha) {
         throw new Error(`Base file changed: ${file.path}; expected ${file.expected_blob_sha ?? 'absent'}, observed ${existing?.sha ?? 'absent'}`);
       }
@@ -452,6 +523,13 @@ async function continueGitHubMerge(tools, change, previousProgress, options = {}
       const payload = await call('fetch', {url});
       return typeof payload.content === 'string' ? object(JSON.parse(payload.content), 'GitHub resource') : payload;
     };
+    const readPreimage = async args => {
+      try { return {data: await call('fetch_file', args)}; }
+      catch (error) {
+        if (isMissingFileResponse(lastResponse)) return {absent: true};
+        throw error;
+      }
+    };
     progress.stage = 'read_pull_request';
     const pr = await call('get_pr_info', {repository_full_name, pr_number: retainedPR.number});
     if (pr.number !== retainedPR.number || pr.base !== spec.base_branch || pr.head !== spec.branch_name
@@ -477,29 +555,12 @@ async function continueGitHubMerge(tools, change, previousProgress, options = {}
       const base = await fetchJSON(`${api}/branches/${encodeURIComponent(spec.base_branch)}`);
       progress.current_base_commit_sha = sha(base.commit?.sha, 'Current base branch');
       progress.current_base_tree_sha = sha(base.commit?.commit?.tree?.sha, 'Current base tree');
-      const trees = new Map();
-      const tree = async treeSha => {
-        if (!trees.has(treeSha)) {
-          const data = await fetchJSON(`${api}/git/trees/${treeSha}`);
-          if (data.sha !== treeSha || !Array.isArray(data.tree) || data.truncated !== false) {
-            throw new Error(`The current base tree could not be read completely: ${treeSha}`);
-          }
-          trees.set(treeSha, data.tree);
-        }
-        return trees.get(treeSha);
-      };
+      const existingFile = baseFileReader({api, repository_full_name,
+        commitSha: progress.current_base_commit_sha, treeSha: progress.current_base_tree_sha,
+        fetchJSON, readPreimage, progress, treeLabel: 'current base'});
       progress.stage = 'check_file_versions';
       for (const file of progress.files) {
-        let current = progress.current_base_tree_sha;
-        let existing = null;
-        const parts = file.path.split('/');
-        for (let index = 0; index < parts.length; index++) {
-          const item = (await tree(current)).find(entry => entry.path === parts[index]);
-          if (!item) break;
-          if (index === parts.length - 1) { existing = item; break; }
-          if (item.type !== 'tree') throw new Error(`A parent path is not a directory: ${file.path}`);
-          current = sha(item.sha, 'Parent tree');
-        }
+        const existing = await existingFile(file.path, file.previous_blob_sha);
         if ((existing?.sha ?? null) !== file.previous_blob_sha
             || (existing?.mode ?? null) !== file.previous_mode
             || (existing && existing.type !== 'blob')) {

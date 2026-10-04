@@ -106,7 +106,9 @@ text(result); // Source content and the PR body are not copied into progress.
 ## What it preserves
 
 The helper reads the current base branch once, then traverses its exact,
-nonrecursive Git trees. Every required tree must be complete. It compares every
+nonrecursive Git trees. Entry and mode comparisons use complete trees. A bounded
+absence fallback can handle a new immediate leaf when its known parent tree
+cannot be transported; its limits are described below. The helper compares every
 source file with the caller's expected version **before the first write**. This
 lets unrelated main-branch changes compose naturally while stopping an obsolete
 postimage from overwriting a changed file. A mismatch gives the path and the
@@ -132,6 +134,58 @@ merely to check their identity. `readback_ref` names that exact source
 snapshot. It does not claim that a later current-main tip is
 unchanged, that a running service reloaded it, or that it is deployed. Source
 execution and product acceptance remain the caller's work.
+
+### New files under an unreadable parent tree
+
+An oversized directory can make the native Git-tree reader return
+`transport_closed` even when an exact file read works. After that specific
+failure, or an explicitly truncated response for the requested tree SHA, the
+helper can make one narrower `fetch_file` request for an immediate leaf. It
+uses the already-captured immutable base commit, requests only the first line,
+and uses metadata rather than interpreting the source body. The preceding
+complete-tree reads must have established every parent prefix as a tree.
+
+Only the native structured `NOT_FOUND` response with HTTP 404 and `Not Found`
+establishes absence in this context. A caller's `expected_blob_sha: null` then
+matches normally, and its requested new-file mode applies as usual. The new
+file may be UTF-8 or pinned base64; source-pin checks and all remaining base
+version checks still finish before the relevant tree, commit, branch and PR
+writes. An explicit absence conflicts with an expected existing blob.
+
+A positive file response must identify the exact repository, immutable commit
+and path in its native `display_url`, and supply a valid blob SHA. A different
+SHA proves a version conflict. A matching existing SHA **does not** permit the
+fallback to continue: the observed native file reader omits Git type and mode.
+The Contents renderer also omits those fields, and GitHub's
+[Contents API](https://docs.github.com/en/rest/repos/contents#get-repository-content)
+can dereference an in-repository symlink. Neither `mode: '100644'` nor an
+unverified expected-mode assertion can establish the previous entry. An
+existing file therefore still requires its exact complete-tree type and mode
+evidence. The helper never converts an unresolved existing path into a new
+regular file or silently resets its executable bit.
+
+The fallback does not apply when the root tree is unreadable, when an
+intermediate prefix remains unresolved, or when a successfully read prefix is
+not a directory. A 401/403, timeout, unrecognized error, malformed tree, wrong
+tree identity, wrong file URL, or omitted file SHA stops the operation. Error
+text alone, an empty body and a partial directory listing never prove absence.
+No failed tree or file call is retried. An eligible failed parent tree is cached
+for that invocation, so several new leaves under it share one failed tree read
+and each receive one exact file read. Native response-size limits still apply.
+
+`progress.preimage_fallbacks` appears only when this narrower read is attempted.
+Each row retains the path, immutable base commit, parent tree SHA, exact read
+request, reason and outcome. Outcomes are `pending`, `absent`, `existing_blob`
+or `unavailable`; an existing-blob row explicitly records that type and mode
+were not observed. The original bounded tree error remains attached even if
+the absence read succeeds. No source body is copied into progress. Ordinary
+complete-tree publications retain their previous calls and progress shape.
+
+Open-PR merge continuation uses the same rule against its freshly read base.
+It can re-establish that a previously new leaf is still absent; an appeared
+file or unresolved existing entry stops before the merge. Already-merged PRs
+continue straight to their actual immutable readback as before. Prior
+invocations and their errors remain part of the caller's retained history.
 
 The file reader can return a large file's SHA with an empty body. For text,
 an empty returned body with a nonempty blob identity is recorded as
@@ -298,7 +352,8 @@ before creating its tree. The check compares SHA values directly, without
 trusting a saved match flag.
 
 For an open PR, it reads the current base and its exact nonrecursive trees,
-then compares every affected previous blob and file mode. An unrelated base
+using the same bounded new-leaf absence fallback if eligible, then compares
+every affected previous blob and file mode. An unrelated base
 change can proceed; an affected-file change must be composed deliberately.
 It makes one merge call with the original `expected_head_sha` and requested
 merge method. A concurrent base or head change may still be refused by GitHub.
