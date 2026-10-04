@@ -461,7 +461,7 @@ The operation performs these steps:
    observed old head; the PR must remain open/unmerged at the observed base.
    Persist the known commit and an uncertain ref-update state, then make one
    native `update_ref` call with `force: false`.
-7. Read the same PR and ref again. Both must identify the prepared commit.
+7. By default, read the same PR and ref again. Both must identify the prepared commit.
    The earlier content comparison remains bound to that immutable commit; the
    helper does not duplicate those file reads. The final PR state and
    `base_changed` observation remain explicit.
@@ -495,6 +495,69 @@ branch-ref SHA. Source strings and commit-message contents are not copied.
 | `publication_status: unknown` | The ref request was about to be sent or did not return a confirmed result. Reconcile provider state before another write. |
 | `ref_update_state: not_converged` | Current PR/ref observations do not both identify the prepared commit. Their actual SHAs remain available. |
 | `status: no_source_changes` | No contribution commit or ref update was needed; any earlier native blob/tree creation is still counted. |
+
+### Defer only the final head observation
+
+An existing contribution can opt into `defer_head_observation: true` in the
+`advanceGitHubContribution` options. Omission or `false` preserves the complete
+default path, including the two final PR/ref reads. A supplied non-boolean
+value is refused before provider calls. This option belongs only to advancement;
+it does not change the read-only reconciliation or head-observer exports.
+
+```javascript
+const pending = await advanceGitHubContribution(tools, preparedContribution, {
+  defer_head_observation: true,
+  onProgress: state => retainOperationProgress(state),
+});
+retainOperationProgress(pending);
+```
+
+The option can return early only after all immutable commit/tree/full-file
+checks, the current old-head comparison, and one successful native
+`update_ref` with `force: false`. Its result separates these facts:
+
+| Field | Meaning |
+|---|---|
+| `status: contribution_head_observation_pending` | This advancement stopped before its final current-head reads. |
+| `stage: head_observation_deferred` and `head_observation_status: deferred` | Neither final PR nor final ref GET was requested. |
+| `publication_status: update_confirmed` and `ref_update_state: confirmed` | The native ref writer acknowledged its one update. |
+| `commit_verified: true`, complete `tree_comparison` and `readback_status: complete` | The same immutable source evidence required by the default path is retained. |
+| `head_observation_target` | The seven validated PR/ref/expected-commit fields for the separate head observer. |
+
+The retained `pull_request` and earlier `observations` still describe reads
+before the write; they are not observations of the new head. No
+`contribution_branch_updated` or current PR convergence is claimed. Keep the
+pending progress and source proof. When the remaining head observation is due,
+call the existing reader once with the supplied target:
+
+```javascript
+const observation = await observeGitHubContributionHead(
+  tools, pending.head_observation_target,
+  {onProgress: state => retainHeadObservation(state)}
+);
+retainHeadObservation(observation);
+```
+
+Only use that target when the returned status is
+`contribution_head_observation_pending`; a `no_source_changes` result has no
+new commit or deferred target. The observer makes the two current PR/ref reads
+and reports its own observed heads, base movement, PR state and errors.
+Its source/publication verification remains `not_performed`: keep it alongside,
+not in place of, the separately retained immutable proof and writer outcome.
+The caller decides how to report their combined evidence. An inconclusive
+head observation does not authorize another write.
+
+An unconfirmed or failed ref update still throws with its existing uncertain
+state before the deferred return is reachable. Use the unchanged reconciliation
+procedure below; this option adds no retry, recovery write, sleep, poll, timer,
+or atomic expected-old-head guarantee. It does not affect the ordinary
+new-branch/PR publisher or its merge continuation.
+
+This option removes two immediate GETs from the advancement itself. It does
+not remove the later observer's two reads or guarantee that GitHub's PR index
+has converged by then. It is useful when the caller already has other required
+work between a confirmed write and its final head observation, particularly
+where immediate reads have repeatedly returned different PR/ref heads.
 
 ### Reconcile a retained contribution without writing
 
