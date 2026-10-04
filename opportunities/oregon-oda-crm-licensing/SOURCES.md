@@ -1,3 +1,21 @@
+## Dated public-notice observation — 2026-10-04
+
+The [OregonBuys attachment log](https://oregonbuys.gov/bso/external/bidDetail.sda?docId=S-DASOBO-00017788&external=true&parentUrl=close) adds these six files beyond the historical inventory below:
+
+| Log entry | Displayed date and time | Added filenames |
+|---|---|---|
+| 1 | 09/21/2026 12:19:25 PM | `CRM and Licensing RFP Pre Proposal Conference - Informational Purposes Only.pptx`; `Pre-Proposal Conference Participation for S-DASOBO-00017788 _Informational Purposes Only.xlsx` |
+| 2 | 09/21/2026 04:22:32 PM | `S-DASOOBO-00017788 Questions_and_Answers - INFORMATIONAL PURPOSES ONLY~2.xlsx`; `S-DASOBO-00017788_ADDENDUM 1 FINAL~1.docx`; `REVISED Attachment E - Price Proposal S-DASOBO-00017788~3.xlsx` |
+| 3 | 09/28/2026 04:19:27 PM | `S-DASOBO-00017788_ADDENDUM 2 FINAL.docx` |
+
+Spelling and suffixes are literal, including `DASOOBO`. There are three log entries and two named addenda. These labels do not establish their contents or legal effect.
+
+Coverage: all 105 lines of the rendered notice were read. The response exposed filenames, not anonymous attachment download links or file contents. This observation does not establish raw-byte custody, hashes, Q&A answers, revised prices, addendum effects or a complete controlling-source generation. No account, quote or portal action occurred.
+
+Only original analysis and source metadata are recorded here; raw buyer text is not republished. Historical source entries below remain unchanged. Required next source work is actual RFP/attachment/addendum custody and section/cell reconciliation, especially the original and revised Attachment E; qualification and contact holds remain in force. The passed header date and Bid Type distinction are summarized in the README. This note does not change `qualification.json` or execute its validator.
+
+---
+
 # Source ledger — Oregon ODA CRM & Licensing
 
 The controlling procurement record is OregonBuys. Secondary indexes are discovery aids only and must not override buyer-controlled files.
