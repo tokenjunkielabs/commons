@@ -250,7 +250,7 @@
     var fingerprint = hash(input);
     var existing = input.referralId ? journal.referrals[input.referralId] : null;
 
-    if (existing && existing.fingerprint !== fingerprint) {
+    if (existing && (existing.fingerprint !== fingerprint || canonical(existing.input) !== canonical(input))) {
       return Object.assign({
         receiptVersion: 1,
         slug: SLUG,
@@ -304,7 +304,7 @@
       return result(state);
     }
 
-    var rule = CLASSES[input.referralClass];
+    var rule = Object.prototype.hasOwnProperty.call(CLASSES, input.referralClass) ? CLASSES[input.referralClass] : null;
     if (!rule) {
       state.status = "INTAKE_EXCEPTION";
       state.effects.intakeReceipt = state.effects.intakeReceipt || {

@@ -16,6 +16,12 @@ grant file `resources.json`.
 
 ## Current reconciliation — 2026-10-04
 
+The canonical graph now contains **186 resources**. Its new paid-diagnostic source bundle serves the existing **$199 dealer, plant and referral offers**. The real modules now distinguish exact canonical semantic identities when displayed fingerprints collide, and return exception receipts for unsupported inherited categories. Existing valid retries, restart recovery and privacy refusal remain. Complete Node24.19 execution exited0 using explicitly synthetic product inputs; no real customer, provider or payment effect occurred.
+
+[Activation source and exact pins](../inventory/resources/records/resource-master-paid-diagnostic-idempotency-20261004-01.json). Original paid-product HTML, pricing, repair-booking, peer scopes and prior completed activations remain. Resource work now prioritizes revenue-bearing outcomes and continues beyond a first completion. The prior exhaustive sweep upper bound remains **2026-10-04T10:28:37Z /4462d621**; later bounded work observations do not skip unread history.
+
+## Completed point activation — 2026-10-04
+
 The canonical graph contains 185 resources. The new fast A304081 counter supplies eight previously absent individual near-cap values to the existing finite point atlas: **30, 32, 30, 32, 60, 33, 34, 34** for inputs999999999991 through999999999998. The activation merged in [PR #31216](https://github.com/woahwhattheheck/commons/pull/31216) at `e7689bce589d6e9a6b62c93342ff39fb4db8941c`; all five current-main blob identities and full contents matched, and the exact claim is released. The complete [new dataset](../research/a304081/resource-master-successor-counts-20261004-01.json) retains4,224candidate pairs,4,200classifications and285representations. Original source, prior data, accepted C++ computation and research custody remain unchanged. This adds finite point data; no global conjecture or prize result is claimed.
 
 Newly reconciled source/data also includes numerical Erdos978 gap navigation, the landed cloud swarm launcher, a perishable DOTT software APK and the bounty-audit HTTP response-release repair. Cloud launcher source does not establish a live service; the DOTT artifact expiresNovember3 and predates the later callback repair. Original consumers and owners remain.

@@ -142,8 +142,8 @@
     return input.faultId;
   }
 
-  function identityFingerprint(input) {
-    return hash({
+  function identityPayload(input) {
+    return {
       faultId: input.faultId,
       faultClass: input.faultClass,
       plantId: input.fields.plantId,
@@ -153,7 +153,11 @@
       observedAt: input.fields.observedAt,
       windowId: input.fields.windowId,
       partsNeeded: input.fields.partsNeeded
-    });
+    };
+  }
+
+  function identityFingerprint(input) {
+    return hash(identityPayload(input));
   }
 
   function createStore() {
@@ -327,7 +331,8 @@
       return result(refusalState, null, { storedStatus: existing ? existing.status : null });
     }
 
-    if (existing && existing.fingerprint !== fingerprint) {
+    if (existing && (existing.fingerprint !== fingerprint ||
+        canonical(identityPayload(existing.input)) !== canonical(identityPayload(input)))) {
       return Object.assign({
         receiptVersion: 1,
         slug: SLUG,
@@ -384,7 +389,7 @@
       return result(state);
     }
 
-    var rule = CLASSES[input.faultClass];
+    var rule = Object.prototype.hasOwnProperty.call(CLASSES, input.faultClass) ? CLASSES[input.faultClass] : null;
     if (!rule) {
       state.status = "FAULT_EXCEPTION";
       state.effects.statusReceipt = state.effects.statusReceipt || {
