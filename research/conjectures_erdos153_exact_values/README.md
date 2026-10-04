@@ -57,3 +57,14 @@ subsets and retains all 32 minimizers.
 [The connected search/objective API](sidon_gap_search.cjs) supplies bounded
 prefix traversal and exact witness data without native execution.
 The preceding `n=5,6,7` computations remain as recorded above.
+
+## Nine-element continuation
+
+[The nine-element finite premise](N9_FINITE_PREMISES.md) records the exact
+minimum `254/45` for Sidon nine-sets in `[0,52]`, with the sufficient
+cutoff `11176 <= 11236` for the accepted finite-search reduction.
+[The complete retained output](n9_finite_premises.json) accounts for all
+4,431,613,550 subsets, including 5,550 Sidon sets, and keeps all 18
+minimizers plus the full energy histogram.
+This new input used the unchanged connected API; the earlier finite
+computations were not rerun.
