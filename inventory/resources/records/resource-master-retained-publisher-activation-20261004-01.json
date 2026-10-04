@@ -288,6 +288,171 @@
       "Lovable": "one Free owned workspace;zero projects;credit fields unreturned",
       "Replit": "installed methods;credits unmeasured"
     },
+    "publication": {
+      "base_branch": "main",
+      "base_commit_sha": "52dcf514a4701eae19d7763f9d36c0b41095dc0e",
+      "base_tree_sha": "52218756bd5647f233c02408ec4ddf29c0a418ce",
+      "branch_created": true,
+      "branch_name": "work/resource-master-retained-publisher-20261004-0955",
+      "calls": {
+        "create_blob": 5,
+        "create_branch": 1,
+        "create_commit": 1,
+        "create_pull_request": 1,
+        "create_tree": 1,
+        "fetch": 6,
+        "fetch_file": 5,
+        "merge_pull_request": 1
+      },
+      "commit_sha": "d9a4d547c4bbc55e021b6b3a50dca2fa6bdec7af",
+      "files": [
+        {
+          "blob_sha": "33351d3ebc08004deb2568554957d931efa611f0",
+          "expected_new_blob_sha": "33351d3ebc08004deb2568554957d931efa611f0",
+          "mode": "100644",
+          "path": "ground/RESOURCE_LEDGER.json",
+          "previous_blob_sha": "37209d30ad00e4ee9f2b14eda2f784d143e87813",
+          "previous_mode": "100644",
+          "source_pin_matches": true
+        },
+        {
+          "blob_sha": "3cf1834b4b26846581c407220203314d69a6ee4b",
+          "expected_new_blob_sha": "3cf1834b4b26846581c407220203314d69a6ee4b",
+          "mode": "100644",
+          "path": "ground/RESOURCE_LEDGER.md",
+          "previous_blob_sha": "3c0f5c929d9ddd2b694a7fd15bbab1dc672d83a3",
+          "previous_mode": "100644",
+          "source_pin_matches": true
+        },
+        {
+          "blob_sha": "aba742d21a4e212654579fb24db654118f2176f7",
+          "expected_new_blob_sha": "aba742d21a4e212654579fb24db654118f2176f7",
+          "mode": "100644",
+          "path": "resources.html",
+          "previous_blob_sha": "e70891b5c8c021c1fb1a51bd9aca7cd6544358a4",
+          "previous_mode": "100644",
+          "source_pin_matches": true
+        },
+        {
+          "blob_sha": "4db4d53f9caedf0480206f3e90c38979459e064e",
+          "expected_new_blob_sha": "4db4d53f9caedf0480206f3e90c38979459e064e",
+          "mode": "100644",
+          "path": "inventory/resources/records/resource-master-retained-publisher-activation-20261004-01.json",
+          "previous_blob_sha": null,
+          "previous_mode": null,
+          "source_pin_matches": true
+        },
+        {
+          "blob_sha": "0fb5711e7beadd56cc612d91a5e9bba2cf8fb416",
+          "expected_new_blob_sha": "0fb5711e7beadd56cc612d91a5e9bba2cf8fb416",
+          "mode": "100644",
+          "path": "p/resource-master-retained-publisher-activation-20261004-01.md",
+          "previous_blob_sha": null,
+          "previous_mode": null,
+          "source_pin_matches": true
+        }
+      ],
+      "merge_result": {
+        "merged": true,
+        "message": "Pull Request successfully merged",
+        "sha": "bebf0b952a613cca672bfd6bfe54af9151bff43f"
+      },
+      "merge_sha": "bebf0b952a613cca672bfd6bfe54af9151bff43f",
+      "progress_callback_errors": [],
+      "publication_status": "merged",
+      "pull_request": {
+        "head_sha": "d9a4d547c4bbc55e021b6b3a50dca2fa6bdec7af",
+        "number": 31209,
+        "url": "https://github.com/woahwhattheheck/commons/pull/31209"
+      },
+      "readback": [
+        {
+          "content_matches": true,
+          "expected_blob_sha": "33351d3ebc08004deb2568554957d931efa611f0",
+          "matches": true,
+          "observed_blob_sha": "33351d3ebc08004deb2568554957d931efa611f0",
+          "path": "ground/RESOURCE_LEDGER.json"
+        },
+        {
+          "content_matches": true,
+          "expected_blob_sha": "3cf1834b4b26846581c407220203314d69a6ee4b",
+          "matches": true,
+          "observed_blob_sha": "3cf1834b4b26846581c407220203314d69a6ee4b",
+          "path": "ground/RESOURCE_LEDGER.md"
+        },
+        {
+          "content_matches": true,
+          "expected_blob_sha": "aba742d21a4e212654579fb24db654118f2176f7",
+          "matches": true,
+          "observed_blob_sha": "aba742d21a4e212654579fb24db654118f2176f7",
+          "path": "resources.html"
+        },
+        {
+          "content_matches": true,
+          "expected_blob_sha": "4db4d53f9caedf0480206f3e90c38979459e064e",
+          "matches": true,
+          "observed_blob_sha": "4db4d53f9caedf0480206f3e90c38979459e064e",
+          "path": "inventory/resources/records/resource-master-retained-publisher-activation-20261004-01.json"
+        },
+        {
+          "content_matches": true,
+          "expected_blob_sha": "0fb5711e7beadd56cc612d91a5e9bba2cf8fb416",
+          "matches": true,
+          "observed_blob_sha": "0fb5711e7beadd56cc612d91a5e9bba2cf8fb416",
+          "path": "p/resource-master-retained-publisher-activation-20261004-01.md"
+        }
+      ],
+      "readback_concurrency": 4,
+      "readback_ref": "bebf0b952a613cca672bfd6bfe54af9151bff43f",
+      "readback_status": "complete",
+      "repository_full_name": "woahwhattheheck/commons",
+      "retained_tree_preimages": [
+        {
+          "base_commit_sha": "52dcf514a4701eae19d7763f9d36c0b41095dc0e",
+          "bytes": 3517805,
+          "entries": 56067,
+          "git_object_sha_verified": true,
+          "parent_tree_sha": "3cfc06934af98b6319e455d4fe994b9de255edb9",
+          "path": "p"
+        }
+      ],
+      "stage": "complete",
+      "status": "merged",
+      "tree_sha": "13a638ad2d8bc05553cf8512517f1ee797ecaf44"
+    },
+    "publication_current_main": "bebf0b952a613cca672bfd6bfe54af9151bff43f",
+    "publication_current_main_exact_readback": [
+      {
+        "full_source": true,
+        "matches": true,
+        "path": "ground/RESOURCE_LEDGER.json",
+        "sha": "33351d3ebc08004deb2568554957d931efa611f0"
+      },
+      {
+        "full_source": true,
+        "matches": true,
+        "path": "ground/RESOURCE_LEDGER.md",
+        "sha": "3cf1834b4b26846581c407220203314d69a6ee4b"
+      },
+      {
+        "full_source": true,
+        "matches": true,
+        "path": "resources.html",
+        "sha": "aba742d21a4e212654579fb24db654118f2176f7"
+      },
+      {
+        "full_source": true,
+        "matches": true,
+        "path": "inventory/resources/records/resource-master-retained-publisher-activation-20261004-01.json",
+        "sha": "4db4d53f9caedf0480206f3e90c38979459e064e"
+      },
+      {
+        "full_source": true,
+        "matches": true,
+        "path": "p/resource-master-retained-publisher-activation-20261004-01.md",
+        "sha": "0fb5711e7beadd56cc612d91a5e9bba2cf8fb416"
+      }
+    ],
     "publisher_order_thread": {
       "body_truncation": 0,
       "channel_id": "C0BTB4SUCP9",
@@ -7213,6 +7378,256 @@
     "prior_native_actions": 989,
     "removed_actions": 0
   },
+  "publication_terminal": {
+    "all_green_claim": false,
+    "exactly_one_activation": true,
+    "pending_hosted_checks_retained": true,
+    "source_claim_released": true,
+    "source_publication": {
+      "current_main": "bebf0b952a613cca672bfd6bfe54af9151bff43f",
+      "current_main_readback": [
+        {
+          "full_source": true,
+          "matches": true,
+          "path": "ground/RESOURCE_LEDGER.json",
+          "sha": "33351d3ebc08004deb2568554957d931efa611f0"
+        },
+        {
+          "full_source": true,
+          "matches": true,
+          "path": "ground/RESOURCE_LEDGER.md",
+          "sha": "3cf1834b4b26846581c407220203314d69a6ee4b"
+        },
+        {
+          "full_source": true,
+          "matches": true,
+          "path": "resources.html",
+          "sha": "aba742d21a4e212654579fb24db654118f2176f7"
+        },
+        {
+          "full_source": true,
+          "matches": true,
+          "path": "inventory/resources/records/resource-master-retained-publisher-activation-20261004-01.json",
+          "sha": "4db4d53f9caedf0480206f3e90c38979459e064e"
+        },
+        {
+          "full_source": true,
+          "matches": true,
+          "path": "p/resource-master-retained-publisher-activation-20261004-01.md",
+          "sha": "0fb5711e7beadd56cc612d91a5e9bba2cf8fb416"
+        }
+      ],
+      "publication": {
+        "base_branch": "main",
+        "base_commit_sha": "52dcf514a4701eae19d7763f9d36c0b41095dc0e",
+        "base_tree_sha": "52218756bd5647f233c02408ec4ddf29c0a418ce",
+        "branch_created": true,
+        "branch_name": "work/resource-master-retained-publisher-20261004-0955",
+        "calls": {
+          "create_blob": 5,
+          "create_branch": 1,
+          "create_commit": 1,
+          "create_pull_request": 1,
+          "create_tree": 1,
+          "fetch": 6,
+          "fetch_file": 5,
+          "merge_pull_request": 1
+        },
+        "commit_sha": "d9a4d547c4bbc55e021b6b3a50dca2fa6bdec7af",
+        "files": [
+          {
+            "blob_sha": "33351d3ebc08004deb2568554957d931efa611f0",
+            "expected_new_blob_sha": "33351d3ebc08004deb2568554957d931efa611f0",
+            "mode": "100644",
+            "path": "ground/RESOURCE_LEDGER.json",
+            "previous_blob_sha": "37209d30ad00e4ee9f2b14eda2f784d143e87813",
+            "previous_mode": "100644",
+            "source_pin_matches": true
+          },
+          {
+            "blob_sha": "3cf1834b4b26846581c407220203314d69a6ee4b",
+            "expected_new_blob_sha": "3cf1834b4b26846581c407220203314d69a6ee4b",
+            "mode": "100644",
+            "path": "ground/RESOURCE_LEDGER.md",
+            "previous_blob_sha": "3c0f5c929d9ddd2b694a7fd15bbab1dc672d83a3",
+            "previous_mode": "100644",
+            "source_pin_matches": true
+          },
+          {
+            "blob_sha": "aba742d21a4e212654579fb24db654118f2176f7",
+            "expected_new_blob_sha": "aba742d21a4e212654579fb24db654118f2176f7",
+            "mode": "100644",
+            "path": "resources.html",
+            "previous_blob_sha": "e70891b5c8c021c1fb1a51bd9aca7cd6544358a4",
+            "previous_mode": "100644",
+            "source_pin_matches": true
+          },
+          {
+            "blob_sha": "4db4d53f9caedf0480206f3e90c38979459e064e",
+            "expected_new_blob_sha": "4db4d53f9caedf0480206f3e90c38979459e064e",
+            "mode": "100644",
+            "path": "inventory/resources/records/resource-master-retained-publisher-activation-20261004-01.json",
+            "previous_blob_sha": null,
+            "previous_mode": null,
+            "source_pin_matches": true
+          },
+          {
+            "blob_sha": "0fb5711e7beadd56cc612d91a5e9bba2cf8fb416",
+            "expected_new_blob_sha": "0fb5711e7beadd56cc612d91a5e9bba2cf8fb416",
+            "mode": "100644",
+            "path": "p/resource-master-retained-publisher-activation-20261004-01.md",
+            "previous_blob_sha": null,
+            "previous_mode": null,
+            "source_pin_matches": true
+          }
+        ],
+        "merge_result": {
+          "merged": true,
+          "message": "Pull Request successfully merged",
+          "sha": "bebf0b952a613cca672bfd6bfe54af9151bff43f"
+        },
+        "merge_sha": "bebf0b952a613cca672bfd6bfe54af9151bff43f",
+        "progress_callback_errors": [],
+        "publication_status": "merged",
+        "pull_request": {
+          "head_sha": "d9a4d547c4bbc55e021b6b3a50dca2fa6bdec7af",
+          "number": 31209,
+          "url": "https://github.com/woahwhattheheck/commons/pull/31209"
+        },
+        "readback": [
+          {
+            "content_matches": true,
+            "expected_blob_sha": "33351d3ebc08004deb2568554957d931efa611f0",
+            "matches": true,
+            "observed_blob_sha": "33351d3ebc08004deb2568554957d931efa611f0",
+            "path": "ground/RESOURCE_LEDGER.json"
+          },
+          {
+            "content_matches": true,
+            "expected_blob_sha": "3cf1834b4b26846581c407220203314d69a6ee4b",
+            "matches": true,
+            "observed_blob_sha": "3cf1834b4b26846581c407220203314d69a6ee4b",
+            "path": "ground/RESOURCE_LEDGER.md"
+          },
+          {
+            "content_matches": true,
+            "expected_blob_sha": "aba742d21a4e212654579fb24db654118f2176f7",
+            "matches": true,
+            "observed_blob_sha": "aba742d21a4e212654579fb24db654118f2176f7",
+            "path": "resources.html"
+          },
+          {
+            "content_matches": true,
+            "expected_blob_sha": "4db4d53f9caedf0480206f3e90c38979459e064e",
+            "matches": true,
+            "observed_blob_sha": "4db4d53f9caedf0480206f3e90c38979459e064e",
+            "path": "inventory/resources/records/resource-master-retained-publisher-activation-20261004-01.json"
+          },
+          {
+            "content_matches": true,
+            "expected_blob_sha": "0fb5711e7beadd56cc612d91a5e9bba2cf8fb416",
+            "matches": true,
+            "observed_blob_sha": "0fb5711e7beadd56cc612d91a5e9bba2cf8fb416",
+            "path": "p/resource-master-retained-publisher-activation-20261004-01.md"
+          }
+        ],
+        "readback_concurrency": 4,
+        "readback_ref": "bebf0b952a613cca672bfd6bfe54af9151bff43f",
+        "readback_status": "complete",
+        "repository_full_name": "woahwhattheheck/commons",
+        "retained_tree_preimages": [
+          {
+            "base_commit_sha": "52dcf514a4701eae19d7763f9d36c0b41095dc0e",
+            "bytes": 3517805,
+            "entries": 56067,
+            "git_object_sha_verified": true,
+            "parent_tree_sha": "3cfc06934af98b6319e455d4fe994b9de255edb9",
+            "path": "p"
+          }
+        ],
+        "stage": "complete",
+        "status": "merged",
+        "tree_sha": "13a638ad2d8bc05553cf8512517f1ee797ecaf44"
+      },
+      "workflows": [
+        {
+          "conclusion": "success",
+          "head_sha": "d9a4d547c4bbc55e021b6b3a50dca2fa6bdec7af",
+          "id": 37195132270,
+          "name": "resources-tab-freshness",
+          "status": "completed",
+          "updated_at": "2026-10-04T10:22:11Z",
+          "url": "https://github.com/woahwhattheheck/commons/actions/runs/37195132270"
+        },
+        {
+          "conclusion": "success",
+          "head_sha": "d9a4d547c4bbc55e021b6b3a50dca2fa6bdec7af",
+          "id": 37195132282,
+          "name": "path-manifest",
+          "status": "completed",
+          "updated_at": "2026-10-04T10:22:12Z",
+          "url": "https://github.com/woahwhattheheck/commons/actions/runs/37195132282"
+        },
+        {
+          "conclusion": "success",
+          "head_sha": "d9a4d547c4bbc55e021b6b3a50dca2fa6bdec7af",
+          "id": 37195132192,
+          "name": "pr-collision-notice",
+          "status": "completed",
+          "updated_at": "2026-10-04T10:22:13Z",
+          "url": "https://github.com/woahwhattheheck/commons/actions/runs/37195132192"
+        },
+        {
+          "conclusion": null,
+          "head_sha": "d9a4d547c4bbc55e021b6b3a50dca2fa6bdec7af",
+          "id": 37195132311,
+          "name": "open-door-guard",
+          "status": "in_progress",
+          "updated_at": "2026-10-04T10:22:05Z",
+          "url": "https://github.com/woahwhattheheck/commons/actions/runs/37195132311"
+        },
+        {
+          "conclusion": null,
+          "head_sha": "d9a4d547c4bbc55e021b6b3a50dca2fa6bdec7af",
+          "id": 37195132333,
+          "name": "job-watchdog",
+          "status": "in_progress",
+          "updated_at": "2026-10-04T10:22:04Z",
+          "url": "https://github.com/woahwhattheheck/commons/actions/runs/37195132333"
+        },
+        {
+          "conclusion": null,
+          "head_sha": "d9a4d547c4bbc55e021b6b3a50dca2fa6bdec7af",
+          "id": 37195132325,
+          "name": "capability-entrypoints",
+          "status": "in_progress",
+          "updated_at": "2026-10-04T10:22:04Z",
+          "url": "https://github.com/woahwhattheheck/commons/actions/runs/37195132325"
+        },
+        {
+          "conclusion": null,
+          "head_sha": "d9a4d547c4bbc55e021b6b3a50dca2fa6bdec7af",
+          "id": 37195132291,
+          "name": "muhlnickel-spec-guard",
+          "status": "in_progress",
+          "updated_at": "2026-10-04T10:22:06Z",
+          "url": "https://github.com/woahwhattheheck/commons/actions/runs/37195132291"
+        },
+        {
+          "conclusion": "skipped",
+          "head_sha": "d9a4d547c4bbc55e021b6b3a50dca2fa6bdec7af",
+          "id": 37195130462,
+          "name": "llms-txt",
+          "status": "completed",
+          "updated_at": "2026-10-04T10:21:59Z",
+          "url": "https://github.com/woahwhattheheck/commons/actions/runs/37195130462"
+        }
+      ]
+    },
+    "status": "ACTIVATION_COMPLETED",
+    "terminal_evidence_branch": "work/resource-master-retained-publisher-terminal-20261004-0955",
+    "terminal_sha_self_reference": "Pinned in the final #commons receipt after exact current-main readback; does not advance fixed fully swept lower bound."
+  },
   "quota_lifecycle": {
     "banked_reset_not_activated": true,
     "direct_meter_reset_observed": false,
@@ -7222,6 +7637,7 @@
     "purchase_or_recommendation": false
   },
   "required_finalization": "Native merged publication plus current-main exact blob/full-source readback; terminal appended evidence, never assume provider writes succeeded.",
+  "required_finalization_fulfilled_by_source_readback": true,
   "schema": "commons.resource_master_activation/v1",
   "selected_resource": "retained-git-tree-publisher",
   "updated_existing_resources": [
