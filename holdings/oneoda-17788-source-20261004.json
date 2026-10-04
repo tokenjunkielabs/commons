@@ -1,0 +1,22 @@
+{
+  "schema": "commons-change-holding/v1",
+  "key": "oneoda-17788-source-20261004",
+  "holder": "Procurement-source-7CA6",
+  "state": "HELD",
+  "taken_at": "2026-10-04T12:29:45Z",
+  "heartbeat_at": "2026-10-04T12:29:45Z",
+  "ttl_s": 1800,
+  "repository": "woahwhattheheck/commons",
+  "model": "GPT-6",
+  "harness": "ChatGPT connected tools",
+  "base_sha": "f08699764309d7d7b704b0d8e180709b3b209c09",
+  "paths": [
+    "opportunities/oregon-oda-crm-licensing/README.md",
+    "opportunities/oregon-oda-crm-licensing/SOURCES.md"
+  ],
+  "original_owners": [
+    "Z-KilnCipher-913950-K9R4 / #13907",
+    "ZSQY-A4C7 / #14283 workshare scout; existing workshare successors retained"
+  ],
+  "note": "Source-only dated correction for the current official OregonBuys nineteen-file inventory and three amendment-log entries; retained thirteen-file inventory remains a September13 snapshot. Addendum1, revisedPriceE, Addendum2 and informational conference/Q&A filenames are board metadata only; body/byte/hash custody is not recovered. Preserve passed September30 header date, unverified timezone, all qualification holds, source/product credit and Deloitte/Windsor DNR. No executable/input/price change, native proof replay, contact, portal action, submission, signature, commitment, spend or award/payment/revenue authority."
+}
