@@ -162,6 +162,118 @@ discovery when the public binding is absent or a read fails. Existing limits,
 callback custody, error handling and pagination coverage apply to both search
 operations.
 
+## Project one page directly from a retained collector
+
+The existing native-page APIs intentionally take a single response and its exact
+per-call arguments. Passing the entire `collectSlackPages` result to
+`projectSlackMessages` or `projectSlackSearchResults` is outside that contract;
+their APIs and behavior are unchanged.
+
+For direct composition, use the separate pure exports
+`projectSlackCollectedMessages(collection, options?)` or
+`projectSlackCollectedSearchResults(collection, options?)`. They select one
+recorded call, derive the request from its recorded arguments, and invoke the
+existing single-page projector. They make no provider calls and do not flatten,
+deduplicate, reinterpret or modify the retained collection.
+
+```js
+const view = box.exports.projectSlackCollectedSearchResults(savedCollection, {
+  // May be omitted only when savedCollection.pages contains exactly one page.
+  page_index: 0,
+  projection: {
+    max_results: 8,
+    max_body_chars: 800,
+    max_total_body_chars: 6400
+  }
+});
+store("selected-collected-search-page", view);
+text({
+  status: view.status,
+  collector: view.collector,
+  coverage: view.projection?.coverage,
+  issue: view.issue
+});
+```
+
+Use `projectSlackCollectedMessages` for `read_channel` or `read_thread`,
+with the existing message limits inside `projection`. Use
+`projectSlackCollectedSearchResults` for `search` or `search_public`,
+with the existing search limits there. A separate caller request is not accepted:
+the retained collector supplies its operation, native binding and actual
+`pages[page_index].request_args`. In particular, collector-added query,
+context, format and limit defaults remain bound to the recorded call.
+
+The two options are:
+
+- `page_index`: a zero-based nonnegative safe integer into `collection.pages`,
+  **not** an index into `responses` or an index within a projected message page.
+  A one-page collection defaults to zero. Multiple pages require this option.
+- `projection`: the unchanged selected-page projector's options. Its existing
+  body, source-index, total-content and selected-native-input limits still apply.
+
+The wrapper accepts only `commons.connected_slack_pages/v1`. It checks the
+operation against the chosen export, the exact native binding, the normalized
+collector request, recorded base arguments and cursor chain, ordered call numbers,
+dense page/response arrays and one ordered mapping for each retained response.
+A missing response is allowed in the envelope only for a final recorded native
+exception. Recorded success/end counts must agree with the page metadata.
+These checks establish internal consistency of caller-retained metadata.
+They do not authenticate the collection, prove which provider filters ran, or
+detect every possible alteration of a response body.
+
+Fixed wrapper bounds are 1,000 recorded pages, 1,000 retained responses and
+65,536 UTF-16 code units of inspected request/cursor/pagination metadata;
+recorded keyword arrays are limited to 1,000 entries. Exceeding these bounds
+refuses composition; retain the original collection. The wrapper does not traverse
+unselected response bodies. Only the selected response reaches the existing
+projector and consumes its `max_input_chars` budget. These are processing bounds,
+not limits on the provider's earlier capture allocation.
+
+The returned wrapper has schema `commons.connected_slack_collected_projection/v1`:
+
+- `projection` is the unchanged single-page projection, or `null` when
+  collector validation or page selection refuses. Its source ranges remain
+  relative to the same native rendered string as before.
+- `status` and `issue` forward the selected projector's result when invoked.
+  A collector refusal instead has `status: "REFUSED"`, an explanatory issue
+  and no projection. Invalid wrapper option types or unknown option names throw
+  `TypeError`; selected-page option validation keeps its existing behavior.
+- `collector.page_source_path` and `response_source_path` identify the original
+  `pages[i]` and `responses[j]`. Selection mode, page/call/response indices,
+  omitted-page counts and half-open omitted page-index ranges remain explicit.
+  `unselected_responses` counts retained responses not projected.
+- `collector.reported_stop_reason`, `reported_provider_end_observed` and
+  `reported_next_cursor` preserve the collection's reported navigation state.
+  They are separate from the selected native page's independently parsed
+  `projection.coverage`. Neither is a complete-history or snapshot assertion.
+- `selected_page_error_recorded` and `selected_callback_error_recorded` preserve
+  the presence of recorded problems without copying private error bodies into
+  the wrapper. Original errors remain in the retained collection.
+
+A zero-page collection refuses with `NO_RECORDED_PAGE`; multiple pages without
+an explicit choice refuse with `PAGE_SELECTION_REQUIRED`. An out-of-range
+choice refuses with `PAGE_INDEX_OUT_OF_RANGE`. Selecting a recorded call that
+has no response refuses with `SELECTED_PAGE_HAS_NO_RESPONSE`. Schema, operation,
+binding, request, mapping and metadata-limit failures are also explicit refusals.
+There is no automatic retry, skipped failed page, continuation, query rewrite,
+fallback binding or widening.
+
+### Actual collected-page use, 2026-10-04
+
+The new search export consumed one already retained, necessary public ownership
+search collector in connected V8. The collector held one page and one native
+response, 12 declared/rendered results, a `PAGE_BUDGET` stop and a next cursor.
+One invocation selected the sole page by default and returned all 12 results and
+8,216 content code units without truncation. Every returned body slice matched
+its original native range, and effective request arguments, collection and options
+remained exact. The next cursor stayed reported, with no provider-end or
+whole-search completeness claim and no additional search call. The result kept
+`pages[0]` / `responses[0]` provenance and zero omitted recorded pages.
+
+The message-export branch, multi-page selection and refusal branches were
+source-inspected only. No synthetic fixture, suite, native process or historical
+consumer replay was used.
+
 ## Project a bounded view
 
 The optional projector consumes an already retained native response. It returns message timestamps, source offsets and bounded verbatim content prefixes without changing that response or calling a provider. It accepts only detailed `read_channel` and `read_thread` framing. Publication readback comparison remains in `connected_slack_publish.cjs`; claim interpretation remains in the Python scanner.
