@@ -170,7 +170,7 @@ All eight divisor-sum records are retained, including the zero term at $g=4$. Se
 
 ## Public API
 
-The module exports `countGridLineHistogram` and the immutable `GRID_HISTOGRAM_LIMITS` object. It uses CommonJS syntax, with no imports or I/O, and runs in connected V8.
+The uniform interface consists of `countGridLineHistogram` and the immutable `GRID_HISTOGRAM_LIMITS` object. It uses CommonJS syntax, with no imports or I/O, and runs in connected V8.
 
 ```javascript
 const result = countGridLineHistogram({
@@ -258,3 +258,126 @@ const histogram = m.exports.countGridLineHistogram({
 To consume the completed result without repeating it, parse `grid5_dim12_histogram.json` and read its `result.histogram`, `result.power_values` and `result.mobius_terms`. All arithmetic inputs and contributions are already explicit there.
 
 The computation establishes these exact finite aggregate counts and a finite planar lower bound. It makes no extremal equality, novelty, external-frontier or conjecture-resolution claim. Earlier accepted cube, host, subset and projection computations were not rerun.
+
+
+## Rectangular composition from retained factor premises
+
+The additional public function `composeRectangularGridLineHistograms` composes exact power-basis results for uniform factors into the full histogram of a rectangular Cartesian product. It reuses source-identified results and performs no exponentiation or Möbius sieve.
+
+The actual new product is
+$$
+R=\{0,\ldots,4\}^{12}\times\{0,\ldots,6\}^3,
+\qquad |R|=5^{12}7^3=83740234375.
+$$
+
+The first factor is the accepted #31257 result, consumed from [grid5_dim12_histogram.json](grid5_dim12_histogram.json), blob **36c68748ea141ae3d24e2059d5ba3dde9a729e8c**. Its powers and histogram were not recomputed. One new call to the unchanged uniform function supplied the $k=7,d=3$ factor. The new mixed record is [rectangular_5pow12_7pow3_histogram.json](rectangular_5pow12_7pow3_histogram.json).
+
+Its complete exact histogram is:
+
+| Points on a line | Exact lines |
+|---:|---:|
+| 2 | 3,505,667,408,102,848,464,972 |
+| 3 | 180,628,802,695,909,472 |
+| 4 | 663,494,204,830,292 |
+| 5 | 14,968,692,076,236 |
+| 6 | 26,367,187,500 |
+| 7 | 47,119,140,625 |
+
+The grid has 3,505,848,715,441,927,609,097 determined lines. Both pair-accounting sums equal
+$$
+3506213426548095703125={83740234375\choose2}.
+$$
+
+Its maximum collinearity is seven. The finite projection theorem supplies
+$$
+f_7(83740234375)\ge47119140625.
+$$
+
+No point list, individual line list or projected coordinates were generated.
+
+### Why factor weights compose
+
+Let the factors have sides $k_j$, dimensions $d_j$ and point counts $N_j=k_j^{d_j}$. Set
+$$
+K=\max_j k_j,\qquad N=\prod_jN_j,\qquad
+W(a)=\prod_j S(k_j,a)^{d_j}.
+$$
+
+For a direction whose coordinates are all divisible by $g$, the coordinate weights factor across all blocks. With $a=(\ell-1)g$, the unrestricted weight is $W(a)$, and the all-zero direction contributes $N$. Thus
+$$
+A_\ell=\frac12\sum_{g=1}^{\lfloor(K-1)/(\ell-1)\rfloor}
+\mu(g)\bigl(W((\ell-1)g)-N\bigr),
+\qquad 2\le\ell\le K.
+$$
+
+The same second differences and pair-accounting identities then apply. This is the rectangular form of the already credited grid-counting identities.
+
+A direction may be zero in some blocks and nonzero in another. Therefore the composer multiplies the full factor weights and subtracts the one global zero-direction weight afterwards. Multiplying only the factors' nonzero-direction weights would incorrectly discard such lines.
+
+If $a\ge k_j$, then $S(k_j,a)=k_j$: every direction coordinate in that block is forced to zero. Its complete block weight is the already supplied $N_j$. This is a direct consequence of the coordinate formula, and does not require an absent scale record above that factor's range.
+
+The actual product weights are fully retained:
+
+| Scale $a$ | $S(5,a)$ | $S(7,a)$ | Combined weight $W(a)$ |
+|---:|---:|---:|---:|
+| 1 | 25 | 49 | 7,012,426,853,179,931,640,625 |
+| 2 | 13 | 25 | 364,032,580,038,765,625 |
+| 3 | 9 | 17 | 1,387,576,312,731,153 |
+| 4 | 7 | 13 | 30,409,307,980,597 |
+| 5 | 5 | 11 | 324,951,171,875 |
+| 6 | 5 | 9 | 177,978,515,625 |
+
+For scales five and six, the first factor contributes its point count, since all its direction coordinates must be zero. The second factor can still vary, which permits the seven-point lines.
+
+### Source-premise contract
+
+Each input factor is an object with a nonempty `source_id` and a `result` containing these fields from a valid exact uniform-grid result:
+
+- `schema` equal to `"erdos588.grid_line_histogram/v1"`;
+- its `side_length`, `dimension` and canonical-string `point_count`;
+- a complete `step_basis` for scales 1 through `side_length−1`;
+- a complete `mobius_table` for the same divisor range.
+
+These source results are mathematical premises. The composer checks the required structure, bounds, uniqueness and completeness of scales/divisors, the small coordinate-weight formulas, the zero-direction arithmetic and consistency of overlapping Möbius entries. It does not re-exponentiate stored powers, re-sieve coefficients or authenticate a source-ID string.
+
+The output therefore records `COMPOSED_FROM_IDENTIFIED_PREMISES` and states this dependency explicitly. Passing its structural checks is not a new certification of an arbitrary supplied power table. The actual accepted input is separately bound to the exact Git blob above; the new second-factor output is retained in full in the mixed dataset.
+
+A missing scale within a factor's required range, a missing divisor coefficient, a repeated record, a malformed integer or inconsistent algebraic field causes `MissingPremiseError`. There is no fallback that computes a missing power or silently supplies a missing coefficient. Out-of-range sizes or products raise a range error.
+
+Every factor remains a distinct ordered block in the output. Reusing the same source result for two factors means two Cartesian coordinate blocks; it is not deduplicated.
+
+### Public composition interface
+
+The uniform function body and its default result fields are unchanged. The module additionally exports the composer and `GRID_COMPOSITION_LIMITS`:
+
+```javascript
+const rectangular = composeRectangularGridLineHistograms({
+  factors: [
+    { source_id: acceptedSourceId, result: acceptedUniformResult },
+    { source_id: newSourceId, result: newUniformResult }
+  ],
+  include_terms: true
+});
+```
+
+The optional term flag has the same boolean/default semantics as in the uniform interface. Each output retains the source IDs, every side/dimension block, the required factor premises, all combined scale weights, the complete histogram/segment counts, and both pair-accounting sums. Complete divisor terms are retained when requested.
+
+The largest-side factor supplies the required Möbius range; all shorter factors' overlapping entries must agree. The output identifies the selected source-factor index.
+
+The composition limits are one through 32 factors, total dimension at most 4,096, source IDs of at most 512 characters, the existing side-length range, 512-digit combined powers and at most 8,192 optional term records. In particular, $N^2$ and each combined $W(a)$ must fit the power bound. Checked BigInt multiplication rejects an oversized product before constructing it.
+
+The output's `factor_premises` contains the complete minimal records needed for a later composition. The earlier uniform histogram is not copied into the mixed dataset; only its required premise fields and immutable source identity are retained.
+
+### Actual composition work and mathematical scope
+
+The new $7^3$ uniform factor has 343 points and exact line counts
+$$
+(t_2,t_3,t_4,t_5,t_6,t_7)
+=(37476,3264,732,132,108,193).
+$$
+
+This factor was computed once, and its full result is saved. The composer then read ten source step rows and ten Möbius rows, multiplied two point counts and twelve factor weights, and applied fourteen divisor terms. It performed zero integer-power computations and zero sieves. The accepted $5^{12}$ source was not rerun.
+
+All six mixed histogram rows, six combined scale records, fourteen terms and the required factor records are explicit. The aggregate result does not claim an enumeration of the roughly $8.4\times10^{10}$ points or their individual incidences.
+
+The fifteen-dimensional product lies outside the earlier projection API's dimension cap. That API was not invoked or changed. The mathematical finite projection theorem applies and gives the planar interpretation, preserving the established attribution and the distinction between a theorem and an executed coordinate construction. No global extremal equality, formula-priority or external-frontier claim is made.
