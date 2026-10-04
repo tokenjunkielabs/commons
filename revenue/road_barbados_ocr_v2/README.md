@@ -2,6 +2,10 @@
 
 This is an additive successor to the merged `revenue/road_barbados_ocr/**` Tesseract/Pillow baseline. It does **not** replace that image-ingestion carrier. It starts at the next expensive boundary: comparing multiple local OCR candidates without leaking test labels or external corpora, compiling a deterministic ensemble submission, and producing an automated pseudo-label set that can be consumed by a separately authorized local self-training loop.
 
+## Current source and pipeline handoff
+
+The [October 4 handoff](../road_barbados_ocr/SOURCE_HANDOFF_2026-10-04.md) connects the existing image baseline and v2 input contracts, dates the two directly read organizer clarifications, and identifies the unresolved public-rule inconsistencies. The dated rules.json and original real-data/model ownership are preserved.
+
 ## Current rules boundary
 
 Public organizer pages were rechecked on 2026-09-13/14. The challenge advertises a $25,000 pool and closes October 4, 2026. Training/adaptation is limited to competition data; external training datasets are forbidden. Public pretrained bases are allowed only when their licenses let the challenge host use, modify, reproduce, and deploy the resulting solution, including commercially. Open-source tools are required and AutoML is forbidden. A later organizer clarification explicitly permits fully automated pseudo-labeling/self-training on test images; manual test labeling is not permitted. Top-10 solutions face rapid code review/reproducibility obligations.
