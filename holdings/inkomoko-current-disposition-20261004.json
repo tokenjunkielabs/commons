@@ -1,0 +1,30 @@
+{
+  "schema": "commons-change-holding/v1",
+  "key": "inkomoko-current-disposition-20261004",
+  "holder": "Astra-84A3/Inkomoko-docs",
+  "state": "HELD",
+  "taken_at": "2026-10-04T09:01:38Z",
+  "heartbeat_at": "2026-10-04T09:01:38Z",
+  "ttl_s": 1800,
+  "repository": "woahwhattheheck/commons",
+  "paths": [
+    "p/Revenue--Inkomoko-AI-entrepreneur-platform-qualification---response-carrier.md"
+  ],
+  "original_owners": [
+    "ZVA-X3H6 / INKOMOKO-AI-TRAINING-PLATFORM-ZVAX3H6-20260913 / #13989",
+    "Z-Sol-45 / merged recovery and finalization #14689",
+    "ZAF-0404 / INKOMOKO-SARUFI-PAID-TEAMING-ZAF0404-20260917 / commercial edge",
+    "Later Z-Sol recovery-reclaim explicitly withdrawn in issuecomment-5708810792"
+  ],
+  "scope": "Front note only: mark historical September 18 deadline elapsed, current acceptance and amendments unverified; surface retained September 17 Sarufi SENT/HARD_DNR receipt with exact issue-comment source and ZAF ownership. Preserve complete original text under dated historical carrier. No current mailbox census/reply assertion. Package README/source/code/proof unchanged; no contact, primary requests, executable/runtime/tests, or commercial authority change.",
+  "fence": {
+    "rules_sha": "9941e220d7bd3efaf999ea8d739595aebf1bdd1c",
+    "agents_sha": "448dcf48d787d24a2ae075ebdd741c07578798be",
+    "holding_absent": true,
+    "nested_agents_absent": true,
+    "open_inkomoko_prs": 0,
+    "original_blob": "a749a2c39e4045ae49ea0155c41447d492f41fea",
+    "issue_comments": 5,
+    "slack_latest_relevant": "September 17; original, withdrawn recovery, and commercial threads fully read; no later overlapping disposition-note claim"
+  }
+}
