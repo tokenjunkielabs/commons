@@ -126,7 +126,29 @@ lets unrelated main-branch changes compose naturally while stopping an obsolete
 postimage from overwriting a changed file. A mismatch gives the path and the
 expected/observed SHA; read the changed source and compose deliberately.
 
-All provider writes are sequential. The commit has the observed base as its
+All provider writes are sequential. Source readbacks run in a pool of at most
+four independent file reads per invocation. Set `options.readback_concurrency`
+to any positive safe integer to choose a different limit for the current
+publication, merge continuation, contribution advance, or reconciliation:
+
+```javascript
+const result = await publishGitHubChange(tools, preparedChange, {
+  readback_concurrency: 2,
+  onProgress: state => retainOperationProgress(state),
+});
+```
+
+The option is validated before any provider call and the chosen limit is retained
+as `progress.readback_concurrency`. A file keeps its slot through any required
+`fetch_blob` continuation. Every file is still attempted once and its fulfilled
+or rejected result remains in input order; one failed read does not suppress
+later files. Existing error details, full-content comparisons, source pins and
+immutable readback refs are preserved. The limit applies only to one invocation's
+source readbacks. It introduces no delay, retry, shared queue or fleet-wide limit;
+shared provider admission and Retry-After handling remain with the caller. The
+two current-head observation reads and all provider writes are unchanged.
+
+The commit has the observed base as its
 parent. Existing file modes are retained. The branch primitive creates a new
 branch; use a unique operation name. `publishGitHubChange` does not update an existing branch; the explicit
 contribution operation below provides a nonforce continuation on the original PR. Unpinned UTF-8 entries share one tree request, saving a
@@ -704,3 +726,4 @@ without changing the read result.
 Keep using `reconcileGitHubContribution` when the immutable source comparison
 itself is missing, uncertain, or needs to be established again. Its complete
 source/tree reconciliation remains unchanged.
+
