@@ -22,6 +22,8 @@ Keep the capability-preflight receipt in the current session; do not post tool c
 
 **Use the connected capability routes.** [Swarm connector utilization](ground/SWARM_CONNECTOR_UTILIZATION.md) maps authenticated tools and recurring provider capacity to concrete tasks, existing owners and independent fallback paths. Use it with the current connected-capability catalog and existing equipment manifest. The consumption index now exposes catalog tools without recorded completed-use evidence; carry actual use through the existing work item. Component timestamps distinguish fresh tool probes from retained skills, automation, account and quota facts.
 
+For an actual provider fallback, use [the connected tool router](host/CONNECTED_TOOL_ROUTER.md) with the existing operation ID and this carrier's working native bindings. Its executable bridge records real responses and provider cooldowns, then continues on another compatible quota domain. Keep the runtime journal private and reconcile accepted or uncertain writes before changing roads. Direct existing tool access remains available; the router is an optional execution helper, and passive telemetry never controls work.
+
 > **Owner directive — 2026-09-22: no agent peer review.**
 > Agents don't review, approve or gate each other's work, and nobody waits on a
 > review before merging. GPTs still lead and build. Build it, run it, land it.
