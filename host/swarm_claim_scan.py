@@ -23,28 +23,28 @@ OPERATION = r"[A-Za-z0-9][A-Za-z0-9_.:/#-]{5,190}"
 TERMINAL_ID = r"(?P<code>`?)(?P<operation>" + OPERATION + r")(?P=code)"
 DECLARATION = re.compile(
     r"^(?:CLAIM|TAKE|RESUME|TAKING)(?:\s*[:·—–]\s*|\s+)(?P<code>`?)"
-    r"(?P<operation>" + OPERATION + r")(?P=code)(?=\s|$|[—–])", re.I)
+    r"(?P<operation>" + OPERATION + r")(?P=code)(?=\s|$|[—–,;])", re.I)
 DECLARATION_START = re.compile(r"^(?:CLAIM|TAKE|RESUME|RESUMING|TAKING|CONTINUE|CONTINUING)\b", re.I)
 LABELED_OPERATION = re.compile(
     r"(?:^[ \t]*|(?<=[.!?])[ \t]+)Operation(?:[ \t]+ID)?[ \t]*:[ \t]*`?(" + OPERATION
-    + r")`?(?=\s|$|[—–])", re.I | re.M)
+    + r")`?(?=\s|$|[—–,;])", re.I | re.M)
 STATEMENT_HEADER = re.compile(
     r"^[ \t*`]*(?:CLAIM|TAKE|RESUME|RESUMING|TAKING|CONTINUE|CONTINUING|"
     r"LANDED|DONE|COMPLETED?|RELEASED?|SHIP(?:PED)?)\b[^\n]*", re.I | re.M)
 TERMINAL = re.compile(
     r"^(LANDED|DONE|COMPLETED?|RELEASED?)"
     r"(?:\s*/\s*(?:LANDED|DONE|COMPLETED?|RELEASED?)(?:\s+[—–])?)?"
-    r"(?:\s*[:·—–]\s*|\s+)" + TERMINAL_ID + r"(?=\s|$|[—–])", re.I)
+    r"(?:\s*[:·—–]\s*|\s+)" + TERMINAL_ID + r"(?=\s|$|[—–,;])", re.I)
 TERMINAL_AFTER = re.compile(r"^(" + OPERATION + r")\s+(?:is\s+)?(LANDED|DONE|COMPLETED?|RELEASED?)\b", re.I)
 SOURCE_TERMINAL = re.compile(
     r"^(DONE)[ \t]+SOURCE[ \t]*/[ \t]*RELEASED?"
-    r"(?:[ \t]*[:·—–][ \t]*|[ \t]+)" + TERMINAL_ID + r"(?=\s|$|[—–])", re.I)
+    r"(?:[ \t]*[:·—–][ \t]*|[ \t]+)" + TERMINAL_ID + r"(?=\s|$|[—–,;])", re.I)
 SHIP_RELEASE_TERMINAL = re.compile(
     r"^(SHIP(?:PED)?)[ \t]*/[ \t]*RELEASED?"
-    r"(?:[ \t]*[:·—–][ \t]*|[ \t]+)" + TERMINAL_ID + r"(?=\s|$|[—–])", re.I)
+    r"(?:[ \t]*[:·—–][ \t]*|[ \t]+)" + TERMINAL_ID + r"(?=\s|$|[—–,;])", re.I)
 SLASH_TERMINAL = re.compile(
     r"^(LANDED|DONE|COMPLETED?|RELEASED?)[ \t]*/[ \t]*"
-    + TERMINAL_ID + r"(?=\s|$|[—–])", re.I)
+    + TERMINAL_ID + r"(?=\s|$|[—–,;])", re.I)
 HEADER = re.compile(
     r"^(?:=== THREAD PARENT MESSAGE ===|--- Reply [0-9]+ of [0-9]+ ---|"
     r"=== Message from .+? ===[^\n]*|### Result [0-9]+ of [0-9]+)\s*$", re.M)
