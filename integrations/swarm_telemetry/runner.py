@@ -1,5 +1,6 @@
 """Independent source collection and notification delivery over existing roads."""
 from __future__ import annotations
+import hashlib
 import json
 import os
 import shutil
@@ -137,10 +138,13 @@ class Runner:
         self._storage_lock=RLock()
         self._storage_checked=0
         self._storage_reported={}
-    def storage_ready(self,label="collection"):
+        self._pending_census_sources=[]
+        self._pending_census_states={}
+        self._pending_census_value=None
+    def storage_ready(self,label="collection",*,refresh=False):
         with self._storage_lock:
             stamp=time.monotonic()
-            if not self.storage_status or stamp-self._storage_checked>=5:
+            if refresh or not self.storage_status or stamp-self._storage_checked>=5:
                 floor=max(1024**3,int(self.config.get("collection_min_free_bytes",1024**3)))
                 try:
                     free=shutil.disk_usage(Path(self.store.path).parent).free
@@ -198,18 +202,60 @@ class Runner:
             row.setdefault("records",len(result.get("events",[])))
         return self.ingest_batch(result.get("events",[]),coverage=coverage,checkpoints=result.get("checkpoints",{}))
     def collect_census(self):
-        from .census import collect_census
+        from .census import collect_census,CensusCustodyPending,CensusStoragePending
+        # Already returned originals are retried verbatim before any new read.
+        for event in list(self._pending_census_sources):
+            try: self.store.ingest([event])
+            except Exception as error: raise CensusCustodyPending("retained_census_original") from error
+            self._pending_census_sources.remove(event)
+        if not self.storage_ready("census",refresh=True): return self.storage_wait("census")
+        for tool,state in list(self._pending_census_states.items()):
+            if not self.storage_ready("census",refresh=True): return self.storage_wait("census")
+            self.store.ingest([],checkpoints={"census-events:"+tool:state})
+            self._pending_census_states.pop(tool,None)
+        if self._pending_census_value is not None:
+            value=self._pending_census_value
+            self.store.state("census",value)
+            self.store.ingest([],coverage=value.get("coverage",[]))
+            self._pending_census_value=None
         config={**self.config,"gateway_url":self.config.get("gateway","http://127.0.0.1:8878")}
         path=self.config.get("native_runtime_path")
         if path:
             try: config.update(json.loads(Path(path).read_text(encoding="utf-8-sig")))
             except (OSError,ValueError): pass
+        saved=self.store.checkpoints()
         previous=self.store.state("census") or {}
+        config["provider_event_state"]={tool:saved.get("census-events:"+tool,{}) for tool in ("gemini_events","grokbot_events")}
+        config["source_read_allowed"]=lambda:self.storage_ready("census",refresh=True)
+        def record_source(tool,args,raw,read_at,read_id,http_status):
+            event={"event_id":"census-source:"+read_id,"source":tool,"source_id":"census:"+tool,
+                   "event_type":"census_source_response","occurred_at":read_at,"observed_at":read_at,
+                   "full_source":raw,"metadata":{"tool_name":tool,"arguments":dict(args),"read_id":read_id,
+                   "http_status":http_status,"complete_response":True,
+                   "response_representation":"http_body" if http_status is not None else "returned_tool_object"}}
+            self._pending_census_sources.append(event)
+            try: self.store.ingest([event])
+            except Exception as error: raise CensusCustodyPending("retained_census_original") from error
+            self._pending_census_sources.remove(event)
+            return "source:"+hashlib.sha256(raw.encode("utf-8")).hexdigest()
+        def persist_provider_state(tool,state):
+            value=json.loads(json.dumps(state))
+            self._pending_census_states[tool]=value
+            if not self.storage_ready("census",refresh=True):
+                raise CensusStoragePending("census_checkpoint_pending_storage")
+            self.store.ingest([],checkpoints={"census-events:"+tool:value})
+            self._pending_census_states.pop(tool,None)
+        config["source_recorder"]=record_source
+        config["persist_provider_state"]=persist_provider_state
         value=collect_census(config,state=previous.get("state"))
+        self._pending_census_value=value
+        if not self.storage_ready("census",refresh=True): return self.storage_wait("census")
         self.store.state("census",value)
         self.store.ingest([],coverage=value.get("coverage",[]))
+        self._pending_census_value=None
         return value.get("counts",{})
     def collect_discovery(self):
+        if not self.storage_ready("discovery"): return self.storage_wait("discovery")
         from .discovery import discover_sources
         config={**self.config,"service_catalog_path":self.config.get("service_catalog_path",str(Path(self.store.path).parent/"service-catalog.json"))}
         previous=self.store.state("source_discovery") or {}
@@ -330,6 +376,7 @@ class Runner:
             except Exception as exc: self._source_error(sid,exc)
         return results
     def collect_inventory(self):
+        if not self.storage_ready("inventory"): return self.storage_wait("inventory")
         from .account_inventory import collect_account_inventory
         paths=self.config.get("inventory_paths",[])
         payloads=[]
@@ -339,6 +386,7 @@ class Runner:
                 payloads.append({"source":str(path),"data":value})
             except Exception as exc: self._source_error("inventory:"+Path(path).name,exc)
         try:
+            if not self.storage_ready("inventory"): return self.storage_wait("inventory")
             refs=self.gateway.call("credential_references",{})
             if not refs.get("isError") and not refs.get("error"):
                 payloads.append({"source":"shared-secure-reference-metadata","data":refs})
