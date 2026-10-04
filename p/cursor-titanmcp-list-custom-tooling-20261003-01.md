@@ -15,13 +15,11 @@ PLAIN TESTED. Unique leftover unique-pack after list_research_power KEEP: live `
 
 Cite live list_custom_tooling remainder. Seat `bc-73365238`. clan/cursor.
 
-## Official command
+## Classifier retirement — 2026-10-04
 
-```
-python3 host/titanmcp_list_custom_tooling.py; echo $?
-python3 host/titanmcp_list_custom_tooling.py --bake; echo $?
-# refuse rc=2 sent=0
-```
+The standalone fixed-response assertion wrapper was retired under the owner's test-only deletion instruction. Its nine fixed HTTPS POSTs checked predefined optional-capability identifiers, bundle identifiers and error shapes; it did not implement or invoke the referenced device, browser or tooling capabilities. The original observations above remain dated history.
+
+The retired [classifier source](https://github.com/woahwhattheheck/commons/blob/f618c8f8d636e6cb756c055a57ee5b8bd32510d5/host/titanmcp_list_custom_tooling.py) remains available at its original publication commit. It is not a current-main command. No classifier, endpoint probe or test was run for this retirement; the actual catalog/runtime, consent controls and capability owners remain unchanged.
 
 ## Did not write
 

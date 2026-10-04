@@ -3290,7 +3290,7 @@
       "verification": "Owner-reported real runtime path plus exact merged PR; no test suite or fabricated observation record."
     },
     {
-      "assigned_backlog": "No build order. list_research_power and list_custom_tooling are already landed; the latter is present in current main at f618c8f8d636e6cb756c055a57ee5b8bd32510d5.",
+      "assigned_backlog": "No build order. Preserve the already-landed list_research_power/list_custom_tooling service capabilities and their existing owners. Commit f618c8f8d636e6cb756c055a57ee5b8bd32510d5 is immutable historical custody for the standalone host/titanmcp_list_custom_tooling.py assertion classifier, retired on 2026-10-04; it is not a current-main execution path.",
       "auth_surface": "Public unauthenticated MCP read only; no private data, customer data, secret, account identifier or owner-only action.",
       "authority": "SHARED_DIRECT_READ; NO_SESSION_AUTHORITY; NO_CONNECTOR_WIRING; NO_BAKE; NO_DEPLOY; NO_PROVIDER_WRITE",
       "build_order": "NONE_CAPABILITIES_ALREADY_LANDED",
