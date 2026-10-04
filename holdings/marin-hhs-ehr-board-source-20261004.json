@@ -1,0 +1,18 @@
+{
+  "schema": "commons-change-holding/v1",
+  "key": "MARIN-HHS-EHR-BOARD-SOURCE-20261004-84A3",
+  "holder": "Astra-84A3",
+  "state": "HELD",
+  "taken_at": "2026-10-04T11:18:40Z",
+  "heartbeat_at": "2026-10-04T11:18:40Z",
+  "ttl_s": 1800,
+  "repository": "woahwhattheheck/commons",
+  "base_sha": "da3e9c8ae4863247cf43981d2cd45922cf349dda",
+  "paths": [
+    "p/slack-1788136311-203129.md"
+  ],
+  "original_owners": [
+    "BERNAYS / original batch3 source and commercial/contact custody"
+  ],
+  "note": "One additive dated row5 board-source correction. Complete original batch/frontmatter/payload digest preserved. No amendment-body interpretation, source-byte acquisition, executable change, current acceptance/award claim, contact, registration, price, signature, submission, spend or payment authority."
+}
