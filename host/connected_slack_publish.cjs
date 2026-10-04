@@ -226,6 +226,120 @@ async function publishSlackMessage(tools, request, options = {}) {
   }
 }
 
+
+/** Compare one retained bounded rendering. This pure operation never reads or writes Slack. */
+function compareSlackPublication(published, expectedMessage, options = {}) {
+  object(published, 'published result');
+  text(expectedMessage, 'expected message');
+  object(options, 'comparison options');
+  for (const key of Object.keys(options)) {
+    if (key !== 'normalization') throw new TypeError('Unsupported comparison option: ' + key);
+  }
+  const normalization = options.normalization === undefined ? 'none' : options.normalization;
+  if (!['none', 'slack_bare_urls_entities'].includes(normalization)) {
+    throw new TypeError('normalization must be none or slack_bare_urls_entities');
+  }
+  const result = {status: 'uncomparable', matches: null, literal_match: null,
+    body_source: 'native_read_thread_rendering', channel_binding: 'retained_readback_request',
+    normalization, normalizations_applied: {bare_url_wrappers: 0, entities: 0}};
+  const refuse = reason => ({...result, reason});
+  if (published.message_state !== 'edit_confirmed' || published.readback_status !== 'captured') {
+    return refuse('confirmed_edit_and_capture_required');
+  }
+  let args;
+  try {
+    args = readbackArguments(published, {});
+    object(published.readback_request, 'retained readback request');
+  } catch (_) {
+    return refuse('missing_readback_identity');
+  }
+  result.channel_id = args.channel_id;
+  result.message_id = published.message_id;
+  result.parent_message_id = args.message_ts;
+  const request = published.readback_request;
+  if (Object.keys(request).length !== Object.keys(args).length
+      || Object.keys(args).some(key => request[key] !== args[key])
+      || (published.thread_ts !== undefined && published.thread_ts !== args.message_ts)) {
+    return refuse('readback_request_identity_mismatch');
+  }
+
+  // Do not choose the first readable object when provider representations conflict.
+  const response = published.readback_response;
+  if (!response || typeof response !== 'object' || Array.isArray(response)
+      || response.isError === true) return refuse('readback_response_unavailable');
+  const payloads = [];
+  if (response.structuredContent !== undefined) payloads.push(response.structuredContent);
+  if (response.content !== undefined) {
+    if (!Array.isArray(response.content)) return refuse('unrecognized_readback_payload');
+    for (const block of response.content) {
+      if (block?.type !== 'text' || typeof block.text !== 'string') {
+        return refuse('unrecognized_readback_payload');
+      }
+      try { payloads.push(JSON.parse(block.text)); }
+      catch (_) { return refuse('unrecognized_readback_payload'); }
+    }
+  }
+  if (!payloads.length || payloads.some(payload => !payload || typeof payload !== 'object'
+      || Array.isArray(payload) || typeof payload.messages !== 'string'
+      || typeof payload.pagination_info !== 'string'
+      || Object.keys(payload).some(key => !['messages', 'pagination_info'].includes(key)))) {
+    return refuse('unrecognized_readback_payload');
+  }
+  const representations = new Set(payloads.map(payload =>
+    JSON.stringify([payload.messages, payload.pagination_info])));
+  if (representations.size !== 1) return refuse('conflicting_readback_payloads');
+
+  const rendered = payloads[0].messages;
+  const parent = /^=== THREAD PARENT MESSAGE ===\nFrom: [^\r\n]+\nTime: [^\r\n]+\nMessage TS: (\d+\.\d+)\n/.exec(rendered);
+  if (!parent || parent[1] !== args.message_ts) return refuse('unrecognized_parent_framing');
+  const tail = rendered.slice(parent[0].length);
+  const noReplies = '\n\nNo thread messsages\n';
+  const separator = '\n\n=== THREAD REPLIES (1 total) ===\n\n--- Reply 1 of 1 ---\n';
+  const records = [];
+  if (tail.endsWith(noReplies)) {
+    if (tail.includes(separator)) return refuse('ambiguous_message_framing');
+    records.push({id: parent[1], body: tail.slice(0, -noReplies.length)});
+  } else {
+    const parts = tail.split(separator);
+    if (parts.length !== 2) return refuse('unrecognized_reply_framing');
+    const reply = /^From: [^\r\n]+\nTime: [^\r\n]+\nMessage TS: (\d+\.\d+)\n([\s\S]*)\n$/.exec(parts[1]);
+    if (!reply) return refuse('unrecognized_reply_framing');
+    records.push({id: parent[1], body: parts[0]}, {id: reply[1], body: reply[2]});
+  }
+  const marker = /^(?:=== THREAD |--- Reply |Message TS: |No thread messsages$)/m;
+  if (records.some(record => marker.test(record.body))
+      || new Set(records.map(record => record.id)).size !== records.length) {
+    return refuse('ambiguous_message_framing');
+  }
+  const selected = records.filter(record => record.id === published.message_id);
+  if (selected.length !== 1) return refuse('selected_message_not_found');
+  const observed = selected[0].body;
+  result.literal_match = observed === expectedMessage;
+  if (result.literal_match) return {...result, status: 'exact', matches: true};
+  if (normalization === 'none') {
+    return {...result, status: 'mismatch', matches: false, reason: 'different_rendered_body'};
+  }
+
+  // Only observed bare-URL label forms are eligible; the URL target is unchanged.
+  let comparable = observed.replace(/<(https?:\/\/[^<>\s|]+)(?:\|([^<>\r\n]+))?>/g,
+    (whole, target, label) => {
+      if (label !== undefined && label !== target && label !== target.replace(/^https?:\/\//, '')) {
+        return whole;
+      }
+      result.normalizations_applied.bare_url_wrappers += 1;
+      return target;
+    });
+  // Decode once, after link recognition: escaped angle brackets cannot create a link.
+  const entities = {'&amp;': '&', '&lt;': '<', '&gt;': '>'};
+  comparable = comparable.replace(/&(?:amp|lt|gt);/g, entity => {
+    result.normalizations_applied.entities += 1;
+    return entities[entity];
+  });
+  return comparable === expectedMessage
+    ? {...result, status: 'presentation_match', matches: true}
+    : {...result, status: 'mismatch', matches: false, reason: 'different_rendered_body'};
+}
+
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {SlackPublishError, publishSlackMessage, readSlackPublication};
+  module.exports = {SlackPublishError, publishSlackMessage, readSlackPublication, compareSlackPublication};
 }
