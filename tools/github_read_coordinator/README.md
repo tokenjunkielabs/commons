@@ -24,6 +24,8 @@ Repository owner and name are normalized to lowercase before request hashing. Ca
 
 Lease and cache decisions use the time after obtaining SQLite's write transaction, so waiting for another writer does not consume a newly issued lease or admit an expired completion. Completion retains its response-observation timestamp for cached payload freshness and provider Retry-After/reset deadlines, then measures lease expiry and remaining cooldown after the lock wait. JSON serialization and completed-response decoding remain outside the write transaction.
 
+When a response reports both secondary throttling and an exhausted primary quota, the coordinator retains both cooldowns. The principal-wide secondary pause follows Retry-After, while the exhausted primary bucket retains the later of Retry-After and its reset deadline. A shorter secondary pause cannot reopen that primary bucket early, including after a process restart or an expired lease completion.
+
 ## Run
 
 Set two independent secrets in the environment:
