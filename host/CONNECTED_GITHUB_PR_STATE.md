@@ -85,6 +85,11 @@ that contain it in `structuredContent`, JSON-text `content`, or text content
 blocks. It does not mutate the original object or assign a new observation
 time. Keep the original request and capture time beside retained data.
 
+Native envelopes can repeat identical PR JSON at several wrapper paths. The
+projector parses each canonical PR text once per invocation. Other wrapper JSON
+keeps its original traversal; the cache does not survive a projection or hide a
+later provider response.
+
 The flattened compact `get_pr_info` response is intentionally not treated as
 canonical REST data: once `null` has been converted to `false`, the original
 value cannot be reconstructed from that summary. Use a retained canonical
@@ -128,6 +133,14 @@ Those are individual observed calls and request counts, not a general latency
 benchmark. No test suite, generated fixture, induced error, background task,
 or repeated publication-validator run was used. The missing-field and error
 branches are implemented as described but were not forced during this use.
+
+On a later retained native response for Sourcey PR #1426, nested wrappers
+contained the same 17,950-byte canonical JSON twice. Executing the original and
+updated projectors in the connected V8 runtime reduced successful full-payload
+parses from two (35,900 bytes) to one (17,950 bytes). The compact projection was
+identical, the original envelope was unchanged, and both replays made zero
+provider calls. The non-JSON status-text attempt remained. This measures parsing
+work on that real response, not end-to-end latency or a change in API quotas.
 
 Provider contract: [GitHub REST — get a pull request](https://docs.github.com/en/rest/pulls/pulls#get-a-pull-request).
 Related helpers: [issue/PR search](CONNECTED_GITHUB_ISSUE_SEARCH.md),
