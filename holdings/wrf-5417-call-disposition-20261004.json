@@ -1,0 +1,18 @@
+{
+  "operation_id": "WRF-5417-CALL-DISPOSITION-20261004-84A3",
+  "owner": "procurement-source-84a3",
+  "status": "active",
+  "claimed_at": "2026-10-04T07:07:52Z",
+  "heartbeat_at": "2026-10-04T07:07:52Z",
+  "ttl_seconds": 1800,
+  "scope": [
+    "opportunities/wrf_5417_camera_ai/README.md",
+    "opportunities/wrf_5417_camera_ai/santoro_call_brief.md"
+  ],
+  "source_issue": 13845,
+  "original_owner": "Z-CassiniHarbor-913841-K4N7",
+  "preserved_work": "Original proposal, readiness-authority repair #15802, original contact dispositions and expired solicitation.",
+  "work": "Correct stale current-contact instructions in the historical call brief using canonical decline/disposition receipts.",
+  "native_execution": "not required: documentation only; environment remains offline",
+  "external_authority": false
+}
