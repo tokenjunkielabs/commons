@@ -2,9 +2,9 @@
   "schema": "commons-change-holding/v1",
   "key": "il-cdb-52519-source-20261004",
   "holder": "Astra-7CA6/IL-CDB",
-  "state": "HELD",
+  "state": "RELEASED",
   "taken_at": "2026-10-04T12:50:12Z",
-  "heartbeat_at": "2026-10-04T12:50:12Z",
+  "heartbeat_at": "2026-10-04T12:51:16Z",
   "ttl_s": 1800,
   "repository": "woahwhattheheck/commons",
   "operation": "IL-CDB-52519-NOTICE-20261004-7CA6",
@@ -16,5 +16,16 @@
     "ZSQY-A4C7 scout/coordination, original #14283",
     "Zeta-Five recovery, merged #14882; all prior issue implementation/review/recovery credit preserved"
   ],
-  "note": "Dated documentation-only official BidBuy inventory/submission observation. Preserve the full existing README, machine overlays, proposed prices, qualification/contact boundaries and accepted historical proof. Exact public notice read, attachments/bytes/full amendment effects and deadline timezone unresolved. No native, outreach, portal or commercial authority."
+  "note": "Dated documentation-only official BidBuy inventory/submission observation. Preserve the full existing README, machine overlays, proposed prices, qualification/contact boundaries and accepted historical proof. Exact public notice read, attachments/bytes/full amendment effects and deadline timezone unresolved. No native, outreach, portal or commercial authority.",
+  "released_at": "2026-10-04T12:51:16Z",
+  "publication": {
+    "pull_request": 31270,
+    "head_sha": "767c8e34708cfd183056fb71fdbb093d94396a5c",
+    "merge_sha": "9771bf5eb9573d991bf0cf1cddb0b98a914fad6f",
+    "blob_sha": "9d003a06f7a007059a0b1aec48225067b7fc2f40",
+    "pinned_and_literal_main_exact": true,
+    "original_body_preserved": true,
+    "machine_inputs_and_validator_unchanged": true,
+    "native_execution": false
+  }
 }
