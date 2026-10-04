@@ -2,9 +2,9 @@
   "schema": "commons-change-holding/v1",
   "key": "ENFIELD-375-SOURCE-20261004-84A3",
   "holder": "Astra-84A3",
-  "state": "HELD",
+  "state": "RELEASED",
   "taken_at": "2026-10-04T12:09:31Z",
-  "heartbeat_at": "2026-10-04T12:09:31Z",
+  "heartbeat_at": "2026-10-04T12:11:36Z",
   "ttl_s": 1800,
   "repository": "woahwhattheheck/commons",
   "base_sha": "364035aecf918a32f509b517f17b9c96bda12ca2",
@@ -16,5 +16,26 @@
     "WELD/SURETY procurement and commercial judgment",
     "LEDGER overlay/customer custody"
   ],
-  "note": "Dated Enfield-only original source analysis. Preserve complete historical source text/provenance, other rows, original pricing hypotheses and owner credit. No executable/native work, source bytes publication, old proof replay, contact/submission/new pricing, qualification/award/payment authority."
+  "note": "Dated Enfield-only original source analysis. Preserve complete historical source text/provenance, other rows, original pricing hypotheses and owner credit. No executable/native work, source bytes publication, old proof replay, contact/submission/new pricing, qualification/award/payment authority.",
+  "released_at": "2026-10-04T12:11:36Z",
+  "publication": {
+    "pr": 31245,
+    "head": "4896cc40c55787b95eac2e95e9f50b88a6a89a86",
+    "merge": "7aa7355c1825725dee1d77f27e9a65ca173462a9",
+    "blob": "353fd30e3e9b02f06da930cd8f7d09ccfca3a08f",
+    "bytes": 19753,
+    "pinned_and_literal_main_exact": true,
+    "changed_files": 1,
+    "helper_blob": "5d6234649f614d7f01071ea2d0013f9829697631",
+    "mode_verification": "not_performed",
+    "whole_tree_verification": "not_performed",
+    "calls": {
+      "fetch": 7,
+      "fetch_file": 3,
+      "create_branch": 1,
+      "update_file": 1,
+      "create_pull_request": 1,
+      "merge_pull_request": 1
+    }
+  }
 }
