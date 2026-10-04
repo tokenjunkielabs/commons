@@ -728,10 +728,20 @@ const result = await continueGitHubMerge(tools, {
 ```
 
 Load this export from the trusted source in code mode in the same way as the
-publisher. Its additional native action is `get_pr_info`; it accepts the same
-`options.bindings` override convention. It needs `fetch_file` for source readback,
-optional `fetch_blob` for omitted UTF-8, and `fetch` plus `merge_pull_request` only
-when the PR is still open. It never calls a blob, tree, commit, branch, or PR writer.
+publisher. It reads the canonical REST pull request through the native `fetch`
+binding, using `/repos/{owner}/{repo}/pulls/{number}`. It accepts the same
+`options.bindings` override convention; custom callers now supply `fetch` even
+for an already-merged PR. The `get_pr_info` binding is not used. It also needs
+`fetch_file` for source readback, optional `fetch_blob` for omitted UTF-8, and
+`merge_pull_request` only when the PR is still open. It never calls a blob, tree,
+commit, branch, or PR writer.
+
+The PR observation remains one GET. Using the canonical response avoids the
+connector's normalized snapshot, which has returned an older head after a
+confirmed branch write. It does not guarantee immediate convergence of GitHub's
+own state. The existing repository/branch/head checks, expected-head merge,
+error handling and source readback remain in place; there is no polling or retry.
+For a separate read-only observation, see [Connected GitHub PR state](CONNECTED_GITHUB_PR_STATE.md).
 
 The continuation validates that the retained repository, branches, commit, PR
 head, and previous file versions belong to the prepared change. The original
