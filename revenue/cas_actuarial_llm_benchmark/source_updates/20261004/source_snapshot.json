@@ -1,0 +1,137 @@
+{
+  "schema": "cas-actuarial-source-observation/v1",
+  "checked_at": "2026-10-04T03:30:01Z",
+  "status": "DATED_SOURCE_REVIEW_ONLY",
+  "repository": "woahwhattheheck/commons",
+  "package_path": "revenue/cas_actuarial_llm_benchmark",
+  "canonical_recovery": {
+    "pull_request": 14666,
+    "merge_commit": "6d2b871dc6f257293ec3f49e3b32fb80603632a8"
+  },
+  "sources": [
+    {
+      "id": "current-rfp",
+      "url": "https://www.casact.org/2026-ai-rfp",
+      "retrieval": "official_web_rendered_text",
+      "scope": "Entire substantive RFP body including Timeline",
+      "native_body_bytes": null,
+      "sha256": null,
+      "git_blob_sha": null
+    },
+    {
+      "id": "faq-20260921",
+      "url": "https://www.casact.org/sites/default/files/2026-09/CAS_FAQ_Evaluating_LLMs_RFP.pdf",
+      "document_date": "2026-09-21",
+      "retrieval": "official_web_pdf_text",
+      "page_count": 6,
+      "numbered_answer_count": 30,
+      "numbered_answers_read": [
+        "1.1",
+        "1.2",
+        "1.3",
+        "1.4",
+        "1.5",
+        "1.6",
+        "2.1",
+        "2.2",
+        "2.3",
+        "2.4",
+        "2.5",
+        "2.6",
+        "2.7",
+        "2.8",
+        "3.1",
+        "3.2",
+        "4.1",
+        "4.2",
+        "4.3",
+        "4.4",
+        "5.1",
+        "5.2",
+        "6.1",
+        "6.2",
+        "6.3",
+        "6.4",
+        "6.5",
+        "7.1",
+        "7.2",
+        "8.1"
+      ],
+      "native_body_bytes": null,
+      "sha256": null,
+      "git_blob_sha": null
+    }
+  ],
+  "schedule": {
+    "source_id": "current-rfp",
+    "proposal_due_date": "2026-10-30",
+    "notification_date": "2026-11-30",
+    "executive_summary_due_date": "2026-12-30",
+    "final_paper_due_date": "2027-07-30",
+    "clock_time": null,
+    "timezone": null,
+    "questions": "CLOSED",
+    "kickoff": "TBD",
+    "draft_1": "TBD",
+    "draft_2": "TBD"
+  },
+  "historical_context": {
+    "original_proposal_date": "2026-09-28",
+    "original_final_paper_date": "2027-06-28",
+    "evidence": [
+      "https://github.com/woahwhattheheck/commons/issues/13945",
+      "https://tokenjunkielabs.slack.com/archives/C0BTRNE6Y58/p1789292303062459"
+    ],
+    "raw_historical_source_acquired_in_this_slice": false,
+    "full_old_new_source_diff": false,
+    "current_readme_had_stale_deadline": false,
+    "duplicate_issue13945_reopened": false
+  },
+  "custody": {
+    "source_owner": "Z-Lagrange-913500",
+    "cohort_repair_owner": "Z-MengerSeawall-2216-Q7T9",
+    "recovery_owner": "Z-GalliumBreakwater-2026-N7Q4",
+    "relationship_owner": "Z-Obsidian-913452",
+    "actubench_th_koeln": "HARD_DNR",
+    "partner_acceptance_established_by_this_slice": false
+  },
+  "original_package_blobs": {
+    "PACKAGE_MANIFEST.json": "537ebe5a960f54d59576724f39541dac9c175e03",
+    "README.md": "22ebd11a7b9dca3d1135639e687acc6973913be4",
+    "__init__.py": "b2ee0a76711f1fdaa49a87f8382a173a795da055",
+    "_schema.py": "a8be121d1caecca006d95cf660dc9166305bb9f7",
+    "cli.py": "893a692facc195cd18ea96adf28a11c85b8577af",
+    "core.py": "7411bf097d3a84ae324c4513291f85bdc9bb58b9",
+    "fixture.py": "4d03fab5380dfffc443c301a104a043cb08bf56c",
+    "test_core.py": "e5ddc5766205a75795ed5be82f302ec6569c6ddd",
+    "test_core_hardening.py": "4787095c8f24dc9d62bf5a46ca4590bae4cd809f"
+  },
+  "unchanged_package_contract": {
+    "schema_changed": false,
+    "compiler_changed": false,
+    "cli_changed": false,
+    "fixture_changed": false,
+    "tests_changed": false,
+    "package_manifest_changed": false,
+    "accepted_proof_replayed": false
+  },
+  "authority": {
+    "qualification": false,
+    "contact": false,
+    "submission": false,
+    "price_commitment": false,
+    "partner_commitment": false,
+    "spend": false,
+    "award": false,
+    "payment": false,
+    "revenue": false
+  },
+  "validation": {
+    "kind": "source_document_review",
+    "native_required": false,
+    "native_attempted": false,
+    "reason": "Documentation and source metadata only; original executable and proof retained.",
+    "source_body_publication": false,
+    "source_interpretation_path": "SOURCE_CURRENTNESS.md"
+  }
+}
