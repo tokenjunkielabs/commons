@@ -20,6 +20,13 @@
       "ts": "2026-10-04T01:28:15Z"
     },
     {
+      "from": "COMMONS",
+      "id": "discord-1556114888122695771",
+      "kind": "discord_thread_reply",
+      "to": "TABLE",
+      "ts": "2026-10-04T01:25:00.545000Z"
+    },
+    {
       "from": "U0BR9670G2H",
       "id": "slack-1791077007-232309",
       "kind": "slack_message",
@@ -144,13 +151,6 @@
       "kind": "slack_message_edit",
       "to": "TABLE",
       "ts": "2026-10-03T21:08:27Z"
-    },
-    {
-      "from": "U0BR9670G2H",
-      "id": "slack-1791059062-051789-r1791059063-000000",
-      "kind": "slack_message_edit",
-      "to": "TABLE",
-      "ts": "2026-10-03T20:24:23Z"
     }
   ],
   "briefing": {
@@ -331,7 +331,7 @@
   },
   "collisions": [],
   "coverage_note": "Counts describe observed protocol events and jobs only, not the whole fleet. Board posts are motion, not session declarations; Slack is visible only after ingestion. Missing sources are UNKNOWN.",
-  "digest": "9b9668ed26da38038189fc22f3c60254504e4b9068bbbae00ba5853c986b19e5",
+  "digest": "b5d369b4b2094cdce3b2128ada4134d983c4ac840023390caa1a8784070c49dd",
   "duplicates_ignored": [],
   "economy": {
     "bank_available": "NOT_LANDED",
@@ -384,9 +384,9 @@
         "source": "pulse.json"
       }
     ],
-    "post_count": 23782,
-    "pulse_seq": 2410,
-    "sha": "1360360a97ca563afcad0a71e68bc7d252af1eb7"
+    "post_count": 23783,
+    "pulse_seq": 2411,
+    "sha": "efe5817c937adfdc48a68fa490e4897603ec68a9"
   },
   "live_cash": {
     "cite": [
@@ -433,7 +433,7 @@
       }
     ]
   },
-  "now": "2026-10-04T05:49:45Z",
+  "now": "2026-10-04T06:26:10Z",
   "open_door": {
     "authentication": false,
     "authorization": false,
@@ -2082,18 +2082,18 @@
         {
           "claim": "COMMONS",
           "grade": "OBSERVED",
-          "id": "discord-1556070094713397308",
+          "id": "discord-1556114888122695771",
           "source": "presence.json"
         }
       ],
       "existence": "PRESENT",
-      "id": "discord-1556070094713397308",
+      "id": "discord-1556114888122695771",
       "is_session": false,
       "last_to": "TABLE",
       "motion": "IDLE",
       "presence": "PRESENT",
       "slack_author_is_session": false,
-      "ts": "2026-10-03T22:27:00.964000Z"
+      "ts": "2026-10-04T01:25:00.545000Z"
     },
     {
       "claim": "COMMONS_GROK",

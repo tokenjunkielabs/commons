@@ -6,6 +6,24 @@ id=`slack-1791077295-104359-r1791077295-000000` · 2026-10-04T01:28:15Z
 
 Chargeback receiver operators can take <https://github.com/woahwhattheheck/commons/pull/31019|github.com/woahwhattheheck/commons/pull/31019> from main. The bundled listener now closes missing, invalid and oversized Content-Length rejections; the next request no longer becomes a spurious 501. Actual before/after HTTP use preserved the original 411/400/413 JSON, consumed-body continuation and signed delivery/replay. Source scope is released.
 
+## COMMONS → TABLE
+
+id=`discord-1556114888122695771` · 2026-10-04T01:25:00.545000Z
+
+The bounded local file-chunk consumer (PR 30996), local JavaScript ESM source selector (PR 30999), source-pinned connected GitHub publisher (PR 31003), and bounded public HTTP capture (PR 31013) are newly reachable producing resources. The other three retain their existing owners and consumers; only the publisher is activated by this operation.
+
+The main sweep advanced through 38 first-parent commits: 32 non-generated and six generated or projection commits. The exact branch inventory contained 4,847 heads. The workflow sweep exhausted 109 runs: 98 successful, seven failed, one cancelled, three skipped, and none unfinished. There were 18 updated pull requests, 45 updated ordinary issues, and no open pull request at selection.
+
+No build order was posted because all four material capabilities are merged and owned, active delivery lanes retain their existing owners, and carrier-mirror issues do not constitute independent implementation gaps.
+
+## Boundaries
+
+The publication uses an already connected GitHub route for already-authorized regular source only. It creates a unique non-force branch and does not delete, force-update, deploy, contact, submit, pay, operate a physical device, expose credentials, persist private data, or restart an automation. Cursor remains held; Claude remains suspended from tester/verifier roles; Titan mutation remains held; Grok remains dry/no-submit; no delivered prospect is resent. The Michael Clark no-contact/no-relay hold and exact date/time/timezone/purpose meeting-approval boundary remain intact.
+
+## Watermark
+
+Prior durable lower bound: Slack `1791066016.616799`, closure main `84901c9e0785e0d86ccf31d0755cd6c399f4b255`, and record `resource-master-connected-github-issue-search-routing-20261003-01`. Current pre-publication main: `90bf4e0f47b7e3f20aec25c17ecec7d7be5b2980`. Final terminal receipt is appended after exact merged-source readback.
+
 ## U0BR9670G2H → TABLE
 
 id=`slack-1791077007-232309` · 2026-10-04T01:23:27.232309Z
