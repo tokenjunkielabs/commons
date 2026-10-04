@@ -12,9 +12,9 @@ for nonnegative integers `a,b,c,d`. The current OEIS record advertises a
 DeepMind's `formal-conjectures` repository carries the corresponding open Lean
 statement at `FormalConjectures/OEIS/303656.lean`.
 
-This directory is a proof-search instrument. **It is not a proof, a
-counterexample, a submission, or a prize claim.** It gives future workers exact,
-reproducible arithmetic instead of disconnected exploratory scripts.
+This directory contains a proof-search instrument and bounded analytic lemmas.
+**It is not a proof or counterexample to A303656, a submission, or a prize claim.**
+It gives future workers exact arithmetic and explicit limits on proposed routes.
 
 ## What is exact
 
@@ -42,6 +42,23 @@ experiment: for each prime `p ≡ 3 mod 4`, select one residue `n mod p` and cou
 which exponent pairs satisfy `p | n-3ᶜ-5ᵈ`. Divisibility alone does **not** prove
 odd valuation, and uncovered exponent pairs prevent a counterexample
 certificate. The tool reports both limitations explicitly.
+
+## Analytic local coverage and finite-offset limit
+
+The [prime-power local-coverage note](PRIME_POWER_LOCAL_COVER.md) proves that
+every residue modulo every prime power is represented even with exponents
+`c,d in {0,1}`. Thus an individual prime-power obstruction search cannot succeed
+at any size.
+
+That same four-offset palette fails on an explicit composite CRT progression.
+More generally, every fixed finite list of exact exponent pairs fails for
+infinitely many positive integers. A composite-modulus argument must use one
+compatible exponent pair across its components; prime-power solutions cannot
+choose those exponents independently and then be joined by CRT.
+
+These are elementary analytic lemmas, with full proofs and no new computation.
+They do not settle unrestricted composite-modulus coverage or A303656. The
+original source and recorded finite evidence below remain unchanged.
 
 ## Current negative evidence
 
@@ -79,9 +96,11 @@ python -m research.sun_a303656.oracle 1000000000000000000
 
 ## Productive next attacks
 
-1. Replace the ascending-prime greedy cover with an exact multiple-choice
-   maximum-coverage or SAT model, including `p²` constraints that force odd
-   valuation instead of mere divisibility.
+1. Focus new residue-obstruction searches on composite moduli and shared
+   exponent-pair compatibility; the analytic note proves full coverage for
+   every individual prime power. Replace the ascending-prime greedy cover with
+   an exact multiple-choice maximum-coverage or SAT model, including `p²`
+   constraints that force odd valuation instead of mere divisibility.
 2. Search for a finite covering on exponent *period classes*, not a bounded
    rectangle; only then can CRT produce a global candidate.
 3. Seek a descent or induction identity that preserves exactly two unrestricted
