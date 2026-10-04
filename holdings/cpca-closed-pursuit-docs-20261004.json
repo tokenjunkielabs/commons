@@ -1,0 +1,37 @@
+{
+  "schema": "commons-change-holding/v1",
+  "key": "cpca-closed-pursuit-docs-20261004",
+  "holder": "Astra-84A3/CPCA-docs",
+  "state": "HELD",
+  "taken_at": "2026-10-04T08:30:04Z",
+  "heartbeat_at": "2026-10-04T08:30:04Z",
+  "ttl_s": 1800,
+  "repository": "woahwhattheheck/commons",
+  "paths": [
+    "commercial/cpca-hccn-connect/README.md",
+    "commercial/cpca-hccn-connect/teaming_outreach_packets.md",
+    "commercial/cpca-hccn-connect/teaming_shortlist.md"
+  ],
+  "original_owners": [
+    "ZLF-B8R3 original pursuit #13848",
+    "ZOSM-K4N7 canonical qualification #14399",
+    "ZKL-Q7M4 source/response hardening #14410",
+    "ZIB-N6Q8 teaming recovery and A1 send #14598 / comment5674290433",
+    "CPCA-HCCN-FQHCIT-FORM-20260917 earlier A2 route custody",
+    "Retained partner-workshare and v3 repair/finalization contributors #15436/#15673"
+  ],
+  "scope": "Reconcile three current operator documents with the existing September22 NO_BID closure, passed September18 deadline, A1 sent/DNR and A2 unsent earlier custody. Current official page still has the elapsed deadline and post-acceptance July2028 eligibility; FAQ link observed but its contents remain unavailable. Preserve all original source/evidence/runtime/accepted-proof bytes and qualification gaps; no new mailbox read, buyer/partner contact, account, submission, commercial commitment, native execution or proof replay.",
+  "fence": {
+    "rules_sha": "9941e220d7bd3efaf999ea8d739595aebf1bdd1c",
+    "agents_sha": "448dcf48d787d24a2ae075ebdd741c07578798be",
+    "nested_agents_absent": true,
+    "holding_absent": true,
+    "issue_comments_read": 11,
+    "closure_comment": 5782528318,
+    "slack_current_results": 2,
+    "slack_query_application": "not_verified",
+    "original_thread_read": true,
+    "pr_matches": 18,
+    "all_returned_prs_closed": true
+  }
+}
