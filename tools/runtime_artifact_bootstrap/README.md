@@ -154,6 +154,19 @@ memory. Unknown limits remain visible in JSON. Use a full Commons checkout, or
 retain `integrations/command_center/telemetry.py` at its normal relative path,
 to reuse the cgroup reader. The helper uses only the Python standard library.
 
+The same inspection includes `memory.cgroup.memory_stats`, also exposed as
+`process_limits.memory_stats` in the host telemetry record. Each entry retains
+its `memory.stat` source path, cgroup-and-descendants scope, and selected byte
+fields. Missing fields stay absent; unavailable files and malformed data use
+the existing unavailable-interface and read-error lists. The
+[kernel definitions](https://docs.kernel.org/admin-guide/cgroup-v2.html#memory-interface-files)
+distinguish anonymous mappings (`anon`), filesystem cache including tmpfs/shared
+memory (`file`), and kernel allocations (`kernel`). Detail and reclaim-list
+fields overlap: `shmem` is included in `file`, and slab is included in `kernel`.
+Do not sum these fields or records across ancestors. `inactive_file` and
+`slab_reclaimable` are not guaranteed available capacity; the breakdown does not
+change headroom or candidate selection, and total usage is not process heap.
+
 ## Local product browser with installed Chromium
 
 `local_browser.cjs` exports `openLocalBrowser({ target, executablePath, tempRoot? })`.
