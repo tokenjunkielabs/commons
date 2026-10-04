@@ -4,7 +4,7 @@
 Supported identifiers:
   #12569 | pr:12569 | GitHub pull URL (including query/fragment permalinks)
   review:5178620884 | review:12567:5178620884
-  run:34594768274
+  run:34594768274 | GitHub Actions run/job URL (including query/fragment permalinks)
   blob:830e8e9a3ddae95799142eba6bcbd03f85eb4787
   commit:ae90064a7c0f0a2b0346a9f88b056403825a9313 | GitHub commit URL
   marker:OUTCOME-COMMERCE-PR12567-GUARDED-INTEGRATION-20260911-01
@@ -33,6 +33,10 @@ DEFAULT_COORDINATION_URL = (
 )
 _HEX40 = re.compile(r"^[0-9a-fA-F]{40}$")
 _PULL_URL = re.compile(r"^https://github\.com/([^/?#]+/[^/?#]+)/pull/(\d+)(?:[/?#].*)?$")
+_RUN_URL = re.compile(
+    r"^https://github\.com/([^/?#]+/[^/?#]+)/actions/runs/([0-9]+)"
+    r"(?:/job/[0-9]+)?/?(?:[?#].*)?$"
+)
 _COMMIT_URL = re.compile(r"^https://github\.com/([^/]+/[^/]+)/commit/([0-9a-fA-F]{40})/?(?:[?#].*)?$")
 _GITHUB_CREDENTIAL_HOSTS = frozenset({"api.github.com", "raw.githubusercontent.com"})
 
@@ -77,6 +81,19 @@ def parse_identifier(raw: str, repo: str = DEFAULT_REPO) -> ParsedId:
                 actual=url_repo,
             )
         return ParsedId("pr", number)
+
+    match = _RUN_URL.fullmatch(value)
+    if match:
+        url_repo, run_id = match.groups()
+        if url_repo.lower() != repo.lower():
+            raise ResolutionError(
+                "WRONG_REPOSITORY",
+                "run URL points at a different repository",
+                expected=repo,
+                actual=url_repo,
+            )
+        # A job permalink still identifies its containing run; job success is not inferred.
+        return ParsedId("run", run_id)
 
     match = _COMMIT_URL.fullmatch(value)
     if match:
