@@ -60,6 +60,24 @@ def write_pr_holding(
     return result
 
 
+def pr_status(git: cs.Git, pr: int, *, remote="origin", now=None, repository=None) -> dict:
+    """Read one canonical PR holding without materializing unrelated records."""
+    key = pr_key(pr, repository)
+    repository = cs.claim_repository(repository)
+    snapshot = cs.holdings_list(git, remote=remote, now=now, key=key)
+    row = next((row for row in snapshot.get("holdings", []) if row.get("key") == key), None)
+    unreadable = bool(row and row.get("unreadable"))
+    result = {
+        "ok": not unreadable, "action": "status", "key": key,
+        "pr": pr, "repository": repository, "tip": snapshot.get("tip"),
+        "held": None if unreadable else bool(row and row.get("state") == "HELD" and row.get("live") is True),
+        "record": row,
+    }
+    if unreadable:
+        result["reason"] = "the current holding could not be read; ownership is unknown, not vacant"
+    return result
+
+
 def _positive_pr(text: str) -> int:
     try:
         value = int(text)
@@ -82,32 +100,37 @@ def _ttl(text: str) -> int:
 
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(
-        description="Atomically take/renew/release the canonical claim for one pull request"
+        description="Read or atomically take/renew/release the canonical claim for one pull request"
     )
-    parser.add_argument("action", choices=("take", "renew", "release"))
+    parser.add_argument("action", choices=("take", "renew", "release", "status"))
     parser.add_argument("pr", type=_positive_pr)
     parser.add_argument("--repository", help="PR source owner/repo; defaults to Commons, not the claim-storage remote")
-    parser.add_argument("--holder", required=True)
+    parser.add_argument("--holder", help="required for take, renew, and release")
     parser.add_argument("--ttl", type=_ttl, default=1800)
     parser.add_argument("--note", default="")
     parser.add_argument("--git-root", default=None, help="checkout used for git plumbing")
     parser.add_argument("--remote", default="origin")
     parser.add_argument("--no-push", action="store_true")
     args = parser.parse_args(argv)
+    if args.action != "status" and args.holder is None:
+        parser.error("--holder is required for take, renew, and release")
 
     git = cs.Git(args.git_root or cs.ROOT)
     try:
-        result = write_pr_holding(
-            git,
-            args.pr,
-            args.holder,
-            args.action,
-            ttl_s=args.ttl,
-            note=args.note,
-            remote=args.remote,
-            push=not args.no_push,
-            repository=args.repository,
-        )
+        if args.action == "status":
+            result = pr_status(git, args.pr, remote=args.remote, repository=args.repository)
+        else:
+            result = write_pr_holding(
+                git,
+                args.pr,
+                args.holder,
+                args.action,
+                ttl_s=args.ttl,
+                note=args.note,
+                remote=args.remote,
+                push=not args.no_push,
+                repository=args.repository,
+            )
     except (ValueError, cs.GitError) as exc:
         result = {"ok": False, "pr": args.pr, "action": args.action, "reason": str(exc)}
     print(json.dumps(result, indent=1, sort_keys=True))
