@@ -87,16 +87,6 @@ def preflight(
             else resolution.canonical_url
         )
         owner, repo, kind, number = github_parts(canonical_url)
-        base = f"https://api.github.com/repos/{quote(owner)}/{quote(repo)}/issues/{number}"
-        comments = fetch_json_pages(
-            transport, f"{base}/comments?per_page=100", prefix="comments"
-        )
-        timeline = fetch_json_pages(
-            transport, f"{base}/timeline?per_page=100", prefix="timeline"
-        )
-        comments = [row for row in comments if isinstance(row, Mapping)]
-        timeline = [row for row in timeline if isinstance(row, Mapping)]
-
         state = str(issue.get("state") or "unknown").lower()
         assignees_raw = issue.get("assignees") if isinstance(issue.get("assignees"), list) else []
         assignees = sorted(
@@ -106,8 +96,6 @@ def preflight(
                 if isinstance(row, Mapping) and row.get("login")
             }
         )
-        claimants = visible_claimants(comments)
-        competing_prs = active_competing_prs(timeline)
         labels = issue.get("labels") if isinstance(issue.get("labels"), list) else []
         label_names = sorted(
             {
@@ -116,6 +104,44 @@ def preflight(
                 if (isinstance(row, Mapping) and row.get("name")) or isinstance(row, str)
             }
         )
+        receipt["canonical"] = {
+            "url": canonical_url,
+            "requested_url": resolution.canonical_url,
+            "moved": canonical_url != resolution.canonical_url,
+            "owner": owner,
+            "repository": repo,
+            "kind": kind,
+            "number": number,
+            "title": str(issue.get("title") or "")[:500],
+            "state": state,
+            "assignees": assignees,
+            "labels": label_names,
+            "updated_at": issue.get("updated_at"),
+        }
+        if state == "closed":
+            # Canonical closure is enough to reject this candidate. Do not spend
+            # quota on comments/timeline or let their failures hide the known state.
+            receipt.update(
+                {
+                    "checks": {"evidence_complete": True, "canonical_state_open": False},
+                    "freshness_status": "stale",
+                    "route": "reject",
+                    "reasons": ["canonical_state_closed"],
+                }
+            )
+            return finalize(receipt)
+
+        base = f"https://api.github.com/repos/{quote(owner)}/{quote(repo)}/issues/{number}"
+        comments = fetch_json_pages(
+            transport, f"{base}/comments?per_page=100", prefix="comments"
+        )
+        timeline = fetch_json_pages(
+            transport, f"{base}/timeline?per_page=100", prefix="timeline"
+        )
+        comments = [row for row in comments if isinstance(row, Mapping)]
+        timeline = [row for row in timeline if isinstance(row, Mapping)]
+        claimants = visible_claimants(comments)
+        competing_prs = active_competing_prs(timeline)
         authority_text = canonical_text(issue, comments)
         sponsor_present = bool(SPONSOR_RE.search(authority_text))
         amount_state = authoritative_amount_state(
@@ -142,20 +168,6 @@ def preflight(
             0.0, (now - activity).total_seconds() / 86400.0
         )
 
-        receipt["canonical"] = {
-            "url": canonical_url,
-            "requested_url": resolution.canonical_url,
-            "moved": canonical_url != resolution.canonical_url,
-            "owner": owner,
-            "repository": repo,
-            "kind": kind,
-            "number": number,
-            "title": str(issue.get("title") or "")[:500],
-            "state": state,
-            "assignees": assignees,
-            "labels": label_names,
-            "updated_at": issue.get("updated_at"),
-        }
         receipt["checks"] = {
             "evidence_complete": True,
             "canonical_state_open": state == "open",
