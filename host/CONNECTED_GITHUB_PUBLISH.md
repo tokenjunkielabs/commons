@@ -374,6 +374,79 @@ This supports continuation from an already-retained file response without
 repeating its read or any publication write. Omitting the callback preserves the
 synchronous inspector's outcome.
 
+### Native Contents updates when an existing tree cannot be read
+
+The matching-blob stop above belongs to this helper's Git Trees writer. It is
+not a repository-wide requirement to retrieve a complete tree before using
+GitHub's separate, authorized
+[Contents create/update API](https://docs.github.com/en/rest/repos/contents#create-or-update-file-contents).
+For a prepared UTF-8 content change, the native `github_update_file` operation
+takes the current blob SHA and complete replacement text; the caller does not
+choose a Git mode. This is a separate publication route, not a successful
+`publishGitHubChange` result or a `retained_trees` fallback.
+
+Read the actual tool schemas and retain the earlier failed operation. Create a
+unique branch at the observed base commit using
+`github_create_branch({repository_full_name, branch_name, sha})`. On that
+branch, the observed native arguments are:
+
+```javascript
+await tools.mcp__codex_apps__github_update_file({
+  repository_full_name,
+  branch: branch_name,
+  path: existing_path,
+  sha: observed_existing_blob_sha,
+  content: complete_replacement_utf8,
+  message: prepared_commit_message,
+});
+```
+
+The update returns the resulting commit SHA and `content_sha`; the latter is
+the previous-version pin for a later deliberate update to that same file.
+The native `github_create_file` takes the same fields except `sha`, requires
+an absent path on an existing branch, and returns only the resulting commit
+SHA. For an existing-file update plus a new companion, perform these writes
+serially and retain both responses. They create separate commits, not one
+atomic multi-file change. If a later operation fails, preserve the earlier
+commit and reconcile that branch.
+
+Check each returned commit's sole parent against the previously observed
+branch head, complete changed-file listings for the expected paths, complete
+immutable file contents and blob identities, and the observed final branch head.
+For several writes, also compare
+the aggregate path set from the original base to the final head. The native
+Contents call guards the existing file's blob; it does not accept an
+expected branch-head parameter or independently check the entry's mode.
+Stop and reconcile unexpected parentage or an
+unknown write outcome before any further mutation. Do not resend merely
+because a response or readback failed. Then use the task's ordinary PR,
+expected-head merge and immutable/current-source readbacks.
+
+These checks establish the observed content and commit chain. They do not
+independently establish the prior or resulting Git mode, or compare the entire
+repository tree. Record those unperformed checks explicitly. The Contents
+endpoint documentation does not explicitly promise preservation of the existing
+entry's mode; this route is unsuitable when independent mode proof or a deliberate mode
+change is part of the task. Do not convert a positive Contents response into
+proof that a path is a regular file, since a read can dereference an
+in-repository symlink. Existing permission, source-ownership and product-use
+requirements remain in effect.
+
+On 2026-10-04, [ASMFC #31219](https://github.com/woahwhattheheck/commons/pull/31219)
+used this route after two transport failures on its exact large parent tree.
+One native update changed only the prepared Markdown file; its sole parent,
+complete file text/blob, branch head and merged/current-source readbacks
+matched. Independent mode and complete-tree verification were not performed.
+
+[Burbank #31220](https://github.com/woahwhattheheck/commons/pull/31220)
+then used one native update and one native create on the same isolated branch.
+The two returned commits formed the expected sole-parent chain; comparison
+against the starting base showed exactly the existing carrier and new companion.
+Both complete texts/blobs, branch head, PR and merged/current-source readbacks
+matched. This mixed case made no parent-tree request and no independent Git-mode
+verification claim. These are observed content publications, not evidence of
+mode behavior for every file type.
+
 ### Recover omitted UTF-8 content by blob identity
 
 For a text row still marked `readback_content_unavailable`, the separate native
