@@ -58,6 +58,10 @@ disabled-hook lists. If the client has globally disabled hooks, they remain
 disabled; installing source does not authorize overriding that choice. The
 repository's `.cursor/hooks.json` and `.gemini/settings.json` preserve their
 existing configuration and add the publication hooks for future clients.
+Rerunning it also refreshes every recognized native publication command in
+place, including repository paths and split command/argument entries. Existing
+matchers, handler options and unrelated hooks remain intact; a stale native
+repository command cannot keep using the old selector beside the refreshed copy.
 
 The installer copies hook source into the client configuration directory.
 Updating the checkout alone does not refresh that installed copy. Rerun the
