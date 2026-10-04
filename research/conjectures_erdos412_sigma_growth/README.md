@@ -52,3 +52,13 @@ The actual new seeds are 59,548,377 and 59,548,401, extracted from the retained 
 The complete [new result](sigma_orbits_59548377_59548401.json) contains both ten-term paths, all 18 factorized transitions and all 96 prime-power factors. The run used 1,677 remainder tests and 252 exact quotient divisions. Both remaining heads exceed the 10^12 direct factor-input cap; their outgoing transitions were not computed. This is a bounded new Commons consumer, with no infinite nonintersection or external frontier claim.
 
 The original 9,999 one-step checks and 2,040 orbit transitions were not replayed. The Python, receipt, Lean, source and test files are unchanged; this addition supplies no new elaboration or sponsor submission.
+
+## Cached geometric-product continuation (October 4, 2026)
+
+The [geometric-product API](sigma_geometric_products.cjs) combines prime exponents from cached exact component factorizations and computes the divisor sum of their full product. Its [guide](SIGMA_GEOMETRIC_PRODUCTS_API.md) documents the shared-prime convention, finite work bounds, actual saved-catalog import and exact difference-of-squares component refinement.
+
+Starting only from #31197's two retained index-nine heads, the new consumer added 61 transitions using 128 distinct component factorizations, 32,155 remainder tests and 389 exact quotient divisions. A fresh V8 isolate imported 94 saved catalog entries with zero factorizer calls, then used the remaining 34 fresh calls. All original 18 transitions and all completed new transitions were preserved without sigma or trial-factorization replay.
+
+The [complete continuation dataset](sigma_geometric_continuation_59548377_59548401.json) contains all 61 new transitions, the full 128-entry catalog and both known paths. Final absolute indices are 39 and 40. The larger head is 771258603484062010708460568576000, so the merge invariant excludes every common value through 771258603484062010708460568575999. That larger head itself remains a possible future meeting.
+
+The run ended at its 128-factorization work allowance. The next uncached component is 72, with the full request and reusable catalog retained. This is a bounded continuation; the original conjecture and the remaining orbit tails are unresolved. The direct API, its prior dataset and guide, and the original arithmetic/receipt/Lean/source/test files are unchanged.
