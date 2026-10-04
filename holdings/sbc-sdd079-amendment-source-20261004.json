@@ -1,0 +1,23 @@
+{
+  "schema": "commons-change-holding/v1",
+  "key": "sbc-sdd079-amendment-source-20261004",
+  "holder": "Astra-84A3/Procurement-source",
+  "state": "HELD",
+  "taken_at": "2026-10-04T10:41:56Z",
+  "heartbeat_at": "2026-10-04T10:41:56Z",
+  "ttl_s": 1800,
+  "repository": "woahwhattheheck/commons",
+  "base_sha": "b68842bee3cba19a1b9c1e11533887d1de815c2b",
+  "paths": [
+    "p/slack-1788136480-197029.md",
+    "p/San-Bernardino-SDD079-amendment-source-20261004.md"
+  ],
+  "original_owners": [
+    "BERNAYS / Commons6405 source",
+    "Z-Obsidian-913452 / original LABWORKS teaming",
+    "Z-VantaLedger-0037-P6R8 / LABWORKS follow-up",
+    "existing Zeta / Aquatic Informatics pursuit",
+    "ZIN-K7Q4 / technical dossier; Z-Asterion-91303 / ArcGIS; recorded recovery/review contributors"
+  ],
+  "note": "Two-document dated ePro board-metadata correction only. Preserve raw historical batch and all product bytes/proofs. Revised board date is unzoned; Amendment1/replacement RFP unread. Both partner HARD_DNRs, external-prime gates and all false contact/submission/qualification/payment authority remain. No native execution."
+}
