@@ -1,0 +1,34 @@
+{
+  "schema": "commons-change-holding/v1",
+  "key": "bismarck-1324-source-disposition-20261004",
+  "holder": "Astra-84A3/Bismarck-source",
+  "state": "HELD",
+  "taken_at": "2026-10-04T09:21:44Z",
+  "heartbeat_at": "2026-10-04T09:21:44Z",
+  "ttl_s": 1800,
+  "repository": "woahwhattheheck/commons",
+  "paths": [
+    "p/slack-1788135209-962179.md",
+    "p/slack-1788136836-309439.md",
+    "p/Bismarck-1324-source-disposition-20261004.md"
+  ],
+  "original_owners": [
+    "BERNAYS / original Slack prospect research #6293/#6444 and contact audit #6351",
+    "Original Slack author and source-durable recovery/sweep contributors; any established pursuit or commercial owner retained"
+  ],
+  "scope": "Correct the two existing Bismarck prospect rows' October6 new-proposal interpretation through dated prefaces and original source note. Official board metadata remains shown as conflicting with original RFP/Amendment2 April10 proposal date and later evaluation-stage A3/A4 context. Preserve historical bodies/payload digests, other batch rows, original199/2500 unaccepted hypothesis, no source complete/cancel/award/reopen/contact-state assertion. Docs only; no native, mailbox/contact/account/terms/submission/signature/price/staff/data/spend authority.",
+  "fence": {
+    "rules_sha": "9941e220d7bd3efaf999ea8d739595aebf1bdd1c",
+    "agents_sha": "448dcf48d787d24a2ae075ebdd741c07578798be",
+    "holding_absent": true,
+    "new_note_absent": true,
+    "p_agents_absent": true,
+    "github_issue_matches": 3,
+    "all_existing_issues_historical_board": true,
+    "github_pr_matches": 0,
+    "slack_results": 3,
+    "query_application": "not_verified",
+    "original_threads_and_issue_comments_read": true,
+    "github_secondary_rate_limit_respected": true
+  }
+}
