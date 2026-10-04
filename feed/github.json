@@ -1,7 +1,7 @@
 {
   "counts": {
-    "open_issues": 5912,
-    "open_pull_requests": 2,
+    "open_issues": 5840,
+    "open_pull_requests": 3,
     "runs_in_progress": 1,
     "runs_queued": 70
   },
@@ -30,9 +30,31 @@
       "number": 31346,
       "title": "Preserve PocketPay QR contract maintenance handoff",
       "updated_at": "2026-10-04T14:57:34Z"
+    },
+    {
+      "author": "woahwhattheheck",
+      "base": "main",
+      "branch": "fix/claim-github-shorthand-c7b4",
+      "created_at": "2026-10-04T22:54:58Z",
+      "draft": false,
+      "head_sha": "954e9ee3f409f0da0874512790f843f0f830e17e",
+      "number": 31451,
+      "title": "Recognize GitHub issue shorthand in swarm claim declarations",
+      "updated_at": "2026-10-04T22:54:58Z"
     }
   ],
   "newest_pulls": [
+    {
+      "author": "woahwhattheheck",
+      "base": "main",
+      "branch": "fix/claim-github-shorthand-c7b4",
+      "created_at": "2026-10-04T22:54:58Z",
+      "draft": false,
+      "head_sha": "954e9ee3f409f0da0874512790f843f0f830e17e",
+      "number": 31451,
+      "title": "Recognize GitHub issue shorthand in swarm claim declarations",
+      "updated_at": "2026-10-04T22:54:58Z"
+    },
     {
       "author": "woahwhattheheck",
       "base": "main",
@@ -58,12 +80,91 @@
   ],
   "open_heads": {
     "31035": "861b3094a115d3acad8041908b0bc175fde94458",
-    "31346": "c74ff1c418e3789f9a0f05696fba2abab0e5655d"
+    "31346": "c74ff1c418e3789f9a0f05696fba2abab0e5655d",
+    "31451": "954e9ee3f409f0da0874512790f843f0f830e17e"
   },
-  "pulls_listed": 2,
+  "pulls_listed": 3,
   "pulls_listing": "COMPLETE",
   "queue_depth_per_runner": 70.0,
   "recently_closed": [
+    {
+      "author": "woahwhattheheck",
+      "base": "main",
+      "branch": "root-kimberling122-hard-count-20261004-7ca6",
+      "closed_at": "2026-10-04T23:11:14Z",
+      "head_sha": "3c3f566bbed2f7566689d3331cadbf254014b25f",
+      "merge_commit_sha": "82b7405fd73c256b5380c43b9bb500d69c39c000",
+      "merged_at": "2026-10-04T23:11:14Z",
+      "number": 31454,
+      "state": "MERGED",
+      "title": "Add complete Hard Count history with resumable occurrence navigation",
+      "updated_at": "2026-10-04T23:11:15Z"
+    },
+    {
+      "author": "woahwhattheheck",
+      "base": "main",
+      "branch": "research/ppl075-werner-fixed-support-20261004-7ca6",
+      "closed_at": "2026-10-04T22:58:43Z",
+      "head_sha": "053bcb56693d442e654c56fe0b3ce28d47d27e97",
+      "merge_commit_sha": "3e7fc1e5912eb8ff533eb805fa95914e4b1172b5",
+      "merged_at": "2026-10-04T22:58:43Z",
+      "number": 31452,
+      "state": "MERGED",
+      "title": "Add exact fixed-support Werner form certificates and saved queries",
+      "updated_at": "2026-10-04T22:58:43Z"
+    },
+    {
+      "author": "woahwhattheheck",
+      "base": "main",
+      "branch": "codex/open-door-research-nouns-20261004-7ca6",
+      "closed_at": "2026-10-04T22:40:53Z",
+      "head_sha": "3bac8dc55bf915dd56dbefa97e25cd3f19a54306",
+      "merge_commit_sha": "9a240485b3e3c2caeee8cced1821683e6cdea9bc",
+      "merged_at": "2026-10-04T22:40:53Z",
+      "number": 31449,
+      "state": "MERGED",
+      "title": "Disambiguate mathematical block nouns in open-door prose",
+      "updated_at": "2026-10-04T22:40:53Z"
+    },
+    {
+      "author": "woahwhattheheck",
+      "base": "main",
+      "branch": "research/erdos74-local-bipartization-20261004-7ca6",
+      "closed_at": "2026-10-04T22:23:19Z",
+      "head_sha": "91a4ff5a5dadccff0e3d2d4be77ba09d850c6ca2",
+      "merge_commit_sha": "6c3dfedea8b3eaffb71d6885465fa3393eff73f7",
+      "merged_at": "2026-10-04T22:23:19Z",
+      "number": 31448,
+      "state": "MERGED",
+      "title": "Add exact local bipartization profiles and distinct deletion-set navigation",
+      "updated_at": "2026-10-04T22:23:19Z"
+    },
+    {
+      "author": "woahwhattheheck",
+      "base": "main",
+      "branch": "root-erdos564-tournament-fibers-20261004-7ca6",
+      "closed_at": "2026-10-04T22:18:14Z",
+      "head_sha": "31e7837aaf074ddd7ead6db1e57f9e4a038705b0",
+      "merge_commit_sha": "35accbfc09f88cf2c512371e431f4c9473ac45e1",
+      "merged_at": "2026-10-04T22:18:14Z",
+      "number": 31447,
+      "state": "MERGED",
+      "title": "Add complete tournament inverse fibers and saved pattern navigation",
+      "updated_at": "2026-10-04T22:18:14Z"
+    },
+    {
+      "author": "woahwhattheheck",
+      "base": "main",
+      "branch": "resource-master/authority-research-delta-20261004-1755",
+      "closed_at": "2026-10-04T22:14:12Z",
+      "head_sha": "786dc714a233b78b28c2ea303b784258c9cbbd89",
+      "merge_commit_sha": "7b4ae7dd6125f4e68f63ff0b40bd4b99fe639cde",
+      "merged_at": "2026-10-04T22:14:12Z",
+      "number": 31446,
+      "state": "MERGED",
+      "title": "Reconcile RTC authority and ten finite research resources",
+      "updated_at": "2026-10-04T22:14:12Z"
+    },
     {
       "author": "woahwhattheheck",
       "base": "main",
@@ -180,88 +281,10 @@
       "state": "MERGED",
       "title": "Add exact cyclic Turan hypergraph navigation and retained finite index",
       "updated_at": "2026-10-04T19:40:18Z"
-    },
-    {
-      "author": "woahwhattheheck",
-      "base": "main",
-      "branch": "research/kimberling13-greedy-difference-bitsets-20261004-7ca6",
-      "closed_at": "2026-10-04T19:16:58Z",
-      "head_sha": "6197ca0e63b011ddba85f0c3a92440590e551ca4",
-      "merge_commit_sha": "d7e40695887c85ccc8f28d7b3cee8a4fa4a7c6cf",
-      "merged_at": "2026-10-04T19:16:58Z",
-      "number": 31431,
-      "state": "MERGED",
-      "title": "Kimberling 13: exact bitset continuation with saved greedy-choice certificates",
-      "updated_at": "2026-10-04T19:16:58Z"
-    },
-    {
-      "author": "woahwhattheheck",
-      "base": "main",
-      "branch": "work/resource-master-sealed-roads-20261004-1504",
-      "closed_at": "2026-10-04T19:16:32Z",
-      "head_sha": "d1c0ab62c4c4e65cba39a3865b458c554874cf30",
-      "merge_commit_sha": "bf5f0daf928283f8494e609e430497d9d514906a",
-      "merged_at": "2026-10-04T19:16:32Z",
-      "number": 31430,
-      "state": "MERGED",
-      "title": "Reconcile sealed credential and bounded research resources",
-      "updated_at": "2026-10-04T19:16:32Z"
-    },
-    {
-      "author": "woahwhattheheck",
-      "base": "main",
-      "branch": "root-ppl008-cyclotomic-mub-certificate-20261004-7ca6",
-      "closed_at": "2026-10-04T19:03:41Z",
-      "head_sha": "5810890e6fed4996d53e0ec71f266d9fff5aacbd",
-      "merge_commit_sha": "5614c82a3a33702130a3dd77b7562acf42b17f92",
-      "merged_at": "2026-10-04T19:03:41Z",
-      "number": 31429,
-      "state": "MERGED",
-      "title": "Add exact cyclotomic MUB certificates and saved dimension-six overlap API",
-      "updated_at": "2026-10-04T19:03:42Z"
-    },
-    {
-      "author": "woahwhattheheck",
-      "base": "main",
-      "branch": "research/kimberling12-prime-separator-frontiers-20261004-7ca6",
-      "closed_at": "2026-10-04T18:49:56Z",
-      "head_sha": "1d57b26e6410915e9e5d108f78306ec63eaec13a",
-      "merge_commit_sha": "cca3670ba2075d065018271fd2bb2521aac943ae",
-      "merged_at": "2026-10-04T18:49:56Z",
-      "number": 31428,
-      "state": "MERGED",
-      "title": "Kimberling 12: resume prime separator frontiers with exact mex certificates",
-      "updated_at": "2026-10-04T18:49:56Z"
-    },
-    {
-      "author": "woahwhattheheck",
-      "base": "main",
-      "branch": "root-erdos241-saved-triple-decoder-20261004-7ca6",
-      "closed_at": "2026-10-04T18:38:06Z",
-      "head_sha": "3e43241bd083581dbdde01d4a73bd8ff85579d5f",
-      "merge_commit_sha": "32ff6fc62fc7f43f5b424b0d0c78b5d7e7a1618c",
-      "merged_at": "2026-10-04T18:38:06Z",
-      "number": 31427,
-      "state": "MERGED",
-      "title": "Add saved Bose\u2013Chowla triple-sum decoding with complete arithmetic evidence",
-      "updated_at": "2026-10-04T18:38:06Z"
-    },
-    {
-      "author": "woahwhattheheck",
-      "base": "main",
-      "branch": "research/kimberling15-interspersion-row-primes-20261004-7ca6",
-      "closed_at": "2026-10-04T18:17:13Z",
-      "head_sha": "5e7a3e90fb44a620360274b464b49ba3d5b9de1a",
-      "merge_commit_sha": "8bcf059ef0fda877c0975f7a89a2ae565e71a3b8",
-      "merged_at": "2026-10-04T18:17:13Z",
-      "number": 31426,
-      "state": "MERGED",
-      "title": "Kimberling 15: exact prime sieving and saved row extensions",
-      "updated_at": "2026-10-04T18:17:13Z"
     }
   ],
   "repository": "woahwhattheheck/commons",
   "schema": "commons-github-state/v1",
-  "unchanged_since": "2026-10-04T22:07:01Z",
+  "unchanged_since": "2026-10-04T23:16:10Z",
   "undatable_pulls": []
 }
