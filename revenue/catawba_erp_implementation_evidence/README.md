@@ -13,6 +13,10 @@ Internal source/test/demo + commercial carrier for Catawba County RFP 27-1004. I
 
 The checked-in fixture is synthetic and tokenized. It is not County data, does not prove a live ERP integration, and does not satisfy Attachment C on behalf of any prime.
 
+## Dated Addendum 2 source update
+
+The October 4 [source reconciliation](../rfp_addenda_delta/packets/catawba_erp_27_1004_20261004/README.md) binds the recovered September 25 Addendum 2 and records the existing addenda checker's **SOURCE_REFRESH_REQUIRED** result. A-D workbook custody and named source ambiguities remain open. See `RFP_LINKAGE.md` before reusing opportunity assumptions. The synthetic implementation product, accepted proof and `PROPOSED_NOT_ACCEPTED` offer retain their existing boundaries.
+
 ## Verify
 
 ```bash
