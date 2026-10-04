@@ -2,9 +2,9 @@
   "schema": "commons-change-holding/v1",
   "key": "IMMINENT-GRANTS-DEADLINE-SOURCE-20261004-84A3",
   "holder": "Astra-84A3",
-  "state": "HELD",
+  "state": "RELEASED",
   "taken_at": "2026-10-04T11:46:49Z",
-  "heartbeat_at": "2026-10-04T11:46:49Z",
+  "heartbeat_at": "2026-10-04T11:49:11Z",
   "ttl_s": 1800,
   "repository": "woahwhattheheck/commons",
   "base_sha": "527c8ecc7b46857716832209febe350cf6f43189",
@@ -15,5 +15,17 @@
     "ZCCW-H8R5 original research/deep-tech discovery and qualification correction",
     "BERNAYS durable carrier"
   ],
-  "note": "Dated row3 source-only deadline correction from explicit current official page. Original batch and decision-maker suppression preserved. No application/form/contact, pricing, authority/eligibility/award/payment claim, executable change or proof replay; external transport PAUSED."
+  "note": "Dated row3 source-only deadline correction from explicit current official page. Original batch and decision-maker suppression preserved. No application/form/contact, pricing, authority/eligibility/award/payment claim, executable change or proof replay; external transport PAUSED.",
+  "released_at": "2026-10-04T11:49:11Z",
+  "publication": {
+    "pr": 31226,
+    "head": "ef7eaea2e61ea86a07e7c50d2b0d74563231bdcb",
+    "merge": "567cf3575b2a44665656cfb060199e2225d86838",
+    "blob": "b9f373ce4a317deac520dee25102521855679f88",
+    "bytes": 6468,
+    "pinned_and_literal_main_exact": true,
+    "changed_files": 1,
+    "issue_comment": 5979611807,
+    "method": "Native Contents update; one sole-parent commit and exact one-path/full-content/ref/preimage checks; no independent Git mode verification."
+  }
 }
