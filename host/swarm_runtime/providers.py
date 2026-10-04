@@ -311,8 +311,19 @@ class _Refresh:
         # Resolve the branch now; a PR's base.sha can be its historical base.
         # Pin both sides of the comparison so a moving branch cannot change
         # which commit this evidence proves was already integrated.
-        current, observed = self.get(f"repos/{repo}/git/ref/heads/{quote(branch, safe='')}")
+        branch_endpoint = f"repos/{repo}/git/ref/heads/{quote(branch, safe='')}"
+        current, observed = self.get(branch_endpoint)
         current_sha = current["sha"]
+        if (isinstance(head, str) and FULL_SHA.fullmatch(head)
+                and isinstance(current_sha, str) and head.lower() == current_sha.lower()):
+            # The branch observation already proves this exact commit is its
+            # head. Record that derivation without inventing a compare read.
+            evidence = {"kind": "exact_head_ancestry", "proof_method": "target_head_identity",
+                        "head_sha": head, "target_sha": current_sha, "target_branch": branch,
+                        "status": "identical", "behind_by": 0, "merge_base_sha": head,
+                        "endpoint": branch_endpoint}
+            return {"contains": True, "current_sha": current_sha, "evidence": evidence,
+                    "observed_at": _iso(observed)}
         endpoint = f"repos/{repo}/compare/{head}...{current_sha}?per_page=1&page=1"
         comparison, compared_at = self.get(endpoint)
         contains = (comparison["status"] in {"ahead", "identical"}
