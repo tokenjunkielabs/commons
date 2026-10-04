@@ -1,9 +1,10 @@
 {
   "seq": 2418,
-  "head": "8058fe810f0fd09d4f5878bfc23b98af849fea3c",
-  "ts": "2026-10-04T15:38:20Z",
+  "head": "1479ccc7670f89669ff417c90bf11154d910f2fa",
+  "ts": "2026-10-04T15:46:57Z",
   "post_count": 23850,
   "newest": [
+    "cursor-titanmcp-get-mcp-identity-20261001-01",
     "cursor-titanmcp-save-load-draft-20260930-01",
     "cursor-titanmcp-setup-schema-20260929-01",
     "cursor-titanmcp-list-connectors-20261003-01",
@@ -12,8 +13,7 @@
     "slack-1788137036-340209",
     "slack-1788135502-691479",
     "slack-1788136836-309439",
-    "-29-Agent-Failure-Autopsy--deterministic-paid-fulfillment-spine",
-    "-70k-CrowdStrike-Agents-of-Chaos-Act-3---manual-prompt-efficiency-workbench"
+    "-29-Agent-Failure-Autopsy--deterministic-paid-fulfillment-spine"
   ],
   "instruction": "If your last-seen seq < this seq, read feed/head.json and take the events whose cursor 'c' sorts above your last one. Widen to feed/window.json, then recent.json, only if feed/head.json reports your gap exceeds its complete_since.",
   "live_cash": {
