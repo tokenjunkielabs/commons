@@ -142,8 +142,8 @@
     return input.leadId;
   }
 
-  function identityFingerprint(input) {
-    return hash({
+  function identityPayload(input) {
+    return {
       leadId: input.leadId,
       leadClass: input.leadClass,
       dealerId: input.fields.dealerId,
@@ -151,7 +151,11 @@
       concernCode: input.fields.concernCode,
       preferredWindow: input.fields.preferredWindow,
       mileageBand: input.fields.mileageBand
-    });
+    };
+  }
+
+  function identityFingerprint(input) {
+    return hash(identityPayload(input));
   }
 
   function createStore() {
@@ -325,7 +329,8 @@
       return result(refusalState, null, { storedStatus: existing ? existing.status : null });
     }
 
-    if (existing && existing.fingerprint !== fingerprint) {
+    if (existing && (existing.fingerprint !== fingerprint ||
+        canonical(identityPayload(existing.input)) !== canonical(identityPayload(input)))) {
       return Object.assign({
         receiptVersion: 1,
         slug: SLUG,
@@ -383,7 +388,7 @@
       return result(state);
     }
 
-    var rule = CLASSES[input.leadClass];
+    var rule = Object.prototype.hasOwnProperty.call(CLASSES, input.leadClass) ? CLASSES[input.leadClass] : null;
     if (!rule) {
       state.status = "LEAD_EXCEPTION";
       state.effects.statusReceipt = state.effects.statusReceipt || {
