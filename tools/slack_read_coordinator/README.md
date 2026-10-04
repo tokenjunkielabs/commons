@@ -124,6 +124,14 @@ Cursor and search page parameters are part of the cache identity. Preserve
 no response here claims to be a complete workspace census. Other method parameters
 are bounded in `broker.METHODS`/`normalize`; timestamps stay decimal strings.
 
+For history and replies, omitted `inclusive`, explicit `false`, and either boolean
+without `oldest`/`latest` normalize to the same request. Bounded `inclusive: true`
+stays distinct; timestamps and cursors remain exact. This follows Slack's
+[history](https://docs.slack.dev/reference/methods/conversations.history/) and
+[replies](https://docs.slack.dev/reference/methods/conversations.replies/)
+parameter semantics, so equivalent reads share an in-flight lease or cached result
+instead of consuming another method interval.
+
 ## Rate and failure behavior
 
 Slack documents method/workspace/app quotas and says Retry-After applies to every

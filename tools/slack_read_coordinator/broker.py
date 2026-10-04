@@ -77,6 +77,10 @@ def normalize(method: str, params: dict, page_limit: int = 15) -> dict:
     for key in ("oldest", "latest", "ts"):
         if key in out and not re.fullmatch(r"[0-9]{1,12}(?:\.[0-9]{1,9})?", out[key]):
             raise ValueError("timestamp must remain a decimal string")
+    if method in {"conversations.history", "conversations.replies"}:
+        # Slack ignores inclusive without time bounds; false is its default.
+        if not {"oldest", "latest"} & out.keys() or out.get("inclusive") is False:
+            out.pop("inclusive", None)
     if "sort" in out and out["sort"] not in {"score", "timestamp"}:
         raise ValueError("invalid sort")
     if "sort_dir" in out and out["sort_dir"] not in {"asc", "desc"}:
