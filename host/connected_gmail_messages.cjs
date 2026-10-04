@@ -44,6 +44,54 @@ function omittedCounts() {
   };
 }
 
+const NATIVE_METADATA_LIMITS = Object.freeze({
+  max_label_ids: 100,
+  max_label_id_chars: 256,
+  max_internal_date_chars: 64,
+});
+
+function projectNativeMetadata(item, source) {
+  const labelPath = source + '.label_ids';
+  let labels = { status: 'missing', source_path: labelPath };
+  if (own(item, 'label_ids')) {
+    const value = item.label_ids;
+    if (!Array.isArray(value)) {
+      labels.status = 'invalid';
+    } else if (value.length > NATIVE_METADATA_LIMITS.max_label_ids) {
+      labels.status = 'limit_exceeded';
+    } else {
+      let status = 'included';
+      for (let index = 0; index < value.length; index += 1) {
+        if (!own(value, index) || typeof value[index] !== 'string') {
+          status = 'invalid';
+          break;
+        }
+        if (value[index].length > NATIVE_METADATA_LIMITS.max_label_id_chars) {
+          status = 'limit_exceeded';
+          break;
+        }
+      }
+      labels.status = status;
+      if (status === 'included') labels.value = value.slice();
+    }
+  }
+
+  const datePath = source + '.internal_date';
+  let internalDate = { status: 'missing', source_path: datePath };
+  if (own(item, 'internal_date')) {
+    const value = item.internal_date;
+    if (typeof value !== 'string') {
+      internalDate.status = 'invalid';
+    } else if (value.length > NATIVE_METADATA_LIMITS.max_internal_date_chars) {
+      internalDate.status = 'limit_exceeded';
+    } else {
+      internalDate.status = 'included';
+      internalDate.value = value;
+    }
+  }
+  return { label_ids: labels, internal_date: internalDate };
+}
+
 /**
  * Project native read_email / batch_read_email full MIME CallToolResults only.
  * Supported envelopes: structuredContent.{id,thread_id,payload}, or
@@ -56,8 +104,12 @@ function projectGmailMessages(response, options = {}) {
   if (!record(options)) fail('INVALID_OPTIONS', '$.options', 'expected an object');
   const limits = { ...DEFAULTS };
   const sparse = own(options, 'source_indices');
+  const includeNativeMetadata = own(options, 'include_native_metadata') && options.include_native_metadata === true;
+  if (own(options, 'include_native_metadata') && typeof options.include_native_metadata !== 'boolean') {
+    fail('INVALID_OPTIONS', '$.options.include_native_metadata', 'expected a boolean');
+  }
   for (const [key, value] of Object.entries(options)) {
-    if (key === 'source_indices') continue;
+    if (key === 'source_indices' || key === 'include_native_metadata') continue;
     if (!own(DEFAULTS, key) || !Number.isSafeInteger(value) || value < 0) {
       fail('INVALID_OPTIONS', `$.options.${key}`, 'expected a supported nonnegative integer limit');
     }
@@ -109,6 +161,10 @@ function projectGmailMessages(response, options = {}) {
     indices = Array.from({ length: Math.min(inputs.length, limits.maxMessages) }, (_, index) => index);
   }
 
+  if (includeNativeMetadata) {
+    limits.include_native_metadata = true;
+    limits.native_metadata = { ...NATIVE_METADATA_LIMITS };
+  }
   const result = {
     format: 'gmail-mime-projection-v1',
     source_shape: batch ? 'batch' : 'single',
@@ -138,6 +194,7 @@ function projectGmailMessages(response, options = {}) {
     const omitted = omittedCounts();
     const message = { id: item.id, thread_id: item.thread_id, subject: '', from: '', date: '', bodies: [], unavailable_bodies: [], omitted };
     if (sparse) Object.assign(message, { source_index: index, source_path: source });
+    if (includeNativeMetadata) message.native_metadata = projectNativeMetadata(item, source);
     let selectedHeaders = 0;
     for (const name of ['subject', 'from', 'date']) {
       const value = header(item.payload, name);
