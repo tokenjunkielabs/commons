@@ -22,6 +22,8 @@ The coordinator is advisory infrastructure for processes that actually route rea
 
 Repository owner and name are normalized to lowercase before request hashing. Case variants therefore share one in-flight read and cached response, matching GitHub's repository identity. File paths, refs, branch names and search text retain their original case.
 
+Issue-list requests also normalize GitHub's [documented defaults](https://docs.github.com/en/rest/issues/issues#list-repository-issues) (`state=open`, `sort=created`, `direction=desc`), so omitted and explicit defaults share the same in-flight read and cache entry.
+
 Lease and cache decisions use the time after obtaining SQLite's write transaction, so waiting for another writer does not consume a newly issued lease or admit an expired completion. Completion retains its response-observation timestamp for cached payload freshness and provider Retry-After/reset deadlines, then measures lease expiry and remaining cooldown after the lock wait. JSON serialization and completed-response decoding remain outside the write transaction.
 
 When a response reports both secondary throttling and an exhausted primary quota, the coordinator retains both cooldowns. The principal-wide secondary pause follows Retry-After, while the exhausted primary bucket retains the later of Retry-After and its reset deadline. A shorter secondary pause cannot reopen that primary bucket early, including after a process restart or an expired lease completion.

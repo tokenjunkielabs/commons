@@ -139,6 +139,10 @@ def normalize(route: str, params: dict) -> dict:
     if route in {"pull.files", "issues.list", "actions.runs", "search.issues", "search.code"}:
         out.setdefault("per_page", 30)
         out.setdefault("page", 1)
+    if route == "issues.list":
+        out.setdefault("state", "open")
+        out.setdefault("sort", "created")
+        out.setdefault("direction", "desc")
     if len(dumps(out).encode()) > MAX_REQUEST:
         raise ValueError("request too large")
     return out
