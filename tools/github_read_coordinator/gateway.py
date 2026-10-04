@@ -141,7 +141,7 @@ class GitHubProvider:
                         message = payload.get("message") if isinstance(payload, dict) else None
                         body_secondary = isinstance(message, str) and "secondary rate limit" in message.lower()
                         secondary = secondary or body_secondary
-                    except (ValueError, UnicodeDecodeError, RecursionError, OSError):
+                    except (ValueError, UnicodeDecodeError, RecursionError, OSError, HTTPException):
                         pass
                 return Upstream(error.code, None, retry, remaining, reset, secondary)
             finally:
