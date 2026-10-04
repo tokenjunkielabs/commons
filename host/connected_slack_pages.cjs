@@ -448,6 +448,196 @@ function projectSlackMessages(response, request, options = {}) {
   }
 }
 
+/**
+ * Project detailed message-only search results from an already retained response.
+ * Whole-result ranges include channel headers; content is connector-rendered text.
+ */
+function projectSlackSearchResults(response, request, options = {}) {
+  object(request, 'search projection request');
+  object(options, 'search projection options');
+  if (request.operation !== 'search') throw new TypeError('search projection operation must be search');
+  const args = object(request.args, 'search projection request.args');
+  const booleanFields = ['include_bots', 'include_context', 'only_my_channels'];
+  for (const [key, value] of Object.entries(args)) {
+    if (!OPERATIONS.search.fields.includes(key)) throw new TypeError('unknown search argument: ' + key);
+    if (key === 'keywords') {
+      if (!Array.isArray(value) || value.some(item => typeof item !== 'string')) {
+        throw new TypeError('search keywords must be an array of strings');
+      }
+    } else if (booleanFields.includes(key)) {
+      if (typeof value !== 'boolean') throw new TypeError('search ' + key + ' must be boolean');
+    } else if (key === 'limit' || key === 'max_context_length') {
+      if (!Number.isSafeInteger(value) || value < (key === 'limit' ? 1 : 0) ||
+          (key === 'limit' && value > 20)) throw new TypeError('invalid search ' + key);
+    } else if (typeof value !== 'string') {
+      throw new TypeError('search ' + key + ' must be a string');
+    }
+  }
+  const defaults = {start_index: 0, max_results: 8, max_body_chars: 800,
+    max_total_body_chars: 6400, max_input_chars: 1048576};
+  const ceilings = {start_index: Number.MAX_SAFE_INTEGER, max_results: 20,
+    max_body_chars: 65536, max_total_body_chars: 262144, max_input_chars: 8388608};
+  for (const key of Object.keys(options)) {
+    if (!Object.prototype.hasOwnProperty.call(defaults, key)) throw new TypeError('unknown search projection option: ' + key);
+  }
+  const limits = {...defaults, ...options};
+  for (const [key, value] of Object.entries(limits)) {
+    if (!Number.isSafeInteger(value) || value < (['max_results', 'max_input_chars'].includes(key) ? 1 : 0) ||
+        value > ceilings[key]) throw new TypeError('invalid search projection option: ' + key);
+  }
+  const result = {schema: 'commons.connected_slack_search_projection/v1', status: 'REFUSED',
+    source: {operation: 'search', request_args: null, request_binding: 'caller_retained_request',
+      content_basis: 'connector_rendered_content', message_identity: 'rendered_header',
+      channel_binding: 'rendered_result_header', representations: 0, input_chars: 0},
+    limits, coverage: {scope: 'retained_response_only', snapshot: false}, results: [], issue: null};
+  const bad = (code, detail) => { throw {searchProjection: true, code, detail}; };
+  let charged = 0;
+  const charge = value => {
+    charged += value.length;
+    result.source.input_chars = charged;
+    if (charged > limits.max_input_chars) bad('INPUT_LIMIT', 'Retained request and native payload text exceed max_input_chars.');
+  };
+  try {
+    const serializedArgs = JSON.stringify(args);
+    charge(serializedArgs);
+    result.source.request_args = JSON.parse(serializedArgs);
+    if ((args.response_format !== undefined && args.response_format !== 'detailed') ||
+        args.include_context !== false ||
+        (args.content_types !== undefined && args.content_types !== 'messages')) {
+      bad('UNSUPPORTED_REQUEST', 'Projection requires detailed message results with explicit include_context:false.');
+    }
+    if (!response || typeof response !== 'object' || Array.isArray(response) || response.isError === true) {
+      bad('NATIVE_ERROR', 'Expected a successful retained native search response.');
+    }
+    const representations = [];
+    const accept = value => {
+      if (!value || typeof value !== 'object' || Array.isArray(value) ||
+          Object.keys(value).length !== 2 || typeof value.results !== 'string' ||
+          typeof value.pagination_info !== 'string') {
+        bad('UNSUPPORTED_PAYLOAD', 'Expected only string results and pagination_info fields.');
+      }
+      representations.push(value);
+    };
+    if (Object.prototype.hasOwnProperty.call(response, 'results')) {
+      if (typeof response.results === 'string') charge(response.results);
+      if (typeof response.pagination_info === 'string') charge(response.pagination_info);
+      accept(response);
+    } else {
+      if (Object.prototype.hasOwnProperty.call(response, 'structuredContent')) {
+        const value = response.structuredContent;
+        if (typeof value?.results === 'string') charge(value.results);
+        if (typeof value?.pagination_info === 'string') charge(value.pagination_info);
+        accept(value);
+      }
+      if (Object.prototype.hasOwnProperty.call(response, 'content')) {
+        if (!Array.isArray(response.content) || response.content.length === 0) {
+          bad('UNSUPPORTED_PAYLOAD', 'Native content must contain JSON text blocks.');
+        }
+        for (const block of response.content) {
+          if (!block || block.type !== 'text' || typeof block.text !== 'string') {
+            bad('UNSUPPORTED_PAYLOAD', 'Non-text native content is outside this projection format.');
+          }
+          charge(block.text);
+          let value;
+          try { value = JSON.parse(block.text); } catch (_) {
+            bad('UNREADABLE_PAYLOAD', 'Native text is not a JSON envelope.');
+          }
+          accept(value);
+        }
+      }
+    }
+    if (!representations.length) bad('UNSUPPORTED_PAYLOAD', 'No rendered search envelope was retained.');
+    result.source.representations = representations.length;
+    const page = representations[0];
+    if (representations.some(value => value.results !== page.results || value.pagination_info !== page.pagination_info)) {
+      bad('CONFLICTING_REPRESENTATIONS', 'Retained native representations disagree.');
+    }
+    const rendered = page.results;
+    result.source.rendered_chars = rendered.length;
+    const nativePage = pagination(page);
+    Object.assign(result.coverage, {native_pagination_recognized: nativePage.known,
+      provider_end_observed: nativePage.end, next_cursor_available: Boolean(nativePage.next_cursor)});
+    const prefix = /^# Search Results for: [^\r\n]*\n\n/.exec(rendered);
+    if (!prefix) bad('UNSUPPORTED_LAYOUT', 'Expected the detailed search preamble.');
+    const rows = [];
+    let declared = 0;
+    if (rendered !== prefix[0] + 'No results found.\n') {
+      const section = /^## Messages \(([1-9][0-9]?) results\)\n/.exec(rendered.slice(prefix[0].length));
+      if (!section || Number(section[1]) > 20) {
+        bad('UNSUPPORTED_LAYOUT', 'Expected one bounded detailed messages section.');
+      }
+      declared = Number(section[1]);
+      const pattern = /^### Result ([1-9][0-9]*) of ([1-9][0-9]*)\nChannel: [^\r\n]+ \(ID: ([CGD][A-Z0-9]{1,127})\)\n(?:Participants: [^\r\n]+\n)?From: [^\r\n]+ \(ID: [UW][A-Z0-9]{1,127}\) ?\nTime: [^\r\n]+\nMessage_ts: ([0-9]{1,16}\.[0-9]{1,16})\nPermalink: \[link\]\((https:\/\/[^\s()]+)\)\nText: \n/gm;
+      const headers = Array.from(rendered.matchAll(pattern));
+      const markers = (rendered.match(/^### Result\b/gm) || []).length;
+      result.coverage.declared_results = declared;
+      result.coverage.observed_result_headers = headers.length;
+      if (headers.length !== declared || markers !== declared ||
+          headers[0]?.index !== prefix[0].length + section[0].length ||
+          (args.limit !== undefined && declared > args.limit)) {
+        bad('RESULT_COUNT_MISMATCH', 'Declared results and complete rendered headers differ.');
+      }
+      const separator = '\n\n---\n\n';
+      const ids = new Set();
+      for (let i = 0; i < headers.length; i++) {
+        const header = headers[i];
+        if (Number(header[1]) !== i + 1 || Number(header[2]) !== declared) {
+          bad('RESULT_SEQUENCE_MISMATCH', 'Rendered result numbering is inconsistent.');
+        }
+        const end = i + 1 < headers.length ? headers[i + 1].index : rendered.length;
+        if (rendered.slice(end - separator.length, end) !== separator) {
+          bad('UNSUPPORTED_LAYOUT', 'Expected the complete detailed-result separator.');
+        }
+        const bodyStart = header.index + header[0].length;
+        const bodyEnd = end - separator.length;
+        if (bodyEnd < bodyStart) bad('UNSUPPORTED_LAYOUT', 'Result framing overlaps.');
+        const id = header[3] + ':' + header[4];
+        if (ids.has(id)) bad('DUPLICATE_IDENTITY', 'The rendering repeats a channel/message identity.');
+        ids.add(id);
+        const link = /^https:\/\/[^/]+\/archives\/([CGD][A-Z0-9]+)\/p([0-9]+)(?:\?[^\s]*)?$/.exec(header[5]);
+        if (!link || link[1] !== header[3] || link[2] !== header[4].replace('.', '')) {
+          bad('PERMALINK_MISMATCH', 'Rendered permalink and result identity differ.');
+        }
+        const body = rendered.slice(bodyStart, bodyEnd);
+        if (/^(?:# Search Results for:|## (?:Messages|Files)\b|### Result\b|Context (?:before|after):)/m.test(body)) {
+          bad('AMBIGUOUS_LAYOUT', 'Result content contains reserved search or context framing.');
+        }
+        rows.push({source_index: i, channel_id: header[3], message_ts: header[4],
+          permalink: header[5], rendered_result_range: [header.index, bodyEnd],
+          header_range: [header.index, bodyStart], rendered_content_range: [bodyStart, bodyEnd]});
+      }
+    }
+    const from = Math.min(limits.start_index, rows.length);
+    const until = Math.min(rows.length, from + limits.max_results);
+    let full = 0;
+    let used = 0;
+    let truncated = 0;
+    for (const row of rows.slice(from, until)) {
+      const [start, end] = row.rendered_content_range;
+      let length = Math.min(end - start, limits.max_body_chars, limits.max_total_body_chars - used);
+      if (length > 0 && length < end - start &&
+          rendered.charCodeAt(start + length - 1) >= 0xd800 && rendered.charCodeAt(start + length - 1) <= 0xdbff &&
+          rendered.charCodeAt(start + length) >= 0xdc00 && rendered.charCodeAt(start + length) <= 0xdfff) length--;
+      const clipped = length < end - start;
+      result.results.push({...row, rendered_content: rendered.slice(start, start + length),
+        content_chars: end - start, returned_chars: length, truncated: clipped});
+      full += end - start; used += length; truncated += clipped ? 1 : 0;
+    }
+    Object.assign(result.coverage, {declared_results: declared, parsed_results: rows.length,
+      start_index: from, returned_results: result.results.length, omitted_before: from,
+      omitted_after: rows.length - until, next_index: until < rows.length ? until : null,
+      selected_content_chars: full, returned_content_chars: used, truncated_results: truncated,
+      all_rendered_results_included: from === 0 && until === rows.length && truncated === 0});
+    result.status = rows.length ? 'PROJECTED' : 'EMPTY_RENDERING';
+    return result;
+  } catch (error) {
+    if (!error?.searchProjection) throw error;
+    result.results = [];
+    result.issue = {code: error.code, detail: error.detail};
+    return result;
+  }
+}
+
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {collectSlackPages, projectSlackMessages};
+  module.exports = {collectSlackPages, projectSlackMessages, projectSlackSearchResults};
 }
