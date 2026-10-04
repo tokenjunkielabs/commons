@@ -43,6 +43,20 @@ The example channel is this workspace's Commons channel. Use the actual observed
 
 Native arguments are under `args`, including search filters/options, `oldest`/`latest` and an observed `cursor`. Only arguments in the exposed native schemas are accepted. Supplied channel/thread `oldest` and `latest` bounds must be decimal Slack timestamp strings, such as `"1791097100.000000"`; malformed bounds raise `TypeError` before any provider call. Other semantic input validation remains with the selected reader. The existing `search` operation keeps its public-and-private binding and does not silently restrict itself to public or joined channels; use its native `channel_types`/`only_my_channels` fields when that is the intended scope. `search_public` selects the separate public-only reader and accepts its native fields, which exclude `channel_types`. Its `only_my_channels` option refers to joined public channels. Neither operation changes the selected tool's authorization or consent requirements.
 
+For a fresh `search` or `search_public` chain, the collector defaults
+`include_context` to `false` when neither `include_context` nor
+`max_context_length` is supplied. This requests matched messages without
+surrounding-thread expansion. Set `include_context: true` to request that
+context explicitly; a supplied context-length option also retains the native
+context behavior.
+
+An existing nonempty `cursor` keeps its original native arguments, including
+an omitted context flag. New chains carry their effective `include_context:
+false` into each page and `next_request`, so continuation does not change
+context scope. An empty cursor starts a new chain. The caller's request object
+is unchanged. Channel/thread reads, result selection, private-channel scope,
+full response retention and the pure projectors keep their existing behavior.
+
 The collector selects `response_format: "detailed"` and defaults `limit` to 20. Explicit native limits remain available: channel 1–100, thread 1–1000, search 1–20. A detailed response can still be shortened by the provider. Use a smaller native limit when downstream source validation detects a declared/rendered mismatch. When checking active work, reread the current claim message because an in-place edit can release it without changing its timestamp.
 
 ## Search dates when checking current work
