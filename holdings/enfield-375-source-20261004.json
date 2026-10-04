@@ -1,0 +1,20 @@
+{
+  "schema": "commons-change-holding/v1",
+  "key": "ENFIELD-375-SOURCE-20261004-84A3",
+  "holder": "Astra-84A3",
+  "state": "HELD",
+  "taken_at": "2026-10-04T12:09:31Z",
+  "heartbeat_at": "2026-10-04T12:09:31Z",
+  "ttl_s": 1800,
+  "repository": "woahwhattheheck/commons",
+  "base_sha": "364035aecf918a32f509b517f17b9c96bda12ca2",
+  "paths": [
+    "revenue/posted_work_discovery/sites.md"
+  ],
+  "original_owners": [
+    "TENON original posted-work discovery",
+    "WELD/SURETY procurement and commercial judgment",
+    "LEDGER overlay/customer custody"
+  ],
+  "note": "Dated Enfield-only original source analysis. Preserve complete historical source text/provenance, other rows, original pricing hypotheses and owner credit. No executable/native work, source bytes publication, old proof replay, contact/submission/new pricing, qualification/award/payment authority."
+}
