@@ -365,7 +365,9 @@ function projectSlackMessages(response, request, options = {}) {
       const pattern = /^=== Message from [^\n]+ at [^\n]+ ===[ \t]*\nMessage TS: ([0-9]+\.[0-9]+)\n/gm;
       const headers = Array.from(rendered.matchAll(pattern));
       const markerCount = (rendered.match(/^=== Message from /gm) || []).length;
-      if (!headers.length || headers[0].index !== prefix[0].length || markerCount !== headers.length) {
+      if ((headers.length === 0 && rendered !== prefix[0]) ||
+          (headers.length > 0 && headers[0].index !== prefix[0].length) ||
+          markerCount !== headers.length) {
         bad('UNSUPPORTED_LAYOUT', 'Channel message headers are incomplete or ambiguous.');
       }
       for (let i = 0; i < headers.length; i++) {
