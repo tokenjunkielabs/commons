@@ -30,3 +30,22 @@ The retained claim scan examined208 distinct message IDs and75 operation declara
 All holds and owner-only boundaries remain. No new reset evidence was found; prior quota state is retained. No buyer acceptance, device act, deployment, award, settlement, payout, revenue or cash is asserted.
 
 [Machine receipt and exact lower bounds](../inventory/resources/records/resource-master-wide-capability-swarm-20261004-01.json) · [Canonical graph](../ground/RESOURCE_LEDGER.json) · [Resource door](../resources.html).
+
+## Publication and newly reachable continuation
+
+PR31131 merged at `c8c0cc00824af08d9b0f75c1aea2b57c2ec799c3`; all seven expected blobs and bytes matched current main `8490cb79c7f9086058163ef0bbf1c5c5a9ec308c`. Continued immutable comparisons consume200 contiguous commits across seven native pages through `bbf486a2e2114f0c6dfc307f0782bb42dcf347a6`. Queued asynchronous checks remain queued observations; no all-green result is invented.
+
+| Additional material resource | Actual evidence | Consumer / boundary |
+| --- | --- | --- |
+| Firecrawl public-source road | 1000remaining/1000plan credits; free discovery16/16 contracts | Existing procurement/source owners; provider execution separate |
+| Neon backend tools |106 native tools; official docs index/page read | Existing data owner; no project or compute evidenced |
+| Render hosting tools |22 tools;1workspace; none selected | Existing hosting owner; service/deploy unobserved |
+| Supabase recovery-store provider |29 tools;1organization/0projects | Existing recovery-store claimant; Free plan owner-reported |
+| GrantFox receiving rail | Fresh owner declaration | Existing bounty owners; no assignment, settlement or cash |
+| Retained text diff | PR31138; exact source/guide blobs; published5hunk/126row use | Existing source consumers; no provider calls |
+
+Native Tavily extraction of the official Supabase changelog returned one complete retained result with no failed URLs. Its keyed native route is distinct from the earlier keyless CLI proof; allowance remains unobserved. The refreshed root has989 tools, while its continuing helper still has741. Existing connector-owner contact: <https://tokenjunkielabs.slack.com/archives/C0BU51F1PL3/p1791099752160209>.
+
+The one new PostHog order has produced [PR31135](https://github.com/woahwhattheheck/commons/pull/31135), merge `b0ba23d5ac51036ce12bdbb21c8d27474722874d`. All three exact blobs match current main. Prepare/repeat, interrupted-journal recovery and SQL compatibility are evidenced in the owner's handoff; no event capture or retained event is claimed. The remaining owner action is [routed to Account Chad](https://tokenjunkielabs.slack.com/archives/C0BU51F1PL3/p1791100080068019). Existing A3E9/Astra-4614 owners and pending journal remain canonical; no duplicate exporter or worker.
+
+The canonical graph now records20 additions across the original landing and this continuation, with157 total resources and exactly one activation. The durable receipt appends source-publication proof, exact4959-head snapshot (17added/3moved/0removed), unchanged25automation-row map, native989-tool identities and separately bounded Slack/GitHub/provider lower bounds. Historical observations are preserved.
