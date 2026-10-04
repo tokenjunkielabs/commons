@@ -137,6 +137,31 @@ an account credit balance. Typed adapter exceptions preserve their original
 HTTP status and Retry-After metadata as well as native results. A bridge failure
 without rejection evidence still requires write reconciliation.
 
+Failed native transport envelopes retain `rate_limit_kind` and
+`rate_limit_resource`. A 403 is considered a rate refusal only with explicit
+rate-limit evidence, such as GitHub's secondary-limit message, an exhausted
+remaining count or Retry-After. Ordinary permission refusals do not acquire a
+rate cooldown. Returned page and job text is not transport evidence.
+
+When an observed rate refusal has no provider retry deadline, the optional
+router stores a separate `client_cooldown_until` and `client_cooldown_policy` in
+its shared private quota-domain state. The local delay starts at 60 seconds,
+doubles after another refusal and caps at 900 seconds. Actual success resets
+escalation without declaring every pending call recovered. Provider Retry-After,
+reset values and request counts remain unchanged. This follows GitHub's
+[headerless secondary-limit guidance](https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api#exceeding-the-rate-limit);
+the client deadline is not a provider reset or a new allowance assertion.
+
+Native callers use their existing `connected_tool_dispatch`/actual call/
+`connected_tool_resume` sequence and return the original failed response. A new
+operation sharing that quota domain then selects another compatible ready
+domain, or returns the existing no-ready-route result without calling the
+limited provider. The shipped Free route catalog does not advertise GitHub as
+an interchangeable public search source; a consumer's explicit GitHub route
+uses its own preserved source/account boundary. Direct native tools and the
+existing GitHub coordinator remain available. No sleep, schedule, credential
+rotation or mandatory admission is introduced.
+
 On October 4 the gateway catalog executed a real Jina read of the official Groq
 rate-limit page, completing with HTTP 200 and a provider-reported 19 remaining
 requests in its 60-second window. Two different documentation tasks dispatched
@@ -200,4 +225,3 @@ The timing loop used `perf_counter_ns` and `process_time_ns`, excluding imports,
 input preparation and result serialization. This measures local journal handling,
 with synthetic records and warm caches; it does not measure physical-disk latency,
 Windows locking, provider throughput or deployment to another carrier.
-
