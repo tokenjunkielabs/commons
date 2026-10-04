@@ -2,9 +2,9 @@
   "schema": "commons-change-holding/v1",
   "key": "oneoda-17788-source-20261004",
   "holder": "Procurement-source-7CA6",
-  "state": "HELD",
+  "state": "RELEASED",
   "taken_at": "2026-10-04T12:29:45Z",
-  "heartbeat_at": "2026-10-04T12:29:45Z",
+  "heartbeat_at": "2026-10-04T12:33:13Z",
   "ttl_s": 1800,
   "repository": "woahwhattheheck/commons",
   "model": "GPT-6",
@@ -18,5 +18,20 @@
     "Z-KilnCipher-913950-K9R4 / #13907",
     "ZSQY-A4C7 / #14283 workshare scout; existing workshare successors retained"
   ],
-  "note": "Source-only dated correction for the current official OregonBuys nineteen-file inventory and three amendment-log entries; retained thirteen-file inventory remains a September13 snapshot. Addendum1, revisedPriceE, Addendum2 and informational conference/Q&A filenames are board metadata only; body/byte/hash custody is not recovered. Preserve passed September30 header date, unverified timezone, all qualification holds, source/product credit and Deloitte/Windsor DNR. No executable/input/price change, native proof replay, contact, portal action, submission, signature, commitment, spend or award/payment/revenue authority."
+  "note": "Source-only dated correction for the current official OregonBuys nineteen-file inventory and three amendment-log entries; retained thirteen-file inventory remains a September13 snapshot. Addendum1, revisedPriceE, Addendum2 and informational conference/Q&A filenames are board metadata only; body/byte/hash custody is not recovered. Preserve passed September30 header date, unverified timezone, all qualification holds, source/product credit and Deloitte/Windsor DNR. No executable/input/price change, native proof replay, contact, portal action, submission, signature, commitment, spend or award/payment/revenue authority.",
+  "released_at": "2026-10-04T12:33:13Z",
+  "publication": {
+    "pull_request": 31259,
+    "head_sha": "8d4ce67466da06608d8c1edcb947a44e7252283e",
+    "merge_sha": "2bdc151a7fb678e213fd8807c28d65ed1fbb9b15",
+    "readme_blob": "dad9bf1f8430c7f6691500ed2edd7b2003e543e0",
+    "sources_blob": "f54655c8722bbda0bb1b859b900ad8b25c84afe9",
+    "pinned_and_literal_main_exact": true,
+    "original_bodies_preserved": true,
+    "other_four_package_blobs_unchanged": true,
+    "original_pr_comment": 5979961223,
+    "native_execution": false,
+    "mode_verification": "not_performed",
+    "whole_tree_verification": "not_performed"
+  }
 }
