@@ -227,3 +227,34 @@ parent-only claim and two replies whose bodies differed only by one bare-URL
 wrapper with a scheme-less label. A new live claim reproduced that URL form.
 These observations exercise real native framing and URL handling; they do not
 establish every formatting or entity branch.
+
+### Optional fragment-label normalization
+
+`slack_bare_urls_entities_fragment_labels` includes the preceding URL/entity
+transformations and additionally recognizes one observed native label form:
+the complete scheme-less target through its first `#`, followed by exactly
+`…` (U+2026). The target must contain a nonempty fragment. The label retains
+the full host, path and query; only its fragment display is elided. The complete
+HTTP(S) target, including that fragment, remains the comparison value.
+
+```javascript
+const comparison = compareSlackPublication(result, preparedMessage, {
+  normalization: 'slack_bare_urls_entities_fragment_labels',
+});
+```
+
+This mode adds `normalizations_applied.fragment_labels`, counting the eligible
+fragment labels among `bare_url_wrappers`. Existing modes and their result
+shape are unchanged. A different target still mismatches the expected URL.
+Arbitrary labels, shortened hosts/paths/queries, empty fragments, ASCII `...`,
+and other ellipsis forms are not added to the accepted label forms. Request
+identity, framing, payload ambiguity, whitespace, single-pass entity handling
+and no-resend behavior retain the preceding contract.
+
+The concrete native observation was the Drayage issue-comment handoff on
+2026-10-04, Slack reply `1791081085.531469`: the reader retained the exact
+GitHub comment URL but rendered its label with `#…`. The old modes keep their
+literal/mismatch outcomes for that rendering. Enabling this new mode reports
+a presentation match with one URL wrapper and one fragment label. This is a
+comparison of the captured rendering, not a claim about Slack's raw storage
+or a general rule for every truncated display label.
