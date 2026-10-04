@@ -93,12 +93,14 @@ receipts, not patch bytes. Ambiguous results remain pending for
 fetch the exact file with the same catalog's `slack_read_file(file_id)` tool or
 their existing connected Slack file reader.
 
-The native Cloud raw `mcp__slack__slack_send_message` tool has a known field
-mapping, but its pre-tool hook lacks conversation metadata. That direct route
-remains on the existing hold. Use the metadata-checked workhandoff service for
-this task. Direct file finalization also stays held because its native hook
-cannot read the target channel metadata. Public external channels still go
-through the public publisher.
+Internal TJLabs Slack coordination bypasses the outward publication hook,
+including native calls, edits and uploads, under [RULES section 1.6](../../RULES.md#1-working-with-bryce).
+Use an available native Slack route for that internal work without an additional
+sender-verification or publication gate. Provider permissions, rate limits and
+actual operation outcomes still apply. `commons_team_workhandoff` remains an
+optional route for its stable operation IDs, exact file transfer and readback;
+it is not a prerequisite for native internal coordination. Outward publication
+continues to follow the existing publication policy.
 
 ---
 
@@ -296,6 +298,11 @@ is false; `process()` and `once()` retain the same sender check. In that state
 the worker does not dispatch queued envelopes or publish their results. A
 catalog response or source revision does not establish the state of a deployed
 host; retain its actual returned sender-verification status.
+
+Those fields describe the equipment carrier's implementation and returned
+runtime state, not an internal Slack publication requirement. They do not put
+native TJLabs coordination on hold. A successful native message still does not
+prove that a separate carrier dispatched the envelope or completed its tool.
 
 For a GitHub metadata request, report the observed stage:
 
