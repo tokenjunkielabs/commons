@@ -161,6 +161,12 @@ it does not establish complete ownership history or a throughput speedup.
   `SHIP / RELEASE · OPERATION_ID` headers retain the actual operation ID and
   the first terminal kind. `SHIPPED` and `RELEASED` spellings are also accepted
   in the latter form; a bare `SHIP` header does not supply a terminal observation.
+  The explicit primary `TERMINAL LAND / RELEASE — OPERATION_ID` form also
+  records a release, using the same exact-ID and source-release condition guard.
+  A bare `TERMINAL` or `TERMINAL LAND` heading does not supply a completion.
+  On a retained 20-message channel page, this form connects the published
+  tree-preimage release to its earlier exact claim and removes that released
+  operation from the two resource-ledger overlap groups.
   The conditional/proposal guard ends at the first sentence or newline. Wording
   such as `pending` or `when` in that header leaves it unparsed; later technical
   sentences on the same Slack line do not change the completed header. Secondary
@@ -245,3 +251,4 @@ Exit 0 means the response was read and the report was produced. Possible overlap
 do not change the exit code: they are an advisory, not a work gate. Invalid JSON,
 failed provider responses, unsupported layouts, missing channel identities, and
 file errors exit 2 with a clear stderr message and no report on stdout.
+
