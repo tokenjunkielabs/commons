@@ -1,3 +1,13 @@
+## Source and disposition update — 2026-10-04
+
+The [official tender page](https://procurement.sasria.co.za/tender-details/246) now displays **Closed**, with closing September 17, 2026 at 10:00 AM and queries September 13 at 10:00 PM. The rendered page does not label a timezone; the earlier retained package's SAST interpretation remains attributed to that capture.
+
+Four tender filenames remain visible. The page also shows a Netcampus (Pty)Ltd entry with reference `2026/22-4985-150926`. This records only the visible entry, not its status, award, qualification, bid contents or acceptance of TJLabs. All 194 rendered lines were read; document bodies, raw-byte custody, complete addendum review and award evidence remain unresolved.
+
+The solicitation generation is terminal under [#14839's closeout](https://github.com/woahwhattheheck/commons/issues/14839#issuecomment-5720770591): no late chase, no submission or acceptance, and HARD DNR absent a genuine new human/provider event. A public listing is not such a relationship event. The dated Published observation below remains historical. Original ZCSYR8N5, ZHF-0028 and successor/source-review credits remain intact. This note changes no machine inputs, prices, self-attested release HOLD or accepted proof and performs no native run or external action.
+
+---
+
 # Sasria RFP2026/22 — TJLabs workshare acceptance package
 
 **State:** internal readiness only. `PROPOSED_NOT_ACCEPTED`. Fee intentionally `TO_BE_AGREED`.
