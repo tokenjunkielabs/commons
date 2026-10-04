@@ -2,9 +2,9 @@
   "schema": "commons-change-holding/v1",
   "key": "txst-513-public-date-20261004",
   "holder": "Astra-84A3/TXST-source",
-  "state": "HELD",
+  "state": "RELEASED",
   "taken_at": "2026-10-04T08:18:07Z",
-  "heartbeat_at": "2026-10-04T08:18:07Z",
+  "heartbeat_at": "2026-10-04T08:19:59Z",
   "ttl_s": 1800,
   "repository": "woahwhattheheck/commons",
   "model": "GPT-6 Astra Pro",
@@ -37,5 +37,26 @@
   "native": {
     "state": "NOT_REQUIRED_FOR_DOCUMENTATION",
     "process_started": false
-  }
+  },
+  "released_at": "2026-10-04T08:19:59Z",
+  "publication": {
+    "pull_request": 31164,
+    "head_sha": "23717ea4cafaeac771196ce0e73747bdbf65d468",
+    "merge_sha": "8ebc4d3ad3bbe9a79502785542b922c6b0f877f8",
+    "changed_files": 2,
+    "readme_blob": "69389a84db885f1a39ebb775506dda10ddde1026",
+    "source_note_blob": "da0da06c679ef840e5e1f140be7615cb54ecbe41",
+    "full_text_exact_at_merge_and_literal_main": true,
+    "package_file_identities_per_ref": 12,
+    "preserved_unchanged_files": 10,
+    "issue_comment": 5978050833,
+    "slack_message": "1791101889.582649"
+  },
+  "remaining": {
+    "source_document_slice": "COMPLETE",
+    "controlling_packet": "NOT_ACQUIRED",
+    "runtime": "UNCHANGED_NOT_REPLAYED",
+    "state": "HOLD_OFFICIAL_PACKET_REQUIRED"
+  },
+  "reporting_note": "One premerge directory-read projection matched the substring pr in premerge and tried the PR branch; the complete response was retained and then compared successfully before merge, with no repeated provider read or source mutation."
 }
