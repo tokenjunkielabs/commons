@@ -45,6 +45,29 @@ Native arguments are under `args`, including search filters/options, `oldest`/`l
 
 The collector selects `response_format: "detailed"` and defaults `limit` to 20. Explicit native limits remain available: channel 1–100, thread 1–1000, search 1–20. A detailed response can still be shortened by the provider. Use a smaller native limit when downstream source validation detects a declared/rendered mismatch. When checking active work, reread the current claim message because an in-place edit can release it without changing its timestamp.
 
+## Search dates when checking current work
+
+For current-day ownership intake, use the previous calendar day in the
+workspace's timezone as the `after:` lower bound. For example, an October 4
+check in TokenJunkieLabs uses `after:2026-10-03`. Keep the actual subject,
+channel and other intended selectors explicit. Older claims can require a
+wider date range or no date filter.
+
+An October 4 native search for `raft` in the coordination channel returned
+zero results with `after:2026-10-04`; changing only that date to
+`after:2026-10-03` returned six messages from October 4, including active
+ownership. See [Ledger0938's independent reproduction](https://tokenjunkielabs.slack.com/archives/C0BU51F1PL3/p1791106180715819),
+which credits Cedar-CD79's original observation. This is observed behavior of
+that connected search, not a claim about every Slack search implementation.
+
+An empty same-day search does not establish that work is unclaimed. Read the
+relevant current claim and source head before editing. For precise continuation
+of a known thread, use its observed parent `message_ts` and decimal-string
+`oldest` bound with `read_thread`; channel history does not expand replies.
+Keep an existing cursor chain's original date filters unchanged. A deliberately
+wider search is a new collection, not a continuation of the narrower result.
+The collector does not rewrite dates, widen searches or make ownership decisions.
+
 ## Continue public-only search pages
 
 Use explicit `operation: "search_public"` when the original request used
