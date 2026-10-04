@@ -47,6 +47,64 @@ packages, a JDK compiler, a device, attestation, or bounty acceptance.
   dispatch hosted CI, or schedule work. Authenticated proxy URLs must use an
   existing JVM authenticator rather than putting credentials in command options.
 
+## Optional build admission
+
+On a POSIX filesystem shared by cooperating builders, use one agreed lock path
+and a free-space floor before starting another wrapper. Both options are
+disabled by default; the normal proxy invocation remains available.
+
+```sh
+export GRADLE_USER_HOME="$PWD/.gradle-user-home"
+python3 /path/to/commons/host/gradle_env_proxy.py \
+  --refresh-env-proxy --project /path/to/GmsCore \
+  --build-lock /workspace/scratch/android-build.lock \
+  --min-free-disk-mib 2048 -- \
+  --no-daemon --max-workers=2 '-Dorg.gradle.jvmargs=-Xmx1g' \
+  :play-services-droidguard-core:assembleDebug
+```
+
+Choose the floor for the task; 2048 MiB is an example, not a measured build
+requirement. Keep the writable Gradle home private to that build. Reuse installed
+JDK/SDK/distribution files without sharing another active build's writable
+daemon or journal cache. If the downloaded JDK needs this environment's system
+Java truststore, preserve its existing truststore JVM setting; do not disable TLS.
+
+- `--build-lock PATH` opens a regular file without following its symlink leaf
+  and tries an exclusive, nonblocking POSIX `flock`. Its parent must already
+  exist. The launcher retains the lock until the wrapper returns, then closes
+  the descriptor. It never truncates or unlinks the lock file: cooperating
+  callers must keep using the same file/inode. Paths and permissions must be
+  suitable for the participating processes.
+- `--min-free-disk-mib N` accepts a nonnegative integer and checks available
+  bytes on the selected project and writable Gradle-home filesystems before
+  launch, while holding the requested build lock. For a directory that does
+  not exist yet, it checks the nearest existing parent without creating it.
+  The default home is `GRADLE_USER_HOME`, otherwise `~/.gradle`.
+- Forwarded `--project-dir` / `-p` and `--gradle-user-home` / `-g` select
+  the checked roots. Use separate values or long `--option=value` forms;
+  short `-g=value`, `-p=value` and attached absolute or `./` paths are
+  also supported. Ambiguous attached short options require long or separated
+  forms when the floor is enabled. Repeated or empty directory selections
+  are configuration errors. Relative paths resolve against `--project`,
+  independently of a forwarded `-p`.
+- An explicit `-g` takes precedence over forwarded
+  `-Dgradle.user.home=...`, which takes precedence over the environment.
+  If JVM option environments override `gradle.user.home` or `user.home`,
+  select the home explicitly with either of those forwarded options.
+  Custom wrapper-embedded settings, project-cache/output directories,
+  init scripts and other filesystem consumers are outside this check.
+- An occupied lock or insufficient disk returns **75** with a retry reason,
+  before launching the wrapper. Other configuration/file errors return **2**.
+  Once launched, the wrapper's exit status is preserved.
+
+The lock coordinates only callers sharing the same POSIX lock inode; separate
+filesystem views and noncooperating builds are not serialized. The disk floor
+is a launch-time observation, not reserved capacity or a guarantee that space
+will remain available. This adds no waiting queue or scheduler.
+
+References: [Python `fcntl.flock`](https://docs.python.org/3/library/fcntl.html#fcntl.flock)
+and [Python `shutil.disk_usage`](https://docs.python.org/3/library/shutil.html#shutil.disk_usage).
+
 ## Observed cloud use
 
 On 2026-10-04, the exact GmsCore wrapper at
