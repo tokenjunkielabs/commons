@@ -6,9 +6,26 @@ const FETCH = "mcp__codex_apps__github_fetch";
 const own = (value, key) => Object.prototype.hasOwnProperty.call(value, key);
 const object = value => value !== null && typeof value === "object" && !Array.isArray(value);
 
+function canonicalPullRequest(value) {
+  return object(value) && Number.isSafeInteger(value.number) && value.number > 0 &&
+    object(value.head) && object(value.base) && typeof value.html_url === "string";
+}
+
 function decodePullRequest(response) {
   const queue = [response];
   const seen = new Set();
+  const parsedPullRequests = new Map();
+  const enqueueText = text => {
+    try {
+      let value = parsedPullRequests.get(text);
+      if (value === undefined) {
+        value = JSON.parse(text);
+        // PR payloads terminate traversal before a reused object can be visited.
+        if (canonicalPullRequest(value)) parsedPullRequests.set(text, value);
+      }
+      queue.push(value);
+    } catch (_) { /* Provider status text or another non-JSON payload. */ }
+  };
   for (let offset = 0; offset < queue.length && offset < 32; offset += 1) {
     const value = queue[offset];
     if (!object(value) || seen.has(value)) continue;
@@ -18,17 +35,16 @@ function decodePullRequest(response) {
       error.code = "NATIVE_ERROR";
       throw error;
     }
-    if (Number.isSafeInteger(value.number) && value.number > 0 &&
-        object(value.head) && object(value.base) && typeof value.html_url === "string") {
+    if (canonicalPullRequest(value)) {
       return value;
     }
     if (object(value.structuredContent)) queue.push(value.structuredContent);
     if (typeof value.content === "string") {
-      try { queue.push(JSON.parse(value.content)); } catch (_) { /* Not a JSON payload. */ }
+      enqueueText(value.content);
     }
     for (const part of Array.isArray(value.content) ? value.content : []) {
       if (part.type !== "text" || typeof part.text !== "string") continue;
-      try { queue.push(JSON.parse(part.text)); } catch (_) { /* Provider status text. */ }
+      enqueueText(part.text);
     }
   }
   throw new TypeError("response has no canonical GitHub pull-request payload");
