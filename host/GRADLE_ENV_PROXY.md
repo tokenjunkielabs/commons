@@ -8,9 +8,17 @@ wrapper launcher and the Gradle daemon, then runs the real project wrapper in
 a POSIX cloud environment with Python 3.9 or newer.
 
 ```sh
-python3 /path/to/commons/host/gradle_env_proxy.py --project /path/to/GmsCore -- --version
-GRADLE_MICROG_VERSION_WITHOUT_GIT=1 python3 /path/to/commons/host/gradle_env_proxy.py --project /path/to/GmsCore -- :play-services-droidguard-core:assembleDebug
+python3 /path/to/commons/host/gradle_env_proxy.py --refresh-env-proxy --project /path/to/GmsCore -- --version
+GRADLE_MICROG_VERSION_WITHOUT_GIT=1 python3 /path/to/commons/host/gradle_env_proxy.py --refresh-env-proxy --project /path/to/GmsCore -- :play-services-droidguard-core:assembleDebug
 ```
+
+Cloud proxy endpoints can change between tool invocations. Read the environment
+on every invocation; do not copy a proxy host or port from a prior command.
+`--refresh-env-proxy` removes only inherited `GRADLE_OPTS` proxy host/port flags
+for protocols configured in the current environment, then rebuilds those flags
+from that environment. Other JVM options remain. Explicit wrapper arguments,
+other JVM option variables and `gradle.properties` still take precedence. Omit
+the flag when intentionally keeping proxy endpoint flags in `GRADLE_OPTS`.
 
 Run the tasks required by the active bounty on its exact current source. Keep
 the existing issue claim, integration branch and upstream submission owner.
