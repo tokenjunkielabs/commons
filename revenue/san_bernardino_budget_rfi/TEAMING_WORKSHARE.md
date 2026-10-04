@@ -5,6 +5,12 @@ Opportunity: San Bernardino County `CAO127-CAO4-6490` — New Budgeting System.
 Status: **PROPOSED / NOT ACCEPTED / NOT PRICED**.  
 No County relationship, award, subcontract, payment, or revenue is implied.
 
+## Current use boundary — October 4, 2026
+
+The original owner already sent the OpenGov/Vertosoft inquiry on September 16 ([retained receipt](https://github.com/woahwhattheheck/commons/issues/14834#issuecomment-5697852402)). That exact route/purpose remains **HARD_DNR** pending a genuine newer human/provider event. This document is retained scope, not a fresh first-touch instruction. No mailbox was checked in this source update; no reply or acceptance is inferred.
+
+See [the current public-source note](SOURCE_UPDATE_20261004.md) before treating the original packet as current. The workshare remains proposed, unaccepted and unpriced; full current amendments and qualification still require reconciliation.
+
 ## One-paragraph offer
 
 TokenJunkieLabs can take a **bounded paid technical workshare** behind an established public-sector budgeting platform for San Bernardino County's budgeting-system pursuit. The seam is deliberately outside core budgeting-product ownership: we build the integration, migration, reconciliation, AI-grounding, workflow-audit, and acceptance evidence that makes a prime's platform easier to demonstrate, implement, test, and defend. The work can begin against synthetic/de-identified fixtures and a prime-provided interface contract, with production/customer access gated separately.
@@ -226,11 +232,9 @@ Unless separately evidenced and agreed, this offer does not claim or include:
 - autonomous approval or mutation of County budget records;
 - free custom production implementation before agreement.
 
-## First-touch teaming ask
+## Historical first-touch framing
 
-A first contact should ask only whether the platform vendor is **pursuing or evaluating** `CAO127-CAO4-6490` and whether this bounded **paid** workshare would strengthen its response/demonstration/implementation posture.
-
-Offer this document's one-page scope after interest. Do not attach a County-specific implementation artifact, invent a price, or perform free buyer-specific engineering to earn a reply.
+The original ask concerned whether a qualified platform vendor was evaluating the opportunity and whether a bounded paid workshare would help. The OpenGov/Vertosoft first touch has already been sent; do not repeat it or switch routes based on this retained copy. Any later scope handoff requires actual interest and existing owner authority. Do not invent a price or perform free buyer-specific engineering to earn a reply.
 
 ## Single-writer and authority rule
 
