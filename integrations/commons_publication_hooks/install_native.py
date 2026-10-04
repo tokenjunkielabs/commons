@@ -3,9 +3,29 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import shutil
 import sys
 from pathlib import Path
+
+
+def _publication_handler(handler: dict) -> bool:
+    """Recognize only this native adapter, including split command/args."""
+    command = str(handler.get("command", ""))
+    arguments = handler.get("args", [])
+    if isinstance(arguments, list):
+        command += " " + " ".join(str(argument) for argument in arguments)
+    command = command.replace("\\", "/")
+    return bool(re.search(
+        r"(?:^|[/\s\"'])(?:commons-publication-hooks|"
+        r"integrations/commons_publication_hooks)/native\.py(?=$|[\s\"'])",
+        command,
+    ))
+
+
+def _refresh(handler: dict, command: str) -> None:
+    handler["command"] = command
+    handler.pop("args", None)
 
 
 def configure(config: dict, *, client: str, command: str) -> dict:
@@ -16,9 +36,12 @@ def configure(config: dict, *, client: str, command: str) -> dict:
         config.setdefault("version", 1)
         for event in ("sessionStart", "preToolUse", "beforeMCPExecution"):
             entries = hooks.setdefault(event, [])
-            if any("commons-publication-hooks" in str(item.get("command", ""))
-                   or "commons_publication_hooks/native.py" in str(item.get("command", ""))
-                   for item in entries):
+            found = False
+            for item in entries:
+                if _publication_handler(item):
+                    _refresh(item, command)
+                    found = True
+            if found:
                 continue
             item = {"command": command, "timeout": 5}
             if event != "sessionStart":
@@ -27,8 +50,14 @@ def configure(config: dict, *, client: str, command: str) -> dict:
     else:
         for event in ("SessionStart", "BeforeAgent", "BeforeTool"):
             groups = hooks.setdefault(event, [])
-            if any(item.get("name") == "commons-publication-" + event.lower()
-                   for group in groups for item in group.get("hooks", [])):
+            found = False
+            for group in groups:
+                for item in group.get("hooks", []):
+                    if (item.get("name") == "commons-publication-" + event.lower()
+                            or _publication_handler(item)):
+                        _refresh(item, command)
+                        found = True
+            if found:
                 continue
             groups.append({"matcher": "*", "hooks": [{
                 "name": "commons-publication-" + event.lower(),
