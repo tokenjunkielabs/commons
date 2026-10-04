@@ -47,8 +47,10 @@ certificate. The tool reports both limitations explicitly.
 
 The [prime-power local-coverage note](PRIME_POWER_LOCAL_COVER.md) proves that
 every residue modulo every prime power is represented even with exponents
-`c,d in {0,1}`. Thus an individual prime-power obstruction search cannot succeed
-at any size.
+`c,d in {0,1}`. For every target `n > 1` and each prime, one of the four offsets
+`2,4,6,8` is at most `n` and works at every depth of that prime, with the same
+exponent pair throughout. Thus an individual-prime obstruction search cannot
+succeed even after bounding the restricted offset by the target.
 
 That same four-offset palette fails on an explicit composite CRT progression.
 More generally, every fixed finite list of exact exponent pairs fails for
