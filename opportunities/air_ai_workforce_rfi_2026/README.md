@@ -12,7 +12,7 @@ That is not a no-bid. It points to a stronger route: pair the auditable AI/evalu
 
 ## AIR source truth
 
-The official AIR RFI was released **September 4, 2026** and responses are due **October 2, 2026 at 12:00 PM ET**. The current RFI is information gathering and makes **no award**. AIR may invite a subset of respondents to a later invitation-only RFP and may explore other partnership/future-work opportunities, but neither is guaranteed.
+The official AIR RFI was released **September 4, 2026**. As observed on **October 4**, AIR's [program page](https://www.air.org/artificial-intelligence-air), [announcement](https://www.air.org/resource/blog-post/we-want-hear-you-how-can-ai-help-workers-prepare-adapt-and-thrive) and linked RFI now agree that responses are due **October 6, 2026 at 12:00 PM ET**. The [dated source note](source_updates/20261004/SOURCE_CURRENTNESS.md) records this extension from the October 2 date captured in September. The current RFI is information gathering and makes **no award**. AIR may invite a subset of respondents to a later invitation-only RFP and may explore other partnership/future-work opportunities, but neither is guaranteed.
 
 The source contains 12 response prompts. Word-limited prompts are bound in `source_snapshot.json`:
 
@@ -30,7 +30,8 @@ The raw PDF bytes were not acquired by this carrier, so `rfp_pdf_sha256` is inte
 
 ## Product files
 
-- `source_snapshot.json` — official AIR URLs, dates, prompt limits, review criteria, and authority ceiling.
+- `source_snapshot.json` — retained September 13 input generation: official AIR URLs, the then-captured date, prompt limits, review criteria, and authority ceiling.
+- `source_updates/20261004/source_observation.json` — current deadline observation and source references; documentation metadata, not a preflight input.
 - `requirements.json` — direct/partner/HOLD route contract.
 - `owner_inputs.template.json` — private owner facts that must never be inferred from repository prose.
 - `preflight.py` — strict compiler/verifier producing `DIRECT_RFI_READY_FOR_OWNER_REVIEW`, `PARTNER_RFI_READY_FOR_OWNER_REVIEW`, `PARTNER_REQUIRED`, or `HOLD`.
@@ -46,9 +47,11 @@ The raw PDF bytes were not acquired by this carrier, so `rfp_pdf_sha256` is inte
 
 The concept intentionally avoids autonomous job applications, applicant ranking, eligibility determination, benefit decisions, or unsupported claims of employment impact.
 
-## Running the gate
+## Retained historical gate invocation
 
-Copy the owner template outside the repo, fill it only with supportable facts, and run:
+The command below belongs to the September 13 source/input generation. Its fixed timestamp and October 2 source deadline are historical; this command is not a current-readiness receipt for the extended deadline. Current evaluation needs a refreshed compiler source input and actual trusted UTC. This documentation update does not run that evaluation or replace the retained source snapshot.
+
+Owner inputs still belong outside the repo and must contain only supportable facts:
 
 ```bash
 python3 opportunities/air_ai_workforce_rfi_2026/preflight.py compile \

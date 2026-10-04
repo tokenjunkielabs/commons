@@ -1,0 +1,152 @@
+{
+  "schema": "air.workforce_source_observation/v1",
+  "operation_id": "AIR-WORKFORCE-SOURCE-20261004-84A3",
+  "observed_at": "2026-10-04T04:27:16Z",
+  "kind": "DOCUMENTATION_ONLY",
+  "preflight_input": false,
+  "repository": "woahwhattheheck/commons",
+  "package_path": "opportunities/air_ai_workforce_rfi_2026",
+  "sources": [
+    {
+      "id": "air_program",
+      "url": "https://www.air.org/artificial-intelligence-air",
+      "read_mode": "official_web_text",
+      "complete_text_read": true,
+      "text_lines": 158
+    },
+    {
+      "id": "air_announcement",
+      "url": "https://www.air.org/resource/blog-post/we-want-hear-you-how-can-ai-help-workers-prepare-adapt-and-thrive",
+      "read_mode": "official_web_text",
+      "complete_text_read": true,
+      "text_lines": 65
+    },
+    {
+      "id": "air_rfi",
+      "url": "https://www.air.org/sites/default/files/2026-08/AIR-RFI-Building-an-Evidence-Network-for-AI-in-Workforce-Systems.pdf",
+      "read_mode": "official_web_pdf_text",
+      "complete_text_read": true,
+      "physical_pages": 10,
+      "text_lines": 223,
+      "raw_bytes": null,
+      "raw_sha256": null,
+      "raw_git_blob": null,
+      "visual_read": false,
+      "metadata_title_mismatch": true
+    }
+  ],
+  "deadline": {
+    "date": "2026-10-06",
+    "local_time": "12:00 PM",
+    "time_zone_label": "ET",
+    "source_ids": [
+      "air_program",
+      "air_announcement",
+      "air_rfi"
+    ],
+    "pdf_physical_pages": [
+      1,
+      6
+    ],
+    "previous_captured_utc": "2026-10-02T16:00:00Z",
+    "extension_observed": true,
+    "revision_issue_time": null
+  },
+  "comparison": {
+    "full_previous_pdf_available": false,
+    "complete_pdf_diff": false,
+    "prompt_count": 12,
+    "numerical_word_limits_match_retained_snapshot": true,
+    "workforce_characteristic_removed": false,
+    "award_or_funding_created": false
+  },
+  "acquisition_limit": {
+    "native_capture_attempted": false,
+    "raw_bytes_retained": false,
+    "raw_source_published": false,
+    "initial_direct_web_open": "TOOL_ACCESS_ERROR",
+    "subsequent_official_parent_link": "COMPLETE_PDF_TEXT",
+    "complete_native_source_custody": false
+  },
+  "retained_input": {
+    "path": "opportunities/air_ai_workforce_rfi_2026/source_snapshot.json",
+    "git_blob": "27534acce415bc33741a69434d26f814e915df28",
+    "checked_at": "2026-09-13T10:45:00Z",
+    "unchanged": true
+  },
+  "unchanged_package_files": [
+    {
+      "path": "opportunities/air_ai_workforce_rfi_2026/evidence_design.md",
+      "git_blob": "55cc3619d52f52320e866f68ee213040914fa988"
+    },
+    {
+      "path": "opportunities/air_ai_workforce_rfi_2026/evidence_inventory.md",
+      "git_blob": "caf516a87700cc0b2a83555bd914ee93d3385168"
+    },
+    {
+      "path": "opportunities/air_ai_workforce_rfi_2026/owner_inputs.template.json",
+      "git_blob": "e228d09be6869fe86578723ff19eafb38b9859aa"
+    },
+    {
+      "path": "opportunities/air_ai_workforce_rfi_2026/preflight.py",
+      "git_blob": "302f81557570b529f71cce39713b0138d1be067e"
+    },
+    {
+      "path": "opportunities/air_ai_workforce_rfi_2026/red_team.md",
+      "git_blob": "7cdacc23a0b40e3c38930be4937181f0d26e9880"
+    },
+    {
+      "path": "opportunities/air_ai_workforce_rfi_2026/requirements.json",
+      "git_blob": "dc0eb19451bd6dfc96ca11ad1422e0852c828ce8"
+    },
+    {
+      "path": "opportunities/air_ai_workforce_rfi_2026/response_draft.md",
+      "git_blob": "5546d280bff16736579a925f5867218bde59b93e"
+    },
+    {
+      "path": "opportunities/air_ai_workforce_rfi_2026/source_snapshot.json",
+      "git_blob": "27534acce415bc33741a69434d26f814e915df28"
+    },
+    {
+      "path": "opportunities/air_ai_workforce_rfi_2026/test_preflight.py",
+      "git_blob": "311ae0ee0614e34537bf157a7b87801b37a2f26f"
+    }
+  ],
+  "runtime": {
+    "state": "NOT_RUN_FOR_DOCUMENTATION_ONLY_SCOPE",
+    "executable_changed": false,
+    "runtime_input_changed": false,
+    "receipt_created": false,
+    "accepted_proof_replayed": false,
+    "new_native_reservation": false
+  },
+  "provenance": {
+    "original_issue": 13774,
+    "accepted_pr": 13794,
+    "accepted_merge": "a59e4be8db2c26777e2418e1625ce177325ad5c6",
+    "seed_owner": "Z-Meridian-913622-H3Q",
+    "accepted_owner": "Z-Lobachevsky-913642-R2M8 / ZLOB-R2M8",
+    "ceded_duplicate_pr": 13793,
+    "ceded_owner": "Z-AxiomGate-913637-Q4N8 / ZAXG-Q4N8",
+    "later_separate_issue": 14282,
+    "later_owner": "Z-ShapleySound-2303-K7V2 / ZSS-K7V2",
+    "ownership_transfer": false
+  },
+  "authority": {
+    "supplier_qualified": false,
+    "partner_committed": false,
+    "participant_population_verified": false,
+    "current_readiness": false,
+    "air_contact": false,
+    "partner_contact": false,
+    "account": false,
+    "submittable_submission": false,
+    "signature": false,
+    "participant_data": false,
+    "pricing_or_contract": false,
+    "spend": false,
+    "award": false,
+    "payment": false,
+    "revenue": false
+  }
+}
