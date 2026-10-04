@@ -1,6 +1,6 @@
 # Erdős 588 — exact finite line incidence
 
-Status: **PUBLIC EXACT INTEGER-PLANE API / COMPLETE FINITE DATA / EXACT FIXED-HOST OPTIMUM**.
+Status: **PUBLIC EXACT INTEGER-PLANE API / COMPLETE FINITE DATA / EXACT FIXED-HOST OPTIMUM / DIRECT RECTANGLE NAVIGATION**.
 
 The [original Erdős problem](https://www.renyi.hu/~p_erdos/1984-18.pdf), Problem 36 in *Research problems* (1984), asks about the maximal number of $k$-point lines in an $n$-point real-plane set with no line containing more than $k$ points, for fixed $k>3$.
 
@@ -20,6 +20,9 @@ This directory delivers a connected-V8/CommonJS API for exact integer coordinate
 | [GRID_LINE_HISTOGRAM_API.md](GRID_LINE_HISTOGRAM_API.md) | Published attribution, full derivation, integer limits and theorem-derived planar interpretation. |
 | [grid5_dim12_histogram.json](grid5_dim12_histogram.json) | Complete actual histogram for 244,140,625 points, all shared powers, Möbius terms and pair-accounting evidence. |
 | [rectangular_5pow12_7pow3_histogram.json](rectangular_5pow12_7pow3_histogram.json) | Exact rectangular composition using the accepted 5^12 factor and one new 7^3 factor, with complete source/product witnesses. |
+| [rectangular_line_navigation.cjs](rectangular_line_navigation.cjs) | Direct threshold count/rank/select, line equations and requested incidences from a compact planar rectangle index. |
+| [RECTANGULAR_LINE_NAVIGATION_API.md](RECTANGULAR_LINE_NAVIGATION_API.md) | Canonical-start proof, reflected-coordinate order, saved-reader contract, limits and full actual navigation results. |
+| [grid17x29_line_navigation.json](grid17x29_line_navigation.json) | Complete 17×29 direction/count index, every gcd/profile/prefix record and all fourteen fresh reader outputs. |
 
 ## The retained host and the fixed-host optimum
 
@@ -84,3 +87,35 @@ The actual product $\{0,\ldots,4\}^{12}\times\{0,\ldots,6\}^3$ has 83,740,234,37
 The finite projection theorem gives $f_7(83740234375)\ge47119140625$. No coordinates, pairs or individual incidences were enumerated, and the projection API's runtime caps remain unchanged.
 
 The guides credit Erdős and the prior Solymosi–Stojaković construction, and preserve the original finite-set provenance. Earlier Sidon/representation computations were not rerun. No global optimality, external-frontier, novelty, asymptotic, native-execution or sponsor claim is made.
+
+
+## Direct line navigation in planar rectangles
+
+The new companion API identifies a line by its canonical primitive direction and reflected boundary start. Two disjoint rectangles of starts give threshold counts and direct ranks; positive and negative versions of a slope reuse one absolute profile. Saved readers navigate individual lines and requested point incidences without regenerating the direction or count catalog.
+
+The new input reuses only the accepted 17×29 coordinate rectangle from [Commons #31400](https://github.com/woahwhattheheck/commons/pull/31400), data blob75dad6ddfd00a0efb2c80bddb12eb4e13405d216, field construction.request. Its distance calculations were not repeated.
+
+| Complete finite result | Value |
+|---|---:|
+| Points | 493 |
+| Determined lines | 55126 |
+| Point-line incidences | 129078 |
+| Unordered pairs accounted for | 121278 |
+| Shared absolute profiles | 279 |
+| Canonical signed directions | 556 |
+| Retained profile threshold rows | 771 |
+| Retained global prefix blocks | 940 |
+
+A fresh saved reader made14 calls with zero new compiler, direction-gcd or count-profile construction. Its query work is explicit:53 prefix-search steps,2260 tracked quotients,8 new query-gcd steps,11 line descriptors and34 point records in requested pages. The center query retains all556 examined directions and42 qualifying line addresses.
+
+At threshold5, the negative diagonal through(0,28) and(16,0) has direction(4,-7) and rank1546 of1650. Its full point page is(0,28),(4,21),(8,14),(12,7),(16,0). The positive diagonal shares absolute profile66 and has rank1649. Ranks depend on threshold; source-bound line addresses remain stable. The signed-direction and reflected-start ordering is explicit in the guide.
+
+This rectangle has maximum collinearity29. It fails P_4 despite having2004 exact four-point lines, because1650 lines are overfull. It satisfies P_29 and gives only the finite construction bound
+
+$$
+f_{29}(493)\ge17.
+$$
+
+The executed source is39519 bytes, blob1b08067b38964d5c1fd1925710bbc76f1ad56bc2. The complete763993-byte consumer artifact is blob29a3a57204abbc6c43d29250613967780f30bd8c. It retains all448 gcd candidates,1349 Euclidean steps,1050 shared step weights,771 threshold rows,556 directions,940 prefix blocks and every actual reader result.
+
+Saved opens check bounded structure and references; they do not independently authenticate or re-prove the retained mathematics. Existing incidence, projection and histogram implementations and all prior datasets are unchanged. The guide preserves Erdős's P_k convention and Haukkanen–Merikoski's prior counting identities. This is a finite navigation capability, with no global extremal, novelty or asymptotic claim.
