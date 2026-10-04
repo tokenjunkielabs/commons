@@ -336,6 +336,27 @@ On a budget stop, retain the result before passing `result.next_request` into th
 
 For explicit thread windows, keep the same observed parent and `oldest`/`latest` across continuations. Channel reads do not expand thread replies. Search results do not read every surrounding thread or linked file.
 
+### Recover a shortened native page
+
+A readable native envelope and a next cursor do not establish that every requested message was rendered. For example, a thread response can declare 100 replies while containing only 89 reply headers. Preserve that raw response, its exact request and the projector's count/framing refusal. Do not relax the parser or treat the provider's next cursor as proof that the missing part of that page was read.
+
+For a deliberate read-only recovery, restart the refused page from its **original request cursor**, with the same operation, channel, parent, time bounds and other selectors, but a smaller native `limit`. Keep this recovery separately from the original result. A collector page records its original arguments in `request_args`:
+
+```javascript
+const recovery = await collectSlackPages(tools, {
+  operation: refusedCollection.operation,
+  args: { ...refusedPage.request_args, limit: 50 },
+  max_pages: 1,
+});
+store("slack-page-recovery", recovery);
+```
+
+Here `refusedPage` is the retained page whose rendering failed validation, not a later `next_request`. Inspect/project the recovered response before following its returned continuation. Then continue with the smaller limit and unchanged selectors. If it is still incomplete, preserve that new gap rather than advancing past it. The example's 50 is an observed working limit for one thread, not a universal safe size or an automatic retry policy. Existing provider cooldowns still apply.
+
+Keep observed message identities and the missing interval explicit across the original and recovered pages. The recovery can repeat entries from the refused page; do not silently deduplicate or claim a snapshot. A count-consistent projection describes its retained rendering, while body-prefix truncation and unread thread history remain separate coverage limits. Changing the native page size does not justify changing a cursor chain's time/search scope.
+
+In one actual 2026-10-04 thread intake, `limit: 100` returned 100,666 rendered characters, declared 100 replies, rendered 89 reply headers and supplied a later cursor. `projectSlackMessages` correctly returned `REPLY_COUNT_MISMATCH`. The consumer restarted that page at its original cursor with `limit: 50`, then followed the first recovered page's cursor with the same limit. Both pages declared and rendered 50 replies, explicitly recovering the missing boundary through the end of the original 100-reply page. The original response and both recovery responses remained retained. Their overview projections were still intentionally body-truncated. No parser change or full-body coverage claim was needed.
+
 ## Interpret the stop reason
 
 | `summary.stop_reason` | Meaning |
