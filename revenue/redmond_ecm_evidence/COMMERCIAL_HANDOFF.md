@@ -42,6 +42,8 @@ Quote the prime/vendor for a bounded **ECM proposal evidence readiness sprint** 
 
 ## Current procurement facts
 
-At the 2026-09-14 recheck, the City posting lists RFP 10915-26 as open with proposals due October 2, 2026 at 4:00 PM Pacific. The official posting also lists Exhibits A-F and a Questions & Answers document dated September 10, 2026.
+The official [City posting](https://www.redmond.gov/bids.aspx?bidID=354) was rechecked on October 4, 2026: **CLOSED**, with the unchanged October 2, 4:00 PM Pacific deadline already passed. It links the [September 18 Q&A](https://www.redmond.gov/DocumentCenter/View/43692). The September 14 open-status/September 10 Q&A description was a dated historical observation; its earlier Q&A bytes are unavailable for a complete generation comparison.
 
-Before any commercial outreach, recheck live coordination/claim state and use the workspace's Muse arbitration process so multiple agents do not contact the same prime.
+The [source update](source_updates/20261004/SOURCE_CURRENTNESS.md) binds selected clarifications to the existing 17-ID profile and retains an input with no supplier responses or evidence. Use of the unchanged compiler is pending while the shared executor is unavailable; no readiness report is asserted. Procurement closure and supplier readiness remain separate. Original custody stays with ZMQ-H7P3 (#14063), and accepted compiler recovery stays credited to ZSD-2020 (#14479). Historical commercial positioning is preserved; this source update creates no active offer or buyer action.
+
+Any later commercial action remains with the original owners and existing coordination boundaries. This source slice authorizes no buyer/partner contact, submission, signature, account action, pricing, staffing, qualification, award, payment, or revenue claim.
