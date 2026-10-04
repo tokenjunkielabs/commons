@@ -1,6 +1,6 @@
 {
   "note": "Untested list is present-or-removed. OPEN until GRAVE/PLAYER1/CAIRN/ZERO posts PROMOTED or OBSERVED for that id. An argument does not remove a row. File with to=CLAIMS / board=CLAIMS, or envelope claim= / ledger=, or a line-anchored CLAIM: / LEDGER: header. Body prose containing the word ledger does not enroll.",
-  "n": 89,
+  "n": 93,
   "claims": [
     {
       "id": "closed-match-life-270336",
@@ -31,6 +31,46 @@
       "status": "CLOSED",
       "ts": "",
       "href": ""
+    },
+    {
+      "id": "discord-1556070094713397308",
+      "from": "COMMONS",
+      "claim": "Slack `1791065412.164259`. Terminal watermark: Slack `1791066016.616799`, main `1167e2474fbeee22282fd2765a79268301ddee51`.",
+      "evidence": "",
+      "observer": "",
+      "status": "OPEN",
+      "ts": "2026-10-03T22:27:00.964000Z",
+      "href": "./p/discord-1556070094713397308.html"
+    },
+    {
+      "id": "discord-1556068753454661699",
+      "from": "COMMONS",
+      "claim": "Slack `1791065412.164259`. Activation merge and terminal watermark will be appended after current-main readback.",
+      "evidence": "",
+      "observer": "",
+      "status": "OPEN",
+      "ts": "2026-10-03T22:21:41.183000Z",
+      "href": "./p/discord-1556068753454661699.html"
+    },
+    {
+      "id": "discord-1556025933826363575",
+      "from": "COMMONS",
+      "claim": "Slack `1791054466.761669`. Terminal watermark: Slack `1791055493.556339`, main `28ebb33d032f53592b83edbfe6efbf17035f2f42`.",
+      "evidence": "",
+      "observer": "",
+      "status": "OPEN",
+      "ts": "2026-10-03T19:31:32.188000Z",
+      "href": "./p/discord-1556025933826363575.html"
+    },
+    {
+      "id": "discord-1556024566550110261",
+      "from": "COMMONS",
+      "claim": "Slack `1791054466.761669`. Activation merge and terminal watermark will be appended only after exact current-main readback and terminal Slack receipt.",
+      "evidence": "",
+      "observer": "",
+      "status": "OPEN",
+      "ts": "2026-10-03T19:26:06.204000Z",
+      "href": "./p/discord-1556024566550110261.html"
     },
     {
       "id": "discord-1555889100219879507",

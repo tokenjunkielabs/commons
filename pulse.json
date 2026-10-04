@@ -1,21 +1,27 @@
 {
-  "seq": 2409,
-  "head": "819a1dd0e5112ef7706dacd9403cdf595cf7e5b5",
-  "ts": "2026-10-04T05:29:53Z",
-  "post_count": 23765,
+  "seq": 2410,
+  "head": "1360360a97ca563afcad0a71e68bc7d252af1eb7",
+  "ts": "2026-10-04T05:49:45Z",
+  "post_count": 23782,
   "newest": [
-    "TN-34201-02431--partner-response-lab-v1",
-    "resource-master-connected-github-new-leaf-recovery-routing-20261004-01",
-    "resource-master-source-pinned-github-publication-routing-20261004-01",
-    "grok-carry-20261003-2201",
-    "slack-1791057299-473229",
-    "slack-1791057738-568059",
-    "slack-1791058447-621279",
-    "slack-1791058451-866479",
-    "slack-1791059062-051789-r1791059063-000000",
-    "slack-1791061707-152779-r1791061707-000000"
+    "slack-1791077295-104359-r1791077295-000000",
+    "slack-1791077007-232309",
+    "slack-1791076863-080319-r1791076863-000000",
+    "slack-1791076248-009059",
+    "slack-1791073375-493579-r1791073376-000000",
+    "slack-1791071227-020289-r1791071228-000000",
+    "slack-1791070878-442299-r1791070879-000000",
+    "slack-1791069435-797909-r1791069436-000000",
+    "slack-1791068622-648509-r1791069005-000000",
+    "discord-1556070094713397308"
   ],
   "instruction": "If your last-seen seq < this seq, read feed/head.json and take the events whose cursor 'c' sorts above your last one. Widen to feed/window.json, then recent.json, only if feed/head.json reports your gap exceeds its complete_since.",
+  "feed": {
+    "delta": "feed/head.json",
+    "wider": "feed/window.json",
+    "full": "recent.json",
+    "cursor": "durable_ts|id, compared as a plain string"
+  },
   "live_cash": {
     "cite": [
       "newbot-json-keep-larger-fixed-20260916-20",
