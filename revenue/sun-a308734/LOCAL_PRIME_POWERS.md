@@ -206,6 +206,8 @@ covers this core. Its restricted total is $2\cdot4^{v-1}=n/2$. This small-core c
 
 Theorem 2 follows. The 4-adic scaling step uses the elementary witness scaling already present in [#14719](https://github.com/woahwhattheheck/commons/pull/14719); the new table chooses a bounded pair that works at every dyadic depth. The [#14716](https://github.com/woahwhattheheck/commons/pull/14716) atlas retains its different, simultaneous-prime strength: its 20 shifts at most $85$ supply a unit remainder at eight specified obstruction primes at once, and hence every depth at those primes when $n\ge85$. Theorem 2 covers arbitrary individual primes and does not replace that simultaneous statement.
 
+The [dyadic growth note](DYADIC_GROWTH.md) adds the sharp necessary bound on both powers of two: if $h=v_2(n)$, then $\min(a,c)\ge\max(0,\lfloor(h-1)/2\rfloor)$. A bounded legal total attains it for every even target at all dyadic depths. It also excludes the entire infinite family $\min(a,c)\le A$ on $n\equiv0\pmod{2^{2A+3}}$, even with the other exponents unrestricted.
+
 ## 4. What this settles, and what it leaves open
 
 Theorem 1 settles unrestricted residue coverage at every individual prime power for all integer targets. Theorem 2 strengthens the result on the actual domain $n>1$: the finite family of restricted pairs with total at most $n$ always contains a pair that survives every depth of any one chosen prime.
@@ -229,7 +231,7 @@ The proof assigns a distinct prime $p_s\equiv3\pmod4$ to each shift $s$ and impo
 
 That existing proposition applies to any fixed finite list of A308734 exponent tuples. It also applies directly to A303656, which is why the companion local note now cites this earlier source explicitly. The finite-offset barrier is retained as prior work; no new verifier or numerical countercertificate is introduced.
 
-Together, these results give bounded individual-prime coverage for every target $n>1$, while one fixed finite list of exact shifts cannot supply every global equality. They do not exclude growing families, finite descriptions of infinitely many exponent tuples, or arguments that also control magnitude and cross-prime compatibility.
+Together, the coverage theorem and the existing global barrier give bounded individual-prime coverage for every target $n>1$, while one fixed finite list of exact shifts cannot supply every global equality. The separate dyadic growth note additionally excludes infinite families with either power-of-two exponent uniformly bounded. Growing families that satisfy that necessary condition still need magnitude control and compatible choices across primes.
 
 ## Sources and evidence boundary
 

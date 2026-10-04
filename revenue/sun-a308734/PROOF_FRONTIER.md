@@ -147,6 +147,21 @@ The ordinary square coordinates remain modular and need not fit below $n-T$. Dif
 
 The [existing fixed-finite-shift barrier](../../research/sun_a308734_residue_covering/RESEARCH_MEMO.md), Proposition 3 from [#14719](https://github.com/woahwhattheheck/commons/pull/14719), also remains available: every fixed finite list of exact restricted pairs fails on an infinite CRT progression. Growing families and compatible exponent choices remain essential questions.
 
+### R5 — sharp dyadic growth for restricted pairs
+
+The [dyadic growth proof](DYADIC_GROWTH.md) shows that a fixed total
+$T=4^a9^b+4^c25^d$ working at every dyadic depth must satisfy
+$v_2(T)\ge v_2(n)-1$. Consequently, both $a,c$ are at least
+$\max(0,\lfloor(v_2(n)-1)/2\rfloor)$. An explicit bounded choice attains this
+minimum for every even target.
+
+For any fixed $A$, the infinite family with $\min(a,c)\le A$ misses
+$n\equiv0\pmod{2^{2A+3}}$, regardless of the odd-base exponents. A finite legal
+palette with maximum total valuation $J$ already fails modulo $2^{J+2}$.
+These single-prime restrictions preserve the earlier general CRT barrier and
+finite odd-prime certificates. They impose no new restriction on the $4$-free
+core and do not settle cross-prime compatibility or global equality.
+
 ## Conditional bridge through Sun's ternary conjectures
 
 The 2026 She–Sun–Zhou paper restates Sun's two related ternary conjectures:
