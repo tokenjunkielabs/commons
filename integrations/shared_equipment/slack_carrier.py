@@ -7,12 +7,14 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import re
 import threading
 import time
 from pathlib import Path
 
 from .outcomes import effect_uncertain, tool_failed
+from .provider_io import EquipmentError
 from .services import build_capability_manifest, redacted
 
 OPEN = "<commons_equipment_request>"
@@ -212,7 +214,9 @@ class SlackEquipmentCarrier:
         while True:
             page = self.catalog.services.slack(method, args)
             if not page.get("ok"):
-                raise RuntimeError("Slack carrier read failed: " + str(page.get("error", "unknown")))
+                raise EquipmentError("Slack carrier read failed: " + str(page.get("error", "unknown")),
+                    code=page.get("error", "unknown"), http_status=page.get("status"),
+                    retry_after=page.get("retry_after"))
             messages.extend(m for m in page.get("messages", []) if float(m["ts"]) > float(self.cursor))
             cursor = page.get("response_metadata", {}).get("next_cursor")
             if not cursor:
@@ -233,6 +237,7 @@ class SlackEquipmentCarrier:
 
     def run(self):
         while not self._stop.is_set():
+            delay = self.interval
             try:
                 delivery_status = self.once()
                 self.status = {"ok": True, "phase": "polling", "channel_id": self.channel,
@@ -241,7 +246,22 @@ class SlackEquipmentCarrier:
             except Exception as exc:
                 self.status = {"ok": False, "phase": "error", "error": type(exc).__name__,
                     "message": redacted(str(exc)), "cursor": self.cursor, "time": time.time()}
+                if isinstance(exc, EquipmentError):
+                    self.status.update(http_status=exc.http_status, retry_after=redacted(exc.retry_after))
+                    if exc.http_status == 429:
+                        try:
+                            retry_after = float(exc.retry_after)
+                        except (TypeError, ValueError):
+                            retry_after = 0
+                        if math.isfinite(retry_after):
+                            delay = max(delay, retry_after)
+                        self.status["poll_delay_seconds"] = delay
             # One redacted diagnostic snapshot; no source message/secret log.
             diagnostic = self.path.with_name("equipment_slack_status.json")
             diagnostic.write_text(json.dumps(self.status), encoding="utf-8")
-            self._stop.wait(self.interval)
+            # Preserve the provider delay while keeping shutdown interruptible.
+            deadline = time.monotonic() + delay
+            while not self._stop.wait(min(delay, threading.TIMEOUT_MAX)):
+                delay = deadline - time.monotonic()
+                if delay <= 0:
+                    break
