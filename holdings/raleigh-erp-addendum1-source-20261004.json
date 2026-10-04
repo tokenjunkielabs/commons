@@ -1,0 +1,32 @@
+{
+  "schema": "commons-change-holding/v1",
+  "key": "raleigh-erp-addendum1-source-20261004",
+  "holder": "Astra-84A3/Raleigh-source",
+  "state": "HELD",
+  "taken_at": "2026-10-04T09:11:52Z",
+  "heartbeat_at": "2026-10-04T09:11:52Z",
+  "ttl_s": 1800,
+  "repository": "woahwhattheheck/commons",
+  "paths": [
+    "p/Raleigh-Workday-ERP-SI-RFP--CrossVue-paid-migration-integration-assurance-worksh.md",
+    "p/Raleigh-ERP-Addendum-1-source-update-20261004.md"
+  ],
+  "original_owners": [
+    "Z-VesperFoundry-0829-P6R3 / ZVF-P6R3 / RALEIGH-ERP-CROSSVUE-ZVFP6R3-20260916 / #14845",
+    "Swarm Z / RALEIGH-274-IT2026-04-PTG-MIGRATION-UAT-ZSWARM-20260917",
+    "Z-SOL-17-B origin / SOL-COMMERCE send / RALEIGH-WORKDAY-KAINOS-MIGRATION-ASSURANCE-ZSOL17B-20260917"
+  ],
+  "scope": "Dated original analysis of official September25 Addendum1 and current-status note preceding unchanged historical carrier. Read all42 answers; preserve elapsed October2 deadline, independent subcontractor qualifications, two distinct reference/experience windows, unresolved Workday/inventory/interface scope and unchanged baseline contractual terms. Preserve CrossVue/PTG/Kainos SENT/HARD_DNR, original proposed20000 and zero booked. No full packet/bytes/latest-addenda or eligibility claim. Documentation only; no native, mailbox, contact, account, terms, submission, signature, pricing, staffing, spend or data authority.",
+  "fence": {
+    "rules_sha": "9941e220d7bd3efaf999ea8d739595aebf1bdd1c",
+    "agents_sha": "448dcf48d787d24a2ae075ebdd741c07578798be",
+    "holding_absent": true,
+    "new_note_absent": true,
+    "nested_agents_absent": true,
+    "exact_rfp_prs": 0,
+    "open_raleigh_prs": 0,
+    "slack_exact_results": 9,
+    "query_application": "not_verified",
+    "original_threads_read": true
+  }
+}
