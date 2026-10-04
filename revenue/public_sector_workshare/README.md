@@ -45,6 +45,18 @@ The official CDB notice describes a statewide cloud construction-project-managem
 
 The CDB notice points bidders to BidBuy under the exact solicitation ID and describes the System Implementor as the prime. `buyer_budget_usd` remains `null`; no unsupported budget is invented.
 
+#### Illinois source update — 2026-10-04
+
+The [official BidBuy notice](https://www.bidbuy.illinois.gov/bso/external/bidDetail.sda?docId=27-448DOIT-ADMIN-B-52519) displays an October 28, 2026 opening at 14:00; the header does not identify its timezone. `OPEN` is Bid Type, not a separate acceptance-status finding.
+
+The notice lists twelve files and two amendment entries. September 9 amendment 1 records a corrected traceability-matrix bid number and a question date added to RFP C.10. September 18 amendment 2 adds `IL CDB Pre-Submission Conference.zip` for slides, attendance and recording. The latter postdates the overlay's September 16 capture.
+
+The board reports BEP/VBP goals of 7%/1%, with no small-business set-aside. Required uploads include disclosure, signed offer, technical response, pricing, utilization plans and C2D answers. Pricing must also populate the Items tab from Attachment B's Total Price Summary, B20; pricing-file classification and specified missing uploads carry disqualification/nonresponsiveness warnings.
+
+Coverage is all 81 rendered notice lines. Attachment contents, file bytes/hashes, full amendment effects, C.10's actual date and deadline timezone remain unverified; no anonymous attachment links were exposed. This is a notice-level addition, not complete solicitation custody.
+
+The September 16 machine overlay remains a historical snapshot; this documentation does not refresh its source timestamp or clear its unresolved-timezone HOLD. Preserve the original ZSQY-A4C7 scouting, all #14283/#14882 implementation and recovery credits, partner-first posture, unknown buyer budget, proposed prices and existing contact boundaries. The next source task is controlling RFP/attachment custody and reconciliation of these notice instructions. No contact, registration, submission, signature, pricing commitment or eligibility is authorized. Machine inputs, validator and accepted historical execution are unchanged; no native run occurred.
+
 ### North Carolina DHHS / DHB — `30-2025-037-DHB`
 
 Primary source: https://evp.nc.gov/solicitations/details/?id=5d9802e7-e99b-f111-8077-001dd80bcb64
