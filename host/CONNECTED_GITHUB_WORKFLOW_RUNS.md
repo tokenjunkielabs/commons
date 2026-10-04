@@ -1,6 +1,6 @@
 # Find workflow runs through the native GitHub collection
 
-[connected_github_workflow_runs.cjs](connected_github_workflow_runs.cjs) reads the repository's Actions run collection through the existing native GitHub fetch action and selects a workflow by path or numeric ID. It supplies a compact run/source handoff when the current connector does not expose workflow-specific list routes.
+[connected_github_workflow_runs.cjs](connected_github_workflow_runs.cjs) reads the repository's Actions run collection through the existing native GitHub fetch action and selects a workflow by path or numeric ID, or all workflows at one exact commit. It supplies a compact run/source handoff when the current connector does not expose workflow-specific list routes.
 
 The helper owns no network client, credentials, filesystem or mutation operation. It does not dispatch, retry, cancel, approve or rerun a workflow. It reads the supplied repository with the caller's existing connected tool surface.
 
@@ -63,7 +63,8 @@ A path matches the exact returned path or that path followed by GitHub's optiona
 | Input | Meaning |
 | --- | --- |
 | `repository_full_name` | Required `owner/repository`; each component is URL-encoded. |
-| `workflow_path`, `workflow_id` | At least one selector. IDs accept a positive safe integer or a decimal string. |
+| `workflow_path`, `workflow_id` | At least one selector unless `all_workflows: true` is used. IDs accept a positive safe integer or a decimal string. |
+| `all_workflows` | Opt-in selection of all workflows at a full pinned `filters.head_sha`; mutually exclusive with path/ID selectors. Default false. |
 | `filters` | Optional GitHub filters: `actor`, `branch`, `check_suite_id`, `created`, `event`, `head_sha`, `status`. Unknown fields raise an input error instead of being silently ignored. |
 | `per_page` | 1–100; default 100. |
 | `start_page` | Default 1. Starting later is explicitly partial coverage. |
@@ -75,6 +76,63 @@ A path matches the exact returned path or that path followed by GitHub's optiona
 Text filter syntax is forwarded to GitHub after URL encoding. The helper does not maintain a second status/event vocabulary. It sets `exclude_pull_requests=true` to omit nested PR arrays from the response; **that parameter does not exclude pull-request-triggered runs**. Use the event filter when the operation needs a particular trigger.
 
 The time budget cannot cancel an in-flight native tool call or a caller callback. Both may finish after the budget. There is no background process, sleep, retry loop or scheduled follow-up.
+
+## Observe every workflow at one exact head
+
+Use `all_workflows: true` when the operation needs all workflows associated
+with one prepared commit, rather than a known workflow path or ID:
+
+~~~javascript
+const result = await module.exports.findGitHubWorkflowRuns(tools, {
+  repository_full_name: observedRepository,
+  all_workflows: true,
+  filters: { head_sha: observedCommitSha },
+  stop_after_first: false,
+  per_page: 100,
+  max_pages: 2,
+  timeout_ms: 30000
+}, {
+  onResponse: ({ page, url, response }) =>
+    store("current-head-runs-" + page, { url, response })
+});
+~~~
+
+This opt-in mode requires `filters.head_sha` to be a complete lowercase
+40-character commit SHA. It cannot be combined with `workflow_path` or
+`workflow_id`; a non-boolean `all_workflows` value is invalid. These errors
+are caught before provider calls. Omission or `false` preserves the existing
+path/ID requirement and result shape.
+
+Event selection remains caller-explicit. With the example's filter, the helper
+adds no event restriction. Add `event: "pull_request"` only when that is the
+intended scope; other supported filters still narrow the query as before.
+The connected `fetch_commit_workflow_runs` wrapper advertises a fixed
+pull-request-event filter and first-page-only response. This mode uses the
+existing repository collection to express the broader query and its bounded
+pagination; a previous PR-event-only observation does not establish the result
+of this broader lookup.
+
+The result identifies this selection as
+`workflow: {path: null, id: null, all: true}`, while `filters.head_sha` records
+the exact source. Every selected row must carry that same `head_sha`.
+A missing or different returned head stops with `INVALID_RESPONSE` and
+incomplete coverage; earlier matching rows remain available under the existing
+positive-result rule. The helper does not relabel another run as the requested
+source or infer that a workflow ran from its presence in a repository.
+
+`all_workflows` describes the workflow selector, not a completeness guarantee.
+The existing `stop_after_first` default is still `true`; pass `false`, as in
+the example, to collect every matching run within the stated page/time budgets.
+All run identity checks, duplicate/total-change reporting, offset-page limits,
+native errors and the filtered 1,000-result ceiling remain unchanged. A pinned
+commit does not make the run collection immutable: new runs or changing run
+states can still appear for that head. Use `coverage.complete` and the stop
+reason, with `snapshot: false`, to describe the actual observed scope.
+
+This operation still only reads. Run status is separate from source
+verification, required-job coverage, maintainer approval and acceptance. It
+does not rerun a failed job, approve a fork workflow, dispatch work or recover
+a disconnected local runtime.
 
 ## Read the result
 
