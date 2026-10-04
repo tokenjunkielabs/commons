@@ -36,9 +36,11 @@ Use `--output-raw-tree NEW_PRIVATE_FILE` to retain the admitted bytes. Existing
 output files are refused. A publication adapter must consume the complete raw
 bytes and independently verify the Git object identity against its own native
 parent-tree observation. The compact JSON receipt is a useful handoff, not a
-replacement for those bytes or the native root binding. The existing connected
-publisher currently has no retained-tree input option; its ordinary type/mode
-stop remains in effect until the existing large-directory owner adds that path.
+replacement for those bytes or the native root binding. Pass the complete
+admitted bytes to the connected publisher's optional `retained_trees` input;
+its [call contract](CONNECTED_GITHUB_PUBLISH.md#reuse-complete-tree-bytes-for-a-large-directory)
+independently hashes/parses them and binds their path and SHA to the publisher's
+own native base traversal before using any previous type, mode or blob.
 
 Bounds: 16 MiB of input tree bytes and 200,000 entries. Names must be immediate,
 strict UTF-8 names. Duplicate names, malformed records, noncanonical Git order,
