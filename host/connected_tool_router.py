@@ -112,7 +112,7 @@ class ConnectedToolRouter:
         self.state_file = Path(state_file).expanduser().resolve()
 
     @contextmanager
-    def _state(self):
+    def _state(self, *, write=True):
         self.state_file.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
         lock_path = self.state_file.with_suffix(self.state_file.suffix + ".lock")
         descriptor = os.open(lock_path, os.O_RDWR | os.O_CREAT, 0o600)
@@ -132,6 +132,8 @@ class ConnectedToolRouter:
             if state.get("schema") != "commons.connected_tool_runtime.v1":
                 raise EquipmentError("unsupported runtime state schema")
             yield state
+            if not write:
+                return
             serialized = json.dumps(state, ensure_ascii=False, allow_nan=False)
             temporary = None
             try:
@@ -367,7 +369,7 @@ class ConnectedToolRouter:
             return result
 
     def status(self, operation_id):
-        with self._state() as state:
+        with self._state(write=False) as state:
             operation = state["operations"].get(operation_id)
             if operation is None:
                 return {"decision": "OPERATION_NOT_FOUND", "operation_id": operation_id}
