@@ -155,7 +155,7 @@ function projectWebSources(response, options) {
   for (const item of texts) {
     // Detect block boundaries before deciding whether their URL identifies a supported source.
     // This recognizes a rendered header, not a signed provider/source identity.
-    const header = /^([^\r\n]*) \(([^\r\n]*)\)\r?\n【(turn\d+(?:search|view|fetch|news)\d+)】 \[wordlim: (\d+)\]/gm;
+    const header = /^([^\r\n]*) \(([^\r\n]*)\)\r?\n【(turn\d+(?:search|view|fetch|news|academia)\d+)】 \[wordlim: (\d+)\]/gm;
     const matches = Array.from(item.text.matchAll(header));
     if (matches.length === 0) {
       if (item.text.length > 0) {
