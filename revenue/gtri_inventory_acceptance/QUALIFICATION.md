@@ -15,7 +15,7 @@ The credible commercial seam is narrower and material: a qualified platform vend
 | Buyer | Board of Regents / Georgia Institute of Technology, GTRI | Discovery-supported |
 | Solicitation | `2027-IFB-GTRI-0006` | Discovery-supported |
 | State procurement ID | `PE-50300-RFQ-2027-000000339` | Discovery-supported |
-| Public due date | 2026-09-30 16:00 ET | Public-mirror supported; recheck buyer source before action |
+| Public board status / close, observed 2026-10-04 | Open / 2026-10-12 16:00 EDT | Buyer-board metadata; underlying extension/addendum and bid packet remain unread/unretained. Historical mirror date: 2026-09-30 16:00 ET. |
 | Legacy system | CGI Sunflower | Discovery-supported |
 | Public migration statement | migration of existing Sunflower data | Discovery-supported |
 | Public integration surfaces | Deltek Costpoint, Workday; secondary material also names Oracle and PIEE | Discovery-supported; verify controlling workbook |
@@ -25,7 +25,11 @@ The credible commercial seam is narrower and material: a qualified platform vend
 | FAR/DFARS/NIST/508/security/audit/platform/SLA gate proof | No retained evidence | **Direct-prime blocker** |
 | Qualified-prime workshare interest | None yet | `PROPOSED_NOT_ACCEPTED` |
 
-Discovery reference:
+Source references:
+
+- [Dated public-board observation and access limits](SOURCE_UPDATE_20261004.md)
+- https://bids.sciquest.com/apps/Router/PublicEvent?CustomerOrg=GIT
+- Historical discovery mirror:
 
 - https://govtribe.com/opportunity/state-local-contract-opportunity/government-property-management-inventory-system-pe50300rfq2027000000339
 
