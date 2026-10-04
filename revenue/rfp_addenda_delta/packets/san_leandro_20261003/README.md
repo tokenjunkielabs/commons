@@ -39,9 +39,12 @@ claim a September 16 byte capture. The issue's dated history remains unchanged.
 replaces Attachment D through its exact prior hash.
 
 Both generations declare `complete=false`. Attachments A, B, C1, C2 and E remain
-unretained here; the two D workbooks are retained but their contents are unreviewed.
-The base RFP read is limited to the cited anchors. No owner review decision is
-supplied or carried. SHA-256 statement hashes use the exact UTF-8 strings in
+unretained here. Both retained D workbooks received complete XML/cell/relationship
+review on October 4; see [Attachment D review](ATTACHMENT_D_REVIEW.md). Their 159
+prompts are unchanged and all responses remain blank. The corrected file changes
+Yes/No formatting and layout; it supplies no bidder/partner evidence. The base RFP
+read remains limited to the cited anchors. No owner review decision is supplied
+or carried. SHA-256 statement hashes use the exact UTF-8 strings in
 `requirement_statements.json`, without an appended newline.
 
 ## Use the existing product

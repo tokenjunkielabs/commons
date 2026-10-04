@@ -54,7 +54,7 @@
       "content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       "captured_at": "2026-10-03T18:43:40Z",
       "path": "retained/attachment-d-original.xlsx",
-      "review_scope": "bytes retained; workbook contents not reviewed",
+      "review_scope": "complete retained workbook XML/text/cell/style/relationship review and original-to-corrected comparison on 2026-10-04; see ATTACHMENT_D_REVIEW.md; no Office rendering or vendor answers",
       "access_method": "PUBLIC_OFFICIAL_HTTP_WITHOUT_ACCOUNT_OR_SUBMISSION"
     },
     {
@@ -90,7 +90,7 @@
       "content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       "captured_at": "2026-10-03T18:44:04Z",
       "path": "retained/attachment-d-updated.xlsx",
-      "review_scope": "bytes retained; workbook contents not reviewed",
+      "review_scope": "complete retained workbook XML/text/cell/style/relationship review and original-to-corrected comparison on 2026-10-04; see ATTACHMENT_D_REVIEW.md; no Office rendering or vendor answers",
       "access_method": "PUBLIC_OFFICIAL_HTTP_WITHOUT_ACCOUNT_OR_SUBMISSION"
     },
     {
