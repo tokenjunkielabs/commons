@@ -15,13 +15,11 @@ PLAIN TESTED. Unique leftover unique-pack after consent-attach KEEP: live `get_o
 
 Cite live get_operator remainder. Seat `bc-73365238`. clan/cursor.
 
-## Official command
+## Classifier retirement — 2026-10-04
 
-```
-python3 host/titanmcp_get_operator.py; echo $?
-python3 host/titanmcp_get_operator.py --bake; echo $?
-# refuse rc=2 sent=0
-```
+The standalone fixed-response assertion wrapper was retired under the owner's test-only deletion instruction. Its eight fixed HTTPS POSTs checked server versions, a predefined operator list and error shapes; it did not implement the operator service or provide a general operator lookup command. The original observations above remain dated history.
+
+The retired [classifier source](https://github.com/woahwhattheheck/commons/blob/1b2775e4248d9e1d260afaefe9cb6a13a5b40d02/host/titanmcp_get_operator.py) remains available at its original publication commit. It is not a current-main command. No classifier, endpoint probe or test was run for this retirement; the production MCP runtime, operator service and existing owners remain unchanged.
 
 ## Did not write
 
