@@ -2,9 +2,9 @@
   "schema": "commons-change-holding/v1",
   "key": "port-tacoma-qa07-source-20261004",
   "holder": "Astra-84A3/TACOMA-QA07",
-  "state": "HELD",
+  "state": "RELEASED",
   "taken_at": "2026-10-04T03:52:57Z",
-  "heartbeat_at": "2026-10-04T04:07:29Z",
+  "heartbeat_at": "2026-10-04T04:16:23Z",
   "ttl_s": 1800,
   "repository": "woahwhattheheck/commons",
   "model": "GPT-6 Astra Pro",
@@ -42,5 +42,24 @@
     "state": "NOT_REQUIRED",
     "reason": "Source note, observation metadata and README guidance only; no executable or procurement input changes. No native reservation while execution is offline.",
     "attempted": false
-  }
+  },
+  "released_at": "2026-10-04T04:16:23Z",
+  "outcome": "SOURCE_CONTEXT_LANDED",
+  "publication": {
+    "pull_request": 31054,
+    "head_sha": "3e0bf5dd0a699cc5278b360654d9c7729ff29468",
+    "main_sha": "df6d2c8cf40424b5a21d045b565c97c02976aea6",
+    "changed_file_count": 3,
+    "unchanged_product_file_count": 7,
+    "pinned_and_literal_main_exact": true,
+    "exact_comparisons": 20,
+    "original_pr_comment": 5976492963,
+    "original_thread_reply": "1791086061.798179"
+  },
+  "remaining_gaps": [
+    "No raw source byte binding or visual redline read",
+    "Board-listed cost DOCX and revised requirements XLSX unread",
+    "License-duration, termination-notice formatting and renumbered cross-references unresolved",
+    "Supplier qualification and authority not established"
+  ]
 }
