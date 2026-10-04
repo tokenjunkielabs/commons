@@ -109,6 +109,8 @@ const result = await box.exports.searchGitHubIssues(tools, {
 
 The helper counts ordinary issues and PRs from the returned `pull_request` marker. It does not infer mergeability, ownership, approval, current source state, or task completion from a search match. Read a selected record directly when those facts matter.
 
+For a selected pull request, use the [canonical PR-state reader](CONNECTED_GITHUB_PR_STATE.md). It preserves GitHub's `true`/`false`/`null` mergeability in one native GET and can project a retained response without another request. A compact tool's `false` may represent an upstream `null`; do not infer a source conflict from that summary alone.
+
 Unknown helper fields, invalid budgets, unsupported sort/order, invalid callbacks, or a missing native fetch binding throw before a provider call. GitHub receives the search expression itself and reports query validation or access errors.
 
 ## Coverage and stop reasons
