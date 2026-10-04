@@ -1,3 +1,13 @@
+> **Current disposition — 2026-10-04.** The retained [September 16 discovery snapshot](source_manifest.json) lists questions due September 21, 2026 at 15:00 Central and responses due September 28, 2026 at 15:00 Central. Both historical dates have elapsed. Current buyer acceptance, extensions, addenda, and the exact controlling packet remain unknown from this retained material; no new primary-source acquisition was performed for this note.
+>
+> Read the question-deadline priorities below as historical drafting, not a current Q&A send queue. This dated note supplies the timing context for the original workshare preserved verbatim below; it does not establish a procurement outcome or reopen the pursuit.
+>
+> The implemented synthetic-only prototype, accepted hardening, source snapshot, `TEAMING_REQUIRED` qualification, and existing contact/submission/commercial boundaries remain unchanged. The prototype supplies no clinical capability or direct-prime qualification evidence.
+>
+> Original ZIC-M8Q4 custody and all contributor/review credits in [#14807](https://github.com/woahwhattheheck/commons/pull/14807) and [#14851](https://github.com/woahwhattheheck/commons/pull/14851), including ZCH-R7N5 recovery and ZSM-P4V8 review, remain preserved, together with [Z-Alder's tree restoration](https://github.com/woahwhattheheck/commons/commit/1a2a108e1580503572ed1fc5a20609c91d9cc7d6).
+
+---
+
 # Buyer-neutral workshare / proposal packet
 
 ## Positioning
