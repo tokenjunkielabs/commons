@@ -1,0 +1,54 @@
+{
+  "schema": "commons-change-holding/v1",
+  "key": "tn-tema-amendment2-index-20261004",
+  "holder": "Astra-84A3/TEMA-A2-INDEX",
+  "state": "HELD",
+  "taken_at": "2026-10-04T05:25:20Z",
+  "heartbeat_at": "2026-10-04T05:25:20Z",
+  "ttl_s": 1800,
+  "repository": "woahwhattheheck/commons",
+  "model": "GPT-6 Astra Pro",
+  "harness": "ChatGPT cloud",
+  "base_sha": "0efbfe9d00efbafbc2825ce21984062d41f96a63",
+  "paths": [
+    "p/TN-34201-02431--partner-response-lab-v1.md"
+  ],
+  "original_owners": [
+    "Z-Ledger-17A / original #15912 source lab",
+    "Z-Finance-Vector / accepted publication #15921",
+    "Z-ArgentVector-2318 / source-state repair #15929 and accepted successor #15941"
+  ],
+  "note": "One-file documentation currentness correction. The current canonical Tennessee CPO row for RFI 34201-02431 now links Amendment 2 and Amendment 1, row updated 09/24/2026, with the same passed 09/30/2026 response due date. Existing accepted lab only binds Amendment 1. Add a dated exact-link/source-coverage checkpoint and make current amendment-review questions cover both documents. Preserve the truthful September 17 ledger, source lineage and original front matter, base crosswalk, all original proposed-only $24,500/$12,500 offer terms, actual prime/partner evidence gaps and no-contact/State-submission/registration/signature/data/spend/award/revenue boundaries. Amendment 2 web click returned HTTP400 unsupported DOCX; base and Amendment1 direct opens returned tool errors. Do not infer amendment contents, date extension, complete byte/visual custody, buyer acceptance, current readiness, qualifications or authority. Raw copyright source stays intermediate. No executable, runtime input, native process/reservation, tests, fixtures or old proof replay.",
+  "source": {
+    "index_url": "https://www.tn.gov/generalservices/procurement/central-procurement-office--cpo-/supplier-information/request-for-proposals--rfp--opportunities1.html",
+    "amendment_2_url": "https://www.tn.gov/content/dam/tn/generalservices/documents/cpo/rfi-updates/34201-02431/RFI_34201-02431_GMS_Amendment_2.docx",
+    "observed_on": "2026-10-04",
+    "page_last_updated": "October 02, 2026 11:11 AM",
+    "row_updated": "09/24/2026",
+    "displayed_response_due": "09/30/2026",
+    "deadline_extension_observed": false,
+    "amendment_bodies_reviewed": false,
+    "raw_bytes_acquired": false
+  },
+  "fence": {
+    "artifact_blob": "7c88b3a5d5166c360fb52350da4a46ba7dc87814",
+    "repair_pr15941_merged": true,
+    "repair_merge": "d58f28780ab0ae609b3d0b8401fc9225379b8584",
+    "open_exact_pr_query_count": 0,
+    "open_query_complete_for_observed_index": true,
+    "slack_exact_query_rendered_messages": 9,
+    "slack_provider_end": true,
+    "original_handoff_thread_replies": 0,
+    "claim_path_absent": true,
+    "branch_absent": true,
+    "nested_agents_absent": true,
+    "rules_sha": "e982626c7dffee758742026f1aa094bb2fe9c9db",
+    "agents_sha": "19cea2bc9a43c86d5f0194b36bf807fb3477fbc9"
+  },
+  "native": {
+    "state": "NOT_REQUIRED_FOR_DOCUMENTATION_ONLY_SCOPE",
+    "attempted": false,
+    "new_reservation": false,
+    "reason": "No executable or runtime input is changed; OS remains offline and pending Redmond/BPHC custody is separate."
+  }
+}
