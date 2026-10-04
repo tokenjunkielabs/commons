@@ -21,6 +21,12 @@ This matrix turns the City's implementation/data-conversion/testing seams into a
 | \`REPLAY\` | exact packet and report digests | same admitted packet reproduces same report | semantic result depends on mutable exports/host clock/order | TJLabs |
 | \`COMMERCIAL\` | authorized agreement/work order | only separately authorized acceptance may advance commercial state | meeting/interest/proposal treated as sale | authorized counterparty/owner |
 
+## Q&A coverage and functional scope
+
+[QA_REVIEW.md](QA_REVIEW.md) maps all 38 Q&A answers and adds the source context absent from the selected clause rows. Full original-RFP and BidNet coverage remain incomplete.
+
+The fixed mandatory UAT IDs below are the minimum for this specialist evidence contract. They do not certify the complete ERP functional scope, department/role configuration, training, regulatory maintenance or City acceptance. Those require the separately supplied prime/City inventory and evidence described in the Q&A review.
+
 ## Mandatory UAT IDs
 
 \`GL_FUND_ACCOUNTING\`, \`AP\`, \`AR\`, \`PAYROLL\`, \`CASHIERING\`, \`BANK_RECONCILIATION\`, \`UTILITY_BILLING\`, \`FINANCIAL_REPORTING\`, \`INTEGRATIONS\`, \`DATA_CONVERSION\`.
