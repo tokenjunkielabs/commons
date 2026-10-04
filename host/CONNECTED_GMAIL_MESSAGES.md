@@ -1,0 +1,100 @@
+# Project retained native Gmail message bodies
+
+`host/connected_gmail_messages.cjs` provides a bounded view of full MIME responses already returned by the connected Gmail readers. It exports the pure function `projectGmailMessages(response, options?)`. It makes no provider calls and does not change the retained response.
+
+Use it when a full message envelope contains many transport headers, duplicate HTML, or attachments around the useful body. Keep the original request and response beside the projection so omitted content remains available.
+
+## Load and consume a retained response
+
+In Node, use `require('./host/connected_gmail_messages.cjs')` from the repository root. In code mode, load the source once and pass the original native response:
+
+```js
+const source = await tools.mcp__codex_apps__github_fetch_file({
+  repository_full_name: "woahwhattheheck/commons",
+  path: "host/connected_gmail_messages.cjs",
+  ref: "main"
+});
+if (source.isError || source.structuredContent?.encoding !== "utf-8") {
+  throw new Error("Readable native source is required");
+}
+const box = { exports: {} };
+new Function("module", "exports", source.structuredContent.content)(box, box.exports);
+
+// This key holds an earlier authorized full-MIME read, saved before printing.
+const retained = load("mail-full-response");
+if (!retained) throw new Error("Retain the original full message response first");
+const view = box.exports.projectGmailMessages(retained, {
+  maxMessages: 10,
+  maxBodyChars: 6000,
+  maxTotalBodyChars: 18000
+});
+store("mail-body-view", view);
+text(view);
+```
+
+Save a native read result with `store("mail-full-response", response)` before emitting a projection. The module accepts these actual native full-MIME shapes:
+
+| Reader | Required response shape |
+| --- | --- |
+| `gmail_read_email` with full format | `response.structuredContent` contains `id`, `thread_id`, and `payload`. |
+| `gmail_batch_read_email` | `response.structuredContent.responses[]` contains those full message objects directly. |
+
+A payload contains `mime_type`, optional MIME `parts`, headers as `{name, value}` entries, and decoded text in `body.content`. Raw, metadata-only, search, error, and unrelated response shapes are unsupported. The projector does not substitute a search snippet or decode `base64_url_content`.
+
+## Reading the view
+
+The result contains `format`, `source_shape`, the original `message_count`, selected `messages`, aggregate `omitted` counts, and the effective `limits`.
+
+Each selected message retains its `id` and `thread_id`, plus literal Subject, From, and Date header values, clipped to the header limit. Header values are message data, not an authentication assertion. Each available body has:
+
+- `mime_type`: `text/plain` or `text/html`.
+- `text`: literal decoded content, with only explicit length clipping.
+- `source_path`: the exact path to the original `body.content`.
+- `original_chars`, `omitted_chars`, and `truncated`.
+
+For example, a batch path such as
+`$.structuredContent.responses[0].payload.parts[0].body.content`
+refers to that field in the retained native response. A single-message path starts at
+`$.structuredContent.payload`. Read a needed omitted field from the retained response; another Gmail call is unnecessary when the content is already present.
+
+MIME selection follows these rules:
+
+- Within `multipart/alternative`, choose a branch containing plain text when present; otherwise choose one containing HTML. Content availability is reported separately from that preference.
+- HTML is labelled `text/html` and returned unchanged as data. The module neither renders HTML nor converts it to plain text.
+- Within `multipart/related`, select the root identified by the Content-Type `start` parameter, or the first child when that parameter is absent. Other related parts are counted as omitted.
+- Parts with filenames or attachment dispositions, forwarded `message/rfc822` and `message/global` parts, and unsupported non-text parts are omitted and counted.
+- Selected text parts with an external `attachment_id` or without decoded `body.content` appear in `unavailable_bodies` with a reason and exact source path. The projector never fetches an attachment or substitutes a snippet.
+
+## Limits and omissions
+
+| Option | Default | Meaning |
+| --- | ---: | --- |
+| `maxMessages` | 10 | Maximum displayed messages. |
+| `maxBodyChars` | 6,000 | Maximum displayed characters per selected body. |
+| `maxTotalBodyChars` | 18,000 | Shared displayed body-character budget across messages. |
+| `maxHeaderChars` | 300 | Maximum characters in each selected header value. |
+| `maxBodiesPerMessage` | 8 | Combined available and unavailable selected-body positions per message. |
+
+Options must be supported nonnegative safe integers; zero is allowed. Character counts and limits use JavaScript UTF-16 code units. Clipping preserves a surrogate pair at the boundary. These are limits on displayed fields and entry counts, not an exact serialized-JSON byte ceiling.
+
+Per-message `omitted` reports excluded message-header entries, clipped selected-header characters, clipped or capped selected-body characters, capped body positions, and counts of excluded attachment, forwarded-message, alternative, related, and unsupported parts. Alternative and related counts refer to excluded branches or children at the selection point, not every descendant. `body_chars` does not include unused alternative HTML or other excluded nonselected branches. Header-character counts do not sum discarded transport-header values.
+
+Top-level `omitted.messages` counts messages excluded by `maxMessages`. Its character and body-position counts sum the displayed messages only; it does not inspect or estimate the bodies of excluded messages. Raw/search/error message envelopes are rejected even when they fall beyond the message-display limit.
+
+Malformed or unsupported input raises a `TypeError` with `code` and `source_path`. Selected MIME traversals also reject cycles, depth beyond 32, or more than 4,096 visited parts per message. No uncertain shape is turned into a successful empty message.
+
+## Observed consumption
+
+The initial implementation was consumed in code mode against one retained native batch containing two actual full-MIME messages. Each message had 40 message headers, one 877-character plain body, and an HTML alternative.
+
+| Observation | Result |
+| --- | ---: |
+| Original complete response, serialized with `JSON.stringify` | 28,681 characters |
+| Default projection, serialized the same way | 3,410 characters |
+| Reduction in displayed serialized characters | 25,271 / 88.1% |
+| Plain-text bodies retained completely | 2 of 2 |
+| Original body text equals each resolved source path | 2 of 2 |
+| Original response unchanged after projection | Yes |
+| Additional Gmail calls for this consumption | 0 |
+
+Both messages reported 37 omitted message-header entries and one unused alternative branch, with no selected-body truncation. This observation covers that actual batch and the code-mode module load. It is not a token, latency, quota, attachment-fetch, or general MIME-corpus benchmark. The original mail content, message identifiers, and transport headers are not part of this repository receipt.
