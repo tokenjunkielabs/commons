@@ -9,10 +9,12 @@ from __future__ import annotations
 import argparse
 import base64
 import json
+import math
 import re
 import sys
 import urllib.parse
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 from queue import Empty, Queue
 from threading import BoundedSemaphore, Thread
@@ -101,8 +103,172 @@ def _token_pool_status_tool() -> dict:
     return tool
 
 
+def plan_capability_fallback(arguments: dict) -> dict:
+    """Suggest distinct usable quota domains; never invoke, retry or gate work.
+
+    Route facts come from the existing connected-capability observations, not a
+    second registry. Published free pricing is separate from the actual account
+    plan and binding. Consumption is descriptive, never an admission rule.
+    """
+    capability = _string(arguments, "capability")
+    operation_id = _string(arguments, "operation_id")
+    routes = arguments.get("routes")
+    if not isinstance(routes, list) or len(routes) > 500:
+        raise EquipmentError("routes must be an array of at most 500 route facts")
+    effect = arguments.get("effect", "read")
+    previous_effect = arguments.get("previous_effect", "unknown" if effect == "write" else "none")
+    if effect not in {"read", "inference", "write"} or previous_effect not in {"none", "rejected", "accepted", "unknown"}:
+        raise EquipmentError("effect or previous_effect is invalid")
+    sensitivity = arguments.get("input_sensitivity", "public")
+    if sensitivity not in {"public", "private", "confidential"}:
+        raise EquipmentError("input_sensitivity must be public, private or confidential")
+    failure = arguments.get("failure") or {}
+    if not isinstance(failure, dict):
+        raise EquipmentError("failure must be an object")
+    now = datetime.now(timezone.utc)
+
+    def timestamp(value, field):
+        if value is None or value == "":
+            return None
+        try:
+            parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+            if parsed.tzinfo is None:
+                raise ValueError("timezone required")
+            return parsed.astimezone(timezone.utc)
+        except (ValueError, TypeError) as exc:
+            raise EquipmentError(field + " must be an ISO timestamp with timezone") from exc
+
+    def iso(value):
+        return value.isoformat().replace("+00:00", "Z") if value else None
+
+    normalized, ids = [], set()
+    for index, route in enumerate(routes):
+        if not isinstance(route, dict):
+            raise EquipmentError(f"routes[{index}] must be an object")
+        row = dict(route)
+        for field in ("id", "provider", "quota_domain", "backend", "allowance_type",
+                      "free_evidence", "connection_state", "binding_state", "consumption_state"):
+            row[field] = _string(route, field).strip()
+        if row["id"] in ids:
+            raise EquipmentError("duplicate route id: " + row["id"])
+        ids.add(row["id"])
+        capabilities = row.get("capabilities")
+        if not isinstance(capabilities, list) or any(not isinstance(item, str) or not item.strip() for item in capabilities):
+            raise EquipmentError(f"routes[{index}].capabilities must be an array of nonempty strings")
+        if "free_plan_verified" in row and type(row["free_plan_verified"]) is not bool:
+            raise EquipmentError("free_plan_verified must be a boolean")
+        remaining = row.get("quota_remaining")
+        if remaining is not None and (isinstance(remaining, bool) or not isinstance(remaining, (int, float))
+                                      or not math.isfinite(remaining) or remaining < 0):
+            raise EquipmentError("quota_remaining must be a finite nonnegative number or null")
+        scopes = row.get("input_sensitivity", ["public"])
+        if not isinstance(scopes, list) or any(item not in {"public", "private", "confidential"} for item in scopes):
+            raise EquipmentError("route input_sensitivity must be an array of supported scopes")
+        normalized.append(row)
+    failed_id = arguments.get("failed_route")
+    failed = next((row for row in normalized if row["id"] == failed_id), None)
+    if failed_id is not None and failed is None:
+        raise EquipmentError("failed_route must identify an existing route")
+    if failure and failed is None:
+        raise EquipmentError("failed_route is required with provider failure evidence")
+    retry_at = timestamp(failure.get("retry_not_before"), "failure.retry_not_before")
+    retry_after = failure.get("retry_after")
+    if retry_after is not None:
+        observed = timestamp(failure.get("observed_at"), "failure.observed_at")
+        if observed is None:
+            raise EquipmentError("failure.observed_at is required with retry_after")
+        try:
+            seconds = float(retry_after)
+        except (TypeError, ValueError):
+            try:
+                deadline = parsedate_to_datetime(str(retry_after))
+                if deadline.tzinfo is None:
+                    raise ValueError("timezone required")
+                deadline = deadline.astimezone(timezone.utc)
+            except (TypeError, ValueError, OverflowError) as exc:
+                raise EquipmentError("retry_after must be provider seconds or an HTTP date") from exc
+        else:
+            if not math.isfinite(seconds) or seconds < 0:
+                raise EquipmentError("retry_after seconds must be finite and nonnegative")
+            try:
+                deadline = observed + timedelta(seconds=seconds)
+            except OverflowError as exc:
+                raise EquipmentError("retry_after deadline is out of range") from exc
+        retry_at = max(retry_at, deadline) if retry_at else deadline
+    # All aliases of a provider/account/model quota share the latest cooldown.
+    cooldowns = {}
+    exhausted_domains = {row["quota_domain"] for row in normalized if row.get("quota_remaining") == 0}
+    for row in normalized:
+        deadline = timestamp(row.get("cooldown_until"), "cooldown_until")
+        domain = row["quota_domain"]
+        if deadline and (domain not in cooldowns or deadline > cooldowns[domain]):
+            cooldowns[domain] = deadline
+    if failed and retry_at:
+        domain = failed["quota_domain"]
+        cooldowns[domain] = max(cooldowns.get(domain, retry_at), retry_at)
+    no_replay = effect == "write" and (previous_effect in {"accepted", "unknown"} or effect_uncertain(failure))
+    candidates = []
+    for row in normalized:
+        if capability not in row["capabilities"]:
+            continue
+        reasons = []
+        if row["allowance_type"] not in {"recurring_free", "free_tier", "unmetered_free", "no_key_free"}:
+            reasons.append("ALLOWANCE_NOT_RECURRING_FREE")
+        if row.get("free_plan_verified") is not True:
+            reasons.append("FREE_PLAN_UNVERIFIED")
+        if row["connection_state"].lower() not in {"connected", "authenticated", "ready", "not_required"}:
+            reasons.append("CONNECTION_REQUIRED")
+        if row["binding_state"].lower() not in {"bound", "callable", "ready"}:
+            reasons.append("BINDING_REQUIRED")
+        if row["quota_domain"].lower() in {"unknown", "unmeasured"}:
+            reasons.append("QUOTA_DOMAIN_UNRESOLVED")
+        if row["quota_domain"] in exhausted_domains:
+            reasons.append("EXHAUSTED")
+        if sensitivity not in row.get("input_sensitivity", ["public"]):
+            reasons.append("INPUT_SCOPE_MISMATCH")
+        if failed and row["quota_domain"] == failed["quota_domain"]:
+            reasons.append("SAME_QUOTA_DOMAIN")
+        deadline = cooldowns.get(row["quota_domain"])
+        if deadline and deadline > now:
+            reasons.append("COOLDOWN")
+        if no_replay:
+            reasons.append("RECONCILE_EXISTING_WRITE")
+        known_backend = (row["backend"].lower() not in {"unknown", "unmeasured"}
+                         and "unresolved" not in row["backend"].lower())
+        shared_backend = bool(failed and known_backend and row["backend"] == failed["backend"])
+        candidates.append({key: row.get(key) for key in
+                           ("id", "provider", "quota_domain", "backend", "connection_state", "binding_state",
+                            "consumption_state", "owner", "native_tool", "quota_remaining")} |
+                          {"status": "READY" if not reasons else reasons[0], "reasons": reasons,
+                           "retry_not_before": iso(deadline), "shared_backend_with_failed": shared_backend,
+                           "backend_independence_known": bool(failed and known_backend and
+                                                               failed["backend"].lower() not in {"unknown", "unmeasured"}
+                                                               and "unresolved" not in failed["backend"].lower())})
+    candidates.sort(key=lambda row: (bool(row["reasons"]), row["shared_backend_with_failed"],
+                                     row["consumption_state"].lower() != "producing", row["id"]))
+    ready, domains = [], set()
+    for row in candidates:
+        if not row["reasons"] and row["quota_domain"] not in domains:
+            ready.append(row)
+            domains.add(row["quota_domain"])
+    return {"schema": "commons.shared_equipment.fallback_plan.v1", "advisory_only": True,
+            "operation_id": operation_id, "capability": capability, "effect": effect,
+            "previous_effect": previous_effect, "observed_at": iso(now),
+            "failed_route": failed_id, "failed_quota_domain": failed["quota_domain"] if failed else None,
+            "retry_not_before": iso(retry_at), "http_status": failure.get("http_status"),
+            "decision": "RECONCILE_EXISTING_WRITE" if no_replay else "USE_READY_ROUTE" if ready else "NO_READY_ALTERNATIVE",
+            "recommended_route": ready[0]["id"] if ready else None, "ready_quota_domains": len(domains),
+            "ready_routes": [row["id"] for row in ready], "candidates": candidates,
+            "provider_calls": 0, "writes": 0, "sleeps": 0, "schedules": 0,
+            "retry_layer": "caller_only", "telemetry_gates_work": False,
+            "remaining_allowance_unknown_unless_measured": True}
+
+
 TOOLS = [
     _token_pool_status_tool(),
+    _schema("equipment_fallback_plan", "Advise capability-compatible free routes across distinct quota domains using existing observations. Preserves cooldown and operation identity; never calls providers, retries, admits peers or replays uncertain/accepted writes.",
+            {"operation_id": "string", "capability": "string", "routes": {"type": "array", "maxItems": 500, "items": {"type": "object"}}},
+            {"failed_route": "string", "failure": "object", "effect": {"type": "string", "enum": ["read", "inference", "write"]}, "previous_effect": {"type": "string", "enum": ["none", "rejected", "accepted", "unknown"]}, "input_sensitivity": {"type": "string", "enum": ["public", "private", "confidential"]}}),
     _schema("credential_references", "Discover credential references, configured sources, and populated/empty Claude MCP entries. Returns metadata only, equally for newcomers.", {}),
     _schema("credential_retrieve_sealed", "Retrieve an actual credential encrypted to the requester's ephemeral public key. Keep the private key in the requesting runtime; only ciphertext enters this road.", {"credential_ref": "string", "recipient_public_key": "string", "transfer_id": "string", "request_id": "string", "call_id": "string"}),
     _schema("slack_read_channel", "Read a Slack channel using existing workspace access. Follow next_cursor for remaining pages.", {"channel_id": "string"}, {"oldest": "string", "latest": "string", "cursor": "string", "limit": "integer"}),
@@ -228,6 +394,8 @@ class ServiceEquipment(GitHubSlackEquipment):
                 "results": results}
 
     def _call(self, name: str, a: dict) -> dict:
+        if name == "equipment_fallback_plan":
+            return plan_capability_fallback(a)
         a = normalize_slack_read_arguments(name, a)
         if name == "cua_s1_form":
             from cua_s1.schema import Entity
@@ -572,7 +740,8 @@ class CombinedCatalog:
         if extensions is None:
             from integrations.command_center.equipment import CommandCenterEquipment
             from .provider_apis import GroqExaEquipment
-            self.extensions = [CommandCenterEquipment(), GroqExaEquipment()]
+            from .free_model_apis import FreeModelEquipment
+            self.extensions = [CommandCenterEquipment(), GroqExaEquipment(), FreeModelEquipment()]
         else:
             self.extensions = list(extensions)
 
@@ -744,7 +913,18 @@ def build_capability_manifest(*, catalog=None, peer: str | None = None) -> dict:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("operation", choices=("catalog", "call", "manifest"))
+    parser.add_argument("operation", choices=("catalog", "call", "manifest", "fallback-plan"))
+    parser.add_argument("--routes-file", type=Path, help="existing connected observations with tool_fleet.free_pool_routes")
+    parser.add_argument("--capability", help="exact capability requested by this worker")
+    parser.add_argument("--operation-id", help="existing logical operation ID; preserve across recovery")
+    parser.add_argument("--failed-route", help="route ID of the observed failure")
+    parser.add_argument("--effect", choices=("read", "inference", "write"), default="read")
+    parser.add_argument("--previous-effect", choices=("none", "rejected", "accepted", "unknown"))
+    parser.add_argument("--input-sensitivity", choices=("public", "private", "confidential"), default="public")
+    parser.add_argument("--http-status", type=int, help="actual observed provider status")
+    parser.add_argument("--retry-after", help="actual provider seconds or HTTP date")
+    parser.add_argument("--failure-observed-at", help="provider response observation time with timezone")
+    parser.add_argument("--retry-not-before", help="actual provider cooldown deadline with timezone")
     parser.add_argument(
         "--grokbot-control",
         default=None,
@@ -756,6 +936,28 @@ def main() -> int:
         help="Runs root for headless Claude (default ~/.claude/commons_headless or CLAUDE_HEADLESS_ROOT)",
     )
     args = parser.parse_args()
+    if args.operation == "fallback-plan":
+        try:
+            if args.routes_file is None:
+                raise EquipmentError("--routes-file is required for fallback-plan")
+            observations = json.loads(args.routes_file.read_text(encoding="utf-8"))
+            request = {"operation_id": args.operation_id, "capability": args.capability,
+                       "routes": observations if isinstance(observations, list) else observations["tool_fleet"]["free_pool_routes"],
+                       "effect": args.effect, "input_sensitivity": args.input_sensitivity,
+                       "failure": {key: value for key, value in {
+                           "http_status": args.http_status, "retry_after": args.retry_after,
+                           "observed_at": args.failure_observed_at,
+                           "retry_not_before": args.retry_not_before}.items() if value is not None}}
+            if args.failed_route is not None:
+                request["failed_route"] = args.failed_route
+            if args.previous_effect is not None:
+                request["previous_effect"] = args.previous_effect
+            print(json.dumps(redacted(plan_capability_fallback(request)), ensure_ascii=False))
+            return 0
+        except (OSError, ValueError, KeyError, TypeError, EquipmentError) as exc:
+            print(json.dumps({"isError": True, "code": "invalid_fallback_request",
+                              "message": redacted(str(exc)), "uncertain": False}))
+            return 2
     request = None
     if args.operation == "call":
         try:

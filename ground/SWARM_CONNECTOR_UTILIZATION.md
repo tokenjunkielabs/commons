@@ -6,7 +6,7 @@ Use the current task, existing owner and existing operation ID to select a capab
 
 ## What is ready
 
-The current harness exposes 729 callable actions, including 717 connected-app actions across 25 namespace families, and 139 fully paginated skills. GitHub/Slack contribute the complete 127 actions (89/38), with write primitives exposed. Harmless reads authenticate GitHub, Slack and ten additional relevant providers. A connection in this harness does not automatically install an integration in every other peer's runtime: each peer discovers its own bindings or uses the existing shared equipment.
+The initial carrier exposed 729 advertised actions and 139 skills. The expanded activation carrier now exposes 989 advertised actions (977 app bindings and 12 core) across 36 app families, plus 186 fully paginated skills across 25 groups. GitHub/Slack retain the full 127 actions (89/38). Counts describe advertised bindings: individual tool-list success, authenticated access and actual consumption are recorded separately. Different carriers refresh at different times; a method can be unavailable in one carrier while another method or carrier works.
 
 | Task | First usable road | Redundancy or efficiency |
 | --- | --- | --- |
@@ -19,15 +19,15 @@ The current harness exposes 729 callable actions, including 717 connected-app ac
 | Authorized mailbox work | Existing Gmail connection | Batch thread reads and reconcile uncertain sends by stable operation ID |
 | Authorized payment/integration work | Existing Stripe connection | One account exposed in this connection; discover mode/account before account-specific calls |
 | Approved CRM work | Existing Apollo connection | Deduplicate before authorized prospecting; account limits remain independent |
-| Current dependency docs | Context7 once connected | Share version-specific returned docs across workers |
-| Model/dataset/Space selection | Hugging Face once connected | Inspect licenses, hardware and provider identity before selecting runtime |
-| Throughput/error analysis | PostHog once connected and instrumented | Query existing passive metrics; SDK ingestion and plugin access are separate |
+| Current dependency docs | Connected Context7 | Reuse permitted version-specific returned documentation within the task |
+| Model/dataset/Space selection | Connected Hugging Face | Inspect licenses, hardware and provider identity before selecting runtime |
+| Throughput/error analysis | Connected PostHog project | Query available passive metrics; SDK ingestion and plugin access are separate |
 
 Vercel's inspected team has zero projects; Netlify returned zero projects and site_count 0. These are scoped current inventory facts, not claims of no historical use. Their existing connectors are authenticated; zero-cost and commercial hosting eligibility remain to be checked for a specific deployment. Security tools are available for explicitly requested security work.
 
-## First three additions
+## Connected additions
 
-Context7, PostHog and Hugging Face are eligible directory additions. Installation/connection was offered on 4 October; the subsequent directory read still reports installed=false for all three.
+Context7, PostHog, Hugging Face, Tavily, AgentMail, Supabase, Neon, Render, Firecrawl, Parallel Search and TinyFish are confirmed connected. Context7 returned SDK documentation; Hugging Face returned model/dataset metadata and completed an actual routed model-selection read; Tavily completed official-source search and extraction; Firecrawl completed an official pricing search. PostHog project/insight metadata is accessible. AgentMail has one selected organization and no inboxes; account allowance is unmeasured. Supabase has a verified Free organization and no projects, but get_cost and confirm_cost returned tool-list UNAVAILABLE, so project creation has not completed. Neon needs a target project and its current binding does not expose account/project listing. Render workspace discovery succeeds; its scoped service call returned null. These are exact method states, not global authentication conclusions.
 
 | Addition | First concrete consumer | Completion evidence |
 | --- | --- | --- |
@@ -41,15 +41,29 @@ PostHog offers recurring no-card allowances of 1M analytics events, 100K excepti
 
 Hugging Face's free routed-inference credit is only $0.10/month. The plugin is valuable for discovery and inspection; that credit is not a large model-worker pool. Routed calls can share an upstream provider with other aggregators. [Pricing](https://huggingface.co/docs/inference-providers/pricing).
 
-## Next available additions
+## Additional onboarding
 
-The current directory also exposes uninstalled Tavily and AgentMail, superseding the historical AgentMail no-match entry. Tavily adds recurring search/extraction capacity; AgentMail adds an independent mailbox provider. Datadog is a conditional alternative for an existing eligible observability account. [Plugin directory](https://chatgpt.com/plugins).
+Bryce's 4 October instruction is to onboard every spotted free service that adds an independent quota pool for any capability. Datadog and Resend remain pending confirmed connection. Parallel Search and TinyFish were subsequently confirmed installed/enabled by current dependency metadata and actually used through native Search/Fetch. TinyFish current account contract lists Search and Fetch at $0 with no auto-reload configured. The next free task/knowledge/design group offered is Notion, Trello, Linear, Coda, ClickUp, Asana, GitBook, Figma, Replit and Lovable. Each route carries a concrete consumer and published Free limits; offered or advertised is separate from connected. Preserve existing setup owners and use existing accounts before creating another. [Plugin directory](https://chatgpt.com/plugins).
 
 | Addition | First consumer | Remaining setup |
 | --- | --- | --- |
-| Tavily | Public-source research that needs an independent search/extract fallback | Connect an existing eligible account, inspect credits, run the actual research query and retain citations |
-| AgentMail | The existing delivery/mailbox operator inspecting the existing account and inbox state | Connect the existing account, list inboxes, prepare a draft for already-authorized mail work; preserve send IDs and approval scope |
+| Tavily | Public-source research that needs an independent search/extract fallback | Connected; actual official-source search/extract consumed; account credits and plan remain unmeasured |
+| AgentMail | The existing delivery/mailbox operator inspecting the existing account and inbox state | Connected; organization/inbox discovery consumed; no current inbox and account plan unmeasured |
 | Datadog | Existing service owner investigating metrics/logs in an already-owned account | Connect a specific existing account and verify its current allowance before instrumentation |
+
+| Other offered addition | First consumer and independent fallback | Free scope to retain |
+| --- | --- | --- |
+| Supabase | Existing state/checkpoint owner prepares an independent recovery copy | Two Free projects; account/project space and egress remain bounded |
+| Neon | Existing state/checkpoint owner inspects an owned Free project and prepares the same recovery schema | Current Free: 1GB/project, 20GB/account total, 100 CU-hours/project/month; never multiply projects into unlimited storage |
+| Render | Existing deployment owner uses a free static or low-volume preview service as hosting redundancy | Free services sleep; ephemeral databases expire; no always-on worker claim |
+| Resend | Existing mail owner reads usage/domains and prepares an already-authorized delivery draft | Free 3K send/receive emails/month, 100/day; keep Transactional Overages disabled |
+| Firecrawl | Public-source research uses Search/Scrape/Parse for an eligible task | Free 1K credits/month/no card, or bounded keyless route; confirm commercial-task authorization under current terms |
+| Parallel Search | Public-source researcher exercises anonymous Search/Fetch | Keyless light-use MCP has unpublished numeric caps; card-backed API credits can auto-bill, so use the anonymous route |
+| TinyFish | Public-source researcher uses Search/Fetch before another browser provider | Search/Fetch remain free at zero wallet; Agent/Browser can create payable debt, so the free road names Search/Fetch only |
+
+The onboarding queue also retains Browserbase (browser/Search/Fetch), Langfuse (tracing), Zep (memory), and eligible Free knowledge/task apps as independent recovery surfaces. They keep the existing canonical work IDs and state owners. Browserbase has 1 browser-hour, 1K Search and 1K Fetch/month; Langfuse Hobby has 50K units/month; Zep Free has 10K credits/month and requires a compatible identity configuration for MCP. E2B's $100 no-card sandbox grant is one-time capacity. Modal's monthly credit requires a payment method and verified zero net-spend configuration; its model endpoints are paid from the first call. Account setup and actual tool binding remain explicit until observed.
+
+[Neon change](https://neon.com/blog/neon-free-plan-1-gb-per-project), [Neon limits](https://github.com/neondatabase/website/blob/main/content/docs/introduction/plans.md), [Resend pricing](https://resend.com/pricing), [Firecrawl limits](https://docs.firecrawl.dev/rate-limits), [Firecrawl terms](https://www.firecrawl.dev/terms-of-service), [Parallel MCP](https://docs.parallel.ai/integrations/mcp/search-mcp), [TinyFish pricing](https://www.tinyfish.ai/pricing), [Browserbase plans](https://docs.browserbase.com/account/billing/plans), [Langfuse pricing](https://langfuse.com/pricing), [Zep pricing](https://www.getzep.com/pricing).
 
 AgentMail's current Free plan provides three inboxes, 3,000 sends/month, 100/day and 3GB storage without a card. Organization limits remain shared; honor Retry-After and avoid SDK-plus-gateway retries. Webhooks or existing WebSocket delivery reduce polling. An inbox connection does not authorize new outreach. [Pricing](https://www.agentmail.to/pricing), [rate limits](https://docs.agentmail.to/knowledge-base/rate-limits).
 
@@ -82,16 +96,16 @@ Cloudflare AI Gateway core caching/analytics/rate controls are free but add no m
 
 | Candidate | Useful role | Current limitation |
 | --- | --- | --- |
-| Supabase or Neon | Independent database/checkpoint fallback | Connect only for a concrete existing state consumer; avoid a parallel canonical task registry. Supabase Free pauses after a week idle and has limited storage/egress |
+| Supabase and Neon | Independent database/checkpoint fallback | Onboard as separate recovery pools with the same work IDs; keep one canonical state owner. Supabase Free pauses after a week idle and has limited storage/egress |
 | Render | Low-volume preview/static fallback | Free web services sleep after 15 idle minutes; unsuitable as primary latency-sensitive worker; Free Postgres expires after 30 days |
-| Linear, Notion, Coda, ClickUp, Asana, Trello | Teams already working in those apps | Current GitHub/Slack/Airtable cover task coordination; connect when a real task has a target there |
+| Linear, Notion, Coda, ClickUp, Asana, Trello | Independent knowledge/status recovery surfaces within verified Free limits | Onboard eligible free accounts; snapshots link back to canonical IDs rather than creating duplicate mutable claims |
 | Browserbase / Firecrawl / E2B / Parallel / Langfuse / Zep | Browser execution, extraction, sandbox, research, tracing, memory | Existing historical setup/account rows need current secure-facility discovery and allowance. Preserve the existing setup owners |
 | OpenAI Developers / GitBook | Provider and internal documentation | Use existing official-docs access first; add a plugin for a concrete missing operation |
 | Brave Search | Independent search index | Card required; hard zero-spend not established; standard terms restrict durable result corpora/model training or evaluation |
 | Cerebras | Existing bounded trial evaluation | Current docs say no permanent Free tier; card-backed $5 trial expires after 30 days |
 | Cohere / NVIDIA catalog | Eligible evaluation/prototypes | Trial/prototype terms restrict commercial production; exclude from assumed production free capacity |
 
-Plugin-directory searches found 54 unique entries over 34 capability searches, including 24 annotated candidates. No exact directory match was returned for several API providers and browser tools; custom MCP/direct API availability is a separate question. The directory itself is not exhaustive.
+The initial plugin-directory pass found 54 unique entries over 34 searches. Subsequent exact searches added candidates and corrected earlier no-match observations. The directory is not exhaustive; actual direct API and custom MCP access remain separate roads.
 
 ## Put redundancy into practice
 
@@ -103,7 +117,14 @@ Plugin-directory searches found 54 unique entries over 34 capability searches, i
 6. Add optional passive metrics to the existing operation: capability/provider/backend, task ID, latency, input/output tokens or credits, cache result, 429/402 count, recovery route and completion artifact. Telemetry observes work and never delays it.
 7. Use the existing equipment catalog/manifest and secure credential references. Groq and Exa adapters already exist. A posted equipment envelope proves submission only; matching results prove dispatch. The current shared-carrier recovery owner retains that transport.
 
-Every carrier should consume a matching available capability in its next authorized task and carry the outcome through the existing work record. A successful auth probe is readiness; actual task output is consumption. No new schedule is part of this activation.
+Every carrier should consume a matching available capability in its next authorized task and carry the outcome through the existing work record. If it spots another independent Free pool, add its official allowance, actual account/connection/binding state and first task to tool_fleet.free_pool_routes in the existing observation file. A successful auth probe is readiness; actual task output is consumption. No new schedule is part of this activation.
+
+The existing equipment service exposes `equipment_fallback_plan` and a `fallback-plan` CLI. They consume `tool_fleet.free_pool_routes` from the existing observations. The executable [connected tool router](../host/CONNECTED_TOOL_ROUTER.md) uses that same selector through a native tool bridge, Python callable or JSON subprocess bridge. It journals actual responses, applies provider Retry-After/reset feedback by quota domain, and immediately dispatches another compatible ready route after an eligible failure. Caller bindings carry exact tool arguments; a Hugging Face documentation route is scoped to Hugging Face rather than arbitrary library docs. Accepted or uncertain external writes require readback before replay. Direct tool access remains available; no worker admission or telemetry gate is added.
+
+The provider extension adds `jina_public_read` and anonymous Parallel MCP discovery/search/fetch. Jina completed a no-key HTTP200 page read with 20/minute rate headers. Parallel initialization on this VM returned HTTP403 Cloudflare1010 with an explicit DoNotRetry condition; its source adapter is integrated. The connected native Parallel Search subsequently returned official pricing sources, so the separate native binding is usable. Existing Groq/Exa tools are preserved. `FreeModelEquipment` adds Gemini Developer API, Workers AI, explicit-free OpenRouter and Mistral API transports plus catalog reads, all through existing private credential references. OpenRouter public metadata returned HTTP200 with 466 models and 22 zero text-token price entries; these entries do not prove free inference for every model. Actual Gemini/Mistral/Cloudflare API references were unavailable in this VM. Their inference account entitlement and gateway deployment remain unmeasured.
+
+These source methods auto-register in `CombinedCatalog` when its existing deployment picks up the merged source. Cloud-carrier readiness remains with its existing recovery owner; a repository merge is not a deployed gateway.
+
 
 ## Identify missing use evidence
 
@@ -125,3 +146,4 @@ The captured 8b13250af5876863235fd519e1906f5cca2b0656 inputs contain 352 jobs, 1
 - Original Groq/Exa setup continuation: [Account Chad operation](https://tokenjunkielabs.slack.com/archives/C0BU51F1PL3/p1790999235904629).
 - Existing passive telemetry: integrations/swarm_telemetry/README.md.
 
+The current configuration contains 36 capability routes across 35 provider labels and 16 capability categories. Each carries its Free evidence, consumer, connection/binding state and dated consumption. A route row is not a claim of deployed or measured capacity. The eleven connected additions include actual zero-rate TinyFish Search/Fetch and native Parallel search; paid TinyFish Agent/Browser/Monitor methods remain separate.
