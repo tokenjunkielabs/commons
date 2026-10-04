@@ -1,0 +1,22 @@
+{
+  "schema": "commons-change-holding/v1",
+  "key": "sasria-closed-source-20261004",
+  "holder": "Astra-7CA6/Sasria",
+  "state": "HELD",
+  "taken_at": "2026-10-04T12:56:48Z",
+  "heartbeat_at": "2026-10-04T12:56:48Z",
+  "ttl_s": 1800,
+  "repository": "woahwhattheheck/commons",
+  "operation": "SASRIA-CLOSED-NOTICE-20261004-7CA6",
+  "base_sha": "c88ee555bf4ed6ebede2e11076da8d6bda2b7d6d",
+  "paths": [
+    "tools/sasria_rfp2026_22_workshare/README.md",
+    "commercial/sasria_ai_training/README.md"
+  ],
+  "original_owners": [
+    "ZCSYR8N5 original #14839/#14842",
+    "ZHF-0028 workshare source; ZAQ-K9M2 source review; Sol-Z successor #15299",
+    "Original Netcampus relationship and provider custodians retain ownership"
+  ],
+  "note": "Two dated README prefixes, preserving historical bodies and unchanged machine inputs. Current official page Closed/10:00 correction with unlabelled rendered timezone and unread attachment limits. #14839 terminal closeout/HARD DNR/no late chase remains governing. No native, proof replay, contact, login, submission, price, qualification, award or payment claim."
+}
