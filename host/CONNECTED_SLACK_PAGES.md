@@ -69,6 +69,7 @@ For a direct native read, retain its original response and pass its actual argum
 | Option | Default | Accepted range | Meaning |
 | --- | ---: | ---: | --- |
 | `start_index` | 0 | 0 to the largest safe integer | First message index within this retained rendering; a thread parent is index 0. |
+| `source_indices` | absent | 0 to `max_messages` distinct increasing nonnegative safe integers | Explicit message indices in this retained page; mutually exclusive with an explicitly supplied `start_index`. |
 | `max_messages` | 8 | 1–1000 | Maximum returned message entries. |
 | `max_body_chars` | 800 | 0–65536 | Maximum returned rendered-content prefix per entry. |
 | `max_total_body_chars` | 6400 | 0–262144 | Combined returned content budget. |
@@ -86,9 +87,101 @@ The content range excludes recognized envelope headers and fixed inter-message s
 
 The top-level status is `PROJECTED`, `EMPTY_RENDERING`, or `REFUSED`. A native channel response containing exactly its matching `Channel:` header and fixed blank-line separator, with no message content, returns `EMPTY_RENDERING`. Any unframed content after that header still refuses. Zero rendered messages describe only the retained request window; the provider's pagination signal is reported separately. A projected result means the recognized framing was internally consistent. A body containing a complete provider-looking header can be indistinguishable from actual framing; the result does not establish authentication or ownership clearance. Detected reserved framing lines inside content, conflicting supplied representations, duplicate timestamps, incomplete or inconsistent reply counts/numbering, and unsupported layouts refuse with a short `issue.code` and no projected messages. Invalid API arguments throw `TypeError`. Original native envelopes stay with the caller in all cases.
 
-Coverage reports parsed and returned message counts, messages omitted before/after the selected range, truncated content, and the recognized native pagination state. `next_index` advances through message entries in the same retained page. It is not a provider cursor. If all identities were returned but some content was truncated, select those indices again with a larger content budget to read the already retained text. Zero content budgets are useful for identity-only navigation.
+Without `source_indices`, coverage reports parsed and returned message counts, messages omitted before/after the selected range, truncated content, and the recognized native pagination state. `next_index` advances through message entries in the same retained page. It is not a provider cursor. If all identities were returned but some content was truncated, select those indices again with a larger content budget to read the already retained text. Zero content budgets are useful for identity-only navigation.
 
 A provider end marker applies only to the captured request, including its cursor and time window. Even a complete projection does not establish full channel or thread coverage. Parent repetition across native pages is preserved; there is no deduplication, filtering of apology-like text, claim interpretation, search-result parsing, automatic retry or message edit.
+
+### Select caller-chosen message indices
+
+Use optional `source_indices` when a few nonadjacent entries from one retained
+channel or thread page need more content. Only those entries consume the returned
+body budget. The function still reads and validates the complete native envelope,
+including the content and framing of omitted entries; the existing input budget
+and all identity, representation and ambiguity checks still apply.
+
+```js
+const selected = box.exports.projectSlackMessages(response, actualRequest, {
+  source_indices: selectedSourceIndices,
+  max_messages: 8,
+  max_body_chars: 1600,
+  max_total_body_chars: 4800
+});
+store('selected-message-view', selected);
+text(selected);
+```
+
+`selectedSourceIndices` is an explicit caller-owned list taken from the same
+retained page's `source_index` values. The helper performs no content classifier,
+automatic deduplication, exclusion policy or ownership decision. Indices are not
+message timestamps and must not be reused for a new provider page. Retain the
+original response and exact request beside every view.
+
+The list is copied and must contain distinct, strictly increasing, nonnegative
+safe integers. Holes, duplicate or unordered indices, an explicitly supplied
+`start_index`, and a list longer than `max_messages` raise `TypeError`.
+Use a larger existing `max_messages` limit when the intentional list exceeds its
+default of eight; the ceiling remains 1000. After the full page parses, any index
+outside that page returns `REFUSED / SOURCE_INDEX_OUT_OF_RANGE` with no messages.
+Indices are never silently dropped or reordered.
+
+Selected entries retain their original source indices, header/content ranges
+and rendered identities. Their body prefixes use the existing per-entry and
+total content limits in source order, including surrogate-pair-safe clipping.
+No normalization occurs. Omissions do not make the native input cheaper to parse
+and metadata remains additional to the body budget.
+
+| Sparse coverage field | Meaning |
+| --- | --- |
+| `selection_mode` | `source_indices`. |
+| `selected_source_indices` | Copied list of selected indices in the retained rendering. |
+| `omitted_messages` | Parsed message count minus selected entry count. |
+| `omitted_before`, `omitted_interior`, `omitted_after` | Unselected entries before the first selection, between selections, and after the final selection. |
+| `omitted_source_index_ranges` | Complete disjoint half-open index ranges for all omitted entries, with `source_index_range_end: exclusive`. These are message-index ranges, not character offsets. |
+| `start_index`, `next_index` | Both null; this selection creates no contiguous page cursor. `navigation` is `caller_selected_indices`. |
+
+`selected_content_chars`, `returned_content_chars` and `truncated_messages`
+describe selected content only. `all_rendered_messages_included` is true only
+when every parsed entry is selected and none is truncated. Native pagination
+fields still describe the original provider response and are independent of
+this selection. To inspect omitted entries, explicitly select their indices
+from the same retained response; no provider call is needed.
+
+An empty list deliberately selects zero entries. For a nonempty page the status
+remains `PROJECTED`, all omissions are assigned to `omitted_after`,
+`omitted_before` and `omitted_interior` are zero, and the omitted range is
+`[0, parsed_messages)`. An empty parsed page instead remains `EMPTY_RENDERING`
+with no omitted ranges. Neither case asserts an empty channel or work queue.
+
+Without this option the existing projector result is unchanged. The collector
+and `projectSlackSearchResults` do not acquire this option or any automatic
+filtering. Publication comparison and claim interpretation remain separate.
+
+### Sparse intake use, 2026-10-04
+
+One new detailed channel read through the unchanged collector retained 12 message
+entries in 32577 rendered code units. Its native page budget stopped after one
+call with a provider continuation retained. The initial ordinary overview returned
+120 content code units for each entry so the caller could choose the next source
+items for intake.
+
+The new option then selected source indices 5 and 10 from that same page. It
+returned both complete content ranges, 5253 and 3404 code units, within the
+5500-per-entry and 9000-total budgets. Coverage reported 5 leading, 4 interior
+and 1 trailing omission, with exact complementary ranges `[0,5)`, `[6,10)` and
+`[11,12)`. No additional provider call was made.
+
+Both selected identities and character ranges matched the initial overview,
+and every returned prefix matched its original source slice. The ordinary
+overview was JSON-identical under the changed projector. The original response,
+request and caller index list remained unchanged. The selected bodies were used
+for actual tooling intake, without changing their evidence or ownership meaning.
+
+Before publication, that exact exercised message-projector body and its helper
+dependencies were composed unchanged with the separately released optional
+search-header update. The collector and complete current search-projector body
+remained exact. This use covers the observed sparse channel path and ordinary
+same-page compatibility; no old acceptance proof, OS process, fixture, repository
+test or new provider request was used for the composition.
 
 ## Retain and resume
 
