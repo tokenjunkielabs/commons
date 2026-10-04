@@ -22,13 +22,31 @@ source /workspace/activate-swarm.sh
 instructions remain in place. The activation script makes `/workspace/bin`
 commands available to the current shell.
 
-Start the real services in a retained foreground execution session:
+The activation script also sources existing private
+`shared/swarm/toolchains/android.sh` and `languages.sh` files when present.
+It captures the installed Node 24 binary directory as `SWARM_NODE24_BIN`
+before those files run, and keeps Node 24 first on the default path. `init`
+migrates only an exact copy of its previous generated activation template;
+it preserves a differently edited activation file and reports the difference.
+
+Start the real services under the VM's existing local Docker daemon:
 
 ```bash
-swarm-env serve
+swarm-env up
 ```
 
-Use another shell to inspect the running endpoints:
+The command returns after the real endpoints respond. The owned container keeps
+running after the command shell, execution session or conversation turn exits.
+Repeated `up` reuses the current runtime. Changed inherited proxy, credential or
+launcher configuration recreates only that runtime, retaining its private state.
+No registry pull, paid service, scheduled job or model job is needed: a minimal
+local image uses read-only mounts of this VM's installed toolchain and CA trust,
+plus the writable cloud workspace and existing home credential facility. Service
+temporary files and caches use the private state root. Inherited credential
+values remain in the private runtime environment; they are not written to source,
+command arguments, status responses or image layers.
+
+Use any later worker shell to inspect the running endpoints:
 
 ```bash
 source /workspace/activate-swarm.sh
@@ -46,11 +64,26 @@ service condition and continue through available connected tools.
 | Commons command center | `http://127.0.0.1:8890` | Existing work, coordination and observed runtime views |
 | Deathstar | `http://127.0.0.1:18540` | Existing browser workbench, tools, workspaces and operation state |
 
-These addresses are local to the VM. Services continue while their retained
-foreground supervisor session and the VM remain alive. This setup does not
-establish survival after VM termination. On recovery, reuse the retained private
-state and run `serve`, then inspect `status`; service startup is not provider
-operation completion.
+These addresses are local to the VM. The runtime shares the VM's network
+namespace to preserve the existing loopback-only service endpoints; remote
+traffic still uses the inherited managed proxy and TLS trust. Docker restarts
+the owned supervisor after a process failure and when the daemon restarts,
+unless it was explicitly stopped. Ownership labels identify the exact workspace
+and state root. Startup preserves unrelated containers and existing listeners.
+
+Stop only this environment's managed services, keeping databases, logs,
+worktrees, jobs and artifacts:
+
+```bash
+swarm-env down
+```
+
+`up` resumes the retained state. `serve` remains available as the original
+foreground road when a retained supervisor session is wanted. Neither road
+establishes survival after VM destruction; independent retained cloud storage
+is still needed for that. Service startup is not provider operation completion.
+`status` reports service responses separately from Docker lifecycle observations;
+the direct foreground road remains usable when Docker is unavailable.
 
 ## Give workers useful, separate working space
 
@@ -117,3 +150,70 @@ For service-specific operations, use the existing
 [equipment guide](../integrations/shared_equipment/README.md),
 [command-center guide](../integrations/command_center/README.md) and
 `/workspace/deathstar/README.md`.
+
+## Use the current workload's runtime
+
+The October 4 work map covers current Android RCS/Wear/Cast and LocalDeviceAgent,
+Fluxer Rust/WASM and Node, Chronicle Go, Java document tools, and Revert's pinned
+Node 18 build. It comes from dated Slack workload searches and current owner
+repository/PR reads. It is a selected workload map; it does not establish complete
+Slack/DM/file coverage, every upstream issue, or every worker's live state.
+
+Install or inspect the reusable compiler bytes explicitly:
+
+```bash
+python3 host/swarm_cloud_toolchains.py install
+python3 host/swarm_cloud_languages.py install
+source /workspace/activate-swarm.sh
+```
+
+These commands install free official runtime artifacts into private cloud state.
+They retain version and digest provenance, preserve existing installations, and
+reuse installed bytes. Service startup alone does not install compilers, start
+model work, or repeat bounty builds. `inspect` on the Android provisioner and `status` on the language provisioner
+report their local installations.
+
+Select writable state for one worker before running a build:
+
+```bash
+eval "$(swarm-worker worker-01 --java 21 --node 24)"
+# For LocalDeviceAgent or an existing JDK 17 build:
+eval "$(swarm-worker worker-02 --java 17)"
+# For Revert's existing Node 18 build:
+eval "$(swarm-worker worker-03 --node 18)"
+```
+
+Each profile keeps Gradle, Cargo, Go, npm, uv, Android user state and temporary
+files under `/workspace/shared/swarm/cache/workers/NAME`. Reusable JDKs, SDK and
+compiler binaries remain shared. Source isolation still uses `swarm-current`;
+the profile creates no claim, job assignment or alternative task ledger.
+
+| Current source lane | Required runtime |
+| --- | --- |
+| GmsCore RCS/Wear/Cast | JDK 21 compiler, Android 35/build-tools 35.0.0, repository Gradle wrapper 8.13 |
+| LocalDeviceAgent | JDK 17 compiler, project Android SDK/build tools, repository Gradle wrapper |
+| Chronicle sidecar/FlightSQL | Go 1.24.4 toolchain named in `go.mod` |
+| Fluxer | Node 24, project pnpm pin, Rust 1.98.1, WASM target and wasm-bindgen 0.2.128; project native build prerequisites |
+| Revert Workable | Node 18.20.4, project Yarn 3.2.2; reuse the existing generated Fern artifact |
+| UltimateAI document tools | JDK 21 plus Maven, LibreOffice Writer/Calc/Draw and Poppler when executing that product |
+
+Read each current branch's own build files before running it. This environment
+supplies reusable prerequisites, not a replacement for pinned source or an
+accepted execution receipt. Use the existing Gradle proxy launcher with
+`--refresh-env-proxy` and the system Java truststore as documented in
+[GRADLE_ENV_PROXY.md](GRADLE_ENV_PROXY.md). Do not copy another invocation's proxy
+endpoint or modify another worker's cache locks.
+
+The installed system Chromium is available for actual local product work through
+the existing Playwright runtime. Its usability does not establish an authenticated
+provider session. Android SDK/adb does not establish a connected phone, SIM,
+non-root receiver, Cast target or physical-device acceptance. A missing provider
+binding remains a separate condition.
+
+Canonical task state is retained coordination, not a census of live processes.
+The October 4 read found six recoverable ACTIVE rows, including three whose
+provider issues were already closed. Preserve their custody and observation
+times; do not describe those rows as six running workers. Continue through the
+current source, owner and provider response when selecting work. Reuse completed
+source-bound builds, generated SDKs and artifacts; do not regenerate them solely
+to populate an environment report.
