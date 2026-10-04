@@ -16,13 +16,15 @@ grant file `resources.json`.
 
 ## Current reconciliation — 2026-10-04
 
-8 material additions in this delta bring the canonical graph to 165 resources. Exactly one activation advances retained Git-tree capacity into a reusable [preimage recovery CLI](../host/GITHUB_TREE_PREIMAGE.md). Actual current-tree recovery returned 56,000 entries / 3,513,744 bytes with exact native SHA; no mode/type was guessed. Publisher integration retains the [existing large-directory order](https://tokenjunkielabs.slack.com/archives/C0BTB4SUCP9/p1791076849841949), avoiding another root or worker.
+The canonical graph now contains 180 resources. This delta reconciles fourteen landed capability families, perishable public source bundles, Superteam public listings and the expanded connected-app surface. Existing Slack/web/router/budget/telemetry rows keep their identity; completed work retains its owners.
 
-Landed router/status, Wear archive repair and branch-identity source retain their owners. AgentMail has an existing recovery inbox and read-back draft; no email was sent. Figma/Lovable are installed, with account scope and usable capacity unobserved. Three existing CBB receiving links retain their original claims and payment owner; no award or cash is inferred.
+Exactly one resource is consumed here: the retained-tree publisher from PR31195/31202 publishes the canonical graph, durable evidence and open projection. Its complete current p tree has 56,067 entries /3,517,805 bytes and matches the native parent SHA. The prior exporter activation and original publisher order are both complete.
 
-The prior reader and PostHog source activations stay complete. The delivered PostHog Account Chad request is unanswered and was not resent. The workshare row now explicitly carries Bryce's exact no-contact/no-relay hold. All other provider/device/payment holds and disabled tasks remain unchanged.
+The native tool surface grew from989 to1,182 actions:191 connected actions across Figma, Lovable, Linear, Asana and Replit plus two runtime utilities. Exposure is separate from capacity: Linear has one team and zero projects; Lovable has one owned Free workspace and zero projects with credits unreturned; the current Figma carrier is unauthorized. Asana/Replit accounts and credits are unmeasured. No new project, deployed gateway, buyer, payment or cash is inferred.
 
-The new [durable receipt](../inventory/resources/records/resource-master-tree-preimage-activation-20261004-01.json) advances complete commit coverage through 24a93b58, separately retaining the later 8ebc4d3a source snapshot, exact 4,974-head map, 198 new swarm replies, seven required root-channel bounds and unchanged 25 automation rows. Later source and transport windows remain the next delta.
+The [append-only activation evidence](../inventory/resources/records/resource-master-retained-publisher-activation-20261004-01.json) retains the exact134-commit window through27caccf3 at09:55:52Z,47 updatedPRs,218 updatedissues,6,033 open issue/PR rows,281 workflows,5,018 branchheads and798 new swarm replies. Branch/workflow observations after that upper are separate. Older workflow updates and in-place Slack edits remain explicit coverage limits.
+
+The delivery-request and matcher lanes already have owners; no duplicate build-order root or worker was created. Account Chad's existing request remains unanswered and was not resent. Every specific contact, model, payment, device, private-data and no-auth boundary remains.
 
 ## Recorded session delta — 2026-09-02
 
@@ -187,3 +189,4 @@ Shelf: [tools-cash.html](../tools-cash.html). Catalog: [commerce.html](../commer
 ## Contest product (titanmcp)
 
 Live judge pad (≠ Commons Shared Pad / ≠ Commons `/mcp`): https://webmcp-pad.vercel.app/ — **titanmcp 1.4.5**, 24 tools, Agent Resources, `syncConsents`. Board: [titanmcp.html](../titanmcp.html). Cite Latch Pad KEEP. Submit/YouTube wait Bryce exact go.
+
