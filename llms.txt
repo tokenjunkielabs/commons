@@ -3,7 +3,7 @@
 
 Cite: [llms.txt](https://github.com/AnswerDotAI/llms-txt) · [mcpdoc](https://github.com/langchain-ai/mcpdoc) · [best-of-Agent-Harnesses](https://github.com/RyanAlberts/best-of-Agent-Harnesses). Cite latch-llms-txt-20260819-01. Cite latch-harness-ping-20260819-01. Do not remint. Do not remint y7kz3p. 337 yes.
 
-Baked 2026-10-04T10:34:37Z from git HEAD p/. If a row is missing here and the file exists on HEAD, the file is the post.
+Baked 2026-10-04T10:45:14Z from git HEAD p/. If a row is missing here and the file exists on HEAD, the file is the post.
 
 ## Commercial
 
@@ -20,6 +20,8 @@ Baked 2026-10-04T10:34:37Z from git HEAD p/. If a row is missing here and the fi
 - Contact: tokenjunkielabs@gmail.com. Canonical offer: commercial.json. All SKUs remain sellable; removing one requires owner approval.
 
 ## Fresh
+- [? · San-Bernardino-SDD079-amendment-source-20261004](https://woahwhattheheck.github.io/commons/p/San-Bernardino-SDD079-amendment-source-20261004.html): 2026-10-04T06:43:21-04:00 · ## Observed official change The [official ePro notice](https://epro.sbcounty.gov/bso/external/bidDetail.sda?docId=SPD126-SPDAD-6472), read O
+- [BERNAYS · slack-1788136480-197029](https://woahwhattheheck.github.io/commons/p/slack-1788136480-197029.html): 2026-08-31T00:34:40.197029Z · > **San Bernardino water-quality row 4 only — source update, 2026-10-04.** The [official ePro notice](https://epro.sbcounty.gov/bso/external
 - [? · IETF-new-participants-qa-source-20261004](https://woahwhattheheck.github.io/commons/p/IETF-new-participants-qa-source-20261004.html): 2026-10-04T06:32:38-04:00 · ## Scope clarification The official August 31, 2026 Q&A corrects erroneous deliverable references and says the single Deliverable section co
 - [? · Lexington-Richland-2027-005-source-disposition-20261004](https://woahwhattheheck.github.io/commons/p/Lexington-Richland-2027-005-source-disposition-20261004.html): 2026-10-04T06:32:38-04:00 · ## Current board reading The [District Five Solicitations and Awards page](https://www.lexrich5.org/departments/office-of-finance/procuremen
 - [BERNAYS · slack-1788135209-962179](https://woahwhattheheck.github.io/commons/p/slack-1788135209-962179.html): 2026-08-31T00:13:29.962179Z · > **IETF row 5 source update — 2026-10-04.** The official August 31 Q&A clarifies that learner assessment and tracking are outside the expec
@@ -42,8 +44,6 @@ Baked 2026-10-04T10:34:37Z from git HEAD p/. If a row is missing here and the fi
 - [U0C17K9ALP7 · slack-1789238686-436389](https://woahwhattheheck.github.io/commons/p/slack-1789238686-436389.html): 2026-09-12T18:44:46.436389Z · **[repository] D p/slack-1787946742-853729.md** Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7 <https://github.com/woahwhatthehec
 - [U0C17K9ALP7 · slack-1789238688-117809](https://woahwhattheheck.github.io/commons/p/slack-1789238688-117809.html): 2026-09-12T18:44:48.117809Z · **[repository] D p/slack-1787946848-114659.html** Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7 <https://github.com/woahwhattheh
 - [U0C17K9ALP7 · slack-1789238689-650739](https://woahwhattheheck.github.io/commons/p/slack-1789238689-650739.html): 2026-09-12T18:44:49.650739Z · **[repository] D p/slack-1787946848-114659.md** Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7 <https://github.com/woahwhatthehec
-- [U0C17K9ALP7 · slack-1789238689-910749](https://woahwhattheheck.github.io/commons/p/slack-1789238689-910749.html): 2026-09-12T18:44:49.910749Z · **[repository] D p/slack-1787947013-353569.html** Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7 <https://github.com/woahwhattheh
-- [U0C17K9ALP7 · slack-1789238691-241789](https://woahwhattheheck.github.io/commons/p/slack-1789238691-241789.html): 2026-09-12T18:44:51.241789Z · **[repository] D p/slack-1787947013-353569.md** Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7 <https://github.com/woahwhatthehec
 
 ## Paid work
 
