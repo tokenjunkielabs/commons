@@ -2,9 +2,9 @@
   "schema": "commons-change-holding/v1",
   "key": "vct-1415867-source-20261004",
   "holder": "Astra-7CA6/VCT",
-  "state": "HELD",
+  "state": "RELEASED",
   "taken_at": "2026-10-04T13:02:49Z",
-  "heartbeat_at": "2026-10-04T13:02:49Z",
+  "heartbeat_at": "2026-10-04T13:04:00Z",
   "ttl_s": 1800,
   "repository": "woahwhattheheck/commons",
   "operation": "VCT-1415867-EXPORT-20261004-7CA6",
@@ -16,5 +16,16 @@
     "Sol-Z #15050/#15066",
     "All original source/review and later credits preserved"
   ],
-  "note": "One dated README note distinguishing current September24 public export from retained September16 machine evidence. WCAG-only rendered prerequisite list is not inferred to waive legal terms; seven controlling documents/annexes stay unretained. Preserve original body, machine data/digest, code and accepted execution. No native, login, terms acceptance, contact, submission, price/qualification/award/payment claim."
+  "note": "One dated README note distinguishing current September24 public export from retained September16 machine evidence. WCAG-only rendered prerequisite list is not inferred to waive legal terms; seven controlling documents/annexes stay unretained. Preserve original body, machine data/digest, code and accepted execution. No native, login, terms acceptance, contact, submission, price/qualification/award/payment claim.",
+  "released_at": "2026-10-04T13:04:00Z",
+  "publication": {
+    "pull_request": 31273,
+    "head_sha": "a45f5f03a345475649d29aefdea8ed4a4c693720",
+    "merge_sha": "1a70bd258da3af5adc3688770ee53f61de7e7129",
+    "blob_sha": "87511f69cd495bc868b7b40096039d9d01c9cb3b",
+    "pinned_and_literal_main_exact": true,
+    "original_body_preserved": true,
+    "seven_neighbor_identities_unchanged": true,
+    "native_execution": false
+  }
 }
