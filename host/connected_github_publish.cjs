@@ -72,6 +72,11 @@ function validate(input) {
     if (typeof file.content !== 'string') throw new TypeError(`content must be a string: ${path}`);
     const encoding = file.encoding ?? 'utf-8';
     if (!['utf-8', 'base64'].includes(encoding)) throw new TypeError(`Unsupported encoding: ${path}`);
+    if (Object.prototype.hasOwnProperty.call(file, 'expected_new_blob_sha')
+        && (encoding !== 'base64' || typeof file.expected_new_blob_sha !== 'string'
+          || !SHA.test(file.expected_new_blob_sha))) {
+      throw new TypeError(`expected_new_blob_sha requires base64 input and a lowercase Git SHA: ${path}`);
+    }
     if (encoding === 'base64' && !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(file.content)) {
       throw new TypeError(`content must be padded base64 without whitespace: ${path}`);
     }
@@ -154,6 +159,15 @@ function unpack(result, action) {
 function sha(value, label) {
   if (typeof value !== 'string' || !SHA.test(value)) throw new Error(`${label} did not return a Git SHA`);
   return value;
+}
+
+function checkNewBlobPin(file, source) {
+  if (source.expected_new_blob_sha === undefined) return;
+  file.expected_new_blob_sha = source.expected_new_blob_sha;
+  file.source_pin_matches = file.blob_sha === source.expected_new_blob_sha;
+  if (!file.source_pin_matches) {
+    throw new Error(`New source blob mismatch: ${file.path}; expected ${source.expected_new_blob_sha}, observed ${file.blob_sha}`);
+  }
 }
 
 function inspectReadback(file, source, data) {
@@ -265,7 +279,9 @@ async function publishGitHubChange(tools, change, options = {}) {
         throw new Error(`The existing path is not a regular file: ${file.path}`);
       }
       progress.files.push({path: file.path, previous_blob_sha: existing?.sha ?? null,
-        previous_mode: existing?.mode ?? null, mode: file.mode ?? existing?.mode ?? '100644'});
+        previous_mode: existing?.mode ?? null, mode: file.mode ?? existing?.mode ?? '100644',
+        ...(file.expected_new_blob_sha === undefined ? {} : {
+          expected_new_blob_sha: file.expected_new_blob_sha, source_pin_matches: null})});
     }
     await announce();
     progress.stage = 'create_blobs';
@@ -274,6 +290,7 @@ async function publishGitHubChange(tools, change, options = {}) {
       if (file.encoding === 'utf-8') continue;
       const data = await call('create_blob', {repository_full_name, content: file.content, encoding: file.encoding});
       progress.files[index].blob_sha = sha(data.sha, 'Created blob');
+      checkNewBlobPin(progress.files[index], file);
       await announce();
     }
     const candidates = progress.files.filter(file => sourceByPath.get(file.path).encoding === 'utf-8'
@@ -401,8 +418,13 @@ async function continueGitHubMerge(tools, change, previousProgress, options = {}
       }
       const record = {path: source.path, previous_blob_sha: file.previous_blob_sha,
         previous_mode: file.previous_mode, mode: file.mode};
+      if (file.expected_new_blob_sha !== undefined
+          && file.expected_new_blob_sha !== source.expected_new_blob_sha) {
+        throw new Error(`Retained source pin differs from change: ${source.path}`);
+      }
       if (source.encoding === 'base64') record.blob_sha = sha(file.blob_sha, 'Retained binary blob');
       progress.files.push(record);
+      checkNewBlobPin(record, source);
     }
     const repository_full_name = spec.repository_full_name;
     const actions = ['get_pr_info', 'fetch', 'fetch_file', 'fetch_blob', 'merge_pull_request'];
