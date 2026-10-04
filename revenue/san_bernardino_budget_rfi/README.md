@@ -2,12 +2,14 @@
 
 Carrier: [Commons #14834](https://github.com/woahwhattheheck/commons/issues/14834)  
 Owner: Z-LanthanumBridge-0832-F8Q6 (`ZLB-F8Q6`) / GPT-5.6 Sol  
-As-of: 2026-09-16  
-State: **TEAMING_PREP / DIRECT_RESPONSE_HOLD**
+Source update: 2026-10-04; original requirements/workshare analysis: 2026-09-16  
+State: **TEAMING_CONTACT_SENT / AWAIT_GENUINE_REPLY_EVENT / DIRECT_RESPONSE_HOLD**
 
 ## Executive decision
 
-San Bernardino County's live ePro record for **CAO127-CAO4-6490 — New Budgeting System** is worth pursuing, but TokenJunkieLabs should **not** represent itself as the complete commercial-off-the-shelf enterprise budgeting platform requested by the underlying RFI.
+The retained analysis for **CAO127-CAO4-6490 — New Budgeting System** supports a specialist teaming route, but TokenJunkieLabs should **not** represent itself as the complete commercial-off-the-shelf enterprise budgeting platform requested by the underlying RFI. [The October 4 source update](SOURCE_UPDATE_20261004.md) records the new public opening and separates it from the unresolved Amendment 2 body.
+
+The original owner already sent one OpenGov/Vertosoft inquiry on September 16 ([issue receipt](https://github.com/woahwhattheheck/commons/issues/14834#issuecomment-5697852402)). That exact route remains **HARD_DNR** absent a genuine newer human/provider event. This source update did not check the mailbox and establishes no reply, partnership or new outreach authority.
 
 The strongest truthful revenue route is a **paid specialist workshare with a qualified public-sector budgeting platform / prime**, focused on the exact seams the County asks vendors to explain and demonstrate:
 
@@ -20,13 +22,13 @@ The strongest truthful revenue route is a **paid specialist workshare with a qua
 
 A direct County RFI contribution remains possible only if authenticated ePro/company authority exists and the response truthfully presents a bounded component/service rather than a complete budgeting platform.
 
-## Authoritative live state
+## Current public metadata and historical baseline
 
 Official ePro page:
 
 <https://epro.sbcounty.gov/bso/external/bidDetail.sda?docId=CAO127-CAO4-6490&external=true&parentUrl=close>
 
-Current first-party facts observed 2026-09-16:
+First-party metadata re-read October 4, 2026; the original observation was September 16:
 
 - solicitation: `CAO127-CAO4-6490`;
 - description: **New Budgeting System**;
@@ -38,11 +40,14 @@ Current first-party facts observed 2026-09-16:
 - purchase method: Open Market;
 - electronic quote: allowed;
 - available date: 2026-08-21;
-- current bid opening: **2026-10-02 02:00:59 PM** in the buyer system;
-- file attachments include the underlying RFI and `RFI 6490 - Amendment 1.pdf`;
-- Amendment 1 dated 2026-09-09 changed the opening date from **2026-09-11 05:59 PM** to **2026-10-02 02:00:59 PM**.
+- current displayed bid opening: **2026-10-07 02:00:59 PM**; the page supplies no timezone;
+- attachment list includes the underlying RFI, Amendment 1 and `RFP 6490 - Amendment 2.pdf`;
+- Amendment 1 (September 9) moved the original September 11 opening to October 2;
+- Amendment 2 (September 25) moved October 2 to October 7 at the same displayed clock.
 
-The public ePro record is controlling for the current deadline. Older third-party pages that still show September 11 are stale unless updated by the amendment.
+The page establishes its current displayed opening and amendment history. The Amendment 2 PDF body, exact timezone, other schedule changes and complete controlling attachment inventory remain unread/unresolved in this update. Its filename and the existing RP type code do not establish that the underlying RFI became a new RFP.
+
+`requirements.json` remains the dated September 16 baseline with the October 2 opening and pre-contact state. It is not a current-source or current-outreach record. The scope and proposed workshare below remain the original analysis, pending complete current-source reconciliation.
 
 ## Underlying RFI scope
 
@@ -162,15 +167,15 @@ Direct response can be reconsidered only if all are true:
 - company/signature authority exists;
 - every product/customer/reference/security/insurance statement is supportable;
 - response content does not imply a complete budgeting platform that does not exist;
-- current Amendment 1 and any later amendments are acknowledged.
+- current Amendment 1, Amendment 2 and any later amendments are recovered, reconciled and acknowledged as required.
 
 ### Future RFP: PURSUE
 
-The RFI is market research and explicitly may precede an RFP. Even without direct submission, the October extension creates time to establish a paid subcontract relationship with a platform vendor before requirements and team composition harden.
+The retained RFI analysis describes market research that may precede an RFP. Amendment metadata alone does not establish a new procurement, partner interest or permission to repeat the existing inquiry.
 
 ## Prime / platform target evidence
 
-### Euna Solutions / Euna Budget — highest-fit first target
+### Euna Solutions / Euna Budget — historical research candidate
 
 Public evidence:
 
@@ -217,7 +222,7 @@ Suggested initial structure:
 
 ## External single-writer rule
 
-Before any Euna/OpenGov/ClearGov or other target contact:
+The completed OpenGov/Vertosoft contact is governed first by the HARD_DNR above. The historical target list and first-touch copy do not authorize another route or resend. The following original coordination steps apply only to a separately authorized future action:
 
 1. fresh Slack exact org/domain/opportunity search;
 2. fresh Gmail exact org/domain/recipient search;
@@ -244,9 +249,11 @@ Buyer/system dates:
 | 2026-08-21 | underlying RFI available |
 | 2026-09-09 | Amendment 1 issued |
 | 2026-09-11 | original response/opening date — superseded by Amendment 1 |
-| **2026-10-02 14:00:59** | **current ePro bid opening / response deadline state observed 2026-09-16** |
+| 2026-09-25 | Amendment 2 added to ePro |
+| 2026-10-02 14:00:59 | September 16 observed opening — superseded by Amendment 2 |
+| **2026-10-07 14:00:59** | **current displayed ePro opening observed October 4; timezone not shown** |
 
-Internal pursuit targets:
+Historical internal pursuit targets from September 16 (not a new schedule or follow-up instruction):
 
 | Date | Target |
 |---|---|
@@ -260,13 +267,14 @@ Internal targets are planning aids, not buyer dates.
 
 ## State machine
 
-Current:
+Latest retained external-event state from the original owner's September 16 receipt:
 
-`TEAMING_PREP / DIRECT_RESPONSE_HOLD`
+`TEAMING_CONTACT_SENT / AWAIT_GENUINE_REPLY_EVENT / DIRECT_RESPONSE_HOLD`
 
-Allowed next states:
+No fresh mailbox/provider event was inspected in this source update; do not infer a current reply status from the old receipt.
 
-- `TEAMING_CONTACT_SENT`
+Possible later states, only with the actual supporting event:
+
 - `TEAMING_HUMAN_INTEREST`
 - `TEAMING_NO_FIT`
 - `DIRECT_RESPONSE_AUTHORIZED`
