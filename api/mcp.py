@@ -23,6 +23,7 @@ import commons_mcp as cm
 
 
 MAX_REQUEST_BYTES = 1024 * 1024
+MAX_FRAMING_BYTES = 64 * 1024
 PUBLIC_BASE_URL = os.environ.get(
     "COMMONS_SPARK_PUBLIC_BASE", "https://commons-spark-mcp.vercel.app"
 ).rstrip("/")
@@ -514,6 +515,8 @@ class handler(BaseHTTPRequestHandler):
         if body:
             self.send_header("Content-Type", "application/json")
         self._common_headers()
+        if self.close_connection:
+            self.send_header("Connection", "close")
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
         if body:
@@ -535,10 +538,18 @@ class handler(BaseHTTPRequestHandler):
 
     def _read_body(self) -> bytes:
         values = self.headers.get_all("Content-Length") or []
-        if len(values) != 1 or self.headers.get_all("Transfer-Encoding"):
+        encodings = self.headers.get_all("Transfer-Encoding") or []
+        if encodings:
+            # Vercel can forward an ordinary client POST as chunked HTTP to
+            # this handler. Decode that transport before JSON-RPC dispatch;
+            # never accept two competing descriptions of the body boundary.
+            if values or len(encodings) != 1 or encodings[0].strip().lower() != "chunked":
+                raise cm.RpcError(-32600, "Invalid request body framing")
+            return self._read_chunked_body()
+        if len(values) != 1:
             raise cm.RpcError(
                 -32600,
-                "Content-Length must appear exactly once and Transfer-Encoding is unsupported",
+                "Content-Length must appear exactly once or use chunked Transfer-Encoding",
             )
         try:
             length = int(values[0])
@@ -546,7 +557,45 @@ class handler(BaseHTTPRequestHandler):
             raise cm.RpcError(-32600, "Invalid request body size") from visc
         if length <= 0 or length > MAX_REQUEST_BYTES:
             raise cm.RpcError(-32600, "Invalid request body size")
-        return self.rfile.read(length)
+        raw = self.rfile.read(length)
+        if len(raw) != length:
+            raise cm.RpcError(-32600, "Incomplete request body")
+        return raw
+
+    def _read_chunked_body(self) -> bytes:
+        chunks: list[bytes] = []
+        total = 0
+        framing = 0
+        while True:
+            line = self.rfile.readline(8193)
+            framing += len(line)
+            if len(line) > 8192 or not line.endswith(b"\r\n") or framing > MAX_FRAMING_BYTES:
+                raise cm.RpcError(-32600, "Invalid chunked request framing")
+            token = line[:-2].split(b";", 1)[0].strip()
+            if not re.fullmatch(rb"[0-9A-Fa-f]+", token):
+                raise cm.RpcError(-32600, "Invalid request chunk size")
+            size = int(token, 16)
+            if size == 0:
+                # Consume the terminating trailer section, bounded separately
+                # from payload bytes so it cannot extend an invocation forever.
+                while True:
+                    trailer = self.rfile.readline(8193)
+                    framing += len(trailer)
+                    if (len(trailer) > 8192 or not trailer.endswith(b"\r\n")
+                            or framing > MAX_FRAMING_BYTES):
+                        raise cm.RpcError(-32600, "Invalid chunked request trailers")
+                    if trailer == b"\r\n":
+                        if not total:
+                            raise cm.RpcError(-32600, "Invalid request body size")
+                        return b"".join(chunks)
+            total += size
+            if total > MAX_REQUEST_BYTES:
+                raise cm.RpcError(-32600, "Invalid request body size")
+            chunk = self.rfile.read(size)
+            if len(chunk) != size or self.rfile.read(2) != b"\r\n":
+                raise cm.RpcError(-32600, "Incomplete request chunk")
+            chunks.append(chunk)
+            framing += 2
 
     def do_OPTIONS(self) -> None:
         self.send_response(204)
@@ -644,6 +693,9 @@ class handler(BaseHTTPRequestHandler):
             status, response = handle_json(raw, self.headers)
             self._send_json(status, response)
         except cm.RpcError as visc:
+            # A framing error can leave unread body bytes. End this connection
+            # rather than interpreting those bytes as another HTTP request.
+            self.close_connection = True
             self._send_json(visc.http_status, cm.error_response(request_id, visc))
         except cm.CommonsError as visc:
             self._send_json(400, visc.payload())
