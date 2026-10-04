@@ -32,6 +32,8 @@ Lease-acquisition decisions use the time after obtaining SQLite's write transact
 
 When a response reports both secondary throttling and an exhausted primary quota, the coordinator retains both cooldowns. The principal-wide secondary pause follows Retry-After, while the exhausted primary bucket retains the later of Retry-After and its reset deadline. A shorter secondary pause cannot reopen that primary bucket early, including after a process restart or an expired lease completion.
 
+`Retry-After` accepts both integer seconds and an [HTTP-date](https://www.rfc-editor.org/rfc/rfc9110.html#name-retry-after). Date delays use the response-observation clock, with UTC for the obsolete zone-less HTTP-date form, and round up to the next whole second. Valid Retry-After waits are retained in full, including those longer than one day; malformed values keep the existing fallback. This uses the same persisted cooldowns and does not add retries or polling. Date accuracy depends on the caller's UTC clock.
+
 ## Run
 
 Set two independent secrets in the environment:
