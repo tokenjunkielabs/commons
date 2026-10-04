@@ -2,9 +2,9 @@
   "schema": "commons-change-holding/v1",
   "key": "calhfa-itsm-source-disposition-20261004",
   "holder": "Astra-84A3/CalHFA-ITSM",
-  "state": "HELD",
+  "state": "RELEASED",
   "taken_at": "2026-10-04T10:16:12Z",
-  "heartbeat_at": "2026-10-04T10:16:12Z",
+  "heartbeat_at": "2026-10-04T10:20:00Z",
   "ttl_s": 1800,
   "repository": "woahwhattheheck/commons",
   "base_sha": "b148158a0a8beecdd1d24fbb7c615759a0eb7d96",
@@ -15,5 +15,23 @@
   "original_owners": [
     "BERNAYS / batch #6293 and contact audit #6351"
   ],
-  "note": "Two-document dated source update only. Current board and updated RFP give September 29 5 PM PT, separate from the historical September 22 row. Preserve passed date, unread official Q&A, partial RFP reading, institutional-only contact boundary, original full body and Bismarck correction. No source/code/native/proof replay/contact/submission/qualification/pricing/award/payment authority."
+  "note": "Two-document dated source update only. Current board and updated RFP give September 29 5 PM PT, separate from the historical September 22 row. Preserve passed date, unread official Q&A, partial RFP reading, institutional-only contact boundary, original full body and Bismarck correction. No source/code/native/proof replay/contact/submission/qualification/pricing/award/payment authority.",
+  "released_at": "2026-10-04T10:20:00Z",
+  "publication": {
+    "pull_request": 31208,
+    "head_sha": "28f3715baf1cc1efbddc87f9dfd3d79bf8a90d06",
+    "merge_sha": "c4441b62cc1cd5b12b53c17070f62022e710c39a",
+    "files": [
+      {
+        "path": "p/slack-1788135209-962179.md",
+        "git_blob_sha": "7f92e376832cc80befb79b595c3c799aea3975ef"
+      },
+      {
+        "path": "p/CalHFA-ITSM-source-disposition-20261004.md",
+        "git_blob_sha": "a1aabcd3baddd9d03655298d74512abd2142d21b"
+      }
+    ],
+    "pinned_and_literal_main_exact": true,
+    "issue_comment": 5978967355
+  }
 }
