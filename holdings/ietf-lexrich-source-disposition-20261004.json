@@ -2,9 +2,9 @@
   "schema": "commons-change-holding/v1",
   "key": "ietf-lexrich-source-disposition-20261004",
   "holder": "Astra-84A3/Batch-source",
-  "state": "HELD",
+  "state": "RELEASED",
   "taken_at": "2026-10-04T10:31:54Z",
-  "heartbeat_at": "2026-10-04T10:31:54Z",
+  "heartbeat_at": "2026-10-04T10:33:51Z",
   "ttl_s": 1800,
   "repository": "woahwhattheheck/commons",
   "base_sha": "e36e609711d592d59cc13a6e78211c06aa4d35be",
@@ -16,5 +16,27 @@
   "original_owners": [
     "BERNAYS / batch #6293 and contact audit #6351"
   ],
-  "note": "Existing rows5/6 only: separate complete IETF August31 Q&A interpretation and Lexington-Richland board-metadata update. Preserve original body/YAML, prior Bismarck/CalHFA prefixes, source owners, institutional routes and all unknown qualification/commercial facts. IETF OPEN versus elapsed September11 remains unresolved; Lexington September24 board date is unzoned and its RFP/A1/A2 unread after measured link-resolution errors. No native/source proof replay, contact, submission, price, qualification or award/payment/revenue action."
+  "note": "Existing rows5/6 only: separate complete IETF August31 Q&A interpretation and Lexington-Richland board-metadata update. Preserve original body/YAML, prior Bismarck/CalHFA prefixes, source owners, institutional routes and all unknown qualification/commercial facts. IETF OPEN versus elapsed September11 remains unresolved; Lexington September24 board date is unzoned and its RFP/A1/A2 unread after measured link-resolution errors. No native/source proof replay, contact, submission, price, qualification or award/payment/revenue action.",
+  "released_at": "2026-10-04T10:33:51Z",
+  "publication": {
+    "pull_request": 31213,
+    "head_sha": "52e6da1c29cb8e9125adee16b78b6bd8c9ededd0",
+    "merge_sha": "58aaee4bbfa4e6d4a23c15c6ea6cbe3781690be3",
+    "files": [
+      {
+        "path": "p/slack-1788135209-962179.md",
+        "git_blob_sha": "afbf526b3c10e002fbc7d07cab05eb78f993d06b"
+      },
+      {
+        "path": "p/IETF-new-participants-qa-source-20261004.md",
+        "git_blob_sha": "b23b864a8e5d911516270c2e9c3ae3064c3e6d33"
+      },
+      {
+        "path": "p/Lexington-Richland-2027-005-source-disposition-20261004.md",
+        "git_blob_sha": "da7b47df8dc301d9e3cdbce6f6b42193b6ec71a4"
+      }
+    ],
+    "pinned_and_literal_main_exact": true,
+    "issue_comment": 5979062185
+  }
 }
