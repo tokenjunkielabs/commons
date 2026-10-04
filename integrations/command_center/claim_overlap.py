@@ -58,6 +58,11 @@ def _channel(value: Any) -> str | None:
     return value if isinstance(value, str) and re.fullmatch(r"[CDG][A-Z0-9]+", value) else None
 
 
+def _repository_key(repository: str | None) -> str | None:
+    # GitHub repository identity ignores case; retained labels and paths do not.
+    return repository.casefold() if repository is not None else None
+
+
 def _permalink_ids(value: str | None) -> dict[str, str]:
     if not value:
         return {}
@@ -288,7 +293,7 @@ def _resolve_aliases(events: list[dict[str, Any]], unresolved: list[dict[str, An
             continue
         operation = event["operation_id"]
         eligible = [claim for claim in declarations
-                    if claim["repository"] == event["repository"]
+                    if _repository_key(claim["repository"]) == _repository_key(event["repository"])
                     and _ts(claim) is not None and _ts(event) is not None
                     and _ts(claim) <= _ts(event)]
         if any(claim["operation_id"] == operation for claim in eligible):
@@ -354,7 +359,7 @@ def _reduce(operation: str, events: list[dict[str, Any]], unresolved: list[dict[
     unique: dict[tuple[Any, ...], dict[str, Any]] = {}
     for scope in scopes:
         unique[(scope["path"], tuple(scope["symbols"]), scope["scope_text"])] = scope
-    repository = repositories[0] if len(repositories) == 1 else None
+    repository = repositories[0] if len({_repository_key(repo) for repo in repositories}) == 1 else None
     return {"operation_id": operation, "claim_key": [repository, operation], "state": state, "repositories": repositories,
             "scopes": list(unique.values()), "evidence": evidence,
             "claim_urls": list(dict.fromkeys(event["source"]["permalink"] for event in events if event["kind"] == "claim" and event["source"].get("permalink")))}
@@ -376,7 +381,7 @@ def _overlaps(claims: list[dict[str, Any]]) -> list[dict[str, Any]]:
     for index, left in enumerate(active):
         for right in active[index + 1:]:
             lr, rr = left["repositories"], right["repositories"]
-            if lr and rr and set(lr).isdisjoint(rr):
+            if lr and rr and {_repository_key(repo) for repo in lr}.isdisjoint(_repository_key(repo) for repo in rr):
                 continue
             matches: list[dict[str, Any]] = []
             for ls in left["scopes"]:
@@ -460,7 +465,7 @@ def build_claim_overlap(
         if not source["channel_id"] or not source["message_ts"]:
             identity = (*identity, source["snapshot"], source["position"])
         digest = hashlib.sha256(record["text"].encode("utf-8")).hexdigest()
-        key = (*identity, digest, record["repository"])
+        key = (*identity, digest, _repository_key(record["repository"]))
         if key in seen:
             duplicates += 1
             continue
@@ -471,7 +476,7 @@ def build_claim_overlap(
         all_events.extend(events)
     _resolve_aliases(all_events, unresolved)
     for event in all_events:
-        groups[(event["repository"], event["operation_id"])].append(event)
+        groups[(_repository_key(event["repository"]), event["operation_id"])].append(event)
     claims = [_reduce(operation, events, unresolved) for (_, operation), events in sorted(groups.items(), key=lambda item: (item[0][0] or "", item[0][1]))]
     pairs = _overlaps(claims)
     selected = {claim["operation_id"] for claim in claims
