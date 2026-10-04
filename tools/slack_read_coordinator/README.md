@@ -167,7 +167,10 @@ most 512 KiB. At most 16 HTTP worker threads are admitted. Excess connections re
 503/Retry-After; the HTTP connection input timeout is 10 seconds. The default cache
 and active flight table caps are 256 rows each, globally per database. Cache payload
 capacity is therefore at most 128 MiB, **not a hard total database/WAL disk quota**.
-Expired cache rows are pruned on subsequent reads; SQLite can retain free pages.
+Fresh cache hits read the namespace block state and payload in one read transaction,
+then release it before decoding, without acquiring SQLite's writer slot. Cache misses
+and forced-fresh reads recheck state under the write transaction and prune expired
+cache/flight rows; SQLite can retain free pages.
 App/rate metadata and retired credential block rows persist. Monitor disk usage and
 retire old namespaces during an owner-controlled maintenance window. Do not delete
 live cooldown state to force retries.
