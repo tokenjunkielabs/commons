@@ -350,7 +350,7 @@
   }
  ],
  "pr_note": "Open GitHub PRs from public unauthenticated /pulls. PR-road work sits beside ntfy-road posts. Descriptive only. Not a merge gate. A PR is not main.",
- "n_open_prs": 2,
+ "n_open_prs": 3,
  "open_prs": [
   {
    "number": 31035,
@@ -359,7 +359,7 @@
    "html_url": "https://github.com/woahwhattheheck/commons/pull/31035",
    "base_freshness": {
     "base_sha": "2eea99f264a17995f47ac0f41a71d5ec9ce89870",
-    "main_sha": "2bab2b3a2a8edd780abcecd549193ae36316a2b9",
+    "main_sha": "7a46c5e096e10e09357c960d08171ddf50224c8b",
     "ahead_by": null,
     "behind_by": null,
     "label": "STALE_BASE"
@@ -375,7 +375,23 @@
    "html_url": "https://github.com/woahwhattheheck/commons/pull/31041",
    "base_freshness": {
     "base_sha": "f9645c8355749fd669f7195bcced70642969c6f9",
-    "main_sha": "2bab2b3a2a8edd780abcecd549193ae36316a2b9",
+    "main_sha": "7a46c5e096e10e09357c960d08171ddf50224c8b",
+    "ahead_by": null,
+    "behind_by": null,
+    "label": "STALE_BASE"
+   },
+   "status": "CANDIDATE",
+   "road": "pr",
+   "note": "PR-road work. A PR is not main. Not a merge gate."
+  },
+  {
+   "number": 31205,
+   "author": "woahwhattheheck",
+   "title": "Allow literal zero-error counts in technical publication reports",
+   "html_url": "https://github.com/woahwhattheheck/commons/pull/31205",
+   "base_freshness": {
+    "base_sha": "2eec9640257e5b542e7534699c417f5b5ad614bd",
+    "main_sha": "7a46c5e096e10e09357c960d08171ddf50224c8b",
     "ahead_by": null,
     "behind_by": null,
     "label": "STALE_BASE"
