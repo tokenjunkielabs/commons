@@ -8,6 +8,8 @@ First-party Alameda County material identifies RFP 902737, Evacuation Planning S
 
 The exact current RFP packet and buyer-issued addenda/Q&A generation are not retained here yet. Secondary mirrors are research only and cannot create buyer authority.
 
+The [October 4 source-reference supplement](SOURCE_REFERENCE_20261004.md) records a partial reading of a newly accessible mirror copy and the current official access boundary. Its [observation metadata](source_observation_20261004.json) keeps that reference separate from an admitted source generation. The historical ledger and production gate remain unchanged.
+
 TJLabs is not represented as the evacuation-platform prime. The intended commercial lane is a paid specialist workshare under a qualified product prime only if the controlling RFP permits teaming.
 
 Working internal scope hypothesis: $25,000 fixed, proposed/not accepted, covering requirements traceability, integration evidence, configuration/data reconciliation, cross-jurisdiction acceptance artifacts, demo/implementation proof, security/accessibility evidence normalization, and cutover/handoff evidence.
