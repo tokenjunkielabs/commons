@@ -60,13 +60,19 @@ class StoreQueueMixin:
                 raise AmbiguousOutcome(
                     "mutation %s requires readback" % uncertain["mutation_key"])
             meta = db.execute("SELECT * FROM meta WHERE singleton=1").fetchone()
-            if meta["cooldown_until"] and parse_time(meta["cooldown_until"], "cooldown") > now:
-                raise NoDispatchableMutation("provider cooldown is active")
+            cooldown_until = (parse_time(meta["cooldown_until"], "cooldown")
+                              if meta["cooldown_until"] else now)
+            interval_until = now
             if meta["last_claim_at"]:
-                earliest = parse_time(meta["last_claim_at"], "last claim") + dt.timedelta(
+                interval_until = parse_time(meta["last_claim_at"], "last claim") + dt.timedelta(
                     seconds=minimum_interval_seconds)
-                if earliest > now:
-                    raise NoDispatchableMutation("minimum claim interval is active")
+            retry_until = max(cooldown_until, interval_until)
+            if retry_until > now:
+                reason = ("provider cooldown is active" if cooldown_until > now
+                          else "minimum claim interval is active")
+                raise NoDispatchableMutation(
+                    reason, retry_at=iso(retry_until),
+                    retry_after_seconds=int((retry_until - now).total_seconds()))
             row = db.execute("""SELECT * FROM mutations WHERE state IN (?,?)
               AND (retry_at IS NULL OR retry_at<=?) ORDER BY seq LIMIT 1""",
               (QUEUED, COOLDOWN, moment)).fetchone()
