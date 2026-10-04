@@ -67,6 +67,18 @@ class RequestBudget:
         self._lock = threading.RLock()
         self._memory = sqlite3.connect(":memory:", check_same_thread=False) if self.path is None else None
         self._attempts = self._deferred = self._limited = 0
+        with self._transaction(write=False) as db:
+            tables = {row["name"] for row in db.execute(
+                "SELECT name FROM sqlite_master WHERE type='table'")}
+            schema_ready = {
+                "read_budget", "provider_capacity", "provider_leases",
+                "provider_limit_observations",
+            } <= tables
+            if schema_ready:
+                columns = {row["name"] for row in db.execute("PRAGMA table_info(read_budget)")}
+                schema_ready = "fallback_streak" in columns
+        if schema_ready:
+            return
         with self._transaction() as db:
             db.execute("""CREATE TABLE IF NOT EXISTS read_budget(
                 scope TEXT PRIMARY KEY, retry_until REAL NOT NULL DEFAULT 0, last_attempt REAL,
