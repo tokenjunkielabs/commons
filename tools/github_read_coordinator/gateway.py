@@ -17,7 +17,7 @@ from dataclasses import replace
 from http.client import HTTPException
 from pathlib import Path
 
-from broker import Broker, MAX_REQUEST, MAX_RESPONSE, ROUTES, Upstream, dumps, loads, normalize
+from broker import Broker, MAX_REQUEST, MAX_RESPONSE, ROUTES, Upstream, dumps, loads, normalize, usable_etag
 
 API_ROOT = "https://api.github.com"
 API_VERSION = "2022-11-28"
@@ -92,6 +92,7 @@ class GitHubProvider:
             response.headers.get("X-RateLimit-Remaining"),
             response.headers.get("X-RateLimit-Reset"),
             False,
+            etag=usable_etag(response.headers.get("ETag")),
         )
         try:
             chunks, size = [], 0
@@ -109,7 +110,7 @@ class GitHubProvider:
         except (OSError, HTTPException, ValueError, RecursionError):
             return observed
 
-    def _request(self, url: str) -> Upstream:
+    def _request(self, url: str, etag: str | None = None) -> Upstream:
         if not url.startswith(API_ROOT + "/") or any(c in url for c in ("\r", "\n")):
             raise ValueError("fixed GitHub API origin required")
         request = urllib.request.Request(
@@ -122,6 +123,10 @@ class GitHubProvider:
             },
             method="GET",
         )
+        if etag is not None:
+            if usable_etag(etag) is None:
+                raise ValueError("invalid conditional request validator")
+            request.add_header("If-None-Match", etag)
         deadline = time.monotonic() + 20
         try:
             with self._opener.open(request, timeout=20) as response:
@@ -144,7 +149,9 @@ class GitHubProvider:
                     message = payload.get("message") if isinstance(payload, dict) else None
                     body_secondary = isinstance(message, str) and "secondary rate limit" in message.lower()
                     secondary = secondary or body_secondary
-                return Upstream(error.code, None, retry, remaining, reset, secondary)
+                return Upstream(error.code, None, retry, remaining, reset, secondary,
+                                etag=usable_etag(error.headers.get("ETag")),
+                                validated_etag=etag if error.code == 304 else None)
             finally:
                 error.close()
         except (OSError, ValueError, RecursionError):
@@ -154,6 +161,10 @@ class GitHubProvider:
         if route not in ROUTES:
             raise ValueError("read route is not allowed")
         return self._request(build_url(route, params))
+
+    def revalidate(self, route: str, params: dict, etag: str) -> Upstream:
+        # The broker supplies a validator only with its matching retained body.
+        return self._request(build_url(route, params), etag)
 
     def authenticate(self, expected_login: str | None = None):
         if expected_login is not None and (not isinstance(expected_login, str) or LOGIN_RE.fullmatch(expected_login) is None):

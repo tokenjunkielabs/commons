@@ -36,6 +36,18 @@ When a response reports both secondary throttling and an exhausted primary quota
 
 Following [GitHub’s secondary-limit guidance](https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api#exceeding-the-rate-limit), repeated headerless secondary failures use a persisted fallback of 60, 120, 240 seconds, doubling up to one hour. Only a failed request admitted after the preceding secondary pause advances that fallback; responses already in flight and repeated completions do not count as another retry. A successful response clears the fallback history only when its request was admitted after the latest secondary deadline. Provider-specified Retry-After values and primary reset floors retain their existing behavior. This state is shared by cooperating processes and survives restarts; no automatic retry or sleeping loop is added.
 
+## Conditional refreshes
+
+Refresh both `broker.py` and `gateway.py` together on the next normal reader restart. Existing `/read` request bodies and response states remain valid; no new service, configuration or manual database migration is needed.
+
+When a successful response supplies an ETag, the next required refresh of that exact request can send `If-None-Match`. A confirmed `304 Not Modified` returns `FETCHED` with `revalidated: true`, the unchanged representation, and the new upstream observation time. `max_age_seconds=0` still makes a real provider request; it does not return stale data or extend freshness without provider confirmation. A changed response returns its new JSON normally. Cache-only hits remain `CACHED`.
+
+Validators persist beside the cache, bound to the credential namespace, normalized request, observation timestamp and serialized-payload digest. Body hashing happens outside SQLite's write transaction. The original four-column cache remains compatible with older processes; an overwritten, expired, evicted or failed entry cannot supply a mismatched validator. Retention remains bounded by the existing 300-second maximum age and cache-row limit. Missing or unusable ETags use an unconditional GET. Existing two-argument provider callables continue working; conditional providers implement `revalidate(route, params, etag)` and identify the actual outgoing validator in `Upstream.validated_etag` on a 304.
+
+Errors never fall back to stale success. An unsolicited 304 without a matching request/body is `UPSTREAM_ERROR`. A 401 invalidates the namespace, and 403/429 quota observations retain the existing cooldown path. Primary exhaustion headers on a 304 also retain their reset floor. Singleflight, request spacing, body limits, lease expiry and secondary backoff remain in force.
+
+[GitHub documents](https://docs.github.com/en/rest/using-the-rest-api/best-practices-for-using-the-rest-api#use-conditional-requests) that correctly authorized conditional requests returning 304 do not count against the primary rate limit. This is not permission to poll faster or ignore secondary limits. Only reads routed through this gateway benefit; unrelated native connectors are unchanged.
+
 ## Run
 
 Set two independent secrets in the environment:
