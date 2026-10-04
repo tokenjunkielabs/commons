@@ -95,6 +95,8 @@ def normalize(method: str, params: dict, page_limit: int = 15) -> dict:
     if method == "search.messages":
         out.setdefault("count", page_limit)
         out.setdefault("page", 1)
+        out.setdefault("sort", "score")
+        out.setdefault("sort_dir", "desc")
     if len(dumps(out).encode()) > MAX_REQUEST:
         raise ValueError("request too large")
     return out
