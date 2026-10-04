@@ -341,6 +341,26 @@ for GitHub's explicit HTTP 405 base-move refusal and `transport_closed` for the
 native transport failure; other reported errors remain `native_tool_error`.
 These describe observations, not retry permission or account-wide capability.
 
+The same `tool_error` also preserves available provider timing fields:
+`retry_after` (numeric seconds or a valid HTTP-date), `retry_after_seconds`
+(an explicit connector interval), `rate_limit_remaining`, `rate_limit_reset`
+(Unix seconds), and `rate_limit_resource`. Fields are omitted when absent or
+malformed. Header names are case-insensitive. Only these named fields are inspected; dates and
+numbers in a provider message or source body are never treated as retry evidence.
+Provider `error_data.headers` takes precedence, followed by `error_data`,
+structured headers/metadata, then outer headers/metadata. Explicit connector
+seconds remain separate from a provider Retry-After value; when that value is
+absent, `retry_after` uses the connector seconds. Retry-After and primary reset
+remain separate so the caller can honor both delay floors instead of discarding
+a later reset. Existing error codes, raw-response retention and write uncertainty
+are unchanged; this extraction does not retry or schedule a provider action.
+
+Pass the retained interval and applicable reset evidence to the existing
+[shared provider budget](../integrations/command_center/PROVIDER-ADMISSION.md)
+with the original observation ID. Confirm primary quota exhaustion before using
+its primary-core option. A 403 alone does not establish a rate limit or permission
+to repeat a write.
+
 For `base_branch_modified`, read the named PR and current base first. If the PR
 has already merged, continue its readback. Otherwise, confirm its retained head
 and reconcile the affected file versions before continuing that same intended
