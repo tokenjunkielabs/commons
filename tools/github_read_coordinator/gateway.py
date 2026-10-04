@@ -84,7 +84,7 @@ class GitHubProvider:
         return hashlib.sha256(self._token.encode()).hexdigest()
 
     @staticmethod
-    def _read_response(response, deadline: float) -> Upstream:
+    def _read_response(response, deadline: float, *, maximum: int = MAX_RESPONSE) -> Upstream:
         observed = Upstream(
             response.status,
             _UNUSABLE_PAYLOAD,
@@ -98,12 +98,12 @@ class GitHubProvider:
             while True:
                 if time.monotonic() >= deadline:
                     return observed
-                chunk = response.read1(min(16384, MAX_RESPONSE + 1 - size))
+                chunk = response.read1(min(16384, maximum + 1 - size))
                 if not chunk:
                     break
                 chunks.append(chunk)
                 size += len(chunk)
-                if size > MAX_RESPONSE:
+                if size > maximum:
                     return observed
             return replace(observed, payload=loads(b"".join(chunks)))
         except (OSError, HTTPException, ValueError, RecursionError):
@@ -137,14 +137,13 @@ class GitHubProvider:
                 # A Retry-After header already settles throttling; do not wait
                 # for an error body that cannot change that classification.
                 if error.code in {403, 429} and not secondary:
-                    try:
-                        raw = error.read(min(32768, MAX_RESPONSE))
-                        payload = loads(raw)
-                        message = payload.get("message") if isinstance(payload, dict) else None
-                        body_secondary = isinstance(message, str) and "secondary rate limit" in message.lower()
-                        secondary = secondary or body_secondary
-                    except (ValueError, UnicodeDecodeError, RecursionError, OSError, HTTPException):
-                        pass
+                    # A trickling error body must not hold a gateway slot past
+                    # the request budget. Check between bounded reads just as
+                    # for successful responses, retaining the smaller error cap.
+                    payload = self._read_response(error, deadline, maximum=min(32768, MAX_RESPONSE)).payload
+                    message = payload.get("message") if isinstance(payload, dict) else None
+                    body_secondary = isinstance(message, str) and "secondary rate limit" in message.lower()
+                    secondary = secondary or body_secondary
                 return Upstream(error.code, None, retry, remaining, reset, secondary)
             finally:
                 error.close()
