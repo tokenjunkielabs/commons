@@ -258,25 +258,40 @@ function retainedTreeSHA(raw) {
   const header = 'tree ' + raw.length + '\0';
   const length = header.length + raw.length;
   const padded = Math.ceil((length + 9) / 64) * 64;
+  const bytes = new Uint8Array(padded);
+  for (let i = 0; i < header.length; i++) bytes[i] = header.charCodeAt(i);
+  bytes.set(raw, header.length);
+  bytes[length] = 128;
+  // Retained objects are bounded to 16 MiB, so the bit length fits in 32 bits.
+  for (let i = 0; i < 4; i++) bytes[padded - 1 - i] = (length * 8) >>> (i * 8) & 255;
   const words = new Int32Array(80);
-  const rotate = (value, bits) => (value << bits) | (value >>> (32 - bits));
-  const byte = index => index < header.length ? header.charCodeAt(index)
-    : index < length ? raw[index - header.length] : index === length ? 128
-      : index >= padded - 4 ? (length * 8) >>> ((padded - 1 - index) * 8) & 255 : 0;
   let h0 = 0x67452301, h1 = 0xefcdab89, h2 = 0x98badcfe, h3 = 0x10325476, h4 = 0xc3d2e1f0;
   for (let offset = 0; offset < padded; offset += 64) {
     for (let i = 0; i < 16; i++) {
       const at = offset + i * 4;
-      words[i] = byte(at) << 24 | byte(at + 1) << 16 | byte(at + 2) << 8 | byte(at + 3);
+      words[i] = bytes[at] << 24 | bytes[at + 1] << 16 | bytes[at + 2] << 8 | bytes[at + 3];
     }
-    for (let i = 16; i < 80; i++) words[i] = rotate(words[i - 3] ^ words[i - 8] ^ words[i - 14] ^ words[i - 16], 1);
+    for (let i = 16; i < 80; i++) {
+      const value = words[i - 3] ^ words[i - 8] ^ words[i - 14] ^ words[i - 16];
+      words[i] = value << 1 | value >>> 31;
+    }
     let a = h0, b = h1, c = h2, d = h3, e = h4;
-    for (let i = 0; i < 80; i++) {
-      const f = i < 20 ? (b & c) | (~b & d) : i < 40 ? b ^ c ^ d
-        : i < 60 ? (b & c) | (b & d) | (c & d) : b ^ c ^ d;
-      const k = i < 20 ? 0x5a827999 : i < 40 ? 0x6ed9eba1 : i < 60 ? 0x8f1bbcdc : 0xca62c1d6;
-      const next = (rotate(a, 5) + f + e + k + words[i]) | 0;
-      e = d; d = c; c = rotate(b, 30); b = a; a = next;
+    // Fixed round groups avoid choosing the same function/constant per word.
+    for (let i = 0; i < 20; i++) {
+      const next = ((a << 5 | a >>> 27) + ((b & c) | (~b & d)) + e + 0x5a827999 + words[i]) | 0;
+      e = d; d = c; c = b << 30 | b >>> 2; b = a; a = next;
+    }
+    for (let i = 20; i < 40; i++) {
+      const next = ((a << 5 | a >>> 27) + (b ^ c ^ d) + e + 0x6ed9eba1 + words[i]) | 0;
+      e = d; d = c; c = b << 30 | b >>> 2; b = a; a = next;
+    }
+    for (let i = 40; i < 60; i++) {
+      const next = ((a << 5 | a >>> 27) + ((b & c) | (b & d) | (c & d)) + e + 0x8f1bbcdc + words[i]) | 0;
+      e = d; d = c; c = b << 30 | b >>> 2; b = a; a = next;
+    }
+    for (let i = 60; i < 80; i++) {
+      const next = ((a << 5 | a >>> 27) + (b ^ c ^ d) + e + 0xca62c1d6 + words[i]) | 0;
+      e = d; d = c; c = b << 30 | b >>> 2; b = a; a = next;
     }
     h0 = (h0 + a) | 0; h1 = (h1 + b) | 0; h2 = (h2 + c) | 0; h3 = (h3 + d) | 0; h4 = (h4 + e) | 0;
   }
