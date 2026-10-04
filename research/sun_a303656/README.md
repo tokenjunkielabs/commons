@@ -52,6 +52,10 @@ every residue modulo every prime power is represented even with exponents
 exponent pair throughout. Thus an individual-prime obstruction search cannot
 succeed even after bounding the restricted offset by the target.
 
+The [dyadic palette bound](DYADIC_PALETTE_BOUND.md) proves that four is the
+exact minimum for a fixed local-cover palette: any three integer offsets miss
+an explicit class modulo a power of two, even when their sizes are unrestricted.
+
 That same four-offset palette fails on an explicit composite CRT progression.
 More generally, every fixed finite list of exact exponent pairs fails for
 infinitely many positive integers. A composite-modulus argument must use one

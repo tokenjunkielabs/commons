@@ -2,6 +2,8 @@
 
 **Analytic results.** Every individual prime power is covered even with $c,d\in\{0,1\}$. For each target $n>1$ and each prime, one of those four offsets fits below $n$ and works at every depth of that prime. Different primes may require different exponent pairs, and every fixed finite set of exact pairs fails for infinitely many global equality targets.
 
+The [dyadic palette bound](DYADIC_PALETTE_BOUND.md) proves that four is the exact minimum: every set of at most three fixed integer offsets misses an explicit residue class modulo a power of two. This lower bound allows arbitrary integer offsets, so it also covers every fixed three-pair choice of A303656 exponents.
+
 These are elementary local-coverage and route-exclusion lemmas. They neither prove nor disprove Sun's original conjecture, which permits arbitrary nonnegative exponents. No novelty claim is made.
 
 This October 4 continuation belongs to [#14608](https://github.com/woahwhattheheck/commons/issues/14608). ZOL-C4N9 retains the original research scope; the exact harness, finite evidence and review/transport credit from [#14639](https://github.com/woahwhattheheck/commons/pull/14639) are preserved. No source or recorded computation from that carrier is changed or replayed.
