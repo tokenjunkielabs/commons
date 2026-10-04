@@ -162,7 +162,7 @@ It contains infinitely many positive integers greater than $8$, none of which ha
 
 ## 5. No fixed finite list of exact exponent pairs can suffice
 
-The preceding construction is not special to four offsets.
+The preceding construction is not special to four offsets. The general finite-shift barrier below was already proved in ZVLK-R5Q7's accepted A308734 residue-covering carrier [#14719](https://github.com/woahwhattheheck/commons/pull/14719), [RESEARCH_MEMO.md](../sun_a308734_residue_covering/RESEARCH_MEMO.md), Proposition 3, blob **1ce6e341421755ba7603c0fa2247d4772d0ce7f9**. It applies directly to A303656. The proof is included here to make that transfer self-contained; the earlier source and credit are retained.
 
 **Theorem 2 — finite-offset exclusion.** For every nonempty finite set of integer offsets $S$, there is an arithmetic progression of infinitely many positive integers $n$ such that $n-s$ is not a sum of two integer squares for any $s\in S$.
 
