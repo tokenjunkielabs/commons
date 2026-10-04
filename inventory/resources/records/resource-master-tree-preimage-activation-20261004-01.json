@@ -1660,7 +1660,45 @@
       "After fixed sweep upper and later source snapshot remain separate; next wake must read the unswept tail."
     ],
     "prepublication_observed_main": "11ee0c19d66e1e9d27ce8acd4044d01142a0e96f",
-    "prepublication_ledger_preimages_unchanged": true
+    "prepublication_ledger_preimages_unchanged": true,
+    "publication": {
+      "source_pr": 31173,
+      "source_commit_sha": "52f2772ffde922914c232970cb194d1405647433",
+      "merge_sha": "1e800be34494e9794dd51885769843674880e9e2",
+      "readback_sha": "1e800be34494e9794dd51885769843674880e9e2",
+      "blobs": [
+        {
+          "path": "host/github_tree_preimage.py",
+          "sha": "f26555e4d3d102a3d2fdeb9499d4f9bb5ae42bd8"
+        },
+        {
+          "path": "host/GITHUB_TREE_PREIMAGE.md",
+          "sha": "1c63a941d08d5160d6427f88ce8212d2d2edcf26"
+        },
+        {
+          "path": "ground/RESOURCE_LEDGER.json",
+          "sha": "271d51e9f9edc07f2af24eb4bb334763a8fb9dd0"
+        },
+        {
+          "path": "ground/RESOURCE_LEDGER.md",
+          "sha": "3c0f5c929d9ddd2b694a7fd15bbab1dc672d83a3"
+        },
+        {
+          "path": "resources.html",
+          "sha": "0bc8ee652089117aa4cab3b312a7096fb37f9622"
+        },
+        {
+          "path": "inventory/resources/records/resource-master-tree-preimage-activation-20261004-01.json",
+          "sha": "b601169e5d3908efdf2d648d10e32ed2ce8aa5c7"
+        },
+        {
+          "path": "p/resource-master-tree-preimage-activation-20261004-01.md",
+          "sha": "466628eed0bee27becdd935dfc4b583664d6ccc7"
+        }
+      ],
+      "continuing_order_reply_ts": "1791103326.757599",
+      "unswept_after_fixed_upper": true
+    }
   },
   "quota_lifecycle": {
     "checked_once": true,
@@ -1685,5 +1723,294 @@
     "root_message_ts": "1791076849.841949",
     "root_link": "https://tokenjunkielabs.slack.com/archives/C0BTB4SUCP9/p1791076849841949",
     "smallest_remaining_deliverable": "Consume exact retained raw-tree bytes in the current native publisher while binding them to its own immutable parent-tree observation; preserve all existing source/merge/readback behavior."
+  },
+  "publication_terminal": {
+    "state": "SOURCE_MERGED_AND_READ_BACK",
+    "source_pr": {
+      "number": 31173,
+      "url": "https://github.com/woahwhattheheck/commons/pull/31173",
+      "head_sha": "52f2772ffde922914c232970cb194d1405647433"
+    },
+    "source_commit_sha": "52f2772ffde922914c232970cb194d1405647433",
+    "merge_sha": "1e800be34494e9794dd51885769843674880e9e2",
+    "current_main_readback_sha": "1e800be34494e9794dd51885769843674880e9e2",
+    "readback": [
+      {
+        "path": "host/github_tree_preimage.py",
+        "expected_blob_sha": "f26555e4d3d102a3d2fdeb9499d4f9bb5ae42bd8",
+        "observed_blob_sha": "f26555e4d3d102a3d2fdeb9499d4f9bb5ae42bd8",
+        "content_matches": true,
+        "matches": true
+      },
+      {
+        "path": "host/GITHUB_TREE_PREIMAGE.md",
+        "expected_blob_sha": "1c63a941d08d5160d6427f88ce8212d2d2edcf26",
+        "observed_blob_sha": "1c63a941d08d5160d6427f88ce8212d2d2edcf26",
+        "content_matches": true,
+        "matches": true
+      },
+      {
+        "path": "ground/RESOURCE_LEDGER.json",
+        "expected_blob_sha": "271d51e9f9edc07f2af24eb4bb334763a8fb9dd0",
+        "observed_blob_sha": "271d51e9f9edc07f2af24eb4bb334763a8fb9dd0",
+        "content_matches": true,
+        "matches": true
+      },
+      {
+        "path": "ground/RESOURCE_LEDGER.md",
+        "expected_blob_sha": "3c0f5c929d9ddd2b694a7fd15bbab1dc672d83a3",
+        "observed_blob_sha": "3c0f5c929d9ddd2b694a7fd15bbab1dc672d83a3",
+        "content_matches": true,
+        "matches": true
+      },
+      {
+        "path": "resources.html",
+        "expected_blob_sha": "0bc8ee652089117aa4cab3b312a7096fb37f9622",
+        "observed_blob_sha": "0bc8ee652089117aa4cab3b312a7096fb37f9622",
+        "content_matches": true,
+        "matches": true
+      },
+      {
+        "path": "inventory/resources/records/resource-master-tree-preimage-activation-20261004-01.json",
+        "expected_blob_sha": "b601169e5d3908efdf2d648d10e32ed2ce8aa5c7",
+        "observed_blob_sha": "b601169e5d3908efdf2d648d10e32ed2ce8aa5c7",
+        "content_matches": true,
+        "matches": true
+      },
+      {
+        "path": "p/resource-master-tree-preimage-activation-20261004-01.md",
+        "expected_blob_sha": "466628eed0bee27becdd935dfc4b583664d6ccc7",
+        "observed_blob_sha": "466628eed0bee27becdd935dfc4b583664d6ccc7",
+        "content_matches": true,
+        "matches": true
+      }
+    ],
+    "source_preimages": [
+      {
+        "path": "host/github_tree_preimage.py",
+        "previous_blob_sha": null,
+        "previous_mode": null,
+        "mode": "100644",
+        "expected_new_blob_sha": "f26555e4d3d102a3d2fdeb9499d4f9bb5ae42bd8",
+        "source_pin_matches": true,
+        "blob_sha": "f26555e4d3d102a3d2fdeb9499d4f9bb5ae42bd8"
+      },
+      {
+        "path": "host/GITHUB_TREE_PREIMAGE.md",
+        "previous_blob_sha": null,
+        "previous_mode": null,
+        "mode": "100644",
+        "expected_new_blob_sha": "1c63a941d08d5160d6427f88ce8212d2d2edcf26",
+        "source_pin_matches": true,
+        "blob_sha": "1c63a941d08d5160d6427f88ce8212d2d2edcf26"
+      },
+      {
+        "path": "ground/RESOURCE_LEDGER.json",
+        "previous_blob_sha": "8bd56d32558712ba0fb7b49e8ea2c8e1552de4e6",
+        "previous_mode": "100644",
+        "mode": "100644",
+        "expected_new_blob_sha": "271d51e9f9edc07f2af24eb4bb334763a8fb9dd0",
+        "source_pin_matches": true,
+        "blob_sha": "271d51e9f9edc07f2af24eb4bb334763a8fb9dd0"
+      },
+      {
+        "path": "ground/RESOURCE_LEDGER.md",
+        "previous_blob_sha": "2654af08bb94981491ce4aad7cae54841a96420c",
+        "previous_mode": "100644",
+        "mode": "100644",
+        "expected_new_blob_sha": "3c0f5c929d9ddd2b694a7fd15bbab1dc672d83a3",
+        "source_pin_matches": true,
+        "blob_sha": "3c0f5c929d9ddd2b694a7fd15bbab1dc672d83a3"
+      },
+      {
+        "path": "resources.html",
+        "previous_blob_sha": "1b7934353501a694380a50174960c442614222bf",
+        "previous_mode": "100644",
+        "mode": "100644",
+        "expected_new_blob_sha": "0bc8ee652089117aa4cab3b312a7096fb37f9622",
+        "source_pin_matches": true,
+        "blob_sha": "0bc8ee652089117aa4cab3b312a7096fb37f9622"
+      },
+      {
+        "path": "inventory/resources/records/resource-master-tree-preimage-activation-20261004-01.json",
+        "previous_blob_sha": null,
+        "previous_mode": null,
+        "mode": "100644",
+        "expected_new_blob_sha": "b601169e5d3908efdf2d648d10e32ed2ce8aa5c7",
+        "source_pin_matches": true,
+        "blob_sha": "b601169e5d3908efdf2d648d10e32ed2ce8aa5c7"
+      },
+      {
+        "path": "p/resource-master-tree-preimage-activation-20261004-01.md",
+        "previous_blob_sha": null,
+        "previous_mode": null,
+        "mode": "100644",
+        "expected_new_blob_sha": "466628eed0bee27becdd935dfc4b583664d6ccc7",
+        "source_pin_matches": true,
+        "blob_sha": "466628eed0bee27becdd935dfc4b583664d6ccc7"
+      }
+    ],
+    "preimage_fallbacks": [
+      {
+        "path": "p/resource-master-tree-preimage-activation-20261004-01.md",
+        "base_commit_sha": "ca82b2c4d8646227d315c1e03ec36d3e93b3f681",
+        "parent_tree_sha": "26cc2a5332d6b315b09d120cc1e0bbdf1d5ffa52",
+        "reason": "transport_closed",
+        "tree_error": {
+          "action": "fetch",
+          "error_code": "transport_closed",
+          "http_status": null,
+          "message": "fetch returned no usable result because its transport closed; reconcile provider state before retrying a write"
+        },
+        "request": {
+          "repository_full_name": "woahwhattheheck/commons",
+          "path": "p/resource-master-tree-preimage-activation-20261004-01.md",
+          "ref": "ca82b2c4d8646227d315c1e03ec36d3e93b3f681",
+          "encoding": "utf-8",
+          "start_line": 1,
+          "end_line": 1
+        },
+        "outcome": "absent",
+        "observed_blob_sha": null,
+        "http_status": 404,
+        "connector_error_code": "NOT_FOUND"
+      }
+    ],
+    "checks": {
+      "source_ast": "PASS",
+      "actual_tree_execution": "PASS",
+      "open_door": "PASS",
+      "privacy": "PASS",
+      "credentials": "PASS",
+      "diff": "PASS",
+      "scope_paths": 7,
+      "branch_identity": "PASS",
+      "single_activation": "PASS"
+    },
+    "asynchronous_workflows": {
+      "scope": "first-page pull-request-triggered wrapper; no exhaustive all-events claim",
+      "observed": [
+        {
+          "id": 37189646261,
+          "name": "job-watchdog",
+          "status": "in_progress",
+          "conclusion": null,
+          "run_number": 8359,
+          "jobs_url": "https://api.github.com/repos/woahwhattheheck/commons/actions/runs/37189646261/jobs",
+          "logs_url": "https://api.github.com/repos/woahwhattheheck/commons/actions/runs/37189646261/logs",
+          "workflow_id": 339837030
+        },
+        {
+          "id": 37189646284,
+          "name": "capability-entrypoints",
+          "status": "in_progress",
+          "conclusion": null,
+          "run_number": 809,
+          "jobs_url": "https://api.github.com/repos/woahwhattheheck/commons/actions/runs/37189646284/jobs",
+          "logs_url": "https://api.github.com/repos/woahwhattheheck/commons/actions/runs/37189646284/logs",
+          "workflow_id": 343069210
+        },
+        {
+          "id": 37189646267,
+          "name": "open-door-guard",
+          "status": "in_progress",
+          "conclusion": null,
+          "run_number": 26959,
+          "jobs_url": "https://api.github.com/repos/woahwhattheheck/commons/actions/runs/37189646267/jobs",
+          "logs_url": "https://api.github.com/repos/woahwhattheheck/commons/actions/runs/37189646267/logs",
+          "workflow_id": 340469166
+        },
+        {
+          "id": 37189646312,
+          "name": "resources-tab-freshness",
+          "status": "completed",
+          "conclusion": "failure",
+          "run_number": 637,
+          "jobs_url": "https://api.github.com/repos/woahwhattheheck/commons/actions/runs/37189646312/jobs",
+          "logs_url": "https://api.github.com/repos/woahwhattheheck/commons/actions/runs/37189646312/logs",
+          "workflow_id": 346203794
+        },
+        {
+          "id": 37189646262,
+          "name": "muhlnickel-spec-guard",
+          "status": "in_progress",
+          "conclusion": null,
+          "run_number": 18272,
+          "jobs_url": "https://api.github.com/repos/woahwhattheheck/commons/actions/runs/37189646262/jobs",
+          "logs_url": "https://api.github.com/repos/woahwhattheheck/commons/actions/runs/37189646262/logs",
+          "workflow_id": 339668272
+        },
+        {
+          "id": 37189646270,
+          "name": "path-manifest",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 16200,
+          "jobs_url": "https://api.github.com/repos/woahwhattheheck/commons/actions/runs/37189646270/jobs",
+          "logs_url": "https://api.github.com/repos/woahwhattheheck/commons/actions/runs/37189646270/logs",
+          "workflow_id": 343065408
+        },
+        {
+          "id": 37189646283,
+          "name": "source-parses",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 13439,
+          "jobs_url": "https://api.github.com/repos/woahwhattheheck/commons/actions/runs/37189646283/jobs",
+          "logs_url": "https://api.github.com/repos/woahwhattheheck/commons/actions/runs/37189646283/logs",
+          "workflow_id": 346213905
+        }
+      ],
+      "resources_projection_failure": {
+        "run_id": 37189646312,
+        "reason": "source digest does not match current inputs",
+        "repair": "Regenerate existing resources freshness stamp from all exact immutable inputs during terminal publication."
+      }
+    },
+    "continuing_order": {
+      "id": "CONNECTED-GITHUB-PUBLISH-LARGE-DIRECTORY-PRECHECK-20261004-01",
+      "root_ts": "1791076849.841949",
+      "reply_ts": "1791103326.757599",
+      "reply_url": "https://tokenjunkielabs.slack.com/archives/C0BTB4SUCP9/p1791103326757599",
+      "retained_owner": "Z-A3DEA",
+      "new_root_created": false
+    },
+    "released_source_paths": [
+      "host/github_tree_preimage.py",
+      "host/GITHUB_TREE_PREIMAGE.md"
+    ],
+    "scope_release": "No continuing implementation claim on publisher or other owners; original order retains integration.",
+    "terminal_branch": "codex/resource-master-tree-preimage-terminal-20261004-01",
+    "terminal_branch_resolution": "Resolve exact terminal branch PR for its own closure merge SHA; self-referential hash is not predeclared.",
+    "projection_repair": {
+      "generator_path": "host/resources_tab.py",
+      "generator_blob_sha": "5e5e143eeba749d0c05cbe76d76c1385f6b1758b",
+      "immutable_input_source_sha": "1e800be34494e9794dd51885769843674880e9e2",
+      "native_records_tree_sha": "74fbeb66d543360463e8ca891559d7b1040f4346",
+      "complete_native_tree_chain": [
+        "1dec3d7d7f2fd474254deb23587b16bbdee20868",
+        "cb82ba383afb3d647b4c048b42a494c520109d58",
+        "6b8f64e6ff96401b60eab114b1b1e3a85a6b27f2",
+        "74fbeb66d543360463e8ca891559d7b1040f4346"
+      ],
+      "verified_inputs": 112,
+      "inventory_records": 107,
+      "full_input_blob_verification": true,
+      "full_native_tree_reconstruction_verification": true,
+      "auxiliary_blobs": {
+        "ci/provider_quotas.json": "acd99e9c6b15b91a6d08bf8e27816f108ca30d7b",
+        "revenue/outcome_commerce/manifest.json": "7fac1a9ed279f68965cdd52a8f987620923a2abd",
+        "revenue/outcome_commerce/catalog.json": "77b01c318a60930c24c056a9416ba721f94982f3",
+        "orchestration/jeffersonville/frameworks.json": "67d9987c1f2437b7ad8160381744f654243ffaec",
+        "orchestration/jeffersonville/topology.json": "ed3604adee57d04f55183ee5d73fa5dcd847a10a"
+      },
+      "owned_terminal_substitutions": [
+        "ground/RESOURCE_LEDGER.json",
+        "ground/RESOURCE_LEDGER.md",
+        "inventory/resources/records/resource-master-tree-preimage-activation-20261004-01.json",
+        "resources.html#body"
+      ],
+      "execution": "Existing generator --regenerate followed by --check over the verified exact inputs plus these owned terminal source substitutions; no mocks or fixtures."
+    }
   }
 }
