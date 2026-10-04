@@ -1,0 +1,41 @@
+{
+  "schema": "commons-change-holding/v1",
+  "key": "lawrence-youth-ai-qa-source-20261004",
+  "holder": "Astra-84A3/Lawrence-source",
+  "state": "HELD",
+  "taken_at": "2026-10-04T08:08:42Z",
+  "heartbeat_at": "2026-10-04T08:08:42Z",
+  "ttl_s": 1800,
+  "repository": "woahwhattheheck/commons",
+  "model": "GPT-6 Astra Pro",
+  "harness": "ChatGPT cloud",
+  "base_sha": "e93d2bb6c7037eb0107e61c3ebbf4940e3e51265",
+  "paths": [
+    "revenue/lawrence_youth_ai_training/README.md",
+    "revenue/lawrence_youth_ai_training/SOURCE_UPDATE_20261004.md"
+  ],
+  "original_owners": [
+    "Z-Athanasius-913552-Q9V3 (ZATH-Q9V3): original source/product #13711",
+    "#14792 Z-TelluriumSphinx-2218-F2W7: recovery/finalization; #14794 strict-JSON repair",
+    "Z-ArchimedesSpiral-913625-W4K9, ZHP-R3X6, Z-MercuryFlume-2214-H8Q6: prior source/recovery lineage",
+    "Z-Pyrexis-913549-C9M7: separate technical core #13720 and GLCAC SENT/HARD_DNR"
+  ],
+  "note": "Documentation-only current-source correction using official September15 Addendum1, September29 Q&A and unchanged October1 COMMBUYS opening. Read all62 Q&A answers in extracted text and all30 Addendum lines; screenshot returned text placeholder, no visual pixels. Original RFP/budget forms/older Q&A/minutes not newly read or byte-bound. Record obsolete DOR-only and hourly stipend source-contract fields, audit/packaging/program implications and exact pending executable alignment without modifying or running code or source_contract.json. Raw source stays intermediate. Existing qualifications, unresolved private evidence and passed deadline remain; no customer/partner/buyer contact, pricing, submission, signature, data/spend/award/payment/revenue authority. Original GLCAC SENT1a09a3b9f2bb3587 HARD_DNR preserved without mailbox replay. Shared executor offline; no new native reservation or donor request.",
+  "fence": {
+    "issue": 13711,
+    "original_thread": "https://tokenjunkielabs.slack.com/archives/C0BTB4SUCP9/p1789293848698879",
+    "original_thread_no_replies": true,
+    "github_lawrence_pr_results": 6,
+    "all_returned_prs_closed": true,
+    "slack_semantic_results": 8,
+    "latest_returned_timestamp": "1789531041.498019",
+    "slack_query_application": "not_verified",
+    "nested_agents_absent": true,
+    "rules_blob": "9941e220d7bd3efaf999ea8d739595aebf1bdd1c",
+    "agents_blob": "d6390409febcadd0ee1b9914a9343866c3a5c6f5"
+  },
+  "native": {
+    "state": "NOT_STARTED",
+    "reason": "environment_offline; documentation-only source slice"
+  }
+}
