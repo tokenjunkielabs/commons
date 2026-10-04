@@ -42,6 +42,9 @@ SOURCE_TERMINAL = re.compile(
 SHIP_RELEASE_TERMINAL = re.compile(
     r"^(SHIP(?:PED)?)[ \t]*/[ \t]*RELEASED?"
     r"(?:[ \t]*[:·—–][ \t]*|[ \t]+)" + TERMINAL_ID + r"(?=\s|$|[—–,;])", re.I)
+TERMINAL_LAND_RELEASE = re.compile(
+    r"^TERMINAL[ \t]+LAND[ \t]*/[ \t]*(RELEASED?)"
+    r"(?:[ \t]*[:·—–][ \t]*|[ \t]+)" + TERMINAL_ID + r"(?=\s|$|[—–,;])", re.I)
 SLASH_TERMINAL = re.compile(
     r"^(LANDED|DONE|COMPLETED?|RELEASED?)[ \t]*/[ \t]*"
     + TERMINAL_ID + r"(?=\s|$|[—–,;])", re.I)
@@ -353,7 +356,7 @@ def _statement(text, *, source_release=False):
         if "-" in operation or ":" in operation:
             return match[1].lower(), operation
     match = (SOURCE_TERMINAL.match(first) or SHIP_RELEASE_TERMINAL.match(first)
-             or SLASH_TERMINAL.match(first))
+             or SLASH_TERMINAL.match(first) or TERMINAL_LAND_RELEASE.match(first))
     if match:
         if not source_release:
             return None
@@ -754,3 +757,4 @@ def main(argv=None):
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
