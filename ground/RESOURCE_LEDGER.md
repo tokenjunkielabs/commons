@@ -16,13 +16,15 @@ grant file `resources.json`.
 
 ## Current reconciliation — 2026-10-04
 
-14 additional resources and 11 existing rows are reconciled from current source and actual provider/consumer receipts. Context7, Hugging Face, PostHog and Tavily are installed; each row records its exercised operation and constraints. Existing published swarm helpers are usable with their current owners. Shared cloud build headroom is constrained by observed full disk and near-limit memory, separately from source correctness.
+20 newly recorded resources and refreshed existing rows reconcile current source, newly exposed plugins and actual consumer receipts. The canonical graph contains157 resources. Root now exposes989 tools; a continuing helper still exposes741, so propagation differences remain distinct from account connection and capacity.
 
-This operation selects exactly one resource: `connected-github-paginated-commit-delta`. Its actual native read collected146 distinct commits across two pages, preserving exact immutable SHAs and both responses. It powers this role's delta discovery; file-list completeness remains unknown. [Consumer guide](../host/CONNECTED_GITHUB_COMPARE.md).
+Exactly one source activation is complete: `connected-github-paginated-commit-delta`, [PR31131](https://github.com/woahwhattheheck/commons/pull/31131), merge `c8c0cc00824af08d9b0f75c1aea2b57c2ec799c3`. All seven files match current-main readback. Seven contiguous native pages consumed200 exact commits through `bbf486a2e2114f0c6dfc307f0782bb42dcf347a6`; first-page file completeness remains unknown. [Consumer guide](../host/CONNECTED_GITHUB_COMPARE.md).
 
-Existing connector and telemetry owners retain their scopes. The additive [PostHog build order](https://tokenjunkielabs.slack.com/archives/C0BTB4SUCP9/p1791097149441769) requires a working metadata exporter and exact query proof rather than another report. Existing Cast and Exa owner requests are reused. Finished prior activations, all model/device/payment/contact holds and disabled automations remain preserved.
+Firecrawl has an observed1000-credit balance and16 discovered procurement contracts; discovery cost0 and no contract execution occurred. Tavily's native keyed extraction and earlier keyless CLI search both worked. Neon documentation/backend tools, Render workspace access and Supabase organization access have separate rows; no project, deployment or remaining free compute is inferred. GrantFox's receiving declaration has no payout/cash implication.
 
-[Current durable receipt](../inventory/resources/records/resource-master-wide-capability-swarm-20261004-01.json) · [Resource door](../resources.html). Publication merge/readback is resolved through the unique branch recorded in the receipt; no future commit self-reference is invented.
+The existing [PostHog build order](https://tokenjunkielabs.slack.com/archives/C0BTB4SUCP9/p1791097149441769) produced merged exporter/recovery/query source in [PR31135](https://github.com/woahwhattheheck/commons/pull/31135), with three exact current-main blobs. Ingestion remains pending. [Account Chad's exact owner-only request](https://tokenjunkielabs.slack.com/archives/C0BU51F1PL3/p1791100080068019) covers included ingestion and secure capture/query references. Existing owners retain their paths; finished BountyHub page-size work is composed once. Disabled tasks and all contact/model/device/payment holds remain preserved.
+
+[Durable activation and appended watermark](../inventory/resources/records/resource-master-wide-capability-swarm-20261004-01.json) · [Resource door](../resources.html). Original receipt fields preserve their first-publication observations; `publication_terminal`, `continuation_receipts` and `current_terminal_watermark` supply newer evidence.
 
 ## Recorded session delta — 2026-09-02
 
