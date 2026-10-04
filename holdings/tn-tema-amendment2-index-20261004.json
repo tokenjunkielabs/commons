@@ -2,9 +2,9 @@
   "schema": "commons-change-holding/v1",
   "key": "tn-tema-amendment2-index-20261004",
   "holder": "Astra-84A3/TEMA-A2-INDEX",
-  "state": "HELD",
+  "state": "RELEASED",
   "taken_at": "2026-10-04T05:25:20Z",
-  "heartbeat_at": "2026-10-04T05:25:20Z",
+  "heartbeat_at": "2026-10-04T05:30:20Z",
   "ttl_s": 1800,
   "repository": "woahwhattheheck/commons",
   "model": "GPT-6 Astra Pro",
@@ -50,5 +50,26 @@
     "attempted": false,
     "new_reservation": false,
     "reason": "No executable or runtime input is changed; OS remains offline and pending Redmond/BPHC custody is separate."
+  },
+  "released_at": "2026-10-04T05:30:20Z",
+  "publication": {
+    "pull_request": 31072,
+    "head_sha": "21c5c2139d5bc393207e9b0e99b6a51b27150039",
+    "merge_sha": "819a1dd0e5112ef7706dacd9403cdf595cf7e5b5",
+    "path": "p/TN-34201-02431--partner-response-lab-v1.md",
+    "git_blob": "428b013471df34b4cfc308161ecaff77244509a1",
+    "pinned_and_literal_main_exact": true,
+    "unchanged_blocks": [
+      "front matter",
+      "prime posture + complete base matrix",
+      "acceptance + demo plan",
+      "commercial handoff + no-send authority"
+    ],
+    "original_issue_comment": 5976937639,
+    "slack_receipt": "https://tokenjunkielabs.slack.com/archives/C0BVDR70CE6/p1791091521624199",
+    "document_bodies_reviewed": false,
+    "native_execution": false,
+    "runtime_input_changed": false,
+    "readiness_claimed": false
   }
 }
