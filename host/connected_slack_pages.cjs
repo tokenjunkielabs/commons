@@ -60,6 +60,44 @@ function diagnostic(error) {
     message: String(error?.message ?? error).slice(0, 1200)};
 }
 
+/** Project only the native failure envelope, never nested application payloads. */
+function projectSlackReadFailure(response) {
+  const record = value => value && typeof value === 'object' && !Array.isArray(value);
+  if (!record(response)) return null;
+  const value = record(response.structuredContent) ? response.structuredContent : response;
+  const data = record(value.error_data) ? value.error_data : {};
+  if (response.isError !== true && value.isError !== true && value.ok !== false
+      && !(response instanceof Error)
+      && !(typeof value.error_code === 'string' && typeof value.error === 'string')) return null;
+
+  const rawRetry = Object.prototype.hasOwnProperty.call(value, 'retry_after')
+    ? value.retry_after : data.retry_after;
+  const seconds = Object.prototype.hasOwnProperty.call(value, 'retry_after_seconds')
+    ? value.retry_after_seconds : rawRetry;
+  // HTTP-date values remain literal; no clock, reset time or quota is inferred.
+  const parsedSeconds = typeof seconds === 'number' ? seconds
+    : typeof seconds === 'string' && /^[0-9]+$/.test(seconds) ? Number(seconds) : null;
+  const retrySeconds = Number.isSafeInteger(parsedSeconds) && parsedSeconds >= 0
+    ? parsedSeconds : null;
+  const nativeMessage = typeof value.error === 'string' ? value.error
+    : typeof data.message === 'string' ? data.message
+    : typeof value.message === 'string' ? value.message
+    : Array.isArray(response.content)
+      ? response.content.find(block => block?.type === 'text' && typeof block.text === 'string')?.text
+      : null;
+  const code = typeof data.code === 'string' || typeof data.code === 'number' ? data.code : null;
+  return {
+    error_code: typeof value.error_code === 'string' ? value.error_code : null,
+    error_type: typeof data.type === 'string' ? data.type : null,
+    code,
+    http_status: data.type === 'http_error' && Number.isInteger(code) && code >= 100 && code <= 599
+      ? code : null,
+    message: String(nativeMessage ?? 'Native read failed').slice(0, 1200),
+    retry_after: ['string', 'number', 'boolean'].includes(typeof rawRetry) ? rawRetry : null,
+    retry_after_seconds: retrySeconds,
+  };
+}
+
 function payload(response) {
   if (response.structuredContent && typeof response.structuredContent === 'object'
       && !Array.isArray(response.structuredContent)
@@ -183,7 +221,8 @@ async function collectSlackPages(tools, request, options = {}) {
     try {
       response = await tools[spec.binding](requested);
     } catch (error) {
-      page.error = diagnostic(error);
+      page.error = {...diagnostic(error), ...projectSlackReadFailure(error)};
+      result.summary.native_error = copy(page.error);
       result.summary.stop_reason = 'NATIVE_EXCEPTION';
       break;
     }
@@ -191,7 +230,9 @@ async function collectSlackPages(tools, request, options = {}) {
     result.responses.push(response);
     result.summary.retained_responses = result.responses.length;
     if (!response || typeof response !== 'object' || response.isError === true) {
-      page.error = {name: 'NativeToolError', message: 'Native tool returned an error or non-object response'};
+      page.error = {name: 'NativeToolError', message: 'Native tool returned an error or non-object response',
+        ...projectSlackReadFailure(response)};
+      result.summary.native_error = copy(page.error);
       result.summary.stop_reason = 'NATIVE_ERROR';
     } else {
       try {
@@ -199,6 +240,7 @@ async function collectSlackPages(tools, request, options = {}) {
         if (decoded.isError === true || decoded.ok === false) {
           const error = new Error('Native payload reports a failed read');
           error.name = 'NativeReadError';
+          error.native_failure = projectSlackReadFailure(decoded);
           throw error;
         }
         const state = pagination(decoded);
@@ -226,6 +268,8 @@ async function collectSlackPages(tools, request, options = {}) {
       } catch (error) {
         page.error = diagnostic(error);
         if (error?.name === 'NativeReadError') {
+          Object.assign(page.error, error.native_failure);
+          result.summary.native_error = copy(page.error);
           result.summary.stop_reason = 'NATIVE_ERROR';
         } else {
           mayContinue = false;
@@ -848,5 +892,5 @@ function projectSlackSearchResults(response, request, options = {}) {
 }
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {collectSlackPages, projectSlackMessages, projectSlackSearchResults};
+  module.exports = {collectSlackPages, projectSlackMessages, projectSlackSearchResults, projectSlackReadFailure};
 }
