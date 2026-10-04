@@ -54,6 +54,9 @@ CHANNEL = re.compile(r"(?:\(ID:\s*|\()([CGD][A-Z0-9]+)\)")
 FILE_PATH = re.compile(
     r"(?<![A-Za-z0-9_./:-])((?:[A-Za-z0-9_.-]+/)+[A-Za-z0-9_.-]+\.[A-Za-z][A-Za-z0-9]{0,9})"
     r"(?=$|[^A-Za-z0-9_/-])")
+BARE_FILE = re.compile(
+    r"(?<![A-Za-z0-9_./:-])([A-Za-z0-9_.-]+\.[A-Za-z][A-Za-z0-9]{0,9})"
+    r"(?=$|[^A-Za-z0-9_/-])")
 BRACES = re.compile(r"((?:[A-Za-z0-9_.-]+/)+)\{([^{}\n]+)\}")
 SCOPED_PATH = re.compile(
     r"(?<![A-Za-z0-9_./:-])(?P<path>(?:[A-Za-z0-9_.-]+/)*"
@@ -483,6 +486,42 @@ def _repeated_declarations(messages, operations):
     return repeated
 
 
+def _basename_hints(messages, operations, by_path):
+    """Retain unresolved filename spellings separately from exact path scopes."""
+    by_message = {(row["channel_id"], row["message_ts"]): row for row in messages}
+    observations, active = [], defaultdict(list)
+    for operation_id, operation in sorted(operations.items()):
+        for declaration in operation["declarations"]:
+            message = by_message[(declaration["channel_id"], declaration["message_ts"])]
+            text = re.sub(r"https?://[^\s<>]+", "", message["text"])
+            for basename in sorted({match[1] for match in BARE_FILE.finditer(text)}):
+                observation = {"basename": basename, "operation_id": operation_id,
+                    "observed_state": operation["state"], "path_resolution": "basename_only",
+                    **declaration}
+                observations.append(observation)
+                if operation["state"] == "declaration_observed":
+                    active[basename].append(observation)
+
+    paths_by_basename = defaultdict(list)
+    for path, operation_ids in sorted(by_path.items()):
+        paths_by_basename[path.rsplit("/", 1)[-1]].append({
+            "path": path, "operation_ids": sorted(operation_ids),
+            "declaration_links": sorted({declaration["permalink"] for op in operation_ids
+                for declaration in operations[op]["declarations"] if declaration["permalink"]}),
+        })
+    hints = []
+    for basename, declarations in sorted(active.items()):
+        paths = paths_by_basename[basename]
+        operation_ids = {row["operation_id"] for row in declarations}
+        operation_ids.update(op for row in paths for op in row["operation_ids"])
+        if len(operation_ids) > 1:
+            hints.append({"basename": basename, "operation_ids": sorted(operation_ids),
+                "basename_observations": declarations, "observed_path_groups": paths,
+                "status": "possible_basename_reference_overlap", "path_resolution": "unresolved",
+                "basis": "Same filename spelling only; directory, repository identity and ownership are not established."})
+    return observations, hints
+
+
 def scan(messages, pages, *, workspace_url=None):
     workspace = _workspace(workspace_url)
     identities = defaultdict(dict)
@@ -576,6 +615,7 @@ def scan(messages, pages, *, workspace_url=None):
                 "path_resolution": "relative_path" if "/" in path else "basename_only"})
     availability_hints = _availability_hints(ordered, operations)
     repeated_declarations = _repeated_declarations(ordered, operations)
+    basename_observations, basename_hints = _basename_hints(ordered, operations, by_path)
     return {"schema": SCHEMA, "advisory_only": True,
         "scope": "Supplied Slack observations only. Declarations do not establish ownership; shared files can contain compatible work. Refresh the linked sources and existing ledger before acting.",
         "counts": {"messages_supplied": len(messages), "distinct_message_ids": len(identities),
@@ -584,7 +624,9 @@ def scan(messages, pages, *, workspace_url=None):
                    "possible_overlap_paths": len(overlaps), "possible_symbol_overlaps": len(scoped_overlaps),
                    "unparsed_statement_headers": len(unparsed),
                    "availability_hints": len(availability_hints),
-                   "repeated_operation_declarations": len(repeated_declarations)},
+                   "repeated_operation_declarations": len(repeated_declarations),
+                   "basename_observations": len(basename_observations),
+                   "possible_basename_overlaps": len(basename_hints)},
         "coverage": {"provider_history_complete": False,
                      "basis": "Caller-supplied pages; terminal pages alone do not prove the history or all claims were supplied.",
                      "pages": pages, "pages_with_continuation": sum(page["terminal_page"] is False for page in pages),
@@ -598,6 +640,8 @@ def scan(messages, pages, *, workspace_url=None):
         "shared_file_scopes": scoped_files,
         "availability_hints": availability_hints,
         "repeated_operation_declarations": repeated_declarations,
+        "basename_observations": basename_observations,
+        "possible_basename_overlaps": basename_hints,
         "unmatched_terminal_observations": [row for row in terminals
             if row.get("resolved_operation_id", row["operation_id"]) not in operations]}
 
@@ -662,7 +706,8 @@ def _select_report(report, *, operation_ids=(), paths=()):
         "returned_counts": {key: len(selected[key]) for key in (
             "operations", "terminal_observations", "possible_overlaps", "possible_symbol_overlaps",
             "shared_file_scopes", "unmatched_terminal_observations", "repeated_operation_declarations")},
-        "global_evidence_retained": ["counts", "coverage", "inputs", "availability_hints"],
+        "global_evidence_retained": ["counts", "coverage", "inputs", "availability_hints",
+                                     "basename_observations", "possible_basename_overlaps"],
         "basis": "Selected observations and their possible-overlap peers; absent matches do not establish available work.",
     }
     return selected
