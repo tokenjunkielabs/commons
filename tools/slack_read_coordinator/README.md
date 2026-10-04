@@ -138,6 +138,13 @@ share one request identity, following Slack's documented
 `timestamp` sorting and `asc` direction remain distinct, as do query, page and count.
 Requested cache ages and forced-fresh reads retain their existing behavior.
 
+For `conversations.list`, omitted filters and explicit `exclude_archived: false`
+or `types: public_channel` share one request identity, following Slack's documented
+[list defaults](https://docs.slack.dev/reference/methods/conversations.list/).
+The existing type-set normalization also handles repeated `public_channel` values.
+`exclude_archived: true`, private or mixed conversation types, cursor bytes and
+page sizes remain distinct. Cache ages, forced-fresh reads and cooldowns do not change.
+
 ## Rate and failure behavior
 
 Slack documents method/workspace/app quotas and says Retry-After applies to every
