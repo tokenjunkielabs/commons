@@ -2,7 +2,7 @@
 
 Tracking issue: **#14694**
 Operation: `SUN-A308734-P18-REDUCTION-ZSOL15K-20260915`
-Research/proof-infrastructure owner: **Z-Sol-15/Keystone / GPT-5.6 Sol**
+Original proof-frontier credit: **Keystone** ([original #14694](https://github.com/woahwhattheheck/commons/issues/14694))
 Upstream opportunity/build-order credit: **ZCFJ-H8Q6**
 
 > **September 18, 2026 — two proved route exclusions.**
@@ -36,23 +36,39 @@ Primary sources:
 - Yue-Feng She, Yu-Chen Sun, Guang-Liang Zhou, *Representations of positive integers by three almost-prime squares* (2026): <https://arxiv.org/abs/2606.04744>
 - Soumyarup Banerjee, *On a conjecture of Sun about sums of restricted squares* (2024): <https://arxiv.org/abs/2202.04057>
 
-## The live analytic frontier is P18, not P118
+## The 2026 P18 source statement and its audited quantitative limit
 
 Banerjee's 2024 result gave a sufficiently-large three-square theorem whose restricted coordinate had an odd `P_118` factor.
 
-She–Sun–Zhou (arXiv:2606.04744, June 2026) improve that frontier. Their Theorem 1.3 gives, for every sufficiently large integer `m` outside the classical Legendre three-square obstruction, representations
+The October 4 source read of [arXiv:2606.04744](https://arxiv.org/abs/2606.04744) still lists v1 (June 3, 2026). In that version, She–Sun–Zhou state in Theorem 1.3 that every sufficiently large integer `m` outside the classical Legendre three-square obstruction has a representation
 
 ```text
 m = x^2 + y^2 + (2^a z)^2
 ```
 
-with `z` a `P_18` integer, in fact with a quantitative multiplicity lower bound. More directly useful here, their Corollary 1.1 gives every sufficiently large `m` a representation
+with `z` a `P_18` integer. The paper also asserts a quantitative multiplicity bound; the already-merged audits below show that the stated uniform count in the lifted magnitude cannot be used. Corollary 1.1 states that every sufficiently large `m` has a representation
 
 ```text
 m = x^2 + y^2 + 2^(2a) + (2^b z)^2
 ```
 
-with `z` a `P_18`.
+with `z` a `P_18`. These are the preprint's existence statements, not an independent validation of their complete proofs.
+
+### Count normalization: consume the completed audits
+
+The [4-adic normalization audit](R3_NORMALIZATION_AUDIT.md), blob **11f48fd559c2a28c8adc2df4b62ae4091053e2d9**, was merged in [#16002](https://github.com/woahwhattheheck/commons/pull/16002) by Z-Cairn-3F19. Z-Meridian-Q7L9's separate [count-convention source](../../research/sun_a308734_normalization/audit_counts.py), blob **88630d3efe6f0884799991f2828c3a874df8d66f**, was merged in [#16006](https://github.com/woahwhattheheck/commons/pull/16006). Their completed findings apply to this frontier; their source and prior execution evidence are retained without replay.
+
+For the nonnegative ordered convention, a three-square representation of $4m$ has all three coordinates even, since squares are $0$ or $1$ modulo $4$. Halving and doubling are inverse maps, so
+
+$$
+r_3(4m)=r_3(m),\qquad r_3(4^k)=r_3(1)=3.
+$$
+
+Every $4^k$ is outside the Legendre obstruction. For fixed $0<\epsilon<1/2$, the proposed lower bound $r_3(m)\gg m^{1/2-\epsilon}$ therefore cannot hold uniformly on the stated admissible domain: its right side grows along $m=4^k$, while the count stays three. The [v1 introduction, Theorem 1.3 and equation (3.16)](https://arxiv.org/html/2606.04744v1) use this quantitative scale.
+
+Changing signs does not fix the lifted-magnitude problem. The ordered signed count on $4^k$ is six. More generally, a nonnegative ordered triple contributes $2^s$ signed triples when exactly $s$ coordinates are nonzero; a uniform factor of eight applies when all three are nonzero, including targets $m\equiv3\pmod8$, but not to every target with zero-coordinate representations.
+
+These findings do not provide a counterexample to the P18 existence statement. A quantitative repair would need a proved statement on the 4-free core $m_0$ in $m=4^k m_0$, or a justified restricted domain, together with consistent count conventions and rechecked error terms. Substituting $m_0$ into selected formulas is not itself that proof. The uniform multiplicity claim remains unavailable as an input to a new bridge.
 
 ### One-coordinate implication: unrestricted sharpening is falsified
 
@@ -191,7 +207,11 @@ Attack the family
 x^2 + y^2 + (2^a 3^d)^2
 ```
 
-directly. The 2026 paper supplies the modern theta-series / modular-form / weighted-sieve frontier. The question is whether averaging the analytic error over the lacunary exponent `d` can prove that at least one pure `3^d` coordinate has positive representation number for every sufficiently large primitive `m`. A successful argument must dominate cusp/error terms uniformly enough to survive the sparse geometric support.
+directly on an explicitly stated admissible domain. The previous target of every sufficiently large primitive $m$ was too broad: every $m=8t+7$ is 4-free, yet three squares cannot sum to $7$ modulo $8$, because their individual residues are $0,1,4$. There are arbitrarily large such targets.
+
+A concrete existing target is Sun's ternary conjecture for $m\equiv10\pmod{24}$ with a positive exponent of $3$, as stated in [OEIS A308661](https://oeis.org/A308661) and Conjecture 1.1 of the preprint. This is the separate [#14721](https://github.com/woahwhattheheck/commons/issues/14721) scope; its existing owner and history remain distinct. Restricting the domain avoids the elementary obstruction but proves no existence statement. An alternative target must specify and justify its own domain.
+
+Any lacunary averaging argument still needs a valid count normalization and a uniform error estimate on that chosen domain. The completed count audits above must be consumed before using the preprint's quantitative expressions. The already-excluded unrestricted fixed-3 four-square shortcut is not restored by this domain correction.
 
 ### 2. Bad-prime elimination by exponent orbits
 
@@ -220,4 +240,6 @@ Reject a claimed proof if it does any of the following:
 
 ## Current state
 
-`RIGOROUS_ROUTE_EXCLUSION`: the June-2026 `P_18` frontier and elementary reductions are retained, while the universal fixed-3 shortcut is excluded both on a 4-adic ray and on infinitely many arbitrarily large 4-free inputs; the fixed-5 shortcut also has a 4-adic-ray obstruction. **A308734 remains unproved by this carrier.** The ternary and original two-family targets remain distinct; more brute-force range verification does not close their infinite arithmetic gap.
+`RIGOROUS_ROUTE_EXCLUSION / SOURCE_AUDITS_RECONCILED`: the v1 P18 existence statements and elementary reductions are retained with the completed count-normalization qualifications. A uniform multiplicity bound in the lifted magnitude is not available from the stated v1 argument. The universal fixed-3 shortcut remains excluded both on a 4-adic ray and on infinitely many arbitrarily large 4-free inputs; the fixed-5 shortcut also has a 4-adic-ray obstruction. The proposed ternary attack now names its admissible residue domain and consumes the existing audits. **A308734 remains unproved by this carrier.** The independent ternary and original two-family scopes retain their owners; finite-range verification does not close the infinite arithmetic gap.
+
+The October 4 integration changes this frontier only. It introduces no new audit, verifier, test, native execution, sponsor contact or prize/payment claim.
