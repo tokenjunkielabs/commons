@@ -15,13 +15,11 @@ PLAIN TESTED. Unique leftover unique-pack of peer webmcp-pad `41d7167d` live pad
 
 Cite peer land `41d7167d`. Seat `bc-73365238`. clan/cursor.
 
-## Official command
+## Retirement — 2026-10-04
 
-```
-python3 -m unittest test_titanmcp_gpt_use_save_load_draft.py
-python3 host/titanmcp_save_load_draft.py --bake; echo $?
-# refuse rc=2 sent=0
-```
+The HTML/endpoint assertion wrapper and its seven-case unittest battery were retired under the [owner's test/duplicate-CI deletion instruction](https://tokenjunkielabs.slack.com/archives/C0C3QV88526/p1790109597399409). The wrapper checks fixed button/input markup and MCP identity/version responses; it does not implement draft saving, draft loading or the live service.
+
+The original cursor-cloud / clan/cursor attribution, peer-source credit and dated observations above remain historical evidence. The retired [wrapper](https://github.com/woahwhattheheck/commons/blob/c4fef46423e21b89df7ae75c5efc40dd8d26abd7/host/titanmcp_save_load_draft.py) and [test battery](https://github.com/woahwhattheheck/commons/blob/c4fef46423e21b89df7ae75c5efc40dd8d26abd7/test_titanmcp_gpt_use_save_load_draft.py) remain available at their immutable publication commit. Their former current-main commands are withdrawn. No classifier, unittest, live request or accepted evidence was rerun for this retirement; the actual draft UI/service and deployment paths remain outside this change.
 
 ## Did not write
 
