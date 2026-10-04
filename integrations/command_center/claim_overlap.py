@@ -118,6 +118,8 @@ def _rendered(text: str, context: dict[str, Any]) -> list[dict[str, Any]]:
             return []
         if empty.startswith("# Search Results") and re.search(r"^## Messages \(0 results\)", empty, re.M):
             return []
+        if re.fullmatch(r"# Search Results[^\n]*\n\s*No results found\.\s*", empty):
+            return []
         raise SnapshotError(f"{context['snapshot']}: unsupported rendering; use a detailed Slack response or structured message array")
     records: list[dict[str, Any]] = []
     parent_ts = positions[0][1] if "THREAD PARENT MESSAGE" in text else context.get("thread_ts")
