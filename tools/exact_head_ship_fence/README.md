@@ -92,6 +92,30 @@ For a fresh synthetic example that performs no provider call:
 python -m tools.exact_head_ship_fence.demo
 ```
 
+## Operator rehearsal
+
+The landed rehearsal runs the existing compile and verify CLIs against twenty fictional snapshots, including queued checks, stale reviews, moving heads/base branches, rejoin evidence, and invalid input. It makes no provider calls and grants no authority.
+
+From the repository root, choose an output directory that does not exist and whose parent already exists:
+
+```bash
+python -m tools.exact_head_ship_fence.rehearsal ship-fence-rehearsal
+```
+
+For a separate optimized run, use another new directory:
+
+```bash
+python -O -m tools.exact_head_ship_fence.rehearsal ship-fence-rehearsal-optimized
+```
+
+The fixed catalog expects five READY reports, twelve HOLD reports, and three rejected inputs, exercised through 37 compile/verify subprocess calls when the run succeeds. A compile exit of zero means a report was written, including HOLD reports; a verify exit of zero means that report agrees with its input and passes the supplied currentness policy. Neither exit grants permission to merge. An empty required-check policy can produce READY without proving any hosted check ran.
+
+Start with the generated `REHEARSAL.md` for each case's verdict, next action, and explanation. `RUN.json` retains the inputs, JSON/Markdown projections, subprocess arguments, exit codes, stdout/stderr, interpreter information, and source-file inventory. `COMPLETE.json` is written last and binds 56 generated files by SHA-256 after the case checks and unchanged-input/source checks pass. The inventory records observed file bytes, not provider or sandbox attestation.
+
+The runner writes `COMPLETE.json` last. A missing completion file means the directory is incomplete; retain that partial output and choose a new absent destination for another run. Saved fictional inputs have a one-hour lifetime, so later verification can correctly reject them. Do not refresh timestamps on real provider evidence to make it pass.
+
+The dated [recovery execution record](RECOVERY_EXECUTION.md) describes an earlier recovery phase. This section documents the current landed interface; it does not assert a new run or current hosted-CI result.
+
 ## Authority ceiling
 
 Every report hard-codes false for merge, ref mutation, review mutation, provider mutation, outbound, spend, payment, and revenue-recognition authority. A READY report is evidence for a human/finalizer to run a **fresh live recensus**; it is never a capability or permission to mutate GitHub.
