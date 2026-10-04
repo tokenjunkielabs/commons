@@ -18,6 +18,8 @@ from pathlib import Path
 from typing import Any, Mapping
 from urllib.parse import urlsplit
 
+from .notifications import redact
+
 _PROCESS_CACHE: dict[str, Any] = {}
 
 
@@ -138,6 +140,10 @@ def _peer(row: Mapping, source: str, read_at: str, *, fresh_read: bool, ttl: flo
         "agent_id": row.get("agent_id") or row.get("agentId"), "parent_agent_id": parent,
         "parent_session_id": row.get("parent_session_id") or row.get("parentThreadId"),
         "provider": provider, "model": row.get("model"), "harness": harness,
+        "title": redact(row.get("title") or row.get("task_title") or row.get("name")),
+        "task_title": redact(row.get("task_title") or row.get("title")),
+        "work_id": row.get("work_id") or row.get("task_id"),
+        "source_record_ref": row.get("source_record_ref"),
         "status": status, "source_status": state,
         "last_activity_at": _timestamp(row.get("last_activity_at") or row.get("lastActivityAt") or row.get("updatedAt") or row.get("updated_at") or row.get("last_active") or observed),
         "observed_at": observed, "fresh": fresh,

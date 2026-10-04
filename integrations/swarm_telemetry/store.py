@@ -633,7 +633,7 @@ class Store:
             self._snapshot_lock.release()
 
     def dashboard_summary(self):
-        """Return a completed compact view immediately; refresh it independently."""
+        """Serve census immediately while complete historical totals refresh."""
         cache=self._dashboard_cache
         if (cache is None or time.monotonic()-cache[0]>=5) and self._dashboard_refresh_lock.acquire(blocking=False):
             def refresh():
@@ -644,15 +644,106 @@ class Store:
                 except Exception as error:
                     self._dashboard_refresh_error=type(error).__name__
                 finally:self._dashboard_refresh_lock.release()
-            Thread(target=refresh,daemon=True,name="telemetry-dashboard-summary").start()
+            try:
+                Thread(target=refresh,daemon=True,name="telemetry-dashboard-summary").start()
+            except Exception as error:
+                self._dashboard_refresh_error=type(error).__name__
+                self._dashboard_refresh_lock.release()
         cache=self._dashboard_cache
         if cache is None:
-            return self.envelope(summary_ready=False,summary_refreshing=self._dashboard_refresh_lock.locked(),summary_state="preparing",summary_refresh_error=self._dashboard_refresh_error,observed_at=None)
-        value=dict(cache[1])
+            return self._dashboard_live_summary()
+        value=self._dashboard_live_summary(cache[1])
         value.update(summary_ready=True,summary_refreshing=self._dashboard_refresh_lock.locked(),summary_cache_age_seconds=round(time.monotonic()-cache[0],3),summary_refresh_error=self._dashboard_refresh_error)
-        # The completed value already contains original source timestamps.
-        # Its serving path performs no SQL; the one refresh worker updates it.
+        # Historical totals keep their original timestamp. Runtime metadata is
+        # read independently on every serve, even during a long corpus refresh.
         return value
+
+    def _dashboard_live_summary(self, historical=None):
+        """Read bounded runtime metadata without scanning the historical corpus."""
+        keys=("census","collector","storage_guard","source_reader_health:slack",
+              "source_reader_health:github","source_reader_health:services")
+        states={}
+        live_error=None
+        try:
+            with self.connect() as db:
+                db.execute("PRAGMA busy_timeout=1000")
+                states={row["key"]:json.loads(row["payload"]) for row in db.execute(
+                    "SELECT key,payload FROM runtime_state WHERE key IN (?,?,?,?,?,?)",keys)}
+        except Exception as error:
+            live_error=type(error).__name__
+        served_at=now()
+        missing_fields=[key for key in keys if key not in states]
+        census=states.get("census") or {}
+        if historical is not None:
+            value=dict(historical)
+            value.update(summary_historical_observed_at=historical.get("observed_at"),
+                summary_served_at=served_at,summary_live_error=live_error,
+                summary_live_missing_fields=missing_fields)
+            if live_error is None:
+                for field,key in (("runtime","collector"),("storage","storage_guard")):
+                    if key in states:value[field]=states[key]
+                health=dict(value.get("reader_health") or {})
+                for kind in ("slack","github","services"):
+                    key="source_reader_health:"+kind
+                    if key in states:health[kind]=states[key]
+                value["reader_health"]=health
+                if census:
+                    value["census"]={key:census[key] for key in ("counts","peers",
+                        "coverage","observed_at","complete","scope") if key in census}
+                    value["observed_at"]=census.get("observed_at")
+                    counts=dict(value.get("counts") or {})
+                    for key in ("executing","waiting","unknown"):
+                        if key in (census.get("counts") or {}):counts[key]=census["counts"][key]
+                    value["counts"]=counts
+                    value["counts_scope"]="Historical totals at summary_historical_observed_at; runtime states at census.observed_at"
+            selected_census=value.get("census") or {}
+            observed_at=iso(selected_census.get("observed_at"))
+            age=(datetime.fromisoformat(served_at.replace("Z","+00:00"))-
+                datetime.fromisoformat(observed_at.replace("Z","+00:00"))).total_seconds() if observed_at else None
+            value["summary_live_age_seconds"]=round(age,3) if age is not None else None
+            value["summary_live_from_cache"]=live_error is not None or not bool(census)
+            value["summary_live_stale"]=value["summary_live_from_cache"] or age is None or age>900
+            if value["summary_live_from_cache"]:
+                value["observed_at"]=selected_census.get("observed_at")
+            return value
+        census_counts=census.get("counts") or {}
+        counts={key:None for key in ("events","sessions","peers","executing",
+                                    "waiting","recently_observed","unknown")}
+        for key in ("executing","waiting","unknown"):
+            counts[key]=census_counts.get(key)
+        return self.envelope(
+            observed_at=census.get("observed_at"),summary_served_at=served_at,
+            summary_ready=True,summary_state="live_census" if census else "pending_census",
+            summary_totals_ready=False,summary_refreshing=self._dashboard_refresh_lock.locked(),
+            summary_refresh_error=self._dashboard_refresh_error,summary_live_error=live_error,
+            summary_live_missing_fields=missing_fields,
+            summary_pending_fields=["counts.events","counts.sessions","counts.peers",
+                "counts.recently_observed","usage","providers","harnesses","activity",
+                "capture","source_groups"],
+            counts=counts,counts_scope="returned live census; historical totals pending",
+            usage={key:None for key in ("input_tokens","output_tokens","cached_tokens",
+                "reasoning_tokens","cost_usd","sessions_with_usage","accounting_coverage")},
+            providers=[],harnesses=[],activity=[],coverage=[],sources=[],notifications=[],
+            work=[],accounts=[],source_groups=[],
+            census={key:census[key] for key in ("counts","peers","coverage","observed_at",
+                "complete","scope") if key in census},
+            runtime=states.get("collector"),storage=states.get("storage_guard"),
+            reader_health={kind:states.get("source_reader_health:"+kind)
+                for kind in ("slack","github","services")},
+            capture={"records":None,"bytes":None,"characters":None,"totals_ready":False,
+                "exact_source_custody":True,"key_reference":"telemetry/source-custody-key"},
+            coverage_page={"returned":None,"next_cursor":"","has_more":True,
+                "result_complete":False,"corpus_complete":False},
+            source_grouping="service",
+            source_detail_endpoints={"partitions":"/api/telemetry/coverage",
+                "account_groups":"/api/telemetry/source-groups","work":"/api/telemetry/work"},
+            corpus_scope="All accounts and all services: Slack, GitHub, machine and cloud activity",
+            corpus_complete=False,
+            definitions={"executing":"Execution observations in the returned census, at its original observed_at.",
+                "waiting":"Waiting observations in the returned census, at its original observed_at.",
+                "unknown":"Unknown runtime states in the returned census.",
+                "peers":"Distinct recorded peer labels; historical total pending.",
+                "usage":"Reported session usage totals pending; absent monetary charges remain unknown."})
 
     def _snapshot(self, *, detailed=False, summary=False):
         with self.connect() as db:
@@ -692,6 +783,9 @@ class Store:
         value["source_groups"]=self.coverage_service_summary() if summary else self.coverage_summary()
         if summary:
             value["summary_ready"]=True
+            value["summary_totals_ready"]=True
+            value["summary_state"]="complete"
+            value["summary_pending_fields"]=[]
             value["source_grouping"]="service"
             value["source_detail_endpoints"]={"partitions":"/api/telemetry/coverage","account_groups":"/api/telemetry/source-groups","work":"/api/telemetry/work"}
             census=value["census"] or {}
