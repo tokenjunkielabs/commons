@@ -137,6 +137,14 @@ Their pair-sum residues are therefore
 
 which is also the complete residue set modulo `8` of a sum of two ordinary squares. For every residue class of `n (mod 8)`, at least one restricted pair residue leaves a locally admissible two-square residue. The hard obstruction is deeper/global arithmetic, not a missing mod-8 class.
 
+### R4 — unrestricted congruences at every prime power
+
+The [prime-power local-coverage proof](LOCAL_PRIME_POWERS.md) extends the mod-8 observation to every individual prime power. At odd primes, one of the legal offsets $2$ and $10$ leaves a unit two-square remainder. At powers of two, a 4-adic core table and square-root lifting give a representation; positive restricted squares may be made zero modulo the chosen modulus.
+
+This is unrestricted congruence coverage. The constructed terms need not fit below $n$, and exponent choices may differ across prime-power components. It therefore gives no global equality, bounded-family density estimate or arbitrary-composite conclusion.
+
+The [existing fixed-finite-shift barrier](../../research/sun_a308734_residue_covering/RESEARCH_MEMO.md), Proposition 3 from [#14719](https://github.com/woahwhattheheck/commons/pull/14719), also remains available: every fixed finite list of exact restricted pairs fails on an infinite CRT progression. Growing families and compatible exponent choices remain essential questions.
+
 ## Conditional bridge through Sun's ternary conjectures
 
 The 2026 She–Sun–Zhou paper restates Sun's two related ternary conjectures:
@@ -242,4 +250,4 @@ Reject a claimed proof if it does any of the following:
 
 `RIGOROUS_ROUTE_EXCLUSION / SOURCE_AUDITS_RECONCILED`: the v1 P18 existence statements and elementary reductions are retained with the completed count-normalization qualifications. A uniform multiplicity bound in the lifted magnitude is not available from the stated v1 argument. The universal fixed-3 shortcut remains excluded both on a 4-adic ray and on infinitely many arbitrarily large 4-free inputs; the fixed-5 shortcut also has a 4-adic-ray obstruction. The proposed ternary attack now names its admissible residue domain and consumes the existing audits. **A308734 remains unproved by this carrier.** The independent ternary and original two-family scopes retain their owners; finite-range verification does not close the infinite arithmetic gap.
 
-The October 4 integration changes this frontier only. It introduces no new audit, verifier, test, native execution, sponsor contact or prize/payment claim.
+The October 4 count/domain integration is recorded in [#31040](https://github.com/woahwhattheheck/commons/pull/31040). The subsequent prime-power note adds unrestricted local coverage and uses the already-published finite-shift barrier with its original credit.
