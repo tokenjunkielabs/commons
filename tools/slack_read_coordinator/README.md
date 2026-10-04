@@ -132,6 +132,12 @@ stays distinct; timestamps and cursors remain exact. This follows Slack's
 parameter semantics, so equivalent reads share an in-flight lease or cached result
 instead of consuming another method interval.
 
+For `search.messages`, omitted sorting and explicit `sort: score` / `sort_dir: desc`
+share one request identity, following Slack's documented
+[search defaults](https://docs.slack.dev/reference/methods/search.messages/).
+`timestamp` sorting and `asc` direction remain distinct, as do query, page and count.
+Requested cache ages and forced-fresh reads retain their existing behavior.
+
 ## Rate and failure behavior
 
 Slack documents method/workspace/app quotas and says Retry-After applies to every
