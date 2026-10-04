@@ -268,4 +268,169 @@ async function searchGitHubIssues(tools, input, options = {}) {
   return finish("PAGE_BUDGET");
 }
 
-module.exports = { searchGitHubIssues };
+
+/**
+ * Project selected bodies from already retained native issue/PR item objects.
+ * This function performs no tool calls and says nothing about query coverage.
+ */
+function projectGitHubIssueItems(items, options = {}) {
+  if (!Array.isArray(items) || items.length > SEARCH_LIMIT) {
+    throw new TypeError("items must be an array containing at most 1000 entries");
+  }
+  if (!object(options)) throw new TypeError("projection options must be an object");
+  const allowed = new Set([
+    "start_index", "source_indices", "max_items", "max_body_chars",
+    "max_total_body_chars", "max_metadata_chars",
+  ]);
+  for (const key of Object.keys(options)) {
+    if (!allowed.has(key)) throw new TypeError("unknown projection option: " + key);
+  }
+  const own = (value, key) => Object.prototype.hasOwnProperty.call(value, key);
+  function bounded(name, fallback, maximum) {
+    const value = own(options, name) ? options[name] : fallback;
+    if (!Number.isSafeInteger(value) || value < 0 || value > maximum) {
+      throw new RangeError(name + " must be an integer from 0 through " + maximum);
+    }
+    return value;
+  }
+  const maxItems = bounded("max_items", 12, 100);
+  const maxBody = bounded("max_body_chars", 500, 100000);
+  const totalBody = bounded("max_total_body_chars", 6000, 1000000);
+  const maxMetadata = bounded("max_metadata_chars", 4096, 65536);
+  const sparse = own(options, "source_indices");
+  let start = null;
+  let indices;
+  if (sparse) {
+    if (own(options, "start_index")) {
+      throw new TypeError("source_indices and start_index are mutually exclusive");
+    }
+    if (!Array.isArray(options.source_indices) || options.source_indices.length > maxItems) {
+      throw new TypeError("source_indices must be an array within max_items");
+    }
+    indices = options.source_indices.slice();
+    let previous = -1;
+    for (const index of indices) {
+      if (!Number.isSafeInteger(index) || index <= previous || index >= items.length) {
+        throw new RangeError("source_indices must be increasing distinct in-range indices");
+      }
+      previous = index;
+    }
+  } else {
+    start = bounded("start_index", 0, items.length);
+    indices = Array.from({length: Math.min(maxItems, items.length - start)}, (_, i) => start + i);
+  }
+
+  const sourceBodies = {text: 0, null: 0, missing: 0};
+  let sourceBodyChars = 0;
+  const rows = Array.from(items, (row, sourceIndex) => {
+    itemIdentity(row);
+    if (typeof row.title !== "string" || typeof row.state !== "string") {
+      throw new TypeError("item " + sourceIndex + " needs string title and state");
+    }
+    const metadata = {
+      id: row.id, number: row.number,
+      kind: row.pull_request == null ? "issue" : "pull_request",
+      title: row.title, state: row.state,
+      url: row.url, html_url: row.html_url,
+    };
+    for (const key of ["repository_url", "created_at", "updated_at", "closed_at"]) {
+      if (!own(row, key)) continue;
+      if (row[key] !== null && typeof row[key] !== "string") {
+        throw new TypeError("item " + sourceIndex + "." + key + " must be a string or null");
+      }
+      metadata[key] = row[key];
+    }
+    if (own(row, "comments")) {
+      if (!Number.isSafeInteger(row.comments) || row.comments < 0) {
+        throw new TypeError("item " + sourceIndex + ".comments must be a nonnegative integer");
+      }
+      metadata.comments = row.comments;
+    }
+    const metadataChars = Object.values(metadata)
+      .reduce((count, value) => count + (value === null ? 0 : String(value).length), 0);
+    if (metadataChars > maxMetadata) {
+      throw new RangeError("item " + sourceIndex + " exceeds max_metadata_chars");
+    }
+    const state = !own(row, "body") ? "missing" : row.body === null ? "null" : "text";
+    if (state === "text" && typeof row.body !== "string") {
+      throw new TypeError("item " + sourceIndex + ".body must be a string, null, or absent");
+    }
+    sourceBodies[state] += 1;
+    if (state === "text") sourceBodyChars += row.body.length;
+    return {metadata, metadataChars, state, body: state === "text" ? row.body : null};
+  });
+
+  let remaining = totalBody;
+  let selectedChars = 0;
+  let returnedChars = 0;
+  let truncated = 0;
+  const selectedBodies = {text: 0, null: 0, missing: 0};
+  const projected = indices.map(sourceIndex => {
+    const row = rows[sourceIndex];
+    selectedBodies[row.state] += 1;
+    if (row.state !== "text") {
+      return {
+        source_index: sourceIndex, ...row.metadata, metadata_chars: row.metadataChars,
+        body_state: row.state, body: null, body_chars: null,
+        returned_body_chars: 0, body_range: null, truncated: null,
+      };
+    }
+    const body = row.body;
+    selectedChars += body.length;
+    let end = Math.min(body.length, maxBody, remaining);
+    // Preserve a complete supplementary character at a truncation boundary.
+    if (end > 0 && end < body.length &&
+        body.charCodeAt(end - 1) >= 0xd800 && body.charCodeAt(end - 1) <= 0xdbff &&
+        body.charCodeAt(end) >= 0xdc00 && body.charCodeAt(end) <= 0xdfff) end -= 1;
+    remaining -= end;
+    returnedChars += end;
+    const shortened = end < body.length;
+    if (shortened) truncated += 1;
+    return {
+      source_index: sourceIndex, ...row.metadata, metadata_chars: row.metadataChars,
+      body_state: row.state, body: body.slice(0, end), body_chars: body.length,
+      returned_body_chars: end, body_range: [0, end], truncated: shortened,
+    };
+  });
+  const omittedRanges = [];
+  let cursor = 0;
+  for (const index of indices) {
+    if (cursor < index) omittedRanges.push([cursor, index]);
+    cursor = index + 1;
+  }
+  if (cursor < items.length) omittedRanges.push([cursor, items.length]);
+  return {
+    schema: "commons.connected_github_issue_projection/v1",
+    source: {
+      scope: "supplied_items_only",
+      identity_basis: "caller_supplied_native_fields",
+      range_unit: "UTF-16 code units", range_end: "exclusive",
+      query_coverage: "not_evaluated", omitted_fields: "all_other_native_fields",
+    },
+    limits: {
+      max_items: maxItems, max_body_chars: maxBody,
+      max_total_body_chars: totalBody, max_metadata_chars: maxMetadata,
+      max_input_items: SEARCH_LIMIT,
+    },
+    selection: {
+      mode: sparse ? "source_indices" : "contiguous",
+      source_indices: indices, start_index: start,
+      next_index: sparse || start + indices.length >= items.length ? null : start + indices.length,
+    },
+    coverage: {
+      supplied_items: items.length, returned_items: projected.length,
+      omitted_items: items.length - projected.length,
+      omitted_source_index_ranges: omittedRanges,
+      source_body_states: sourceBodies, selected_body_states: selectedBodies,
+      supplied_text_body_chars: sourceBodyChars,
+      selected_text_body_chars: selectedChars, returned_body_chars: returnedChars,
+      truncated_text_bodies: truncated,
+      all_supplied_items_selected: indices.length === items.length,
+      all_selected_text_bodies_included: truncated === 0,
+      all_supplied_text_bodies_included: indices.length === items.length && truncated === 0,
+    },
+    items: projected,
+  };
+}
+
+module.exports = { searchGitHubIssues, projectGitHubIssueItems };
