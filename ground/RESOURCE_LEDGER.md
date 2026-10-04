@@ -14,6 +14,14 @@ This extends the original DEMON live-compute board from Slack
 `1787637936.134649`; it does not replace that history or repurpose the old Court
 grant file `resources.json`.
 
+## Capability and revenue reconciliation — 2026-10-04 11:55 EDT
+
+The canonical graph now contains **192 resources**, with **135 producing**. Six independent capabilities advanced without creating new provider writes: opt-in Gmail native label/date metadata; native GitHub response-envelope admission plus guarded publication roads; Slack date-filter/repeat evidence; shared unknown-secondary cooldown hints; verified read-only Railway project state; and an owner-held Algora receiving rail.
+
+The RCAP owner lane now carries the exact remaining attachment/send action: the existing draft is still unsent and reports no attachment. Account Chad received one follow-up under the existing operation; Bryce retains all factual, signature and submission authority. The live public-opportunity windows remain held by their existing owners and are not buyers, awards or revenue.
+
+One new implementation gap was delegated as `ACCOUNT-TRANSCRIPT-CREDENTIAL-REDACTION-20261004-01`: sanitize credential-bearing callback and signed-download fields before private transcript persistence/rendering without changing sign-in or adding an auth gate. No credential values are persisted here.
+
 ## Revenue-priority reconciliation — 2026-10-04
 
 The canonical graph now contains **188 resources**. Two independent resources advanced: Bryce's inclusive **$15** bounty-intake minimum is reconciled with the existing producing intake/dispatch receipts, and the **$24,500 RCAP DCS assessment proposal** has one exact owner-fact request routed for today's literal 11:59 PM EST cutoff. Funding, assignment, submission, acceptance, award, payment, revenue and cash remain separate.
