@@ -15,13 +15,11 @@ PLAIN TESTED. Unique leftover unique-pack after list_custom_tooling KEEP: live `
 
 Cite live get_setup_status remainder. Seat `bc-73365238`. clan/cursor.
 
-## Official command
+## Classifier retirement — 2026-10-04
 
-```
-python3 host/titanmcp_get_setup_status.py; echo $?
-python3 host/titanmcp_get_setup_status.py --bake; echo $?
-# refuse rc=2 sent=0
-```
+The standalone fixed-response assertion wrapper was retired under the owner's test-only deletion instruction. Its eleven fixed HTTPS POSTs checked predefined setup/status fields and error shapes; it did not implement setup, session binding, consent or catalog state. The original observations above remain dated history, not current setup or session authority.
+
+The retired [classifier source](https://github.com/woahwhattheheck/commons/blob/4380d1afbafbc5d3009e4d3f53ef3eeb80ff1d73/host/titanmcp_get_setup_status.py) remains available at its original publication commit. It is not a current-main command. No classifier, endpoint probe or test was run for this retirement; the actual setup/status service, runtime, consent controls and existing owners remain unchanged.
 
 ## Did not write
 
