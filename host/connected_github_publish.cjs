@@ -296,6 +296,32 @@ async function resolveReadback(file, source, data, readBlob) {
   }), blob_readback_attempted: true, readback_source: 'blob', file_content_available: false};
 }
 
+function readbackLimit(options) {
+  const limit = options.readback_concurrency === undefined ? 4 : options.readback_concurrency;
+  if (!Number.isSafeInteger(limit) || limit < 1) {
+    throw new TypeError('readback_concurrency must be a positive safe integer');
+  }
+  return limit;
+}
+
+/** Keep each settled outcome in input order while bounding independent reads. */
+async function settleReadbacks(items, read, limit) {
+  const outcomes = new Array(items.length);
+  let nextIndex = 0;
+  const worker = async () => {
+    while (nextIndex < items.length) {
+      const index = nextIndex++;
+      try {
+        outcomes[index] = {status: 'fulfilled', value: await read(items[index], index)};
+      } catch (reason) {
+        outcomes[index] = {status: 'rejected', reason};
+      }
+    }
+  };
+  await Promise.all(Array.from({length: Math.min(limit, items.length)}, worker));
+  return outcomes;
+}
+
 /** Publish regular-file changes through native GitHub tools, optionally merge. */
 async function publishGitHubChange(tools, change, options = {}) {
   const progress = {status: 'incomplete', stage: 'validate', calls: {}, files: [], progress_callback_errors: []};
@@ -303,6 +329,8 @@ async function publishGitHubChange(tools, change, options = {}) {
   let announce = async () => {};
   try {
     const spec = validate(change);
+    const readbackConcurrency = readbackLimit(options);
+    progress.readback_concurrency = readbackConcurrency;
     const sourceByPath = new Map(spec.files.map(file => [file.path, file]));
     const repository_full_name = spec.repository_full_name;
     Object.assign(progress, {repository_full_name, base_branch: spec.base_branch, branch_name: spec.branch_name});
@@ -429,13 +457,13 @@ async function publishGitHubChange(tools, change, options = {}) {
     progress.readback_ref = progress.merge_sha ?? progress.commit_sha;
     const readBlob = typeof tools?.[bindings.fetch_blob] === 'function'
       ? blob_sha => call('fetch_blob', {repository_full_name, blob_sha}) : undefined;
-    // Every read is independent. Inspect every outcome before reporting completion.
-    const reads = await Promise.allSettled(candidates.map(async file => {
+    // Bound independent reads; inspect every outcome before reporting completion.
+    const reads = await settleReadbacks(candidates, async file => {
       const source = sourceByPath.get(file.path);
       const data = await call('fetch_file', {repository_full_name, path: file.path,
         ref: progress.readback_ref, encoding: source.encoding});
       return resolveReadback(file, source, data, readBlob);
-    }));
+    }, readbackConcurrency);
     progress.readback = reads.map((read, index) => read.status === 'fulfilled' ? read.value
       : {path: candidates[index].path, matches: false, error: String(read.reason?.message ?? read.reason),
         ...(read.reason?.tool_error ? {tool_error: read.reason.tool_error} : {})});
@@ -466,6 +494,8 @@ async function continueGitHubMerge(tools, change, previousProgress, options = {}
   let announce = async () => {};
   try {
     const spec = validate(change);
+    const readbackConcurrency = readbackLimit(options);
+    progress.readback_concurrency = readbackConcurrency;
     if (!spec.merge) throw new TypeError('Set merge: true for this explicit merge continuation');
     const saved = object(previousProgress, 'previousProgress');
     for (const key of ['repository_full_name', 'base_branch', 'branch_name']) {
@@ -590,12 +620,12 @@ async function continueGitHubMerge(tools, change, previousProgress, options = {}
     progress.readback_ref = progress.merge_sha;
     const readBlob = typeof tools?.[bindings.fetch_blob] === 'function'
       ? blob_sha => call('fetch_blob', {repository_full_name, blob_sha}) : undefined;
-    const reads = await Promise.allSettled(progress.files.map(async (file, index) => {
+    const reads = await settleReadbacks(progress.files, async (file, index) => {
       const source = spec.files[index];
       const data = await call('fetch_file', {repository_full_name, path: file.path,
         ref: progress.readback_ref, encoding: source.encoding});
       return resolveReadback(file, source, data, readBlob);
-    }));
+    }, readbackConcurrency);
     progress.readback = reads.map((read, index) => read.status === 'fulfilled' ? read.value
       : {path: progress.files[index].path, matches: false, error: String(read.reason?.message ?? read.reason),
         ...(read.reason?.tool_error ? {tool_error: read.reason.tool_error} : {})});
@@ -759,6 +789,8 @@ async function contributionOperation(tools, change, options, readOnly, previousP
   let announce = async () => {};
   try {
     const spec = validateContribution(change);
+    const readbackConcurrency = readbackLimit(options);
+    progress.readback_concurrency = readbackConcurrency;
     const deferHeadObservation = readOnly ? undefined : options.defer_head_observation;
     if (deferHeadObservation !== undefined && typeof deferHeadObservation !== 'boolean') {
       throw new TypeError('defer_head_observation must be a boolean');
@@ -928,12 +960,12 @@ async function contributionOperation(tools, change, options, readOnly, previousP
     progress.readback_ref = progress.commit_sha;
     const readBlob = typeof tools?.[bindings.fetch_blob] === 'function'
       ? blob_sha => call('fetch_blob', {repository_full_name, blob_sha}) : undefined;
-    const reads = await Promise.allSettled(progress.files.map(async (file, index) => {
+    const reads = await settleReadbacks(progress.files, async (file, index) => {
       const source = {...spec.files[index], expected_new_blob_sha: file.blob_sha};
       const data = await call('fetch_file', {repository_full_name, path: file.path,
         ref: progress.readback_ref, encoding: source.encoding});
       return resolveReadback(file, source, data, readBlob);
-    }));
+    }, readbackConcurrency);
     progress.readback = reads.map((read, index) => read.status === 'fulfilled' ? read.value
       : {path: progress.files[index].path, matches: false, error: String(read.reason?.message ?? read.reason),
         ...(read.reason?.tool_error ? {tool_error: read.reason.tool_error} : {})});
