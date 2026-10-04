@@ -10,11 +10,10 @@ carrier**, without pretending that a public notice is the controlling RFP.
 
 - TXST's buyer-owned procurement page identifies Texas State as agency **#754** and directs vendors to
   ESBD and the TSUS Marketplace/Jaggaer routes.
-- A current public reproduction of the solicitation notice identifies the exact RFP, describes the
-  objective as design/implementation/support of an AI-powered advising platform for personalized
-  guidance, engagement, and analytics, and gives a discovery deadline of **2026-09-28 17:00 CT**.
-  That timestamp is a planning signal only until the controlling package binds the official deadline;
-  it cannot close the executable carrier by itself.
+- On October 4, the official TXST public board and event 1440142 summary display closing and
+  sealed-until **October 14, 2026, 5:00 p.m. CDT**. The prior September 28 date belongs to the
+  historical discovery record. See [the dated source note](SOURCE_UPDATE_20261004.md) for the
+  eight-name attachment inventory, actual login boundary and remaining coverage gaps.
 - The controlling Jaggaer attachment/package set has **not** been retained in this carrier.
 - Therefore current state is intentionally `HOLD_OFFICIAL_PACKET_REQUIRED`.
 - No contract value, renewal term, bid bond, incumbent, evaluation score, mandatory certification,
@@ -22,7 +21,10 @@ carrier**, without pretending that a public notice is the controlling RFP.
   insurance term, pricing form, or teaming rule is treated as buyer-required until the controlling
   package proves it.
 
-Do not upgrade secondary-market metadata into buyer authority.
+Do not upgrade secondary-market metadata into buyer authority. `source_ledger.json` remains the
+unchanged September 16 historical observation; `current_candidate.json` and all executable trust
+roots remain unchanged. The October 4 correction is source/documentation only and does not supply
+controlling attachment bytes, qualifications, a current compiler result, or action authority.
 
 ## Why the compiler has hard trust roots
 
