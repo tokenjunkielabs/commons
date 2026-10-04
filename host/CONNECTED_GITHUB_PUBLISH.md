@@ -9,8 +9,9 @@ network client. The caller supplies the actual discovered GitHub tool bindings.
 Use this for an already-authorized change to regular source files. Existing
 repository rules, source ownership, permission boundaries, and required product
 execution still apply. The helper does not grant permission or decide whether a
-change is ready. It does not discover tools, merge another worker's patch,
-delete files or branches, run tests, or deploy anything. The separate
+change is ready. Explicit file deletion is available through the Contents export
+with an observed existing blob. The helper does not discover tools, merge another
+worker's patch, delete branches, run tests, or deploy anything. The separate
 `advanceGitHubContribution` export advances an existing contribution ref;
 `reconcileGitHubContribution` reads a retained outcome without writing.
 
@@ -451,8 +452,9 @@ mode behavior for every file type.
 
 `publishGitHubContentsChange(tools, change, options?)` automates the native
 Contents route above in this same module. Select this export deliberately for
-prepared UTF-8 content changes. It does not invoke the Git Trees publisher or
-convert a failed tree read into a successful mode check.
+prepared UTF-8 content changes and explicitly requested file deletions. It does
+not invoke the Git Trees publisher or convert a failed tree read into a successful
+mode check.
 
 ```javascript
 const {publishGitHubContentsChange} = module.exports;
@@ -478,16 +480,19 @@ const result = await publishGitHubContentsChange(tools, {
 ```
 
 The same `bindings`, `onProgress` and `readback_concurrency` conventions apply.
-Available native bindings are checked before mutation; only the create/update
-operations required by the prepared files are required. Blob recovery is optional.
+Available native bindings are checked before mutation; only the create, update
+and delete operations selected by the prepared files are required. Blob recovery
+is optional.
 Keep the source, prepared change, actual response/progress records and operation
 identity beside the result. Nothing is written to the filesystem by the helper.
 
-This export accepts at most 300 distinct paths, UTF-8 text and no `mode` field.
-It rejects `retained_trees`; that option belongs to the separate Git Trees
-contract. Existing paths require the observed blob SHA and new paths require a
-confirmed absence. An exact complete preimage/content match can be skipped.
-Missing large-file text is not treated as an empty file or a proven no-op.
+This export accepts at most 300 distinct paths, each with either prepared UTF-8
+text or the explicit deletion shape below. It accepts no `mode` field and rejects
+`retained_trees`; that option belongs to the separate Git Trees contract.
+Existing paths require the observed blob SHA and new paths require a confirmed
+absence. An exact complete preimage/content match can be skipped for an ordinary
+content change. Deletions are never treated as empty-content no-ops. Missing
+large-file text is not treated as an empty file or a proven no-op.
 
 The observable publication sequence is:
 
@@ -495,14 +500,17 @@ The observable publication sequence is:
    Create the new branch there and read its ref. Ref names are escaped by path
    segment in the established `/git/ref/heads/` route, including names with slashes.
 2. Perform each required Contents write serially. Native update responses contain
-   `{commit_sha, content_sha}`; native create responses contain `{commit_sha}`.
-   Record the returned commit before following reads.
+   `{commit_sha, content_sha}`; native create and delete responses contain
+   `{commit_sha}`. A deletion supplies the expected old blob as `sha` and sends
+   no content. Record the returned commit before following reads.
 3. Require each commit to have the previously observed head as its sole parent
-   and exactly one expected added or modified path. Match the commit's file blob
-   to the update response when present, read the entire prepared text at that
-   immutable commit, and read the branch head before the next write.
+   and exactly one expected added, modified or removed path. For a content write,
+   match the commit's file blob to the update response when present and read the
+   entire prepared text at that immutable commit. For a deletion, require the
+   removed blob to equal the expected old blob and confirm the path is absent at
+   that immutable commit. Read the branch head before the next write.
 4. Check the original-base-to-final-head comparison's complete path set, final
-   blobs and native commit counts. The per-commit chain establishes serial
+   content blobs or removed old blobs, and native commit counts. The per-commit chain establishes serial
    lineage; the aggregate comparison separately checks the resulting change.
    The 300-path input bound matches GitHub's documented
    [first-page comparison file limit](https://docs.github.com/en/rest/commits/commits#compare-two-commits).
@@ -510,9 +518,10 @@ The observable publication sequence is:
 5. Open the PR at the observed final head. Before a requested merge, read the
    current base ref and require the target preimages/absences still to match.
    Unrelated base movement is allowed. Then use GitHub's expected-head merge.
-6. Read every prepared file at the immutable head or merge commit and compare
-   its complete text and blob. Retain the task's ordinary literal-current-source
-   and PR metadata readbacks as well.
+6. Read every prepared path at the immutable head or merge commit. Compare the
+   complete text and blob for content writes, and confirm absence for deletions.
+   Retain the task's ordinary literal-current-source and PR metadata readbacks
+   as well.
 
 Each Contents write creates its own commit. The branch-head checks detect
 unexpected movement; the Contents API itself offers a file-blob guard, not an
@@ -529,6 +538,49 @@ records whether a response was received. Exceptions preserve progress and any
 typed provider error. Callback failures are recorded separately and do not
 repeat a provider action. The helper makes no automatic write retries.
 
+#### Explicit deletion with an observed preimage
+
+Supply this file entry only when deletion of the existing source is authorized:
+
+```javascript
+files: [{
+  path: observed_existing_path,
+  expected_blob_sha: observed_previous_blob_sha,
+  delete: true,
+}]
+```
+
+`delete` must be a boolean when supplied. `delete: true` requires a non-null
+`expected_blob_sha` and rejects `content`, `encoding`, `mode` and
+`expected_new_blob_sha`, including explicitly present undefined values. An
+already absent path is a preimage mismatch; it is not successful deletion.
+`delete: false` follows the ordinary content contract. The other publisher
+exports do not accept `delete: true`.
+
+A batch may mix content writes and deletions on distinct paths within the same
+300-path bound. Only deletion entries require the native `delete_file` binding.
+The publisher keeps create, update and delete requests serial, as required by
+[GitHub's Contents API](https://docs.github.com/en/rest/repos/contents#delete-a-file).
+This is not a rename API: both per-commit and aggregate checks refuse unexpected
+rename status or `previous_filename` metadata.
+
+Deletion readback accepts absence only from that specific read's typed native
+`NOT_FOUND` response with HTTP 404. Authentication, transport, rate-limit and
+other failures remain unresolved reads. Each read keeps its own native response,
+including when final readbacks run concurrently. The serial record retains
+`removed_blob_sha`; the file record keeps `delete: true` and its original
+`previous_blob_sha`, and receives `blob_sha: null` only after absence is confirmed.
+Final readback includes `expected_absent`, `observed_absent` and the removed blob.
+The current-base pre-merge fence still compares against the original old blob,
+not the null postimage.
+
+If deletion returns a commit but a later read fails, retain that commit and the
+old blob for reconciliation. Do not reissue the deletion or restart the batch.
+The branch-only resume option below also binds each file's deletion marker, and
+never resumes after any file write. These checks do not independently verify
+file type, Git mode or the whole repository tree; the result reports those
+limitations explicitly.
+
 #### Resume a confirmed branch creation before any content write
 
 A narrow recovery option handles an already-confirmed branch creation followed
@@ -542,8 +594,9 @@ const result = await publishGitHubContentsChange(tools, prepared_change, {
 ```
 
 The retained progress must identify the same repository/branches and ordered
-preimage/source pins, confirm branch creation, have no pending write, no serial
-file writes or PR, and retain the base as its head. The helper re-reads the
+preimage/source pins and deletion markers, confirm branch creation, have no
+pending write, no serial file writes or PR, and retain the base as its head.
+The helper re-reads the
 prepared versions and requires the actual branch ref still to equal that base
 before writing any content. Its new call counts omit `create_branch`, and
 `branch_creation: "retained"` distinguishes reuse from a new provider mutation.
