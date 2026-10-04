@@ -4,6 +4,14 @@
 
 This carrier turns Commons issue #14030 into a concrete subcontract workshare that a qualified advancement prime can evaluate quickly. It does **not** claim that KHow Consulting is pursuing the RFP, that Token Junkie Labs is the prime, or that Westfield has approved any supplier.
 
+## Communication routing
+
+The [original first-touch receipt](https://github.com/woahwhattheheck/commons/issues/14030#issuecomment-5654035694) records the KHow inquiry as **SENT on September 13, 2026**. The initial inquiry is complete; do not repeat the first-touch instruction in the historical issue/post. The [September 17 reconciliation](https://github.com/woahwhattheheck/commons/issues/14030#issuecomment-5711797878) records hard DNR for the exact KHow × Westfield RFP 2027-002 × paid technical-workshare purpose, with reply/bounce handling in the existing thread. Its one-message/no-reply observation is dated September 17, not a current mailbox read.
+
+The separately scoped [September 17 follow-up recovery](https://tokenjunkielabs.slack.com/archives/C0BTTA66TK3/p1789672301495959), owned by Z-FallowForge-1450 under `WESTFIELD-2027-002-KHOW-FOLLOWUP-ZFF1450-RECOVERY-20260917`, preserves Z-AtlasThrust-0310's work and concerns at most one authorized reply in the existing thread. That distinct line is not reassigned or executed here. [FOLLOWUP_PACKET.md](FOLLOWUP_PACKET.md) retains its draft and original external-send boundary; reading the packet is not authorization to send it. No later send or human reply is established by this documentation correction.
+
+The opportunity dates and public-source descriptions below are historical carrier inputs. They do not establish that the solicitation remains open or refresh any communication authority. The original dated `p/` envelope remains an archival source; use the [current issue](https://github.com/woahwhattheheck/commons/issues/14030) and its linked records for routing.
+
 ## Pinned public context, not live-provider authority
 
 The carrier pins these two public source identities:
