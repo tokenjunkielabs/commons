@@ -1,85 +1,1531 @@
 {
-  "schema": "commons-connected-capability-observations/v1",
-  "snapshot": {
-    "observed_at": "2026-09-18T03:00:37Z",
-    "base_main_sha": "d66ac9862e3448e2bff54c7386ce27f5a81b3640",
-    "source_watermark": "2026-09-18T03:00:37Z",
-    "route_rule": "All Commons carriers may consume all shared resources; Claude is the sole owner-handled exception.",
-    "truth_rule": "Exposure, successful probe, lifecycle stage, condition, authority, mutation, consumption, and value are independent facts.",
-    "secret_rule": "Share account roles, business identity, services, quotas, and routes; never persist passwords, tokens, recovery links, verification links, or payment credentials."
-  },
   "account_roles": {
     "business_gmail": {
       "address": "tokenjunkielabs@gmail.com",
-      "sharing": "ALL_CARRIERS",
-      "proof": "Owner instruction plus connected Gmail profile and current-main public contact."
-    },
-    "secondary_gmail": {
-      "address_state": "CONNECTOR_SPECIFIC_NOT_RESOLVED_IN_THIS_HARNESS",
-      "sharing": "ALL_CARRIERS",
-      "proof": "Owner declaration: two Gmail identities are shared with GPT carriers."
+      "proof": "Owner instruction plus connected Gmail profile and current-main public contact.",
+      "sharing": "ALL_CARRIERS"
     },
     "github": {
       "identities": [
         "woahwhattheheck",
         "tokenjunkielabs"
       ],
-      "ship_target": "woahwhattheheck",
-      "non_ship_identity": "tokenjunkielabs",
       "installed_connector_account": "woahwhattheheck",
-      "proof": "Current-main .cursor/rules/github-identity.mdc plus authenticated GitHub connector."
+      "non_ship_identity": "tokenjunkielabs",
+      "proof": "Current-main .cursor/rules/github-identity.mdc plus authenticated GitHub connector.",
+      "ship_target": "woahwhattheheck"
+    },
+    "secondary_gmail": {
+      "address_state": "CONNECTOR_SPECIFIC_NOT_RESOLVED_IN_THIS_HARNESS",
+      "proof": "Owner declaration: two Gmail identities are shared with GPT carriers.",
+      "sharing": "ALL_CARRIERS"
     }
   },
+  "component_freshness": {
+    "account_roles": "2026-09-07T10:02:06Z",
+    "github_portfolio": "2026-09-07T04:35:09Z",
+    "provider_armory": "2026-09-18T03:00:37Z",
+    "providers.agentmail": "2026-10-04",
+    "providers.airtable": "2026-10-04",
+    "providers.alibaba-cloud": "2026-09-18T03:00:37Z",
+    "providers.apollo": "2026-10-04",
+    "providers.business-gmail": "2026-10-04",
+    "providers.cal-com": "2026-09-18T03:00:37Z",
+    "providers.cerebras-api": "2026-09-18T03:00:37Z",
+    "providers.chatgpt-plugin-fleet": "2026-09-07T04:08:47Z",
+    "providers.chatgpt-sites": "2026-10-04",
+    "providers.chatgpt-work-pro": "2026-10-04T06:35Z",
+    "providers.claude-code-max": "2026-09-18T03:00:37Z",
+    "providers.context7": "2026-10-04",
+    "providers.cursor-ultra-pool": "2026-09-18T03:00:37Z",
+    "providers.dropbox-basic": "2026-10-04",
+    "providers.e2b": "2026-09-18T03:00:37Z",
+    "providers.exa-research": "2026-10-03T03:47:15Z",
+    "providers.firecrawl": "2026-09-18T03:00:37Z",
+    "providers.github-account-and-repository-fleet": "2026-10-04",
+    "providers.google-drive": "2026-10-04",
+    "providers.google-gemini": "2026-09-18T03:00:37Z",
+    "providers.grokbot-token-pools": "2026-09-18T03:00:37Z",
+    "providers.groq-api": "2026-10-03T03:47:15Z",
+    "providers.heygen": "2026-09-18T03:00:37Z",
+    "providers.higgsfield": "2026-09-18T03:00:37Z",
+    "providers.hugging-face": "2026-10-04",
+    "providers.kaggle-account-binding": "2026-09-18T03:00:37Z",
+    "providers.langfuse": "2026-09-18T03:00:37Z",
+    "providers.mega": "2026-09-18T03:00:37Z",
+    "providers.netlify": "2026-10-04",
+    "providers.openai-automation-fleet": "2026-09-07T04:08:47Z",
+    "providers.openrouter": "2026-09-18T03:00:37Z",
+    "providers.oracle-cloud": "2026-09-18T03:00:37Z",
+    "providers.parallel": "2026-09-18T03:00:37Z",
+    "providers.posthog": "2026-10-04",
+    "providers.railway": "2026-10-04",
+    "providers.revenuecat": "2026-09-18T03:00:37Z",
+    "providers.secondary-gmail": "2026-09-18T03:00:37Z",
+    "providers.shopify": "2026-09-18T03:00:37Z",
+    "providers.slack-workspace": "2026-10-04",
+    "providers.stripe-live-and-sandbox": "2026-10-04",
+    "providers.supergrok-heavy": "2026-09-18T03:00:37Z",
+    "providers.tavily": "2026-10-04",
+    "providers.vercel": "2026-10-04",
+    "providers.whop": "2026-09-18T03:00:37Z",
+    "providers.x-commons-swarm": "2026-09-18T03:00:37Z",
+    "providers.zapier-mcp": "2026-09-18T03:00:37Z",
+    "providers.zep": "2026-09-18T03:00:37Z",
+    "tool_fleet": "2026-10-04T06:34:26.753Z",
+    "tool_fleet.automations": "2026-09-07T04:08:47Z",
+    "tool_fleet.historical_plugin_search_findings": "2026-09-07T04:08:47Z",
+    "tool_fleet.installed_plugins": "2026-09-07T04:08:47Z",
+    "tool_fleet.plugin_eligibility_observations": "2026-10-04",
+    "tool_fleet.plugin_search_findings.agentmail_plugin": "2026-10-04",
+    "tool_fleet.provider_read_probes": "2026-10-04",
+    "tool_fleet.skill_registry": "2026-10-04T06:35Z",
+    "tool_fleet.tool_registry": "2026-10-04T06:34:26.753Z"
+  },
+  "durable_evidence": {
+    "current_main": "https://github.com/woahwhattheheck/commons/commit/d66ac9862e3448e2bff54c7386ce27f5a81b3640",
+    "oct3_provider_runtime_receipt": "https://tokenjunkielabs.slack.com/archives/C0BU51F1PL3/p1790999235904629",
+    "owner_correction": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1788305523796789?thread_ts=1788304349.282199&cid=C0BRGMDQB6G",
+    "peer_handoff_and_build_order": "https://tokenjunkielabs.slack.com/archives/C0BTB4SUCP9/p1788305514110759",
+    "provider_armory_issue": "https://github.com/woahwhattheheck/commons/issues/15900",
+    "refresh_pinned_main": "https://github.com/woahwhattheheck/commons/commit/8b13250af5876863235fd519e1906f5cca2b0656",
+    "slack_claim": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1788755643262339",
+    "utilization_guide": "ground/SWARM_CONNECTOR_UTILIZATION.md"
+  },
+  "github_portfolio": {
+    "accessible_repositories": 32,
+    "observed_at": "2026-09-07T04:35:09Z",
+    "private_details_persisted": false,
+    "private_repositories": 13,
+    "public_repositories": 19,
+    "repositories": [
+      {
+        "head": "4da8a89435a5a04ce460ee28c041ed868bb6328a",
+        "name": "woahwhattheheck/commons",
+        "open_prs": 0,
+        "role": "CANONICAL",
+        "visibility": "public"
+      },
+      {
+        "head": "17268727fea21066cda39f5740f02fb6903961d8",
+        "name": "woahwhattheheck/commons-backup",
+        "role": "MIRROR_UNVERIFIED",
+        "visibility": "public"
+      },
+      {
+        "head": "eedbaf2cd53dc490de8af7d070b4261edae9ee9a",
+        "name": "woahwhattheheck/kite-mouth-help",
+        "role": "REFERENCE",
+        "visibility": "public"
+      },
+      {
+        "head": "56f7ccf477c7c540f7d2105775b7b159417f160e",
+        "name": "woahwhattheheck/public-commons-sprint-2026",
+        "role": "SPRINT",
+        "visibility": "public"
+      },
+      {
+        "head": "d7dea5d64e44c15713faec276eb18ef3197a4888",
+        "name": "woahwhattheheck/agentlily-runtime",
+        "role": "REFERENCE",
+        "visibility": "public"
+      },
+      {
+        "head": "167af0b01eb0b0282a88381473216d793b9835be",
+        "name": "woahwhattheheck/ultimate-ai-platform",
+        "role": "REFERENCE",
+        "visibility": "public"
+      },
+      {
+        "head": "a71ae8281742ac638bc75baa4334f2292251e0eb",
+        "name": "woahwhattheheck/scrypt",
+        "role": "REFERENCE",
+        "visibility": "public"
+      },
+      {
+        "head": "0c387492067e8b7d3e1c803009169f202f30ed77",
+        "name": "woahwhattheheck/hive",
+        "role": "REFERENCE",
+        "visibility": "public"
+      },
+      {
+        "head": "5834dccb21aed15d15c1fb0290e81cd1d754c921",
+        "name": "woahwhattheheck/startup-credits",
+        "role": "REFERENCE",
+        "visibility": "public"
+      },
+      {
+        "head": "6fe46c29c0715ef68f773ceec472d298584a46e3",
+        "name": "woahwhattheheck/AncientBeast",
+        "role": "REFERENCE",
+        "visibility": "public"
+      },
+      {
+        "head": "16e3f19bb9613c469a92910fc525c52a592d0bdc",
+        "name": "woahwhattheheck/omi",
+        "role": "REFERENCE",
+        "visibility": "public"
+      },
+      {
+        "head": "0bf0b299fed91139044c81cc6fcdc5521c34d235",
+        "name": "woahwhattheheck/tarsnap",
+        "role": "REFERENCE",
+        "visibility": "public"
+      },
+      {
+        "head": "8c5fd7383137fe638a7b17883b6c90cac090f447",
+        "name": "woahwhattheheck/jhipster-control-center",
+        "role": "REFERENCE",
+        "visibility": "public"
+      },
+      {
+        "head": "5e1f9d682d29b1cb5270cf9c6e8614c5830a53a7",
+        "name": "woahwhattheheck/split-sdk",
+        "role": "REFERENCE",
+        "visibility": "public"
+      },
+      {
+        "head": "a945f3315e35ee48c8a79af952addc1b6616db83",
+        "name": "woahwhattheheck/spiped",
+        "role": "REFERENCE",
+        "visibility": "public"
+      },
+      {
+        "head": "3de151b5d878b0714552c3658562eb5a87b378ce",
+        "name": "woahwhattheheck/kivaloo",
+        "role": "REFERENCE",
+        "visibility": "public"
+      },
+      {
+        "head": "65d9dfb09cbf544edbd0d6ac2954219427f734c7",
+        "name": "woahwhattheheck/mova-store",
+        "role": "REFERENCE",
+        "visibility": "public"
+      },
+      {
+        "head": "b7862528fd8fc39bc2653a6c18dad7c1f4e68d10",
+        "name": "woahwhattheheck/drizzle-orm",
+        "role": "REFERENCE",
+        "visibility": "public"
+      },
+      {
+        "head": "5d7af4cab02763626b22ffa98a033dc796bd3f49",
+        "name": "woahwhattheheck/pyqpanda-algorithm",
+        "role": "REFERENCE",
+        "visibility": "public"
+      }
+    ]
+  },
+  "non_claims": [
+    "No literal password, token, API secret, OAuth credential, recovery link, verification link, card data, or bank data persisted.",
+    "No Claude use, delegation, measurement, quota publication, review, or file mutation.",
+    "No Grok submission or token spend.",
+    "No prospect outreach, resend, deployment, device action, payment, revenue, settlement, payout, or cash.",
+    "No armory row claims a callable adapter, provider execution, quota, spend, or value merely from account or credential existence.",
+    "Current registry and read-auth probes do not prove historical connector utilization, per-carrier visibility, write permission for a specific action, spare hosting capacity, or free model quotas.",
+    "No new or resumed schedule, service deployment, security scan, account creation, outreach, permission edit or spending occurred in the 2026-10-04 capability refresh.",
+    "The retained 2026-10-03 Groq producing receipt is distinct from current carrier reach and remaining eligible quota; Exa remains source-only pending its existing owner activation.",
+    "Context7, PostHog and Hugging Face suggestions are directory eligibility observations only: latest installed=false, authentication and callable runtime absent.",
+    "AgentMail and Tavily directory availability is confirmed, but both latest searches report installed=false; current account activity, authentication and usage are unknown."
+  ],
+  "providers": [
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "LIVE",
+      "condition": "LIVE",
+      "consumers": [
+        "Resource Master",
+        "Queue Manager",
+        "builders"
+      ],
+      "evidence": "2026-10-04 actual tool registry and fully paginated skill listing. Subscription billing, per-carrier exposure, historical automation counts, and other carriers remaining limits were not remeasured.",
+      "freshness": "LIVE_TOOL_AND_SKILL_CENSUS",
+      "historical_usage_note": "Existing last_use and retained stage describe historical observations. Current read probes establish readiness and inventory, not fresh workload production or remaining free quota.",
+      "holder": "Commons owner",
+      "id": "chatgpt-work-pro",
+      "kind": "SUBSCRIPTION_AND_HARNESS",
+      "last_probe": "2026-10-04",
+      "last_use": "2026-09-07T04:08:47Z",
+      "mutation": "TASK_SCOPED",
+      "observation_precision": "date",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-10-04T06:35Z",
+      "retained_historical_observation": {
+        "evidence": "442 tools, 427 connected-app tools across 20 families, 118 fully paginated skills, 14 automations, 7 enabled.",
+        "freshness": "LIVE_PROBE",
+        "last_use": "2026-09-07T04:08:47Z",
+        "source_kind": "OWNER_DECLARATION_PLUS_TOOL_CENSUS",
+        "stage": "PRODUCING",
+        "value": "$200 ChatGPT subscription with 442 callable tools, 118 installed skills, 14 automations, browser, and connected carriers."
+      },
+      "route_state": "CALLABLE",
+      "source_kind": "CURRENT_TOOL_AND_SKILL_REGISTRIES",
+      "stage": "PRODUCING",
+      "value": "Current harness exposes 729 callable tools: 717 connected-app tools across 25 families and 12 core tools; fully paginated installed skill registry contains 139 skills across 18 groups."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "LIVE",
+      "condition": "LIVE",
+      "consumers": [
+        "service operations",
+        "receipts",
+        "canaries",
+        "business correspondence"
+      ],
+      "evidence": "Connected Gmail profile matches the canonical business identity. No current mailbox count, mail sends, payment, or historical usage census was performed.",
+      "freshness": "AUTHENTICATED_READ_PROBE",
+      "historical_usage_note": "Existing last_use and retained stage describe historical observations. Current read probes establish readiness and inventory, not fresh workload production or remaining free quota.",
+      "holder": "Commons",
+      "id": "business-gmail",
+      "kind": "EMAIL_IDENTITY",
+      "last_probe": "2026-10-04",
+      "last_use": "2026-09-01T23:06:38Z",
+      "mutation": "TASK_SCOPED_NO_SECRET_EXPORT",
+      "observation_precision": "date",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-10-04",
+      "retained_historical_observation": {
+        "evidence": "Connected Gmail profile; 141 inbound non-spam receipts since 2026-01-01.",
+        "freshness": "LIVE_PROBE",
+        "last_use": "2026-09-01T23:06:38Z",
+        "source_kind": "GMAIL_PROFILE_AND_141_MESSAGE_CENSUS",
+        "stage": "PRODUCING",
+        "value": "Shared business mailbox and service identity at tokenjunkielabs@gmail.com."
+      },
+      "route_state": "CALLABLE",
+      "source_kind": "CONNECTED_APP_READ_AUDIT",
+      "stage": "PRODUCING",
+      "value": "Authenticated shared business Gmail identity with 21 exposed tools and batching for authorized mailbox work."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "DECLARED",
+      "condition": "ACTIVE_UNKNOWN",
+      "consumers": [
+        "GPT carriers that expose the second connector"
+      ],
+      "evidence": "Owner states two Gmail identities are shared with GPT.",
+      "freshness": "OWNER_DECLARED",
+      "holder": "Commons owner",
+      "id": "secondary-gmail",
+      "kind": "EMAIL_IDENTITY",
+      "last_use": "UNKNOWN",
+      "mutation": "TASK_SCOPED_NO_SECRET_EXPORT",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-09-18T03:00:37Z",
+      "route_state": "CONNECTOR_DISCOVERY",
+      "source_kind": "OWNER_DECLARATION",
+      "stage": "AVAILABLE",
+      "value": "Second owner-shared Gmail identity."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "LIVE",
+      "condition": "CONSTRAINED",
+      "consumers": [
+        "all builders",
+        "recovery agents",
+        "release agents"
+      ],
+      "evidence": "Root harmless authentication/repository permission probes succeeded. Combined GitHub and Slack catalog contains 127 actions with write primitives discovered. Plugin permission lookup by name returned Allow all actions after the ID-based lookup failed to resolve; no permission was changed. Requested writes remain subject to operation-specific provider/repository policy.",
+      "freshness": "AUTHENTICATED_READ_PROBE",
+      "historical_usage_note": "Existing last_use and retained stage describe historical observations. Current read probes establish readiness and inventory, not fresh workload production or remaining free quota.",
+      "holder": "Commons",
+      "id": "github-account-and-repository-fleet",
+      "kind": "REPOSITORY_FLEET",
+      "last_probe": "2026-10-04",
+      "last_use": "2026-09-07T04:35:09Z",
+      "mutation": "SHIP_TO_WOAHWHATTHEHECK_ONLY",
+      "observation_precision": "date",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-10-04",
+      "permission_lookup_note": "ID-based app lookup did not resolve; name-based lookup returned the app permission configuration. This is a discovery mismatch, not an authentication failure.",
+      "retained_historical_observation": {
+        "evidence": "Authenticated connector resolves woahwhattheheck; current-main shipping law names woahwhattheheck and not tokenjunkielabs.",
+        "freshness": "LIVE_PROBE",
+        "last_use": "2026-09-07T04:35:09Z",
+        "source_kind": "GITHUB_CONNECTOR_AND_CURRENT_MAIN",
+        "stage": "PRODUCING",
+        "value": "Two GitHub identities and 32 accessible woahwhattheheck repositories; 19 public and 13 private. Private identities and heads are aggregate-only in the public graph."
+      },
+      "route_state": "CALLABLE_WITH_CONSTRAINT",
+      "source_kind": "ROOT_GITHUB_AUTHORIZATION_AND_PERMISSION_READ",
+      "stage": "PRODUCING",
+      "value": "Authenticated Commons GitHub connector exposes 89 actions; root confirmed admin permission on woahwhattheheck/commons. Historical portfolio totals remain dated separately."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "LIVE",
+      "condition": "CONSTRAINED",
+      "consumers": [
+        "implementation workers",
+        "review workers",
+        "cloud agents"
+      ],
+      "evidence": "Current-main 392e8f99 lifts the historical hold. Clear enabled-model floor: GPT-5.2, GPT-5.6 Luna, GPT-5.4 Mini, GPT-5.4 Nano, GPT-5.1, GPT-5 Mini, Gemini 3.6 Flash, Gemini 3.1 Pro, Gemini 2.5 Flash, Gemini 3 Flash, Kimi K3, Kimi K2.7 Code, GLM 5.2.",
+      "freshness": "OWNER_SCREENSHOT_PLUS_CURRENT_MAIN",
+      "holder": "Commons owner",
+      "id": "cursor-ultra-pool",
+      "kind": "MODEL_HARNESS_POOL",
+      "last_use": "2026-09-01T23:32:25Z",
+      "mutation": "SHIP_TO_WOAHWHATTHEHECK_NO_CLAUDE_FILES",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-09-18T03:00:37Z",
+      "route_state": "CALLABLE_WITH_CONSTRAINT",
+      "source_kind": "OWNER_DECLARATION_SCREENSHOT_CURRENT_MAIN",
+      "stage": "PRODUCING",
+      "value": "Two Cursor Ultra connectors; one depleted and one currently usable; wide multi-provider model catalog."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "LIVE",
+      "condition": "CONSTRAINED",
+      "consumers": [
+        "grok.com build and analysis work"
+      ],
+      "evidence": "Weekly included limit 100% used; App Builder 70%, Chat 12%, Other 18%; extra credits $0.00; screenshot reset Wed Sep 2 11:51 AM.",
+      "freshness": "OWNER_SCREENSHOT",
+      "holder": "Commons owner",
+      "id": "supergrok-heavy",
+      "kind": "MODEL_SUBSCRIPTION",
+      "last_use": "2026-09-01T10:07:00Z",
+      "mutation": "TASK_SCOPED",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-09-18T03:00:37Z",
+      "route_state": "WAIT_FOR_RESET",
+      "source_kind": "SCREENSHOT",
+      "stage": "PRODUCING",
+      "value": "SuperGrok Heavy subscription with GitHub connected; Slack needs the existing compatible custom relay seam."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "DECLARED",
+      "condition": "CONSTRAINED",
+      "consumers": [
+        "Cursor Grokbot jobs that cannot use grok.com"
+      ],
+      "evidence": "One pool exhausted; the other owner-reported to reset tomorrow. Grok task-ready notifications prove completed jobs, not remaining quota.",
+      "freshness": "OWNER_DECLARED",
+      "holder": "Commons owner",
+      "id": "grokbot-token-pools",
+      "kind": "MODEL_QUOTA_POOL",
+      "last_use": "2026-09-01T11:20:00Z",
+      "mutation": "TASK_SCOPED_EXACT_POOL_ACCOUNTING",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-09-18T03:00:37Z",
+      "route_state": "WAIT_FOR_RESET",
+      "source_kind": "OWNER_DECLARATION_AND_NOTIFICATIONS",
+      "stage": "EXERCISED",
+      "value": "Two staggered Grokbot token pools exposed by Heavy and the second Ultimate account."
+    },
+    {
+      "authority": "OWNER_ONLY",
+      "capacity": "OWNER_HELD",
+      "condition": "HELD",
+      "consumers": [
+        "Bryce only"
+      ],
+      "evidence": "Sole exception: carriers do not launch, delegate, measure, publish quota, review, or edit Claude files.",
+      "freshness": "OWNER_DIRECTIVE",
+      "holder": "Bryce",
+      "id": "claude-code-max",
+      "kind": "MODEL_SUBSCRIPTION",
+      "last_use": "OWNER_PRIVATE",
+      "mutation": "OWNER_HANDLED",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-09-18T03:00:37Z",
+      "route_state": "OWNER_HANDLED",
+      "source_kind": "OWNER_DIRECTIVE",
+      "stage": "AVAILABLE",
+      "value": "Claude capacity is intentionally outside peer allocation."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "LIVE",
+      "condition": "LIVE",
+      "consumers": [
+        "all peers",
+        "Queue Manager",
+        "Resource Master"
+      ],
+      "evidence": "Root harmless workspace/channel read succeeded. GitHub and Slack together expose 127 actions, including write primitives; plugin name-based permission lookup returned Allow all actions. No permission edit, new schedule, speculative outreach or message was performed by this inventory refresh.",
+      "freshness": "AUTHENTICATED_READ_PROBE",
+      "historical_usage_note": "Existing last_use and retained stage describe historical observations. Current read probes establish readiness and inventory, not fresh workload production or remaining free quota.",
+      "holder": "Commons",
+      "id": "slack-workspace",
+      "kind": "COORDINATION",
+      "last_probe": "2026-10-04",
+      "last_use": "2026-09-01T23:32:25Z",
+      "mutation": "TASK_SCOPED",
+      "observation_precision": "date",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-10-04",
+      "retained_historical_observation": {
+        "evidence": "#commons and #delegations read/write succeeded; capability handoff posted.",
+        "freshness": "LIVE_PROBE",
+        "last_use": "2026-09-01T23:32:25Z",
+        "source_kind": "SLACK_CONNECTOR",
+        "stage": "PRODUCING",
+        "value": "One connected Slack workspace with 32 callable app tools and durable coordination channels."
+      },
+      "route_state": "CALLABLE",
+      "source_kind": "ROOT_SLACK_AUTHORIZATION_AND_PERMISSION_READ",
+      "stage": "PRODUCING",
+      "value": "Authenticated Slack workspace with 38 exposed actions and current coordination channels."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "LIVE",
+      "condition": "LIVE",
+      "consumers": [
+        "artifact workers",
+        "document workers",
+        "recovery workers"
+      ],
+      "evidence": "Business account profile read succeeded; no shared drives were returned. Five recent metadata results demonstrate existing artifacts, not attribution to current swarm use. File content and sharing mutations were not read or performed.",
+      "freshness": "AUTHENTICATED_READ_PROBE",
+      "historical_usage_note": "Existing last_use and retained stage describe historical observations. Current read probes establish readiness and inventory, not fresh workload production or remaining free quota.",
+      "holder": "Commons",
+      "id": "google-drive",
+      "kind": "CLOUD_STORAGE_AND_DOCS",
+      "last_probe": "2026-10-04",
+      "last_use": "2026-09-01T22:30:00Z",
+      "mutation": "TASK_SCOPED",
+      "observation_precision": "date",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-10-04",
+      "retained_historical_observation": {
+        "evidence": "Connected business account probe succeeded.",
+        "freshness": "LIVE_PROBE",
+        "last_use": "2026-09-01T22:30:00Z",
+        "source_kind": "CONNECTED_APP_PROBE",
+        "stage": "PRODUCING",
+        "value": "Connected Drive/Docs/Sheets/Slides surface with 45 tools."
+      },
+      "route_state": "CALLABLE",
+      "source_kind": "CONNECTED_APP_READ_AUDIT",
+      "stage": "PRODUCING",
+      "value": "Authenticated shared Drive/Docs/Sheets/Slides surface with 45 tools; five recent-file metadata results were observed."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "LIVE",
+      "condition": "CONSTRAINED",
+      "consumers": [
+        "artifact workers",
+        "file-request workflows",
+        "recovery workers"
+      ],
+      "evidence": "Identity and immediate root listing succeeded: one immediate entry, pagination complete. Personal file content, account quota and prior swarm invocation history were not inspected.",
+      "freshness": "AUTHENTICATED_READ_PROBE",
+      "historical_usage_note": "Existing last_use and retained stage describe historical observations. Current read probes establish readiness and inventory, not fresh workload production or remaining free quota.",
+      "holder": "Commons",
+      "id": "dropbox-basic",
+      "kind": "CLOUD_STORAGE",
+      "last_probe": "2026-10-04",
+      "last_use": "2026-09-01T22:30:00Z",
+      "mutation": "TASK_SCOPED",
+      "observation_precision": "date",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-10-04",
+      "retained_historical_observation": {
+        "evidence": "Dropbox connector probe succeeded; one file-request receipt exists.",
+        "freshness": "LIVE_PROBE",
+        "last_use": "2026-09-01T22:30:00Z",
+        "source_kind": "CONNECTED_APP_AND_EMAIL_RECEIPTS",
+        "stage": "PRODUCING",
+        "value": "Connected Dropbox Basic account, ChatGPT/Google connections, and file-request capability."
+      },
+      "route_state": "CALLABLE_WITH_CONSTRAINT",
+      "source_kind": "CONNECTED_APP_READ_AUDIT",
+      "stage": "PRODUCING",
+      "value": "Authenticated Dropbox storage surface with 24 tools and an independent artifact handoff route."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "LIVE",
+      "condition": "CONSTRAINED",
+      "consumers": [
+        "checkout",
+        "billing",
+        "commercial evidence"
+      ],
+      "evidence": "list_available_accounts_or_orgs succeeded and returned one account. The older two-context observation is retained as historical only. Balance, transactions, payment, revenue, settlement, payout and mode-specific operation permissions were not inspected or asserted.",
+      "freshness": "AUTHENTICATED_READ_PROBE",
+      "historical_usage_note": "Existing last_use and retained stage describe historical observations. Current read probes establish readiness and inventory, not fresh workload production or remaining free quota.",
+      "holder": "Commons",
+      "id": "stripe-live-and-sandbox",
+      "kind": "PAYMENT_PROVIDER",
+      "last_probe": "2026-10-04",
+      "last_use": "2026-09-01T22:30:00Z",
+      "mutation": "TASK_SCOPED_EXACT_RECEIPTS",
+      "observation_precision": "date",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-10-04",
+      "retained_historical_observation": {
+        "evidence": "Authenticated contexts: one live, one sandbox. No receipt proves payment, revenue, settlement, payout, or cash.",
+        "freshness": "LIVE_PROBE",
+        "last_use": "2026-09-01T22:30:00Z",
+        "source_kind": "STRIPE_CONNECTOR_AND_EMAIL_RECEIPTS",
+        "stage": "PRODUCING",
+        "value": "Two connected Stripe contexts: one live and one sandbox; existing products/prices and checkout roads."
+      },
+      "route_state": "CALLABLE_WITH_CONSTRAINT",
+      "source_kind": "CONNECTED_APP_READ_AUDIT",
+      "stage": "PRODUCING",
+      "value": "Current Stripe session exposes one connected account and 12 tools; select and verify the intended account/mode for authorized payment tasks."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "LIVE",
+      "condition": "CONSTRAINED",
+      "consumers": [
+        "lead research",
+        "contact enrichment",
+        "sales operations"
+      ],
+      "evidence": "find_tools selected the authenticated profile action and apollo_read succeeded. Prior credit figures are historical; remaining credits were not remeasured. No enrichment, reveal, prospect search, campaign, sending, outreach or credit consumption was performed.",
+      "freshness": "AUTHENTICATED_READ_PROBE",
+      "historical_usage_note": "Existing last_use and retained stage describe historical observations. Current read probes establish readiness and inventory, not fresh workload production or remaining free quota.",
+      "holder": "Commons",
+      "id": "apollo",
+      "kind": "SALES_DATA_AND_CREDITS",
+      "last_probe": "2026-10-04",
+      "last_use": "2026-09-01T22:30:00Z",
+      "mutation": "TASK_SCOPED_NO_DUPLICATE_OUTREACH",
+      "observation_precision": "date",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-10-04",
+      "retained_historical_observation": {
+        "evidence": "205 lead credits, 160 direct-dial credits, 5000 AI credits at probe; no outreach performed.",
+        "freshness": "LIVE_PROBE",
+        "last_use": "2026-09-01T22:30:00Z",
+        "source_kind": "APOLLO_CONNECTOR",
+        "stage": "PRODUCING",
+        "value": "Connected Apollo with remaining lead, direct-dial, and AI credits."
+      },
+      "route_state": "CALLABLE_WITH_CONSTRAINT",
+      "source_kind": "CONNECTED_APP_READ_AUDIT",
+      "stage": "PRODUCING",
+      "value": "Authenticated Apollo profile and four exposed dispatch/discovery tools; read-only CRM deduplication can support assigned sales work."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "LIVE",
+      "condition": "LIVE",
+      "consumers": [
+        "structured operations",
+        "resource ledgers",
+        "CRM workflows"
+      ],
+      "evidence": "Workspace, base and schema reads succeeded. Workspace permission is owner; the accessible base listing reports create permission. Existing schema may be reused for an authorized task, but no new base, records, automations, or role assignments were created.",
+      "freshness": "AUTHENTICATED_READ_PROBE",
+      "historical_usage_note": "Existing last_use and retained stage describe historical observations. Current read probes establish readiness and inventory, not fresh workload production or remaining free quota.",
+      "holder": "Commons",
+      "id": "airtable",
+      "kind": "DATABASE_AND_WORKFLOW",
+      "last_probe": "2026-10-04",
+      "last_use": "2026-09-01T22:30:00Z",
+      "mutation": "TASK_SCOPED",
+      "observation_precision": "date",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-10-04",
+      "retained_historical_observation": {
+        "evidence": "Ping and one owner workspace probe succeeded.",
+        "freshness": "LIVE_PROBE",
+        "last_use": "2026-09-01T22:30:00Z",
+        "source_kind": "CONNECTED_APP_PROBE",
+        "stage": "REACHABLE",
+        "value": "Connected Airtable workspace with 29 tools."
+      },
+      "route_state": "CALLABLE",
+      "source_kind": "CONNECTED_APP_READ_AUDIT",
+      "stage": "REACHABLE",
+      "value": "Authenticated Airtable surface with 47 tools, one owner workspace, one accessible base and one table."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "LIVE",
+      "condition": "CONSTRAINED",
+      "consumers": [
+        "public sites",
+        "dashboards",
+        "tools"
+      ],
+      "evidence": "Site list read succeeded; three owned active sites each have version number 1 and live URL metadata. Private site identifiers/URLs/access lists are omitted. Existing site audience is preserved; no site creation, version save or deployment was performed.",
+      "freshness": "AUTHENTICATED_READ_PROBE",
+      "historical_usage_note": "Existing last_use and retained stage describe historical observations. Current read probes establish readiness and inventory, not fresh workload production or remaining free quota.",
+      "holder": "Commons",
+      "id": "chatgpt-sites",
+      "kind": "HOSTING_AND_APP_BUILDER",
+      "last_probe": "2026-10-04",
+      "last_use": "2026-09-01T22:30:00Z",
+      "mutation": "TASK_SCOPED",
+      "observation_precision": "date",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-10-04",
+      "retained_historical_observation": {
+        "evidence": "Site listing succeeded; private site details omitted from public projection.",
+        "freshness": "LIVE_PROBE",
+        "last_use": "2026-09-01T22:30:00Z",
+        "source_kind": "CONNECTED_APP_PROBE",
+        "stage": "REACHABLE",
+        "value": "Connected Sites builder/hosting surface with 23 tools."
+      },
+      "route_state": "CALLABLE_WITH_CONSTRAINT",
+      "source_kind": "CONNECTED_APP_READ_AUDIT",
+      "stage": "REACHABLE",
+      "value": "Authenticated Sites surface with 25 tools and three active owned sites; each listing has a saved version and live URL metadata."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "LIVE",
+      "condition": "CONSTRAINED",
+      "consumers": [
+        "deployment routers",
+        "web builders"
+      ],
+      "evidence": "Team and project reads succeeded. Empty selected-team inventory does not prove absence across all possible scopes or historical use. Commercial eligibility, current free allowance, spare compute, and inference capacity were not established; no project was provisioned.",
+      "freshness": "AUTHENTICATED_READ_PROBE",
+      "historical_usage_note": "Existing last_use and retained stage describe historical observations. Current read probes establish readiness and inventory, not fresh workload production or remaining free quota.",
+      "holder": "Commons",
+      "id": "vercel",
+      "kind": "HOSTING",
+      "last_probe": "2026-10-04",
+      "last_use": "2026-09-01T21:58:58Z",
+      "mutation": "TASK_SCOPED",
+      "observation_precision": "date",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-10-04",
+      "retained_historical_observation": {
+        "evidence": "NO_PROJECT_READY; project creation is the next activation, not an absence of account capacity.",
+        "freshness": "DURABLE_RECEIPT",
+        "last_use": "2026-09-01T21:58:58Z",
+        "source_kind": "CONNECTED_APP_PROBE",
+        "stage": "PRODUCING",
+        "value": "One connected Hobby team and zero projects."
+      },
+      "route_state": "CALLABLE_WITH_CONSTRAINT",
+      "source_kind": "CONNECTED_APP_READ_AUDIT",
+      "stage": "REACHABLE",
+      "value": "Authenticated Vercel surface with 205 tools and one team; zero projects returned in the probed team scope."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "LIVE",
+      "condition": "LIVE",
+      "consumers": [
+        "recurring sweeps",
+        "queue management",
+        "Slack bridge",
+        "buyer watches"
+      ],
+      "current_state_note": "Automation execution state was not refreshed. Registry exposure or installed skill bundles do not prove current schedule enablement or connector authentication.",
+      "evidence": "Historical tool_fleet automations retained unchanged. No schedule listing, creation, update, restart or run was performed; new scheduling requires an explicit user request.",
+      "freshness": "RETAINED_HISTORICAL_OBSERVATION",
+      "holder": "Commons",
+      "id": "openai-automation-fleet",
+      "kind": "AUTOMATION_FLEET",
+      "last_use": "2026-09-01T23:32:25Z",
+      "mutation": "TASK_SCOPED",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-09-18T03:00:37Z",
+      "retained_observed_at": "2026-09-07T04:08:47Z",
+      "route_state": "CALLABLE",
+      "source_kind": "AUTOMATIONS_CONNECTOR",
+      "stage": "PRODUCING",
+      "value": "Retained 2026-09-07 automation census: 14 total, six enabled and eight disabled; current enablement and execution are unmeasured."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "LIVE",
+      "condition": "CONSTRAINED",
+      "consumers": [
+        "all GPT carriers"
+      ],
+      "current_state_note": "Historical installation census was not refreshed. Registry exposure or installed skill bundles do not prove current schedule enablement or connector authentication.",
+      "evidence": "Historical installed_plugins and prior directory search findings are retained with stale timestamps. Current Context7/PostHog/Hugging Face suggestions remain installed=false and are not callable routes.",
+      "freshness": "RETAINED_HISTORICAL_OBSERVATION",
+      "holder": "Commons",
+      "id": "chatgpt-plugin-fleet",
+      "kind": "PLUGIN_FLEET",
+      "last_use": "2026-09-01T23:32:25Z",
+      "mutation": "INSTALL_OR_USE_WHEN_CONCRETE_CONSUMER_EXISTS",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-09-18T03:00:37Z",
+      "retained_observed_at": "2026-09-07T04:08:47Z",
+      "route_state": "CALLABLE_WITH_CONSTRAINT",
+      "source_kind": "PLUGIN_MANAGEMENT",
+      "stage": "PRODUCING",
+      "value": "Retained 2026-09-07 installed-plugin list contains 11 entries. Current fully paginated skill registry has 139 bundles, which is a distinct measurement."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "callable": false,
+      "capacity": "DECLARED",
+      "condition": "ACTIVE_UNKNOWN",
+      "consumers": [
+        "transaction mail",
+        "agent delivery",
+        "round-trip canaries"
+      ],
+      "evidence": "Root focused 2026-10-04 directory read found the exact AgentMail plugin. This supersedes historical NOT_FOUND and does not confirm install, authentication, inbox creation, idle status or runtime use. AgentMail was discovered but not included in the initial three suggestion offers.",
+      "freshness": "DIRECTORY_AVAILABLE_NOT_INSTALLED",
+      "holder": "Commons",
+      "id": "agentmail",
+      "installed": false,
+      "kind": "AGENT_EMAIL_INFRASTRUCTURE",
+      "last_probe": "DIRECTORY_SEARCH_ONLY",
+      "last_use": "2026-08-21T00:00:00Z",
+      "mutation": "ACTIVATE_WITH_BUSINESS_GMAIL_CANARY",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-10-04",
+      "retained_historical_observation": {
+        "capacity": "LIVE",
+        "condition": "IDLE",
+        "evidence": "Provider email says account set up but first inbox not created. Build order posted in #delegations.",
+        "freshness": "EMAIL_RECEIPT_PLUS_SCREENSHOT",
+        "last_use": "2026-08-21T00:00:00Z",
+        "source_kind": "EMAIL_RECEIPT_AND_CURSOR_SCREENSHOT",
+        "stage": "AVAILABLE",
+        "value": "Account exists and Cursor exposes AgentMail as a required plugin; no first inbox yet."
+      },
+      "route_state": "ACTIVATE_FIRST",
+      "source_kind": "CURRENT_PLUGIN_DIRECTORY_READ",
+      "stage": "DECLARED",
+      "suggestion_offered": false,
+      "value": "AgentMail directory plugin is ENABLED/AVAILABLE but installed=false. Existing account and inbox activity are unknown in the current harness."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "LIVE",
+      "condition": "CONSTRAINED",
+      "consumers": [
+        "cross-service automations",
+        "MCP workflows"
+      ],
+      "evidence": "Trial email dated Aug 30 said ends in three days; current paid state unverified.",
+      "freshness": "EMAIL_RECEIPT",
+      "holder": "Commons",
+      "id": "zapier-mcp",
+      "kind": "AUTOMATION_AND_MCP",
+      "last_use": "2026-08-30T00:00:00Z",
+      "mutation": "TASK_SCOPED",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-09-18T03:00:37Z",
+      "route_state": "CALLABLE_WITH_CONSTRAINT",
+      "source_kind": "EMAIL_RECEIPT",
+      "stage": "REACHABLE",
+      "value": "Zapier account connected with Google and MCP setup receipt."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "LIVE",
+      "condition": "CONSTRAINED",
+      "consumers": [
+        "mobile subscription products"
+      ],
+      "evidence": "Latest receipt says email verification still required.",
+      "freshness": "EMAIL_RECEIPT",
+      "holder": "Commons",
+      "id": "revenuecat",
+      "kind": "SUBSCRIPTION_BILLING",
+      "last_use": "2026-08-30T00:00:00Z",
+      "mutation": "COMPLETE_EMAIL_VERIFICATION_THEN_CONSUME",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-09-18T03:00:37Z",
+      "route_state": "ACTIVATE_FIRST",
+      "source_kind": "EMAIL_RECEIPT",
+      "stage": "AVAILABLE",
+      "value": "RevenueCat account/app receipt exists."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "LIVE",
+      "condition": "ACTIVE_UNKNOWN",
+      "consumers": [
+        "product demos",
+        "sales media",
+        "documentation"
+      ],
+      "evidence": "Account capability exists; Digital Twin creation is not proven.",
+      "freshness": "EMAIL_RECEIPT",
+      "holder": "Commons",
+      "id": "heygen",
+      "kind": "GENERATIVE_MEDIA",
+      "last_use": "2026-08-30T00:00:00Z",
+      "mutation": "TASK_SCOPED",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-09-18T03:00:37Z",
+      "route_state": "CONNECTOR_DISCOVERY",
+      "source_kind": "EMAIL_RECEIPT",
+      "stage": "AVAILABLE",
+      "value": "HeyGen account with Digital Twin capability."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "LIVE",
+      "condition": "ACTIVE_UNKNOWN",
+      "consumers": [
+        "commerce products",
+        "storefronts"
+      ],
+      "evidence": "Account reachability only; store and plan unverified.",
+      "freshness": "EMAIL_RECEIPT",
+      "holder": "Commons",
+      "id": "shopify",
+      "kind": "COMMERCE_PLATFORM",
+      "last_use": "2026-08-30T00:00:00Z",
+      "mutation": "TASK_SCOPED",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-09-18T03:00:37Z",
+      "route_state": "CONNECTOR_DISCOVERY",
+      "source_kind": "EMAIL_RECEIPT",
+      "stage": "AVAILABLE",
+      "value": "Shopify Google sign-in receipt."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "LIVE",
+      "condition": "ACTIVE_UNKNOWN",
+      "consumers": [
+        "sales calls",
+        "service scheduling"
+      ],
+      "evidence": "Signup confirmed; plan and event types unverified.",
+      "freshness": "EMAIL_RECEIPT",
+      "holder": "Commons",
+      "id": "cal-com",
+      "kind": "SCHEDULING",
+      "last_use": "2026-08-30T00:00:00Z",
+      "mutation": "TASK_SCOPED",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-09-18T03:00:37Z",
+      "route_state": "CONNECTOR_DISCOVERY",
+      "source_kind": "EMAIL_RECEIPT",
+      "stage": "AVAILABLE",
+      "value": "Cal.com signup confirmed."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "DECLARED",
+      "condition": "ACTIVE_UNKNOWN",
+      "consumers": [
+        "cloud backups",
+        "artifact storage"
+      ],
+      "evidence": "Activation completion not proven.",
+      "freshness": "EMAIL_RECEIPT",
+      "holder": "Commons",
+      "id": "mega",
+      "kind": "CLOUD_STORAGE",
+      "last_use": "2026-07-01T00:00:00Z",
+      "mutation": "COMPLETE_OR_VERIFY_ACTIVATION",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-09-18T03:00:37Z",
+      "route_state": "ACTIVATE_FIRST",
+      "source_kind": "EMAIL_RECEIPT",
+      "stage": "AVAILABLE",
+      "value": "MEGA welcome and verification receipts."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "DECLARED",
+      "condition": "CONSTRAINED",
+      "consumers": [
+        "compute",
+        "hosting",
+        "databases"
+      ],
+      "evidence": "Verification email only; completed cloud account not proven.",
+      "freshness": "EMAIL_RECEIPT",
+      "holder": "Commons",
+      "id": "oracle-cloud",
+      "kind": "CLOUD_COMPUTE",
+      "last_use": "2026-07-01T00:00:00Z",
+      "mutation": "COMPLETE_ACCOUNT_CREATION",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-09-18T03:00:37Z",
+      "route_state": "ACTIVATE_FIRST",
+      "source_kind": "EMAIL_RECEIPT",
+      "stage": "AVAILABLE",
+      "value": "Oracle Cloud verification receipt."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "LIVE",
+      "condition": "LIVE",
+      "consumers": [
+        "public distribution",
+        "audience building"
+      ],
+      "evidence": "Welcome receipt proves account road; no post or outreach claimed.",
+      "freshness": "EMAIL_RECEIPT",
+      "holder": "Commons",
+      "id": "x-commons-swarm",
+      "kind": "SOCIAL_AND_AUDIENCE",
+      "last_use": "2026-08-30T00:00:00Z",
+      "mutation": "TASK_SCOPED_NO_DUPLICATE_OUTREACH",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-09-18T03:00:37Z",
+      "route_state": "CALLABLE_WITH_CONSTRAINT",
+      "source_kind": "EMAIL_RECEIPT",
+      "stage": "AVAILABLE",
+      "value": "X account @TheCommonsSwarm."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "LIVE",
+      "condition": "ACTIVE_UNKNOWN",
+      "consumers": [
+        "creative assets",
+        "video"
+      ],
+      "evidence": "OAuth sign-in proves account link, not plan or credits.",
+      "freshness": "EMAIL_RECEIPT",
+      "holder": "Commons",
+      "id": "higgsfield",
+      "kind": "GENERATIVE_MEDIA",
+      "last_use": "2026-08-19T00:00:00Z",
+      "mutation": "TASK_SCOPED",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-09-18T03:00:37Z",
+      "route_state": "CONNECTOR_DISCOVERY",
+      "source_kind": "EMAIL_RECEIPT",
+      "stage": "AVAILABLE",
+      "value": "Higgsfield Google OAuth receipt."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "LIVE",
+      "condition": "ACTIVE_UNKNOWN",
+      "consumers": [
+        "digital product distribution",
+        "commerce"
+      ],
+      "evidence": "OAuth sign-in proves account link, not store or sales.",
+      "freshness": "EMAIL_RECEIPT",
+      "holder": "Commons",
+      "id": "whop",
+      "kind": "DIGITAL_COMMERCE",
+      "last_use": "2026-08-19T00:00:00Z",
+      "mutation": "TASK_SCOPED",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-09-18T03:00:37Z",
+      "route_state": "CONNECTOR_DISCOVERY",
+      "source_kind": "EMAIL_RECEIPT",
+      "stage": "AVAILABLE",
+      "value": "Whop Google OAuth receipt."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "LIVE",
+      "condition": "CONSTRAINED",
+      "consumers": [
+        "Kaggriculture",
+        "RSNA and other evidence-backed Kaggle competition lanes"
+      ],
+      "evidence": "Commons PRs #9813, #9814 and #9818 record Kaggle submission 56074364, exactly one matching stable operation, exact 57,711-byte artifact identity, completed validation, two completed public wins, public score 790.0, observed account rank 3981, and contemporaneous quota of two used with three remaining.",
+      "freshness": "PROVIDER_READBACK",
+      "holder": "Commons",
+      "id": "kaggle-account-binding",
+      "kind": "COMPETITION_PLATFORM_ACCOUNT",
+      "last_use": "2026-09-07T10:10:29Z",
+      "mutation": "SHARED_ALL_CARRIERS_TASK_SCOPED_STANDING_AUTHORITY; COORDINATION_RECORD_REQUIRED; PROVIDER_TERMS_AND_QUOTA_BOUNDARIES_APPLY; NO_PERSONAL_OWNER_ACTION_OR_REPEAT_APPROVAL_FOR_ALREADY_AUTHORIZED_OPERATION",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-09-18T03:00:37Z",
+      "route_state": "CALLABLE_WITH_CONSTRAINT",
+      "source_kind": "PROVIDER_API_AND_GITHUB_RECEIPT",
+      "stage": "PRODUCING",
+      "value": "The shared Kaggle route produced one validated TITAN submission, two completed public competitive wins and an exact provider readback without duplicating the operation or changing the public source notebook."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "LIVE",
+      "condition": "ACTIVE_UNKNOWN",
+      "consumers": [
+        "analysis",
+        "research",
+        "building"
+      ],
+      "evidence": "Feature-access receipt exists; exact plan and quotas unverified.",
+      "freshness": "EMAIL_RECEIPT",
+      "holder": "Commons",
+      "id": "google-gemini",
+      "kind": "MODEL_SUBSCRIPTION",
+      "last_use": "2026-08-09T00:00:00Z",
+      "mutation": "TASK_SCOPED",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-09-18T03:00:37Z",
+      "route_state": "CONNECTOR_DISCOVERY",
+      "source_kind": "EMAIL_RECEIPT",
+      "stage": "AVAILABLE",
+      "value": "Google account receipt states access to AI features."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "LIVE",
+      "condition": "CONSTRAINED",
+      "consumer_reach": "CURRENT_CARRIER_REACH_UNCONFIRMED",
+      "consumers": [
+        "model workers",
+        "inference experiments"
+      ],
+      "evidence": "Root verified retained receipt dated 2026-10-03T03:47:15Z: gateway HTTP 200, 11 models, shared Free/$0 and central publisher consumption. No model inference or current carrier reach probe was performed in this refresh. Receipt: https://tokenjunkielabs.slack.com/archives/C0BU51F1PL3/p1790999235904629",
+      "freshness": "RETAINED_RUNTIME_RECEIPT",
+      "holder": "Commons",
+      "id": "groq-api",
+      "kind": "MODEL_INFERENCE_API",
+      "last_use": "2026-10-03T03:47:15Z",
+      "mutation": "TASK_SCOPED_ELIGIBLE_QUOTA_NO_NEW_SPEND",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-10-03T03:47:15Z",
+      "retained_historical_observation": {
+        "evidence": "Commons issue #15900 records the 2026-09-17 Groq credential as vaulted/verified without exposing its value; callable integration remains unproven.",
+        "freshness": "SWARM_ARMORY_RECEIPT",
+        "last_use": "NOT_YET_SHARED_ADAPTER",
+        "source_kind": "SWARM_ARMORY_RECEIPT",
+        "stage": "AVAILABLE",
+        "value": "Shared Groq provider capacity is vaulted; a callable Commons adapter is not yet proven."
+      },
+      "route_state": "CALLABLE_WITH_CONSTRAINT",
+      "runtime_receipt": "https://tokenjunkielabs.slack.com/archives/C0BU51F1PL3/p1790999235904629",
+      "source_kind": "SLACK_SHARED_RUNTIME_RECEIPT",
+      "stage": "PRODUCING",
+      "value": "Retained 2026-10-03 shared Groq Free gateway receipt reports HTTP 200, 11 models and $0 spend; existing central publisher use is reported. Current carrier reach and remaining per-model free allowance are unconfirmed."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "LIVE",
+      "condition": "CONSTRAINED",
+      "consumers": [
+        "model workers",
+        "inference experiments"
+      ],
+      "evidence": "Commons issue #15900 records the 2026-09-17 Cerebras credential as vaulted/verified without exposing its value; callable integration remains unproven.",
+      "freshness": "SWARM_ARMORY_RECEIPT",
+      "holder": "Commons",
+      "id": "cerebras-api",
+      "kind": "MODEL_INFERENCE_API",
+      "last_use": "NOT_YET_SHARED_ADAPTER",
+      "mutation": "INTEGRATE_SHARED_ADAPTER_THEN_TASK_SCOPED",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-09-18T03:00:37Z",
+      "route_state": "ACTIVATE_FIRST",
+      "source_kind": "SWARM_ARMORY_RECEIPT",
+      "stage": "AVAILABLE",
+      "value": "Shared Cerebras provider capacity is vaulted; a callable Commons adapter is not yet proven."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "LIVE",
+      "condition": "CONSTRAINED",
+      "consumers": [
+        "sandbox workers",
+        "isolated execution"
+      ],
+      "evidence": "Commons issue #15900 records the 2026-09-17 E2B credential as vaulted/verified without exposing its value; callable integration remains unproven.",
+      "freshness": "SWARM_ARMORY_RECEIPT",
+      "holder": "Commons",
+      "id": "e2b",
+      "kind": "SANDBOX_COMPUTE",
+      "last_use": "NOT_YET_SHARED_ADAPTER",
+      "mutation": "INTEGRATE_SHARED_ADAPTER_THEN_TASK_SCOPED",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-09-18T03:00:37Z",
+      "route_state": "ACTIVATE_FIRST",
+      "source_kind": "SWARM_ARMORY_RECEIPT",
+      "stage": "AVAILABLE",
+      "value": "Shared E2B provider capacity is vaulted; a callable Commons adapter is not yet proven."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "LIVE",
+      "condition": "CONSTRAINED",
+      "consumers": [
+        "agent observability",
+        "evaluation workers"
+      ],
+      "evidence": "Commons issue #15900 records the 2026-09-17 Langfuse credential as vaulted/verified without exposing its value; callable integration remains unproven.",
+      "freshness": "SWARM_ARMORY_RECEIPT",
+      "holder": "Commons",
+      "id": "langfuse",
+      "kind": "OBSERVABILITY",
+      "last_use": "NOT_YET_SHARED_ADAPTER",
+      "mutation": "INTEGRATE_SHARED_ADAPTER_THEN_TASK_SCOPED",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-09-18T03:00:37Z",
+      "route_state": "ACTIVATE_FIRST",
+      "source_kind": "SWARM_ARMORY_RECEIPT",
+      "stage": "AVAILABLE",
+      "value": "Shared Langfuse provider capacity is vaulted; a callable Commons adapter is not yet proven."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "LIVE",
+      "condition": "CONSTRAINED",
+      "consumers": [
+        "agent memory experiments",
+        "retrieval workers"
+      ],
+      "evidence": "Commons issue #15900 records the 2026-09-17 Zep credential as vaulted/verified without exposing its value; callable integration remains unproven.",
+      "freshness": "SWARM_ARMORY_RECEIPT",
+      "holder": "Commons",
+      "id": "zep",
+      "kind": "AGENT_MEMORY_DATA",
+      "last_use": "NOT_YET_SHARED_ADAPTER",
+      "mutation": "INTEGRATE_SHARED_ADAPTER_THEN_TASK_SCOPED",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-09-18T03:00:37Z",
+      "route_state": "ACTIVATE_FIRST",
+      "source_kind": "SWARM_ARMORY_RECEIPT",
+      "stage": "AVAILABLE",
+      "value": "Shared Zep provider capacity is vaulted; a callable Commons adapter is not yet proven."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "LIVE",
+      "condition": "CONSTRAINED",
+      "consumers": [
+        "model workers",
+        "routing experiments"
+      ],
+      "evidence": "Commons issue #15900 records the 2026-09-17 OpenRouter credential as vaulted/verified without exposing its value; callable integration remains unproven.",
+      "freshness": "SWARM_ARMORY_RECEIPT",
+      "holder": "Commons",
+      "id": "openrouter",
+      "kind": "MODEL_ROUTER_API",
+      "last_use": "NOT_YET_SHARED_ADAPTER",
+      "mutation": "INTEGRATE_SHARED_ADAPTER_THEN_TASK_SCOPED",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-09-18T03:00:37Z",
+      "route_state": "ACTIVATE_FIRST",
+      "source_kind": "SWARM_ARMORY_RECEIPT",
+      "stage": "AVAILABLE",
+      "value": "Shared OpenRouter provider capacity is vaulted; a callable Commons adapter is not yet proven."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "LIVE",
+      "condition": "CONSTRAINED",
+      "consumers": [
+        "research workers",
+        "web extraction"
+      ],
+      "evidence": "Commons issue #15900 records the 2026-09-17 Firecrawl credential as vaulted/verified without exposing its value; callable integration remains unproven.",
+      "freshness": "SWARM_ARMORY_RECEIPT",
+      "holder": "Commons",
+      "id": "firecrawl",
+      "kind": "WEB_EXTRACTION",
+      "last_use": "NOT_YET_SHARED_ADAPTER",
+      "mutation": "INTEGRATE_SHARED_ADAPTER_THEN_TASK_SCOPED",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-09-18T03:00:37Z",
+      "route_state": "ACTIVATE_FIRST",
+      "source_kind": "SWARM_ARMORY_RECEIPT",
+      "stage": "AVAILABLE",
+      "value": "Shared Firecrawl provider capacity is vaulted; a callable Commons adapter is not yet proven."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "LIVE",
+      "condition": "CONSTRAINED",
+      "consumers": [
+        "research workers",
+        "data gathering"
+      ],
+      "evidence": "Commons issue #15900 records the 2026-09-17 Parallel credential as vaulted/verified without exposing its value and records a provider-entitlement constraint; callable integration remains unproven.",
+      "freshness": "SWARM_ARMORY_RECEIPT",
+      "holder": "Commons",
+      "id": "parallel",
+      "kind": "RESEARCH_API",
+      "last_use": "NOT_YET_SHARED_ADAPTER",
+      "mutation": "INTEGRATE_SHARED_ADAPTER_THEN_TASK_SCOPED",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-09-18T03:00:37Z",
+      "route_state": "ACTIVATE_FIRST",
+      "source_kind": "SWARM_ARMORY_RECEIPT",
+      "stage": "AVAILABLE",
+      "value": "Shared Parallel provider capacity is vaulted; a callable Commons adapter is not yet proven and provider entitlement is constrained."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "DECLARED",
+      "condition": "ACTIVE_UNKNOWN",
+      "consumers": [
+        "compute workers",
+        "hosting experiments"
+      ],
+      "evidence": "Commons issue #15900 records an Alibaba Cloud account/SSO surface only. API credential, callable adapter, quota, and execution are not claimed.",
+      "freshness": "ACCOUNT_RECEIPT",
+      "holder": "Commons",
+      "id": "alibaba-cloud",
+      "kind": "CLOUD_COMPUTE",
+      "last_use": "ACCOUNT_SURFACE_ONLY",
+      "mutation": "INTEGRATE_SHARED_ADAPTER_THEN_TASK_SCOPED",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-09-18T03:00:37Z",
+      "route_state": "ACTIVATE_FIRST",
+      "source_kind": "ACCOUNT_AND_SSO_RECEIPT",
+      "stage": "AVAILABLE",
+      "value": "Alibaba Cloud account/SSO surface is present; API credential and callable Commons adapter are not proven."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "LIVE",
+      "condition": "CONSTRAINED",
+      "consumers": [
+        "existing runner owners",
+        "service repair workers",
+        "observability workers"
+      ],
+      "evidence": "Profile, project and service-list reads succeeded. Existing project/service owners can use scoped diagnosis, logs and metrics. Utilization, free allowance, model inference quota and remaining budget are unmeasured; no deployment, restart, source mutation, variable/credential read or new spending occurred.",
+      "freshness": "AUTHENTICATED_READ_PROBE",
+      "holder": "Commons",
+      "id": "railway",
+      "kind": "HOSTING_AND_SERVICE_OBSERVABILITY",
+      "last_probe": "2026-10-04",
+      "last_use": "NO_CURRENT_WORKLOAD_USE_MEASURED",
+      "mutation": "TASK_SCOPED_NO_NEW_SPEND",
+      "observation_precision": "date",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-10-04",
+      "route_state": "CALLABLE_WITH_CONSTRAINT",
+      "source_kind": "CONNECTED_APP_READ_AUDIT",
+      "stage": "REACHABLE",
+      "value": "Authenticated Railway surface with 68 tools, two projects, two environments, and five service registrations."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "LIVE",
+      "condition": "CONSTRAINED",
+      "consumers": [
+        "eligible frontend builders",
+        "deployment repair workers"
+      ],
+      "evidence": "Authenticated profile and project reader succeeded. Historical use, commercial/free eligibility, spare capacity and inference quota are not established. Account readiness is available; a concrete eligible workload and cost check are required before provisioning.",
+      "freshness": "AUTHENTICATED_READ_PROBE",
+      "holder": "Commons",
+      "id": "netlify",
+      "kind": "HOSTING_AND_DEPLOYMENT_OBSERVABILITY",
+      "last_probe": "2026-10-04",
+      "last_use": "NO_CURRENT_WORKLOAD_USE_MEASURED",
+      "mutation": "TASK_SCOPED_NO_NEW_SPEND",
+      "observation_precision": "date",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-10-04",
+      "route_state": "CALLABLE_WITH_CONSTRAINT",
+      "source_kind": "CONNECTED_APP_READ_AUDIT",
+      "stage": "REACHABLE",
+      "value": "Authenticated Netlify surface with nine tools; project listing and profile site_count both report zero current sites/projects."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "DECLARED",
+      "condition": "ACTIVE_UNKNOWN",
+      "connected_allowance": "UNKNOWN",
+      "consumers": [
+        "research workers after verified activation"
+      ],
+      "evidence": "Retained 2026-10-03T03:47:15Z runtime activation receipt and existing ledger resource shared-exa-research-tools report source-only adapter use, not runtime execution. Preserve AccountChad operation account-chad-provider-runtime-activation-20261002-01. Exact connected allowance and current carrier reach are unknown. Receipt: https://tokenjunkielabs.slack.com/archives/C0BU51F1PL3/p1790999235904629",
+      "existing_owner": "AccountChad",
+      "freshness": "RETAINED_OWNER_ACTIVATION_RECEIPT",
+      "holder": "Commons",
+      "id": "exa-research",
+      "kind": "RESEARCH_API",
+      "last_probe": "NOT_PROBED",
+      "last_use": "SOURCE_ADAPTER_ONLY_NOT_RUNTIME_USE",
+      "ledger_resource": "shared-exa-research-tools",
+      "mutation": "EXISTING_OWNER_ACTIVATION_THEN_TASK_SCOPED",
+      "observation_precision": "date",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-10-03T03:47:15Z",
+      "operation_id": "account-chad-provider-runtime-activation-20261002-01",
+      "route_state": "ACTIVATE_FIRST",
+      "runtime_verified": false,
+      "source_kind": "LEDGER_AND_SLACK_ACTIVATION_RECEIPT",
+      "source_methods": [
+        "exa_search",
+        "exa_contents"
+      ],
+      "stage": "DECLARED",
+      "value": "Existing Exa source adapter exposes exa_search and exa_contents; key/login verification remains pending under the existing AccountChad owner."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "callable": false,
+      "capacity": "DECLARED",
+      "condition": "ACTIVE_UNKNOWN",
+      "consumers": [
+        "assigned role after installation and readiness probe"
+      ],
+      "evidence": "Initial suggestion was offered; latest plugin-directory search reports installation_policy AVAILABLE and installed=false. No callable tools, authentication, account capacity, free allowance or workload execution are established.",
+      "freshness": "DIRECTORY_SUGGESTION_UNCONFIRMED",
+      "holder": "Commons",
+      "id": "context7",
+      "installed": false,
+      "kind": "DOCUMENTATION_RESEARCH",
+      "last_probe": "DIRECTORY_SEARCH_ONLY",
+      "last_use": "NO_RUNTIME_USE",
+      "mutation": "COMPLETE_SUGGESTED_INSTALL_AND_AUTH_THEN_TASK_SCOPED",
+      "observation_precision": "date",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-10-04",
+      "plugin_name": "Context7",
+      "route_state": "ACTIVATE_FIRST",
+      "source_kind": "DIRECTORY_SUGGESTION_UNCONFIRMED",
+      "stage": "DECLARED",
+      "suggestion_offered": true,
+      "value": "Version-specific documentation lookup for implementation workers; eligible directory plugin remains uninstalled."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "callable": false,
+      "capacity": "DECLARED",
+      "condition": "ACTIVE_UNKNOWN",
+      "consumers": [
+        "assigned role after installation and readiness probe"
+      ],
+      "evidence": "Initial suggestion was offered; latest plugin-directory search reports installation_policy AVAILABLE and installed=false. No callable tools, authentication, account capacity, free allowance or workload execution are established.",
+      "freshness": "DIRECTORY_SUGGESTION_UNCONFIRMED",
+      "holder": "Commons",
+      "id": "posthog",
+      "installed": false,
+      "kind": "PRODUCT_AND_LLM_OBSERVABILITY",
+      "last_probe": "DIRECTORY_SEARCH_ONLY",
+      "last_use": "NO_RUNTIME_USE",
+      "mutation": "COMPLETE_SUGGESTED_INSTALL_AND_AUTH_THEN_TASK_SCOPED",
+      "observation_precision": "date",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-10-04",
+      "plugin_name": "PostHog",
+      "route_state": "ACTIVATE_FIRST",
+      "source_kind": "DIRECTORY_SUGGESTION_UNCONFIRMED",
+      "stage": "DECLARED",
+      "suggestion_offered": true,
+      "value": "Existing telemetry analysis for observability workers; eligible directory plugin remains uninstalled."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "callable": false,
+      "capacity": "DECLARED",
+      "condition": "ACTIVE_UNKNOWN",
+      "consumers": [
+        "assigned role after installation and readiness probe"
+      ],
+      "evidence": "Initial suggestion was offered; latest plugin-directory search reports installation_policy AVAILABLE and installed=false. No callable tools, authentication, account capacity, free allowance or workload execution are established.",
+      "freshness": "DIRECTORY_SUGGESTION_UNCONFIRMED",
+      "holder": "Commons",
+      "id": "hugging-face",
+      "installed": false,
+      "kind": "MODEL_DATASET_AND_SPACE_RESEARCH",
+      "last_probe": "DIRECTORY_SEARCH_ONLY",
+      "last_use": "NO_RUNTIME_USE",
+      "mutation": "COMPLETE_SUGGESTED_INSTALL_AND_AUTH_THEN_TASK_SCOPED",
+      "observation_precision": "date",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-10-04",
+      "plugin_name": "Hugging Face",
+      "route_state": "ACTIVATE_FIRST",
+      "source_kind": "DIRECTORY_SUGGESTION_UNCONFIRMED",
+      "stage": "DECLARED",
+      "suggestion_offered": true,
+      "value": "Model/dataset research and eligible existing Space tooling; eligible directory plugin remains uninstalled."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "callable": false,
+      "capacity": "DECLARED",
+      "condition": "ACTIVE_UNKNOWN",
+      "connected_allowance": "UNKNOWN",
+      "consumers": [
+        "research workers after authenticated setup"
+      ],
+      "evidence": "Root focused 2026-10-04 directory read reports ENABLED, AVAILABLE and installed=false. Discovered only; not included in initial suggestion offers. Official recurring free credits do not establish this account allowance or runtime readiness.",
+      "freshness": "DIRECTORY_AVAILABLE_NOT_INSTALLED",
+      "holder": "Commons",
+      "id": "tavily",
+      "installed": false,
+      "kind": "RESEARCH_API",
+      "last_probe": "DIRECTORY_SEARCH_ONLY",
+      "last_use": "NO_RUNTIME_USE",
+      "mutation": "INSTALL_AND_AUTH_BEFORE_TASK_SCOPED_ELIGIBLE_QUOTA",
+      "observation_precision": "date",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-10-04",
+      "plugin_name": "Tavily",
+      "route_state": "ACTIVATE_FIRST",
+      "source_kind": "CURRENT_PLUGIN_DIRECTORY_READ",
+      "stage": "DECLARED",
+      "suggestion_offered": false,
+      "value": "Tavily is available in the plugin directory but remains uninstalled; no authenticated research adapter or connected quota is established."
+    }
+  ],
+  "schema": "commons-connected-capability-observations/v1",
+  "snapshot": {
+    "base_main_sha": "d66ac9862e3448e2bff54c7386ce27f5a81b3640",
+    "freshness_note": "Global observed_at/source_watermark retain the 2026-09-18 snapshot. Read component_freshness and per-provider observed_at/last_probe for later measurements; the refreshed census does not make retained account, repository, automation, quota or carrier facts current.",
+    "newest_component_observed_at": "2026-10-04T06:35Z",
+    "observed_at": "2026-09-18T03:00:37Z",
+    "refresh_base_main_sha": "8b13250af5876863235fd519e1906f5cca2b0656",
+    "route_rule": "All Commons carriers may consume all shared resources; Claude is the sole owner-handled exception.",
+    "secret_rule": "Share account roles, business identity, services, quotas, and routes; never persist passwords, tokens, recovery links, verification links, or payment credentials.",
+    "source_watermark": "2026-09-18T03:00:37Z",
+    "truth_rule": "Exposure, successful probe, lifecycle stage, condition, authority, mutation, consumption, and value are independent facts."
+  },
   "tool_fleet": {
-    "callable_tools": 442,
-    "connected_app_tools": 427,
-    "core_tools": 15,
-    "app_families": 20,
+    "app_families": 25,
     "app_family_counts": {
-      "airtable": 29,
-      "apollo": 46,
-      "automations": 5,
+      "airtable": 47,
+      "apollo": 4,
+      "automations": 7,
+      "chatgpt": 37,
+      "codex_security_cloud": 18,
       "dropbox": 24,
-      "finances": 9,
+      "finances": 14,
       "github": 89,
       "gmail": 21,
+      "google": 3,
+      "google_calendar": 15,
       "google_drive": 45,
       "hotline": 1,
-      "library": 10,
+      "library": 11,
+      "netlify": 9,
       "personal_context": 1,
       "pets": 11,
       "plugin_management": 6,
+      "railway": 68,
       "safety": 5,
-      "sites": 23,
-      "netlify": 9,
-      "railway": 26,
-      "slack": 33,
-      "stripe": 10,
-      "vercel": 24
-    },
-    "fully_paginated_skills": 118,
-    "skill_groups": {
-      "core": 18,
-      "airtable": 3,
-      "deep_research_work": 1,
-      "demos": 2,
-      "dropbox": 6,
-      "google_drive": 5,
-      "netlify": 12,
-      "openai_library": 1,
-      "work_pets": 3,
-      "plugin_management": 1,
-      "sites": 3,
-      "stripe": 7,
-      "task_tool": 1,
-      "template_creator": 1,
-      "vercel": 54
+      "search_service": 1,
+      "sites": 25,
+      "slack": 38,
+      "stripe": 12,
+      "vercel": 205
     },
     "automations": {
-      "total": 14,
+      "disabled": 8,
       "enabled": 6,
-      "disabled": 8
+      "total": 14
     },
+    "callable_tools": 729,
+    "connected_app_tools": 717,
+    "core_tools": 12,
+    "freshness_by_component": {
+      "automations": "2026-09-07T04:08:47Z",
+      "historical_plugin_search_findings": "2026-09-07T04:08:47Z",
+      "installed_plugins": "2026-09-07T04:08:47Z",
+      "provider_read_probes": "2026-10-04",
+      "skill_registry": "2026-10-04T06:35Z",
+      "tool_registry": "2026-10-04T06:34:26.753Z"
+    },
+    "fully_paginated_skills": 139,
+    "historical_plugin_search_findings": {
+      "agentmail_plugin": "NOT_FOUND_IN_CHATGPT_PLUGIN_DIRECTORY",
+      "cursor_grok_claude_plugin": "NOT_FOUND_IN_CHATGPT_PLUGIN_DIRECTORY",
+      "latent_recommended_plugins": 45
+    },
+    "historical_plugin_search_findings_observed_at": "2026-09-07T04:08:47Z",
     "installed_plugins": [
       "Demos",
       "Deep Research Work",
@@ -93,968 +1539,230 @@
       "Task Tool",
       "Vercel"
     ],
+    "plugin_eligibility_observations": [
+      {
+        "callable": false,
+        "installation_policy": "AVAILABLE",
+        "installed": false,
+        "observed_at": "2026-10-04",
+        "provider": "Context7",
+        "source_kind": "DIRECTORY_SUGGESTION_UNCONFIRMED",
+        "suggestion_offered": true
+      },
+      {
+        "callable": false,
+        "installation_policy": "AVAILABLE",
+        "installed": false,
+        "observed_at": "2026-10-04",
+        "provider": "PostHog",
+        "source_kind": "DIRECTORY_SUGGESTION_UNCONFIRMED",
+        "suggestion_offered": true
+      },
+      {
+        "callable": false,
+        "installation_policy": "AVAILABLE",
+        "installed": false,
+        "observed_at": "2026-10-04",
+        "provider": "Hugging Face",
+        "source_kind": "DIRECTORY_SUGGESTION_UNCONFIRMED",
+        "suggestion_offered": true
+      },
+      {
+        "callable": false,
+        "installation_policy": "AVAILABLE",
+        "installed": false,
+        "observed_at": "2026-10-04",
+        "provider": "AgentMail",
+        "source_kind": "CURRENT_PLUGIN_DIRECTORY_READ",
+        "suggestion_offered": false
+      },
+      {
+        "callable": false,
+        "installation_policy": "AVAILABLE",
+        "installed": false,
+        "observed_at": "2026-10-04",
+        "provider": "Tavily",
+        "source_kind": "CURRENT_PLUGIN_DIRECTORY_READ",
+        "suggestion_offered": false
+      }
+    ],
     "plugin_search_findings": {
-      "agentmail_plugin": "NOT_FOUND_IN_CHATGPT_PLUGIN_DIRECTORY",
+      "agentmail_plugin": "AVAILABLE_NOT_INSTALLED",
       "cursor_grok_claude_plugin": "NOT_FOUND_IN_CHATGPT_PLUGIN_DIRECTORY",
       "latent_recommended_plugins": 45
+    },
+    "plugin_search_findings_observed_at": {
+      "agentmail_plugin": "2026-10-04",
+      "cursor_grok_claude_plugin": "2026-09-07T04:08:47Z",
+      "latent_recommended_plugins": "2026-09-07T04:08:47Z"
+    },
+    "provider_read_probe_evidence": {
+      "authenticated_providers": 10,
+      "discovered_not_probed_providers": [
+        "Codex Security Cloud"
+      ],
+      "observed_at": "2026-10-04",
+      "precision": "date",
+      "probe_scope": "Harmless profile/resource inventory reads; no writes or workload execution.",
+      "providers": [
+        {
+          "errors": [],
+          "evidence": {
+            "basePermissions": [
+              "create"
+            ],
+            "bases": 1,
+            "tables": 1,
+            "workspacePermissions": [
+              "owner"
+            ],
+            "workspaces": 1
+          },
+          "provider": "Airtable",
+          "status": "tool-discovered/auth-read-success",
+          "toolCount": 47
+        },
+        {
+          "errors": [],
+          "evidence": {
+            "profileAuthenticated": true
+          },
+          "provider": "Gmail",
+          "status": "tool-discovered/auth-read-success",
+          "toolCount": 21
+        },
+        {
+          "errors": [],
+          "evidence": {
+            "profileAuthenticated": true,
+            "recentMetadataSample": 5,
+            "sharedDrives": 0
+          },
+          "provider": "Google Drive",
+          "status": "tool-discovered/auth-read-success",
+          "toolCount": 45
+        },
+        {
+          "errors": [],
+          "evidence": {
+            "profileAuthenticated": true,
+            "rootEntries": 1,
+            "rootHasMore": false
+          },
+          "provider": "Dropbox",
+          "status": "tool-discovered/auth-read-success",
+          "toolCount": 24
+        },
+        {
+          "errors": [],
+          "evidence": {
+            "environments": 2,
+            "profileAuthenticated": true,
+            "projects": 2,
+            "services": 5
+          },
+          "provider": "Railway",
+          "status": "tool-discovered/auth-read-success",
+          "toolCount": 68
+        },
+        {
+          "errors": [],
+          "evidence": {
+            "authenticatedTeams": 1,
+            "commercialFreeAllowance": "not established",
+            "probedTeams": 1,
+            "projectsInProbedTeam": 0
+          },
+          "provider": "Vercel",
+          "status": "tool-discovered/auth-read-success",
+          "toolCount": 205
+        },
+        {
+          "errors": [],
+          "evidence": {
+            "commercialFreeAllowance": "not established",
+            "profileAuthenticated": true,
+            "profileSiteCount": 0,
+            "projectsReturned": 0
+          },
+          "provider": "Netlify",
+          "status": "tool-discovered/auth-read-success",
+          "toolCount": 9
+        },
+        {
+          "errors": [],
+          "evidence": {
+            "accounts": 1
+          },
+          "provider": "Stripe",
+          "status": "tool-discovered/auth-read-success",
+          "toolCount": 12
+        },
+        {
+          "errors": [],
+          "evidence": {
+            "activeSites": 3,
+            "hasLiveUrlCount": 3,
+            "ownedSites": 3,
+            "savedVersionCounts": [
+              1,
+              1,
+              1
+            ]
+          },
+          "provider": "Sites",
+          "status": "tool-discovered/auth-read-success",
+          "toolCount": 25
+        },
+        {
+          "errors": [],
+          "evidence": {
+            "authProbe": "not performed",
+            "reason": "Tool descriptions restrict use to an explicitly requested Codex Security Cloud task; no scans."
+          },
+          "provider": "Codex Security Cloud",
+          "status": "tool-discovered/auth-not-probed",
+          "toolCount": 18
+        },
+        {
+          "errors": [],
+          "evidence": {
+            "discoverySucceeded": true,
+            "profileAuthenticated": true
+          },
+          "provider": "Apollo.io",
+          "status": "tool-discovered/auth-read-success",
+          "toolCount": 4
+        }
+      ]
+    },
+    "retained_fact_note": "Automation totals, installed_plugins, and earlier plugin_search_findings are retained historical facts, not newly measured current state. No schedules were created, changed, restarted or enumerated in this refresh.",
+    "skill_groups": {
+      "airtable": 3,
+      "core": 15,
+      "data-analytics": 15,
+      "defense-factory": 1,
+      "demos": 2,
+      "dropbox": 6,
+      "google-drive": 5,
+      "netlify": 12,
+      "openai-library": 1,
+      "pages": 4,
+      "plugin-management": 1,
+      "sites": 4,
+      "stripe": 10,
+      "task-tool": 1,
+      "template-creator": 1,
+      "vercel": 54,
+      "work-pets": 3,
+      "write-like-me": 1
+    },
+    "skill_registry_evidence": {
+      "groups": 18,
+      "next_cursor": null,
+      "observed_at": "2026-10-04T06:35Z",
+      "pagination_pages": 7,
+      "scope": "Fully paginated installed skill bundles; not connector authentication or usage."
     }
-  },
-  "component_freshness": {
-    "account_roles": "2026-09-07T10:02:06Z",
-    "tool_fleet": "2026-09-07T04:08:47Z",
-    "github_portfolio": "2026-09-07T04:35:09Z",
-    "provider_armory": "2026-09-18T03:00:37Z"
-  },
-  "github_portfolio": {
-    "observed_at": "2026-09-07T04:35:09Z",
-    "accessible_repositories": 32,
-    "public_repositories": 19,
-    "private_repositories": 13,
-    "private_details_persisted": false,
-    "repositories": [
-      {
-        "name": "woahwhattheheck/commons",
-        "visibility": "public",
-        "head": "4da8a89435a5a04ce460ee28c041ed868bb6328a",
-        "open_prs": 0,
-        "role": "CANONICAL"
-      },
-      {
-        "name": "woahwhattheheck/commons-backup",
-        "visibility": "public",
-        "head": "17268727fea21066cda39f5740f02fb6903961d8",
-        "role": "MIRROR_UNVERIFIED"
-      },
-      {
-        "name": "woahwhattheheck/kite-mouth-help",
-        "visibility": "public",
-        "head": "eedbaf2cd53dc490de8af7d070b4261edae9ee9a",
-        "role": "REFERENCE"
-      },
-      {
-        "name": "woahwhattheheck/public-commons-sprint-2026",
-        "visibility": "public",
-        "head": "56f7ccf477c7c540f7d2105775b7b159417f160e",
-        "role": "SPRINT"
-      },
-      {
-        "name": "woahwhattheheck/agentlily-runtime",
-        "visibility": "public",
-        "head": "d7dea5d64e44c15713faec276eb18ef3197a4888",
-        "role": "REFERENCE"
-      },
-      {
-        "name": "woahwhattheheck/ultimate-ai-platform",
-        "visibility": "public",
-        "head": "167af0b01eb0b0282a88381473216d793b9835be",
-        "role": "REFERENCE"
-      },
-      {
-        "name": "woahwhattheheck/scrypt",
-        "visibility": "public",
-        "head": "a71ae8281742ac638bc75baa4334f2292251e0eb",
-        "role": "REFERENCE"
-      },
-      {
-        "name": "woahwhattheheck/hive",
-        "visibility": "public",
-        "head": "0c387492067e8b7d3e1c803009169f202f30ed77",
-        "role": "REFERENCE"
-      },
-      {
-        "name": "woahwhattheheck/startup-credits",
-        "visibility": "public",
-        "head": "5834dccb21aed15d15c1fb0290e81cd1d754c921",
-        "role": "REFERENCE"
-      },
-      {
-        "name": "woahwhattheheck/AncientBeast",
-        "visibility": "public",
-        "head": "6fe46c29c0715ef68f773ceec472d298584a46e3",
-        "role": "REFERENCE"
-      },
-      {
-        "name": "woahwhattheheck/omi",
-        "visibility": "public",
-        "head": "16e3f19bb9613c469a92910fc525c52a592d0bdc",
-        "role": "REFERENCE"
-      },
-      {
-        "name": "woahwhattheheck/tarsnap",
-        "visibility": "public",
-        "head": "0bf0b299fed91139044c81cc6fcdc5521c34d235",
-        "role": "REFERENCE"
-      },
-      {
-        "name": "woahwhattheheck/jhipster-control-center",
-        "visibility": "public",
-        "head": "8c5fd7383137fe638a7b17883b6c90cac090f447",
-        "role": "REFERENCE"
-      },
-      {
-        "name": "woahwhattheheck/split-sdk",
-        "visibility": "public",
-        "head": "5e1f9d682d29b1cb5270cf9c6e8614c5830a53a7",
-        "role": "REFERENCE"
-      },
-      {
-        "name": "woahwhattheheck/spiped",
-        "visibility": "public",
-        "head": "a945f3315e35ee48c8a79af952addc1b6616db83",
-        "role": "REFERENCE"
-      },
-      {
-        "name": "woahwhattheheck/kivaloo",
-        "visibility": "public",
-        "head": "3de151b5d878b0714552c3658562eb5a87b378ce",
-        "role": "REFERENCE"
-      },
-      {
-        "name": "woahwhattheheck/mova-store",
-        "visibility": "public",
-        "head": "65d9dfb09cbf544edbd0d6ac2954219427f734c7",
-        "role": "REFERENCE"
-      },
-      {
-        "name": "woahwhattheheck/drizzle-orm",
-        "visibility": "public",
-        "head": "b7862528fd8fc39bc2653a6c18dad7c1f4e68d10",
-        "role": "REFERENCE"
-      },
-      {
-        "name": "woahwhattheheck/pyqpanda-algorithm",
-        "visibility": "public",
-        "head": "5d7af4cab02763626b22ffa98a033dc796bd3f49",
-        "role": "REFERENCE"
-      }
-    ]
-  },
-  "providers": [
-    {
-      "id": "chatgpt-work-pro",
-      "kind": "SUBSCRIPTION_AND_HARNESS",
-      "capacity": "LIVE",
-      "stage": "PRODUCING",
-      "condition": "LIVE",
-      "authority": "SHARED_ALL_CARRIERS",
-      "holder": "Commons owner",
-      "consumers": [
-        "Resource Master",
-        "Queue Manager",
-        "builders"
-      ],
-      "mutation": "TASK_SCOPED",
-      "route_state": "CALLABLE",
-      "value": "$200 ChatGPT subscription with 442 callable tools, 118 installed skills, 14 automations, browser, and connected carriers.",
-      "last_use": "2026-09-07T04:08:47Z",
-      "freshness": "LIVE_PROBE",
-      "source_kind": "OWNER_DECLARATION_PLUS_TOOL_CENSUS",
-      "evidence": "442 tools, 427 connected-app tools across 20 families, 118 fully paginated skills, 14 automations, 7 enabled."
-    },
-    {
-      "id": "business-gmail",
-      "kind": "EMAIL_IDENTITY",
-      "capacity": "LIVE",
-      "stage": "PRODUCING",
-      "condition": "LIVE",
-      "authority": "SHARED_ALL_CARRIERS",
-      "holder": "Commons",
-      "consumers": [
-        "service operations",
-        "receipts",
-        "canaries",
-        "business correspondence"
-      ],
-      "mutation": "TASK_SCOPED_NO_SECRET_EXPORT",
-      "route_state": "CALLABLE",
-      "value": "Shared business mailbox and service identity at tokenjunkielabs@gmail.com.",
-      "last_use": "2026-09-01T23:06:38Z",
-      "freshness": "LIVE_PROBE",
-      "source_kind": "GMAIL_PROFILE_AND_141_MESSAGE_CENSUS",
-      "evidence": "Connected Gmail profile; 141 inbound non-spam receipts since 2026-01-01."
-    },
-    {
-      "id": "secondary-gmail",
-      "kind": "EMAIL_IDENTITY",
-      "capacity": "DECLARED",
-      "stage": "AVAILABLE",
-      "condition": "ACTIVE_UNKNOWN",
-      "authority": "SHARED_ALL_CARRIERS",
-      "holder": "Commons owner",
-      "consumers": [
-        "GPT carriers that expose the second connector"
-      ],
-      "mutation": "TASK_SCOPED_NO_SECRET_EXPORT",
-      "route_state": "CONNECTOR_DISCOVERY",
-      "value": "Second owner-shared Gmail identity.",
-      "last_use": "UNKNOWN",
-      "freshness": "OWNER_DECLARED",
-      "source_kind": "OWNER_DECLARATION",
-      "evidence": "Owner states two Gmail identities are shared with GPT."
-    },
-    {
-      "id": "github-account-and-repository-fleet",
-      "kind": "REPOSITORY_FLEET",
-      "capacity": "LIVE",
-      "stage": "PRODUCING",
-      "condition": "CONSTRAINED",
-      "authority": "SHARED_ALL_CARRIERS",
-      "holder": "Commons",
-      "consumers": [
-        "all builders",
-        "recovery agents",
-        "release agents"
-      ],
-      "mutation": "SHIP_TO_WOAHWHATTHEHECK_ONLY",
-      "route_state": "CALLABLE_WITH_CONSTRAINT",
-      "value": "Two GitHub identities and 32 accessible woahwhattheheck repositories; 19 public and 13 private. Private identities and heads are aggregate-only in the public graph.",
-      "last_use": "2026-09-07T04:35:09Z",
-      "freshness": "LIVE_PROBE",
-      "source_kind": "GITHUB_CONNECTOR_AND_CURRENT_MAIN",
-      "evidence": "Authenticated connector resolves woahwhattheheck; current-main shipping law names woahwhattheheck and not tokenjunkielabs."
-    },
-    {
-      "id": "cursor-ultra-pool",
-      "kind": "MODEL_HARNESS_POOL",
-      "capacity": "LIVE",
-      "stage": "PRODUCING",
-      "condition": "CONSTRAINED",
-      "authority": "SHARED_ALL_CARRIERS",
-      "holder": "Commons owner",
-      "consumers": [
-        "implementation workers",
-        "review workers",
-        "cloud agents"
-      ],
-      "mutation": "SHIP_TO_WOAHWHATTHEHECK_NO_CLAUDE_FILES",
-      "route_state": "CALLABLE_WITH_CONSTRAINT",
-      "value": "Two Cursor Ultra connectors; one depleted and one currently usable; wide multi-provider model catalog.",
-      "last_use": "2026-09-01T23:32:25Z",
-      "freshness": "OWNER_SCREENSHOT_PLUS_CURRENT_MAIN",
-      "source_kind": "OWNER_DECLARATION_SCREENSHOT_CURRENT_MAIN",
-      "evidence": "Current-main 392e8f99 lifts the historical hold. Clear enabled-model floor: GPT-5.2, GPT-5.6 Luna, GPT-5.4 Mini, GPT-5.4 Nano, GPT-5.1, GPT-5 Mini, Gemini 3.6 Flash, Gemini 3.1 Pro, Gemini 2.5 Flash, Gemini 3 Flash, Kimi K3, Kimi K2.7 Code, GLM 5.2."
-    },
-    {
-      "id": "supergrok-heavy",
-      "kind": "MODEL_SUBSCRIPTION",
-      "capacity": "LIVE",
-      "stage": "PRODUCING",
-      "condition": "CONSTRAINED",
-      "authority": "SHARED_ALL_CARRIERS",
-      "holder": "Commons owner",
-      "consumers": [
-        "grok.com build and analysis work"
-      ],
-      "mutation": "TASK_SCOPED",
-      "route_state": "WAIT_FOR_RESET",
-      "value": "SuperGrok Heavy subscription with GitHub connected; Slack needs the existing compatible custom relay seam.",
-      "last_use": "2026-09-01T10:07:00Z",
-      "freshness": "OWNER_SCREENSHOT",
-      "source_kind": "SCREENSHOT",
-      "evidence": "Weekly included limit 100% used; App Builder 70%, Chat 12%, Other 18%; extra credits $0.00; screenshot reset Wed Sep 2 11:51 AM."
-    },
-    {
-      "id": "grokbot-token-pools",
-      "kind": "MODEL_QUOTA_POOL",
-      "capacity": "DECLARED",
-      "stage": "EXERCISED",
-      "condition": "CONSTRAINED",
-      "authority": "SHARED_ALL_CARRIERS",
-      "holder": "Commons owner",
-      "consumers": [
-        "Cursor Grokbot jobs that cannot use grok.com"
-      ],
-      "mutation": "TASK_SCOPED_EXACT_POOL_ACCOUNTING",
-      "route_state": "WAIT_FOR_RESET",
-      "value": "Two staggered Grokbot token pools exposed by Heavy and the second Ultimate account.",
-      "last_use": "2026-09-01T11:20:00Z",
-      "freshness": "OWNER_DECLARED",
-      "source_kind": "OWNER_DECLARATION_AND_NOTIFICATIONS",
-      "evidence": "One pool exhausted; the other owner-reported to reset tomorrow. Grok task-ready notifications prove completed jobs, not remaining quota."
-    },
-    {
-      "id": "claude-code-max",
-      "kind": "MODEL_SUBSCRIPTION",
-      "capacity": "OWNER_HELD",
-      "stage": "AVAILABLE",
-      "condition": "HELD",
-      "authority": "OWNER_ONLY",
-      "holder": "Bryce",
-      "consumers": [
-        "Bryce only"
-      ],
-      "mutation": "OWNER_HANDLED",
-      "route_state": "OWNER_HANDLED",
-      "value": "Claude capacity is intentionally outside peer allocation.",
-      "last_use": "OWNER_PRIVATE",
-      "freshness": "OWNER_DIRECTIVE",
-      "source_kind": "OWNER_DIRECTIVE",
-      "evidence": "Sole exception: carriers do not launch, delegate, measure, publish quota, review, or edit Claude files."
-    },
-    {
-      "id": "slack-workspace",
-      "kind": "COORDINATION",
-      "capacity": "LIVE",
-      "stage": "PRODUCING",
-      "condition": "LIVE",
-      "authority": "SHARED_ALL_CARRIERS",
-      "holder": "Commons",
-      "consumers": [
-        "all peers",
-        "Queue Manager",
-        "Resource Master"
-      ],
-      "mutation": "TASK_SCOPED",
-      "route_state": "CALLABLE",
-      "value": "One connected Slack workspace with 32 callable app tools and durable coordination channels.",
-      "last_use": "2026-09-01T23:32:25Z",
-      "freshness": "LIVE_PROBE",
-      "source_kind": "SLACK_CONNECTOR",
-      "evidence": "#commons and #delegations read/write succeeded; capability handoff posted."
-    },
-    {
-      "id": "google-drive",
-      "kind": "CLOUD_STORAGE_AND_DOCS",
-      "capacity": "LIVE",
-      "stage": "PRODUCING",
-      "condition": "LIVE",
-      "authority": "SHARED_ALL_CARRIERS",
-      "holder": "Commons",
-      "consumers": [
-        "artifact workers",
-        "document workers",
-        "recovery workers"
-      ],
-      "mutation": "TASK_SCOPED",
-      "route_state": "CALLABLE",
-      "value": "Connected Drive/Docs/Sheets/Slides surface with 45 tools.",
-      "last_use": "2026-09-01T22:30:00Z",
-      "freshness": "LIVE_PROBE",
-      "source_kind": "CONNECTED_APP_PROBE",
-      "evidence": "Connected business account probe succeeded."
-    },
-    {
-      "id": "dropbox-basic",
-      "kind": "CLOUD_STORAGE",
-      "capacity": "LIVE",
-      "stage": "PRODUCING",
-      "condition": "CONSTRAINED",
-      "authority": "SHARED_ALL_CARRIERS",
-      "holder": "Commons",
-      "consumers": [
-        "artifact workers",
-        "file-request workflows",
-        "recovery workers"
-      ],
-      "mutation": "TASK_SCOPED",
-      "route_state": "CALLABLE_WITH_CONSTRAINT",
-      "value": "Connected Dropbox Basic account, ChatGPT/Google connections, and file-request capability.",
-      "last_use": "2026-09-01T22:30:00Z",
-      "freshness": "LIVE_PROBE",
-      "source_kind": "CONNECTED_APP_AND_EMAIL_RECEIPTS",
-      "evidence": "Dropbox connector probe succeeded; one file-request receipt exists."
-    },
-    {
-      "id": "stripe-live-and-sandbox",
-      "kind": "PAYMENT_PROVIDER",
-      "capacity": "LIVE",
-      "stage": "PRODUCING",
-      "condition": "CONSTRAINED",
-      "authority": "SHARED_ALL_CARRIERS",
-      "holder": "Commons",
-      "consumers": [
-        "checkout",
-        "billing",
-        "commercial evidence"
-      ],
-      "mutation": "TASK_SCOPED_EXACT_RECEIPTS",
-      "route_state": "CALLABLE_WITH_CONSTRAINT",
-      "value": "Two connected Stripe contexts: one live and one sandbox; existing products/prices and checkout roads.",
-      "last_use": "2026-09-01T22:30:00Z",
-      "freshness": "LIVE_PROBE",
-      "source_kind": "STRIPE_CONNECTOR_AND_EMAIL_RECEIPTS",
-      "evidence": "Authenticated contexts: one live, one sandbox. No receipt proves payment, revenue, settlement, payout, or cash."
-    },
-    {
-      "id": "apollo",
-      "kind": "SALES_DATA_AND_CREDITS",
-      "capacity": "LIVE",
-      "stage": "PRODUCING",
-      "condition": "CONSTRAINED",
-      "authority": "SHARED_ALL_CARRIERS",
-      "holder": "Commons",
-      "consumers": [
-        "lead research",
-        "contact enrichment",
-        "sales operations"
-      ],
-      "mutation": "TASK_SCOPED_NO_DUPLICATE_OUTREACH",
-      "route_state": "CALLABLE_WITH_CONSTRAINT",
-      "value": "Connected Apollo with remaining lead, direct-dial, and AI credits.",
-      "last_use": "2026-09-01T22:30:00Z",
-      "freshness": "LIVE_PROBE",
-      "source_kind": "APOLLO_CONNECTOR",
-      "evidence": "205 lead credits, 160 direct-dial credits, 5000 AI credits at probe; no outreach performed."
-    },
-    {
-      "id": "airtable",
-      "kind": "DATABASE_AND_WORKFLOW",
-      "capacity": "LIVE",
-      "stage": "REACHABLE",
-      "condition": "LIVE",
-      "authority": "SHARED_ALL_CARRIERS",
-      "holder": "Commons",
-      "consumers": [
-        "structured operations",
-        "resource ledgers",
-        "CRM workflows"
-      ],
-      "mutation": "TASK_SCOPED",
-      "route_state": "CALLABLE",
-      "value": "Connected Airtable workspace with 29 tools.",
-      "last_use": "2026-09-01T22:30:00Z",
-      "freshness": "LIVE_PROBE",
-      "source_kind": "CONNECTED_APP_PROBE",
-      "evidence": "Ping and one owner workspace probe succeeded."
-    },
-    {
-      "id": "chatgpt-sites",
-      "kind": "HOSTING_AND_APP_BUILDER",
-      "capacity": "LIVE",
-      "stage": "REACHABLE",
-      "condition": "CONSTRAINED",
-      "authority": "SHARED_ALL_CARRIERS",
-      "holder": "Commons",
-      "consumers": [
-        "public sites",
-        "dashboards",
-        "tools"
-      ],
-      "mutation": "TASK_SCOPED",
-      "route_state": "CALLABLE_WITH_CONSTRAINT",
-      "value": "Connected Sites builder/hosting surface with 23 tools.",
-      "last_use": "2026-09-01T22:30:00Z",
-      "freshness": "LIVE_PROBE",
-      "source_kind": "CONNECTED_APP_PROBE",
-      "evidence": "Site listing succeeded; private site details omitted from public projection."
-    },
-    {
-      "id": "vercel",
-      "kind": "HOSTING",
-      "capacity": "LIVE",
-      "stage": "PRODUCING",
-      "condition": "CONSTRAINED",
-      "authority": "SHARED_ALL_CARRIERS",
-      "holder": "Commons",
-      "consumers": [
-        "deployment routers",
-        "web builders"
-      ],
-      "mutation": "TASK_SCOPED",
-      "route_state": "ACTIVATE_FIRST",
-      "value": "One connected Hobby team and zero projects.",
-      "last_use": "2026-09-01T21:58:58Z",
-      "freshness": "DURABLE_RECEIPT",
-      "source_kind": "CONNECTED_APP_PROBE",
-      "evidence": "NO_PROJECT_READY; project creation is the next activation, not an absence of account capacity."
-    },
-    {
-      "id": "openai-automation-fleet",
-      "kind": "AUTOMATION_FLEET",
-      "capacity": "LIVE",
-      "stage": "PRODUCING",
-      "condition": "LIVE",
-      "authority": "SHARED_ALL_CARRIERS",
-      "holder": "Commons",
-      "consumers": [
-        "recurring sweeps",
-        "queue management",
-        "Slack bridge",
-        "buyer watches"
-      ],
-      "mutation": "TASK_SCOPED",
-      "route_state": "CALLABLE",
-      "value": "Thirteen automations; six enabled and seven disabled.",
-      "last_use": "2026-09-01T23:32:25Z",
-      "freshness": "LIVE_PROBE",
-      "source_kind": "AUTOMATIONS_CONNECTOR",
-      "evidence": "Enabled: Resource Master, buyer threads, Queue Manager, Build-to-Buyer Watch, Keep Commons Productive, Slack Bridge."
-    },
-    {
-      "id": "chatgpt-plugin-fleet",
-      "kind": "PLUGIN_FLEET",
-      "capacity": "LIVE",
-      "stage": "PRODUCING",
-      "condition": "CONSTRAINED",
-      "authority": "SHARED_ALL_CARRIERS",
-      "holder": "Commons",
-      "consumers": [
-        "all GPT carriers"
-      ],
-      "mutation": "INSTALL_OR_USE_WHEN_CONCRETE_CONSUMER_EXISTS",
-      "route_state": "CALLABLE_WITH_CONSTRAINT",
-      "value": "Seven verified installed plugins plus 45 recommended latent plugins.",
-      "last_use": "2026-09-01T23:32:25Z",
-      "freshness": "LIVE_PROBE",
-      "source_kind": "PLUGIN_MANAGEMENT",
-      "evidence": "Installed: Demos, Dropbox, Gmail, GitHub, Google Drive, Slack, Vercel. AgentMail and model-provider plugin searches returned none."
-    },
-    {
-      "id": "agentmail",
-      "kind": "AGENT_EMAIL_INFRASTRUCTURE",
-      "capacity": "LIVE",
-      "stage": "AVAILABLE",
-      "condition": "IDLE",
-      "authority": "SHARED_ALL_CARRIERS",
-      "holder": "Commons",
-      "consumers": [
-        "transaction mail",
-        "agent delivery",
-        "round-trip canaries"
-      ],
-      "mutation": "ACTIVATE_WITH_BUSINESS_GMAIL_CANARY",
-      "route_state": "ACTIVATE_FIRST",
-      "value": "Account exists and Cursor exposes AgentMail as a required plugin; no first inbox yet.",
-      "last_use": "2026-08-21T00:00:00Z",
-      "freshness": "EMAIL_RECEIPT_PLUS_SCREENSHOT",
-      "source_kind": "EMAIL_RECEIPT_AND_CURSOR_SCREENSHOT",
-      "evidence": "Provider email says account set up but first inbox not created. Build order posted in #delegations."
-    },
-    {
-      "id": "zapier-mcp",
-      "kind": "AUTOMATION_AND_MCP",
-      "capacity": "LIVE",
-      "stage": "REACHABLE",
-      "condition": "CONSTRAINED",
-      "authority": "SHARED_ALL_CARRIERS",
-      "holder": "Commons",
-      "consumers": [
-        "cross-service automations",
-        "MCP workflows"
-      ],
-      "mutation": "TASK_SCOPED",
-      "route_state": "CALLABLE_WITH_CONSTRAINT",
-      "value": "Zapier account connected with Google and MCP setup receipt.",
-      "last_use": "2026-08-30T00:00:00Z",
-      "freshness": "EMAIL_RECEIPT",
-      "source_kind": "EMAIL_RECEIPT",
-      "evidence": "Trial email dated Aug 30 said ends in three days; current paid state unverified."
-    },
-    {
-      "id": "revenuecat",
-      "kind": "SUBSCRIPTION_BILLING",
-      "capacity": "LIVE",
-      "stage": "AVAILABLE",
-      "condition": "CONSTRAINED",
-      "authority": "SHARED_ALL_CARRIERS",
-      "holder": "Commons",
-      "consumers": [
-        "mobile subscription products"
-      ],
-      "mutation": "COMPLETE_EMAIL_VERIFICATION_THEN_CONSUME",
-      "route_state": "ACTIVATE_FIRST",
-      "value": "RevenueCat account/app receipt exists.",
-      "last_use": "2026-08-30T00:00:00Z",
-      "freshness": "EMAIL_RECEIPT",
-      "source_kind": "EMAIL_RECEIPT",
-      "evidence": "Latest receipt says email verification still required."
-    },
-    {
-      "id": "heygen",
-      "kind": "GENERATIVE_MEDIA",
-      "capacity": "LIVE",
-      "stage": "AVAILABLE",
-      "condition": "ACTIVE_UNKNOWN",
-      "authority": "SHARED_ALL_CARRIERS",
-      "holder": "Commons",
-      "consumers": [
-        "product demos",
-        "sales media",
-        "documentation"
-      ],
-      "mutation": "TASK_SCOPED",
-      "route_state": "CONNECTOR_DISCOVERY",
-      "value": "HeyGen account with Digital Twin capability.",
-      "last_use": "2026-08-30T00:00:00Z",
-      "freshness": "EMAIL_RECEIPT",
-      "source_kind": "EMAIL_RECEIPT",
-      "evidence": "Account capability exists; Digital Twin creation is not proven."
-    },
-    {
-      "id": "shopify",
-      "kind": "COMMERCE_PLATFORM",
-      "capacity": "LIVE",
-      "stage": "AVAILABLE",
-      "condition": "ACTIVE_UNKNOWN",
-      "authority": "SHARED_ALL_CARRIERS",
-      "holder": "Commons",
-      "consumers": [
-        "commerce products",
-        "storefronts"
-      ],
-      "mutation": "TASK_SCOPED",
-      "route_state": "CONNECTOR_DISCOVERY",
-      "value": "Shopify Google sign-in receipt.",
-      "last_use": "2026-08-30T00:00:00Z",
-      "freshness": "EMAIL_RECEIPT",
-      "source_kind": "EMAIL_RECEIPT",
-      "evidence": "Account reachability only; store and plan unverified."
-    },
-    {
-      "id": "cal-com",
-      "kind": "SCHEDULING",
-      "capacity": "LIVE",
-      "stage": "AVAILABLE",
-      "condition": "ACTIVE_UNKNOWN",
-      "authority": "SHARED_ALL_CARRIERS",
-      "holder": "Commons",
-      "consumers": [
-        "sales calls",
-        "service scheduling"
-      ],
-      "mutation": "TASK_SCOPED",
-      "route_state": "CONNECTOR_DISCOVERY",
-      "value": "Cal.com signup confirmed.",
-      "last_use": "2026-08-30T00:00:00Z",
-      "freshness": "EMAIL_RECEIPT",
-      "source_kind": "EMAIL_RECEIPT",
-      "evidence": "Signup confirmed; plan and event types unverified."
-    },
-    {
-      "id": "mega",
-      "kind": "CLOUD_STORAGE",
-      "capacity": "DECLARED",
-      "stage": "AVAILABLE",
-      "condition": "ACTIVE_UNKNOWN",
-      "authority": "SHARED_ALL_CARRIERS",
-      "holder": "Commons",
-      "consumers": [
-        "cloud backups",
-        "artifact storage"
-      ],
-      "mutation": "COMPLETE_OR_VERIFY_ACTIVATION",
-      "route_state": "ACTIVATE_FIRST",
-      "value": "MEGA welcome and verification receipts.",
-      "last_use": "2026-07-01T00:00:00Z",
-      "freshness": "EMAIL_RECEIPT",
-      "source_kind": "EMAIL_RECEIPT",
-      "evidence": "Activation completion not proven."
-    },
-    {
-      "id": "oracle-cloud",
-      "kind": "CLOUD_COMPUTE",
-      "capacity": "DECLARED",
-      "stage": "AVAILABLE",
-      "condition": "CONSTRAINED",
-      "authority": "SHARED_ALL_CARRIERS",
-      "holder": "Commons",
-      "consumers": [
-        "compute",
-        "hosting",
-        "databases"
-      ],
-      "mutation": "COMPLETE_ACCOUNT_CREATION",
-      "route_state": "ACTIVATE_FIRST",
-      "value": "Oracle Cloud verification receipt.",
-      "last_use": "2026-07-01T00:00:00Z",
-      "freshness": "EMAIL_RECEIPT",
-      "source_kind": "EMAIL_RECEIPT",
-      "evidence": "Verification email only; completed cloud account not proven."
-    },
-    {
-      "id": "x-commons-swarm",
-      "kind": "SOCIAL_AND_AUDIENCE",
-      "capacity": "LIVE",
-      "stage": "AVAILABLE",
-      "condition": "LIVE",
-      "authority": "SHARED_ALL_CARRIERS",
-      "holder": "Commons",
-      "consumers": [
-        "public distribution",
-        "audience building"
-      ],
-      "mutation": "TASK_SCOPED_NO_DUPLICATE_OUTREACH",
-      "route_state": "CALLABLE_WITH_CONSTRAINT",
-      "value": "X account @TheCommonsSwarm.",
-      "last_use": "2026-08-30T00:00:00Z",
-      "freshness": "EMAIL_RECEIPT",
-      "source_kind": "EMAIL_RECEIPT",
-      "evidence": "Welcome receipt proves account road; no post or outreach claimed."
-    },
-    {
-      "id": "higgsfield",
-      "kind": "GENERATIVE_MEDIA",
-      "capacity": "LIVE",
-      "stage": "AVAILABLE",
-      "condition": "ACTIVE_UNKNOWN",
-      "authority": "SHARED_ALL_CARRIERS",
-      "holder": "Commons",
-      "consumers": [
-        "creative assets",
-        "video"
-      ],
-      "mutation": "TASK_SCOPED",
-      "route_state": "CONNECTOR_DISCOVERY",
-      "value": "Higgsfield Google OAuth receipt.",
-      "last_use": "2026-08-19T00:00:00Z",
-      "freshness": "EMAIL_RECEIPT",
-      "source_kind": "EMAIL_RECEIPT",
-      "evidence": "OAuth sign-in proves account link, not plan or credits."
-    },
-    {
-      "id": "whop",
-      "kind": "DIGITAL_COMMERCE",
-      "capacity": "LIVE",
-      "stage": "AVAILABLE",
-      "condition": "ACTIVE_UNKNOWN",
-      "authority": "SHARED_ALL_CARRIERS",
-      "holder": "Commons",
-      "consumers": [
-        "digital product distribution",
-        "commerce"
-      ],
-      "mutation": "TASK_SCOPED",
-      "route_state": "CONNECTOR_DISCOVERY",
-      "value": "Whop Google OAuth receipt.",
-      "last_use": "2026-08-19T00:00:00Z",
-      "freshness": "EMAIL_RECEIPT",
-      "source_kind": "EMAIL_RECEIPT",
-      "evidence": "OAuth sign-in proves account link, not store or sales."
-    },
-    {
-      "id": "kaggle-account-binding",
-      "kind": "COMPETITION_PLATFORM_ACCOUNT",
-      "capacity": "LIVE",
-      "stage": "PRODUCING",
-      "condition": "CONSTRAINED",
-      "authority": "SHARED_ALL_CARRIERS",
-      "holder": "Commons",
-      "consumers": [
-        "Kaggriculture",
-        "RSNA and other evidence-backed Kaggle competition lanes"
-      ],
-      "mutation": "SHARED_ALL_CARRIERS_TASK_SCOPED_STANDING_AUTHORITY; COORDINATION_RECORD_REQUIRED; PROVIDER_TERMS_AND_QUOTA_BOUNDARIES_APPLY; NO_PERSONAL_OWNER_ACTION_OR_REPEAT_APPROVAL_FOR_ALREADY_AUTHORIZED_OPERATION",
-      "route_state": "CALLABLE_WITH_CONSTRAINT",
-      "value": "The shared Kaggle route produced one validated TITAN submission, two completed public competitive wins and an exact provider readback without duplicating the operation or changing the public source notebook.",
-      "last_use": "2026-09-07T10:10:29Z",
-      "freshness": "PROVIDER_READBACK",
-      "source_kind": "PROVIDER_API_AND_GITHUB_RECEIPT",
-      "evidence": "Commons PRs #9813, #9814 and #9818 record Kaggle submission 56074364, exactly one matching stable operation, exact 57,711-byte artifact identity, completed validation, two completed public wins, public score 790.0, observed account rank 3981, and contemporaneous quota of two used with three remaining."
-    },
-    {
-      "id": "google-gemini",
-      "kind": "MODEL_SUBSCRIPTION",
-      "capacity": "LIVE",
-      "stage": "AVAILABLE",
-      "condition": "ACTIVE_UNKNOWN",
-      "authority": "SHARED_ALL_CARRIERS",
-      "holder": "Commons",
-      "consumers": [
-        "analysis",
-        "research",
-        "building"
-      ],
-      "mutation": "TASK_SCOPED",
-      "route_state": "CONNECTOR_DISCOVERY",
-      "value": "Google account receipt states access to AI features.",
-      "last_use": "2026-08-09T00:00:00Z",
-      "freshness": "EMAIL_RECEIPT",
-      "source_kind": "EMAIL_RECEIPT",
-      "evidence": "Feature-access receipt exists; exact plan and quotas unverified."
-    },
-    {
-      "id": "groq-api",
-      "kind": "MODEL_INFERENCE_API",
-      "capacity": "LIVE",
-      "stage": "AVAILABLE",
-      "condition": "CONSTRAINED",
-      "authority": "SHARED_ALL_CARRIERS",
-      "holder": "Commons",
-      "consumers": [
-        "model workers",
-        "inference experiments"
-      ],
-      "mutation": "INTEGRATE_SHARED_ADAPTER_THEN_TASK_SCOPED",
-      "route_state": "ACTIVATE_FIRST",
-      "value": "Shared Groq provider capacity is vaulted; a callable Commons adapter is not yet proven.",
-      "last_use": "NOT_YET_SHARED_ADAPTER",
-      "freshness": "SWARM_ARMORY_RECEIPT",
-      "source_kind": "SWARM_ARMORY_RECEIPT",
-      "evidence": "Commons issue #15900 records the 2026-09-17 Groq credential as vaulted/verified without exposing its value; callable integration remains unproven."
-    },
-    {
-      "id": "cerebras-api",
-      "kind": "MODEL_INFERENCE_API",
-      "capacity": "LIVE",
-      "stage": "AVAILABLE",
-      "condition": "CONSTRAINED",
-      "authority": "SHARED_ALL_CARRIERS",
-      "holder": "Commons",
-      "consumers": [
-        "model workers",
-        "inference experiments"
-      ],
-      "mutation": "INTEGRATE_SHARED_ADAPTER_THEN_TASK_SCOPED",
-      "route_state": "ACTIVATE_FIRST",
-      "value": "Shared Cerebras provider capacity is vaulted; a callable Commons adapter is not yet proven.",
-      "last_use": "NOT_YET_SHARED_ADAPTER",
-      "freshness": "SWARM_ARMORY_RECEIPT",
-      "source_kind": "SWARM_ARMORY_RECEIPT",
-      "evidence": "Commons issue #15900 records the 2026-09-17 Cerebras credential as vaulted/verified without exposing its value; callable integration remains unproven."
-    },
-    {
-      "id": "e2b",
-      "kind": "SANDBOX_COMPUTE",
-      "capacity": "LIVE",
-      "stage": "AVAILABLE",
-      "condition": "CONSTRAINED",
-      "authority": "SHARED_ALL_CARRIERS",
-      "holder": "Commons",
-      "consumers": [
-        "sandbox workers",
-        "isolated execution"
-      ],
-      "mutation": "INTEGRATE_SHARED_ADAPTER_THEN_TASK_SCOPED",
-      "route_state": "ACTIVATE_FIRST",
-      "value": "Shared E2B provider capacity is vaulted; a callable Commons adapter is not yet proven.",
-      "last_use": "NOT_YET_SHARED_ADAPTER",
-      "freshness": "SWARM_ARMORY_RECEIPT",
-      "source_kind": "SWARM_ARMORY_RECEIPT",
-      "evidence": "Commons issue #15900 records the 2026-09-17 E2B credential as vaulted/verified without exposing its value; callable integration remains unproven."
-    },
-    {
-      "id": "langfuse",
-      "kind": "OBSERVABILITY",
-      "capacity": "LIVE",
-      "stage": "AVAILABLE",
-      "condition": "CONSTRAINED",
-      "authority": "SHARED_ALL_CARRIERS",
-      "holder": "Commons",
-      "consumers": [
-        "agent observability",
-        "evaluation workers"
-      ],
-      "mutation": "INTEGRATE_SHARED_ADAPTER_THEN_TASK_SCOPED",
-      "route_state": "ACTIVATE_FIRST",
-      "value": "Shared Langfuse provider capacity is vaulted; a callable Commons adapter is not yet proven.",
-      "last_use": "NOT_YET_SHARED_ADAPTER",
-      "freshness": "SWARM_ARMORY_RECEIPT",
-      "source_kind": "SWARM_ARMORY_RECEIPT",
-      "evidence": "Commons issue #15900 records the 2026-09-17 Langfuse credential as vaulted/verified without exposing its value; callable integration remains unproven."
-    },
-    {
-      "id": "zep",
-      "kind": "AGENT_MEMORY_DATA",
-      "capacity": "LIVE",
-      "stage": "AVAILABLE",
-      "condition": "CONSTRAINED",
-      "authority": "SHARED_ALL_CARRIERS",
-      "holder": "Commons",
-      "consumers": [
-        "agent memory experiments",
-        "retrieval workers"
-      ],
-      "mutation": "INTEGRATE_SHARED_ADAPTER_THEN_TASK_SCOPED",
-      "route_state": "ACTIVATE_FIRST",
-      "value": "Shared Zep provider capacity is vaulted; a callable Commons adapter is not yet proven.",
-      "last_use": "NOT_YET_SHARED_ADAPTER",
-      "freshness": "SWARM_ARMORY_RECEIPT",
-      "source_kind": "SWARM_ARMORY_RECEIPT",
-      "evidence": "Commons issue #15900 records the 2026-09-17 Zep credential as vaulted/verified without exposing its value; callable integration remains unproven."
-    },
-    {
-      "id": "openrouter",
-      "kind": "MODEL_ROUTER_API",
-      "capacity": "LIVE",
-      "stage": "AVAILABLE",
-      "condition": "CONSTRAINED",
-      "authority": "SHARED_ALL_CARRIERS",
-      "holder": "Commons",
-      "consumers": [
-        "model workers",
-        "routing experiments"
-      ],
-      "mutation": "INTEGRATE_SHARED_ADAPTER_THEN_TASK_SCOPED",
-      "route_state": "ACTIVATE_FIRST",
-      "value": "Shared OpenRouter provider capacity is vaulted; a callable Commons adapter is not yet proven.",
-      "last_use": "NOT_YET_SHARED_ADAPTER",
-      "freshness": "SWARM_ARMORY_RECEIPT",
-      "source_kind": "SWARM_ARMORY_RECEIPT",
-      "evidence": "Commons issue #15900 records the 2026-09-17 OpenRouter credential as vaulted/verified without exposing its value; callable integration remains unproven."
-    },
-    {
-      "id": "firecrawl",
-      "kind": "WEB_EXTRACTION",
-      "capacity": "LIVE",
-      "stage": "AVAILABLE",
-      "condition": "CONSTRAINED",
-      "authority": "SHARED_ALL_CARRIERS",
-      "holder": "Commons",
-      "consumers": [
-        "research workers",
-        "web extraction"
-      ],
-      "mutation": "INTEGRATE_SHARED_ADAPTER_THEN_TASK_SCOPED",
-      "route_state": "ACTIVATE_FIRST",
-      "value": "Shared Firecrawl provider capacity is vaulted; a callable Commons adapter is not yet proven.",
-      "last_use": "NOT_YET_SHARED_ADAPTER",
-      "freshness": "SWARM_ARMORY_RECEIPT",
-      "source_kind": "SWARM_ARMORY_RECEIPT",
-      "evidence": "Commons issue #15900 records the 2026-09-17 Firecrawl credential as vaulted/verified without exposing its value; callable integration remains unproven."
-    },
-    {
-      "id": "parallel",
-      "kind": "RESEARCH_API",
-      "capacity": "LIVE",
-      "stage": "AVAILABLE",
-      "condition": "CONSTRAINED",
-      "authority": "SHARED_ALL_CARRIERS",
-      "holder": "Commons",
-      "consumers": [
-        "research workers",
-        "data gathering"
-      ],
-      "mutation": "INTEGRATE_SHARED_ADAPTER_THEN_TASK_SCOPED",
-      "route_state": "ACTIVATE_FIRST",
-      "value": "Shared Parallel provider capacity is vaulted; a callable Commons adapter is not yet proven and provider entitlement is constrained.",
-      "last_use": "NOT_YET_SHARED_ADAPTER",
-      "freshness": "SWARM_ARMORY_RECEIPT",
-      "source_kind": "SWARM_ARMORY_RECEIPT",
-      "evidence": "Commons issue #15900 records the 2026-09-17 Parallel credential as vaulted/verified without exposing its value and records a provider-entitlement constraint; callable integration remains unproven."
-    },
-    {
-      "id": "alibaba-cloud",
-      "kind": "CLOUD_COMPUTE",
-      "capacity": "DECLARED",
-      "stage": "AVAILABLE",
-      "condition": "ACTIVE_UNKNOWN",
-      "authority": "SHARED_ALL_CARRIERS",
-      "holder": "Commons",
-      "consumers": [
-        "compute workers",
-        "hosting experiments"
-      ],
-      "mutation": "INTEGRATE_SHARED_ADAPTER_THEN_TASK_SCOPED",
-      "route_state": "ACTIVATE_FIRST",
-      "value": "Alibaba Cloud account/SSO surface is present; API credential and callable Commons adapter are not proven.",
-      "last_use": "ACCOUNT_SURFACE_ONLY",
-      "freshness": "ACCOUNT_RECEIPT",
-      "source_kind": "ACCOUNT_AND_SSO_RECEIPT",
-      "evidence": "Commons issue #15900 records an Alibaba Cloud account/SSO surface only. API credential, callable adapter, quota, and execution are not claimed."
-    }
-  ],
-  "durable_evidence": {
-    "slack_claim": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1788755643262339",
-    "owner_correction": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1788305523796789?thread_ts=1788304349.282199&cid=C0BRGMDQB6G",
-    "peer_handoff_and_build_order": "https://tokenjunkielabs.slack.com/archives/C0BTB4SUCP9/p1788305514110759",
-    "current_main": "https://github.com/woahwhattheheck/commons/commit/d66ac9862e3448e2bff54c7386ce27f5a81b3640",
-    "provider_armory_issue": "https://github.com/woahwhattheheck/commons/issues/15900"
-  },
-  "non_claims": [
-    "No literal password, token, API secret, OAuth credential, recovery link, verification link, card data, or bank data persisted.",
-    "No Claude use, delegation, measurement, quota publication, review, or file mutation.",
-    "No Grok submission or token spend.",
-    "No prospect outreach, resend, deployment, device action, payment, revenue, settlement, payout, or cash.",
-    "No armory row claims a callable adapter, provider execution, quota, spend, or value merely from account or credential existence."
-  ]
+  }
 }
