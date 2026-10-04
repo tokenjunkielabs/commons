@@ -1,0 +1,136 @@
+{
+  "schema": "commons-resource-activation/v1",
+  "id": "resource-master-authority-and-research-delta-20261004-1755",
+  "operation_id": "RESOURCE-MASTER-AUTHORITY-RESEARCH-DELTA-20261004-1755",
+  "observed_at": "2026-10-04T22:06:55.149Z",
+  "title": "RTC authority correction and ten finite research activations",
+  "consumer": "Commons bounty intake, exact finite research consumers, and current resource-routing owners",
+  "outcome": {
+    "resources": 205,
+    "producing": 148,
+    "evidence_records": 115,
+    "activated": [
+      "kimberling-greedy-difference-continuation-index",
+      "cyclic-turan-n2197-index",
+      "smooth-sum-clique-index",
+      "factorial89-unitary-divisor-index",
+      "rectangular-line-navigation-index",
+      "boolean-substring-chart-index",
+      "q4-square-cover-optimizer",
+      "primitive-weird-k12-catalog",
+      "odd-orbit-affine-index",
+      "spherical-curve-mean-certificate",
+      "rustchain-rtc-authority-value-boundary"
+    ],
+    "advanced": [
+      "microg-gmscore-pr3841-source-head"
+    ],
+    "build_orders": [
+      "OPEN-DOOR-RESEARCH-PROSE-FALSE-POSITIVE-20261004-01"
+    ],
+    "completed_activation": "Eleven exact routing/value resources are canonicalized; ten already-merged source capabilities are available under their finite bounds, and RTC is now prevented from being counted as cash-equivalent or represented by an unauthorized agent."
+  },
+  "watermark": {
+    "prior_terminal_slack_ts": "1791141438.177799",
+    "slack_sweep_through": "1791141438.177799",
+    "claim_ts": "1791151349.058409",
+    "build_order_ts": "1791151541.533119",
+    "prior_main_sha": "bf5f0daf928283f8494e609e430497d9d514906a",
+    "github_source_through": "749164d47c1775ebf8cab541790a40823ed97e8e",
+    "connector_tool_watermark": 1075,
+    "automations_observed": {
+      "active": 25,
+      "paused": 33,
+      "completed": 3,
+      "changed": false
+    }
+  },
+  "evidence": {
+    "claim": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791151349058409",
+    "build_order": "https://tokenjunkielabs.slack.com/archives/C0BTB4SUCP9/p1791151541533119",
+    "research_prs": [
+      {
+        "pr": 31431,
+        "merge": "d7e40695887c85ccc8f28d7b3cee8a4fa4a7c6cf"
+      },
+      {
+        "pr": 31432,
+        "merge": "3ee337a8317944d0547392a9ea780537b6a053ad"
+      },
+      {
+        "pr": 31433,
+        "merge": "d7c882fab3d7ee2581b7735bb19805bd2dcbf5ca"
+      },
+      {
+        "pr": 31434,
+        "merge": "acff365f95e3c91a3c1b5660eef926c215e9a807"
+      },
+      {
+        "pr": 31435,
+        "merge": "062ed2885e3c75910e29bd29c60a090078c4b243"
+      },
+      {
+        "pr": 31436,
+        "merge": "0622f79aa6ea1a5b434bc47e0f44d6ba7f5078d2"
+      },
+      {
+        "pr": 31442,
+        "merge": "75fd12017ee73d130d660f557d074cdf47b6b5d6"
+      },
+      {
+        "pr": 31443,
+        "merge": "3f195e082cfb30fc7b1affd17e5364aa06de22d8"
+      },
+      {
+        "pr": 31444,
+        "merge": "bd9f9db732c8c05f0349b97f0a3fa202b9abaa70"
+      },
+      {
+        "pr": 31445,
+        "merge": "749164d47c1775ebf8cab541790a40823ed97e8e"
+      }
+    ],
+    "rustchain_authority_comments": [
+      "https://github.com/Scottcjn/rustchain-bounties/issues/100#issuecomment-5984488414",
+      "https://github.com/Scottcjn/rustchain-bounties/issues/100#issuecomment-5984507758"
+    ],
+    "open_door_failed_runs": [
+      37229165014,
+      37237190968
+    ],
+    "microg_pr": "https://github.com/microg/GmsCore/pull/3841",
+    "microg_head": "12678a779a93afd750a230d80a780f73800924c5"
+  },
+  "revenue": {
+    "microg_bounty_advertised_usd": 85,
+    "microg_state": "OPEN_UNACCEPTED_OWNER_PHYSICAL_PROOF_PENDING",
+    "rcap": "DRAFT_UNSENT_NO_ATTACHMENT",
+    "stripe_available_usd": "0.00",
+    "stripe_pending_usd": "0.00",
+    "accepted_work": 0,
+    "payment_receipts": 0,
+    "payout_receipts": 0,
+    "cash_receipts": 0,
+    "rtc_cash_equivalent": false,
+    "rtc_offramp_observed": false
+  },
+  "capacity": {
+    "official_or_direct_reset": false,
+    "action": "Retain prior quota lifecycle; no purchased or banked reset activation.",
+    "provider_delta": "No material hosting project or build change. Connected writer presence is not mutation authority."
+  },
+  "safety": {
+    "credentials_or_private_identifiers_persisted": false,
+    "external_contact": false,
+    "michael_clark_contact_or_relay": false,
+    "provider_mutation": false,
+    "titan_mutation": false,
+    "deployment": false,
+    "submission": false,
+    "buyer_acceptance": false,
+    "payment": false,
+    "payout": false,
+    "revenue": false,
+    "cash": false
+  }
+}

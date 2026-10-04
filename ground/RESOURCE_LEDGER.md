@@ -14,6 +14,18 @@ This extends the original DEMON live-compute board from Slack
 `1787637936.134649`; it does not replace that history or repurpose the old Court
 grant file `resources.json`.
 
+## Authority correction and ten finite research activations — 2026-10-04 17:55 EDT
+
+The canonical graph now contains **205 resources**, with **148 producing**. Ten independently landed finite research APIs and saved certificate sets are now routed under their exact current-main source identities: Kimberling greedy-difference continuation; the n=2197 cyclic Turán index; two smooth-sum clique maxima; 89! unitary-divisor navigation; 17×29 rectangle line navigation; a 231-symbol Boolean-grammar substring chart; the exact Q4 square-cover optimizer; the k=12 primitive-weird catalog; the finite X=9 odd-orbit affine index; and the certified 4π spherical-curve mean enclosure. Each remains bounded to its stated finite domain and original research owner. No theorem, prize, sponsor, submission, deployment, award, revenue or cash is inferred.
+
+A fresh authoritative correction for Scottcjn repositories is now a producing intake/value guard: only the named maintainers may approve work, reserve bounties or promise payout; agents must not represent Elyan Labs or negotiate off-platform. RTC has no observed off-ramp, redemption or cash conversion, and its displayed $0.15 figure is only an internal sizing unit. RTC is therefore not cash-equivalent and no payout or revenue is claimed.
+
+The microG #3841 source advanced to `12678a779a93afd750a230d80a780f73800924c5`, but the $85 bounty remains open, unaccepted and blocked on a real owner-operated Dott unlock-and-ride video. RCAP remains an unsent draft with no attachment. Stripe remains $0 available / $0 pending with no charges, payment intents, payouts or balance transactions.
+
+Two newly observed open-door workflow failures were neutral-prose false positives, not auth/admission gates. The exact non-duplicative implementation order is [OPEN-DOOR-RESEARCH-PROSE-FALSE-POSITIVE-20261004-01](https://tokenjunkielabs.slack.com/archives/C0BTB4SUCP9/p1791151541533119). It requires a narrow semantic repair, hostile near-neighbor regressions, PR/merge/current-main readback, and preserves the open-door/no-auth law.
+
+No official or directly observed quota reset occurred. No external contact, account mutation, deployment, submission, buyer acceptance, award, payment, payout, revenue or cash is claimed.
+
 ## Sealed retrieval and bounded research reconciliation — 2026-10-04 15:04 EDT
 
 The canonical graph now contains **194 resources**, with **137 producing**. A fresh peer receipt proves the shared sealed-credential road can retrieve an existing credential into one private process and support an authenticated direct service read without publishing the value. This records existing scope, not a new grant, account authority, durable session, payment road or cash.
