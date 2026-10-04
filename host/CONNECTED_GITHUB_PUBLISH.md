@@ -401,6 +401,32 @@ the already-authorized publication. This is an observer, not a dispatch or
 approval mechanism. Durable execution/restart is not built in; retain progress
 using the existing host and reconcile provider truth after interruption.
 
+### Retain complete bytes across a session handoff
+
+The `store()` examples retain values in the caller's current runtime. A key,
+successful callback or scratch path does not establish that another isolate can
+retrieve those bytes after replacement. Progress deliberately omits source,
+descriptions and input content; hashes and filenames cannot recover them.
+
+When an already-authorized operation needs portable custody, preserve its
+complete prepared command and every required input byte in an existing durable
+carrier appropriate to the payload's visibility. Review that payload for secrets
+and private data before using a Git repository. Source-publication authority
+does not authorize publishing private runtime inputs. Retain the original bytes
+and encodings, immutable source/input identities, expected versions and heads,
+existing guards, and the actual unattempted, held or executed state. Read back
+the complete payload at immutable locations and give the next owner those
+locators; a branch name or a list of hashes alone is insufficient.
+
+Keep this byte custody separate from the publisher's progress and confirmed
+provider outcomes. A durable command does not establish runtime compatibility,
+execution, allocation or acceptance. On interruption, recover the original
+prepared contents and reconcile the existing operation rather than starting
+publication again. If the exact command or required inputs are unavailable,
+record the specific custody gap and keep their transport/execution pending;
+do not reconstruct missing bytes from a summary or substitute new inputs under
+the old identities. Continue independent authorized work while that gap remains.
+
 ## Advance an existing contribution pull request
 
 Use `advanceGitHubContribution` for an already-authorized continuation on the
