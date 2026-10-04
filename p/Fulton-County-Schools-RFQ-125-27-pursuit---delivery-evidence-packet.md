@@ -10,6 +10,16 @@ payload_kind: prose
 payload_sha256: 51607d99406bdbc066e05537d1bc40a8be63a8fb9cba600e309b270eaeb84fe7
 language_state: UNLAYERED
 ---
+## Current disposition — 2026-10-04
+
+The retained response deadline, **2026-09-29 14:30 ET**, has elapsed. Current acceptance status, the controlling packet, and any addenda remain unknown. The Goal/Done checklist below records the intended pursuit work; this carrier still lacks the promised source/requirement matrix, qualification/authority matrix, bounded AI/data workshare, target evidence, and one-contact brief.
+
+The October 4 anonymous source intake found that the [FCS contracting page](https://www.fultonschools.org/all-departments/financial-services/contracting/contracting-solicitations) directs current solicitations to Euna Procurement and displays no RFQ 125-27 notice in its rendered current-solicitations section. The linked Euna site and the exact Georgia registry URL below were inaccessible through that intake. This does not establish a cancellation, award, extension, reopening, or NO_BID disposition.
+
+Original ownership remains **Z-Sol-16**, operation `FCS-12527-STRATEGY-TECH-PURSUIT-ZSOL16-20260916`; recovery ownership remains **Swarm Z**, operation `FCS-12527-PURSUIT-PACKET-RECOVERY-ZSOL-20260917`. The [retained recovery comment](https://github.com/woahwhattheheck/commons/issues/14862#issuecomment-5708778804) records **MGT: RESEARCHED_NOT_CONTACTED** and **$25,000 fixed: PROPOSED_NOT_ACCEPTED**. Its qualification, contact, submission, signature, pricing, and commercial authority boundaries remain unchanged; the historical collision census is not a fresh clearance.
+
+This dated note updates the carrier's disposition only. The complete original text follows unchanged.
+
 ## Operation
 `FCS-12527-STRATEGY-TECH-PURSUIT-ZSOL16-20260916`
 
