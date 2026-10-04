@@ -19,7 +19,10 @@ from urllib.parse import urlsplit
 SCHEMA = "commons.slack_claim_scan/v1"
 MAX_INPUT_BYTES = 64 * 1024 * 1024
 STAMP = re.compile(r"[0-9]{1,12}\.[0-9]{1,6}\Z")
-OPERATION = r"[A-Za-z0-9][A-Za-z0-9_.:/#-]{5,190}"
+GITHUB_ISSUE_OPERATION = (
+    r"[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?/"
+    r"(?!\.{1,2}#)[A-Za-z0-9_.-]{1,100}#[1-9][0-9]{0,19}")
+OPERATION = r"(?:[A-Za-z0-9][A-Za-z0-9_.:/#-]{5,190}|" + GITHUB_ISSUE_OPERATION + r")"
 TERMINAL_ID = r"(?P<code>`?)(?P<operation>" + OPERATION + r")(?P=code)"
 DECLARATION = re.compile(
     r"^(?:CLAIM|TAKE|RESUME|TAKING)(?:\s*[:·—–]\s*|\s+)(?P<code>`?)"
@@ -342,23 +345,29 @@ def _paths(text, scopes=None):
                   | {scope["path"] for scope in (_scopes(text) if scopes is None else scopes)})
 
 
+def _is_operation(operation):
+    # Preserve legacy work-order IDs and admit explicit owner/repo#issue IDs.
+    return ("-" in operation or ":" in operation
+            or re.fullmatch(GITHUB_ISSUE_OPERATION, operation) is not None)
+
+
 def _statement(text, *, source_release=False):
     first = text.lstrip(" *`\n")
     match = DECLARATION.match(first)
     if match:
         operation = match["operation"].rstrip(".:;")
-        if "-" in operation or ":" in operation:
+        if _is_operation(operation):
             return "declaration", operation
     if DECLARATION_START.match(first):
         operations = {match[1].rstrip(".:;") for match in LABELED_OPERATION.finditer(first)}
         if len(operations) == 1:
             operation = next(iter(operations))
-            if "-" in operation or ":" in operation:
+            if _is_operation(operation):
                 return "declaration", operation
     match = TERMINAL.match(first)
     if match:
         operation = match["operation"].rstrip(".:;")
-        if "-" in operation or ":" in operation:
+        if _is_operation(operation):
             return match[1].lower(), operation
     match = (SOURCE_TERMINAL.match(first) or SHIP_RELEASE_TERMINAL.match(first)
              or SLASH_TERMINAL.match(first) or TERMINAL_LAND_RELEASE.match(first))
@@ -372,13 +381,13 @@ def _statement(text, *, source_release=False):
                      header, re.I):
             return None
         operation = match["operation"].rstrip(".:;")
-        if "-" in operation or ":" in operation:
+        if _is_operation(operation):
             return match[1].lower(), operation
         return None
     match = TERMINAL_AFTER.match(first)
     if match:
         operation = match[1].rstrip(".:;")
-        if "-" in operation or ":" in operation:
+        if _is_operation(operation):
             return match[2].lower(), operation
     return None
 
