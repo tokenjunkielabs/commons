@@ -25,7 +25,7 @@
     "account_roles": "2026-09-07T10:02:06Z",
     "github_portfolio": "2026-09-07T04:35:09Z",
     "provider_armory": "2026-09-18T03:00:37Z",
-    "providers.agentmail": "2026-10-04",
+    "providers.agentmail": "2026-10-04T08:12:32.118Z",
     "providers.airtable": "2026-10-04",
     "providers.alibaba-cloud": "2026-09-18T03:00:37Z",
     "providers.apollo": "2026-10-04",
@@ -93,6 +93,7 @@
     "tool_fleet.tool_registry": "2026-10-04T07:27:15.256Z"
   },
   "durable_evidence": {
+    "connected_tool_request": "host/CONNECTED_TOOL_REQUEST.md",
     "connected_tool_router": "host/CONNECTED_TOOL_ROUTER.md",
     "current_main": "https://github.com/woahwhattheheck/commons/commit/d66ac9862e3448e2bff54c7386ce27f5a81b3640",
     "latest_native_read_base_main": "https://github.com/woahwhattheheck/commons/commit/94111e34ab429a385366876e3175182e05ac94e3",
@@ -242,7 +243,8 @@
     "Nine plugin connections are confirmed; a catalog schema does not prove a live tools/list method, authentication, quota, deployability or execution on every carrier.",
     "This audit performed no paid purchase, plan upgrade, card entry, new schedule, deployment, security scan, message send or project/inbox creation. Firecrawl official pricing research consumed two existing included credits.",
     "PostHog default insight metadata is not deployed telemetry. Hugging Face metadata access is not free inference. Firecrawl current credits do not identify its billing price. AgentMail public Free pricing does not identify this connected account plan.",
-    "Supabase Free organization and public $0 allowance are verified, but cost/confirmation methods return UNAVAILABLE; project creation and immutable checkpoint schema remain unexecuted. Neon target project discovery and account plan are pending."
+    "Supabase Free organization and public $0 allowance are verified, but cost/confirmation methods return UNAVAILABLE; project creation and immutable checkpoint schema remain unexecuted. Neon target project discovery and account plan are pending.",
+    "AgentMail first inbox and unsent draft are now actual included use; this does not establish a measured send balance."
   ],
   "policy": {
     "admission_gate": false,
@@ -265,23 +267,24 @@
         "task-scoped inbox inventory",
         "agent mail after proven free allowance"
       ],
-      "evidence": "Organization and inbox native reads succeeded, pagination complete. Firecrawl business research independently verified official public Free $0/no-card/3-inbox pricing. The selected account plan and remaining allowance are not exposed by current AgentMail tools, so account-specific free creation is not yet established.",
-      "freshness": "NATIVE_PROVIDER_METHOD_PROBE",
+      "evidence": "Owned organization inbox count is one with complete pagination. Included first-inbox allowance was verified from official pricing across published plans. Stable create/draft IDs and actual readbacks remain in the private task. Selected subscription and remaining send balance remain unexposed.",
+      "freshness": "NATIVE_CREATE_AND_READBACK",
       "holder": "Commons",
       "id": "agentmail",
       "installed": true,
       "kind": "AGENT_EMAIL_INFRASTRUCTURE",
       "last_probe": "2026-10-04",
-      "last_use": "CURRENT_INVENTORY_READ_ONLY_NO_WORKLOAD_PRODUCTION",
+      "last_use": "INCLUDED_FIRST_INBOX_AND_UNSENT_RECOVERY_DRAFT",
       "mutation": "TASK_SCOPED_INCLUDED_ALLOWANCE_NO_PAID_UPGRADE",
       "native_binding_state": "WORKING_METHODS_WITH_CONSTRAINTS",
-      "observation_precision": "date",
+      "observation_precision": "timestamp",
       "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
-      "observed_at": "2026-10-04",
+      "observed_at": "2026-10-04T08:12:32.118Z",
       "observed_counts": {
         "inbox_pagination_complete": true,
-        "inboxes": 0,
-        "selected_organizations": 1
+        "inboxes": 1,
+        "selected_organizations": 1,
+        "stored_unsent_recovery_drafts": 1
       },
       "plugin_name": "AgentMail",
       "public_free_offer": {
@@ -301,16 +304,20 @@
         "value": "Account exists and Cursor exposes AgentMail as a required plugin; no first inbox yet."
       },
       "route_state": "CALLABLE_WITH_CONSTRAINT",
-      "setup_pending": "Prove selected account Free/included inbox allowance before creating a task-scoped inbox.",
-      "source_kind": "CONNECTED_PLUGIN_AND_NATIVE_READ_RECEIPT",
-      "stage": "REACHABLE",
+      "setup_pending": "Existing mail owner uses the established inbox. Sending allowance remains unmeasured; preserve original operation and reconcile uncertain sends.",
+      "source_kind": "CONNECTED_PLUGIN_AND_ACTUAL_RESOURCE_USE",
+      "stage": "EXERCISED",
       "suggestion_offered": false,
       "tool_count": 37,
       "user_enabled": true,
-      "value": "Authenticated selected organization and complete inbox list reads work; one selected organization and zero inboxes. No inbox was created or message sent.",
+      "value": "One included default-domain recovery inbox created with a stable client ID; an unsent internal recovery draft was stored and read back. No email send.",
       "working_methods": [
         "agentmail_list_organizations",
-        "agentmail_list_inboxes"
+        "agentmail_list_inboxes",
+        "agentmail_create_inbox",
+        "agentmail_get_inbox",
+        "agentmail_create_draft",
+        "agentmail_get_draft"
       ]
     },
     {
@@ -2072,9 +2079,9 @@
     "stage_counts": {
       "AVAILABLE": 21,
       "DECLARED": 1,
-      "EXERCISED": 10,
+      "EXERCISED": 11,
       "PRODUCING": 14,
-      "REACHABLE": 9
+      "REACHABLE": 8
     },
     "wait_for_reset": 2
   },
@@ -2179,9 +2186,13 @@
         "installed": true,
         "native_working_methods": [
           "agentmail_list_organizations",
-          "agentmail_list_inboxes"
+          "agentmail_list_inboxes",
+          "agentmail_create_inbox",
+          "agentmail_get_inbox",
+          "agentmail_create_draft",
+          "agentmail_get_draft"
         ],
-        "observed_at": "2026-10-04T07:27:15.256Z",
+        "observed_at": "2026-10-04T08:12:32.118Z",
         "provider": "AgentMail",
         "user_enabled": true
       },
@@ -2237,16 +2248,16 @@
         "capabilities": [
           "mail"
         ],
-        "connection_state": "connected",
-        "consumption_state": "organization_inbox_inventory_consumed",
+        "connection_state": "authenticated",
+        "consumption_state": "included_first_inbox_and_unsent_draft_consumed",
         "free_evidence": "https://www.agentmail.to/pricing",
         "free_plan_verified": false,
         "id": "agentmail-mail",
         "input_sensitivity": [
           "public"
         ],
-        "observation_note": "Organization and inbox inventory returned one organization and zero inboxes. Account Free entitlement is not exposed. No outreach or inbox creation occurred.",
-        "observed_at": "2026-10-04",
+        "observation_note": "One included recovery inbox and an unsent draft were created and read back with stable IDs. Selected plan and remaining send allowance are not exposed; no send capacity is assumed.",
+        "observed_at": "2026-10-04T08:12:32.118Z",
         "onboarding_consumer": "existing mailbox owner",
         "owner": "existing mailbox owner",
         "provider": "agentmail",
@@ -3342,11 +3353,17 @@
         "account_plan": "NOT_EXPOSED",
         "binding_constraints": [],
         "id": "agentmail",
-        "observed_at": "2026-10-04T07:27:15.256Z",
-        "stage": "REACHABLE",
+        "inbox_count": 1,
+        "observed_at": "2026-10-04T08:12:32.118Z",
+        "stage": "EXERCISED",
+        "unsent_draft_stored": true,
         "working_methods": [
           "agentmail_list_organizations",
-          "agentmail_list_inboxes"
+          "agentmail_list_inboxes",
+          "agentmail_create_inbox",
+          "agentmail_get_inbox",
+          "agentmail_create_draft",
+          "agentmail_get_draft"
         ]
       },
       {
@@ -3361,8 +3378,10 @@
             ]
           }
         ],
+        "cost_binding_retry": "UNAVAILABLE: get_cost not returned by tools/list",
         "id": "supabase",
-        "observed_at": "2026-10-04T07:27:15.256Z",
+        "observed_at": "2026-10-04T08:12:32.118Z",
+        "project_count": 0,
         "stage": "REACHABLE",
         "working_methods": [
           "supabase_list_organizations",

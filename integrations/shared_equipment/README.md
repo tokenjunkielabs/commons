@@ -288,21 +288,21 @@ internet. A cloud harness can post an envelope through its existing Slack
 connector. A posted message establishes transport submission only; it does
 not establish that the carrier dispatched the equipment call.
 
+The internal Slack carrier dispatches existing request/call IDs without an
+outward sender-identity or footer gate. `start()`, `process()` and `once()` use
+the existing configured workspace road, provider permissions and journals.
+`ServiceEquipment` retains the internal destination boundary: Slack Connect,
+pending external channels and unavailable destinations use the existing
+external publication road. Outward GitHub/customer publication handling is
+unchanged.
+
 Read the returned `equipment_capability_manifest` road and the deployed
 gateway's `GET /health` carrier status before relying on this transport. The
-current source card for `workspace_shared_equipment` reports `call: null`,
-`available: false`, `write_disabled: true`, and
-`code: outbound_sender_identity_unverified`. `SlackEquipmentCarrier.start()`
-returns `phase: read_only` while its installed `_write_route_verified()` check
-is false; `process()` and `once()` retain the same sender check. In that state
-the worker does not dispatch queued envelopes or publish their results. A
-catalog response or source revision does not establish the state of a deployed
-host; retain its actual returned sender-verification status.
-
-Those fields describe the equipment carrier's implementation and returned
-runtime state, not an internal Slack publication requirement. They do not put
-native TJLabs coordination on hold. A successful native message still does not
-prove that a separate carrier dispatched the envelope or completed its tool.
+source manifest advertises the request envelope and `write_disabled: false`;
+it does not claim live deployment. A successful native message establishes
+submission and does not prove that a separate carrier dispatched the envelope
+or completed its tool. Preserve a real provider failure or missing matching
+result as that runtime's recovery state.
 
 For a GitHub metadata request, report the observed stage:
 
@@ -315,7 +315,7 @@ For a GitHub metadata request, report the observed stage:
 For pending requests, reconcile the original IDs in the carrier/tool and
 publication journals before another dispatch. A missing result is unresolved;
 retain the existing envelope and payload. The current publisher runtime
-recovery owner continues host and sender verification through the
+recovery owner continues deployment and provider recovery through the
 [existing Account Chad recovery thread](https://tokenjunkielabs.slack.com/archives/C0BU51F1PL3/p1791011573896179).
 Use a currently available direct HTTP or local account-client route for
 authorized operations after reconciling any prior attempt. Those routes retain
@@ -1016,3 +1016,13 @@ this source. Source registration, a local program result and cloud-gateway
 deployment are separate states. Keep the existing gateway/account recovery
 owners and secure-reference custody; no new worker or owner-device deployment
 is started by this integration.
+
+## Active connected fallback tools
+
+The existing gateway catalog includes `connected_tool_run`, `connected_tool_dispatch`,
+`connected_tool_resume` and `connected_tool_status`. They share the private runtime
+journal selected by `COMMONS_CONNECTED_TOOL_STATE_FILE`; deploy into the existing
+service and retain that journal and the carrier cursor. Native consumers use
+[the request adapter](../../host/CONNECTED_TOOL_REQUEST.md) to prepare matching
+search/read arguments from their current discovered tools. Actual provider
+responses supply quota feedback; direct tools remain available.

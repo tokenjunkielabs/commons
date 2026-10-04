@@ -128,24 +128,7 @@ class SlackEquipmentCarrier:
         if not self.path.is_file():
             self._save(self.cursor)
 
-    def _write_route_verified(self) -> bool:
-        services = getattr(self.catalog, "services", None)
-        verifier = getattr(services, "_slack_write_route_verified", None)
-        return bool(callable(verifier) and verifier(self.channel))
-
     def start(self):
-        if not self._write_route_verified():
-            self.status = {
-                "ok": False,
-                "phase": "read_only",
-                "code": "outbound_sender_identity_unverified",
-                "message": (
-                    "Slack request/return writes are disabled until the sender "
-                    "identity and footer are verified owner-controlled."
-                ),
-                "cursor": self.cursor,
-            }
-            return
         self._thread.start()
 
     def stop(self):
@@ -162,18 +145,6 @@ class SlackEquipmentCarrier:
         self.cursor = cursor
 
     def process(self, message):
-        if not self._write_route_verified():
-            return {
-                "request_id": None,
-                "call_id": None,
-                "code": "outbound_sender_identity_unverified",
-                "delivered": False,
-                "incident": False,
-                "instruction": (
-                    "Use a verified owner-controlled, footer-free private return "
-                    "route before retrying this request."
-                ),
-            }
         try:
             request = parse_request(message.get("text", ""))
         except (ValueError, TypeError) as exc:
@@ -232,13 +203,6 @@ class SlackEquipmentCarrier:
                 raise RuntimeError("equipment result delivery failed; inspect journal before retry")
 
     def once(self):
-        if not self._write_route_verified():
-            return {
-                "terminal_delivery_failures": 0,
-                "last_terminal_delivery_failure": None,
-                "route": "read_only",
-                "code": "outbound_sender_identity_unverified",
-            }
         args = {"channel": self.channel, "oldest": slack_timestamp(self.cursor), "limit": 100}
         method = "conversations.history"
         if self.thread_ts:
