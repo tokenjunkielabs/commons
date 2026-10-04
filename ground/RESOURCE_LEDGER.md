@@ -16,15 +16,13 @@ grant file `resources.json`.
 
 ## Current reconciliation — 2026-10-04
 
-20 newly recorded resources and refreshed existing rows reconcile current source, newly exposed plugins and actual consumer receipts. The canonical graph contains157 resources. Root now exposes989 tools; a continuing helper still exposes741, so propagation differences remain distinct from account connection and capacity.
+8 material additions in this delta bring the canonical graph to 165 resources. Exactly one activation advances retained Git-tree capacity into a reusable [preimage recovery CLI](../host/GITHUB_TREE_PREIMAGE.md). Actual current-tree recovery returned 56,000 entries / 3,513,744 bytes with exact native SHA; no mode/type was guessed. Publisher integration retains the [existing large-directory order](https://tokenjunkielabs.slack.com/archives/C0BTB4SUCP9/p1791076849841949), avoiding another root or worker.
 
-Exactly one source activation is complete: `connected-github-paginated-commit-delta`, [PR31131](https://github.com/woahwhattheheck/commons/pull/31131), merge `c8c0cc00824af08d9b0f75c1aea2b57c2ec799c3`. All seven files match current-main readback. Seven contiguous native pages consumed200 exact commits through `bbf486a2e2114f0c6dfc307f0782bb42dcf347a6`; first-page file completeness remains unknown. [Consumer guide](../host/CONNECTED_GITHUB_COMPARE.md).
+Landed router/status, Wear archive repair and branch-identity source retain their owners. AgentMail has an existing recovery inbox and read-back draft; no email was sent. Figma/Lovable are installed, with account scope and usable capacity unobserved. Three existing CBB receiving links retain their original claims and payment owner; no award or cash is inferred.
 
-Firecrawl has an observed1000-credit balance and16 discovered procurement contracts; discovery cost0 and no contract execution occurred. Tavily's native keyed extraction and earlier keyless CLI search both worked. Neon documentation/backend tools, Render workspace access and Supabase organization access have separate rows; no project, deployment or remaining free compute is inferred. GrantFox's receiving declaration has no payout/cash implication.
+The prior reader and PostHog source activations stay complete. The delivered PostHog Account Chad request is unanswered and was not resent. The workshare row now explicitly carries Bryce's exact no-contact/no-relay hold. All other provider/device/payment holds and disabled tasks remain unchanged.
 
-The existing [PostHog build order](https://tokenjunkielabs.slack.com/archives/C0BTB4SUCP9/p1791097149441769) produced merged exporter/recovery/query source in [PR31135](https://github.com/woahwhattheheck/commons/pull/31135), with three exact current-main blobs. Ingestion remains pending. [Account Chad's exact owner-only request](https://tokenjunkielabs.slack.com/archives/C0BU51F1PL3/p1791100080068019) covers included ingestion and secure capture/query references. Existing owners retain their paths; finished BountyHub page-size work is composed once. Disabled tasks and all contact/model/device/payment holds remain preserved.
-
-[Durable activation and appended watermark](../inventory/resources/records/resource-master-wide-capability-swarm-20261004-01.json) · [Resource door](../resources.html). Original receipt fields preserve their first-publication observations; `publication_terminal`, `continuation_receipts` and `current_terminal_watermark` supply newer evidence.
+The new [durable receipt](../inventory/resources/records/resource-master-tree-preimage-activation-20261004-01.json) advances complete commit coverage through 24a93b58, separately retaining the later 8ebc4d3a source snapshot, exact 4,974-head map, 198 new swarm replies, seven required root-channel bounds and unchanged 25 automation rows. Later source and transport windows remain the next delta.
 
 ## Recorded session delta — 2026-09-02
 
