@@ -64,7 +64,8 @@ message ID and channel, call counts, and the provider link when a new send
 returned one. This means the editor acknowledged the selected message.
 By default, `readback_status: not_performed` remains explicit. The optional
 native readback below captures a bounded provider response after the edit;
-it does not claim an independent content comparison.
+it does not compare content by default. The pure opt-in comparator below can
+inspect that captured rendering.
 
 The send and edit are separate provider operations. A generated footer can be
 visible between them; a failed edit can leave it in place. No operation is
@@ -117,7 +118,8 @@ Keep the response privately and inspect the intended message when the task
 requires content confirmation. The native reader can present a URL as Slack
 link markup or return an empty result. Capturing either response does not
 prove the requested body was present or equal, and the helper never rewrites
-or normalizes the returned text.
+or normalizes the retained response. The opt-in comparator operates on a separate
+comparison value.
 
 The request uses `limit: 1`. For a top-level message it reads that observed
 message timestamp directly. For a new thread reply, it uses the retained
@@ -155,3 +157,73 @@ call counts, preserves the selected channel/message/link and retained parent,
 and makes one read call with no send or edit. Previously captured responses
 are not copied into progress callbacks. The caller decides whether to resume
 after inspecting an error; there is no retry loop, approval step or work gate.
+
+## Compare the selected captured rendering
+
+The pure, opt-in export `compareSlackPublication(result, expectedMessage, options)`
+selects one message from the existing bounded native readback. It performs no
+provider call and changes neither the publication result nor the expected text.
+Existing send, edit, read, continuation and captured-status behavior is unchanged.
+
+```javascript
+const {compareSlackPublication} = moduleBox.exports;
+const comparison = compareSlackPublication(result, preparedMessage, {
+  normalization: 'slack_bare_urls_entities',
+});
+text(comparison); // Metadata only; no message body.
+```
+
+Omit options, or use `normalization: 'none'`, for literal comparison only.
+The expected message is supplied separately because progress does not retain
+message bodies. Invalid caller arguments or unsupported options raise TypeError.
+
+| Status | Meaning |
+| --- | --- |
+| `exact` | The selected rendered body equals the expected text literally. |
+| `presentation_match` | It equals the expected text only after the explicitly enabled transformations below. |
+| `mismatch` | The body was selected unambiguously and differs under the requested comparison. |
+| `uncomparable` | Capture, request identity, payload, target selection or framing is insufficient or ambiguous. |
+
+`matches` is true for the first two outcomes, false for mismatch and null for
+uncomparable. `literal_match` preserves the literal result separately. The
+metadata includes the selected channel/message/parent IDs, the requested
+normalization and counts of applied URL/entity transformations. An uncomparable
+result carries a reason code; it does not turn the acknowledged write into a
+failed send or authorize resending it.
+
+The comparator requires a confirmed edit and captured response. It checks the
+retained read request against the publisher's selected channel, parent, limit and
+reply window. It accepts one recognized detailed thread payload (or identical
+duplicate representations), then only the observed framing for a parent message alone or a parent with
+one reply. The provider's exact no-replies trailer and section separators
+are removed as envelope text. Body whitespace, newlines and literal backslashes
+are preserved. Marker-like body lines, duplicate IDs, conflicting payloads,
+unknown formats or broader thread renderings return uncomparable. It does not
+page, trim, unescape literal backslash-n, or infer missing messages.
+
+Channel binding is explicitly `retained_readback_request`: this native rendering
+contains message timestamps but no channel ID. The result compares the captured
+rendering supplied by the caller; it does not independently authenticate an author,
+a channel or Slack's raw stored message representation.
+
+### Limited presentation normalization
+
+`slack_bare_urls_entities` transforms only the observed body, leaving expected
+text untouched. It first removes an HTTP(S) link wrapper when the label is absent,
+equals the complete target, or equals that target with only its leading
+`http://` or `https://` removed. The exact target is retained. Arbitrary or
+truncated labels, other schemes, Markdown links, mentions and emoji are not
+normalized. No URL decoding or whitespace normalization occurs.
+
+It then decodes `&amp;`, `&lt;` and `&gt;` in one nonrecursive pass. Links are
+recognized before that pass, so escaped angle brackets cannot introduce a new
+link match. Slack documents the link and three-entity representations in its
+[message formatting guide](https://docs.slack.dev/messaging/formatting-message-text/).
+This limited presentation result is distinct from literal equality; it is not a
+general Markdown or visual-equivalence claim.
+
+The retained native examples used during this continuation were an exact
+parent-only claim and two replies whose bodies differed only by one bare-URL
+wrapper with a scheme-less label. A new live claim reproduced that URL form.
+These observations exercise real native framing and URL handling; they do not
+establish every formatting or entity branch.
