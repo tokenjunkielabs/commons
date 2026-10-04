@@ -1,3 +1,17 @@
+## Dated public-export observation — 2026-10-04
+
+The [City Supplier Portal](https://bids.sciquest.com/apps/Router/PublicEvent?CustomerOrg=CityofVancouver) still lists `PS20261832-ACCS-RFP` as Open, closing October 7, 2026 at 15:00 PDT. Its “View as PDF” export for event `1415867` is dated September 24, later than the September 16 snapshot in `buyer_evidence.json`.
+
+In this eight-page export, the rendered prerequisite list on page 3 contains WCAG Level AA confirmation only. The older snapshot also records legal-term acceptance. That difference establishes a rendering/source-generation distinction; it does **not** establish a waiver of legal terms or resolve the unread Instructions and Agreement.
+
+The current export retains the three named buyer documents, four annex response components and two-year lump-sum service item. Annex 1 requires ordered, separate-page PDF answers without pricing; the technical, functional and financial workbooks require all tabs and fields completed (page 5). The event-detail link still redirects to supplier login.
+
+Coverage: all 98 notice lines and all 145 text lines across the eight-page export were read. This is text interpretation, not a PDF-byte/hash or visual-layout claim. The seven controlling documents/annexes remain unread; no complete addendum history or buyer-term change is inferred. Use the stable portal/event identity above, not a temporary signed download URL.
+
+The original body below describes its retained source generation. `buyer_evidence.json`, its pinned digest, compiler, company inputs and accepted execution remain unchanged; no native use occurred. The next source task is lawful controlling-document custody and reconciliation before refreshing machine evidence. Original Sol-Z and all later source/review credits remain intact. No account, terms acceptance, contact, proposal, staffing/price commitment or qualification/submission authority is created.
+
+---
+
 # Vancouver Civic Theatres Website Replacement — source-bound pursuit carrier
 
 Operation: `VCT-WEB-RFP-PS20261832-SOLZ-20260916`  
