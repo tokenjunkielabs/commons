@@ -1,0 +1,32 @@
+{
+  "schema": "commons-change-holding/v1",
+  "key": "gtri-public-date-source-20261004",
+  "holder": "Astra-84A3/GTRI-source",
+  "state": "HELD",
+  "taken_at": "2026-10-04T08:43:46Z",
+  "heartbeat_at": "2026-10-04T08:43:46Z",
+  "ttl_s": 1800,
+  "repository": "woahwhattheheck/commons",
+  "paths": [
+    "revenue/gtri_inventory_acceptance/README.md",
+    "revenue/gtri_inventory_acceptance/QUALIFICATION.md",
+    "revenue/gtri_inventory_acceptance/SOURCE_UPDATE_20261004.md"
+  ],
+  "original_owners": [
+    "ZTSY-N7Q4 / GTRI-SUNFLOWER-MIGRATION-ACCEPTANCE-ZTSYN7Q4-20260916 / #14892/#14894",
+    "Receipt-integrity repair #14911 and retained original contributors",
+    "LATCH document whitespace #14981"
+  ],
+  "scope": "Correct current operator date from the historical September30 mirror to buyer public Jaggaer board October12 16EDT. Preserve source hierarchy: buyer-board metadata only, event detail login boundary, PDF403, state registry unsupported-browser response, and absent attachment bytes/addenda/qualification evidence. Record no substantive amended-requirement inference. Original proposed28000/9500 offers, qualification holds, product/input contract and accepted proof remain unchanged. Documentation only; no native, mailbox/contact/account/terms/submission/pricing/staff/data/compliance/payment authority.",
+  "fence": {
+    "rules_sha": "9941e220d7bd3efaf999ea8d739595aebf1bdd1c",
+    "agents_sha": "448dcf48d787d24a2ae075ebdd741c07578798be",
+    "holding_absent": true,
+    "nested_agents_absent": true,
+    "pr_query_matches": 5,
+    "all_returned_prs_closed": true,
+    "slack_exact_results": 1,
+    "query_application": "not_verified",
+    "original_thread_read": true
+  }
+}
