@@ -75,13 +75,35 @@ MIME selection follows these rules:
 | `maxHeaderChars` | 300 | Maximum characters in each selected header value. |
 | `maxBodiesPerMessage` | 8 | Combined available and unavailable selected-body positions per message. |
 
-Options must be supported nonnegative safe integers; zero is allowed. Character counts and limits use JavaScript UTF-16 code units. Clipping preserves a surrogate pair at the boundary. These are limits on displayed fields and entry counts, not an exact serialized-JSON byte ceiling.
+Limit options must be supported nonnegative safe integers; zero is allowed. The optional `source_indices` array is described below. Character counts and limits use JavaScript UTF-16 code units. Clipping preserves a surrogate pair at the boundary. These are limits on displayed fields and entry counts, not an exact serialized-JSON byte ceiling.
 
 Per-message `omitted` reports excluded message-header entries, clipped selected-header characters, clipped or capped selected-body characters, capped body positions, and counts of excluded attachment, forwarded-message, alternative, related, and unsupported parts. Alternative and related counts refer to excluded branches or children at the selection point, not every descendant. `body_chars` does not include unused alternative HTML or other excluded nonselected branches. Header-character counts do not sum discarded transport-header values.
 
-Top-level `omitted.messages` counts messages excluded by `maxMessages`. Its character and body-position counts sum the displayed messages only; it does not inspect or estimate the bodies of excluded messages. Raw/search/error message envelopes are rejected even when they fall beyond the message-display limit.
+Top-level `omitted.messages` counts messages excluded by `maxMessages` or an explicit `source_indices` selection. Its character and body-position counts sum the displayed messages only; it does not inspect or estimate the bodies of excluded messages. Raw/search/error message envelopes are rejected even when they fall beyond the message-display limit.
 
 Malformed or unsupported input raises a `TypeError` with `code` and `source_path`. Selected MIME traversals also reject cycles, depth beyond 32, or more than 4,096 visited parts per message. No uncertain shape is turned into a successful empty message.
+
+## Select disjoint retained messages
+
+Pass optional `source_indices` to select messages by their original positions in the retained response. Omit the property to preserve the existing result shape and first-`maxMessages` behavior.
+
+```js
+const selected = box.exports.projectGmailMessages(retained, {
+  source_indices: [1, 2, 4, 7],
+  maxMessages: 4,
+  maxBodyChars: 45000,
+  maxTotalBodyChars: 60000
+});
+store("mail-selected-body-view", selected);
+```
+
+The array must be dense and strictly increasing, with zero-based safe integers inside the retained response's message range. Its length must not exceed `maxMessages`; `[]` is valid and selects no messages. Explicit `null` or `undefined`, missing array entries, duplicates, descending or noninteger indices, and out-of-range indices raise `INVALID_OPTIONS` with the offending `source_path`. No indices are silently sorted, deduplicated, dropped or capped.
+
+Only in this mode, each selected message gains `source_index` and `source_path` pointing to its original envelope. Existing body paths retain their original `responses[index]` positions. The effective `limits.source_indices` and top-level `selection.source_indices` are copies of the selection; the input options remain unchanged.
+
+The added `selection.omitted_source_index_ranges` lists every omitted message range using half-open `[start, end)` bounds, with `range_end: "exclusive"`. For the ten-message selection above, these are `[[0,1],[3,4],[5,7],[8,10]]`, and `omitted.messages` is `6`. An empty selection omits every input message.
+
+All message envelopes are validated before selection, including omitted ones. MIME traversal runs only for selected messages; header/body omission counts and display budgets cover only those messages. No omitted body is fetched, decoded, traversed or estimated, and no provider call is added. Existing MIME selection, HTML-as-data handling, unavailable bodies and structural limits are unchanged.
 
 ## Observed consumption
 
