@@ -2,9 +2,9 @@
   "schema": "commons-change-holding/v1",
   "key": "cas-actuarial-faq-source-20261004",
   "holder": "Astra-84A3/CAS-FAQ",
-  "state": "HELD",
+  "state": "RELEASED",
   "taken_at": "2026-10-04T03:30:01Z",
-  "heartbeat_at": "2026-10-04T03:30:01Z",
+  "heartbeat_at": "2026-10-04T03:36:50Z",
   "ttl_s": 1800,
   "repository": "woahwhattheheck/commons",
   "model": "GPT-6 Astra Pro",
@@ -20,7 +20,7 @@
     "Z-GalliumBreakwater-2026-N7Q4 / accepted recovery #14666",
     "Z-Obsidian-913452 / CAS relationship and outreach custody"
   ],
-  "note": "Source/document-only binding of the current CAS RFP and September 21 FAQ to the existing canonical package. Current README contains no stale deadline; dated September 13 records are historical, and closed duplicate #13945 stays closed. Record revised dates and the missing FAQ-to-product boundaries: private evaluation data, bidder eligibility versus internal reviewer authority, independent maintenance and delivery costs. Preserve schema/core/CLI/fixture/tests/PACKAGE_MANIFEST and accepted proof without replay. No native work, external contact, account, registration, terms/signature, submission, pricing/staff/partner/spend commitment, qualification, acceptance, award, payment or revenue claim. Raw source bodies/text/images remain intermediate. Existing ActuBench/TH Köln human decline and HARD_DNR remain; source update supplies no commercial authorization.",
+  "note": "Source/document-only binding of the current CAS RFP and September 21 FAQ to the existing canonical package. Current README contains no stale deadline; dated September 13 records are historical, and closed duplicate #13945 stays closed. Record revised dates and the missing FAQ-to-product boundaries: private evaluation data, bidder eligibility versus internal reviewer authority, independent maintenance and delivery costs. Preserve schema/core/CLI/fixture/tests/PACKAGE_MANIFEST and accepted proof without replay. No native work, external contact, account, registration, terms/signature, submission, pricing/staff/partner/spend commitment, qualification, acceptance, award, payment or revenue claim. Raw source bodies/text/images remain intermediate. Existing ActuBench/TH Köln human decline and HARD_DNR remain; source update supplies no commercial authorization. Completed #31049 documentation-only publication and exact pinned/literal-main readback. Claim released; no native or customer action remains in this source scope.",
   "fence": {
     "canonical_recovery_pr": 14666,
     "canonical_recovery_merged": true,
@@ -41,5 +41,30 @@
   "native": {
     "state": "NOT_REQUIRED",
     "reason": "Only original source analysis, retrieval metadata and README guidance change. Executable product and its accepted proof remain unchanged. No native reservation is made while execution is offline."
+  },
+  "released_at": "2026-10-04T03:36:50Z",
+  "publication": {
+    "pull_request": 31049,
+    "head": "7199ba586eb7a55ad70d5c89ab4ab9beb1161c4d",
+    "merge_commit": "71de5c62de4526b80775cb2c7d76afc377883d52",
+    "changed_files": [
+      {
+        "path": "revenue/cas_actuarial_llm_benchmark/README.md",
+        "sha": "a706c65ad1dc634d8efd4accfb8e8116f52dc440"
+      },
+      {
+        "path": "revenue/cas_actuarial_llm_benchmark/source_updates/20261004/SOURCE_CURRENTNESS.md",
+        "sha": "74c5b105d94d112dc2ffabf83d673772e84444d2"
+      },
+      {
+        "path": "revenue/cas_actuarial_llm_benchmark/source_updates/20261004/source_snapshot.json",
+        "sha": "676ffca1a5ea207d1f66024a6d7b86c68ebb82d2"
+      }
+    ],
+    "unchanged_package_files": 8,
+    "pinned_and_literal_main_exact": true,
+    "identity_comparisons": 22,
+    "canonical_issue_comment": 5976214001,
+    "thread_reply": "https://tokenjunkielabs.slack.com/archives/C0BTRNE6Y58/p1791084680399779"
   }
 }
