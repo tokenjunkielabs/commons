@@ -47,6 +47,38 @@ Pin the helper source ref when an operation needs a retained version. Supply rep
 
 Keep an explicit `is:issue` or `is:pr` selector for single-kind queues. GitHub documents that some GitHub App user-token searches require a kind qualifier. Use separate queries when both kinds are needed under those connections.
 
+### Choose whether imported board records belong in the query
+
+A technical keyword can also match issue-body transport metadata. In the Commons
+intake, imported board records included carrier text such as `discord-connector`
+and appeared in a search for `connector`. A keyword match alone therefore does
+not identify a new tooling request.
+
+When the caller intentionally wants open issues other than those labeled `board`,
+put that choice in the native query:
+
+~~~javascript
+const result = await box.exports.searchGitHubIssues(tools, {
+  query: "repo:woahwhattheheck/commons is:issue is:open connector -label:board",
+  sort: "updated",
+  order: "desc",
+  per_page: 30,
+  max_pages: 1
+});
+~~~
+
+Keep board records in scope when their imported work is the intended source.
+The `board` label is a convention observed in this repository, not a universal
+issue kind or an ownership decision. Inspect the selected record and its current
+source before deciding what work remains. The adapter forwards either query
+exactly; it never adds this exclusion or classifies records on the caller's behalf.
+
+In the actual October 4, 2026 intake, the same open-issue query without the label
+exclusion advertised 6,284 matches; the explicitly scoped query returned 12 items.
+Those are dated search observations, not a full inventory of work or a statement
+that the excluded records lack useful tasks. The original native responses and
+query strings were retained; no adapter change or repeat query was needed.
+
 ## Inputs and retained responses
 
 | Input | Meaning |
