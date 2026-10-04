@@ -16,15 +16,11 @@ grant file `resources.json`.
 
 ## Current reconciliation — 2026-10-04
 
-The canonical graph now contains 180 resources. This delta reconciles fourteen landed capability families, perishable public source bundles, Superteam public listings and the expanded connected-app surface. Existing Slack/web/router/budget/telemetry rows keep their identity; completed work retains its owners.
+The canonical graph contains 185 resources. The new fast A304081 counter supplies eight previously absent individual near-cap values to the existing finite point atlas: **30, 32, 30, 32, 60, 33, 34, 34** for inputs999999999991 through999999999998. The complete [new dataset](../research/a304081/resource-master-successor-counts-20261004-01.json) retains4,224candidate pairs,4,200classifications and285representations. Original source, prior data, accepted C++ computation and research custody remain unchanged. This adds finite point data; no global conjecture or prize result is claimed.
 
-Exactly one resource is consumed here: the retained-tree publisher from PR31195/31202 publishes the canonical graph, durable evidence and open projection. Its complete current p tree has 56,067 entries /3,517,805 bytes and matches the native parent SHA. The prior exporter activation and original publisher order are both complete.
+Newly reconciled source/data also includes numerical Erdos978 gap navigation, the landed cloud swarm launcher, a perishable DOTT software APK and the bounty-audit HTTP response-release repair. Cloud launcher source does not establish a live service; the DOTT artifact expiresNovember3 and predates the later callback repair. Original consumers and owners remain.
 
-The native tool surface grew from989 to1,182 actions:191 connected actions across Figma, Lovable, Linear, Asana and Replit plus two runtime utilities. Exposure is separate from capacity: Linear has one team and zero projects; Lovable has one owned Free workspace and zero projects with credits unreturned; the current Figma carrier is unauthorized. Asana/Replit accounts and credits are unmeasured. No new project, deployed gateway, buyer, payment or cash is inferred.
-
-The [append-only activation evidence](../inventory/resources/records/resource-master-retained-publisher-activation-20261004-01.json) retains the exact134-commit window through27caccf3 at09:55:52Z,47 updatedPRs,218 updatedissues,6,033 open issue/PR rows,281 workflows,5,018 branchheads and798 new swarm replies. Branch/workflow observations after that upper are separate. Older workflow updates and in-place Slack edits remain explicit coverage limits.
-
-The delivery-request and matcher lanes already have owners; no duplicate build-order root or worker was created. Account Chad's existing request remains unanswered and was not resent. Every specific contact, model, payment, device, private-data and no-auth boundary remains.
+The [durable activation record](../inventory/resources/records/resource-master-fast-point-counter-activation-20261004-01.json) fixes the fully collected main window at4462d621 /2026-10-04T10:28:37Z, with exact later observations separate. Seven channel roots,85swarm replies and changed-old-thread discovery are retained. The1,182-tool surface and25automation states are unchanged. Account Chad's HomeOps upload request is already delivered; no resend. No new independent unheld implementation gap was found, so no duplicate build-order root or worker was created.
 
 ## Recorded session delta — 2026-09-02
 
