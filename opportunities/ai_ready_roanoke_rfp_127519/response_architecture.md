@@ -1,12 +1,14 @@
 # RFP-127519 response architecture
 
+**October 4, 2026 disposition:** this is a historical outline based on the retained RFP/Addendum 1 generation. Its October 2 deadline has passed, and later indexed addenda remain unread. Reconcile it against current official sources before any reuse; this document supplies no permission to contact or submit. See [source disposition](SOURCE_DISPOSITION_20261004.md).
+
 This is a production outline, not a submission and not buyer acceptance. It maps the buyer's scored structure into an evidence-first response so a qualified prime can assemble a competitive proposal without generic AI marketing.
 
 ## Executive posture
 
 - Route: **PARTNER-FIRST / PRIME-HOLD** for TJLabs.
 - Buyer ceiling: **$250,000 fixed price**; $92,590 is identified by the buyer as contingent on GO Virginia Region 2 planning-grant approval.
-- Addendum 1 deadlines: questions Sep 25, 2026 11:59 PM ET; proposal Oct 2, 2026 11:59 PM ET.
+- Historical Addendum 1 deadlines: questions Sep 25, 2026 11:59 PM ET; proposal Oct 2, 2026 11:59 PM ET. Both have passed.
 - Proposal page limit: 20 pages excluding resumes.
 - Teams permitted; one prime must be identified.
 
