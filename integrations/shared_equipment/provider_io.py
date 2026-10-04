@@ -54,16 +54,57 @@ class _NoRedirect(urllib.request.HTTPRedirectHandler):
 
 _SECRET_KEYS = re.compile(r"^(authorization|cookie|set-cookie|password|access_token|refresh_token|bot_token|app_token|client_secret|private_key)$", re.I)
 _SECRET_VALUES = re.compile(r"(?:xox[baprs]-[A-Za-z0-9-]+|xapp-[A-Za-z0-9-]+|gh[pousr]_[A-Za-z0-9_]+|github_pat_[A-Za-z0-9_]+|AIza[0-9A-Za-z_-]{30,})")
+_SECRET_URL_KEYS = re.compile(r"^(code|token|credential|signature|sig|key)$", re.I)
+
+
+def _secret_mapping_key(key: str) -> bool:
+    normalized = key.lower().replace("-", "_")
+    return (
+        bool(_SECRET_KEYS.fullmatch(key))
+        or normalized in {"proxy_authorization"}
+        or any(marker in normalized for marker in ("token", "secret"))
+        or ("api" in normalized and "key" in normalized)
+    )
+
+
+def _secret_url_key(key: str) -> bool:
+    normalized = key.lower().replace("-", "_")
+    return (
+        normalized in {"code", "sig", "key"}
+        or any(marker in normalized for marker in ("token", "secret", "credential", "signature"))
+        or ("api" in normalized and "key" in normalized)
+    )
+
+
+def _redact_url(value: str) -> str:
+    try:
+        parsed = urllib.parse.urlsplit(value)
+    except (TypeError, ValueError):
+        return _SECRET_VALUES.sub("[REDACTED]", value)
+    if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+        return _SECRET_VALUES.sub("[REDACTED]", value)
+
+    def scrub(component: str) -> str:
+        pairs = urllib.parse.parse_qsl(component, keep_blank_values=True, strict_parsing=False)
+        if not pairs and "=" not in component:
+            return component
+        return urllib.parse.urlencode([
+            (key, "[REDACTED]" if _secret_url_key(key) else _SECRET_VALUES.sub("[REDACTED]", item))
+            for key, item in pairs
+        ])
+
+    return urllib.parse.urlunsplit((parsed.scheme, parsed.netloc, parsed.path,
+                                   scrub(parsed.query), scrub(parsed.fragment)))
 
 
 def redacted(value: Any) -> Any:
     """Keep credential-bearing provider fields out of model replies/journals."""
     if isinstance(value, dict):
-        return {str(k): "[REDACTED]" if _SECRET_KEYS.fullmatch(str(k)) else redacted(v) for k, v in value.items()}
+        return {str(k): "[REDACTED]" if _secret_mapping_key(str(k)) else redacted(v) for k, v in value.items()}
     if isinstance(value, list):
         return [redacted(v) for v in value]
     if isinstance(value, str):
-        return _SECRET_VALUES.sub("[REDACTED]", value)
+        return _redact_url(value)
     return value
 
 def _slack_publication_fields(payload: dict) -> dict[str, str]:

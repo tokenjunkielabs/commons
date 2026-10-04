@@ -104,6 +104,45 @@ class EquipmentTests(unittest.TestCase):
         self.assertNotIn("SYNTHETIC", json.dumps(result))
         self.assertEqual(result["normal"], "read_count")
 
+    def test_provider_redaction_scrubs_nested_urls_and_metadata(self):
+        source = {
+            "callback": "https://login.example/cb?state=keep&code=VALUE1#id_token=VALUE2&view=ok",
+            "download": "https://files.example/object.txt?x-sig=VALUE3&part=7",
+            "headers": {"Authorization": "VALUE4", "x_api_key": "VALUE5"},
+            "cookie": "VALUE6",
+            "ordinary": "https://example.test/path?mode=read#section",
+        }
+        result = redacted(source)
+        encoded = json.dumps(result)
+        for value in ("VALUE1", "VALUE2", "VALUE3", "VALUE4", "VALUE5", "VALUE6"):
+            self.assertNotIn(value, encoded)
+        self.assertIn("state=keep", result["callback"])
+        self.assertIn("view=ok", result["callback"])
+        self.assertIn("part=7", result["download"])
+        self.assertEqual(result["ordinary"], source["ordinary"])
+        self.assertEqual(result["headers"]["Authorization"], "[REDACTED]")
+        self.assertEqual(result["headers"]["x_api_key"], "[REDACTED]")
+        self.assertEqual(result["cookie"], "[REDACTED]")
+
+    def test_service_exception_metadata_is_recursively_redacted(self):
+        tool = ServiceEquipment(slack_token_loader=lambda: "unused")
+
+        def fail(_name, _arguments):
+            exc = EquipmentError(
+                "failed https://login.example/cb?code=VALUE7&state=keep",
+                private_instruction="retry https://files.example/a?sig=VALUE8&part=2",
+                matched_terms=("https://x.example/#refresh_token=VALUE9",),
+            )
+            raise exc
+
+        tool._call = fail
+        result = tool.call("synthetic", {})
+        encoded = json.dumps(result)
+        for value in ("VALUE7", "VALUE8", "VALUE9"):
+            self.assertNotIn(value, encoded)
+        self.assertIn("state=keep", result["message"])
+        self.assertIn("part=2", result["private_instruction"])
+
     def test_gh_uses_fixed_host_stdin_and_no_shell(self):
         calls = []
         def runner(command, **kwargs):
