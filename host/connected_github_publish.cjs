@@ -759,6 +759,10 @@ async function contributionOperation(tools, change, options, readOnly, previousP
   let announce = async () => {};
   try {
     const spec = validateContribution(change);
+    const deferHeadObservation = readOnly ? undefined : options.defer_head_observation;
+    if (deferHeadObservation !== undefined && typeof deferHeadObservation !== 'boolean') {
+      throw new TypeError('defer_head_observation must be a boolean');
+    }
     const identityKeys = ['repository_full_name', 'pull_request_repository_full_name',
       'pull_request_number', 'branch_name', 'base_branch', 'expected_head_sha', 'expected_base_sha'];
     for (const key of identityKeys) progress[key] = spec[key];
@@ -955,6 +959,21 @@ async function contributionOperation(tools, change, options, readOnly, previousP
       progress.ref_update_state = 'confirmed';
       progress.publication_status = 'update_confirmed';
       await announce();
+      if (deferHeadObservation === true) {
+        progress.status = 'contribution_head_observation_pending';
+        progress.stage = 'head_observation_deferred';
+        progress.head_observation_status = 'deferred';
+        progress.head_observation_target = {
+          repository_full_name: spec.repository_full_name,
+          pull_request_repository_full_name: spec.pull_request_repository_full_name,
+          pull_request_number: spec.pull_request_number,
+          branch_name: spec.branch_name,
+          base_branch: spec.base_branch,
+          expected_commit_sha: progress.commit_sha,
+          expected_base_sha: spec.expected_base_sha};
+        await announce();
+        return progress;
+      }
     }
     progress.stage = 'read_current_head';
     const current = await observe(progress.stage);
