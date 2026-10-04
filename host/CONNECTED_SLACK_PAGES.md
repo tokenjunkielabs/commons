@@ -57,6 +57,23 @@ context scope. An empty cursor starts a new chain. The caller's request object
 is unchanged. Channel/thread reads, result selection, private-channel scope,
 full response retention and the pure projectors keep their existing behavior.
 
+For a fresh search with an omitted `query`, the collector joins the supplied
+`keywords` tokens and `filters` into the explicit native `query` field.
+Already quoted phrases and filter syntax are retained; natural-language text
+is not turned into search syntax. This consumes the
+[observed native query workaround](https://github.com/woahwhattheheck/bounty-concierge/blob/b95f1bd22a6ae2f4d76e911abbb38cca5c079c67/docs/NATIVE_TOOL_INVENTORY.md#scoped-slack-intake):
+this binding can return unscoped recent messages when only structured terms
+are forwarded. Explicit `query` values, including an empty string, are
+unchanged. Existing nonempty cursors keep their original arguments; start a
+new chain when correcting an old unscoped search.
+
+The effective query is visible in `request.args`, every page's
+`request_args`, and `next_request`. The caller's input stays unchanged.
+Malformed structured values are left for native semantic validation and are
+not converted into query text. No dates, channel visibility or other selectors
+are changed. A rendered heading is still not proof of query enforcement;
+inspect the returned messages before inferring ownership.
+
 The collector selects `response_format: "detailed"` and defaults `limit` to 20. Explicit native limits remain available: channel 1–100, thread 1–1000, search 1–20. A detailed response can still be shortened by the provider. Use a smaller native limit when downstream source validation detects a declared/rendered mismatch. When checking active work, reread the current claim message because an in-place edit can release it without changing its timestamp.
 
 ## Search dates when checking current work
@@ -122,8 +139,9 @@ arguments and the next observed public cursor.
 Follow the selected native tool's input contract: lexical terms belong in
 `keywords`; channel, person and date constraints belong in `filters`.
 Supply at least keywords or filters, and use `natural_language_query: ""` for
-a structural query. Keep any actual `query` argument separately; a rendered
-heading never proves which selectors were applied. For the pure search
+a structural query. Fresh searches derive an omitted `query` as described
+above; an explicitly supplied query stays unchanged. A rendered heading
+never proves which selectors were applied. For the pure search
 projector, prefer `include_context: false` for new message-only intake; an already
 retained context-enabled response can also be projected without another read.
 

@@ -179,6 +179,18 @@ async function collectSlackPages(tools, request, options = {}) {
       && args.include_context === undefined && args.max_context_length === undefined) {
     args.include_context = false;
   }
+  // The observed native binding also needs its explicit query field. Build it
+  // only for a fresh search from already supplied lexical tokens and filters;
+  // an existing cursor must retain the exact query that produced it.
+  if (['search', 'search_public'].includes(operation) && args.cursor === undefined
+      && args.query === undefined
+      && (args.keywords === undefined || (Array.isArray(args.keywords)
+        && args.keywords.every(term => typeof term === 'string')))
+      && (args.filters === undefined || typeof args.filters === 'string')) {
+    const query = [...(args.keywords ?? []), args.filters ?? '']
+      .filter(part => part.trim()).join(' ');
+    if (query) args.query = query;
+  }
   args.limit = positive(args.limit ?? 20, 'limit', spec.maximumLimit);
   if (args.response_format !== undefined && args.response_format !== 'detailed') {
     throw new TypeError('This collector retains detailed native responses');
