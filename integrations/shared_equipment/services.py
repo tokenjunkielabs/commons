@@ -212,8 +212,17 @@ def plan_capability_fallback(arguments: dict) -> dict:
         if capability not in row["capabilities"]:
             continue
         reasons = []
-        if row["allowance_type"] not in {"recurring_free", "free_tier", "unmetered_free", "no_key_free"}:
-            reasons.append("ALLOWANCE_NOT_RECURRING_FREE")
+        recurring = row["allowance_type"] in {"recurring_free", "free_tier", "unmetered_free", "no_key_free"}
+        bounded = row["allowance_type"] in {"one_time_free", "conditional_free"}
+        if not recurring and not bounded:
+            reasons.append("FREE_ALLOWANCE_TYPE_UNSUPPORTED")
+        if bounded and (row.get("quota_remaining") is None or row["quota_remaining"] <= 0):
+            reasons.append("BOUNDED_FREE_BALANCE_UNMEASURED_OR_EMPTY")
+        if row["allowance_type"] == "conditional_free" and row.get("zero_net_spend_verified") is not True:
+            reasons.append("ZERO_NET_SPEND_UNVERIFIED")
+        allowance_expiry = timestamp(row.get("allowance_expires_at"), "allowance_expires_at")
+        if allowance_expiry and allowance_expiry <= now:
+            reasons.append("FREE_ALLOWANCE_EXPIRED")
         if row.get("free_plan_verified") is not True:
             reasons.append("FREE_PLAN_UNVERIFIED")
         if row["connection_state"].lower() not in {"connected", "authenticated", "ready", "not_required"}:

@@ -22,6 +22,12 @@ maps a route ID to `tool`, provider-specific `arguments`, and optional
 Free plans, exhausted quota and observed cooldowns remain visible in the returned
 plan. Consumption metadata never admits a worker or grants access.
 
+One-time free grants also supply usable capacity when their actual positive
+remaining balance is measured. An observed expiry ends that allocation. A
+conditional credit pool additionally needs an observed zero-net-spend setting;
+published credit offers alone do not establish it. These pools retain their
+grant/conditional label rather than being counted as recurring free allowance.
+
 ## Automatic bridge execution
 
 Python consumers instantiate `ConnectedToolRouter(routes, private_state_file)`
