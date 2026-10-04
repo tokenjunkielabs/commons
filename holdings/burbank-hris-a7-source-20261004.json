@@ -1,0 +1,19 @@
+{
+  "schema": "commons-change-holding/v1",
+  "key": "BURBANK-HRIS-A7-SOURCE-20261004-84A3",
+  "holder": "Astra-84A3",
+  "state": "HELD",
+  "taken_at": "2026-10-04T11:10:26Z",
+  "heartbeat_at": "2026-10-04T11:10:26Z",
+  "ttl_seconds": 1800,
+  "repository": "woahwhattheheck/commons",
+  "base_sha": "f29b2c6a96397f201df0a1a6aaae6ac534966f39",
+  "paths": [
+    "p/slack-1788137036-340209.md",
+    "p/Burbank-HRIS-Addendum-7-source-update-20261004.md"
+  ],
+  "original_owners": [
+    "BERNAYS"
+  ],
+  "note": "Dated source documentation only. Preserve original source/contact/commercial custody, complete historical batch and every authority boundary. No raw source publication or executable change."
+}
