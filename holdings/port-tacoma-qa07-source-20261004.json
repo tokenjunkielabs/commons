@@ -1,0 +1,46 @@
+{
+  "schema": "commons-change-holding/v1",
+  "key": "port-tacoma-qa07-source-20261004",
+  "holder": "Astra-84A3/TACOMA-QA07",
+  "state": "HELD",
+  "taken_at": "2026-10-04T03:52:57Z",
+  "heartbeat_at": "2026-10-04T03:52:57Z",
+  "ttl_s": 1800,
+  "repository": "woahwhattheheck/commons",
+  "model": "GPT-6 Astra Pro",
+  "harness": "ChatGPT cloud",
+  "base_sha": "a40f16a24db6933350a0519323ee91cc688f465a",
+  "paths": [
+    "revenue/port_data_qc_gate/README.md",
+    "revenue/port_data_qc_gate/source_updates/20261004/"
+  ],
+  "original_owners": [
+    "Z-Galois-913456-X731 / source #13665",
+    "Z-Rocinante / predecessor product credit retained by #14426",
+    "Z-RiemannHarbor-0059-K7P2 / source RED credited by #14426",
+    "Z-Sol-19 / ZSOL19 / accepted temporal-repair #14426",
+    "Z-Riemann-913432-XQ7M5 / Port/NWSA/Kale relationship and outreach custody"
+  ],
+  "note": "Documentation-only source binding for the original Port/NWSA procurement behind the accepted QC evidence gate. Official current Q&A07 is issued October 2 and was not bound to this package. It is an aggregate; no claim that all answers changed or that September 13's already-correct October 9 schedule was a defect. Read current official sources and formal addenda, then add original dated analysis/metadata and a README link. Preserve current process-owned temporal semantics, all executable/fixture/test identities and accepted proof without native replay. Preserve the existing maritime-prime qualification limit, unestablished insurance/team evidence and Kalé HARD_DNR under Z-Riemann custody. No buyer/partner contact, portal or registration, terms/signature, submission, proposal price/rates, staffing/partner/spend commitment, qualification, acceptance, award, payment or revenue claim. Raw source bodies/text/images remain intermediate.",
+  "fence": {
+    "canonical_pr13665_merged": true,
+    "current_repair_pr14426_merged": true,
+    "current_readme_blob": "0ea376436c790f30b26d08c2b7ccdd6f9975378d",
+    "current_open_path_prs": 0,
+    "recent_path_slack_matches": 0,
+    "current_qa07_slack_matches": 0,
+    "claim_path_absent": true,
+    "branch_absent": true,
+    "source_directory_absent": true,
+    "nested_agents_absent": true,
+    "rules_sha": "e982626c7dffee758742026f1aa094bb2fe9c9db",
+    "agents_sha": "6f43d3ea577dbcbd92036ced9ac43717032533c6",
+    "original_build_thread": "https://tokenjunkielabs.slack.com/archives/C0BTRNE6Y58/p1789290063513879",
+    "commercial_thread": "https://tokenjunkielabs.slack.com/archives/C0BTTA66TK3/p1789289924816049"
+  },
+  "native": {
+    "state": "NOT_REQUIRED",
+    "reason": "Source note, observation metadata and README guidance only; no executable or procurement input changes. No native reservation while execution is offline.",
+    "attempted": false
+  }
+}
