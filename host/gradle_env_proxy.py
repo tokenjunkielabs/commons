@@ -4,11 +4,15 @@
 from __future__ import annotations
 
 import argparse
+import errno
+import fcntl
 import ipaddress
 import os
 from pathlib import Path
 import re
 import shlex
+import shutil
+import stat
 import subprocess
 import sys
 from urllib.parse import urlsplit
@@ -95,16 +99,106 @@ def explicit_properties(environment: dict[str, str], project: Path, arguments: l
     return keys
 
 
+class AdmissionUnavailable(Exception):
+    """A cooperating build or the available disk space prevents this launch."""
+
+
+def acquire_build_lock(path: Path) -> int:
+    # O_NONBLOCK also keeps an unexpected FIFO from blocking before fstat.
+    descriptor = os.open(path, os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW | os.O_NONBLOCK, 0o600)
+    try:
+        if not stat.S_ISREG(os.fstat(descriptor).st_mode):
+            raise ValueError("--build-lock must name a regular file")
+        try:
+            fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except OSError as error:
+            if error.errno in (errno.EACCES, errno.EAGAIN):
+                raise AdmissionUnavailable(
+                    f"build lock is busy ({path}); retry after the cooperating build finishes"
+                ) from None
+            raise
+        return descriptor
+    except BaseException:
+        os.close(descriptor)
+        raise
+
+
+def storage_paths(environment: dict[str, str], project: Path, arguments: list[str]) -> tuple[Path, Path]:
+    """Resolve common Gradle directory options relative to the launcher cwd."""
+    directories: dict[str, str] = {}
+    home_property = None
+    index = 0
+    while index < len(arguments):
+        argument = arguments[index]
+        if argument == "--":
+            break
+        property_argument = argument
+        if argument == "-D" and index + 1 < len(arguments):
+            index += 1
+            property_argument = "-D" + arguments[index]
+        if property_argument.startswith("-Dgradle.user.home="):
+            home_property = property_argument.split("=", 1)[1]
+        for short, long, name in (("-g", "--gradle-user-home", "home"), ("-p", "--project-dir", "project")):
+            value = None
+            if argument in (short, long, long[1:]):
+                index += 1
+                if index >= len(arguments) or arguments[index].startswith("-"):
+                    raise ValueError(f"{long} requires a directory")
+                value = arguments[index]
+            elif argument.startswith(long + "="):
+                value = argument.split("=", 1)[1]
+            elif argument.startswith(short) and not argument.startswith("--"):
+                attached = argument[len(short):]
+                if not attached.startswith(("=", "/", ".")):
+                    raise ValueError("--min-free-disk-mib requires long Gradle options or separated -g/-p values instead of ambiguous attached options")
+                value = attached.removeprefix("=")
+            if value is not None:
+                if not value or name in directories:
+                    raise ValueError(f"{long} requires one nonempty directory value")
+                directories[name] = value
+                break
+        index += 1
+    if "home" not in directories and home_property is None:
+        option_text = " ".join(environment.get(name, "") for name in
+                               ("GRADLE_OPTS", "JAVA_OPTS", "JAVA_TOOL_OPTIONS", "JDK_JAVA_OPTIONS", "_JAVA_OPTIONS"))
+        if re.search(r"""(?:^|\s)["']?-D(?:gradle\.user\.home|user\.home)(?:=|\s|$)""", option_text):
+            raise ValueError("--min-free-disk-mib requires forwarded --gradle-user-home when JVM options override the home")
+    home = directories.get("home", home_property if home_property is not None else
+                           environment.get("GRADLE_USER_HOME", str(Path.home() / ".gradle")))
+    paths = (Path(directories.get("project", str(project))), Path(home))
+    return tuple((path if path.is_absolute() else project / path).resolve() for path in paths)
+
+
+def check_free_disk(project: Path, user_home: Path, minimum_mib: int) -> None:
+    for label, path in (("project", project), ("Gradle user home", user_home)):
+        existing = path
+        while not existing.exists():
+            existing = existing.parent
+        if not existing.is_dir():
+            raise ValueError(f"{label} or its nearest existing parent is not a directory")
+        free = shutil.disk_usage(existing).free
+        if free < minimum_mib * 1024 * 1024:
+            raise AdmissionUnavailable(
+                f"{label} has {free // (1024 * 1024)} MiB free at {existing}; "
+                f"requires {minimum_mib} MiB; free space or select another build/cache location and retry"
+            )
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--project", type=Path, default=Path.cwd(), help="Gradle project directory (default: current directory)")
     parser.add_argument("--refresh-env-proxy", action="store_true", help="Replace inherited GRADLE_OPTS proxy endpoint flags with this invocation's environment")
+    parser.add_argument("--build-lock", type=Path, help="Try a shared cooperative POSIX lock without waiting; retain its file after release")
+    parser.add_argument("--min-free-disk-mib", type=int, help="Require this nonnegative free-space floor on the selected project and Gradle user home")
     parser.add_argument("arguments", nargs=argparse.REMAINDER, help="Wrapper arguments after --")
     args = parser.parse_args()
+    if args.min_free_disk_mib is not None and args.min_free_disk_mib < 0:
+        parser.error("--min-free-disk-mib must be a nonnegative integer")
     arguments = args.arguments[1:] if args.arguments[:1] == ["--"] else args.arguments
     project = args.project.resolve()
     wrapper = project / "gradlew"
     environment = os.environ.copy()
+    lock_descriptor = None
     try:
         if not wrapper.is_file():
             raise ValueError("The selected project does not contain a Gradle wrapper")
@@ -139,10 +233,17 @@ def main() -> int:
         # The launcher needs these before a distribution exists. CLI properties
         # also reach the Gradle daemon; caller-supplied options stay last.
         environment["GRADLE_OPTS"] = " ".join(filter(None, (shlex.join(options), environment.get("GRADLE_OPTS", ""))))
+        if args.build_lock is not None:
+            lock_descriptor = acquire_build_lock(args.build_lock)
+        if args.min_free_disk_mib is not None:
+            check_free_disk(*storage_paths(environment, project, arguments), args.min_free_disk_mib)
         print(f"Gradle environment proxy: {len(properties)} JVM properties applied; existing explicit settings preserved", file=sys.stderr, flush=True)
         command = [str(wrapper), *options, *arguments]
         result = subprocess.run(command, cwd=project, env=environment, check=False)
         return result.returncode if result.returncode >= 0 else 128 - result.returncode
+    except AdmissionUnavailable as error:
+        print(f"Gradle environment proxy: {error}", file=sys.stderr)
+        return 75
     except (OSError, ValueError) as error:
         # Do not include proxy URLs or environment values in failure messages.
         if isinstance(error, OSError):
@@ -150,6 +251,10 @@ def main() -> int:
         else:
             print(f"Gradle environment proxy: {error}", file=sys.stderr)
         return 2
+    finally:
+        if lock_descriptor is not None:
+            # Close releases flock. Never unlink: peers must keep using one inode.
+            os.close(lock_descriptor)
 
 
 if __name__ == "__main__":
