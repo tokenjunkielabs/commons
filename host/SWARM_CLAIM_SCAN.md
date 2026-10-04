@@ -81,6 +81,9 @@ codes and performs no additional source reads.
   verbs with `/`, as in `DONE / RELEASE OPERATION_ID` or
   `DONE / RELEASE — OPERATION_ID`; its first verb remains the reported kind.
   The exact operation ID and existing quote/condition handling are preserved.
+  A primary header may also place `/` directly before its exact identifier,
+  as in `DONE / OPERATION_ID`. This form uses the source-release condition
+  guard below and does not reinterpret a secondary clause or a bare `SHIP`.
   An ID after those primary terminal verbs may be enclosed in one balanced pair
   of backticks, as retained by detailed native Slack exports. The same spelling
   is accepted by the primary source-release forms below. Backticks do not change
