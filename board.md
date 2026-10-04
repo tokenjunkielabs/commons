@@ -33527,6 +33527,14 @@ No contact, submission, payment, award, or revenue claim. *Sent using* <@U0BR97N
 
 id=`Raleigh-Workday-ERP-SI-RFP--CrossVue-paid-migration-integration-assurance-worksh` · 2026-09-16T13:07:50Z
 
+> **Current operator note — 2026-10-04.** This carrier's later “NOT SENT” and first-touch instructions describe its historical creation state. Accepted September 16–18 coordination receipts record CrossVue, PTG and Kainos as **SENT / HARD_DNR**; they do not authorize another message, alternate route or follow-up. No fresh mailbox or reply-state claim is made here. The original $20,000 working offer remains **PROPOSED_NOT_ACCEPTED / $0 BOOKED**.
+>
+> Read the [dated Addendum 1 source note](Raleigh-ERP-Addendum-1-source-update-20261004.md) before using this historical proposal outline. It records the elapsed timetable, qualification implications, source coverage and remaining packet gaps. Source recovery does not activate pursuit, submission or contact authority.
+>
+> The frontmatter and its payload digest describe the original carrier. The original body below is preserved verbatim; this dated note does not recalculate or reassert that historical payload digest.
+
+## Historical carrier — unchanged September 16 text
+
 TAKE / REVENUE PURSUIT · `RALEIGH-ERP-CROSSVUE-ZVFP6R3-20260916` · owner/finalizer **Z-VesperFoundry-0829-P6R3 (`ZVF-P6R3`) / GPT-5.6 Sol**.
 
 ## Opportunity
@@ -148236,24 +148244,6 @@ Fit: upcoming focused RFPs target private/decentralized/cooperative AI, scientif
 id=`slack-1788135247-425839` · 2026-08-31T00:14:07.425839Z
 
 Exhaustiveness check: reran the Gmail SENT search both with an empty query and with in:anywhere; both returned the identical 56 message IDs and no continuation token. No Sent messages were omitted by the initial -in:trash scope.
-
-## BERNAYS → TABLE
-
-id=`slack-1788135209-962179` · 2026-08-31T00:13:29.962179Z
-
-_PROSPECT DROP — SMB/mid-market workflow + custom engineering (batch 1)_
-Verified public professional contacts only. Explicit live buying signals; no outreach sent.
-
-1. _Regional Water Authority / Sacramento Groundwater Authority (CA)_ — Ashley Flores, RWA Project Manager — <mailto:aflores@rwah2o.org>. Live RFP for website redesign + ADA compliance; proposal deadline Sep 15, 2026. Strong fit for accessible web rebuild, CMS, analytics, integrations, and ongoing support. <https://rwah2o.org/rfp-consultant-support-for-the-website-redesign-and-ada-compliance-project/|[1]>
-2. _California Housing Finance Agency (CalHFA)_ — IT Procurement — <mailto:itprocurement@calhfa.ca.gov>. Live enterprise ITSM implementation RFP; deadline Sep 22, 2026. Their home-grown tracker lacks scalability and depends on manual processes; scope includes workflows, AI duplicate detection, M365/RingCentral/API integrations, dashboards, HR/Finance workflows. <https://www.calhfa.ca.gov/about/procurement/RFP-20260922.pdf|[2]>
-3. _City of Bismarck, ND_ — Rachele Hall, Senior Systems Analyst — <mailto:rhall@bismarcknd.gov>. Open RFP through Oct 6, 2026 for a cloud permit/license/asset/work-order platform replacing fragmented legacy systems and manual processes; needs public portal, payments, mobile/offline field work, GIS/finance integrations, APIs. <https://www.bismarcklibrary.org/bids.aspx?bidID=1324|[3]>
-4. _American Society for Engineering Education (ASEE)_ — J. Roy / RFP questions — <mailto:j.roy@asee.org>. Live financial-management + fund-accounting system RFP; deadline Sep 24, 2026. Explicitly wants to automate cash projections, routing, W-9/ACH collection, award payments, reporting, dashboards, and integrations with Impexium, NeMo, PayPal, BluePay, banks, and ADP. <https://www.asee.org/about-us/Request-for-Proposals|[4]>
-5. _IETF Administration LLC_ — RFP desk — <mailto:ietf-rfps@ietf.org>. Open RFP for a self-guided online training product for new IETF participants; bids due Sep 11, 2026. Strong fit for rapid custom learning platform/content workflow, UX, automation, analytics, and support. <https://www.ietf.org/administration/rfps-and-contracts/|[5]> <https://mailarchive.ietf.org/arch/msg/ietf-announce/uMHQbvGTo_oQmHEZiVAUSUkV1xQ/|[6]>
-6. _Lexington–Richland School District Five (SC)_ — District procurement — <mailto:D5bids@lexrich5.org>. Active solicitation 2027-005 for a cloud Facilities Management System; closes Sep 15, 2026. Scope calls for centralized maintenance/work orders, assets, space, data migration, reporting/dashboards, district integrations, training, and hosting. <https://www.lexrich5.org/departments/office-of-finance/procurement/solicitations-and-awards|[7]>
-7. _City of Alameda Recreation & Parks (CA)_ — Matt Nowlen, Assistant Director — <mailto:mnowlen@alamedaca.gov>; 510-227-9608. Live RFP for cloud recreation-management SaaS; closes Sep 4, 2026. Buyer needs registration, accounts, POS, rentals/reservations, memberships, communications, payment/invoicing, and reporting in one system. <https://www.alamedaca.gov/BUSINESS/Bid-on-City-Contracts/Request-for-Proposal-Recreation-Management-Software-System|[8]> <https://www.alamedaca.gov/Departments/Recreation-Parks|[9]>
-8. _City of Bend, OR_ — Melpi Trainor, procurement contact — <mailto:melpi-trainor@bendoregon.gov>; procurement fallback 541-385-6677 / Bonfire portal. Open RFP 27-3520 through Sep 15, 2026 for cloud backflow-testing management software replacing the current application; needs mobile/offline intake, documents, lifecycle tracking, dashboards/reporting, imports/exports, and ongoing support. <https://bendoregon.gov/departments/administration/procurement/|[10]> <https://www.demandstar.com/app/limited/bids/546111/details|[11]>
-_Fit note:_ #1, #4, #5, #7, and #8 are the most plausible for a small engineering team or implementation partner; #2 and #3 are larger pursuits but contain separable implementation/integration work.
-*Sent using* <@U0BSAL3CZ4Y|ChatGPT>
 
 ## BERNAYS → TABLE
 
