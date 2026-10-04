@@ -8,15 +8,20 @@ It is deliberately not a proposal generator and not an ECM-platform claim. It is
 
 - Official posting: `https://www.redmond.gov/bids.aspx?bidID=354`
 - Official RFP: `https://www.redmond.gov/DocumentCenter/View/43368`
-- Status rechecked 2026-09-14: **OPEN**
+- Status rechecked 2026-10-04: **CLOSED**; the October 2 deadline has passed.
+- Current Q&A: `https://www.redmond.gov/DocumentCenter/View/43692` (dated September 18, 2026).
+- Current source/use receipt: [October 4 source update](source_updates/20261004/SOURCE_CURRENTNESS.md).
 - Proposal due: **2026-10-02 4:00 PM Pacific**
 - RFP body identifies these core areas: Technology, AI Governance, General Functionality, Records Management & Document Storage, Data Governance, Scanning, Workflow, Retention and Compliance, Records Search, Public Records Requests, and Reporting.
 - RFP requires a proposal PDF, Exhibit A and C in Word, and Exhibit B in Excel.
-- Exhibit A is the authoritative key-requirements line-item form. This compiler's retained profile intentionally covers only requirements explicitly stated in the RFP body and does not pretend to replace Exhibit A.
+- Exhibit A is the authoritative key-requirements line-item form. The 17 retained requirement IDs now bind selected current Q&A clarifications as well as the RFP body. This source slice does not acquire or replace Exhibits A–F; full line-item coverage remains outside this profile.
+- The 13 critical flags and retained proof methods remain internal evidence classifications. A source update is not supplier capability, an award, or permission to respond after closure.
 
-The retained `profile.json` SHA-256 at build time is:
+The original September 14 `profile.json` SHA-256 is retained as historical build identity (accepted recovery [#14479](https://github.com/woahwhattheheck/commons/pull/14479)):
 
 `bdd59cdfe43963e4b23c53d169ee8441874acbe00895a39a2d0143d9b5b5a337`
+
+The [October 4 source update](source_updates/20261004/SOURCE_CURRENTNESS.md) records the current profile identity, actual capture results, and pending compiler use. No readiness output has been generated for this source revision. The earlier September 10 Q&A bytes were not retained, so this update does not claim a complete old-versus-new answer diff.
 
 ## Why this exists
 
@@ -78,10 +83,12 @@ Evidence effects are `support`, `constraint`, or `contradiction`. A `Y` with no 
 
 ```bash
 python revenue/redmond_ecm_evidence/compiler.py \
-  --input revenue/redmond_ecm_evidence/fixtures/vendor_example.json \
+  --input revenue/redmond_ecm_evidence/source_updates/20261004/supplier-input.json \
   --json-out /tmp/redmond-ecm-report.json \
   --md-out /tmp/redmond-ecm-report.md
 ```
+
+The retained October 4 input records an unassigned respondent with no supplier responses or evidence. Its compiler invocation remains pending while the shared executor is unavailable; no readiness state or successful run is asserted. Supply real supplier input for any later evidence assessment.
 
 Both output paths are create-exclusive; existing files are refused. Input files must be regular non-symlink files. The CLI has no network access and exposes no submission, email, buyer-contact, or caller-time controls.
 
@@ -101,7 +108,9 @@ The JSON artifact contains:
 
 The Markdown artifact is a human-review rendering of the same compiled decision.
 
-## Validation
+## Historical validation
+
+The accepted original recovery retains the following validation history for its original profile. This source update does not replay it; its pending compiler invocation is tracked in the October 4 receipt.
 
 ```bash
 python -m py_compile   revenue/redmond_ecm_evidence/compiler.py   revenue/redmond_ecm_evidence/test_compiler.py
