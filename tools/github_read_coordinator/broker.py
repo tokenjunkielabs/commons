@@ -262,6 +262,21 @@ class Broker:
         key = hashlib.sha256(dumps([route, params]).encode()).hexdigest()
         bucket = route_bucket(route)
         with self.connect() as db:
+            if max_age_seconds > 0:
+                # A completed cache read does not need the single writer slot.
+                # Read the block state and payload from one snapshot, then end
+                # it before decoding or entering the lease-acquisition path.
+                db.execute("BEGIN")
+                blocked = db.execute("SELECT reason FROM blocked WHERE namespace=?", (self.namespace,)).fetchone()
+                if blocked:
+                    return self.envelope("AUTH_BLOCKED", error=blocked[0])
+                row = db.execute("SELECT fetched,payload FROM cache WHERE namespace=? AND key=?", (self.namespace, key)).fetchone()
+                now = self.now()
+                db.commit()
+                if row and 0 <= now - row["fetched"] <= max_age_seconds:
+                    return self.envelope("CACHED", fetched_at=row["fetched"], age_seconds=now-row["fetched"], data=loads(row["payload"]))
+                # A miss must recheck state after obtaining the write lock;
+                # another process may have completed or invalidated this key.
             db.execute("BEGIN IMMEDIATE")
             now = self.now()
             blocked = db.execute("SELECT reason FROM blocked WHERE namespace=?", (self.namespace,)).fetchone()
