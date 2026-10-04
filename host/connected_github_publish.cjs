@@ -1383,8 +1383,307 @@ async function observeGitHubContributionHead(tools, target, options = {}) {
   }
 }
 
+/** Publish UTF-8 content through explicit serial native Contents calls; no Git-mode claim. */
+async function publishGitHubContentsChange(tools, change, options = {}) {
+  const progress = {operation: 'contents_publication', status: 'incomplete',
+    stage: 'validate', calls: {}, files: [], serial_writes: [],
+    progress_callback_errors: [], mode_verification: 'not_performed',
+    whole_tree_verification: 'not_performed', pending_write: null};
+  let lastResponse;
+  let announce = async () => {};
+  try {
+    const spec = validate(change);
+    if (spec.files.length > 300) throw new TypeError('Contents publication supports at most 300 file paths');
+    if (spec.files.some(file => file.encoding !== 'utf-8' || file.mode !== undefined)) {
+      throw new TypeError('Contents publication accepts UTF-8 content only, without caller-selected Git modes');
+    }
+    if (options.retained_trees !== undefined) {
+      throw new TypeError('retained_trees belongs to the Git Trees publisher, not Contents publication');
+    }
+    const saved = options.resume_created_branch;
+    if (saved !== undefined) {
+      object(saved, 'resume_created_branch');
+      if (saved.operation !== 'contents_publication' || saved.branch_created !== true
+          || saved.pending_write !== null || !Array.isArray(saved.serial_writes) || saved.serial_writes.length
+          || saved.pull_request !== undefined || saved.publication_status !== undefined
+          || saved.commit_sha !== saved.base_commit_sha) {
+        throw new TypeError('Resume only a confirmed branch creation before any Contents or PR write');
+      }
+      sha(saved.base_commit_sha, 'Retained Contents base');
+      for (const key of ['repository_full_name', 'base_branch', 'branch_name']) {
+        if (saved[key] !== spec[key]) throw new Error('Retained branch differs from change: ' + key);
+      }
+      if (!Array.isArray(saved.files) || saved.files.length !== spec.files.length
+          || saved.files.some((file, index) => file.path !== spec.files[index].path
+            || file.previous_blob_sha !== spec.files[index].expected_blob_sha
+            || file.expected_new_blob_sha !== spec.files[index].expected_new_blob_sha)) {
+        throw new Error('Retained branch file preimages or source pins differ from the prepared change');
+      }
+      progress.resumed_branch_creation = true;
+    }
+    const readbackConcurrency = readbackLimit(options);
+    progress.readback_concurrency = readbackConcurrency;
+    const repository_full_name = spec.repository_full_name;
+    Object.assign(progress, {repository_full_name, base_branch: spec.base_branch, branch_name: spec.branch_name});
+    const actions = ['fetch', 'fetch_file', 'fetch_blob', 'create_branch',
+      'create_file', 'update_file', 'create_pull_request', 'merge_pull_request'];
+    const bindings = Object.fromEntries(actions.map(action => [action,
+      options.bindings?.[action] ?? 'mcp__codex_apps__github_' + action]));
+    const required = actions.filter(action => action !== 'fetch_blob'
+      && (action !== 'create_branch' || saved === undefined)
+      && (action !== 'merge_pull_request' || spec.merge)
+      && (action !== 'create_file' || spec.files.some(file => file.expected_blob_sha === null))
+      && (action !== 'update_file' || spec.files.some(file => file.expected_blob_sha !== null)));
+    for (const action of required) {
+      if (typeof tools?.[bindings[action]] !== 'function') {
+        throw new Error('Binding not present: ' + bindings[action] + '. Repeat discovery alongside independent work.');
+      }
+    }
+    announce = async () => {
+      if (typeof options.onProgress !== 'function') return;
+      try { await options.onProgress(JSON.parse(JSON.stringify(progress))); }
+      catch (error) { progress.progress_callback_errors.push(String(error.message ?? error)); }
+    };
+    const call = async (action, args) => {
+      progress.calls[action] = (progress.calls[action] ?? 0) + 1;
+      lastResponse = undefined;
+      lastResponse = await tools[bindings[action]](args);
+      return unpack(lastResponse, action);
+    };
+    const write = async (action, args, context) => {
+      progress.pending_write = {action, ...context, state: 'calling'};
+      await announce();
+      const result = await call(action, args);
+      progress.pending_write.state = 'response_received';
+      await announce();
+      return result;
+    };
+    const fetchJSON = async url => {
+      const payload = await call('fetch', {url});
+      return typeof payload.content === 'string' ? object(JSON.parse(payload.content), 'GitHub resource') : payload;
+    };
+    const readBlob = typeof tools?.[bindings.fetch_blob] === 'function'
+      ? blob_sha => call('fetch_blob', {repository_full_name, blob_sha}) : undefined;
+    const api = 'https://api.github.com/repos/' + repository_full_name;
+    const refURL = name => api + '/git/ref/heads/' + name.split('/').map(encodeURIComponent).join('/');
+    const branchURL = refURL(spec.branch_name);
+    const requireBranchHead = async expected => {
+      const current = await fetchJSON(branchURL);
+      if (current.ref !== 'refs/heads/' + spec.branch_name) throw new Error('Contents ref response identifies a different branch');
+      const observed = sha(current.object?.sha, 'Contents branch head');
+      progress.observed_branch_sha = observed;
+      if (observed !== expected) throw new Error('Contents branch moved; reconcile it before another write');
+    };
+    progress.stage = 'read_base';
+    const base = await fetchJSON(refURL(spec.base_branch));
+    if (base.ref !== 'refs/heads/' + spec.base_branch) throw new Error('Contents base ref response identifies a different branch');
+    progress.initial_current_base_sha = sha(base.object?.sha, 'Current Contents base');
+    progress.base_commit_sha = saved === undefined ? progress.initial_current_base_sha : saved.base_commit_sha;
+    progress.stage = 'check_file_versions';
+    for (const source of spec.files) {
+      let existing;
+      try {
+        existing = await call('fetch_file', {repository_full_name, path: source.path,
+          ref: progress.base_commit_sha, encoding: 'utf-8'});
+      } catch (error) {
+        if (!isMissingFileResponse(lastResponse)) throw error;
+        existing = null;
+      }
+      const observed = existing === null ? null : sha(existing.sha, 'Contents preimage blob');
+      if (observed !== source.expected_blob_sha) {
+        throw new Error('Base file changed: ' + source.path + '; expected '
+          + (source.expected_blob_sha ?? 'absent') + ', observed ' + (observed ?? 'absent'));
+      }
+      const file = {path: source.path, previous_blob_sha: observed, write_required: true};
+      if (source.expected_new_blob_sha !== undefined) file.expected_new_blob_sha = source.expected_new_blob_sha;
+      // A positive Contents response is a blob/content observation, not Git-mode or symlink proof.
+      // Skip only a complete exact-content match; omitted preimage text is not an empty file.
+      if (existing !== null && typeof existing.content === 'string'
+          && (existing.content !== '' || observed === EMPTY_BLOB_SHA)
+          && existing.content === source.content) {
+        file.blob_sha = observed;
+        checkNewBlobPin(file, source);
+        file.write_required = false;
+      }
+      progress.files.push(file);
+    }
+    await announce();
+    const candidates = progress.files.filter(file => file.write_required);
+    if (!candidates.length) {
+      progress.status = 'no_source_changes'; progress.stage = 'complete';
+      await announce(); return progress;
+    }
+    const sourceByPath = new Map(spec.files.map(file => [file.path, file]));
+    progress.stage = 'create_branch';
+    if (saved === undefined) {
+      const created = await write('create_branch', {repository_full_name,
+        branch_name: spec.branch_name, sha: progress.base_commit_sha},
+      {expected_commit_sha: progress.base_commit_sha});
+      if (created.branch !== spec.branch_name && created.ref !== 'refs/heads/' + spec.branch_name) {
+        throw new Error('The branch response does not identify the requested branch');
+      }
+      if (created.object?.sha && created.object.sha !== progress.base_commit_sha) {
+        throw new Error('The branch response does not identify the observed base');
+      }
+      progress.branch_creation = 'performed';
+      progress.pending_write = null;
+    } else {
+      progress.branch_creation = 'retained';
+    }
+    progress.branch_created = true;
+    progress.commit_sha = progress.base_commit_sha;
+    await announce();
+    await requireBranchHead(progress.commit_sha);
+    for (const file of candidates) {
+      const source = sourceByPath.get(file.path);
+      const parent = progress.commit_sha;
+      const action = file.previous_blob_sha === null ? 'create_file' : 'update_file';
+      progress.stage = 'write_contents';
+      const result = await write(action, {repository_full_name, branch: spec.branch_name,
+        path: file.path, content: source.content, message: spec.commit_message,
+        ...(action === 'update_file' ? {sha: file.previous_blob_sha} : {})},
+      {path: file.path, expected_parent_sha: parent, previous_blob_sha: file.previous_blob_sha});
+      const commitSHA = sha(result.commit_sha, 'Contents commit');
+      const record = {action, path: file.path, parent_sha: parent, commit_sha: commitSHA, verified: false};
+      progress.serial_writes.push(record);
+      progress.commit_sha = commitSHA;
+      if (action === 'update_file') record.response_blob_sha = sha(result.content_sha, 'Contents updated blob');
+      progress.pending_write = null;
+      await announce();
+      progress.stage = 'check_contents_commit';
+      const commit = await fetchJSON(api + '/commits/' + commitSHA + '?per_page=2&page=1');
+      if (commit.sha !== commitSHA || !Array.isArray(commit.parents) || commit.parents.length !== 1
+          || commit.parents[0].sha !== parent) {
+        throw new Error('Contents commit has an unexpected parent; reconcile the branch before another write');
+      }
+      const changed = commit.files;
+      const expectedStatus = action === 'create_file' ? 'added' : 'modified';
+      if (!Array.isArray(changed) || changed.length !== 1 || changed[0].filename !== file.path
+          || changed[0].status !== expectedStatus || changed[0].previous_filename !== undefined) {
+        throw new Error('Contents commit does not contain exactly the intended path and change kind');
+      }
+      record.commit_blob_sha = sha(changed[0].sha, 'Contents changed-file blob');
+      if (record.response_blob_sha !== undefined && record.response_blob_sha !== record.commit_blob_sha) {
+        throw new Error('Contents response and commit disagree on the updated blob');
+      }
+      const data = await call('fetch_file', {repository_full_name, path: file.path,
+        ref: commitSHA, encoding: 'utf-8'});
+      record.readback = await resolveReadback(file, source, data, readBlob);
+      if (!record.readback.matches || file.blob_sha !== record.commit_blob_sha) {
+        throw new Error('Contents commit source readback did not match; finish reconciliation without replaying the write');
+      }
+      checkNewBlobPin(file, source);
+      await requireBranchHead(commitSHA);
+      record.verified = true;
+      await announce();
+    }
+    progress.stage = 'check_aggregate_paths';
+    // The sole-parent, sole-path chain above establishes complete serial lineage.
+    // The comparison independently binds the aggregate paths and final blobs.
+    const comparison = await fetchJSON(api + '/compare/' + progress.base_commit_sha
+      + '...' + progress.commit_sha + '?per_page=1&page=1');
+    const expectedPaths = new Map(candidates.map(file => [file.path, file]));
+    if (comparison.status !== 'ahead' || comparison.total_commits !== candidates.length
+        || comparison.ahead_by !== candidates.length || comparison.behind_by !== 0
+        || comparison.base_commit?.sha !== progress.base_commit_sha
+        || comparison.merge_base_commit?.sha !== progress.base_commit_sha
+        || !Array.isArray(comparison.files) || comparison.files.length !== candidates.length) {
+      throw new Error('Contents aggregate comparison does not match the retained serial change');
+    }
+    const observedPaths = new Set();
+    for (const changed of comparison.files) {
+      const expected = expectedPaths.get(changed.filename);
+      if (!expected || observedPaths.has(changed.filename) || changed.sha !== expected.blob_sha
+          || changed.status !== (expected.previous_blob_sha === null ? 'added' : 'modified')
+          || changed.previous_filename !== undefined) {
+        throw new Error('Contents aggregate paths or final blobs differ from the prepared change');
+      }
+      observedPaths.add(changed.filename);
+    }
+    progress.aggregate_paths_verified = true;
+    await requireBranchHead(progress.commit_sha);
+    await announce();
+    progress.stage = 'create_pull_request';
+    const pr = await write('create_pull_request', {repository_full_name,
+      head: spec.branch_name, base: spec.base_branch, title: spec.title, body: spec.body},
+    {expected_head_sha: progress.commit_sha});
+    progress.pull_request = {number: pr.number, url: pr.url ?? pr.display_url, head_sha: pr.head_sha};
+    if (!Number.isInteger(pr.number) || pr.number < 1 || pr.head_sha !== progress.commit_sha) {
+      throw new Error('The returned pull request does not identify the prepared Contents head');
+    }
+    progress.pending_write = null;
+    progress.publication_status = 'pull_request_open';
+    await announce();
+    if (spec.merge) {
+      progress.stage = 'check_current_base';
+      const currentBase = await fetchJSON(refURL(spec.base_branch));
+      if (currentBase.ref !== 'refs/heads/' + spec.base_branch) throw new Error('Current base ref identifies a different branch');
+      progress.current_base_commit_sha = sha(currentBase.object?.sha, 'Current pre-merge base');
+      if (progress.current_base_commit_sha !== progress.base_commit_sha) {
+        for (const file of progress.files) {
+          let current;
+          try {
+            current = await call('fetch_file', {repository_full_name, path: file.path,
+              ref: progress.current_base_commit_sha, encoding: 'utf-8'});
+          } catch (error) {
+            if (!isMissingFileResponse(lastResponse)) throw error;
+            current = null;
+          }
+          const observed = current === null ? null : sha(current.sha, 'Current pre-merge file');
+          if (observed !== file.previous_blob_sha) {
+            throw new Error('Current base file changed: ' + file.path + '; compose deliberately before merging this PR');
+          }
+        }
+      }
+      progress.current_preimages_verified = true;
+      await announce();
+      progress.stage = 'merge_pull_request';
+      const merged = await write('merge_pull_request', {repository_full_name, pr_number: pr.number,
+        expected_head_sha: progress.commit_sha, merge_method: spec.merge_method},
+      {pr_number: pr.number, expected_head_sha: progress.commit_sha});
+      progress.merge_result = merged;
+      if (merged.merged !== true) throw new Error('GitHub did not report a completed merge');
+      progress.merge_sha = sha(merged.sha, 'Contents merge');
+      progress.pending_write = null;
+      progress.publication_status = 'merged';
+      await announce();
+    }
+    progress.stage = 'readback';
+    progress.readback_ref = progress.merge_sha ?? progress.commit_sha;
+    const reads = await settleReadbacks(progress.files, async file => {
+      const source = sourceByPath.get(file.path);
+      const data = await call('fetch_file', {repository_full_name, path: file.path,
+        ref: progress.readback_ref, encoding: 'utf-8'});
+      const readback = await resolveReadback({...file}, source, data, readBlob);
+      return {...readback, commit_blob_sha: file.blob_sha,
+        matches: readback.matches && readback.observed_blob_sha === file.blob_sha};
+    }, readbackConcurrency);
+    progress.readback = reads.map((read, index) => read.status === 'fulfilled' ? read.value
+      : {path: progress.files[index].path, matches: false, error: String(read.reason?.message ?? read.reason),
+        ...(read.reason?.tool_error ? {tool_error: read.reason.tool_error} : {})});
+    const unavailable = progress.readback.some(read => read.error_code === 'readback_content_unavailable');
+    progress.readback_status = unavailable ? 'content_unavailable'
+      : progress.readback.some(read => !read.matches) ? 'incomplete' : 'complete';
+    if (progress.readback_status !== 'complete') {
+      throw new Error('Published Contents readback is incomplete; reconcile at readback_ref without repeating publication');
+    }
+    progress.status = spec.merge ? 'merged' : 'pull_request_open';
+    progress.stage = 'complete';
+    await announce();
+    return progress;
+  } catch (error) {
+    if (error.tool_error) progress.tool_error = error.tool_error;
+    progress.reconciliation_required = progress.branch_created === true || progress.pending_write !== null;
+    await announce();
+    const failure = new GitHubPublishError(String(error.message ?? error), progress, error);
+    if (error.tool_error) failure.tool_error = error.tool_error;
+    failure.response = lastResponse;
+    throw failure;
+  }
+}
+
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {GitHubPublishError, publishGitHubChange, continueGitHubMerge,
+  module.exports = {GitHubPublishError, publishGitHubChange, publishGitHubContentsChange, continueGitHubMerge,
     advanceGitHubContribution, reconcileGitHubContribution, observeGitHubContributionHead,
     inspectReadback, resolveReadback, inspectToolError};
 }
