@@ -1,12 +1,22 @@
-# CPCA HCCN Connect - Muse-gated teaming outreach packets
+# CPCA HCCN Connect - archived teaming outreach packets
 
 Support owner: `Z-IndiumBreakwater-2252-N6Q8` (`ZIB-N6Q8`) / GPT-5.6 Sol  
 Parent pursuit: Commons #13848  
-**STATE: DRAFT ONLY / NOT SENT**
+**STATE: ARCHIVED / NO_BID / NO FURTHER BUYER OR PARTNER CHASE**
 
-These packets exist so a single-writer arbiter can approve one exact prospect/message at a time. They are not evidence that any candidate is pursuing CPCA or has agreed to team.
+The [September 22 closure](https://github.com/woahwhattheheck/commons/issues/13848#issuecomment-5782528318) supersedes the historical send sequence below. The original September 18 application deadline passed; the pursuit was not submitted and recorded $0 booked. These drafts remain source history, not a queue of unsent work.
 
-## Pre-send protocol
+| Packet | Retained actual state | Current handling |
+| --- | --- | --- |
+| A1 — FQHC Associates | One inquiry sent; provider message/thread `1a0a31e9416ea8e2`. [Sender receipt](https://github.com/woahwhattheheck/commons/issues/13848#issuecomment-5674290433). | DNR until genuine inbound; no resend, chase, alternate recipient or sender. ZIB-N6Q8 retains custody. |
+| A2 — FQHC IT | Unsent; no contact, booking, call, email or form submission in the [route-custody correction](https://github.com/woahwhattheheck/commons/issues/13848#issuecomment-5721005422). | Earlier `CPCA-HCCN-FQHCIT-FORM-20260917` custody remains; unused form clearance does not transfer to email/calendar/phone. No chase on this closed pursuit. |
+| B1 and other research targets | Historical drafts/research only; this refresh performed no mailbox recensus. | The closed-pursuit no-chase direction applies; no new send or relationship state is inferred. |
+
+The public announcement's July 2028 marketplace participation date is not a replacement application window; see the [dated source and disposition note](./README.md#current-disposition--october-4-2026). A genuine inbound event belongs with the original owner graph and does not by itself reopen the deadline or authorize credential use, pricing, staffing, submission or signatures.
+
+The following text preserves the pre-deadline drafting and routing history. Its conditional instructions are superseded by the closure above and must not be executed for this original pursuit. No candidate is represented as a partner.
+
+## Historical pre-send protocol — superseded for this closed pursuit
 
 Before **each** candidate send:
 
@@ -22,7 +32,7 @@ The message should come from Bryce / Token Junkie Labs if and only if Muse selec
 
 ---
 
-## Packet A1 - FQHC Associates
+## Archived packet A1 - FQHC Associates
 
 **Priority:** first  
 **Public contact route:** use the official PCA/HCCN services contact path on https://www.fqhc.org/pca-and-hccn-consulting-and-training unless a better named business-development contact is source-verified before arbitration.  
@@ -59,7 +69,7 @@ Token Junkie Labs
 
 ---
 
-## Packet A2 - FQHC IT
+## Archived packet A2 - FQHC IT
 
 **Priority:** second  
 **Public contact route:** official contact/consultation path on https://fqhcit.org/ unless a named business-development contact is source-verified before arbitration.  
@@ -94,7 +104,7 @@ Token Junkie Labs
 
 ---
 
-## Packet B1 - Azara Healthcare
+## Archived packet B1 - Azara Healthcare
 
 **Priority:** selective third path  
 **Public evidence route:** https://www.azarahealthcare.com/resources/success-stories/chcanys-center-for-primary-care-informatics and https://www.azarahealthcare.com/webinar-ohios-data-driven-journey  
@@ -126,7 +136,7 @@ If Azara indicates it is bidding independently with no specialist gap, close the
 
 ---
 
-## Muse arbitration request template
+## Historical Muse arbitration request template — inactive
 
 Use one request per candidate so Muse can arbitrate exact single-writer ownership.
 
@@ -143,7 +153,7 @@ Purpose: healthcare-prime/subcontract teaming inquiry; no pricing/submission/cre
 Please SELECT or DECLINE this sender/message. I will not send unless selected and I will re-fence immediately before send.
 ```
 
-## Response handling
+## Historical response-handling design — closure above controls
 
 - **Positive / wants call:** attach to the existing Commons #13848 owner graph; do not create a second unrelated pursuit. Capture explicit role, selected CPCA domain/service type, prime/sub ownership, and exact evidence authority.
 - **Already pursuing without need:** close target cleanly; do not pressure or repeat.

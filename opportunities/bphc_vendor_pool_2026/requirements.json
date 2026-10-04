@@ -2,15 +2,15 @@
   "schema": "bphc.vendor_pool.requirements/v1",
   "hard_gates": [
     "organization identity and mission supplied",
-    "at least one owner-supported prior engagement in public health, nonprofit, or government-funded work",
-    "two distinct professional references from similar engagements",
+    "at least one owner-supported prior engagement in public health, nonprofit, or government initiatives",
+    "two distinct professional references",
     "team and staffing supplied",
     "owner-approved pricing supplied",
     "DEI approach supplied",
     "at least one selected track",
     "every selected track question answered",
     "page plan stays within the RFP limits",
-    "source ambiguity about four enumerated tracks versus 'all three' instruction reviewed",
+    "selected tracks follow the four-track Q&A clarification",
     "living-wage obligation reviewed",
     "SAM exclusion requirement reviewed",
     "source snapshot is fresh",
@@ -20,5 +20,14 @@
     "Boston community knowledge",
     "online portal or electronic request tracking"
   ],
-  "submission_boundary": "This package can only reach READY_FOR_OWNER_SUBMISSION_REVIEW. It cannot send email, certify eligibility, commit pricing, nominate references externally, accept a contract, or claim an award or revenue."
+  "submission_boundary": "This package can only reach READY_FOR_OWNER_SUBMISSION_REVIEW. It cannot send email, certify eligibility, commit pricing, nominate references externally, accept a contract, or claim an award or revenue.",
+  "source_basis": "source_updates/20261004/source_snapshot.json",
+  "runtime_alignment": {
+    "state": "PENDING",
+    "pull_request": 31041,
+    "actual_new_preflight_use": false,
+    "legacy_preflight_track_ambiguity_check_still_on_main": true,
+    "legacy_government_funded_category_still_on_main": true,
+    "legacy_est_review_and_interpretation_still_on_main": true
+  }
 }

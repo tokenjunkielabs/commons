@@ -10,6 +10,8 @@ import sqlite3
 import time
 from contextlib import contextmanager
 from dataclasses import dataclass
+from datetime import timezone
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 from typing import Any, Callable
 
@@ -76,7 +78,9 @@ def _safe_path(value: Any) -> str:
 
 
 def route_bucket(route: str) -> str:
-    return "search" if route in SEARCH_ROUTES else "core"
+    if route in SEARCH_ROUTES:
+        return "code_search" if route == "search.code" else "issue_search"
+    return "core"
 
 
 def normalize(route: str, params: dict) -> dict:
@@ -139,16 +143,31 @@ def normalize(route: str, params: dict) -> dict:
     if route in {"pull.files", "issues.list", "actions.runs", "search.issues", "search.code"}:
         out.setdefault("per_page", 30)
         out.setdefault("page", 1)
+    if route == "issues.list":
+        out.setdefault("state", "open")
+        out.setdefault("sort", "created")
+        out.setdefault("direction", "desc")
     if len(dumps(out).encode()) > MAX_REQUEST:
         raise ValueError("request too large")
     return out
 
 
-def retry_after_seconds(value: Any) -> int | None:
+def retry_after_seconds(value: Any, now: float | None = None) -> int | None:
     text = str(value).strip()
-    if not re.fullmatch(r"[0-9]{1,10}", text):
+    if re.fullmatch(r"[0-9]{1,10}", text):
+        return max(1, int(text))
+    try:
+        deadline = parsedate_to_datetime(text)
+        # The obsolete asctime HTTP-date form has no explicit zone; HTTP
+        # dates are UTC. Do not let the machine's local zone change the wait.
+        if deadline.tzinfo is None:
+            deadline = deadline.replace(tzinfo=timezone.utc)
+        observed = time.time() if now is None else now
+        if type(observed) not in (int, float) or not math.isfinite(observed):
+            return None
+        return max(1, math.ceil(deadline.timestamp() - observed))
+    except (TypeError, ValueError, OverflowError, OSError):
         return None
-    return min(MAX_COOLDOWN, max(1, int(text)))
 
 
 def reset_delay(reset_value: Any, now: float) -> int | None:
@@ -239,9 +258,12 @@ class Broker:
         return {"state": state, "provider_write_authority": False, **fields}
 
     def _cooldown(self, db, bucket: str, now: float) -> int | None:
+        # Older workers recorded both search resources in one bucket. Honor
+        # that shared floor until it expires, including late legacy completions.
+        legacy = "search" if bucket in {"issue_search", "code_search"} else bucket
         rows = db.execute(
-            "SELECT bucket,next_at FROM rate WHERE scope=? AND bucket IN (?,?,?)",
-            (self.scope, "secondary", "burst", bucket),
+            "SELECT bucket,next_at FROM rate WHERE scope=? AND bucket IN (?,?,?,?)",
+            (self.scope, "secondary", "burst", bucket, legacy),
         ).fetchall()
         future = [row["next_at"] for row in rows if row["next_at"] > now]
         return max(1, math.ceil(max(future) - now)) if future else None
@@ -253,6 +275,21 @@ class Broker:
         key = hashlib.sha256(dumps([route, params]).encode()).hexdigest()
         bucket = route_bucket(route)
         with self.connect() as db:
+            if max_age_seconds > 0:
+                # A completed cache read does not need the single writer slot.
+                # Read the block state and payload from one snapshot, then end
+                # it before decoding or entering the lease-acquisition path.
+                db.execute("BEGIN")
+                blocked = db.execute("SELECT reason FROM blocked WHERE namespace=?", (self.namespace,)).fetchone()
+                if blocked:
+                    return self.envelope("AUTH_BLOCKED", error=blocked[0])
+                row = db.execute("SELECT fetched,payload FROM cache WHERE namespace=? AND key=?", (self.namespace, key)).fetchone()
+                now = self.now()
+                db.commit()
+                if row and 0 <= now - row["fetched"] <= max_age_seconds:
+                    return self.envelope("CACHED", fetched_at=row["fetched"], age_seconds=now-row["fetched"], data=loads(row["payload"]))
+                # A miss must recheck state after obtaining the write lock;
+                # another process may have completed or invalidated this key.
             db.execute("BEGIN IMMEDIATE")
             now = self.now()
             blocked = db.execute("SELECT reason FROM blocked WHERE namespace=?", (self.namespace,)).fetchone()
@@ -269,7 +306,10 @@ class Broker:
                 return self.envelope("CACHED", fetched_at=row["fetched"], age_seconds=now-row["fetched"], data=loads(row["payload"]))
             flight = db.execute("SELECT expires FROM flight WHERE namespace=? AND key=?", (self.namespace, key)).fetchone()
             if flight:
-                return self.envelope("BUSY", retry_after_seconds=max(1, math.ceil(flight["expires"] - now)))
+                # Recheck the local cache promptly: lease expiry is the owner's
+                # crash-recovery deadline, not the expected response-ready time.
+                # Keeping the flight intact prevents duplicate provider calls.
+                return self.envelope("BUSY", retry_after_seconds=1)
             cooldown = self._cooldown(db, bucket, now)
             if cooldown is not None:
                 return self.envelope("COOLDOWN", retry_after_seconds=cooldown)
@@ -295,7 +335,7 @@ class Broker:
         if not isinstance(result, Upstream):
             result = Upstream(502)
         secondary = type(result.secondary_limited) is bool and result.secondary_limited
-        retry = retry_after_seconds(result.retry_after)
+        retry = retry_after_seconds(result.retry_after, now)
         remaining_zero = str(result.rate_remaining).strip() == "0"
         primary_limited = result.status in {403, 429} and remaining_zero
         generic_429 = result.status == 429 and not secondary
@@ -332,11 +372,11 @@ class Broker:
             transaction_now = self.now()
             if limited:
                 self._extend(db, limit_bucket, now + delay)
-            # The final permitted request can succeed while exhausting its
-            # primary quota. Preserve that response, but prevent subsequent
-            # uncached calls in the same bucket until the reset. Persist this
-            # observation even if its lease expired while the response arrived.
-            if result.status == 200 and remaining_zero:
+            # Primary exhaustion can coincide with a secondary limit. Keep its
+            # reset floor independently so a shorter Retry-After cannot reopen
+            # that quota bucket early. Successful final requests keep their
+            # payload, and expired leases still carry quota observations.
+            if remaining_zero and result.status in {200, 403, 429}:
                 primary_delay = max(retry or 0, reset_delay(result.rate_reset, now) or 0) or 60
                 self._extend(db, lease.bucket, now + primary_delay)
             if result.status == 401:

@@ -45,6 +45,27 @@ under the published `p=19` tail alone: an exact reduction by more than 900×. Th
 does **not** prove the Mientka–Weitzenkamp finite classification, because each survivor must
 still be checked against every required primality condition.
 
+## Downstream residue refinement
+
+The [nonprimitive refinement](NONPRIMITIVE_REFINEMENT.md) consumes the accepted
+four intervals and recorded orders, then applies parity and p = 7, 17, 23, 31,
+41, 43. Its exact proper-divisor API reduces the 465,335 arithmetic candidates
+to **10,618** and publishes the complete
+[surviving candidate dataset](residual_candidates.json) for further work.
+The predecessor certificate below remains the original primitive-root result.
+The new guide also records the October 4 canonical task-pin change; the
+September pins below remain historical.
+
+### Completed residual tail
+
+The [explicit residual completion](RESIDUAL_COMPLETION.md) now supplies a
+proper factorization for every one of those 10,618 saved candidates. Combined
+with the preceding reductions, this leaves **zero possible solutions in
+`4109 < n <= 2^44`**. The complete
+[indexed witness dataset](residual_exclusion_witnesses.json) is available for
+downstream formalization; the two earlier sieves were not rerun. The lower
+range through 4,109 and the global conjecture remain outside this continuation.
+
 ## Exact executable evidence
 
 `verify_tail.py` uses only the Python standard library. It:

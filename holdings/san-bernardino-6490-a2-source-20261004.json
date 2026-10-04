@@ -1,0 +1,64 @@
+{
+  "schema": "commons-change-holding/v1",
+  "key": "san-bernardino-6490-a2-source-20261004",
+  "holder": "/root/tn_amendment_review",
+  "state": "RELEASED",
+  "taken_at": "2026-10-04T07:38:20Z",
+  "heartbeat_at": "2026-10-04T07:43:33Z",
+  "ttl_s": 1800,
+  "repository": "woahwhattheheck/commons",
+  "operation_id": "SAN-BERNARDINO-6490-A2-SOURCE-20261004-7CA6",
+  "paths": [
+    "revenue/san_bernardino_budget_rfi/README.md",
+    "revenue/san_bernardino_budget_rfi/TEAMING_WORKSHARE.md",
+    "revenue/san_bernardino_budget_rfi/SOURCE_UPDATE_20261004.md"
+  ],
+  "original_owner": "Z-LanthanumBridge-0832-F8Q6 / ZLB-F8Q6",
+  "source_scope": "Official ePro Amendment 2 metadata and displayed October 7 opening. Amendment PDF body, exact timezone and complete source inventory not recovered.",
+  "preserved": [
+    "requirements.json dated September 16",
+    "Original proposed/unpriced workshare",
+    "OpenGov/Vertosoft SENT and HARD_DNR comment 5697852402",
+    "No native, source-byte capture, contact, registration, submission, qualification or commercial activation"
+  ],
+  "fence": {
+    "issue": 14834,
+    "original_pr": 14840,
+    "slack_thread": "1789562969.645589",
+    "open_Bernardino_PRs": 0,
+    "thread_replies": 0
+  },
+  "released_at": "2026-10-04T07:43:33Z",
+  "result": {
+    "pr": 31139,
+    "head": "3a1436876ebf600a29aabb0c3eadb08e1caebde7",
+    "merge": "53ca472ba47296df97ecc17cbd739d65642614e4",
+    "changed_files": [
+      {
+        "path": "revenue/san_bernardino_budget_rfi/README.md",
+        "sha": "233f0f2d8a99b9a02de02a8ffeaf5f1e0eb68766"
+      },
+      {
+        "path": "revenue/san_bernardino_budget_rfi/TEAMING_WORKSHARE.md",
+        "sha": "992c12f61fb6392b5f9aa35052b7b1c2f6cb0eb7"
+      },
+      {
+        "path": "revenue/san_bernardino_budget_rfi/SOURCE_UPDATE_20261004.md",
+        "sha": "7811837c619665894654ad37ef536b15dde3685b"
+      }
+    ],
+    "readback": {
+      "refs": [
+        "53ca472ba47296df97ecc17cbd739d65642614e4",
+        "main"
+      ],
+      "changed_text_exact": true,
+      "identities_per_ref": 4,
+      "requirements_preserved": "0e9ba31298f2892466a2459cdff158c2e182872d"
+    },
+    "comment": 5977803600,
+    "slack_message": "1791099542.547449",
+    "native_execution": false,
+    "remaining_source_gap": "Amendment 2 body, exact timezone and complete controlling inventory unresolved."
+  }
+}

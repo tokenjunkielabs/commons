@@ -21,14 +21,21 @@ class PreflightStateTests(unittest.TestCase):
         gh = "https://github.com/electron/electron/issues/48191"
         issue = open_issue(gh)
         issue["state"] = "closed"
+        endpoint = api("electron", "electron", 48191)
         routes = {
             page: html_response(page, f'<a href="{gh}">open $500 reward</a>'),
-            **evidence_routes("electron", "electron", 48191, issue),
+            endpoint: response(endpoint, issue),
         }
-        receipt = preflight(candidate(page), FakeTransport(routes), observed_at=NOW)
+        transport = FakeTransport(routes)
+        receipt = preflight(candidate(page), transport, observed_at=NOW)
         self.assertEqual(receipt["freshness_status"], "stale")
         self.assertEqual(receipt["reasons"], ["canonical_state_closed"])
         self.assertFalse(receipt["checks"]["canonical_state_open"])
+        self.assertTrue(receipt["checks"]["evidence_complete"])
+        self.assertEqual(receipt["route"], "reject")
+        self.assertEqual(receipt["canonical"]["url"], gh)
+        self.assertEqual(receipt["canonical"]["title"], issue["title"])
+        self.assertEqual([url for url, _accept in transport.calls], [page, endpoint])
 
     def test_redirect_to_deleted_canonical_target_is_stale(self):
         page = "https://opire.dev/zeroperl-7"

@@ -6,6 +6,10 @@ It uses the open-source Tesseract engine and Pillow, selects the strongest of
 three line-layout interpretations by length-weighted OCR confidence, preserves
 the organizer's submission schema and emits a per-image JSON receipt.
 
+## Current operator handoff
+
+The [October 4 source and pipeline handoff](SOURCE_HANDOFF_2026-10-04.md) links this image baseline to the already-shipped [v2 consensus core](../road_barbados_ocr_v2/README.md) and its separate input requirements. It also records the current organizer clarification sources and the unresolved inconsistencies in the public rules. The real challenge-data/model work retains its existing owner in [#16021](https://github.com/woahwhattheheck/commons/issues/16021).
+
 ## Truthful state
 
 - The official page was read on 2026-09-07. It lists an October 4, 2026 close,

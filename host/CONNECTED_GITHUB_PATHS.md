@@ -76,6 +76,83 @@ The existing [source importer](CONNECTED_GITHUB_SOURCE.md) can materialize that
 full native response with its blob check. The existing
 [publisher](CONNECTED_GITHUB_PUBLISH.md) remains the write road.
 
+## Discover filenames in a known directory
+
+`findGitHubPaths` requires an exact filename. When only the directory is
+known, retain its native Contents response before inspecting it. For a new
+needed read, use the actual observed directory URL and ref:
+
+```javascript
+const request = {url: observedDirectoryUrl};
+store("directory.request", request);
+const response = await tools.mcp__codex_apps__github_fetch(request);
+store("directory.native", response);
+```
+
+If the response is already retained, reuse it without another provider read.
+The caller-selected filename filter below is the one used for the actual
+SHA/hash/digest/blob-identity lookup; it is not a filter added by the helper.
+
+```javascript
+const full = load("directory.native");
+if (full?.isError ||
+    typeof full?.structuredContent?.content !== "string" ||
+    full.structuredContent.content.length > 1048576) {
+  throw new Error("Inspect the retained response: expected bounded native JSON");
+}
+const entries = JSON.parse(full.structuredContent.content);
+if (!Array.isArray(entries) || entries.some(entry =>
+    !entry || typeof entry !== "object" || Array.isArray(entry) ||
+    ["name", "path", "type", "sha"].some(key => typeof entry[key] !== "string"))) {
+  throw new Error("Expected directory metadata; the native response is retained");
+}
+const matches = entries.map((entry, source_index) => ({entry, source_index}))
+  .filter(({entry}) => /sha|hash|digest|blob_identity/i.test(entry.name));
+const selected = matches.slice(0, 20).map(({entry, source_index}) => ({
+  source_index, name: entry.name, path: entry.path,
+  type: entry.type, sha: entry.sha, size: entry.size,
+}));
+const view = {
+  request: load("directory.request"),
+  scope: "retained_directory_response_only", snapshot: false,
+  source_verification: "not_performed",
+  observed_entries: entries.length, matched_entries: matches.length,
+  selected_entries: selected.length,
+  omitted_entries: entries.length - selected.length,
+  omitted_matches: matches.length - selected.length,
+  entries: selected,
+};
+if (JSON.stringify(view).length > 12000) {
+  throw new Error("Select fewer entries; the complete response is retained");
+}
+text(view);
+```
+
+Source indices refer to the original retained array. The input guard at
+1,048,576 UTF-16 code units, 20-row limit and 12,000 serialized code-unit
+display guard apply after the native response arrives; they do not bound
+a provider call. Names, paths and SHAs are not silently shortened. Selection and omission
+counts describe the returned array, not complete repository coverage or
+absence. A different native envelope or Contents media type needs its own
+observed contract; it must not be treated as an empty directory.
+
+GitHub's [Contents documentation](https://docs.github.com/en/rest/repos/contents#get-repository-content)
+limits a directory response to 1,000 files and points larger directories to
+the Git Trees API. Once a filename is known, use the existing bounded tree
+lookup and its explicit coverage rather than inferring absence from a
+directory count or a filtered display.
+
+Provider descriptors are not full-source or Git-mode proof; this selection
+follows no symlink or submodule. Use the located commit and full source read
+before consuming a file. A listing from a moving ref and a later pinned read
+remain separate observations unless their generation identity is established.
+
+The motivating directory response contained 950 entries. The explicit
+filename expression selected seven metadata rows from those same retained
+bytes for a subsequent hashing-tool lookup. It also matched names containing
+`shallow` or `shared`: a filename match does not establish hashing behavior.
+No additional directory request or path-finder execution was needed.
+
 ## Find several filenames in one walk
 
 Use `filenames` when the next source step needs several known entry points.

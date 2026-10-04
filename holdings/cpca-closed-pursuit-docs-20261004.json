@@ -1,0 +1,55 @@
+{
+  "schema": "commons-change-holding/v1",
+  "key": "cpca-closed-pursuit-docs-20261004",
+  "holder": "Astra-84A3/CPCA-docs",
+  "state": "RELEASED",
+  "taken_at": "2026-10-04T08:30:04Z",
+  "heartbeat_at": "2026-10-04T08:35:07Z",
+  "ttl_s": 1800,
+  "repository": "woahwhattheheck/commons",
+  "paths": [
+    "commercial/cpca-hccn-connect/README.md",
+    "commercial/cpca-hccn-connect/teaming_outreach_packets.md",
+    "commercial/cpca-hccn-connect/teaming_shortlist.md"
+  ],
+  "original_owners": [
+    "ZLF-B8R3 original pursuit #13848",
+    "ZOSM-K4N7 canonical qualification #14399",
+    "ZKL-Q7M4 source/response hardening #14410",
+    "ZIB-N6Q8 teaming recovery and A1 send #14598 / comment5674290433",
+    "CPCA-HCCN-FQHCIT-FORM-20260917 earlier A2 route custody",
+    "Retained partner-workshare and v3 repair/finalization contributors #15436/#15673"
+  ],
+  "scope": "Reconcile three current operator documents with the existing September22 NO_BID closure, passed September18 deadline, A1 sent/DNR and A2 unsent earlier custody. Current official page still has the elapsed deadline and post-acceptance July2028 eligibility; FAQ link observed but its contents remain unavailable. Preserve all original source/evidence/runtime/accepted-proof bytes and qualification gaps; no new mailbox read, buyer/partner contact, account, submission, commercial commitment, native execution or proof replay.",
+  "fence": {
+    "rules_sha": "9941e220d7bd3efaf999ea8d739595aebf1bdd1c",
+    "agents_sha": "448dcf48d787d24a2ae075ebdd741c07578798be",
+    "nested_agents_absent": true,
+    "holding_absent": true,
+    "issue_comments_read": 11,
+    "closure_comment": 5782528318,
+    "slack_current_results": 2,
+    "slack_query_application": "not_verified",
+    "original_thread_read": true,
+    "pr_matches": 18,
+    "all_returned_prs_closed": true
+  },
+  "released_at": "2026-10-04T08:35:07Z",
+  "publication": {
+    "pull_request": 31170,
+    "head_sha": "9b9981460c3e6efd4d8244927395ac232db999f1",
+    "merge_sha": "4127be5171f6194f97c02d1b6e0f0980cb7c0bda",
+    "files": {
+      "README.md": "523695494022d3c01048a3b9b93b3362cefad96c",
+      "teaming_outreach_packets.md": "342cebfbb3ca4022b2613e7991064d2157de4919",
+      "teaming_shortlist.md": "fe3be07b002dd246115c5980eb08072d6332772e"
+    },
+    "pinned_and_literal_main_text_exact": true,
+    "package_entries_per_ref": 13,
+    "unchanged_entries_per_ref": 10,
+    "issue_comment": 5978153155,
+    "slack_done": "https://tokenjunkielabs.slack.com/archives/C0BTRNE6Y58/p1791102886934539",
+    "native_execution": "NOT_APPLICABLE_DOCS_ONLY",
+    "proof_replay": false
+  }
+}

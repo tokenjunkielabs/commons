@@ -18,6 +18,10 @@ The demonstrator is offline and synthetic. It does not connect to Kentucky, Orac
 
 ## Current source posture
 
+As of October 4, the recorded response deadline has passed. The [dated source-reference update](SOURCE_REFERENCE_20261004.md) records the newly readable later-addendum/Q&A mirror and the unresolved official VSS rendering/byte-custody gap. This is a retrospective source update, not a reopened submission window. The reference map is unverified secondary material and does not change the helper's contract or authenticate response claims.
+
+The following original schedule/environment summary is retained as historical context:
+
 Public procurement material identifies the RFI as issued September 1, 2026 and closing October 2, 2026 at 3:30 PM Eastern. Addendum 1, dated September 16, moves the Commonwealth's response to vendor written questions to September 23.
 
 The public RFI summary describes an on-premises Oracle/data-warehouse/SAP BusinessObjects 4.3 environment serving roughly 2,500 users and about 5,000 Web Intelligence documents. It asks respondents to address reporting capability, architecture, security, implementation, public-sector experience, estimated costs, and compatibility with Microsoft Government Community Cloud.

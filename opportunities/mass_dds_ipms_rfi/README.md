@@ -15,11 +15,11 @@ It is intentionally fail-closed about buyer bytes and vendor facts. The compiler
 - readiness limited to `RESEARCH_READY`, `RESPONSE_DRAFT_READY`, or `HOLD`;
 - hostile validation for duplicate IDs/JSON keys, bool-int aliasing, unknown fields, malformed hashes/times, future/stale evidence, evidence transplant, source downgrade, unsupported affirmative capability claims, facial-recognition contradictions, missing privacy facts, TCO mismatch and receipt tamper.
 
-## Current buyer header
+## Source status on 2026-10-04
 
-The public COMMBUYS header was re-observed on 2026-09-15 and identifies the solicitation as OPEN, electronic-quote enabled, with an opening deadline of 2026-10-01 15:00 ET. It lists two buyer attachments: the RFI and its response template. Those attachment **bytes are not embedded here**; `example_input.json` therefore keeps both SHA-256 values unavailable and readiness at `HOLD`.
+The [dated source update](SOURCE_UPDATE_2026-10-04.md) records the newly listed Q&A attachment and the elapsed October 1 opening. The notice's `Bid Type: OPEN` is a classification, not evidence of an active response window. No extension was observed.
 
-Controlling notice: <https://www.commbuys.com/bso/external/bidDetail.sda?docId=BD-27-1039-EHS01-ASHWA-133015&external=true&parentUrl=close>
+`example_input.json` retains its September 15 evaluation and two-attachment generation. It is historical, incomplete input: attachment bytes and SHA-256 values remain unavailable. This documentation update does not refresh that generation or establish current readiness.
 
 ## CLI
 
@@ -36,7 +36,7 @@ python -m opportunities.mass_dds_ipms_rfi.compiler verify \
   /tmp/mass-dds-receipt.json
 ```
 
-The checked-in example is deliberately incomplete and should compile to `HOLD`. To reach `RESPONSE_DRAFT_READY`, a future operator must provide current controlling buyer-document bytes/hashes, company/contact/product identity, evidence for every material affirmative capability/privacy/architecture/compatibility claim, five-year TCO inputs, and all required response fields. That still does not authorize submission.
+The checked-in example is deliberately incomplete and retains its documented `HOLD` posture; no compiler execution was performed for this source update. Any later reuse requires a separately acquired and reconciled current buyer-document generation, including amendments, plus company/contact/product identity, evidence for material capability/privacy/architecture/compatibility claims, owner/vendor TCO inputs, and required response fields. The elapsed RFI window is not reopened by an internal draft or receipt.
 
 ## Future RFR/RFQ reuse
 

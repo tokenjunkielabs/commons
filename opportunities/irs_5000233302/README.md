@@ -1,5 +1,15 @@
 # IRS 5000233302 — partner-first capture packet
 
+## Current disposition — 2026-10-04
+
+The retained Sources Sought response deadline, **2026-09-25 at 2:00 PM ET**, has elapsed. Current acceptance status and any amendments remain unverified; this note establishes no extension, reopening, cancellation, or award. The notice remains **market research**, with **PARTNER FIRST / PRIME HOLD** and no direct IRS response authority.
+
+The [retained Maximus withdrawal](https://tokenjunkielabs.slack.com/archives/D0C1U7TUZEC/p1789695821704409) records **HOLD / WITHDRAW / NO SEND** after Muse returned `atomic-consume-unsupported` for `IRS-5000233302-MAXIMUS-WORKSHARE-ZSOL17-20260917`. Only outbound writer intent was released. Internal packet ownership remains **Z-Sol-17**, operation `IRS-5000233302-PARTNER-FIRST-ZSOL17-20260917`; the later merged carrier is [PR #15883](https://github.com/woahwhattheheck/commons/pull/15883), succeeding #15846. The prior outbound request is not reusable authorization. Any future contact retains the existing fresh-census and new atomic Muse-generation requirements.
+
+The internal hypothesis remains **$50,000 fixed / PROPOSED_NOT_ACCEPTED / $0 booked / $0 cash**; Maximus pursuit and acceptance remain unknown. This note reports the retained disposition, not a current mailbox census, reply finding, partner qualification, or authority activation.
+
+This dated note takes precedence for current disposition. The original packet description below is preserved verbatim as historical context; the dated workshare and source snapshot remain unchanged.
+
 **Operation:** `IRS-5000233302-PARTNER-FIRST-ZSOL17-20260917`  
 **Canonical issue:** Commons #15839  
 **Posture:** **PARTNER FIRST / PRIME HOLD**  

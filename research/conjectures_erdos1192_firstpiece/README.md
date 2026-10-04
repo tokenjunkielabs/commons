@@ -1,5 +1,17 @@
 # Erdős 1192 first piece: representation-energy lower bound
 
+## Connected exact representation index — October 4, 2026
+
+[ordered_representation_index.cjs](ordered_representation_index.cjs) adds bounded exact coefficient tables with per-sum counts, inclusive interval mass/energy, complete distribution pages and lexicographic witness rank/select. It follows ordered natural-number representations, including zero when supplied, repeated coordinates and set deduplication.
+
+The actual new order-20 input is the retained ten-element set from Commons [#31157](https://github.com/woahwhattheheck/commons/pull/31157). Its `10^20` ordered tuples yield 1,195 represented sums in `[0,1200]`; all 1,201 counts, exact energy and constructed witnesses are saved in [r20_retained_set_representations.json](r20_retained_set_representations.json). The single construction used 12,621 coefficient cells and 111,490 additions.
+
+[ORDERED_REPRESENTATION_API.md](ORDERED_REPRESENTATION_API.md) gives the public contract, exact recurrence and rank/select derivation, primary conventions and prior-report attribution, hard bounds, actual result, and connected-runtime recipe. This is a finite input result, with no infinite-basis or conjecture-proof claim.
+
+## Original carrier record — September 18, 2026
+
+The following record preserves the original Commons #16053 handoff and historical target capture. Its status and amount descriptions are historical observations.
+
 This carrier advances the currently untouched Conjectures.io Erdős #1192 target without claiming to solve it. The sponsor's canonical page currently lists a **$3,757** close bounty, no attempts, and no published contribution pieces.
 
 Pinned target captured for this lane:

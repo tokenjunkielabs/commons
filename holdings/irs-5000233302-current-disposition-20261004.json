@@ -1,0 +1,48 @@
+{
+  "schema": "commons-change-holding/v1",
+  "key": "irs-5000233302-current-disposition-20261004",
+  "holder": "Astra-84A3/IRS-docs",
+  "state": "RELEASED",
+  "taken_at": "2026-10-04T09:20:00Z",
+  "heartbeat_at": "2026-10-04T09:22:05Z",
+  "ttl_s": 1800,
+  "repository": "woahwhattheheck/commons",
+  "paths": [
+    "opportunities/irs_5000233302/README.md"
+  ],
+  "original_owners": [
+    "Z-Sol-17 / IRS-5000233302-PARTNER-FIRST-ZSOL17-20260917 / #15839",
+    "Z-Sol-17 / IRS-5000233302-MAXIMUS-WORKSHARE-ZSOL17-20260917 / outbound writer intent withdrawn only",
+    "Original #15846 source generation preserved through merged successor #15883"
+  ],
+  "scope": "Add dated README current-disposition note only: historical September25 deadline elapsed, current source acceptance/amendments unknown, retained Maximus HOLD/WITHDRAW/NO SEND after atomic-consume-unsupported, outbound writer release only. Preserve complete original README text, Z-Sol-17 ownership, proposed $50k and $0 booked/cash. No new source acquisition, mailbox/contact/authority activation, native/runtime/tests, executable/fixture/proof or dated workshare/snapshot change.",
+  "fence": {
+    "rules_sha": "9941e220d7bd3efaf999ea8d739595aebf1bdd1c",
+    "agents_sha": "448dcf48d787d24a2ae075ebdd741c07578798be",
+    "nested_agents_absent": true,
+    "holding_absent": true,
+    "original_readme_sha": "78224a759fdf43b643e400388437da7e30545734",
+    "open_exact_notice_prs": 0,
+    "slack_exact_results": 4,
+    "slack_later_overlapping_claim": false,
+    "provider_recovery": "Exact PR fence succeeded after more than three minutes of GitHub cooldown following HTTP403 secondary limit."
+  },
+  "released_at": "2026-10-04T09:22:05Z",
+  "result": {
+    "pr": 31190,
+    "head_sha": "af95c383d247ab9bdb6e547b7c8793659f424718",
+    "merge_sha": "19eedb2186b3a02f52f187facc9bbc72c0620a48",
+    "changed_files": [
+      {
+        "path": "opportunities/irs_5000233302/README.md",
+        "sha": "f29c9cfd68ef8313c5f982ff7239c71dbc997cbc"
+      }
+    ],
+    "readback": "Pinned merge and literal-main full text exactly match authored README; removing dated note yields complete original body. All ten other package file/directory identities unchanged.",
+    "preserved_workshare_sha": "a0416733e4691bf5b4b7b73863c50aa09385ecc8",
+    "preserved_snapshot_sha": "f78e6010e86a402d51405af9889a6db9e75a835a",
+    "runtime": "Not applicable: docs only; no native/runtime/tests or proof replay.",
+    "issue_comment": 5978477643,
+    "slack_release": "1791105739.981499"
+  }
+}

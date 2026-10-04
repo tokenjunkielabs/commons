@@ -1,0 +1,82 @@
+{
+  "schema": "commons.operation-holding/v1",
+  "operation_id": "FSU-ITN6769-4-PUBLIC-DATE-20261004-7CA6",
+  "status": "released",
+  "owner": "/root/tn_amendment_review",
+  "claimed_at": "2026-10-04T07:30:05Z",
+  "last_heartbeat_at": "2026-10-04T07:34:47Z",
+  "ttl_seconds": 1800,
+  "repository": "woahwhattheheck/commons",
+  "issue": 13770,
+  "scope": [
+    "revenue/fsu_itn_6769_4/QUALIFICATION.md",
+    "revenue/fsu_itn_6769_4/PACKET_ACQUISITION.md",
+    "revenue/fsu_itn_6769_4/PUBLIC_DATE_20261004.md"
+  ],
+  "purpose": "Original analysis of current public deadline; preserve dated source input and accepted runtime result.",
+  "preserved_owners": [
+    "FISCHER-Z: original memo PR 13551",
+    "ZCHEB-V5P2: executable carrier PR 13795",
+    "Swarm Z-16 (SZ16): whole pursuit and packet recovery",
+    "Original Carahsoft outreach owner and DNR, issue comment 5653915834"
+  ],
+  "boundaries": {
+    "native_execution": false,
+    "raw_copyright_publication": false,
+    "login": false,
+    "registration": false,
+    "outreach": false,
+    "submission": false,
+    "pricing": false,
+    "qualification_activation": false
+  },
+  "source_evidence": {
+    "portal": "https://bids.sciquest.com/apps/Router/PublicEvent?CustomerOrg=FSU",
+    "observed_close": "2026-11-04T20:00:00Z",
+    "summary_document_date": "2026-09-30",
+    "full_packet_recovered": false
+  },
+  "ownership_fence": {
+    "issue": 13770,
+    "prior_pr": 13795,
+    "open_pr_query": "repo:woahwhattheheck/commons is:pr is:open \"6769\"",
+    "matched_open_prs": 0,
+    "slack_thread": "https://tokenjunkielabs.slack.com/archives/C0BU51F1PL3/p1789563151454499",
+    "owner_thread_replies": 0
+  },
+  "released_at": "2026-10-04T07:34:47Z",
+  "result": {
+    "pull_request": 31133,
+    "head": "f5e0ef4ec84bdd92cfeb8efea67bbc4fcc81bff3",
+    "merge": "8490cb79c7f9086058163ef0bbf1c5c5a9ec308c",
+    "changed_files": [
+      {
+        "path": "revenue/fsu_itn_6769_4/QUALIFICATION.md",
+        "sha": "0e738cc8b62f6eb3b8336f346f9e414548035fc4"
+      },
+      {
+        "path": "revenue/fsu_itn_6769_4/PACKET_ACQUISITION.md",
+        "sha": "02ead27f7874ead4e01bc0528929b14b5045de89"
+      },
+      {
+        "path": "revenue/fsu_itn_6769_4/PUBLIC_DATE_20261004.md",
+        "sha": "a2cafd666c556224cc3e52adbf888c00d44ae29b"
+      }
+    ],
+    "readback": {
+      "refs": [
+        "8490cb79c7f9086058163ef0bbf1c5c5a9ec308c",
+        "main"
+      ],
+      "changed_full_text_exact": true,
+      "package_identities_per_ref": 11,
+      "preserved_runtime_snapshot": "6267346662ad147a4e617117a447d56e1bbee187",
+      "preserved_receipt": "a0d6ca86dbf4a7dd6324b87f3d25b9d7ff8ab7d6",
+      "preserved_evidence_tree": "6c174a6ebaf4cbb82573a72bde8c912898c14743"
+    },
+    "issue_comment": 5977746672,
+    "slack_message": "1791099058.717069",
+    "runtime_execution": "not performed; documentation only; OS pause unchanged",
+    "source_gap": "Full event redirects to login; controlling ITN/addenda inventory unresolved."
+  }
+}

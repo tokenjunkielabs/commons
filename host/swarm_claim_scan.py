@@ -23,25 +23,28 @@ OPERATION = r"[A-Za-z0-9][A-Za-z0-9_.:/#-]{5,190}"
 TERMINAL_ID = r"(?P<code>`?)(?P<operation>" + OPERATION + r")(?P=code)"
 DECLARATION = re.compile(
     r"^(?:CLAIM|TAKE|RESUME|TAKING)(?:\s*[:·—–]\s*|\s+)(?P<code>`?)"
-    r"(?P<operation>" + OPERATION + r")(?P=code)(?=\s|$|[—–])", re.I)
+    r"(?P<operation>" + OPERATION + r")(?P=code)(?=\s|$|[—–,;])", re.I)
 DECLARATION_START = re.compile(r"^(?:CLAIM|TAKE|RESUME|RESUMING|TAKING|CONTINUE|CONTINUING)\b", re.I)
 LABELED_OPERATION = re.compile(
     r"(?:^[ \t]*|(?<=[.!?])[ \t]+)Operation(?:[ \t]+ID)?[ \t]*:[ \t]*`?(" + OPERATION
-    + r")`?(?=\s|$|[—–])", re.I | re.M)
+    + r")`?(?=\s|$|[—–,;])", re.I | re.M)
 STATEMENT_HEADER = re.compile(
     r"^[ \t*`]*(?:CLAIM|TAKE|RESUME|RESUMING|TAKING|CONTINUE|CONTINUING|"
     r"LANDED|DONE|COMPLETED?|RELEASED?|SHIP(?:PED)?)\b[^\n]*", re.I | re.M)
 TERMINAL = re.compile(
     r"^(LANDED|DONE|COMPLETED?|RELEASED?)"
     r"(?:\s*/\s*(?:LANDED|DONE|COMPLETED?|RELEASED?)(?:\s+[—–])?)?"
-    r"(?:\s*[:·—–]\s*|\s+)" + TERMINAL_ID + r"(?=\s|$|[—–])", re.I)
+    r"(?:\s*[:·—–]\s*|\s+)" + TERMINAL_ID + r"(?=\s|$|[—–,;])", re.I)
 TERMINAL_AFTER = re.compile(r"^(" + OPERATION + r")\s+(?:is\s+)?(LANDED|DONE|COMPLETED?|RELEASED?)\b", re.I)
 SOURCE_TERMINAL = re.compile(
     r"^(DONE)[ \t]+SOURCE[ \t]*/[ \t]*RELEASED?"
-    r"(?:[ \t]*[:·—–][ \t]*|[ \t]+)" + TERMINAL_ID + r"(?=\s|$|[—–])", re.I)
+    r"(?:[ \t]*[:·—–][ \t]*|[ \t]+)" + TERMINAL_ID + r"(?=\s|$|[—–,;])", re.I)
 SHIP_RELEASE_TERMINAL = re.compile(
     r"^(SHIP(?:PED)?)[ \t]*/[ \t]*RELEASED?"
-    r"(?:[ \t]*[:·—–][ \t]*|[ \t]+)" + TERMINAL_ID + r"(?=\s|$|[—–])", re.I)
+    r"(?:[ \t]*[:·—–][ \t]*|[ \t]+)" + TERMINAL_ID + r"(?=\s|$|[—–,;])", re.I)
+SLASH_TERMINAL = re.compile(
+    r"^(LANDED|DONE|COMPLETED?|RELEASED?)[ \t]*/[ \t]*"
+    + TERMINAL_ID + r"(?=\s|$|[—–,;])", re.I)
 HEADER = re.compile(
     r"^(?:=== THREAD PARENT MESSAGE ===|--- Reply [0-9]+ of [0-9]+ ---|"
     r"=== Message from .+? ===[^\n]*|### Result [0-9]+ of [0-9]+)\s*$", re.M)
@@ -68,6 +71,10 @@ GITHUB_WORK_REFERENCE = re.compile(
 AVAILABLE_WORK = re.compile(
     r"^(?:available(?:[ \t]+(?:next|implementation|product|work)){0,3}[ \t]+"
     r"(?:scope|follow-on)|next[ \t]+usable[ \t]+work)\b", re.I)
+DECLARATION_CONTEXT = re.compile(
+    r"\b(?:workspace|cloud[ \t]+(?:context|harness))(?:[ \t]+id)?"
+    r"(?:[ \t]+|[ \t]*[:=][ \t]*)`?([0-9a-f]{12,64})`?"
+    r"(?=$|[\s.,;:)])", re.I)
 
 
 class ScanError(ValueError):
@@ -295,7 +302,13 @@ def _statement(text, *, source_release=False):
             operation = next(iter(operations))
             if "-" in operation or ":" in operation:
                 return "declaration", operation
-    match = SOURCE_TERMINAL.match(first) or SHIP_RELEASE_TERMINAL.match(first)
+    match = TERMINAL.match(first)
+    if match:
+        operation = match["operation"].rstrip(".:;")
+        if "-" in operation or ":" in operation:
+            return match[1].lower(), operation
+    match = (SOURCE_TERMINAL.match(first) or SHIP_RELEASE_TERMINAL.match(first)
+             or SLASH_TERMINAL.match(first))
     if match:
         if not source_release:
             return None
@@ -309,11 +322,6 @@ def _statement(text, *, source_release=False):
         if "-" in operation or ":" in operation:
             return match[1].lower(), operation
         return None
-    match = TERMINAL.match(first)
-    if match:
-        operation = match["operation"].rstrip(".:;")
-        if "-" in operation or ":" in operation:
-            return match[1].lower(), operation
     match = TERMINAL_AFTER.match(first)
     if match:
         operation = match[1].rstrip(".:;")
@@ -401,6 +409,36 @@ def _availability_hints(messages, operations):
              "availability_observations": available[url],
              "declaration_observations": declared[url]}
             for url in sorted(available.keys() & declared.keys())]
+
+
+def _repeated_declarations(messages, operations):
+    """Expose same-ID declarations without inferring ownership or incompatibility."""
+    by_message = {(row["channel_id"], row["message_ts"]): row for row in messages}
+    repeated = []
+    for operation_id, operation in sorted(operations.items()):
+        if len(operation["declarations"]) < 2:
+            continue
+        contexts, unlabeled = defaultdict(list), []
+        for declaration in operation["declarations"]:
+            message = by_message[(declaration["channel_id"], declaration["message_ts"])]
+            context_ids = sorted({match[1].lower()
+                                  for match in DECLARATION_CONTEXT.finditer(message["text"])})
+            if not context_ids:
+                unlabeled.append(declaration)
+            for context_id in context_ids:
+                contexts[context_id].append(declaration)
+        repeated.append({
+            "operation_id": operation_id,
+            "observed_state": operation["state"],
+            "status": "multiple_declaration_contexts_observed" if len(contexts) > 1
+                      else "repeated_declarations_observed",
+            "declaration_count": len(operation["declarations"]),
+            "distinct_context_count": len(contexts),
+            "contexts": [{"context_id": key, "declarations": contexts[key]}
+                         for key in sorted(contexts)],
+            "unlabeled_declarations": unlabeled,
+        })
+    return repeated
 
 
 def scan(messages, pages, *, workspace_url=None):
@@ -495,6 +533,7 @@ def scan(messages, pages, *, workspace_url=None):
                 "shared_symbols": sorted(symbol for symbol, symbol_ops in by_symbol.items() if len(symbol_ops) > 1),
                 "path_resolution": "relative_path" if "/" in path else "basename_only"})
     availability_hints = _availability_hints(ordered, operations)
+    repeated_declarations = _repeated_declarations(ordered, operations)
     return {"schema": SCHEMA, "advisory_only": True,
         "scope": "Supplied Slack observations only. Declarations do not establish ownership; shared files can contain compatible work. Refresh the linked sources and existing ledger before acting.",
         "counts": {"messages_supplied": len(messages), "distinct_message_ids": len(identities),
@@ -502,7 +541,8 @@ def scan(messages, pages, *, workspace_url=None):
                    "declarations_without_exact_paths": sum(not row["observed_paths"] for row in operations.values()),
                    "possible_overlap_paths": len(overlaps), "possible_symbol_overlaps": len(scoped_overlaps),
                    "unparsed_statement_headers": len(unparsed),
-                   "availability_hints": len(availability_hints)},
+                   "availability_hints": len(availability_hints),
+                   "repeated_operation_declarations": len(repeated_declarations)},
         "coverage": {"provider_history_complete": False,
                      "basis": "Caller-supplied pages; terminal pages alone do not prove the history or all claims were supplied.",
                      "pages": pages, "pages_with_continuation": sum(page["terminal_page"] is False for page in pages),
@@ -515,6 +555,7 @@ def scan(messages, pages, *, workspace_url=None):
         "possible_symbol_overlaps": scoped_overlaps,
         "shared_file_scopes": scoped_files,
         "availability_hints": availability_hints,
+        "repeated_operation_declarations": repeated_declarations,
         "unmatched_terminal_observations": [row for row in terminals
             if row.get("resolved_operation_id", row["operation_id"]) not in operations]}
 
@@ -561,6 +602,8 @@ def _select_report(report, *, operation_ids=(), paths=()):
     selected = dict(report)
     selected.update({
         "operations": [row for row in report["operations"] if row["operation_id"] in included],
+        "repeated_operation_declarations": [row for row in report["repeated_operation_declarations"]
+                                             if row["operation_id"] in included],
         "terminal_observations": [row for row in report["terminal_observations"] if relevant_terminal(row)],
         "possible_overlaps": overlaps,
         "possible_symbol_overlaps": symbol_overlaps,
@@ -576,7 +619,7 @@ def _select_report(report, *, operation_ids=(), paths=()):
         "related_operation_ids": sorted(included - matching),
         "returned_counts": {key: len(selected[key]) for key in (
             "operations", "terminal_observations", "possible_overlaps", "possible_symbol_overlaps",
-            "shared_file_scopes", "unmatched_terminal_observations")},
+            "shared_file_scopes", "unmatched_terminal_observations", "repeated_operation_declarations")},
         "global_evidence_retained": ["counts", "coverage", "inputs", "availability_hints"],
         "basis": "Selected observations and their possible-overlap peers; absent matches do not establish available work.",
     }

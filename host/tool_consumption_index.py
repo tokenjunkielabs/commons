@@ -6,6 +6,8 @@ projection keeps those facts separate: an open job is allocatable only when it
 names a tool in the current catalog, and completed work counts as consumed only
 when it names a current tool and carries a receipt. Blank or unknown tool IDs
 remain visible but never inflate tool capacity or consumption.
+Catalog tools without a receipted done job are unobserved in these source inputs,
+not unused: work performed elsewhere or without a receipt is outside this view.
 """
 
 from __future__ import annotations
@@ -157,6 +159,7 @@ def build_index(
 
     allocatable = [row for row in sections["open"] if row["allocation"] == "ALLOCATABLE"]
     consumed = [row for row in sections["done"] if row["consumption"] == "RECEIPTED"]
+    observed_tool_ids = {row["tool"] for row in consumed}
     return {
         "schema": SCHEMA,
         "source_commit": source_commit,
@@ -181,11 +184,14 @@ def build_index(
             "named_catalog_entry_is_capacity_not_consumption": True,
             "blank_or_unknown_tool_is_not_allocatable": True,
             "consumption_requires_known_tool_and_receipt": True,
+            "unobserved_is_not_unused": True,
+            "missing_receipt_is_not_evidence_of_non_use": True,
             "jobs_mutated": 0,
             "tools_invoked": 0,
         },
         "allocatable_open_jobs": allocatable,
         "receipted_consumption": consumed,
+        "unobserved_tool_ids": sorted(tool_ids - observed_tool_ids),
         "jobs": sections,
     }
 

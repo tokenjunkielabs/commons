@@ -68,6 +68,28 @@ The test suite cross-checks the binary-search result against brute force on a
 smaller window and verifies the centered polynomial identity and the exhaustive
 upper bracket.
 
+## Connected inverse and new interval — October 4, 2026
+
+[window_five_inverse.cjs](window_five_inverse.cjs) adds an exact fifth-root certificate,
+a general five-window product locator, a ratio-four point classifier, and bounded
+scans with complete compact records. The new bound
+`(m+2)^5 < P(m) < (m+3)^5` leaves only the candidate
+`m=floor((4P(n))^(1/5))-2`; exact equality and `m>=n+5` are still required.
+
+One connected-runtime scan classified every new `n=1,000,001..1,010,000`.
+All 10,000 candidates were disjoint and had positive product differences, with
+zero equalities. It used 70,000 integer Newton iterations and 10,000 candidate
+comparisons. Every new root/candidate and signed difference is retained in
+[inverse_interval_1000001_1010000.json](inverse_interval_1000001_1010000.json).
+
+[WINDOW_FIVE_INVERSE_API.md](WINDOW_FIVE_INVERSE_API.md) supplies the inverse and
+integer-root derivations, exact API/record contract, source attribution, hard
+bounds, full interval result and connected-runtime recipe. Published finiteness
+is credited to Beukers, Shorey and Tijdeman; it supplies no usable cutoff in the
+consulted statement. The original finite prefix was not rerun. Combining its
+existing record with this new interval gives recorded negative coverage through
+`n=1,010,000`, without a global length-five or arbitrary-length claim.
+
 ## Sponsor pins observed on 2026-09-18
 
 Canonical page:

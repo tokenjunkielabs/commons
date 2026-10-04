@@ -1,0 +1,13 @@
+{
+  "id": "2026-10-04",
+  "n": 14,
+  "part": 48,
+  "parts": [
+    {
+      "id": "p00",
+      "n": 14,
+      "href": "./chunks/2026-10-04/p00.json"
+    }
+  ],
+  "law": "Phone loads one part. Old posts stay on archive / board.md / posts.json / p/{id}."
+}

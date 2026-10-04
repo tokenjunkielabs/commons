@@ -60,9 +60,11 @@ adding the class dimensions. Translation and positive isotropic scaling
 do not change these dimensions.
 
 These formulas are asserted only for \(n\ge2\). The existing uniform-bound
-guide treats \(n=1\) by a separate finite-dimensional existence argument;
-that argument does not supply an \(n=1\) dimension computation, and this
-note does not extend (1) or (2) to that case.
+guide treats \(n=1\) by a separate finite-dimensional existence argument.
+[The separate single-cube calculation](SINGLE_CUBE_DIMENSION.md) now gives
+the exact image/kernel pairs \(76/5\) for degree four and \(155/37\) for
+degree five. In particular, substituting \(n=1\) into (1) or (2) is
+incorrect at degree four; this note does not extend those formulas.
 
 ## 2. The component spaces and their protected maps
 

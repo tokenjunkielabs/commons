@@ -1,5 +1,7 @@
 # AI Ready Roanoke — partner-first commercial brief
 
+**October 4, 2026 disposition:** this is a historical outline based on the retained RFP/Addendum 1 generation. Its October 2 deadline has passed, and later indexed addenda remain unread. Reconcile it against current official sources before any reuse; this document supplies no permission to contact or submit. See [source disposition](SOURCE_DISPOSITION_20261004.md).
+
 ## Why a prime partner is the rational route
 
 RFP-127519 is scored heavily on methodology (30%), relevant experience/references (25%), team qualifications (15%), cost/value (15%), and topic/region knowledge (15%). The work is not merely an AI architecture engagement. It requires in-person employer/institution research, regional economic-development feasibility, site feasibility, capital/operating cost modeling, a five-year pro forma, and governance design.
@@ -35,7 +37,7 @@ State: **SENT_NOT_ACCEPTED**. No partnership, acceptance, workshare, price, cust
 - model/agent evaluation and responsible-AI control concepts where relevant to recommended programs;
 - reproducible analytic pipelines, source lineage and evidence receipts supporting final findings.
 
-## Questions a real prime must close before TEAMING_RESPONSE_BUILD_READY
+## Historical prime questions — not a follow-up or resend instruction
 
 1. Are you pursuing RFP-127519 and willing to act as prime or lead consultant?
 2. Can you evidence recent comparable regional feasibility/strategy engagements and provide permissible references?
@@ -45,4 +47,4 @@ State: **SENT_NOT_ACCEPTED**. No partnership, acceptance, workshare, price, cust
 6. What bounded AI specialist workshare is commercially useful, and what proposal/subcontract budget range is acceptable?
 7. What internal deadline is needed for TJLabs material before the October 2 buyer deadline?
 
-No affirmative answer is assumed until retained counterpart evidence exists.
+No affirmative answer is assumed until retained counterpart evidence exists. The existing Camoin outreach record is not a new mailbox check; its no-repeat boundary remains. The separate TEConomy route is HARD_DNR under its original owner. This retrospective edit authorizes no contact or renewed pursuit.

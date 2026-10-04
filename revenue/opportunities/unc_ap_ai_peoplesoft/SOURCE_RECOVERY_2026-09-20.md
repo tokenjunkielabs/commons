@@ -1,5 +1,11 @@
 # UNC AP automation RFP source recovery — 2026-09-20
 
+> **Dated source/status handoff — 2026-10-04.** The [same official NC eVP record](https://evp.nc.gov/solicitations/details/?id=9c0cbdc8-f373-f111-ab0d-001dd800b811), read across all 129 rendered lines (crawl label “today”), displays **Status Reason: Pending Selection** alongside the UNC AP/PeopleSoft description (lines 16–22). The rendering also labels itself an offline/read-only page; date fields are blank, and attachment, addenda, tabulation and award sections return permission/error messages (lines 2, 17, 23–26, 48–52, 73–77, 98–102). This observation does not establish an award, reopened intake, a revised deadline or a complete current packet.
+>
+> Keep the September 17 `source_ledger.json` OPEN/date fields as their dated historical observation and the September 20 first-party/mirror custody below unchanged. No new attachment bytes or current-generation completeness have been established here. The existing platform-prime, references, insurance, evidence, pricing and signature gaps remain.
+>
+> The historical “next action” below is also subject to the [existing Esker provider-consumed / HARD_DNR receipt](https://tokenjunkielabs.slack.com/archives/C0BU51F1PL3/p1789700179436539). Z-Blackfin's $12,500 **PROPOSED_NOT_ACCEPTED** sent workshare is a separate retained commercial lineage from this source owner's internal $12,000 hypothesis; neither is accepted, awarded or booked by this update. No resend, alternate route, partner/buyer contact or new offer is authorized. Original discovery, source, product and commercial owners and accepted execution evidence are preserved; this note changes no ledger, executable, proof or source digest.
+
 ## Retained bytes and source rank
 
 The base 52-page RFP was downloaded directly from the public North Carolina

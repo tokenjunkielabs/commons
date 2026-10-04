@@ -11,6 +11,19 @@ in issue #14212. `Z-GalliumBreakwater-2026-N7Q4` recovered the stale RED carrier
 from fresh main and closed standalone snapshot self-verification. The separate
 CAS/SME outreach lane remains outside this package.
 
+## Current CAS source context
+
+The [2026-10-04 source note](source_updates/20261004/SOURCE_CURRENTNESS.md)
+binds the revised RFP schedule and September 21 FAQ to this package. It explains
+the bid-eligibility, reviewer, private-data and public-platform boundaries without
+changing the technical evidence status below.
+
+**Treat a real evaluation snapshot as a private artifact pending an authorized
+publication decision.** The compiler retains item truths and full model records;
+it supplies no public redaction, encryption or access-control layer. A content
+digest or the `confirmed_publishable` declaration does not authorize disclosure.
+Use the synthetic fixture for public examples.
+
 ## What this proves
 
 The core demonstrates the reproducibility and evaluation-engineering boundary that
@@ -97,12 +110,18 @@ engine. It does not independently prove that the task, truth labels, dataset,
 license, split, model outputs, or actuarial framing are substantively valid. Those
 remain with the qualified actuarial reviewer and the retained source/model evidence.
 
-A real research delivery still requires qualified actuarial researchers to author
-or approve the tasks, choose or simulate legally publishable data, justify task
-validity and class definitions, identify actual current models and provider terms,
-execute model calls under approved budgets, interpret limitations, write the
-research report, operate any public interface, and satisfy all publication,
-governance, proposal, and contractual requirements.
+For this engine, task and label authority remains with the
+`qualified_actuarial_reviewer` role required by `core.py`; that internal evidence
+rule is separate from the RFP's bid-eligibility conditions. The dated source note
+maps the current FAQ to that distinction.
+
+A real research delivery still requires a responsible research team to author
+the tasks, arrange substantive task and label review, choose or simulate legally
+usable data, justify task validity and class definitions, identify actual models
+and provider terms, execute model calls under approved budgets, interpret
+limitations, write the report, operate the public interface, and satisfy the
+agreed publication, governance and contractual requirements. The current package
+does not establish that this work has been completed.
 
 This package intentionally does **not** contact CAS, submit a proposal, negotiate
 price, call model providers, fetch datasets, or assert that the synthetic fixture

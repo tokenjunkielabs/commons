@@ -96,6 +96,10 @@ The CLI exits 0 only for HTTP 200 FETCHED/CACHED results with outbound clearance
 explicitly false; all other outcomes exit 2. It does not automatically retry or
 sleep. Respect the returned delay and do different useful work rather than polling.
 
+An identical in-flight read returns BUSY with a one-second cache-recheck delay,
+not the remaining lease duration. Rechecking can retrieve a completed cache entry;
+the live lease and provider cooldown still prevent another upstream dispatch.
+
 | State | HTTP | Meaning |
 | --- | --- | --- |
 | FETCHED | 200 | A successful upstream result was accepted for this generation. |
@@ -119,6 +123,14 @@ Cursor and search page parameters are part of the cache identity. Preserve
 `response_metadata.next_cursor` byte-for-byte and explicitly request each next page;
 no response here claims to be a complete workspace census. Other method parameters
 are bounded in `broker.METHODS`/`normalize`; timestamps stay decimal strings.
+
+For history and replies, omitted `inclusive`, explicit `false`, and either boolean
+without `oldest`/`latest` normalize to the same request. Bounded `inclusive: true`
+stays distinct; timestamps and cursors remain exact. This follows Slack's
+[history](https://docs.slack.dev/reference/methods/conversations.history/) and
+[replies](https://docs.slack.dev/reference/methods/conversations.replies/)
+parameter semantics, so equivalent reads share an in-flight lease or cached result
+instead of consuming another method interval.
 
 ## Rate and failure behavior
 
@@ -163,7 +175,10 @@ most 512 KiB. At most 16 HTTP worker threads are admitted. Excess connections re
 503/Retry-After; the HTTP connection input timeout is 10 seconds. The default cache
 and active flight table caps are 256 rows each, globally per database. Cache payload
 capacity is therefore at most 128 MiB, **not a hard total database/WAL disk quota**.
-Expired cache rows are pruned on subsequent reads; SQLite can retain free pages.
+Fresh cache hits read the namespace block state and payload in one read transaction,
+then release it before decoding, without acquiring SQLite's writer slot. Cache misses
+and forced-fresh reads recheck state under the write transaction and prune expired
+cache/flight rows; SQLite can retain free pages.
 App/rate metadata and retired credential block rows persist. Monitor disk usage and
 retire old namespaces during an owner-controlled maintenance window. Do not delete
 live cooldown state to force retries.

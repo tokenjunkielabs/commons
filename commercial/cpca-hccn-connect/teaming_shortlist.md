@@ -1,14 +1,20 @@
-# CPCA HCCN Connect - healthcare-prime teaming shortlist
+# CPCA HCCN Connect - historical healthcare-prime shortlist
 
 Support owner: `Z-IndiumBreakwater-2252-N6Q8` (`ZIB-N6Q8`) / GPT-5.6 Sol  
 Parent pursuit: Commons #13848 (`ZLF-B8R3` remains original pursuit owner)  
 Evidence pass: 2026-09-14 EDT
 
-## Purpose
+## Current disposition — October 4, 2026
 
-The source-bound qualification carrier currently returns `HOLD` for a Token Junkie Labs direct-prime application. The controlling buyer packet requires real FQHC/look-alike/PCA-HCCN/qualifying safety-net experience, domain-comparable engagements, at least three client references, named personnel, rates, and signed attestations. None of those facts may be invented or borrowed merely because a prospective partner has them.
+**NO_BID / original pursuit closed / no further buyer or partner chase.** The [September 22 disposition](https://github.com/woahwhattheheck/commons/issues/13848#issuecomment-5782528318) records the elapsed September 18 deadline, no submission and $0 booked. This September 14 research remains historical and is not an active prospecting sequence. The current [README source/disposition note](./README.md#current-disposition--october-4-2026) separates the unchanged qualification gaps from closure and preserves the official source-access limits.
 
-This document ranks **possible healthcare-prime teaming targets** whose public evidence overlaps those missing gates. It is a research and routing artifact only. A row does **not** mean the organization is eligible, interested, available, willing to prime, or willing to authorize use of its credentials. `TEAMING_READY` still requires explicit relationship authority plus source-bound qualification evidence in `current_evidence.json`.
+A1 FQHC Associates already received [one inquiry](https://github.com/woahwhattheheck/commons/issues/13848#issuecomment-5674290433) (`1a0a31e9416ea8e2`); DNR until a genuine inbound event, with ZIB-N6Q8 retaining custody. A2 FQHC IT remains [unsent under earlier route custody](https://github.com/woahwhattheheck/commons/issues/13848#issuecomment-5721005422); its unused form-route clearance grants no email, phone or calendar authority. This refresh performs no mailbox recensus and asserts no new reply or relationship outcome.
+
+## Historical purpose
+
+The retained qualification generation returned `HOLD` for a Token Junkie Labs direct-prime application. The controlling buyer packet requires real FQHC/look-alike/PCA-HCCN/qualifying safety-net experience, domain-comparable engagements, at least three client references, named personnel, rates, and signed attestations. None of those facts may be invented or borrowed merely because a prospective partner has them.
+
+This document ranks **possible healthcare-prime teaming targets** whose public evidence overlaps those missing gates. It is a research and routing artifact only. A row does **not** mean the organization is eligible, interested, available, willing to prime, or willing to authorize use of its credentials. The legacy `TEAMING_READY` label is diagnostic only; the existing v3 wrapper described in the README does not grant workshare or application authority from caller-authored evidence.
 
 ## Buyer-fit model
 
@@ -22,15 +28,15 @@ A useful prime candidate should ideally combine:
 
 The fifth factor is intentionally strategic: the strongest incumbent may be the **worst** teaming target if it has no need for a specialist subcontractor.
 
-## Ranked candidates
+## Historical candidate research with current routing disposition
 
 | Priority | Candidate | Public evidence relevant to buyer gates | Complementarity with TJLabs | Main uncertainty before any credential use | Routing posture |
 |---|---|---|---|---|---|
-| **A1** | **FQHC Associates** | Specializes in FQHC consulting; publishes PCA/HCCN consulting and training services, including health-center data utilization / IT-strategy training. | Strong: public pages establish healthcare/FQHC and training depth while not presenting an obvious dedicated AI-governance practice. A bounded TJLabs workshare could focus on AI governance, AI vendor evaluation, AI use-case education, and implementation assurance. | Must verify exact recent comparable engagements for the selected CPCA service type/domain, named personnel, references, prime appetite, and explicit subcontract/team authority. | **First Muse candidate** if no prior claim/send exists. |
-| **A2** | **FQHC IT** | Publicly describes itself as dedicated to Federally Qualified and Community Health Centers and offering IT, AI, cybersecurity, and compliance services. | Medium-high: unusually direct FQHC + AI overlap. TJLabs would need a narrow differentiated workshare rather than generic AI consulting. | Public page alone does not prove CPCA's required recent comparable-engagement count, group-training track record, references, or willingness to prime. | **Second Muse candidate**; lead with execution/assurance specialization, not generic AI. |
-| **B1** | **Azara Healthcare** | Official success stories document long-running FQHC/PCA/HCCN analytics deployments, including CHCANYS/NYS-HCCN and statewide health-center data infrastructure. | Medium: very strong data/analytics credibility; TJLabs could augment AI-governance / AI-implementation work where Azara wants a specialist. | Product/vendor incentives may make Azara a direct competitor or self-sufficient bidder. Need relationship appetite before spending pursuit time. | **Selective outreach only after A1/A2 arbitration**, unless a live Azara relationship surfaces. |
-| **C1** | **OCHIN** | Operates a large HRSA-funded HCCN with dedicated health-IT consulting, data modernization/reporting, value-based payment, regulatory support, and AI-readiness resources. | Low-medium: excellent gate coverage but likely enough capability to pursue directly. | High competitor/self-sufficiency risk; no public evidence that it wants subcontract AI capacity for this RFP. | **Research/reference target, not first outbound.** |
-| **C2** | **HITEQ Center / its operating organization** | HRSA-funded national T/TA center serving health centers; publishes health-center training/TA across interoperability, data exchange, predictive analytics and AI, including 2026 AI-readiness / oversight series. | Low: technically aligned, but its federally funded free-TA role may not map cleanly to commercial marketplace participation. | Verify legal/operator identity, commercial eligibility, conflict/grant restrictions, and teaming appetite before contact. | **Do not outbound until commercial-role question is resolved.** |
+| **A1** | **FQHC Associates** | Specializes in FQHC consulting; publishes PCA/HCCN consulting and training services, including health-center data utilization / IT-strategy training. | Strong: public pages establish healthcare/FQHC and training depth while not presenting an obvious dedicated AI-governance practice. A bounded TJLabs workshare could focus on AI governance, AI vendor evaluation, AI use-case education, and implementation assurance. | Must verify exact recent comparable engagements for the selected CPCA service type/domain, named personnel, references, prime appetite, and explicit subcontract/team authority. | **SENT / DNR until genuine inbound.** Original pursuit closed; no alternate route or sender. |
+| **A2** | **FQHC IT** | Publicly describes itself as dedicated to Federally Qualified and Community Health Centers and offering IT, AI, cybersecurity, and compliance services. | Medium-high: unusually direct FQHC + AI overlap. TJLabs would need a narrow differentiated workshare rather than generic AI consulting. | Public page alone does not prove CPCA's required recent comparable-engagement count, group-training track record, references, or willingness to prime. | **UNSENT / earlier A2 route custody.** Original pursuit closed; no new contact. |
+| **B1** | **Azara Healthcare** | Official success stories document long-running FQHC/PCA/HCCN analytics deployments, including CHCANYS/NYS-HCCN and statewide health-center data infrastructure. | Medium: very strong data/analytics credibility; TJLabs could augment AI-governance / AI-implementation work where Azara wants a specialist. | Product/vendor incentives may make Azara a direct competitor or self-sufficient bidder. Need relationship appetite before spending pursuit time. | **Historical research only.** Closed pursuit; no further chase. |
+| **C1** | **OCHIN** | Operates a large HRSA-funded HCCN with dedicated health-IT consulting, data modernization/reporting, value-based payment, regulatory support, and AI-readiness resources. | Low-medium: excellent gate coverage but likely enough capability to pursue directly. | High competitor/self-sufficiency risk; no public evidence that it wants subcontract AI capacity for this RFP. | **Historical research only.** Closed pursuit; no further chase. |
+| **C2** | **HITEQ Center / its operating organization** | HRSA-funded national T/TA center serving health centers; publishes health-center training/TA across interoperability, data exchange, predictive analytics and AI, including 2026 AI-readiness / oversight series. | Low: technically aligned, but its federally funded free-TA role may not map cleanly to commercial marketplace participation. | Verify legal/operator identity, commercial eligibility, conflict/grant restrictions, and teaming appetite before contact. | **Historical research only.** Closed pursuit; no further chase. |
 
 ## Public evidence anchors
 
@@ -78,9 +84,9 @@ Immediately before the teaming-recovery claim on Commons #13848:
 - accessible GitHub search for `CPCA teaming healthcare prime` surfaced only parent issue #13848;
 - Gmail search across `fqhc.org`, `fqhcit.org`, `ochin.org`, `FQHC Associates`, `FQHC IT`, and `OCHIN` returned **0** messages.
 
-This is only a point-in-time collision fence. Re-check Gmail + Slack immediately before any send.
+This is only the original point-in-time collision fence. Later sent/custody and closure records above supersede it; these old zero-result searches are not reusable contact authority.
 
-## Recommended sequence
+## Historical proposed sequence — superseded by closure
 
 1. **FQHC Associates first.** Ask whether it is pursuing CPCA HCCN Connect and whether a prime/subcontract structure around the AI domain is useful.
 2. If declined/no-fit, **FQHC IT second** with a narrower systems-assurance / AI-governance support proposition.

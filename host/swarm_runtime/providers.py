@@ -30,6 +30,11 @@ TASK = re.compile(r"^github:([A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+):(issue|pr):([1-9][
 PR_URL = re.compile(r"^/repos/([A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+)/pulls/([1-9][0-9]*)$")
 SHA = re.compile(r"^[0-9a-fA-F]{40,64}$")
 REPO = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
+FULL_SHA = re.compile(r"^(?:[0-9a-fA-F]{40}|[0-9a-fA-F]{64})$")
+PINNED_COMPARE = re.compile(
+    r"^repos/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/compare/"
+    r"([0-9a-fA-F]{40}|[0-9a-fA-F]{64})\.\.\."
+    r"([0-9a-fA-F]{40}|[0-9a-fA-F]{64})\?per_page=1&page=1$")
 
 
 def _epoch(value):
@@ -163,6 +168,17 @@ def _compact(endpoint, data):
     return result
 
 
+def _immutable_compare(endpoint, data):
+    """Only complete ancestry evidence between full commit IDs is permanent."""
+    match = PINNED_COMPARE.fullmatch(endpoint)
+    return bool(match and isinstance(data, dict)
+                and data.get("status") in {"ahead", "behind", "identical", "diverged"}
+                and str(data.get("base_sha", "")).lower() == match[1].lower()
+                and FULL_SHA.fullmatch(str(data.get("merge_base_sha", "")))
+                and all(type(data.get(field)) is int and data[field] >= 0
+                        for field in ("ahead_by", "behind_by")))
+
+
 class _Refresh:
     def __init__(self, db, state_dir, equipment, max_calls, stamp):
         self.db, self.stamp, self.max_calls = db, stamp, max_calls
@@ -221,9 +237,11 @@ class _Refresh:
         row = self.db.execute("SELECT * FROM responses WHERE endpoint=?", (endpoint,)).fetchone()
         if row and row["retry_at"] > self.stamp:
             raise _Deferred("provider_retry", row["retry_at"], _decode(row["error"]))
-        if row and row["value"] and (row["immutable"] or row["expires_at"] > self.stamp):
-            self.hits += 1
-            return _decode(row["value"]), row["observed_at"]
+        if row and row["value"]:
+            value = _decode(row["value"])
+            if row["immutable"] or _immutable_compare(endpoint, value) or row["expires_at"] > self.stamp:
+                self.hits += 1
+                return value, row["observed_at"]
         if self.calls >= self.max_calls:
             raise _Deferred("call_budget")
         self.pace(endpoint)
@@ -243,7 +261,8 @@ class _Refresh:
                 (endpoint, retry_at, json.dumps(error, sort_keys=True)))
             self.db.commit()
             raise _Deferred(error["error_state"], retry_at, error) from None
-        immutable = isinstance(data, dict) and data.get("merged") is True and bool(data.get("merge_commit_sha"))
+        immutable = ((isinstance(data, dict) and data.get("merged") is True
+                      and bool(data.get("merge_commit_sha"))) or _immutable_compare(endpoint, data))
         self.db.execute("""INSERT INTO responses(endpoint,value,observed_at,expires_at,immutable,retry_at,error)
             VALUES(?,?,?,?,?,0,NULL) ON CONFLICT(endpoint) DO UPDATE SET value=excluded.value,
             observed_at=excluded.observed_at,expires_at=excluded.expires_at,immutable=excluded.immutable,
@@ -292,8 +311,19 @@ class _Refresh:
         # Resolve the branch now; a PR's base.sha can be its historical base.
         # Pin both sides of the comparison so a moving branch cannot change
         # which commit this evidence proves was already integrated.
-        current, observed = self.get(f"repos/{repo}/git/ref/heads/{quote(branch, safe='')}")
+        branch_endpoint = f"repos/{repo}/git/ref/heads/{quote(branch, safe='')}"
+        current, observed = self.get(branch_endpoint)
         current_sha = current["sha"]
+        if (isinstance(head, str) and FULL_SHA.fullmatch(head)
+                and isinstance(current_sha, str) and head.lower() == current_sha.lower()):
+            # The branch observation already proves this exact commit is its
+            # head. Record that derivation without inventing a compare read.
+            evidence = {"kind": "exact_head_ancestry", "proof_method": "target_head_identity",
+                        "head_sha": head, "target_sha": current_sha, "target_branch": branch,
+                        "status": "identical", "behind_by": 0, "merge_base_sha": head,
+                        "endpoint": branch_endpoint}
+            return {"contains": True, "current_sha": current_sha, "evidence": evidence,
+                    "observed_at": _iso(observed)}
         endpoint = f"repos/{repo}/compare/{head}...{current_sha}?per_page=1&page=1"
         comparison, compared_at = self.get(endpoint)
         contains = (comparison["status"] in {"ahead", "identical"}

@@ -1,0 +1,298 @@
+{
+  "authority": {
+    "award_or_revenue_claim_authorized": false,
+    "contract_acceptance_authorized": false,
+    "external_contact_authorized": false,
+    "legal_certification_authorized": false,
+    "pricing_commitment_authorized": false,
+    "qualification_assertion_authorized": false,
+    "reference_nomination_authorized": false,
+    "submission_authorized": false
+  },
+  "award_conditions": [
+    "BPHC contract execution before work begins",
+    "Living Wage applies to staff time billed directly to BPHC projects (Q&A Q159 p28)",
+    "Federal SAM exclusion/debarment checks; active SAM entity registration is not required at proposal submission (Q&A Q56 p27)"
+  ],
+  "buyer": "Boston Public Health Commission",
+  "checked_at": "2026-10-04T03:09:16Z",
+  "format": {
+    "file_type": "PDF",
+    "font": "Calibri 12 point",
+    "margins": "one inch",
+    "page_limits": {
+      "dei_approach": 1,
+      "experience_and_qualifications": 2,
+      "organizational_overview_and_mission": 1,
+      "pricing": 1,
+      "selected_track_answers_per_track": 5,
+      "team_and_staffing": 2
+    },
+    "references_outside_page_limit": true,
+    "spacing": "single"
+  },
+  "inclusion_guarantees_work": false,
+  "listing_url": "https://www.boston.gov/bid-listings/16607791",
+  "mandatory_vendor_qualifications": [
+    "Expertise in the selected service track(s)",
+    "Previous experience supporting public health, nonprofit, or government initiatives",
+    "Ability to manage projects and meet deliverables",
+    "Two professional references"
+  ],
+  "opportunity_id": "BPHC_CONSULTANT_QUALIFIED_VENDOR_POOL_2026",
+  "posted_date": "2026-09-01",
+  "preferences": [
+    "Knowledge of or experience with Boston communities",
+    "Online portal or electronic system for submitting and tracking service requests",
+    "UEI preferred at proposal submission (Q&A Q56 p27, Q181 p28)"
+  ],
+  "proposal_due_date": "2026-09-30",
+  "proposal_due_source_text": "Wednesday September 30, 2026 at 5:00 PM EST",
+  "questions_due_source_text": "September 10, 2026 at 5:00 PM",
+  "rfp_pdf_bytes_locally_acquired": false,
+  "rfp_pdf_sha256": null,
+  "rfp_pdf_url": "https://www.boston.gov/sites/default/files/file/2026/09/BPHC_Vendor%20Pool%20RFP%20August%2028th%20Clean%20Final.pdf",
+  "schema": "bphc.vendor_pool.source_snapshot/v1",
+  "source_ambiguities": [
+    "Q103 (Q&A p7) contains conflicting extracted 12-point and 10-point wording; the web screenshot returned an iframe, so typography remains visually unverified.",
+    "Q41 (Q&A p9) defers its personnel-experience/reference question; Q23, Q57, Q59 and Q104 (pp9-10), plus the experience Q74 (p18), expressly permit accurately attributed prior-employment experience."
+  ],
+  "submission_email": "RFR@bphc.org",
+  "submission_subject_template": "\"Company Name\" – Master Vendor Pool",
+  "title": "Consultant Qualified Vendor Pool — Communications, Research & Evaluation, Strategy & Planning and Grant Writing",
+  "track_questions": {
+    "Communications": [
+      "Explain communications-strategy experience for public-health or government organizations.",
+      "Give campaign, report or outreach examples; include metrics or outcomes when possible.",
+      "Explain adaptation of messages for diverse audiences and communities.",
+      "Explain evaluation of communications effectiveness."
+    ],
+    "Research, Evaluation & Assessment": [
+      "Explain program-evaluation or public-health-research experience.",
+      "Explain quantitative and qualitative analysis methods.",
+      "Give completed evaluation or research examples.",
+      "Explain dissemination to stakeholders and decision makers."
+    ],
+    "Strategy & Planning": [
+      "Explain experience facilitating strategic planning.",
+      "Give completed strategic-plan or organizational-assessment examples.",
+      "Explain stakeholder engagement during planning.",
+      "Explain implementation support and monitoring after plan development."
+    ],
+    "Grant Writing": [
+      "Explain grant-application experience for public-health, government, nonprofit or health/human-services organizations and funder types.",
+      "Give developed-application examples, with funder, approximate award amount and outcome when available.",
+      "Explain collaboration with program, budget, evaluation and grants staff on narratives and application components.",
+      "Explain capacity for urgent opportunities and concurrent application deadlines."
+    ]
+  },
+  "tracks": [
+    "Communications",
+    "Research, Evaluation & Assessment",
+    "Strategy & Planning",
+    "Grant Writing"
+  ],
+  "listing_status": "Closed",
+  "qa_pdf_url": "https://www.boston.gov/sites/default/files/file/2026/09/BPHC_RFP_QA_Themed-09.15.2026_0.pdf",
+  "qa_pdf_bytes_locally_acquired": false,
+  "qa_pdf_sha256": null,
+  "track_count_ambiguity_resolved": true,
+  "track_selection": {
+    "allowed_counts": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "source": "qa_pdf_url",
+    "question_numbers": [
+      12,
+      24,
+      35,
+      63,
+      88,
+      134,
+      175,
+      177
+    ],
+    "pdf_pages": [
+      4,
+      5
+    ]
+  },
+  "budget": {
+    "amount": null,
+    "state": "NOT_PUBLISHED"
+  },
+  "source_history": {
+    "prior_snapshot": {
+      "git_ref": "0b12a992af8ed6b300d4484daf09212aa956f02c",
+      "path": "opportunities/bphc_vendor_pool_2026/source_snapshot.json",
+      "git_blob": "b7a23dce911ecca46f786683f3bc82d0dfdf6996",
+      "checked_at": "2026-09-13T10:30:00Z"
+    },
+    "prior_qa_bytes_available": false,
+    "complete_old_new_qa_diff_claimed": false,
+    "rfp_pdf_byte_change_established": false
+  },
+  "source_custody": {
+    "method": "Official listing and PDFs read through web retrieval",
+    "rfp_pdf_page_count": 7,
+    "qa_pdf_page_count": 39,
+    "native_acquisition_attempted": false,
+    "native_pdf_bytes_available": false,
+    "raw_source_publication": false,
+    "web_text_review_complete": true,
+    "visual_review_complete": false
+  },
+  "qualification_source_notes": {
+    "rfp_pdf_page": 5,
+    "government_funding_requirement_stated": false,
+    "reference_count": 2,
+    "references_per_track": false,
+    "qa_reference_questions": [
+      77,
+      117,
+      119,
+      181
+    ],
+    "qa_reference_pages": [
+      10,
+      28
+    ],
+    "unsupported_vendor_facts_supplied": false
+  },
+  "qualifying_experience_categories": [
+    "public_health",
+    "nonprofit",
+    "government",
+    "government_funded"
+  ],
+  "qualifying_experience_category_notes": {
+    "government_funded": "Retained compatibility category; current RFP p5 requires government experience without a separate funding condition."
+  },
+  "track_question_source": {
+    "source": "rfp_pdf_url",
+    "pdf_pages": [
+      6,
+      7
+    ],
+    "labels": {
+      "Communications": [
+        "a",
+        "b",
+        "c",
+        "d"
+      ],
+      "Research, Evaluation & Assessment": [
+        "a",
+        "b",
+        "c",
+        "d"
+      ],
+      "Strategy & Planning": [
+        "a",
+        "b",
+        "c",
+        "d"
+      ],
+      "Grant Writing": [
+        "a",
+        "b",
+        "d",
+        "e"
+      ]
+    },
+    "question_count_each": 4
+  },
+  "proposal_due_at_utc": "2026-09-30T21:00:00Z",
+  "proposal_due_local_time": "2026-09-30T17:00:00",
+  "proposal_due_timezone": "America/New_York",
+  "deadline_clarification": {
+    "source": "qa_pdf_url",
+    "question": 43,
+    "pdf_page": 27,
+    "basis": "Boston local time",
+    "utc_conversion": "Derived from the September 30 Boston local deadline; the Q&A does not print a UTC timestamp.",
+    "date_changed": false
+  },
+  "pool_initial_term_years": 5,
+  "pool_extension_at_bphc_discretion": true,
+  "pool_fixed_contract_dates_published": false,
+  "pool_term_source": {
+    "source": "qa_pdf_url",
+    "question": 126,
+    "pdf_page": 24
+  },
+  "project_contracts": {
+    "each_project_requires_separate_contract": true,
+    "source": "qa_pdf_url",
+    "question": 34,
+    "pdf_page": 26
+  },
+  "qa_coverage": {
+    "line_count": 1155,
+    "question_entries": 183,
+    "maximum_number": 181,
+    "missing_question_numbers": [],
+    "duplicate_question_numbers": [
+      [
+        "36",
+        2
+      ],
+      [
+        "74",
+        2
+      ]
+    ],
+    "full_text_pages": 39
+  },
+  "scope_clarifications": {
+    "communications_subset": {
+      "permitted": true,
+      "questions": [
+        49,
+        105,
+        176
+      ],
+      "pages": [
+        31,
+        32
+      ]
+    },
+    "nonprofit_communications_experience": {
+      "may_satisfy_general_requirement": true,
+      "question": 58,
+      "page": 31,
+      "track_responses_still_required": true
+    },
+    "research_subset": {
+      "permitted_if_general_experience_and_applicable_questions_satisfied": true,
+      "question": 180,
+      "page": 35
+    },
+    "regulated_health_experience": {
+      "does_not_replace_listed_sector_experience": true,
+      "question": 145,
+      "page": 37
+    },
+    "post_award_grant_administration": {
+      "not_specifically_included": true,
+      "question": 144,
+      "page": 39
+    },
+    "data_access_and_irb": {
+      "project_specific": true,
+      "questions": [
+        141,
+        151,
+        170,
+        171
+      ],
+      "pages": [
+        34,
+        35
+      ]
+    }
+  }
+}

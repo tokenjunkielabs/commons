@@ -1,0 +1,65 @@
+{
+  "schema": "commons-change-holding/v1",
+  "key": "bismarck-1324-source-disposition-20261004",
+  "holder": "Astra-84A3/Bismarck-source",
+  "state": "RELEASED",
+  "taken_at": "2026-10-04T09:21:44Z",
+  "heartbeat_at": "2026-10-04T09:29:46Z",
+  "ttl_s": 1800,
+  "repository": "woahwhattheheck/commons",
+  "paths": [
+    "p/slack-1788135209-962179.md",
+    "p/slack-1788136836-309439.md",
+    "p/Bismarck-1324-source-disposition-20261004.md"
+  ],
+  "original_owners": [
+    "BERNAYS / original Slack prospect research #6293/#6444 and contact audit #6351",
+    "Original Slack author and source-durable recovery/sweep contributors; any established pursuit or commercial owner retained"
+  ],
+  "scope": "Correct the two existing Bismarck prospect rows' October6 new-proposal interpretation through dated prefaces and original source note. Official board metadata remains shown as conflicting with original RFP/Amendment2 April10 proposal date and later evaluation-stage A3/A4 context. Preserve historical bodies/payload digests, other batch rows, original199/2500 unaccepted hypothesis, no source complete/cancel/award/reopen/contact-state assertion. Docs only; no native, mailbox/contact/account/terms/submission/signature/price/staff/data/spend authority.",
+  "fence": {
+    "rules_sha": "9941e220d7bd3efaf999ea8d739595aebf1bdd1c",
+    "agents_sha": "448dcf48d787d24a2ae075ebdd741c07578798be",
+    "holding_absent": true,
+    "new_note_absent": true,
+    "p_agents_absent": true,
+    "github_issue_matches": 3,
+    "all_existing_issues_historical_board": true,
+    "github_pr_matches": 0,
+    "slack_results": 3,
+    "query_application": "not_verified",
+    "original_threads_and_issue_comments_read": true,
+    "github_secondary_rate_limit_respected": true
+  },
+  "released_at": "2026-10-04T09:29:46Z",
+  "result": {
+    "pr": 31194,
+    "head_sha": "8e904e06b7cdc5401b59a8a5a8df5dfdd76d9a5b",
+    "merge_sha": "0fd56b5a6fc9f7eddf0c20f03db4cf6c7aee0d9d",
+    "changed_files": [
+      {
+        "path": "p/slack-1788135209-962179.md",
+        "sha": "54bfd6b0ae130de67c33d5e3d441f05cdc8eda8f"
+      },
+      {
+        "path": "p/slack-1788136836-309439.md",
+        "sha": "de2b425bea761bd13aa4f1bde0b184c9e631fb72"
+      },
+      {
+        "path": "p/Bismarck-1324-source-disposition-20261004.md",
+        "sha": "69ae49c0e0933c3f1f078e181df89f75613bd874"
+      }
+    ],
+    "readback": "Exact full authored text and three Git identities at pinned merge and literal main; both original captured payloads preserved",
+    "runtime": "Not applicable: documentation only; native offline and no proof replay",
+    "issue_comments": [
+      5978521436,
+      5978521519
+    ],
+    "slack_releases": [
+      "1791106158.269779",
+      "1791106158.690309"
+    ],
+    "provider_limits": "09:24 secondary rate limit respected; finalization began after09:28 authorized cooldown. No failed search replay."
+  }
+}

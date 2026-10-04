@@ -431,6 +431,17 @@ class _GgufCursor:
             raise WbRangeError("implausible gguf string length")
         return self.take(length).decode("utf-8")
 
+    def string_with_u32(self) -> tuple[str, int]:
+        (length,) = self.unpack("<Q")
+        if length > 16 * 1024 * 1024:
+            raise WbRangeError("implausible gguf string length")
+        if not length:
+            # Preserve string()'s existing zero-length read failure.
+            self.take(length)
+        # The name body and its following type/rank have a known exact extent.
+        raw, value = self.unpack_group("<%ds" % length, "<I")
+        return raw.decode("utf-8"), value
+
 
 def _gguf_metadata_value(cursor: _GgufCursor, value_type: int):
     if value_type in GGUF_VALUE_TYPES:
@@ -439,8 +450,7 @@ def _gguf_metadata_value(cursor: _GgufCursor, value_type: int):
     if value_type == 8:
         return cursor.string()
     if value_type == 9:
-        (element_type,) = cursor.unpack("<I")
-        (count,) = cursor.unpack("<Q")
+        element_type, count = cursor.unpack_group("<I", "<Q")
         if count > 1_000_000:
             raise WbRangeError("implausible gguf array length")
         if element_type == 8:
@@ -486,16 +496,14 @@ def parse_gguf_index(reader: RangeReader, file_name: str) -> dict:
         raise WbRangeError("implausible gguf counts")
     metadata = {}
     for _ in range(kv_count):
-        key = cursor.string()
-        (value_type,) = cursor.unpack("<I")
+        key, value_type = cursor.string_with_u32()
         metadata[key] = _gguf_metadata_value(cursor, value_type)
     alignment = metadata.get("general.alignment", 32)
     if not isinstance(alignment, int) or alignment <= 0 or alignment > 4096:
         alignment = 32
     tensors = {}
     for _ in range(tensor_count):
-        name = cursor.string()
-        (n_dims,) = cursor.unpack("<I")
+        name, n_dims = cursor.string_with_u32()
         if n_dims > 8:
             raise WbRangeError("implausible gguf tensor rank")
         # These fields are contiguous and their complete extent is now known.

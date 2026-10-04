@@ -43,6 +43,13 @@ maps, gives exact size tables, and derives the projector
 \(I-\mathcal L\operatorname{div}\) from the existing right inverse.
 It preserves the current complete-pressure runtime format.
 
+[The separate single-cube calculation](SINGLE_CUBE_DIMENSION.md) gives
+the exact n=1 image/kernel pairs **76/5** at degree four and **155/37**
+at degree five. The quartic case is an exception to substituting n=1
+into the n>=2 formulas. `single_cube_dimension.cjs` constructs the full
+integer divergence matrix and returns a nonzero-minor/kernel-basis
+certificate for either degree.
+
 ## Usable two-cube quartic mean repair
 
 [The constructed operator and derivation](P4_MEAN_REPAIR.md) realize any twelve zero-sum cell-average divergences with a continuous piecewise-quartic velocity, zero boundary trace, and zero divergence on every tetrahedral edge.

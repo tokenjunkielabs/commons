@@ -2,6 +2,12 @@
 
 This runbook is a handoff, not authority to register or log in.
 
+## Current public date and retained input
+
+The October 4, 2026 [public-source observation](PUBLIC_DATE_20261004.md) records November 4, 2026 at 3 PM EST (`2026-11-04T20:00:00Z`). The two-page public summary is dated September 30; the full event still redirects to supplier login. This later public deadline does not establish an amendment number, complete attachment inventory, or qualification.
+
+The existing `public_snapshot.json`, `current_hold_receipt.json`, and captured evidence remain the September 13 generation with the October 21 date. Do not describe that frozen input as current. A subsequent acquisition must reconcile the current controlling deadline, every attachment/addendum and exact source bytes before updating the runtime packet and using the existing qualifier. No runtime update or execution was performed in this source-only correction.
+
 ## Required acquisition result
 
 Acquire the complete current FSU/Jaggaer package for `ITN 6769-4` only through an owner-authorized supplier session. Before any qualification result is upgraded, capture:
