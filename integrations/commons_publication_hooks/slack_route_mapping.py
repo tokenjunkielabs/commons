@@ -62,8 +62,11 @@ def slack_route_mapping(tool: str, args: dict[str, Any]) -> SlackRoute | None:
 
     if claude_cloud_route and name == "mcp__slack__slack_send_message":
         if (set(args) <= CLAUDE_CLOUD_SEND_FIELDS and isinstance(args.get("channel_id"), str)
-                and isinstance(args.get("message"), str) and isinstance(args.get("thread_ts"), str)):
-            return SlackRoute("cloud_destination_unverified", {"message": args["message"]})
+                and isinstance(args.get("message"), str)
+                and ("thread_ts" not in args or isinstance(args["thread_ts"], str))):
+            # This is the same owner-connected internal Slack transport as the
+            # installed connector. Its native spelling is not a sender hold.
+            return SlackRoute("connector_send", {"message": args["message"]})
         return SlackRoute("invalid", {})
 
     if gateway_route and _suffix(name, "slack_post_message"):
