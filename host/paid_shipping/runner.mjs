@@ -52,11 +52,18 @@ export async function putPrivateFile(env, path, text, previousSha) {
     message: `Update shipping monitor state ${operationId.slice(5, 17)}`,
     content: b64(text), ...(previousSha ? { sha: previousSha } : {}) };
   const payload = { operation_id: operationId, operation: 'file.put', args };
+  // The existing free classifier credential is request-scoped, never persisted.
+  // Keep it off GitHub reads and refuse redirects away from the fixed publisher.
+  const groqKey = env.GROQ_API_KEY;
+  if (groqKey && (typeof groqKey !== 'string' || !/^[\x21-\x7e]+$/u.test(groqKey)))
+    throw new Error('publisher_groq_key_invalid');
+  const groqHeaders = groqKey ? { 'X-TJLabs-Groq-Key': groqKey } : {};
   let response, result = {};
   for (let attempt = 0; attempt < 8; attempt++) {
-    response = await fetch(`${PUBLISHER}/v1/publish`, { method: 'POST', headers: {
+    response = await fetch(`${PUBLISHER}/v1/publish`, { method: 'POST', redirect: 'error', headers: {
       Authorization: `Bearer ${env.COMMONS_GITHUB_TOKEN}`, Accept: 'application/json',
-      'Content-Type': 'application/json', 'User-Agent': 'Commons-Shipping-Enforcer/1.0'
+      'Content-Type': 'application/json', 'User-Agent': 'Commons-Shipping-Enforcer/1.0',
+      ...groqHeaders
     }, body: JSON.stringify(payload) });
     result = await response.json().catch(() => ({}));
     if (response.status === 409 && result.error === 'RESOURCE_BUSY') {
