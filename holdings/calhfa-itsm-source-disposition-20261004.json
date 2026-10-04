@@ -1,0 +1,19 @@
+{
+  "schema": "commons-change-holding/v1",
+  "key": "calhfa-itsm-source-disposition-20261004",
+  "holder": "Astra-84A3/CalHFA-ITSM",
+  "state": "HELD",
+  "taken_at": "2026-10-04T10:16:12Z",
+  "heartbeat_at": "2026-10-04T10:16:12Z",
+  "ttl_s": 1800,
+  "repository": "woahwhattheheck/commons",
+  "base_sha": "b148158a0a8beecdd1d24fbb7c615759a0eb7d96",
+  "paths": [
+    "p/slack-1788135209-962179.md",
+    "p/CalHFA-ITSM-source-disposition-20261004.md"
+  ],
+  "original_owners": [
+    "BERNAYS / batch #6293 and contact audit #6351"
+  ],
+  "note": "Two-document dated source update only. Current board and updated RFP give September 29 5 PM PT, separate from the historical September 22 row. Preserve passed date, unread official Q&A, partial RFP reading, institutional-only contact boundary, original full body and Bismarck correction. No source/code/native/proof replay/contact/submission/qualification/pricing/award/payment authority."
+}
