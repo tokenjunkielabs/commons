@@ -1,6 +1,10 @@
-# Partner / prime evidence intake
+# Archived partner / prime evidence intake
 
-Use this only after a candidate organization affirmatively agrees to discuss or join the response. Public web evidence is not consent and must not be converted into proposal claims without confirmation.
+**Original pursuit: NO_BID / closed / no further buyer or partner chase.** The [September 22 closeout](https://github.com/woahwhattheheck/commons/issues/13536#issuecomment-5782527658) supersedes this pre-deadline intake workflow. See the [current README disposition](./README.md#current-disposition--october-4-2026) before using the retained fields.
+
+This is an unpopulated historical structure, not a request to contact anyone or revive the expired September 18 submission. Interapt remains HARD-DNR; the previously sent Hartmann/My Workforce Future routes and unsent SKYCTC/KCTCS route retain their original custody and no-chase restrictions. No new mailbox check, consent, instructor availability, references, pricing, signature or qualification is asserted here.
+
+The original intake required affirmative candidate participation before collecting evidence, and public web information alone was never consent. These fields remain reusable internal design material for a separately authorized and source-supported future opportunity; an inbound event alone does not reopen the original pursuit.
 
 ## A. Legal role and authority
 
@@ -92,9 +96,9 @@ For each material/platform:
 |---|---|---|---|---|---|---|---|
 | | | | | | | | |
 
-## H. Submission release
+## H. Historical submission-release fields — inactive
 
-These fields remain blank until the final human-controlled preflight:
+These fields remain blank for this closed, unsubmitted pursuit:
 
 - Source freshness rechecked at:
 - Final proposal file/hash:
