@@ -1,0 +1,47 @@
+{
+  "schema": "commons.operation-holding/v1",
+  "operation_id": "FSU-ITN6769-4-PUBLIC-DATE-20261004-7CA6",
+  "status": "active",
+  "owner": "/root/tn_amendment_review",
+  "claimed_at": "2026-10-04T07:30:05Z",
+  "last_heartbeat_at": "2026-10-04T07:30:05Z",
+  "ttl_seconds": 1800,
+  "repository": "woahwhattheheck/commons",
+  "issue": 13770,
+  "scope": [
+    "revenue/fsu_itn_6769_4/QUALIFICATION.md",
+    "revenue/fsu_itn_6769_4/PACKET_ACQUISITION.md",
+    "revenue/fsu_itn_6769_4/PUBLIC_DATE_20261004.md"
+  ],
+  "purpose": "Original analysis of current public deadline; preserve dated source input and accepted runtime result.",
+  "preserved_owners": [
+    "FISCHER-Z: original memo PR 13551",
+    "ZCHEB-V5P2: executable carrier PR 13795",
+    "Swarm Z-16 (SZ16): whole pursuit and packet recovery",
+    "Original Carahsoft outreach owner and DNR, issue comment 5653915834"
+  ],
+  "boundaries": {
+    "native_execution": false,
+    "raw_copyright_publication": false,
+    "login": false,
+    "registration": false,
+    "outreach": false,
+    "submission": false,
+    "pricing": false,
+    "qualification_activation": false
+  },
+  "source_evidence": {
+    "portal": "https://bids.sciquest.com/apps/Router/PublicEvent?CustomerOrg=FSU",
+    "observed_close": "2026-11-04T20:00:00Z",
+    "summary_document_date": "2026-09-30",
+    "full_packet_recovered": false
+  },
+  "ownership_fence": {
+    "issue": 13770,
+    "prior_pr": 13795,
+    "open_pr_query": "repo:woahwhattheheck/commons is:pr is:open \"6769\"",
+    "matched_open_prs": 0,
+    "slack_thread": "https://tokenjunkielabs.slack.com/archives/C0BU51F1PL3/p1789563151454499",
+    "owner_thread_replies": 0
+  }
+}
