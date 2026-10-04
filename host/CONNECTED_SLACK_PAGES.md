@@ -6,7 +6,7 @@ Use `projectSlackMessages` below for a bounded view of retained detailed channel
 
 ## Load and use
 
-The module exports `collectSlackPages(tools, request, options?)`, `projectSlackMessages(response, request, options?)`, and `projectSlackSearchResults(response, request, options?)`. Both projectors are pure. In a Node environment, load it with `require('./host/connected_slack_pages.cjs')` and supply the native tools object. In a code-mode runtime with connected tools:
+The module exports `collectSlackPages(tools, request, options?)`, `projectSlackMessages(response, request, options?)`, `projectSlackSearchResults(response, request, options?)`, and `projectSlackReadFailure(response)`. The projectors are pure. In a Node environment, load it with `require('./host/connected_slack_pages.cjs')` and supply the native tools object. In a code-mode runtime with connected tools:
 
 ```js
 const source = await tools.mcp__codex_apps__github_fetch_file({
@@ -335,6 +335,46 @@ For explicit thread windows, keep the same observed parent and `oldest`/`latest`
 | `CALLBACK_ERROR` | The response callback failed. Retain the returned response and its diagnostic before deciding whether to continue. |
 
 The default budgets are four native calls and 30,000 ms. Both accept positive safe integers. Time is checked between calls; it does not cancel an in-flight tool call or callback. There are no retries, sleeps or background loops.
+
+### Preserve typed native failures
+
+On a native failure, `pages[].error` retains its diagnostic name and adds the
+observed native fields. The same diagnostic is exposed as
+`summary.native_error`, so printing only the compact summary retains the
+provider's cooldown information. Successful collections do not add this field.
+Original response envelopes, cursor continuation, stop reasons and callback
+custody keep their existing behavior.
+
+Use `projectSlackReadFailure(response)` directly on a retained native failure
+without another provider call. It returns `null` for a successful or unrecognized
+response. It reads the direct error object or its `structuredContent`, plus the
+documented `error_data` fields; it never searches nested application payloads.
+Messages are limited to 1,200 code units, as with existing diagnostics.
+
+| Field | Meaning |
+| --- | --- |
+| `error_code`, `error_type`, `code` | Observed `error_code`, `error_data.type` and `error_data.code`; unavailable fields are null. |
+| `http_status` | Numeric 100–599 code only when the native type is `http_error`; otherwise null. |
+| `message` | Native error/message text, with the first envelope text block as a fallback. |
+| `retry_after` | Literal scalar `retry_after`, preferring the outer error object over `error_data`; unavailable or non-scalar values are null. |
+| `retry_after_seconds` | Explicit native seconds, or a numeric delay from `retry_after` when seconds are absent; only nonnegative safe integers or digit-only strings are accepted. |
+
+Missing or malformed delays remain null rather than becoming zero. An explicit
+malformed seconds field remains unknown even if another delay field is present.
+HTTP-date headers remain literal; no clock conversion, reset time or quota is
+inferred. The helper does not sleep, retry or schedule work.
+
+Direct Node execution on an actual retained October 4 native error returned
+`error_code: "RATE_LIMITED"`, `error_type: "http_error"`, `code: 429`,
+`http_status: 429`, `retry_after: "1"` and `retry_after_seconds: 1`, retaining
+the native message. An actual retained successful search returned null. Both
+original response objects remained JSON-identical. These were pure projections
+of retained responses; no provider request was replayed or fixture added.
+
+The updated collector also completed one actual native search in the same
+session. It retained the original response and next cursor and stopped at its
+one-page budget. This is a successful native-path observation, not an induced
+rate-limit event or a throughput benchmark.
 
 `successful_pages` counts decoded native pages without a tool error; it does not establish complete message rendering. `provider_end_observed` reports the native pagination signal only. `coverage` always reads `native_pagination_only`, and `snapshot` is always false. Edits, deletions, live ordering changes, omitted threads, channel membership and query filters can affect the observed source. Reaching the end of a bounded query is not a full-workspace coverage claim.
 
