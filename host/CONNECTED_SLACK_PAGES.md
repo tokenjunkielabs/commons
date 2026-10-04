@@ -172,6 +172,53 @@ Without `source_indices`, coverage reports parsed and returned message counts, m
 
 A provider end marker applies only to the captured request, including its cursor and time window. Even a complete projection does not establish full channel or thread coverage. Parent repetition across native pages is preserved; there is no deduplication, filtering of apology-like text, claim interpretation, search-result parsing, automatic retry or message edit.
 
+### Inspect a retained request's time window
+
+The message projector preserves supplied `oldest`, `latest` and, for a thread,
+`message_ts` in `source.request_window`. These are caller-retained arguments;
+`source.window_application` is always `not_verified`. They do not establish
+which bounds the provider applied. The original request, native response,
+message records, ordering, source ranges and pagination remain unchanged.
+
+`coverage.request_window` compares every parsed channel message or thread reply
+with each supplied, valid decimal-string bound. The repeated thread parent is
+excluded because native thread pages retain it outside the reply window.
+Comparison preserves all timestamp digits; values equal to a bound are not
+outside it. This diagnostic also covers messages omitted by output selection.
+
+| Field | Meaning |
+| --- | --- |
+| `compared_bounds`, `invalid_bounds` | Supplied bounds that could be compared, and supplied bounds with unsupported type or decimal format. |
+| `bounds_order` | `ordered` or `inverted` when both bounds are valid; otherwise null. No bounds are swapped. |
+| `compared_messages`, `excluded_thread_parents` | Parsed messages actually compared, and retained parents excluded from comparison. |
+| `before_oldest`, `after_latest` | Counts strictly outside each compared bound; null when that bound could not be compared. |
+| `outside_compared_bounds`, `outside_source_indices` | Count and retained-page indices violating at least one compared bound. An inverted window can violate both; each message is counted once in this total. The count is null when no bound was comparable. |
+
+Malformed bounds remain verbatim in the source metadata and are not normalized.
+An integer-only timestamp therefore appears in `invalid_bounds` and is not used
+for comparison. If the other bound is valid, its comparison still runs. An empty
+outside-index list with no comparable bounds is not evidence of a matching window.
+Invalid or inverted bounds do not refuse or filter an otherwise supported
+retained page. Existing `PROJECTED`, coverage, cursor and provider-end meanings
+stay unchanged; the diagnostics are not ownership clearance or a retry instruction.
+
+For future reads, continue using `collectSlackPages`, which already rejects
+malformed `oldest` and `latest` arguments before calling the provider. These
+additional diagnostics describe arbitrary pages already captured by native
+reads, including pages obtained without that collector. They do not issue a
+replacement read or rewrite a saved request.
+
+An actual retained October 4 native read with an integer-only `oldest` returned
+60 October 1 replies. Projection now labels that bound invalid, leaves comparison
+counts null, and retains all 61 records including the parent. A separate actual
+read with a valid decimal bound returned 40 replies: all 40 were compared, none
+preceded the requested bound, and the repeated parent was excluded. Both pages
+retained their continuation evidence. Removing the added diagnostic fields made
+each projection JSON-identical to the original implementation; inputs were
+unchanged. This comparison reused the two captured responses without provider
+calls or new repository tests. It does not establish a provider-wide defect or
+complete coverage beyond those pages.
+
 ### Select caller-chosen message indices
 
 Use optional `source_indices` when a few nonadjacent entries from one retained
