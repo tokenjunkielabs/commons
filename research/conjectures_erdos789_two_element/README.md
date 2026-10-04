@@ -72,3 +72,14 @@ this runtime. Do not represent it as kernel-checked, sponsor accepted, a
 solution of Erdős 789, or earned revenue until a sponsor-pinned Lean
 environment elaborates it and the current contribution/submission flow
 accepts it.
+
+## Connected runtime triple constructor
+
+[Exact separating triples](EXACT_TRIPLE_API.md) documents a dependency-free,
+JSON-safe `BigInt` API in [separating_triple.cjs](separating_triple.cjs).
+It constructs a triple with at most ten candidate checks and returns explicit
+subset-sum collisions when none exists. The mathematical criterion and
+five-nonzero guarantee are credited to the July 28, 2026 report linked in the guide.
+[Construction outputs](construction_results.json) retain the API's actual calls
+on that report's two finite input sets. This adds executable capability while
+preserving the original contribution and its evidence ceiling.
