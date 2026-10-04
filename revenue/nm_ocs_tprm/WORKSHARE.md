@@ -2,13 +2,17 @@
 
 ## Commercial posture
 
-**Target posture:** paid specialist subcontract / technical workshare unless and until exact controlling RFQ evidence proves direct-prime eligibility.
+**Target posture:** paid specialist subcontract / technical workshare unless and until controlling RFQ and supplier evidence establish direct-prime eligibility.
 
-This is deliberately broader than a one-off code contribution. The package is designed to let a qualified prime absorb a bounded technical subsystem into a complete OCS2026.01 response and delivery plan.
+## Current RFQ alignment — October 4, 2026
 
-## Technical workstream A — multi-tenant TPRM toolset
+Use [`SOURCE_CURRENTNESS_20261004.md`](SOURCE_CURRENTNESS_20261004.md), rows B1–B7 and W1–W7, to define the actual contribution. W1 supports technology-characteristic recommendations and excludes specific tool selection/procurement. W2 assigns formal legal review to the State/counsel while allowing contractor draft model language. Do not turn those roles into an unsupported independent-contractor counsel requirement.
 
-Deliver:
+Workstreams A–C below inventory reusable engineering capabilities. They do not themselves establish quoted RFQ deliverables, a selected platform, production hosting or a deployment commitment. Map any proposed contribution to the source-supported deliverables and actual personnel evidence.
+
+## Reference workstream A — multi-tenant TPRM toolset
+
+Existing capability inventory:
 
 1. tenant-isolated vendor inventory and lifecycle records;
 2. configurable risk-factor / tiering workflow;
@@ -18,7 +22,7 @@ Deliver:
 6. replay/tamper receipts for assessment and portfolio state;
 7. scoped APIs / import-export contracts appropriate to the selected implementation platform.
 
-Acceptance evidence:
+Retained technical evidence categories:
 
 - deterministic fixture corpus;
 - hostile tenant-isolation tests;
@@ -27,9 +31,9 @@ Acceptance evidence:
 - bounded-input and invalid-shape tests;
 - implementation and migration notes.
 
-## Technical workstream B — evidence lineage and auditability
+## Reference workstream B — evidence lineage and auditability
 
-Deliver:
+Existing capability inventory:
 
 - source/evidence digests;
 - exact assessment `as_of` boundaries;
@@ -40,9 +44,9 @@ Deliver:
 
 The system records what evidence was used. It does **not** transform possession of evidence into a regulatory, contractual, or legal conclusion.
 
-## Technical workstream C — evaluation and implementation support
+## Reference workstream C — evaluation and implementation support
 
-Deliver:
+Reusable capability inventory:
 
 - test plan and acceptance matrix;
 - reference integration fixtures;
@@ -51,28 +55,26 @@ Deliver:
 - failure-mode and rollback documentation;
 - operator training material plus evidence that training artifacts were delivered.
 
-## Prime / counsel retained scope
+## Owner and prime retained commercial scope
 
-A qualified prime and, where required, qualified counsel retain responsibility for:
+The source role allocation in W2 applies to this RFQ. The responsible supplier/owner retains:
 
 - interpreting the controlling RFQ and amendments;
 - bidder eligibility and schedule/price-agreement status;
 - official representations/certifications;
 - insurance / business-registration requirements;
-- legal analysis of ordinances, procurement authorities, contract clauses, or template legal language;
 - pricing, commercial terms, signatures, portal/account activity, and submission;
 - production hosting/security attestations not independently evidenced;
 - direct buyer communications unless separately delegated.
 
-## Owner review questions after packet recovery
+## Remaining owner work
 
-1. Does the exact RFQ require a current NM Statewide Price Agreement, GSA Schedule, NASPO ValuePoint vehicle, or another prime qualification for the expected quote value?
-2. Does OCS permit subcontractors / teaming partners and, if so, what disclosures or approvals apply?
-3. Which portions of legal/ordinance analysis require licensed New Mexico counsel?
-4. What scoring weight is assigned to technical toolset capability versus governance/legal/training experience?
-5. What required references, insurance, cybersecurity attestations, data-hosting terms, accessibility terms, and records-retention requirements apply?
-6. Is a SaaS platform required, permitted, or optional relative to framework/program deliverables?
-7. Which external attack-surface / vulnerability feeds may be used, and what licensing/privacy constraints apply?
-8. What SLCGP reporting or grant-evidence obligations must the toolset preserve?
+1. Bind exact official PDF bytes and any subsequent source generation; keep the text-only checkpoint distinct from a verified-packet input.
+2. Establish actual bidder/vehicle evidence for the proposed quote under B2. No quote value or supplier status is supplied here.
+3. Supply relevant experience, personnel and reference evidence against B3/W5.
+4. Resolve the deferred scope answers in W3 before fixing effort and delivery assumptions.
+5. Bind applicable teaming/disclosure, insurance, security, hosting, accessibility and records terms to their exact source and proposed work; do not invent requirements.
+6. Map the proposed contribution to B1 and W1/W2, retaining State and supplier role boundaries.
+7. Use a current, evidence-backed qualification input when one exists. The unchanged public-only example is historical and supplies no current eligibility or legal-scope conclusion.
 
-Until these are source-bound, the package stays technical and teaming-oriented.
+The original #15842/#15867 build, ZZ-KESTREL-M8D3 recovery and ZZ-IBIS-93C-R3 repair/review remain credited. Original engine, example and accepted proof bytes are unchanged.
