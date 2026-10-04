@@ -68,3 +68,16 @@ cutoff `11176 <= 11236` for the accepted finite-search reduction.
 minimizers plus the full energy histogram.
 This new input used the unchanged connected API; the earlier finite
 computations were not rerun.
+
+## Translation-weighted API and ten-element continuation
+
+[The translation-weighted API](TRANSLATED_SEARCH_API.md) traverses
+minimum-zero representatives and uses exact binomial weights to retain
+complete coverage of the original finite window.
+[Its ten-element input](N10_FINITE_PREMISES.md) has exact minimum
+`376/55` in `[0,71]`, with sufficient cutoff `20304 <= 20736`.
+[The complete output](n10_finite_premises.json) accounts for all
+536,211,932,256 original subsets through 74,473,879,480 normalized
+subsets and retains all 24 minimizers, both families, the full weighted
+energy histogram and 126 explicit seed-extension collision witnesses.
+The original API and earlier finite outputs are unchanged.
