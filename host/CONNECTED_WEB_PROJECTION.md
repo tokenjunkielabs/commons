@@ -18,7 +18,7 @@ const overview = projectWebSources(retainedResponse, {
 });
 ~~~
 
-Pass the actual web-tool CallToolResult with its content array. The supported source header rendering has a title field, which may be empty, and an HTTP(S) URL on one line, followed by a returned search/view/fetch/news/academia reference and a numeric word-limit marker. The space before the parenthesized URL is still required. An empty title is returned as the literal empty string; the adapter does not derive a title from the URL, filename or page content. The same header-shaped boundary with an empty or unsupported URL separates an unparsed block; it is not added as a citable source. The adapter reads that rendering; it does not synthesize source IDs from URLs or interpret arbitrary prose as an empty result set.
+Pass the actual web-tool CallToolResult with its content array. The supported source header rendering has a title field, which may be empty, and an HTTP(S) URL on one line, followed by a returned search/view/fetch/news/academia reference and a numeric word-limit marker. The space before the parenthesized URL is still required. An empty title is returned as the literal empty string; the adapter does not derive a title from the URL, filename or page content. A renderer-shaped boundary uses a reference made of `turn`, decimal digits, a lowercase ASCII family name, and decimal digits. A family outside the supported list, or a supported-family header with an empty or unsupported URL, separates an unparsed block; it is not added as a supported source. The adapter reads that rendering; it does not synthesize source IDs from URLs or interpret arbitrary prose as an empty result set.
 
 A successful response has status PROJECTED and a sources array. Each source includes:
 
@@ -36,7 +36,7 @@ A successful response has status PROJECTED and a sources array. Each source incl
 
 All ranges are half-open UTF-16 code-unit offsets in response.content[content_index].text. They are **rendered response ranges**, not byte offsets in the original web page. CRLFs, entities, citations, line labels and separators are retained. The adapter does not decode HTML entities, remove link wrappers, normalize whitespace, or turn an open-result line label into a page byte offset. A prefix boundary backs up one code unit if necessary to avoid splitting a surrogate pair.
 
-The rendered source block extends to the next detected header boundary, including a boundary whose URL is empty or unsupported. Separator lines immediately before that header consequently remain at the end of the preceding content range; the unsupported header and its following body do not.
+The rendered source block extends to the next detected header boundary, including a boundary whose reference family is unsupported or whose URL is empty or unsupported. Separator lines immediately before that header consequently remain at the end of the preceding content range; the unsupported header and its following body do not.
 
 ## Continue within the retained response
 
@@ -87,7 +87,7 @@ All text is parsed before output selection. Limiting the returned sources does n
 
 The output always identifies its scope as retained_response_only, snapshot false, and provider_completeness not_inferred. It reports parsed source count, selected and omitted indices, selected/returned content lengths, and truncated source count.
 
-Non-text items are identified by their original index and type; their payload is not decoded or represented as page text. Text before a recognized first header, complete text items with no recognized header, and header blocks without a supported URL remain visible as unparsed_text_ranges. Repeated supported-source reference IDs are preserved as separate source entries and listed in duplicate_reference_ids; the adapter does not silently deduplicate them.
+Non-text items are identified by their original index and type; their payload is not decoded or represented as page text. Text before a recognized first header, complete text items with no recognized header, and header blocks without a supported reference family or URL remain visible as unparsed_text_ranges. Repeated supported-source reference IDs are preserved as separate source entries and listed in duplicate_reference_ids; the adapter does not silently deduplicate them.
 
 all_rendered_source_content_included means that all parsed HTTP(S) source blocks were returned without content truncation. It does not assert completeness of the underlying pages, retrieval results, provider pagination or non-text payloads. all_input_text_has_source_headers describes only the absence of unparsed text ranges in this rendering.
 
@@ -105,9 +105,13 @@ A no-header result is **not** evidence that a search found zero results. It may 
 ## Mixed source and unsupported-header blocks
 
 A renderer-shaped boundary is recognized before its URL is classified. Its title,
-parenthesized URL field, supported reference shape and numeric word-limit marker
-must have the same line structure described above. Only an HTTP(S) URL with no
-whitespace is accepted for a source entry.
+parenthesized URL field, renderer-shaped reference and numeric word-limit marker
+must have the same line structure described above. Boundary detection accepts
+`turn` followed by decimal digits, a lowercase ASCII family name, and decimal
+digits. Source entries additionally require one of the supported families
+(search, view, fetch, news or academia) and an HTTP(S) URL with no whitespace.
+An unfamiliar family remains unparsed even when its URL is HTTP(S); it does not
+become content belonging to the preceding source.
 
 A boundary with an empty URL, or another unsupported URL representation, closes
 the preceding source. Its complete block remains in `unparsed_text_ranges`
@@ -117,6 +121,13 @@ original `content_index`, half-open `range`,
 `SOURCE_HEADER_WITHOUT_SUPPORTED_URL`. Retrieve that exact slice
 from the original text item when its contents matter.
 
+A boundary with an unsupported reference family has the same range fields and
+reason `SOURCE_HEADER_WITHOUT_SUPPORTED_REFERENCE`. This check precedes URL
+classification; the literal `reference_id` is retained without interpreting the
+family or asserting that the reference is invalid. Such a block can be read
+directly from its original response range. Supported-family URL refusals keep
+the existing `SOURCE_HEADER_WITHOUT_SUPPORTED_URL` reason.
+
 This keeps a rendered error notice from becoming part of the preceding page's
 content. The title is not an error classifier: a header named "Internal Error"
 is handled through its URL representation, and an arbitrary error-looking title
@@ -124,8 +135,8 @@ does not by itself establish provider failure or source authority.
 
 A mixed response can remain PROJECTED with useful sources and an explicit
 unparsed block. Its `all_input_text_has_source_headers` is false.
-A response containing only unsupported-URL blocks remains
-UNRECOGNIZED_RENDERING with its unparsed ranges retained. Top-level
+A response containing only unsupported-URL or unsupported-reference blocks
+remains UNRECOGNIZED_RENDERING with its unparsed ranges retained. Top-level
 `isError: true` still returns PROVIDER_ERROR as before. Header-size,
 word-limit, input-size and selection bounds continue to apply.
 
@@ -240,3 +251,43 @@ corrected API invocation ran; the prior projection was already retained. No
 web retrieval, native process, fixture, suite or raw source-body publication
 was used. Recognizing a reference kind does not classify its relevance or
 establish authority for the procurement task.
+
+
+### Unsupported reference-family boundary, October 4, 2026
+
+The next retained Raleigh search response contained three reddit reference
+headers after an official PDF source. The existing supported-family pattern
+absorbed those headers and their bodies into the PDF source, whose range ended
+at the end of the 32,697-code-unit response. No procurement conclusion was drawn
+from that mixed range.
+
+The consumer invoked candidate Git blob
+`bc68a05aa46c12000814c158dccb57caefb69fda` once on the unchanged retained
+response. The existing source selection [10, 14, 15, 16, 17], max_sources 5,
+max_content_chars 1,800 and max_total_content_chars 9,000 were preserved.
+There were still 18 supported sources, and all five selected references remained.
+Every returned content string matched its exact original response slice.
+
+The official turn595search17 source now occupies [30,242, 30,809), with content
+[30,420, 30,809), rather than ending at 32,697. Three unsupported-reference
+blocks are retained separately:
+
+| Reference | Unparsed range | Rendered header range |
+| --- | --- | --- |
+| turn595reddit18 | [30,809, 31,461) | [30,809, 30,988) |
+| turn595reddit19 | [31,461, 31,864) | [31,461, 31,672) |
+| turn595reddit20 | [31,864, 32,697) | [31,864, 32,105) |
+
+Each has reason SOURCE_HEADER_WITHOUT_SUPPORTED_REFERENCE. The response stays
+PROJECTED, while all_input_text_has_source_headers changes from true to false.
+The selected output returns 1,414 content code units without truncation and
+explicitly omits 13 supported sources in ranges [0, 10) and [11, 14).
+Unsupported-family blocks are not assigned supported-source indices.
+
+The original response and earlier projection remain unchanged. A caller setup
+attempt selected the tool-result content array as helper source and failed
+before invoking the API; using the retained structured source corrected that
+setup without a provider reread. The single actual API invocation used no web
+retrieval, old API replay, native process, fixture or suite. No response body is
+published here, and no relevance or authority is inferred from the unparsed
+reference families.

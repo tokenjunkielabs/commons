@@ -155,7 +155,7 @@ function projectWebSources(response, options) {
   for (const item of texts) {
     // Detect block boundaries before deciding whether their URL identifies a supported source.
     // This recognizes a rendered header, not a signed provider/source identity.
-    const header = /^([^\r\n]*) \(([^\r\n]*)\)\r?\n【(turn\d+(?:search|view|fetch|news|academia)\d+)】 \[wordlim: (\d+)\]/gm;
+    const header = /^([^\r\n]*) \(([^\r\n]*)\)\r?\n【(turn\d+[a-z]+\d+)】 \[wordlim: (\d+)\]/gm;
     const matches = Array.from(item.text.matchAll(header));
     if (matches.length === 0) {
       if (item.text.length > 0) {
@@ -181,6 +181,16 @@ function projectWebSources(response, options) {
       const start = match.index + match[0].length;
       const end = index + 1 < matches.length ? matches[index + 1].index : item.text.length;
       const reference = match[3];
+      if (!/^turn\d+(?:search|view|fetch|news|academia)\d+$/.test(reference)) {
+        unparsed.push({
+          content_index: item.content_index,
+          range: [match.index, end],
+          reason: "SOURCE_HEADER_WITHOUT_SUPPORTED_REFERENCE",
+          reference_id: reference,
+          rendered_header_range: [match.index, start]
+        });
+        continue;
+      }
       if (!/^https?:\/\/[^\s\r\n]+$/.test(match[2])) {
         unparsed.push({
           content_index: item.content_index,
