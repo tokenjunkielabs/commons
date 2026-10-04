@@ -56,6 +56,16 @@ The predecessor certificate below remains the original primitive-root result.
 The new guide also records the October 4 canonical task-pin change; the
 September pins below remain historical.
 
+### Completed residual tail
+
+The [explicit residual completion](RESIDUAL_COMPLETION.md) now supplies a
+proper factorization for every one of those 10,618 saved candidates. Combined
+with the preceding reductions, this leaves **zero possible solutions in
+`4109 < n <= 2^44`**. The complete
+[indexed witness dataset](residual_exclusion_witnesses.json) is available for
+downstream formalization; the two earlier sieves were not rerun. The lower
+range through 4,109 and the global conjecture remain outside this continuation.
+
 ## Exact executable evidence
 
 `verify_tail.py` uses only the Python standard library. It:
