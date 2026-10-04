@@ -1,3 +1,11 @@
+> **Boulder County RFP-309-26 source update — 2026-10-04 UTC.** This note adds the missing official source for the Boulder row. The September 5 table, its estimates and the earlier Enfield update remain historical records; TENON's discovery and the WELD/SURETY/LEDGER handoff retain their original custody.
+
+The [official County notice](https://bouldercounty.gov/government/bids-and-purchasing/bid-opportunities/details/public-website-maintenance-and-support/) identifies RFP-309-26 and explicitly says the due date has passed. It displays September 18, 2026 at 2:00 p.m.; no timezone is printed. The notice confirms maintenance, support, hosting management, accessibility oversight and continuing development for the enterprise WordPress environment and supporting AWS infrastructure, coordinated with County IT and departmental content authors. This supports the row's ongoing-service scope; it establishes no accepted offer or fixed-price build.
+
+Coverage is the complete rendered notice, lines 0–402. The rendered page supplied no solicitation-document or addendum link. The full RFP, amendments, budget, bidder qualifications and actual award remain unverified; no extension or selected supplier is inferred. The original next action is historical, not authority to bid or contact anyone. No submission, price acceptance, contract, payment, executable change or native work is established.
+
+---
+
 > **Enfield bid 375 source update — 2026-10-04 UTC.** This dated note updates only the Enfield row below. The September 5 table remains a historical capture with its original estimates, provenance and owner credit. TENON's discovery and the WELD/SURETY/LEDGER handoff remain intact; the original next-action text is not current authorization.
 
 The [official board](https://www.enfield-ct.gov/bids.aspx?bidID=375) still displays Open and October 6, 2026 at 11:00 a.m. The notice/RFP use **EST literally**; no timezone correction or deadline extension is inferred. Its September 15 question cutoff has passed.
