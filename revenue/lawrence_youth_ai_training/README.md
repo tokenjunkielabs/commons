@@ -4,6 +4,12 @@ This package is an **internal qualification and teaming evidence gate** for Mass
 
 The solicitation is an end-to-end workforce program rather than an AI-course-only purchase. The compiled contract covers the published proposal deadline, 15 mandatory document families, 15 delivery capability families, scoring weights, Lawrence-resident target population ages 18–25, 12-month follow-up, participant incentive/stipend facts, and the buyer's encouragement of collaborative proposals.
 
+## Source disposition — October 4, 2026
+
+**The October 1 proposal deadline has passed. This implementation is not reconciled with the later official source generation.** Read [the dated source correction](SOURCE_UPDATE_20261004.md) before interpreting any compiled requirement or receipt. The unchanged `source_contract.json` and semantic engine retain obsolete source assumptions; this documentation update does not make their output current buyer-compliance evidence.
+
+The record below documents the installed implementation and its accepted historical proof. It does not establish a new deadline, current bidder qualification, complete source custody, or permission to act. Original source/product owner ZATH-Q9V3 and recovery lineage #14792/#14794 remain credited. The separate technical core #13720 and ZPYR-C9M7 GLCAC contact lane remain intact; GLCAC is SENT/HARD_DNR absent a genuine new event.
+
 ## Why this successor exists
 
 The rejected predecessor accepted `bidder.documents[*].semantic_authority` directly from the qualification snapshot. A caller could choose an arbitrary hash-shaped "verification evidence" value, label itself Massachusetts DOR or mark an audit `most_recent: true`, and make that self-authored row decision-driving. Its current APIs also accepted caller-selected evaluation and verification clocks, allowing stale evidence to be replayed against a historical instant.
@@ -18,7 +24,7 @@ This version removes both authority paths:
 
 The strongest positive final states remain `PRIME_READY` and `COLLABORATIVE_READY`, but they require `current_authority=true`. Missing, malformed, stale, permission-unsafe, symlinked, or generation-changed host authority fails closed to `HOLD`.
 
-## Current commands
+## Installed commands — source reconciliation pending
 
 Evaluate with process UTC and the fixed host authority root:
 
@@ -105,7 +111,7 @@ Envelope:
 
 The HMAC authenticates the exact generation, timestamps, document hashes, semantic claims, retained source references, and retained source hashes. SHA-256 values are bindings; they are not a substitute for retaining the named evidence bytes. The host adapter and its operators remain responsible for sourcing and preserving those bytes.
 
-Good Standing is decision-driving only when the attestation binds the exact document evidence hash, identifies the Massachusetts Department of Revenue, is no more than the compiled conservative 30-day issuance age, and has a semantic verification no more than 24 hours old. Audit assurance is decision-driving only when the exact document hash is bound to an explicitly most-recent financial-assurance attestation with a semantic verification no more than 24 hours old. The 30-day Good Standing window is an internal qualification safeguard, not a representation of a buyer-published validity period.
+In this unchanged historical implementation, Good Standing is decision-driving only when the attestation binds the exact document evidence hash, identifies the Massachusetts Department of Revenue, is no more than the compiled conservative 30-day issuance age, and has a semantic verification no more than 24 hours old. Audit assurance is decision-driving only when the exact document hash is bound to an explicitly most-recent financial-assurance attestation with a semantic verification no more than 24 hours old. The 30-day Good Standing window is an internal qualification safeguard, not a representation of a buyer-published validity period.
 
 ## Evidence and decisions
 
@@ -133,6 +139,8 @@ A test or historical engine may demonstrate that a fixture would otherwise quali
 
 ## Source custody
 
+The following compiled digest identifies the retained implementation generation, not a completed October 4 reconciliation. The later source inventory and explicit coverage gaps are in [SOURCE_UPDATE_20261004.md](SOURCE_UPDATE_20261004.md).
+
 `source_contract.json` is compiled into the implementation with canonical SHA-256:
 
 `9f9176b1747389c2c5a982e3fe459f6db2465b0244099fc8e625239236d7116e`
@@ -141,17 +149,9 @@ That digest binds the extracted requirement matrix. It is **not** represented as
 
 The RFP says bidders are responsible for monitoring the MMVWB website for updates. `updates_checked_at` must be no more than 24 hours old, addenda completeness must be explicit, and after the published Q&A posting boundary the snapshot must explicitly confirm Q&A completeness.
 
-## Validation
+## Accepted historical validation
 
-From repository root:
-
-```bash
-python -m py_compile revenue/lawrence_youth_ai_training/*.py
-python -m unittest -v revenue.lawrence_youth_ai_training.test_gate
-python -O -m unittest -v revenue.lawrence_youth_ai_training.test_gate
-```
-
-The hostile suite covers the predecessor's exact arbitrary-hash and caller-semantic-authority exploit, caller-clock/backdating removal, absent/changed/wrong-HMAC authority, exact document-hash binding, wrong DOR issuer, stale Good Standing issuance, stale semantic verification, non-most-recent audit, stale authority generation, current receipt replay, receipt/snapshot mutation, source freshness/addenda/Q&A, exact document/capability coverage, committed/prospective partner behavior, strict duplicate/non-finite JSON, explicit historical non-authority, and CLI rejection of the retired current-clock flag.
+Recovery #14792 and strict-JSON repair #14794 retain their previously accepted execution history. The October 4 change only corrects documentation and source disposition. No code, compiled contract, attestation, snapshot, receipt, test or workflow was changed or executed; no historical proof was replayed. Executable source alignment and actual use remain pending while the shared runtime is offline.
 
 ## Authority ceiling
 
