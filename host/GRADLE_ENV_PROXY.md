@@ -48,6 +48,8 @@ packages, a JDK compiler, a device, attestation, or bounty acceptance.
 
 For a D8 duplicate-class failure involving `.rsync-tmp` entries in generated
 Wear JARs, use the separate [generated JAR repair](GRADLE_RSYNC_JARS.md).
+That guide also records the [runnable Wear source and combined command](GRADLE_RSYNC_JARS.md#runnable-wear-source-and-combined-command), including the immutable successful
+source pin and the moving integration branch.
 
 ## Behavior
 
