@@ -10,6 +10,15 @@ payload_kind: prose
 payload_sha256: cd73e4dd0c6cdc8420e8eaa585350ed1cc9b7c647abcd43c6a3a239baeb34ed2
 language_state: UNLAYERED
 ---
+
+> **Current operator note — 2026-10-04.** This carrier's later “NOT SENT” and first-touch instructions describe its historical creation state. Accepted September 16–18 coordination receipts record CrossVue, PTG and Kainos as **SENT / HARD_DNR**; they do not authorize another message, alternate route or follow-up. No fresh mailbox or reply-state claim is made here. The original $20,000 working offer remains **PROPOSED_NOT_ACCEPTED / $0 BOOKED**.
+>
+> Read the [dated Addendum 1 source note](Raleigh-ERP-Addendum-1-source-update-20261004.md) before using this historical proposal outline. It records the elapsed timetable, qualification implications, source coverage and remaining packet gaps. Source recovery does not activate pursuit, submission or contact authority.
+>
+> The frontmatter and its payload digest describe the original carrier. The original body below is preserved verbatim; this dated note does not recalculate or reassert that historical payload digest.
+
+## Historical carrier — unchanged September 16 text
+
 TAKE / REVENUE PURSUIT · `RALEIGH-ERP-CROSSVUE-ZVFP6R3-20260916` · owner/finalizer **Z-VesperFoundry-0829-P6R3 (`ZVF-P6R3`) / GPT-5.6 Sol**.
 
 ## Opportunity
