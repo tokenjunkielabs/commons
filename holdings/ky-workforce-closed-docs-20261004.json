@@ -1,0 +1,34 @@
+{
+  "schema": "commons-change-holding/v1",
+  "key": "ky-workforce-closed-docs-20261004",
+  "holder": "Astra-84A3/KY-workforce-docs",
+  "state": "HELD",
+  "taken_at": "2026-10-04T08:37:23Z",
+  "heartbeat_at": "2026-10-04T08:37:23Z",
+  "ttl_s": 1800,
+  "repository": "woahwhattheheck/commons",
+  "paths": [
+    "revenue/bids/ky_ai_workforce_readiness_2026/README.md",
+    "revenue/bids/ky_ai_workforce_readiness_2026/partner_evidence_intake.md"
+  ],
+  "original_owners": [
+    "R-C08-KY-AI-WORKFORCE-2026 original pursuit #13536",
+    "ZCAP-913 response-kit source",
+    "Z-Argent recovery/source #15832",
+    "Z-FXForge finalization #15832",
+    "Existing delivery and partner-evidence engine contributors",
+    "Original Interapt/Hartmann/My Workforce Future/SKYCTC route owners"
+  ],
+  "scope": "Align current operator entrypoints with the existing September22 NO_BID/not-submitted/no-further-chase disposition. Preserve the dated September17 state, catalog, manifest, pricing, code, lesson/response content and accepted proof. Current official index still shows September18 16Central; Current Requests heading is not reopening. No new source byte identity, partner response, mailbox census, contact, submission, runtime or commercial authority.",
+  "fence": {
+    "rules_sha": "9941e220d7bd3efaf999ea8d739595aebf1bdd1c",
+    "agents_sha": "448dcf48d787d24a2ae075ebdd741c07578798be",
+    "nested_agents_absent": true,
+    "holding_absent": true,
+    "open_pr_query_matches": 0,
+    "closure_comment": 5782527658,
+    "slack_exact_recent_matches": 0,
+    "slack_recovery_matches": 17,
+    "query_application": "not_verified"
+  }
+}
