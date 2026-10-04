@@ -85,13 +85,13 @@ class RequestBudget:
                 observation_id TEXT PRIMARY KEY, fingerprint TEXT NOT NULL)""")
 
     @contextmanager
-    def _transaction(self):
+    def _transaction(self, *, write=True):
         with self._lock:
             db = self._memory or sqlite3.connect(str(self.path), timeout=10)
             db.row_factory = sqlite3.Row
             try:
                 db.execute("PRAGMA busy_timeout=10000")
-                db.execute("BEGIN IMMEDIATE")
+                db.execute("BEGIN IMMEDIATE" if write else "BEGIN")
                 yield db
                 db.commit()
             except Exception:
@@ -324,7 +324,7 @@ class RequestBudget:
 
     def lease_status(self, scope, *, shared_scopes=()):
         self._lease_name(scope)
-        with self._transaction() as db:
+        with self._transaction(write=False) as db:
             now = self.clock()
             policy = db.execute("SELECT capacity FROM provider_capacity WHERE scope=?", (scope,)).fetchone()
             active = db.execute("SELECT holder,expires_at FROM provider_leases WHERE scope=? AND expires_at>? "
@@ -343,7 +343,7 @@ class RequestBudget:
                     "leases": [{"holder": row["holder"], "expires_at": _iso(row["expires_at"])} for row in active]}
 
     def metrics(self):
-        with self._transaction() as db:
+        with self._transaction(write=False) as db:
             now = self.clock()
             scopes = []
             for row in db.execute("SELECT * FROM read_budget ORDER BY retry_until DESC,scope LIMIT 100"):
