@@ -93,7 +93,7 @@ python -m unittest -v test_lacsd_04252.py
 python -O -m unittest -v test_lacsd_04252.py
 ```
 
-The GitHub workflow runs the same semantic suite on Python 3.11 and 3.13, normal and optimized mode. A queued or absent hosted run is `UNKNOWN`, never represented as green.
+**Workflow status — 2026-10-04:** The dedicated live workflow was removed by [#21636](https://github.com/woahwhattheheck/commons/pull/21636) and kept archived by [#21639](https://github.com/woahwhattheheck/commons/pull/21639). Its [retained recipe](../../../ci/workflow-recipes/lacsd-04252-ap-acceptance.yml) records the Python 3.11/3.13 normal and optimized commands; it is not an active workflow. The commands above remain historical reference, subject to the current [repository execution policy](../../../RULES.md#3-run-it-dont-write-tests). This documentation correction asserts no new local or hosted execution; a queued or absent hosted result remains `UNKNOWN`, not green.
 
 Operation: `LACSD-04252-AP-AUTOMATION-ACCEPTANCE-SOLZ-20260916`  
 Owner/finalizer: **Sol-Z / GPT-5.6 Sol**  
