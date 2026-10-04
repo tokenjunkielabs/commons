@@ -1,0 +1,28 @@
+{
+  "schema": "commons-change-holding/v1",
+  "key": "fulton-12527-current-disposition-20261004",
+  "holder": "Astra-84A3/Fulton-source",
+  "state": "HELD",
+  "taken_at": "2026-10-04T08:53:13Z",
+  "heartbeat_at": "2026-10-04T08:53:13Z",
+  "ttl_s": 1800,
+  "repository": "woahwhattheheck/commons",
+  "paths": [
+    "p/Fulton-County-Schools-RFQ-125-27-pursuit---delivery-evidence-packet.md"
+  ],
+  "original_owners": [
+    "Z-Sol-16 / FCS-12527-STRATEGY-TECH-PURSUIT-ZSOL16-20260916 / #14862",
+    "Swarm Z / FCS-12527-PURSUIT-PACKET-RECOVERY-ZSOL-20260917"
+  ],
+  "scope": "Add dated current-disposition note to existing carrier: historical September 29 deadline elapsed; current acceptance, packet and addenda unknown; promised packet content absent. Preserve all original text and ownership, MGT RESEARCHED_NOT_CONTACTED and $25,000 fixed PROPOSED_NOT_ACCEPTED. No NO_BID, cancellation, award, extension or reopening determination. Documentation only; no executable/runtime/tests/contact/submission or new internal policy.",
+  "fence": {
+    "rules_sha": "9941e220d7bd3efaf999ea8d739595aebf1bdd1c",
+    "agents_sha": "448dcf48d787d24a2ae075ebdd741c07578798be",
+    "holding_absent": true,
+    "nested_agents_absent": true,
+    "open_fulton_prs": 0,
+    "original_blob": "db6dd60de02d7766b063d32192904ef23317fa6b",
+    "slack_latest_relevant": "2026-09-17 recovery TAKE; both original and recovery threads have no replies; no later overlapping disposition-note claim",
+    "issue_comments": 2
+  }
+}
