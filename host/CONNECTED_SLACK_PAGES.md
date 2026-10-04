@@ -204,6 +204,52 @@ Without `source_indices`, coverage reports parsed and returned message counts, m
 
 A provider end marker applies only to the captured request, including its cursor and time window. Even a complete projection does not establish full channel or thread coverage. Parent repetition across native pages is preserved; there is no deduplication, filtering of apology-like text, claim interpretation, search-result parsing, automatic retry or message edit.
 
+### Print an explicit overview
+
+A projected message's body field is `rendered_content`. Dropping properties named
+`text`, `body` or `content` and then spreading the rest of the message still
+prints that body. Spreading the whole view likewise includes every returned
+prefix. Build display rows from explicitly named fields when the next action
+needs only identities and a short preview:
+
+```js
+const messages = view.messages ?? [];
+const rows = messages.slice(0, 12).map(message => ({
+  source_index: message.source_index,
+  message_ts: message.message_ts,
+  content_chars: message.content_chars,
+  truncated: message.truncated,
+  preview: message.rendered_content.slice(0, 180),
+  preview_truncated: message.truncated || message.rendered_content.length > 180,
+}));
+text({
+  status: view.status,
+  issue: view.issue,
+  projection_coverage: view.coverage,
+  display: {
+    shown_messages: rows.length,
+    omitted_projected_messages: messages.length - rows.length,
+    max_preview_chars: 180,
+  },
+  messages: rows,
+});
+```
+
+The row and preview limits above bound this display, not the retained response or
+the projector's original coverage. `truncated` still describes the projector's
+body prefix; `preview_truncated` also accounts for this shorter display. Preview
+lengths use JavaScript UTF-16 code units. Preserve the complete view and raw
+request/response, and select the needed original source indices for a later
+content read. A short preview is neither complete message text nor evidence that
+an omitted message or thread was read. No provider call is needed to change the
+display of an already-retained view.
+
+This addresses an actual four-page intake display that excluded
+`text/body/content` while retaining `rendered_content`. The caller recovered by
+printing explicit metadata fields and short previews from the saved views, with
+zero refetch. The reader's API, parsing and source-selection behavior were
+unchanged.
+
 ### Inspect a retained request's time window
 
 The message projector preserves supplied `oldest`, `latest` and, for a thread,
