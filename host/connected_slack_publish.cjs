@@ -227,26 +227,9 @@ async function publishSlackMessage(tools, request, options = {}) {
 }
 
 
-/** Compare one retained bounded rendering. This pure operation never reads or writes Slack. */
-function compareSlackPublication(published, expectedMessage, options = {}) {
-  object(published, 'published result');
-  text(expectedMessage, 'expected message');
-  object(options, 'comparison options');
-  for (const key of Object.keys(options)) {
-    if (key !== 'normalization') throw new TypeError('Unsupported comparison option: ' + key);
-  }
-  const normalization = options.normalization === undefined ? 'none' : options.normalization;
-  if (!['none', 'slack_bare_urls_entities',
-    'slack_bare_urls_entities_fragment_labels'].includes(normalization)) {
-    throw new TypeError('normalization must be none, slack_bare_urls_entities, '
-      + 'or slack_bare_urls_entities_fragment_labels');
-  }
-  const allowFragmentLabels = normalization === 'slack_bare_urls_entities_fragment_labels';
-  const result = {status: 'uncomparable', matches: null, literal_match: null,
-    body_source: 'native_read_thread_rendering', channel_binding: 'retained_readback_request',
-    normalization, normalizations_applied: {bare_url_wrappers: 0, entities: 0}};
-  if (allowFragmentLabels) result.normalizations_applied.fragment_labels = 0;
-  const refuse = reason => ({...result, reason});
+/** Select the existing bounded native rendering without changing body characters. */
+function selectSlackPublicationBody(published, result) {
+  const refuse = reason => ({failure: {...result, reason}});
   if (published.message_state !== 'edit_confirmed' || published.readback_status !== 'captured') {
     return refuse('confirmed_edit_and_capture_required');
   }
@@ -317,7 +300,31 @@ function compareSlackPublication(published, expectedMessage, options = {}) {
   }
   const selected = records.filter(record => record.id === published.message_id);
   if (selected.length !== 1) return refuse('selected_message_not_found');
-  const observed = selected[0].body;
+  return {body: selected[0].body};
+}
+
+/** Compare one retained bounded rendering. This pure operation never reads or writes Slack. */
+function compareSlackPublication(published, expectedMessage, options = {}) {
+  object(published, 'published result');
+  text(expectedMessage, 'expected message');
+  object(options, 'comparison options');
+  for (const key of Object.keys(options)) {
+    if (key !== 'normalization') throw new TypeError('Unsupported comparison option: ' + key);
+  }
+  const normalization = options.normalization === undefined ? 'none' : options.normalization;
+  if (!['none', 'slack_bare_urls_entities',
+    'slack_bare_urls_entities_fragment_labels'].includes(normalization)) {
+    throw new TypeError('normalization must be none, slack_bare_urls_entities, '
+      + 'or slack_bare_urls_entities_fragment_labels');
+  }
+  const allowFragmentLabels = normalization === 'slack_bare_urls_entities_fragment_labels';
+  const result = {status: 'uncomparable', matches: null, literal_match: null,
+    body_source: 'native_read_thread_rendering', channel_binding: 'retained_readback_request',
+    normalization, normalizations_applied: {bare_url_wrappers: 0, entities: 0}};
+  if (allowFragmentLabels) result.normalizations_applied.fragment_labels = 0;
+  const selection = selectSlackPublicationBody(published, result);
+  if (selection.failure) return selection.failure;
+  const observed = selection.body;
   result.literal_match = observed === expectedMessage;
   if (result.literal_match) return {...result, status: 'exact', matches: true};
   if (normalization === 'none') {
@@ -350,6 +357,43 @@ function compareSlackPublication(published, expectedMessage, options = {}) {
     : {...result, status: 'mismatch', matches: false, reason: 'different_rendered_body'};
 }
 
+/** Compare only the exact raw span inside one unambiguous triple-backtick pair. */
+function compareSlackFencedPayload(published, expectedPayload) {
+  object(published, 'published result');
+  text(expectedPayload, 'expected payload');
+  const result = {status: 'uncomparable', matches: null, literal_match: null,
+    evidence_scope: 'single_fenced_payload',
+    body_source: 'native_read_thread_rendering', channel_binding: 'retained_readback_request',
+    normalization: 'none', whole_message_comparison: 'not_performed'};
+  const refuse = reason => ({...result, reason});
+  const selection = selectSlackPublicationBody(published, result);
+  if (selection.failure) return selection.failure;
+  const observed = selection.body;
+  const fences = [...observed.matchAll(/`{3,}/g)];
+  if (fences.length !== 2 || fences.some(fence => fence[0] !== '```')) {
+    return refuse('single_triple_backtick_pair_required');
+  }
+  if (/^[ \t]*~{3,}/m.test(observed)) return refuse('unsupported_fence_form');
+  const opening = fences[0].index;
+  const closing = fences[1].index;
+  if ((opening !== 0 && observed[opening - 1] !== '\n')
+      || (closing + 3 !== observed.length && observed[closing + 3] !== '\n')) {
+    return refuse('unsupported_fence_boundaries');
+  }
+  const start = opening + 3;
+  const payload = observed.slice(start, closing);
+  result.fence = {delimiter: '```', offset_origin: 'selected_rendered_body',
+    offset_unit: 'utf16_code_units', range_end: 'exclusive',
+    opening: [opening, start], payload: [start, closing], closing: [closing, closing + 3]};
+  result.expected_length = expectedPayload.length;
+  result.observed_length = payload.length;
+  result.literal_match = payload === expectedPayload;
+  return result.literal_match
+    ? {...result, status: 'exact', matches: true}
+    : {...result, status: 'mismatch', matches: false, reason: 'different_fenced_payload'};
+}
+
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {SlackPublishError, publishSlackMessage, readSlackPublication, compareSlackPublication};
+  module.exports = {SlackPublishError, publishSlackMessage, readSlackPublication,
+    compareSlackPublication, compareSlackFencedPayload};
 }
