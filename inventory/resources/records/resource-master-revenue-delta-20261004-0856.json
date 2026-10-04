@@ -1,0 +1,118 @@
+{
+  "schema": "commons.resource_master.activation/v1",
+  "id": "resource-master-revenue-delta-20261004-0856",
+  "operation_id": "RESOURCE-MASTER-REVENUE-DELTA-20261004-0856",
+  "observed_at": "2026-10-04T13:05:13Z",
+  "selected_resources": [
+    "rcap-dcs-proposal-owner-facts",
+    "bounty-minimum-15-intake"
+  ],
+  "activation_count": 2,
+  "producing_outcomes": [
+    {
+      "resource": "rcap-dcs-proposal-owner-facts",
+      "result": "OWNER_FACT_REQUEST_DELIVERED",
+      "receipt": "https://tokenjunkielabs.slack.com/archives/C0BU51F1PL3/p1791118783485859?thread_ts=1790977806.441259&cid=C0BU51F1PL3",
+      "consumer": "Existing RCAP $24,500 proposal writer and owner-authorized submission path",
+      "deadline": "2026-10-04 11:59 PM EST"
+    },
+    {
+      "resource": "bounty-minimum-15-intake",
+      "result": "DIRECT_POLICY_RECONCILED_WITH_EXISTING_PRODUCING_INTAKE",
+      "source_receipt": "Slack1791117131.883199",
+      "existing_delivery_receipts": [
+        "bounty-concierge PR790 merge2685db051c44f1fa34349ca4c23fb8a5d5d0117c",
+        "bounty-concierge PR791 merge267d5c82b167dbdd50e447bfc72ee4a38095aaaf"
+      ]
+    },
+    {
+      "resource": "cbb-payment-policy-owner-attention",
+      "result": "OWNER_POLICY_REQUEST_DELIVERED",
+      "receipt": "https://tokenjunkielabs.slack.com/archives/C0BU51F1PL3/p1791118836605509?thread_ts=1790977806.441259&cid=C0BU51F1PL3",
+      "source": "https://github.com/claude-builders-bounty/claude-builders-bounty/issues/3#issuecomment-5980090577"
+    }
+  ],
+  "lifecycle_changes": [
+    {
+      "resource": "shared-cloud-temporary-pack-candidate",
+      "to": "DEGRADED/ZERO_OVERLAY_BYTES_OBSERVED",
+      "owner": "#31126 retained"
+    },
+    {
+      "resource": "SOHT CAD 40,000 website RFP",
+      "to": "CLOSED/EXPIRED"
+    },
+    {
+      "resource": "Upwork $500 marketing automation and $20 stationery listings",
+      "to": "UNAVAILABLE"
+    },
+    {
+      "resource": "Dozer #1690",
+      "to": "COLLIDED",
+      "receipt": "https://github.com/getdozer/dozer/issues/1690#issuecomment-5979840515"
+    },
+    {
+      "resource": "microG/GmsCore PR3841",
+      "to": "OPEN_UNMERGED_HEAD_MOVED",
+      "head": "655881645bf44190134d204dce36f746446a06d9"
+    }
+  ],
+  "commercial_observation": {
+    "stripe_new_payment_intents": 0,
+    "stripe_new_checkout_sessions": 0,
+    "stripe_new_balance_transactions": 0,
+    "balance_available_usd": "0.00",
+    "balance_pending_usd": "0.00",
+    "orders_settlements_payouts_revenue_cash_claimed": 0
+  },
+  "quota_lifecycle": {
+    "decision": "RETAIN_PRIOR_STATE",
+    "official_new_reset_evidence": false,
+    "direct_meter_change_observed": false,
+    "reset_activated": false,
+    "reset_purchased": false
+  },
+  "automations": {
+    "total": 25,
+    "enabled": 3,
+    "disabled": 22,
+    "records_updated_after_lower_bound": 0,
+    "resource_master_enabled": true,
+    "schedule_changed": false,
+    "disabled_tasks_restarted": 0
+  },
+  "build_orders": [],
+  "build_order_reason": "No genuinely new collision-free implementation gap: candidates were already owned, complete, expired, policy/owner dependent, or blocked by buyer/eligibility evidence rather than missing code.",
+  "claims": {
+    "claim_link": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791118869421209",
+    "exact_paths": [
+      "ground/RESOURCE_LEDGER.json",
+      "ground/RESOURCE_LEDGER.md",
+      "resources.html",
+      "inventory/resources/records/resource-master-revenue-delta-20261004-0856.json"
+    ],
+    "release_pending_publication": true
+  },
+  "current_terminal_watermark": {
+    "inherits_record_id": "resource-master-paid-diagnostic-idempotency-terminal-20261004-01",
+    "fully_collected_commit_range_head": "4462d621fcfa1d7c509395b0cde71a1e6717cbc2",
+    "fully_swept_window_upper": "2026-10-04T10:28:37Z",
+    "bounded_commons_main_from_exclusive": "22e8d4ab3c479d8a2603b8bd4d40d6984f79a110",
+    "bounded_commons_main_through": "5761916e989b39c981a80457329ca9770c7947dc",
+    "bounded_slack_from_exclusive": "1791116192.262929",
+    "bounded_slack_through": "1791117581.734559",
+    "current_main_snapshot_is_fully_swept": false,
+    "publication_observations_after_upper_are_not_swept": true
+  },
+  "checks": {
+    "exact_path_claim": true,
+    "prior_paid_diagnostic_complete_and_not_repeated": true,
+    "private_data_preserved": true,
+    "no_new_tests_fixtures_workflows": true,
+    "no_paid_compute": true,
+    "open_door_no_auth": true,
+    "zero_fabrication": true,
+    "no_contact_or_relay_to_michael_clark": true,
+    "no_personal_meeting_commitment": true
+  }
+}
