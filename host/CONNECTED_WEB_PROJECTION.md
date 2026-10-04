@@ -18,7 +18,7 @@ const overview = projectWebSources(retainedResponse, {
 });
 ~~~
 
-Pass the actual web-tool CallToolResult with its content array. The supported source header rendering has a title and HTTP(S) URL on one line, followed by a returned search/view/fetch/news reference and a numeric word-limit marker. The same header-shaped boundary with an empty or unsupported URL separates an unparsed block; it is not added as a citable source. The adapter reads that rendering; it does not synthesize source IDs from URLs or interpret arbitrary prose as an empty result set.
+Pass the actual web-tool CallToolResult with its content array. The supported source header rendering has a title field, which may be empty, and an HTTP(S) URL on one line, followed by a returned search/view/fetch/news reference and a numeric word-limit marker. The space before the parenthesized URL is still required. An empty title is returned as the literal empty string; the adapter does not derive a title from the URL, filename or page content. The same header-shaped boundary with an empty or unsupported URL separates an unparsed block; it is not added as a citable source. The adapter reads that rendering; it does not synthesize source IDs from URLs or interpret arbitrary prose as an empty result set.
 
 A successful response has status PROJECTED and a sources array. Each source includes:
 
@@ -176,3 +176,30 @@ search, click, portal request, native process, synthetic response or fixture.
 The original mixed tool response remains with the consumer. No source body is
 copied into this guide, and no procurement finding is inferred from the search
 results or failed click.
+
+
+### Empty-title PDF response, October 4, 2026
+
+The xTech procurement reader supplied an actual retained official-PDF response
+whose first rendered title field was empty. The response contained 24,731
+UTF-16 code units. The previous parser returned UNRECOGNIZED_RENDERING with
+no supported sources and the whole text item marked unparsed.
+
+The consumer changed only the title-field quantifier in the existing header
+pattern and invoked the public API once using candidate Git blob
+`01f7a02d1cfddde21b0644ac82f9753a6ae4001d`. The input response and original
+limits remained unchanged: start_index 0, max_sources 2, max_content_chars
+15,000 and max_total_content_chars 15,000.
+
+The result was PROJECTED with one source, the original reference, official URL
+and word limit, and a literal empty-string title. Its rendered source range was
+[0, 24,731), header range [0, 125), and content range [125, 24,731).
+The returned content range [125, 15,125) exactly matched the corresponding
+15,000-code-unit slice of the retained original. The 24,606-code-unit content
+was explicitly truncated; no source was omitted and no text remained unparsed.
+The original raw response was unchanged.
+
+Only the corrected API ran on that retained response. The earlier refusal was
+already retained; no old API, web retrieval, native process, fixture or suite
+was rerun. This guide retains only the measured projection boundary, not the
+PDF text or a procurement conclusion.
