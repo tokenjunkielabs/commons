@@ -273,7 +273,10 @@ class Broker:
                 return self.envelope("CACHED", fetched_at=row["fetched"], age_seconds=now-row["fetched"], data=loads(row["payload"]))
             flight = db.execute("SELECT expires FROM flight WHERE namespace=? AND key=?", (self.namespace, key)).fetchone()
             if flight:
-                return self.envelope("BUSY", retry_after_seconds=max(1, math.ceil(flight["expires"] - now)))
+                # Recheck the local cache promptly: lease expiry is the owner's
+                # crash-recovery deadline, not the expected response-ready time.
+                # Keeping the flight intact prevents duplicate provider calls.
+                return self.envelope("BUSY", retry_after_seconds=1)
             cooldown = self._cooldown(db, bucket, now)
             if cooldown is not None:
                 return self.envelope("COOLDOWN", retry_after_seconds=cooldown)

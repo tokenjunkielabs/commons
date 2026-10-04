@@ -56,6 +56,8 @@ Example local request body:
 
 Possible broker states are `FETCHED`, `CACHED`, `BUSY`, `COOLDOWN`, `AUTH_BLOCKED`, `UPSTREAM_ERROR`, and `DISCARDED`. Every envelope includes `provider_write_authority: false`.
 
+For an in-flight duplicate, `BUSY` advises a one-second local cache recheck. The original lease remains active until completion or expiry, so rechecking cannot start another upstream request while its owner is fetching. Provider `COOLDOWN` responses retain their full retry/reset delay.
+
 ## Supported upstream reads
 
 - `repo.get`
