@@ -71,6 +71,7 @@ def _envelopes(value):
 def response_evidence(value):
     if not isinstance(value, dict):
         raise EquipmentError("provider response must be a JSON object")
+    failed = tool_failed(value)
     evidence = {"observed_at": _iso(_now()), "uncertain": effect_uncertain(value)}
     for envelope in _envelopes(value):
         for key in ("http_status", "retry_after", "retry_not_before", "quota_remaining",
@@ -81,6 +82,12 @@ def response_evidence(value):
         status = envelope.get("status")
         if isinstance(status, int) and not isinstance(status, bool):
             evidence.setdefault("http_status", status)
+        # Native MCP failures carry HTTP status in a typed error_data envelope.
+        # Do not treat returned job data or arbitrary error codes as transport status.
+        native_error = envelope.get("error_data")
+        if failed and isinstance(native_error, dict) and native_error.get("type") == "http_error":
+            if native_error.get("code") is not None:
+                evidence.setdefault("http_status", native_error["code"])
         for header_field in ("headers", "rate_limit_headers"):
             headers = envelope.get(header_field)
             if not isinstance(headers, dict):
@@ -106,7 +113,7 @@ def response_evidence(value):
     if status is not None and (isinstance(status, bool) or not isinstance(status, int)
                                or not 100 <= status <= 599):
         raise EquipmentError("provider http_status must be an HTTP status integer")
-    evidence["failed"] = tool_failed(value) or bool(status and status >= 400)
+    evidence["failed"] = failed or bool(status and status >= 400)
     return evidence
 
 
