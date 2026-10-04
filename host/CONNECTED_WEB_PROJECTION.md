@@ -18,7 +18,7 @@ const overview = projectWebSources(retainedResponse, {
 });
 ~~~
 
-Pass the actual web-tool CallToolResult with its content array. The supported source header rendering has a title field, which may be empty, and an HTTP(S) URL on one line, followed by a returned search/view/fetch/news reference and a numeric word-limit marker. The space before the parenthesized URL is still required. An empty title is returned as the literal empty string; the adapter does not derive a title from the URL, filename or page content. The same header-shaped boundary with an empty or unsupported URL separates an unparsed block; it is not added as a citable source. The adapter reads that rendering; it does not synthesize source IDs from URLs or interpret arbitrary prose as an empty result set.
+Pass the actual web-tool CallToolResult with its content array. The supported source header rendering has a title field, which may be empty, and an HTTP(S) URL on one line, followed by a returned search/view/fetch/news/academia reference and a numeric word-limit marker. The space before the parenthesized URL is still required. An empty title is returned as the literal empty string; the adapter does not derive a title from the URL, filename or page content. The same header-shaped boundary with an empty or unsupported URL separates an unparsed block; it is not added as a citable source. The adapter reads that rendering; it does not synthesize source IDs from URLs or interpret arbitrary prose as an empty result set.
 
 A successful response has status PROJECTED and a sources array. Each source includes:
 
@@ -203,3 +203,40 @@ Only the corrected API ran on that retained response. The earlier refusal was
 already retained; no old API, web retrieval, native process, fixture or suite
 was rerun. This guide retains only the measured projection boundary, not the
 PDF text or a procurement conclusion.
+
+
+### Academia reference boundaries, October 4, 2026
+
+A later Inkomoko search response contained native academia references alongside
+search references in one retained 38,827-code-unit text item. The previous
+pattern recognized only search/view/fetch/news references. It parsed 18 sources
+and attributed academia headers and their following text to preceding sources,
+while reporting no unparsed text.
+
+The consumer invoked the corrected API once with candidate Git blob
+`f69609cb865273542d2a90c24b2dd290f261c3ed`. The existing limits were unchanged:
+start_index 10, max_sources 10, max_content_chars 1,000 and
+max_total_content_chars 5,000. The result parsed 22 sources, returned indices
+10–19, and reported next_index 20 with omitted ranges [0, 10) and [20, 22).
+The four additional parsed blocks were the actual academia references; the
+last two stayed omitted by this selection rather than being folded into an
+earlier source.
+
+Two corrected boundaries illustrate the attribution change. The source with
+reference turn583search15 now ends at 35,998 rather than 36,427; its content
+range is [35,827, 35,998). The following turn583academia16 block occupies
+[35,998, 36,427), with header [35,998, 36,172) and content [36,172, 36,427).
+The turn583search18 block now ends at 37,509 rather than 38,827; its content
+range is [36,932, 37,509). The following turn583academia19 block occupies
+[37,509, 37,958), with header [37,509, 37,632) and content [37,632, 37,958).
+The selected search references were preserved, and the unaffected selected
+search ranges were unchanged.
+
+All ten returned contents matched their exact original text slices. The result
+returned 4,912 content code units with three explicit truncation flags, no
+unparsed ranges, and no duplicate references. Titles, URLs and word limits came
+from the actual headers, and the original response was unchanged. Only this
+corrected API invocation ran; the prior projection was already retained. No
+web retrieval, native process, fixture, suite or raw source-body publication
+was used. Recognizing a reference kind does not classify its relevance or
+establish authority for the procurement task.
