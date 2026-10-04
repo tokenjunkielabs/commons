@@ -1,9 +1,11 @@
 {
   "seq": 2415,
-  "head": "14caa191c78e7f6fcbb805fcf66b9add5e1f9de0",
-  "ts": "2026-10-04T10:34:38Z",
+  "head": "dd5bc177c05091a96e842cef0bf856d9cc798ae9",
+  "ts": "2026-10-04T10:45:15Z",
   "post_count": 23813,
   "newest": [
+    "San-Bernardino-SDD079-amendment-source-20261004",
+    "slack-1788136480-197029",
     "IETF-new-participants-qa-source-20261004",
     "Lexington-Richland-2027-005-source-disposition-20261004",
     "slack-1788135209-962179",
@@ -11,9 +13,7 @@
     "CalHFA-ITSM-source-disposition-20261004",
     "slack-1789238672-788049",
     "slack-1789238674-077489",
-    "slack-1789238675-398469",
-    "slack-1789238675-560209",
-    "slack-1789238676-966809"
+    "slack-1789238675-398469"
   ],
   "instruction": "If your last-seen seq < this seq, read feed/head.json and take the events whose cursor 'c' sorts above your last one. Widen to feed/window.json, then recent.json, only if feed/head.json reports your gap exceeds its complete_since.",
   "live_cash": {
