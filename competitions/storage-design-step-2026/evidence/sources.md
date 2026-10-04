@@ -64,3 +64,57 @@ No literature value below is entrant test data.
 - No assertion that the cassette materials, membrane alternatives, or dry-reagent logistics are chemically qualified.
 - No entrant cycle-life, efficiency, power-density, cost, safety, reliability, or field-deployment data.
 - No supplier quote or domestic-content percentage.
+
+## Manufacturing prior-art review — 2026-10-04
+
+The [bounded engineering comparison](prior_art_review_20261004.md) maps the sources below to the cassette,
+membrane and logistics claims. These sources do not establish FerroFrame measurements, qualified suppliers,
+patentability, freedom to operate, or an official prize score. The comprehensive novelty and human-review gates
+remain unresolved. The comparison records the current official-rule retrieval limits separately.
+
+11. Chalamala, B. R. et al. **Redox Flow Batteries: An Engineering Perspective.**
+    *Proceedings of the IEEE* 102(6), 976–999 (June 2014). DOI: 10.1109/JPROC.2014.2320317.
+    https://ieeexplore.ieee.org/document/6816026/
+    Readable author copy: https://www.researchgate.net/publication/262417200_Redox_Flow_Batteries_An_Engineering_Perspective
+    Anchor: section IV.D, author-copy pp. 11–12, Figs. 10–11; UTRC repeating assemblies.
+
+12. **US20240047710A1**, published 2024-02-08.
+    https://patents.google.com/patent/US20240047710A1/en
+    Anchor: claims 1–2 and 12–15; common structural frame and configurable fluid-distribution inserts.
+
+13. **US20210083305A1**, published 2021-03-18.
+    https://patents.google.com/patent/US20210083305A1/en
+    Anchor: claims 1 and 6–8; replaceable battery-body units in a nanomaterial-containment design.
+
+14. **US20140060666A1**, published 2014-03-06.
+    https://patents.google.com/patent/US20140060666A1/en
+    Anchor: claims 1–3 and 7–13, Figs. 7A–8B; internal manifolds/sub-stacks in a hybrid all-iron system.
+
+15. Richtr et al. **Development of high-performance and cost-effective electrode assembly for redox flow batteries.**
+    *Results in Engineering* 27 (2025), 106285; online 2025-07-15. DOI: 10.1016/j.rineng.2025.106285.
+    https://www.sciencedirect.com/science/article/pii/S2590123025023576
+    Primary full paper: https://publica-rest.fraunhofer.de/server/api/core/bitstreams/211cb49f-51c0-4429-beee-a21084cdc54d/content
+    Anchor: sections 3.2, 3.2.3 and 4; bonded/welded assemblies in vanadium cells.
+
+16. Zhao et al. **Ex-Situ Evaluation of Commercial Polymer Membranes for Vanadium Redox Flow Batteries (VRFBs).**
+    *Polymers* 13(6), 926; published 2021-03-17. DOI: 10.3390/polym13060926.
+    https://www.mdpi.com/2073-4360/13/6/926
+    Primary paper copy: https://publications-cnrc.canada.ca/eng/view/ft/?id=c00a6198-bf1b-4dde-a924-d07091443704
+    Anchor: section 2.1/Table 1, sections 3.1–3.5, section 4/Table 6; comparative membrane screening.
+
+17. Van Cauter, Li, Van Herck and Vankelecom. **Stability and Performance of Commercial Membranes in High-Temperature Organic Flow Batteries.**
+    *Membranes* 14(8), 177; published 2024-08-15. DOI: 10.3390/membranes14080177.
+    https://www.mdpi.com/2077-0375/14/8/177
+    Primary paper copy: https://pdfs.semanticscholar.org/9758/1e785c566c86de3b4c55e1d73fd81747fa00.pdf
+    Anchor: Table 1, section 2.2, sections 3.4–3.5 and 4; common-cell comparison and thermal-storage assessment.
+
+18. **US20180316036A1 — Methods and systems for redox flow battery electrolyte hydration**, published 2018-11-01.
+    https://patents.google.com/patent/US20180316036A1/en
+    Anchor: dry-assembly/end-use-hydration description, Fig. 3 and claim 13.
+
+19. **US20240194918A1 — Forward osmosis process to increase the concentration of a dilute metal salt solution and related processes**, published 2024-06-13.
+    https://patents.google.com/patent/US20240194918A1/en
+    Anchor: solidification discussion, EXAMPLE introduction and receiving-site reconstitution passage.
+
+Review access date: **2026-10-04**. Patent publication text is an earlier disclosure, not evidence of deployment,
+current legal status or formulation compatibility. Article measurements retain their stated chemical and experimental scope.
