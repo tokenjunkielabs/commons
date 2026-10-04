@@ -13,6 +13,8 @@ Version 2 closes that authority defect. A candidate manifest can describe a prop
 
 This repair does not reopen the WRF commercial lane. It performs no buyer or partner contact, portal action, submission, spend, award, payment, cash, or revenue action.
 
+The [historical Santoro call brief](santoro_call_brief.md) now carries the later explicit decline and terminal contact disposition from canonical issue #13845. Its earlier agenda is research history only and must not be consumed as current interest, a meeting plan, participant consent or permission for follow-up.
+
 ## Immutable WRF-5417 contract
 
 validate_readiness.py owns these rules in source rather than trusting packet fields:
