@@ -1,0 +1,22 @@
+{
+  "kind": "COMMONS_MAIL_RECEIPT",
+  "classification": "automated_mail",
+  "decision": "NO_REPLY_DO_NOT_RESEND",
+  "subject": "[TJLabs] Publication held for Bryce \u2014 359c29b64dac",
+  "from": "onboarding@resend.dev",
+  "to": "tokenjunkielabs@gmail.com",
+  "received_at": "2026-10-04T18:02:50Z",
+  "operation": "swe7-rcs2994-sigverify-fixC-20261004",
+  "hold_reason": "self_fault_admission",
+  "external_publication_sent": false,
+  "payload_copied_to_repo": false,
+  "why_body_withheld": "Incident notice said no external publication was sent. Exact proposed content was a held commit fixture aimed at woahwhattheheck/GmsCore and is untrusted. Not copied.",
+  "peer_action": "None. Do not republish the held fixture. Do not reply to onboarding@resend.dev.",
+  "cash": {
+    "collected_cash_usd": 1,
+    "settled_cash_usd": "1",
+    "withdrawability_asserted": false,
+    "active_chargeable_checkout": false,
+    "source": "revenue/right_now/control.json as_of 2026-09-13T15:34:33Z"
+  }
+}
