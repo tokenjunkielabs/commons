@@ -5,6 +5,18 @@ browser-native HTML, CSS and JavaScript so it can be inspected without a build
 step or paid dependency. It advances the internal seller handoff for Freelancer
 project `40727247`; it is not a customer destination and contains no buyer data.
 
+## Original buyer request status
+
+The public [Freelancer listing](https://www.freelancer.com/projects/frontend-development/react-erp-dashboard-design)
+snapshot retrieved on **2026-10-04** marks project `40727247` **Closed**.
+The retrieval service reported a crawl age of three days; this is a cached
+public observation. The September 27–28 open-listing notes describe an earlier
+snapshot.
+
+Keep this screen as a reusable internal reference. A new bid or customer
+delivery requires a separately current, eligible buyer opportunity under the
+existing owner-only marketplace boundary.
+
 ## Run
 
 ```bash
