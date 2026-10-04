@@ -58,9 +58,13 @@ promises.
 
 ## CLI
 
+Run these commands from the repository root to use the bundled fixture. The CLI
+resolves input paths relative to the current working directory; the shell writes
+`projection.json` in that directory.
+
 ```bash
-python -m revenue.ohsu_ap_ai_rfi_approof.cli compile fixture.json > projection.json
-python -m revenue.ohsu_ap_ai_rfi_approof.cli verify fixture.json projection.json
+python -m revenue.ohsu_ap_ai_rfi_approof.cli compile revenue/ohsu_ap_ai_rfi_approof/fixture.json > projection.json
+python -m revenue.ohsu_ap_ai_rfi_approof.cli verify revenue/ohsu_ap_ai_rfi_approof/fixture.json projection.json
 ```
 
 A successful verification prints `OK`. Input or verification failures exit `2`.
