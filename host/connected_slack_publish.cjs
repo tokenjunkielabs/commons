@@ -313,15 +313,18 @@ function compareSlackPublication(published, expectedMessage, options = {}) {
   }
   const normalization = options.normalization === undefined ? 'none' : options.normalization;
   if (!['none', 'slack_bare_urls_entities',
-    'slack_bare_urls_entities_fragment_labels'].includes(normalization)) {
+    'slack_bare_urls_entities_fragment_labels',
+    'slack_bare_urls_entities_www_slash_labels'].includes(normalization)) {
     throw new TypeError('normalization must be none, slack_bare_urls_entities, '
-      + 'or slack_bare_urls_entities_fragment_labels');
+      + 'slack_bare_urls_entities_fragment_labels, or slack_bare_urls_entities_www_slash_labels');
   }
   const allowFragmentLabels = normalization === 'slack_bare_urls_entities_fragment_labels';
+  const allowWwwSlashLabels = normalization === 'slack_bare_urls_entities_www_slash_labels';
   const result = {status: 'uncomparable', matches: null, literal_match: null,
     body_source: 'native_read_thread_rendering', channel_binding: 'retained_readback_request',
     normalization, normalizations_applied: {bare_url_wrappers: 0, entities: 0}};
   if (allowFragmentLabels) result.normalizations_applied.fragment_labels = 0;
+  if (allowWwwSlashLabels) result.normalizations_applied.www_slash_labels = 0;
   const selection = selectSlackPublicationBody(published, result);
   if (selection.failure) return selection.failure;
   const observed = selection.body;
@@ -339,10 +342,15 @@ function compareSlackPublication(published, expectedMessage, options = {}) {
       const fragmentLabel = allowFragmentLabels && fragment >= 0
         && fragment < withoutScheme.length - 1
         && label === withoutScheme.slice(0, fragment + 1) + '\u2026';
-      if (label !== undefined && label !== target && label !== withoutScheme && !fragmentLabel) {
+      const wwwSlashLabel = allowWwwSlashLabels && withoutScheme.startsWith('www.')
+        && withoutScheme.endsWith('/') && !/[?#]/.test(withoutScheme)
+        && label === withoutScheme.slice(4, -1);
+      if (label !== undefined && label !== target && label !== withoutScheme
+        && !fragmentLabel && !wwwSlashLabel) {
         return whole;
       }
       if (fragmentLabel) result.normalizations_applied.fragment_labels += 1;
+      if (wwwSlashLabel) result.normalizations_applied.www_slash_labels += 1;
       result.normalizations_applied.bare_url_wrappers += 1;
       return target;
     });
