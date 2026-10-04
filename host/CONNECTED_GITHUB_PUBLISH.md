@@ -56,6 +56,7 @@ const result = await publishGitHubChange(tools, {
 | `content` | Complete UTF-8 source string, or base64-encoded binary bytes. |
 | `encoding` | `utf-8` by default; `base64` is also supported. |
 | `expected_blob_sha` | Exact Git blob SHA read before editing; explicitly `null` for a new file. |
+| `expected_new_blob_sha` | Optional independently observed Git blob SHA for base64 source; checked against the native blob result before tree creation. |
 | `mode` | Optional `100644` or `100755`; otherwise retain the existing mode, or use `100644` for a new file. |
 
 Pass actual prepared source, not excerpts. The expected SHA identifies the
@@ -64,6 +65,22 @@ content, then records the native SHA returned by readback. The native blob
 writer supplies new SHAs for base64 files. Base64 input
 must use ordinary padded encoding without line breaks. UTF-8 input rejects
 unpaired surrogate characters instead of silently changing them.
+
+For a file transferred by `collectFileChunks`, pass its complete `base64` as
+`content`, set `encoding: 'base64'`, and carry the independently observed source
+hash used as `expected_git_blob_sha1` into `expected_new_blob_sha`. Keep
+`expected_blob_sha` set to the previous repository file's SHA. The two pins
+identify different versions. A producer-reported hash alone does not establish
+independent source identity.
+
+The optional new-source pin must be a lowercase 40-character Git SHA and is
+accepted only with base64 input. A mismatch throws `GitHubPublishError` at
+`create_blobs`, with the expected and actual SHA and `source_pin_matches: false`
+in the affected progress entry. Native blob objects may already have been
+created, but no tree, commit, branch or PR is created by that invocation. The
+check also precedes the unchanged-source return. Matching entries record
+`source_pin_matches: true`; an unattempted check remains `null`. Omitting the
+field preserves the existing behavior, including UTF-8 batching.
 
 `merge` defaults to `false`, leaving a normal open PR when that is the requested
 outcome. For Commons work that is already authorized to land under `RULES.md`,
@@ -271,6 +288,14 @@ blob SHA retained by publication. It then reads the named PR from GitHub and
 requires the same head commit, base branch, and source branch in that repository.
 An already-merged PR goes directly to its actual merge commit's source readback,
 recording `merge_skipped: already_merged`; no merge binding or call is needed.
+
+For pinned base64 source, continuation compares the retained binary SHA with
+`expected_new_blob_sha` before any native call. A retained pin cannot be changed
+or removed. Older unpinned progress remains supported: an optional new pin can
+be added only when it matches the retained blob. That checks identity for this
+continuation; it does not assert that the original publication checked a pin
+before creating its tree. The check compares SHA values directly, without
+trusting a saved match flag.
 
 For an open PR, it reads the current base and its exact nonrecursive trees,
 then compares every affected previous blob and file mode. An unrelated base
