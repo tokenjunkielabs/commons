@@ -74,7 +74,8 @@ def response_evidence(value):
     evidence = {"observed_at": _iso(_now()), "uncertain": effect_uncertain(value)}
     for envelope in _envelopes(value):
         for key in ("http_status", "retry_after", "retry_not_before", "quota_remaining",
-                    "rate_limit_remaining", "rate_limit_reset", "delivered", "effect", "code", "error_code"):
+                    "rate_limit_remaining", "rate_limit_reset", "rate_limit_buckets",
+                    "delivered", "effect", "code", "error_code"):
             if key in envelope and envelope[key] is not None:
                 evidence.setdefault(key, envelope[key])
         status = envelope.get("status")
@@ -96,6 +97,11 @@ def response_evidence(value):
                     window = re.search(r"(?:^|;)w=(\d+)", str(item))
                     if window:
                         evidence.setdefault("rate_limit_window_seconds", int(window.group(1)))
+                else:
+                    bucket = re.fullmatch(r"x-ratelimit-(remaining|reset)-(requests|tokens)", key)
+                    if bucket:
+                        field, name = bucket.groups()
+                        evidence.setdefault("rate_limit_buckets", {}).setdefault(name, {}).setdefault(field, item)
     status = evidence.get("http_status")
     if status is not None and (isinstance(status, bool) or not isinstance(status, int)
                                or not 100 <= status <= 599):
@@ -162,6 +168,16 @@ class ConnectedToolRouter:
                 limits = {key: value for key, value in limits.items()
                           if key not in {"quota_remaining", "reset_at"}}
             row.update({key: limits[key] for key in ("cooldown_until", "quota_remaining") if key in limits})
+            for bucket in limits.get("rate_limit_buckets", {}).values():
+                reset_at = _time(bucket.get("reset_at"))
+                if reset_at and reset_at <= _now():
+                    continue
+                if bucket.get("remaining") == 0:
+                    if reset_at:
+                        existing = _time(row.get("cooldown_until"))
+                        row["cooldown_until"] = _iso(max(existing, reset_at) if existing else reset_at)
+                    else:
+                        row["quota_remaining"] = 0
             binding = bindings.get(row["id"], {})
             if not isinstance(binding, dict):
                 raise EquipmentError("each runtime binding must be an object")
@@ -214,7 +230,25 @@ class ConnectedToolRouter:
                 result["decision"] = "NO_UNTRIED_QUOTA_DOMAIN"
             return result
         preferred = request.get("preferred_route")
-        choice = next((row for row in choices if row["id"] == preferred), choices[0])
+        # Spread distinct operations over available domains before one provider
+        # returns 429. These are actual local dispatch counts, not inferred
+        # provider limits; nothing sleeps and direct tool use stays available.
+        moment = _now()
+        recent_since = moment - timedelta(seconds=60)
+        pressure = {}
+        for row in choices:
+            domain = row["quota_domain"]
+            pending = sum(1 for item in state["operations"].values()
+                          if (item.get("pending") or {}).get("quota_domain") == domain)
+            recent = state["quota_domains"].get(domain, {}).get("recent_dispatches", [])
+            count = sum(1 for stamp in recent if _time(stamp) >= recent_since)
+            pressure[domain] = (pending, count)
+        choice = next((row for row in choices if row["id"] == preferred), None)
+        if choice is None:
+            choice = min(choices, key=lambda row: pressure[row["quota_domain"]])
+        limits = state["quota_domains"].setdefault(choice["quota_domain"], {})
+        recent = [stamp for stamp in limits.get("recent_dispatches", []) if _time(stamp) >= recent_since]
+        limits["recent_dispatches"] = [*recent, _iso(moment)]
         binding = request.get("bindings", {}).get(choice["id"], {})
         arguments = binding.get("arguments", request.get("arguments_by_route", {}).get(choice["id"]))
         dispatch = {"decision": "DISPATCH", "operation_id": request["operation_id"],
@@ -224,6 +258,8 @@ class ConnectedToolRouter:
                     "shared_backend_with_failed": choice["shared_backend_with_failed"],
                     "backend_independence_known": choice["backend_independence_known"],
                     "effect": request.get("effect", "read"), "created_at": _iso(_now()),
+                    "selection": {"pending_in_domain": pressure[choice["quota_domain"]][0],
+                                  "dispatches_in_last_minute": pressure[choice["quota_domain"]][1]},
                     "provider_calls": 0, "invocation_required": True}
         operation["pending"] = dispatch
         return copy.deepcopy(dispatch)
@@ -276,6 +312,24 @@ class ConnectedToolRouter:
             return self._next(request, state, operation)
 
     @staticmethod
+    def _bucket_reset(value, observed):
+        # Groq request/day and token/minute buckets return relative durations,
+        # such as 2m59.56s and 7.66s. Keep their individual deadlines; a token
+        # window is not an account credit balance or a request-day counter.
+        raw = str(value).strip()
+        pieces = list(re.finditer(r"(\d+(?:\.\d+)?)(ms|s|m|h|d)", raw))
+        if pieces and "".join(piece.group(0) for piece in pieces) == raw:
+            factors = {"ms": .001, "s": 1, "m": 60, "h": 3600, "d": 86400}
+            seconds = sum(float(piece.group(1)) * factors[piece.group(2)] for piece in pieces)
+            if not math.isfinite(seconds):
+                raise EquipmentError("provider bucket reset duration must be finite")
+            return observed + timedelta(seconds=seconds)
+        try:
+            return datetime.fromtimestamp(float(value), timezone.utc)
+        except (TypeError, ValueError, OverflowError):
+            return _time(value)
+
+    @staticmethod
     def _limits(evidence, current):
         limits = dict(current)
         observed = _time(evidence["observed_at"])
@@ -322,6 +376,27 @@ class ConnectedToolRouter:
                 limits["reset_at"] = _iso(deadline)
             elif isinstance(window, int) and 0 < window <= 86400:
                 limits["reset_at"] = _iso(observed + timedelta(seconds=window))
+        buckets = evidence.get("rate_limit_buckets", {})
+        if not isinstance(buckets, dict):
+            raise EquipmentError("provider rate_limit_buckets must be an object")
+        if buckets:
+            retained = copy.deepcopy(limits.get("rate_limit_buckets", {}))
+            for name, values in buckets.items():
+                if not isinstance(values, dict):
+                    raise EquipmentError("provider quota bucket must be an object")
+                bucket = retained.setdefault(name, {})
+                if values.get("remaining") is not None:
+                    try:
+                        remaining = float(values["remaining"])
+                    except (TypeError, ValueError):
+                        raise EquipmentError("provider bucket remaining must be numeric") from None
+                    if not math.isfinite(remaining) or remaining < 0:
+                        raise EquipmentError("provider bucket remaining must be finite and nonnegative")
+                    bucket["remaining"] = remaining
+                if values.get("reset") is not None:
+                    bucket["reset_at"] = _iso(ConnectedToolRouter._bucket_reset(values["reset"], observed))
+                bucket["observed_at"] = evidence["observed_at"]
+            limits["rate_limit_buckets"] = retained
         limits["observed_at"] = evidence["observed_at"]
         return limits
 
@@ -390,8 +465,25 @@ class ConnectedToolRouter:
             except Exception as exc:
                 # A bridge exception may occur after provider acceptance; writes
                 # retain the pending ID for readback instead of being replayed.
-                response = {"isError": True, "code": type(exc).__name__,
-                            "uncertain": dispatch["effect"] == "write"}
+                # Typed provider exceptions also carry actual rate feedback.
+                # Retain that evidence instead of discarding Retry-After/status
+                # and accidentally selecting the same limited pool next time.
+                native = getattr(exc, "native_result", None)
+                response = copy.deepcopy(native) if isinstance(native, dict) else {}
+                response.update(isError=True)
+                response.setdefault("code", getattr(exc, "code", type(exc).__name__))
+                for attribute in ("http_status", "retry_after", "retry_not_before", "quota_remaining",
+                                  "rate_limit_remaining", "rate_limit_reset", "rate_limit_resource",
+                                  "rate_limit_kind", "delivered", "effect"):
+                    value = getattr(exc, attribute, None)
+                    if value is not None:
+                        response.setdefault(attribute, value)
+                failure = response_evidence(response)
+                status = failure.get("http_status")
+                rejected = failure.get("delivered") is False or failure.get("effect") == "rejected" or bool(
+                    status and 400 <= status < 500 and status not in {408, 409} and not failure["uncertain"])
+                response["uncertain"] = failure["uncertain"] or bool(getattr(exc, "uncertain", False)) or (
+                    dispatch["effect"] == "write" and not rejected)
             calls += 1
             result = self.resume(dispatch["operation_id"], dispatch["dispatch_id"], response)
         result["provider_calls_this_run"] = calls

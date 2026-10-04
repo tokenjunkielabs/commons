@@ -147,3 +147,15 @@ The captured 8b13250af5876863235fd519e1906f5cca2b0656 inputs contain 352 jobs, 1
 - Existing passive telemetry: integrations/swarm_telemetry/README.md.
 
 The current configuration contains 36 capability routes across 35 provider labels and 16 capability categories. Each carries its Free evidence, consumer, connection/binding state and dated consumption. A route row is not a claim of deployed or measured capacity. The eleven connected additions include actual zero-rate TinyFish Search/Fetch and native Parallel search; paid TinyFish Agent/Browser/Monitor methods remain separate.
+
+## Immediate search/read and gateway execution
+
+Use [CONNECTED_TOOL_REQUEST.md](../host/CONNECTED_TOOL_REQUEST.md) to turn one public search/read task into current schema-correct native bindings. Supply the current carrier's discovered tool-name array and the conversation's existing Parallel session identity. The helper chooses each provider's read method for URL tasks, keeps small basic searches and leaves account/allowance eligibility to the existing router.
+
+The gateway's `connected_tool_run`, `connected_tool_dispatch`, `connected_tool_resume` and `connected_tool_status` reuse one private `COMMONS_CONNECTED_TOOL_STATE_FILE`. Ready domains are selected by pending work, then recent actual dispatches, so concurrent tasks consume different eligible pools. Preserve the existing journal and Slack cursor when refreshing the deployed service. Direct native tool access remains available.
+
+Actual execution consumed a gateway Jina public-document read and two simultaneous native document tasks across Parallel and TinyFish. Both native tasks completed. Groq request/day and token/minute response buckets retain separate reset deadlines; published illustrative header values are never treated as measured account balances. The request adapter also completed a real official Groq search through native dispatch/resume.
+
+AgentMail's included first recovery inbox and an unsent draft have now been created and read back with stable IDs. Their private handles remain in the existing task. The mail owner reuses that inbox rather than creating another; selected plan and remaining sending allowance stay unmeasured. No email was sent. Supabase's genuine cost method still returns tools/list UNAVAILABLE and no project was created.
+
+The internal Slack carrier no longer requires an outward sender certification. Existing deployed gateway recovery still needs the current runtime, its provider scopes and private vault; source merge alone does not establish that rollout. The existing Account Chad operation remains the owner for that recovery and additional API references.
