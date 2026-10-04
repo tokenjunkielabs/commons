@@ -18,7 +18,9 @@ This carrier was discovered from public mirrors of Georgia Tech Research Institu
 - https://govtribe.com/opportunity/state-local-contract-opportunity/government-property-management-inventory-system-pe50300rfq2027000000339
 - buyer/state sourcing event linked by that mirror.
 
-The public mirror lists a **2026-09-30 16:00 ET** response deadline and describes replacement of CGI Sunflower, migration of existing data, asset lifecycle/history and transaction audit trails, RFID/barcode/IUID functionality, integrations including Deltek Costpoint and Workday, and a final acceptance/UAT deliverable. Public secondary material also names Oracle and PIEE integration surfaces.
+**Current public-board observation (2026-10-04):** Georgia Tech's [Jaggaer board](https://bids.sciquest.com/apps/Router/PublicEvent?CustomerOrg=GIT) displays this IFB as Open with a **2026-10-12 16:00 EDT** close. This is buyer-board metadata; the underlying extension/addendum and full bid packet have not been read or retained. Event detail reached a login boundary, the board's PDF link returned HTTP 403, and the state registry returned an unsupported-browser page. See [the dated source update](SOURCE_UPDATE_20261004.md). The date correction does not establish submission readiness or change the status above.
+
+The historical discovery mirror listed a **2026-09-30 16:00 ET** response deadline and describes replacement of CGI Sunflower, migration of existing data, asset lifecycle/history and transaction audit trails, RFID/barcode/IUID functionality, integrations including Deltek Costpoint and Workday, and a final acceptance/UAT deliverable. Public secondary material also names Oracle and PIEE integration surfaces.
 
 **The controlling buyer-hosted solicitation, SOW, requirements workbook, addenda, bid instructions and representations are not reproduced here and remain the authority.** Mirrors are discovery evidence only. Nothing in this carrier certifies that TJLabs or another vendor satisfies a buyer requirement.
 
