@@ -2,6 +2,7 @@
   "activation_count": 1,
   "activation_result": {
     "candidate_pairs": 4224,
+    "claim_released": true,
     "classifications": 4200,
     "composite_factor_products": 3919,
     "constructor_calls": 1,
@@ -16,8 +17,8 @@
       34,
       34
     ],
+    "current_main_readback_sha": "e7689bce589d6e9a6b62c93342ff39fb4db8941c",
     "dataset_blob": "dd53e9faf8eec3421cf7aec3eb35c370455572f3",
-    "dataset_path": "research/a304081/resource-master-successor-counts-20261004-01.json",
     "inputs": [
       "999999999991",
       "999999999992",
@@ -29,9 +30,12 @@
       "999999999998"
     ],
     "legacy_result_replays": 0,
+    "merge_sha": "e7689bce589d6e9a6b62c93342ff39fb4db8941c",
     "provider_calls": 0,
     "representations": 285,
-    "state": "DATA_PRODUCED_PUBLICATION_PENDING"
+    "source_commit": "8b5a9ecb519a6eb2d820cc4f768ec3ccc3ca9883",
+    "source_pr": 31216,
+    "state": "MERGED_EXACT_CURRENT_MAIN_READBACK"
   },
   "added_resources": [
     "a304081-fast-point-counter",
@@ -277,6 +281,46 @@
         "workspaces": 1
       }
     },
+    "publication": {
+      "merge_sha": "e7689bce589d6e9a6b62c93342ff39fb4db8941c",
+      "source_activation_complete": true,
+      "source_commit": "8b5a9ecb519a6eb2d820cc4f768ec3ccc3ca9883",
+      "source_pr": 31216,
+      "terminal_append_branch": "work/resource-master-fast-point-counter-terminal-20261004-1028"
+    },
+    "publication_current_main": "e7689bce589d6e9a6b62c93342ff39fb4db8941c",
+    "publication_current_main_exact_readback": [
+      {
+        "content_matches": true,
+        "path": "ground/RESOURCE_LEDGER.json",
+        "sha": "278948260bbbbd51704637acdcdb86ecb0bb9e68"
+      },
+      {
+        "content_matches": true,
+        "path": "ground/RESOURCE_LEDGER.md",
+        "sha": "544eaa558c78c9aa48c6f39e17f20c2834531a7a"
+      },
+      {
+        "content_matches": true,
+        "path": "resources.html",
+        "sha": "047b95c975c7d70f99a41d7746427392bf8fc755"
+      },
+      {
+        "content_matches": true,
+        "path": "inventory/resources/records/resource-master-fast-point-counter-activation-20261004-01.json",
+        "sha": "773bb7445c1feaf79837c57d1d9be3bede9765c9"
+      },
+      {
+        "blob_readback_attempted": true,
+        "content_matches": true,
+        "expected_blob_sha": "dd53e9faf8eec3421cf7aec3eb35c370455572f3",
+        "file_content_available": false,
+        "matches": true,
+        "observed_blob_sha": "dd53e9faf8eec3421cf7aec3eb35c370455572f3",
+        "path": "research/a304081/resource-master-successor-counts-20261004-01.json",
+        "readback_source": "blob"
+      }
+    ],
     "publisher_order_thread": {
       "body_truncation": 0,
       "channel_id": "C0BTB4SUCP9",
@@ -2060,7 +2104,117 @@
     "quotas_not_inferred": true,
     "removed_actions": 0
   },
-  "publication_observations": [],
+  "publication_observations": [
+    {
+      "current_main": "e7689bce589d6e9a6b62c93342ff39fb4db8941c",
+      "exact_current_main_readback": [
+        {
+          "content_matches": true,
+          "path": "ground/RESOURCE_LEDGER.json",
+          "sha": "278948260bbbbd51704637acdcdb86ecb0bb9e68"
+        },
+        {
+          "content_matches": true,
+          "path": "ground/RESOURCE_LEDGER.md",
+          "sha": "544eaa558c78c9aa48c6f39e17f20c2834531a7a"
+        },
+        {
+          "content_matches": true,
+          "path": "resources.html",
+          "sha": "047b95c975c7d70f99a41d7746427392bf8fc755"
+        },
+        {
+          "content_matches": true,
+          "path": "inventory/resources/records/resource-master-fast-point-counter-activation-20261004-01.json",
+          "sha": "773bb7445c1feaf79837c57d1d9be3bede9765c9"
+        },
+        {
+          "blob_readback_attempted": true,
+          "content_matches": true,
+          "expected_blob_sha": "dd53e9faf8eec3421cf7aec3eb35c370455572f3",
+          "file_content_available": false,
+          "matches": true,
+          "observed_blob_sha": "dd53e9faf8eec3421cf7aec3eb35c370455572f3",
+          "path": "research/a304081/resource-master-successor-counts-20261004-01.json",
+          "readback_source": "blob"
+        }
+      ],
+      "observed_at": "2026-10-04 10:51:31 UTC",
+      "publisher_calls": {
+        "create_blob": 5,
+        "create_branch": 1,
+        "create_commit": 1,
+        "create_pull_request": 1,
+        "create_tree": 1,
+        "fetch": 8,
+        "fetch_blob": 1,
+        "fetch_file": 5,
+        "merge_pull_request": 1
+      },
+      "source_base": "0781f6fb5c5b1e9160b6692b16849b4f87b0deb6",
+      "source_commit": "8b5a9ecb519a6eb2d820cc4f768ec3ccc3ca9883",
+      "source_merge": "e7689bce589d6e9a6b62c93342ff39fb4db8941c",
+      "source_pr": 31216,
+      "source_readback_status": "complete",
+      "source_url": "https://github.com/woahwhattheheck/commons/pull/31216",
+      "source_workflows": [
+        {
+          "conclusion": null,
+          "head_sha": "8b5a9ecb519a6eb2d820cc4f768ec3ccc3ca9883",
+          "id": 37196577415,
+          "name": "open-door-guard",
+          "status": "in_progress",
+          "updated_at": "2026-10-04T10:48:50Z",
+          "url": "https://github.com/woahwhattheheck/commons/actions/runs/37196577415"
+        },
+        {
+          "conclusion": null,
+          "head_sha": "8b5a9ecb519a6eb2d820cc4f768ec3ccc3ca9883",
+          "id": 37196577139,
+          "name": "muhlnickel-spec-guard",
+          "status": "in_progress",
+          "updated_at": "2026-10-04T10:48:54Z",
+          "url": "https://github.com/woahwhattheheck/commons/actions/runs/37196577139"
+        },
+        {
+          "conclusion": null,
+          "head_sha": "8b5a9ecb519a6eb2d820cc4f768ec3ccc3ca9883",
+          "id": 37196577117,
+          "name": "capability-entrypoints",
+          "status": "in_progress",
+          "updated_at": "2026-10-04T10:48:50Z",
+          "url": "https://github.com/woahwhattheheck/commons/actions/runs/37196577117"
+        },
+        {
+          "conclusion": "success",
+          "head_sha": "8b5a9ecb519a6eb2d820cc4f768ec3ccc3ca9883",
+          "id": 37196577108,
+          "name": "pr-collision-notice",
+          "status": "completed",
+          "updated_at": "2026-10-04T10:48:59Z",
+          "url": "https://github.com/woahwhattheheck/commons/actions/runs/37196577108"
+        },
+        {
+          "conclusion": "success",
+          "head_sha": "8b5a9ecb519a6eb2d820cc4f768ec3ccc3ca9883",
+          "id": 37196577118,
+          "name": "resources-tab-freshness",
+          "status": "completed",
+          "updated_at": "2026-10-04T10:48:56Z",
+          "url": "https://github.com/woahwhattheheck/commons/actions/runs/37196577118"
+        },
+        {
+          "conclusion": "success",
+          "head_sha": "8b5a9ecb519a6eb2d820cc4f768ec3ccc3ca9883",
+          "id": 37196577125,
+          "name": "path-manifest",
+          "status": "completed",
+          "updated_at": "2026-10-04T10:48:56Z",
+          "url": "https://github.com/woahwhattheheck/commons/actions/runs/37196577125"
+        }
+      ]
+    }
+  ],
   "quota_lifecycle": {
     "banked_reset_activated": false,
     "direct_usage_meter_observed": false,
