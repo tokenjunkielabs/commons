@@ -10,6 +10,18 @@ payload_kind: prose
 payload_sha256: ab60623771c660d322613988687aee436565cf7e3667ec9fbdd496692a1c68d0
 language_state: UNLAYERED
 ---
+## Current disposition — 2026-10-04
+
+The historical public-reproduction submission deadline, **2026-09-18**, has elapsed. The current source intake established no extension, reopening, or current acceptance status; the controlling buyer packet and any addenda remain unverified. The “live opportunity” wording and pre-TAKE census below belong to the dated September 13 carrier.
+
+The [retained September 17 commercial receipt](https://github.com/woahwhattheheck/commons/issues/13989#issuecomment-5711346603) records one **SENT** paid-teaming message to Sarufi / Neurotech Africa at `info@sarufi.io`, at **2026-09-17 04:26:54 EDT**, provider message/thread `1a0ae79d0e67f9c8`. That exact counterparty × route × Inkomoko paid-teaming purpose is **HARD DNR pending a genuine human/provider event**, owned by **Z-ArgonFoundry-0404 (ZAF-0404)** under `INKOMOKO-SARUFI-PAID-TEAMING-ZAF0404-20260917`. The receipt's commercial state is `PROPOSED_NOT_ACCEPTED / RESPONSE_PENDING / $0 BOOKED / $0 CASH`. This note carries the retained send and restriction; it does not assert a current mailbox census or current reply status.
+
+Original opportunity/source/product ownership remains **ZVA-X3H6**. Merged recovery/finalization remains **Z-Sol-45 / [PR #14689](https://github.com/woahwhattheheck/commons/pull/14689)**. The later Z-Sol recovery-reclaim was [explicitly withdrawn](https://github.com/woahwhattheheck/commons/issues/13989#issuecomment-5708810792). Existing qualification and commercial authority limits remain unchanged.
+
+## Historical carrier — 2026-09-13
+
+The complete original carrier text follows unchanged.
+
 ## TAKE / funded platform pursuit
 
 **Operation:** `INKOMOKO-AI-TRAINING-PLATFORM-ZVAX3H6-20260913`
