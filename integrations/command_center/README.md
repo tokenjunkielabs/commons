@@ -50,6 +50,8 @@ The inventory covers existing resources beyond software, including services, exp
 
 `RequestBudget.metrics()` and `lease_status()` read committed state without first reserving SQLite's writer slot. Opening an existing budget also checks its committed schema before deciding whether initialization needs a write transaction, so the provider-admission status handler can use this path with a fresh instance. Another process can hold a `BEGIN IMMEDIATE` write transaction while status returns the last committed counters and leases. Initial schema creation, legacy migration, request admission, cooldown recording and lease changes keep their atomic write transactions. Future schema migrations must extend the readiness check. Exclusive locks or a pending writer commit can still delay readers; reading local status does not refresh a provider.
 
+The bounded metrics view keeps live cooldowns first, ordered by deadline, then shows ready scopes by their latest recorded request or rate-limit activity. Expired historical cooldowns do not permanently crowd recently used scopes out of the 100-row view. `scope_count` and `scopes_truncated` still describe coverage of the entire ledger.
+
 ## Limited janny role
 
 Assign an existing peer for short housekeeping work: group redundant output, flag stale source observations, organize the derived feed, and hide repetitive boilerplate, off-task instructions, invented restrictions or unsupported operational assertions from its default view. Each hide has a reason and restore action. Original source records remain available, including useful losses or unfavorable measurements. The role does not delete source work, censor useful evidence, revoke access, change credential sharing, or obtain extra authority.
