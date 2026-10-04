@@ -159,3 +159,9 @@ Actual execution consumed a gateway Jina public-document read and two simultaneo
 AgentMail's included first recovery inbox and an unsent draft have now been created and read back with stable IDs. Their private handles remain in the existing task. The mail owner reuses that inbox rather than creating another; selected plan and remaining sending allowance stay unmeasured. No email was sent. Supabase's genuine cost method still returns tools/list UNAVAILABLE and no project was created.
 
 The internal Slack carrier no longer requires an outward sender certification. Existing deployed gateway recovery still needs the current runtime, its provider scopes and private vault; source merge alone does not establish that rollout. The existing Account Chad operation remains the owner for that recovery and additional API references.
+
+## Newly connected design and app carriers
+
+Lovable, Figma and Replit are now confirmed installed. A fresh child carrier advertises their 40, 42 and 8 methods; its 1,079 bindings are a separate carrier observation from the retained parent 989. Lovable returned one owned Free workspace with zero projects and complete pagination; build credits were not returned and no app was created. Use that workspace for the existing bounded public provider-status frontend task after its actual build-credit scope is available.
+
+Figma profile returned a precise UNAUTHORIZED/OAuth-required result on that carrier. Recover the authenticated action before file/design reads; installation is retained rather than relabeled missing. Replit is installed and its app lookup/build methods are advertised; selected account plan and remaining credits are unprobed. Its existing small Starter Lite source-generation consumer remains mapped. These state changes do not invent additional ready inference pools or claim a paid build/deployment. The remaining seven knowledge/task connections plus Datadog and Resend are still pending individual connection.
