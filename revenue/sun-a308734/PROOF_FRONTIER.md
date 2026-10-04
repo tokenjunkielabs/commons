@@ -162,6 +162,12 @@ These single-prime restrictions preserve the earlier general CRT barrier and
 finite odd-prime certificates. They impose no new restriction on the $4$-free
 core and do not settle cross-prime compatibility or global equality.
 
+### R6 — minimum fixed palettes on the primitive core
+
+The [primitive-palette proof](PRIMITIVE_PALETTES.md) establishes the exact local minimum of three legal totals on $n>1$, $4\nmid n$: $\{2,8,10\}$ works at every depth of each individual prime, while any two legal totals miss an infinite primitive dyadic progression. Requiring $T\le n$ for every primitive target raises the minimum to four, attained by $\{2,5,8,10\}$. The three-element palette has exactly one bounded exception, $n=5$.
+
+A separate explicit primitive CRT progression excludes global equality for that triple. These minima leave shared choices across primes and the global conjecture open; the earlier general finite-offset barrier retains its source credit.
+
 ## Conditional bridge through Sun's ternary conjectures
 
 The 2026 She–Sun–Zhou paper restates Sun's two related ternary conjectures:
