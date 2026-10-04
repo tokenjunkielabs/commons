@@ -96,6 +96,10 @@ The CLI exits 0 only for HTTP 200 FETCHED/CACHED results with outbound clearance
 explicitly false; all other outcomes exit 2. It does not automatically retry or
 sleep. Respect the returned delay and do different useful work rather than polling.
 
+An identical in-flight read returns BUSY with a one-second cache-recheck delay,
+not the remaining lease duration. Rechecking can retrieve a completed cache entry;
+the live lease and provider cooldown still prevent another upstream dispatch.
+
 | State | HTTP | Meaning |
 | --- | --- | --- |
 | FETCHED | 200 | A successful upstream result was accepted for this generation. |

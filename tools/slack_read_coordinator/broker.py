@@ -198,7 +198,9 @@ class Broker:
                 return self.envelope("CACHED", fetched_at=row[0], age_seconds=now-row[0], data=loads(row[1]))
             flight = db.execute("SELECT expires FROM flight WHERE namespace=? AND key=?", (self.namespace, key)).fetchone()
             if flight:
-                return self.envelope("BUSY", retry_after_seconds=max(1, math.ceil(flight[0] - now)))
+                # The writer may finish before lease expiry; recheck its cache soon.
+                # acquire still fences dispatch with the live lease and method budget.
+                return self.envelope("BUSY", retry_after_seconds=1)
             rate = db.execute("SELECT next_at FROM rate WHERE scope=? AND method=?", (self.rate_scope, method)).fetchone()
             if rate and rate[0] > now:
                 return self.envelope("COOLDOWN", retry_after_seconds=math.ceil(rate[0] - now))
