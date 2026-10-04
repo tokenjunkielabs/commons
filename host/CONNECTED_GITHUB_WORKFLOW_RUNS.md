@@ -181,3 +181,107 @@ Related native capabilities: [path lookup](CONNECTED_GITHUB_PATHS.md), [source m
 
 Provider contract: [GitHub REST — list workflow runs for a repository](https://docs.github.com/en/rest/actions/workflow-runs#list-workflow-runs-for-a-repository), read October 3, 2026. The documented query ceiling, parameters and optional path ref suffix inform this adapter; connector route availability is the actual session observation above.
 
+## Preserve completed job logs without a filesystem
+
+[connected_github_log_archive.cjs](connected_github_log_archive.cjs) builds a
+deterministic UTF-8 ZIP from retained text entirely in JavaScript. It needs no
+filesystem, Node imports, installation or network client. Native GitHub tools
+supply the log reads and normal publication.
+
+Load the complete helper once at a recorded Commons commit, then use the exact
+job identity already returned by the run/jobs readers:
+
+~~~javascript
+const source = await tools.mcp__codex_apps__github_fetch_file({
+  repository_full_name: "woahwhattheheck/commons",
+  path: "host/connected_github_log_archive.cjs",
+  ref: commonsSourceCommit
+});
+if (source.isError) throw new Error("Archive writer source was not retrieved");
+const archiveModule = { exports: {} };
+new Function("module", "exports", source.structuredContent.content)(
+  archiveModule, archiveModule.exports
+);
+
+const request = { repo_full_name: repository, job_id: observedJobId };
+const response = await tools.mcp__codex_apps__github_fetch_workflow_job_logs(request);
+store(operationKey + ":job-log", { request, response });
+if (response.isError ||
+    typeof response.structuredContent?.content !== "string") {
+  throw new Error("Complete decoded job log was not returned");
+}
+
+const archive = archiveModule.exports.buildStoredZip([
+  { name: "job-" + observedJobId + ".log",
+    content: response.structuredContent.content },
+  { name: "manifest.json", content: JSON.stringify(manifest, null, 2) + "\n" }
+]);
+store(operationKey + ":archive", archive);
+const blob = await tools.mcp__codex_apps__github_create_blob({
+  repository_full_name: destinationRepository,
+  encoding: "base64",
+  content: archive.base64
+});
+store(operationKey + ":archive-blob", blob);
+if (blob.isError || !blob.structuredContent?.sha) {
+  throw new Error("Archive blob was not created");
+}
+text({ blob_sha: blob.structuredContent.sha,
+       byteLength: archive.byteLength, records: archive.records });
+~~~
+
+Supply the existing operation's values. Its `manifest` should retain repository,
+run/job IDs, controller and tested-source commits, actual job conclusion and
+captured command exits. A workflow may check out a different source from its
+controller; `continue-on-error` step conclusions alone do not establish command
+success. Reuse complete retained log responses instead of fetching them again.
+For several jobs, retain every response and keep native reads within the current
+provider's concurrency limits. Do not substitute an empty log for a failed read.
+
+`buildStoredZip(entries)` accepts ordered `{name, content: string}` entries and
+returns `{base64, byteLength, records}`. Each record has the name, local-header
+offset, UTF-8 byte length and CRC32. Names must be unique relative file paths.
+Entry order and line endings are preserved; ZIP timestamps are fixed at
+1980-01-01. Unpaired surrogate code units use standard UTF-8 replacement U+FFFD.
+Invalid input and ZIP32 size/count overflow throw descriptive errors.
+
+Continue through the existing [native publication path](CONNECTED_GITHUB_PUBLISH.md):
+
+1. Read the current destination branch/commit/tree and reconcile changed paths.
+2. Compose a tree on that base with the archive entry
+   `{path: archivePath, mode: "100644", type: "blob", sha: blob.structuredContent.sha}`
+   and compact result text.
+3. Create the ordinary child commit and update the existing ref with
+   `force: false`, or use the existing Commons branch/PR publisher.
+4. Read back the commit, intended paths and branch head. Keep the tested-source
+   pin distinct from an evidence-only successor. Reconcile uncertain writes
+   before repeating them.
+
+A `store()` key and a created blob are not durable branch publication. Retain
+complete inputs until publication is read back, and do not print archive base64.
+No workflow rerun is needed to package already captured evidence.
+
+### Executed delivery: Neko PR #328
+
+The [published archive](https://github.com/woahwhattheheck/Neko-Playground/blob/323b211ae4ab0cf8f564b01e0653531a7a5201ff/docs/evidence/required-gates-20261004/job-logs.zip)
+is 299,210 bytes, Git blob
+`795477c32aa732f8d6d790c7e767d951b31499e3`: all four complete native job
+logs plus `manifest.json`. The reconstructed reusable writer was executed on
+those same five retained inputs; its entire base64 output and record array both
+match that published archive exactly.
+
+[Run 37202788075](https://github.com/woahwhattheheck/Neko-Playground/actions/runs/37202788075),
+job `111437712291`, completed successfully with install/lint/typecheck/test
+exits all 0 and 16 lint warnings. It tested
+`cb37d07e4ecc6231d9186040bd1494e93ade59da` from controller
+`829a6308b1b3464cc388e6f1bba9ec3aa96ea04a`. The non-force evidence commit
+`323b211ae4ab0cf8f564b01e0653531a7a5201ff` added three evidence files and
+preserved all tested source/configuration blobs. The
+[results record](https://github.com/woahwhattheheck/Neko-Playground/blob/323b211ae4ab0cf8f564b01e0653531a7a5201ff/docs/evidence/required-gates-20261004/results.json)
+retains the earlier failures and original Actions artifact IDs/digests.
+
+This ZIP uses uncompressed STORE method 0 and is assembled in memory. It is a
+decoded-text log archive, not a copy of the original Actions artifact ZIP bytes,
+a binary-artifact reader, a streaming compressor or ZIP64. Keep original
+artifact download records separately. Existing filesystem and original-artifact
+routes remain available; packaging does not change job outcomes.
