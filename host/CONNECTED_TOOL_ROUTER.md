@@ -90,6 +90,23 @@ exit 3 means no ready route, reconciliation or a terminal provider failure; exit
 2 means an invalid request or local runtime error. Consumers inspect `decision`
 as well as the exit code.
 
+## Native HTTP error metadata
+
+Failed native MCP responses can expose their HTTP status as
+`error_data: {"type": "http_error", "code": 429}` inside a tool-result
+envelope. The router projects that typed code into `http_status`, retaining the
+existing status validation and explicit status fields. Successful tool results,
+arbitrary application error codes and HTTP-like values buried in returned
+payloads do not supply this transport status.
+
+An October 4 run used an actual retained Slack MCP 429 result from the current
+cloud session. Before this change, the projection retained `failed=true`,
+`error_code=RATE_LIMITED` and `retry_after="1"` but omitted `http_status`.
+The updated production function also returns `http_status=429`; the observed
+cooldown remains exactly one second. This restores status visibility and the
+existing router's HTTP-specific decisions. It does not establish a reduction
+in provider calls or deployment to other gateways, and no live write was used.
+
 ## Recovery and quota feedback
 
 Keep runtime state outside Git and public artifacts. The state file contains
@@ -183,3 +200,4 @@ The timing loop used `perf_counter_ns` and `process_time_ns`, excluding imports,
 input preparation and result serialization. This measures local journal handling,
 with synthetic records and warm caches; it does not measure physical-disk latency,
 Windows locking, provider throughput or deployment to another carrier.
+
