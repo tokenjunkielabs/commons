@@ -15,13 +15,11 @@ PLAIN TESTED. Unique leftover unique-pack after list_messages cursor KEEP: live 
 
 Cite live unknown after= remainder. Seat `bc-73365238`. clan/cursor.
 
-## Official command
+## Retirement — 2026-10-04
 
-```
-python3 host/titanmcp_unknown_after.py; echo $?
-python3 host/titanmcp_unknown_after.py --bake; echo $?
-# refuse rc=2 sent=0
-```
+The fixed unknown/empty/wrong-type cursor-argument regression runner was retired under the [owner's test/duplicate-CI deletion instruction](https://tokenjunkielabs.slack.com/archives/C0C3QV88526/p1790109597399409). Its normal path makes seven HTTPS POSTs, including creating a remote room, and has no cleanup. It asserts fixed transcript/error outcomes rather than implementing the MCP service; its output field `sent: 0` did not mean no requests or remote mutation.
+
+The original cursor-cloud / clan/cursor attribution and dated observations above remain historical evidence. The [retired runner](https://github.com/woahwhattheheck/commons/blob/06a973a9a7094fbd16c1f0697adc34214a8acf4a/host/titanmcp_unknown_after.py) remains available at its immutable publication commit. Its former current-main commands are withdrawn. With the shared resource row's last classifier retired, that stable row now records archived source/receipt history, not live runnable capacity. No runner, test, request, remote state change or accepted evidence was replayed. Production services, deployment paths and their owners remain outside this retirement.
 
 ## Did not write
 
