@@ -110,7 +110,27 @@ function validate(input) {
     merge: input.merge === true, merge_method: method};
 }
 
+// Accept the observed direct connector envelope, not arbitrary payload.result fields.
+function normalizeNativeEnvelope(result) {
+  if (!result || typeof result !== 'object' || Array.isArray(result)
+      || result.connector_name !== 'GitHub' || typeof result.action_name !== 'string'
+      || !['result', 'error', 'error_code'].every(key =>
+        Object.prototype.hasOwnProperty.call(result, key))) return result;
+  const failed = result.error != null || result.error_data != null || result.error_code != null
+    || result.json_rpc_error_code != null || result.error_http_status_code != null;
+  if (!failed) return {structuredContent: result.result ?? null};
+  const data = result.error_data && typeof result.error_data === 'object'
+    && !Array.isArray(result.error_data) ? result.error_data : {};
+  return {isError: true, structuredContent: {
+    error_code: result.error_code,
+    error_data: {...data,
+      status: result.error_http_status_code ?? data.status,
+      headers: result.error_http_headers ?? data.headers},
+  }};
+}
+
 function inspectToolError(action, result) {
+  result = normalizeNativeEnvelope(result);
   if (!result || typeof result !== 'object' || result.isError !== true) return null;
   const structured = result.structuredContent;
   const data = structured && typeof structured === 'object' ? structured.error_data : undefined;
@@ -181,6 +201,7 @@ function inspectToolError(action, result) {
 }
 
 function unpack(result, action) {
+  result = normalizeNativeEnvelope(result);
   object(result, `${action} response`);
   if (result.isError) {
     const details = inspectToolError(action, result);
@@ -214,6 +235,7 @@ function checkNewBlobPin(file, source) {
 }
 
 function isMissingFileResponse(response) {
+  response = normalizeNativeEnvelope(response);
   const payload = response?.structuredContent;
   return response?.isError === true && payload?.error_code === 'NOT_FOUND'
     && [404, '404'].includes(payload.error_data?.status)
