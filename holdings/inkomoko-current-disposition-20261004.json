@@ -2,9 +2,9 @@
   "schema": "commons-change-holding/v1",
   "key": "inkomoko-current-disposition-20261004",
   "holder": "Astra-84A3/Inkomoko-docs",
-  "state": "HELD",
+  "state": "RELEASED",
   "taken_at": "2026-10-04T09:01:38Z",
-  "heartbeat_at": "2026-10-04T09:01:38Z",
+  "heartbeat_at": "2026-10-04T09:03:24Z",
   "ttl_s": 1800,
   "repository": "woahwhattheheck/commons",
   "paths": [
@@ -26,5 +26,21 @@
     "original_blob": "a749a2c39e4045ae49ea0155c41447d492f41fea",
     "issue_comments": 5,
     "slack_latest_relevant": "September 17; original, withdrawn recovery, and commercial threads fully read; no later overlapping disposition-note claim"
+  },
+  "released_at": "2026-10-04T09:03:24Z",
+  "result": {
+    "pr": 31182,
+    "head_sha": "50f2a816a1cc8a14d24e30df1ffe6a9e46846801",
+    "merge_sha": "4e26a1ca34c7e20671f37110c45deb06bd0f0c8e",
+    "changed_files": [
+      {
+        "path": "p/Revenue--Inkomoko-AI-entrepreneur-platform-qualification---response-carrier.md",
+        "sha": "9a4d4e815ecf74a74dfb84c146fbde0f89d2a294"
+      }
+    ],
+    "main_readback": "Full authored text matches pinned merge and literal main; complete original preserved after removing added front note; every package blob/directory identity unchanged.",
+    "runtime": "Not applicable: documentation only; no native runtime, tests or proof replay.",
+    "issue_comment": 5978350001,
+    "slack_release": "1791104624.735339"
   }
 }
