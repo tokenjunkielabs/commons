@@ -1,5 +1,112 @@
 # Runtime recovery in existing cloud workspaces
 
+## Reuse installed JDK and Android SDK bytes
+
+Before downloading another toolchain, read the current work thread for installed
+runtime directories in the same shared cloud filesystem. Pass those exact
+toolchain directories to the probe below. It checks each supplied directory and
+its immediate children, plus the existing Java/Android environment paths and the
+compiler on `PATH`; it does not walk other workspaces. Paths reported by another
+container remain candidates until this container can use them.
+
+`java` alone does not establish a JDK. On October 4, the bounty cloud workspace
+had `/usr/bin/java` but no `javac` on `PATH`; two supplied shared installations
+both ran `javac 17.0.20.1` successfully and contained Android platform 35 and
+build-tools 35.0.0. Reusing those directories required no JDK/SDK copy or download.
+These are dated observations, not permanent session-path pins or a project build
+result. Select versions required by the current project's own build files.
+
+### Inspect only supplied candidates
+
+Replace the paths and Android versions with the current task's candidates and
+requirements. This command writes no files and makes no network requests. It
+executes only a discovered candidate's `javac -version` and reports its exit code.
+
+```sh
+python - /actual/shared/toolchain-one /actual/shared/toolchain-two <<'PY'
+import json, os, pathlib, shutil, subprocess, sys
+
+api, build_tools = "35", "35.0.0"
+candidates, errors = [], []
+for value in sys.argv[1:]:
+    root = pathlib.Path(value)
+    candidates.append(root)
+    try:
+        candidates.extend(p for p in root.iterdir() if p.is_dir())
+    except OSError as exc:
+        errors.append({"root": str(root), "error": type(exc).__name__})
+for name in ("JAVA_HOME", "ANDROID_HOME", "ANDROID_SDK_ROOT"):
+    if os.environ.get(name):
+        candidates.append(pathlib.Path(os.environ[name]))
+if shutil.which("javac"):
+    candidates.append(pathlib.Path(shutil.which("javac")).resolve().parent.parent)
+jdks, sdks = [], []
+for root in dict.fromkeys(p.resolve() for p in candidates):
+    javac = root / "bin/javac"
+    if javac.is_file() and (root / "bin/java").is_file():
+        try:
+            run = subprocess.run([str(javac), "-version"], capture_output=True,
+                                 text=True, timeout=10)
+            jdks.append({"root": str(root), "exit": run.returncode,
+                         "version": (run.stdout + run.stderr).strip()})
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            errors.append({"root": str(root), "error": type(exc).__name__})
+    if ((root / f"platforms/android-{api}/android.jar").is_file()
+            and (root / f"build-tools/{build_tools}/aapt2").is_file()):
+        sdks.append({"root": str(root), "platform": api, "build_tools": build_tools})
+print(json.dumps({"java_on_path": shutil.which("java"),
+                  "javac_on_path": shutil.which("javac"),
+                  "jdks": jdks, "sdks": sdks, "errors": errors}, indent=2))
+sys.exit(0 if any(row["exit"] == 0 for row in jdks) and sdks else 1)
+PY
+```
+
+The SDK result confirms those two required files, not every optional Android
+package or a successful build.
+
+### Use the maintained Gradle proxy launcher
+
+Use [host/gradle_env_proxy.py](../../host/gradle_env_proxy.py) and its
+[operator guide](../../host/GRADLE_ENV_PROXY.md) for the build. The launcher reads
+this execution's proxy environment, handles `NO_PROXY`, preserves explicit JVM
+settings, and returns the real wrapper exit code. `--refresh-env-proxy` replaces
+inherited `GRADLE_OPTS` proxy endpoints with this invocation's endpoints; other
+explicit proxy settings keep their documented precedence. Do not copy a proxy
+host or port from a preceding tool call.
+
+An independently installed JDK can lack the system CA used by the configured
+HTTPS proxy. The October 4 Cast build initially failed with PKIX path-building
+errors. Using the existing `/etc/ssl/certs/java/cacerts` truststore restored
+dependency resolution; the repaired dispatcher then compiled and passed all six
+focused regressions, versus five failures and one pass on the baseline. This is
+the recorded JVM execution result, not a phone/Cast hardware benchmark. Reuse the
+current system truststore without modifying the shared JDK or disabling TLS
+validation.
+
+Supply the selected installation paths and the active bounty's actual tasks:
+
+```sh
+JAVA_HOME=/actual/shared/jdk \
+ANDROID_HOME=/actual/shared/android-sdk \
+ANDROID_SDK_ROOT=/actual/shared/android-sdk \
+GRADLE_USER_HOME=/actual/owned/gradle-cache \
+python3 /path/to/commons/host/gradle_env_proxy.py \
+  --refresh-env-proxy --project /actual/build-checkout -- \
+  --no-daemon --console=plain \
+  -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts \
+  :your-module:assembleDebug
+```
+
+Keep a distinct writable Gradle user home for this build, and retain it across
+its repeated commands. Another builder hit a shared `/root/.gradle` journal
+lock; do not delete a peer's locks or change their properties. Reuse the shared
+JDK/SDK in place and keep build outputs and writable caches task-owned.
+
+The maintained launcher does not write project settings or print proxy values.
+Authenticated proxy URLs use its documented existing JVM-authenticator route;
+do not add credentials to repository files, arguments or published logs. This
+recipe needs no second proxy wrapper or temporary project configuration.
+
 ## Choose an owned work directory from current capacity
 
 `workdir.py` is an optional Python operator aid for temporary outputs, archives,
