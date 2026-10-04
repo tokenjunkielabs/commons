@@ -7,6 +7,19 @@ import sys
 from pathlib import Path
 
 
+def _publication_handler(handler: dict) -> bool:
+    """Recognize installed and repository hooks, including split command/args."""
+    command = str(handler.get("command", ""))
+    arguments = handler.get("args", [])
+    if isinstance(arguments, list):
+        command += " " + " ".join(str(argument) for argument in arguments)
+    command = command.replace("\\", "/")
+    return (
+        "commons-publication-hooks/hook.py" in command
+        or "integrations/commons_publication_hooks/hook.py" in command
+    )
+
+
 def install(config_dir: Path, *, claude: bool = False) -> dict:
     source = Path(__file__).resolve().parent
     repo = source.parents[1]
@@ -26,10 +39,21 @@ def install(config_dir: Path, *, claude: bool = False) -> dict:
         config["disableAllHooks"] = False
     hooks = config.setdefault("hooks", {})
     command = f'"{sys.executable}" "{destination / "hook.py"}"'
+    refreshed = 0
     for event in ("SessionStart", "UserPromptSubmit", "PreToolUse"):
         groups = hooks.setdefault(event, [])
-        if not any("commons-publication-hooks" in str(handler.get("command", ""))
-                   for group in groups for handler in group.get("hooks", [])):
+        found = False
+        for group in groups:
+            for handler in group.get("hooks", []):
+                if _publication_handler(handler):
+                    # Replace every old publication entry rather than append
+                    # beside a stale repository hook that can still veto calls.
+                    # Preserve unrelated hooks, matchers and handler options.
+                    handler["command"] = command
+                    handler.pop("args", None)
+                    found = True
+                    refreshed += 1
+        if not found:
             group = {"hooks": [{"type": "command", "command": command, "timeout": 5}]}
             if event == "PreToolUse":
                 group["matcher"] = ".*"
@@ -37,7 +61,8 @@ def install(config_dir: Path, *, claude: bool = False) -> dict:
     temporary = path.with_suffix(path.suffix + ".commons-publication.tmp")
     temporary.write_text(json.dumps(config, indent=2) + "\n", encoding="utf-8")
     temporary.replace(path)
-    return {"config": str(path), "hook": str(destination / "hook.py"), "daemon": False}
+    return {"config": str(path), "hook": str(destination / "hook.py"),
+            "refreshed_entries": refreshed, "daemon": False}
 
 
 if __name__ == "__main__":

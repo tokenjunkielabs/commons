@@ -27,7 +27,12 @@ python integrations/commons_publication_hooks/install_native.py --config-dir /pa
 python integrations/commons_publication_hooks/install_native.py --config-dir /path/to/.gemini --client gemini
 ```
 
-The installer preserves existing active hooks. When Claude's old hooks are
+The installer refreshes every existing publication-hook entry, recognizing
+both the repository's underscore path and installed hyphenated path in the
+command or split argument list. It replaces that entry in place, preserving
+unrelated hooks and matchers. An old direct repository hook cannot remain
+active beside the repaired installed copy and veto an internal Slack call.
+When Claude's old hooks are
 globally disabled, it retains their disabled configuration beside the new hook
 and enables only the new publication hooks. It starts no daemon, dispatcher,
 model, session or scheduled job. Existing clients pick up native hook config at
