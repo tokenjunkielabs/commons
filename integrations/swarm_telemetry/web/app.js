@@ -2,7 +2,7 @@
 (() => {
   'use strict';
   const $ = (id) => document.getElementById(id);
-  const state = { view: 'overview', mode: 'api', snapshot: null, data: {}, resultMeta: {}, pages: {}, cursors: {}, sort: {}, filters: { q: '', provider: '', harness: '', source: '' }, loading: false, generation: 0, requestSerial: {}, errors: {}, summaryTimer: null };
+  const state = { view: 'overview', mode: 'api', snapshot: null, data: {}, resultMeta: {}, pages: {}, cursors: {}, sort: {}, filters: { q: '', provider: '', harness: '', source: '' }, loading: false, viewLoading: {}, loadedViews: {}, requests: {}, requestSerial: {}, errors: {}, failedAppends: {}, historyOpen: false, summaryPending: false, summaryError: null, summaryTimer: null };
   const labels = { overview: 'Recent activity', peers: 'Observed peers', work: 'Work in progress', accounts: 'Accounts & services', notifications: 'Notifications', sources: 'Collection sources' };
   const endpoints = { peers: 'peers', work: 'work', accounts: 'accounts', notifications: 'notifications', sources: 'coverage', events: 'events' };
   const escape = (value) => String(value ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -55,8 +55,8 @@
   }
   function details(r) {
     const refs = Array.isArray(r.source_refs) ? r.source_refs : [];
-    const links = [link(first(r.url, r.source_url, r.href), 'Open source'), sourceRecordLink(r.source_record_ref), ...refs.slice(0, 4).map((ref) => link(typeof ref === 'string' ? ref : first(ref.url, ref.href), 'Source reference'))].filter(Boolean).join('');
-    const fields = [['Agent', r.agent_id], ['Peer', r.peer_id], ['Session', r.session_id], ['Instance', r.instance_id], ['Parent', r.parent_agent_id], ['Work', r.work_id], ['Operation', r.operation_id], ['Source record', r.source_id], ['Observed', r.observed_at ? date(r.observed_at) : null], ['Reported state', r.reported_status], ['Observation basis', r.observation_basis], ['Next action', r.next_action]].filter(([,v]) => present(v));
+    const links = [link(first(r.url, r.source_url, r.href), 'Open source'), sourceRecordLink(r.source_record_ref), ...refs.slice(0, 4).map((ref) => link(typeof ref === 'string' ? /^(https?:|\/|\.\.?\/)/.test(ref) ? ref : null : first(ref.url, ref.href), 'Source reference'))].filter(Boolean).join('');
+    const fields = [['Agent', r.agent_id], ['Peer', r.peer_id], ['Session', r.session_id], ['Instance', r.instance_id], ['Parent', first(r.parent_agent_id, r.parent_session_id)], ['Work', r.work_id], ['Operation', r.operation_id], ['Source record', r.source_id], ['Observed', r.observed_at ? date(r.observed_at) : null], ['Reported state', r.reported_status], ['Source state', r.source_status], ['Observation basis', first(r.observation_basis, r.basis)], ['Next action', r.next_action]].filter(([,v]) => present(v));
     return `${links ? `<div class="row-links">${links}</div>` : ''}${fields.length ? `<details class="row-details"><summary>Context</summary><dl class="context-fields">${fields.map(([k,v]) => `<dt>${escape(k)}</dt><dd>${escape(v)}</dd>`).join('')}</dl></details>` : ''}`;
   }
   function primary(r, sub) {
@@ -94,12 +94,20 @@
       { name: 'Observed activity', get: (r) => first(r.occurred_at, r.observed_at), render: (r) => `<span title="${escape(date(first(r.occurred_at, r.observed_at)))}">${escape(relative(first(r.occurred_at, r.observed_at)))}</span><div class="cell-sub">${escape(date(first(r.occurred_at, r.observed_at), true))}</div>` }
     ],
     peers: [
-      { name: 'Agent identifier', get: (r) => r.agent_id, render: (r) => `<div class="cell-title mono">${escape(first(r.agent_id, r.peer_id, 'Unknown agent identifier'))}</div><div class="cell-sub">${escape(rowSummary(r))}</div>${r.session_id ? `<div class="cell-sub mono">Session ${escape(r.session_id)}</div>` : ''}${details(r)}` },
+      { name: 'Captured session / source identifier', get: (r) => first(r.session_id, r.agent_id, r.peer_id), render: (r) => `<div class="cell-title mono">${escape(first(r.session_id, r.agent_id, r.peer_id, 'Unknown session identifier'))}</div><div class="cell-sub">${escape(rowSummary(r))}</div>${details(r)}` },
       { name: 'Provider / model', get: provider, render: (r) => `<div>${escape(title(provider(r)))}</div><div class="cell-sub">${escape(first(r.model, 'Model unknown'))}</div>` },
       { name: 'Harness', get: harness, render: (r) => escape(title(harness(r))) },
-      { name: 'State / observation', get: (r) => first(r.status, r.runtime_status), render: (r) => `${badge(first(r.status, r.runtime_status))}<div class="cell-sub">${escape(first(r.observation_kind, r.observation_basis, r.census_source, r.is_live === true ? 'Live census' : null, r.instance_id ? 'Live instance' : null, 'Recorded session'))}</div>` },
+      { name: 'Recorded state / observation', get: (r) => first(r.status, r.runtime_status), render: (r) => `${badge(first(r.status, r.runtime_status))}<div class="cell-sub">${escape(first(r.observation_kind, r.observation_basis, r.census_source, 'Captured source session'))}</div>` },
       { name: 'Usage', get: (r) => r.usage?.input_tokens, render: (r) => `<div>${compact(r.usage?.input_tokens)} in · ${compact(r.usage?.output_tokens)} out</div><div class="cell-sub">${money(r.usage?.cost_usd)}</div>` },
       { name: 'Last observation', get: (r) => first(r.last_activity_at, r.observed_at), render: (r) => `<span title="${escape(date(first(r.last_activity_at, r.observed_at)))}">${escape(relative(first(r.last_activity_at, r.observed_at)))}</span><div class="cell-sub">${escape(date(first(r.last_activity_at, r.observed_at), true))}</div>` }
+    ],
+    runtime: [
+      { name: 'Runtime / agent', get: (r) => first(r.agent_id, r.peer_id, r.instance_id, r.session_id), render: (r) => `<div class="cell-title mono">${escape(first(r.agent_id, r.peer_id, r.instance_id, r.session_id, 'Unknown runtime identifier'))}</div>${r.metadata?.pid ? `<div class="cell-sub">Process ${escape(r.metadata.pid)}</div>` : ''}${details(r)}` },
+      { name: 'Provider / current model', get: provider, render: (r) => `<div>${escape(title(provider(r)))}</div><div class="cell-sub">${escape(first(r.model, 'Current model unknown'))}</div>${!r.model && r.recordedContext?.model ? `<div class="cell-sub">Last recorded model: ${escape(r.recordedContext.model)}</div>` : ''}` },
+      { name: 'Harness', get: harness, render: (r) => escape(title(harness(r))) },
+      { name: 'Task / context', get: (r) => first(r.task_title, r.title, r.name), render: (r) => `<div>${escape(first(r.task_title, r.task?.title, typeof r.task === 'string' ? r.task : null, r.title, r.name, r.metadata?.task_title, r.metadata?.title, 'Current task unknown'))}</div>${r.recordedContext?.summary ? `<div class="cell-sub">Recorded context: ${escape(r.recordedContext.summary)}</div>` : ''}` },
+      { name: 'Execution state / basis', get: (r) => r.status, render: (r) => `${badge(first(r.status, r.runtime_status))}<div class="cell-sub">${escape(title(first(r.observation_kind, r.observation_basis, r.basis, 'Observation basis unknown')))}</div>${r.source_status ? `<div class="cell-sub">Source: ${escape(title(r.source_status))}</div>` : ''}` },
+      { name: 'Source freshness', get: (r) => r.observed_at, render: (r) => `${badge(state.snapshot?.summary_live_stale || state.snapshot?.summary_live_from_cache || r.fresh === false ? 'stale' : r.fresh === true ? 'fresh' : first(r.freshness?.state, 'freshness unknown'))}<div class="cell-sub">Observed ${escape(relative(r.observed_at))}</div><div class="cell-sub">${escape(date(r.observed_at, true))}</div>${r.source_refs?.length ? `<div class="cell-sub">${escape(r.source_refs.map((ref) => typeof ref === 'string' ? title(ref) : first(ref.source, ref.ref, ref.id, 'Source reference')).join(' · '))}</div>` : ''}` }
     ],
     work: [
       { name: 'Work', get: rowSummary, render: (r) => primary(r, first(r.work_id, r.id)) },
@@ -141,12 +149,12 @@
     const cols = columns[view];
     const sort = state.sort[view];
     const head = cols.map((c, i) => `<th scope="col" aria-sort="${sort?.index === i ? (sort.direction === 1 ? 'ascending' : 'descending') : 'none'}"><button type="button" data-sort="${view}" data-column="${i}" aria-label="Sort by ${escape(c.name)}">${escape(c.name)} <span aria-hidden="true">${sort?.index === i ? (sort.direction === 1 ? '↑' : '↓') : '↕'}</span></button></th>`).join('');
-    const body = shown.length ? `<div class="table-wrap"><table><caption class="sr-only">${escape(heading)}</caption><thead><tr>${head}</tr></thead><tbody>${shown.map((r) => `<tr>${cols.map((c, i) => `<td class="${i === 0 ? 'primary' : ''}">${c.render(r)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>` : empty(state.errors[view] || (rows?.length ? 'Try a different search or clear the filters.' : 'This source has no collected records in the current snapshot.'), Boolean(rows?.length));
-    const more = state.cursors[view] && state.mode === 'api' && !limit ? `<button class="button secondary" type="button" data-more="${view}">Load more</button>` : '';
+    const body = shown.length ? `<div class="table-wrap"><table><caption class="sr-only">${escape(heading)}</caption><thead><tr>${head}</tr></thead><tbody>${shown.map((r) => `<tr>${cols.map((c, i) => `<td class="${i === 0 ? 'primary' : ''}">${c.render(r)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>` : state.viewLoading[view] && !state.loadedViews[view] ? `<div class="loading"><span class="spinner" aria-hidden="true"></span><div><strong>Loading ${escape(heading.toLowerCase())}</strong><span class="loading-note">Reading collected records. Summary preparation runs independently.</span></div></div>` : state.errors[view] ? `<div class="empty"><strong>This view could not be loaded</strong>${escape(state.errors[view])}<button class="button secondary" type="button" data-retry="${view}">Retry this view</button></div>` : empty(rows?.length ? 'Try a different search or clear the filters.' : 'This source has no collected records in the current snapshot.', Boolean(rows?.length));
+    const more = state.cursors[view] && state.mode === 'api' && !limit ? `<button class="button secondary" type="button" data-more="${view}" ${state.viewLoading[view] ? 'disabled' : ''}>${state.viewLoading[view] ? 'Loading…' : 'Load more'}</button>` : '';
     const meta = state.resultMeta[view] || {};
     const complete = meta.truncated === true || state.cursors[view] ? 'Partial result set' : meta.complete === true ? 'Complete result set' : meta.complete === false ? 'Partial result set' : 'Result completeness unknown';
     const pages = pageSize ? `<div class="pagination"><button class="button secondary" type="button" data-page="${view}" data-step="-1" ${page === 0 ? 'disabled' : ''}>Previous</button><span>Page ${page + 1} of ${pageCount}</span><button class="button secondary" type="button" data-page="${view}" data-step="1" ${page + 1 === pageCount ? 'disabled' : ''}>Next</button>${more}</div>` : more;
-    return panel(heading, `${state.errors[view] && rows?.length ? `<div class="notice" role="status">${escape(state.errors[view])} Showing the last loaded records.</div>` : ''}${body}<div class="table-footer"><span>${number(shown.length)} shown${pageSize ? ` · ${number(filtered.length)} matching loaded partitions` : ''}${present(meta.total) ? ` · ${number(meta.total)} available` : ''} · ${complete}${state.cursors[view] ? ' · more records available' : ''}</span>${pages || `<span>${state.mode === 'static' ? 'Saved snapshot' : 'Collected records'}</span>`}</div>`, view === 'events' ? 'Source summaries and their latest observed state' : view === 'peers' ? 'Live census instances and historical session records; provider and model are separate from agent identity' : view === 'sources' ? 'Every loaded source partition, with exact scope and continuation state' : view === 'accounts' ? 'Account, service, capability and quota references; connection state appears only when recorded' : '', `<span class="section-meta">${number(rows?.length)} loaded</span>`);
+    return panel(heading, `${state.errors[view] && rows?.length ? `<div class="notice" role="status">${escape(state.errors[view])} Showing the last loaded records.<button class="button secondary" type="button" data-retry="${view}">Retry this view</button></div>` : ''}${body}<div class="table-footer"><span>${number(shown.length)} shown${pageSize ? ` · ${number(filtered.length)} matching loaded partitions` : ''}${present(meta.total) ? ` · ${number(meta.total)} available` : ''} · ${complete}${state.cursors[view] ? ' · more records available' : ''}${meta.observed_at ? ` · observed ${escape(date(meta.observed_at, true))}` : ''}</span>${pages || `<span>${state.viewLoading[view] ? 'Refreshing records…' : state.mode === 'static' ? 'Saved snapshot' : 'Collected records'}</span>`}</div>`, view === 'events' ? 'Source summaries and their latest observed state' : view === 'peers' ? 'Historical and captured source sessions, including channel and repository records; source identifiers retain their original meaning' : view === 'runtime' ? 'Instances observed by connected runtime sources; execution state, task binding, and source freshness appear only when recorded' : view === 'sources' ? 'Every loaded source partition, with exact scope and continuation state' : view === 'accounts' ? 'Account, service, capability and quota references; connection state appears only when recorded' : '', `<span class="section-meta">${number(rows?.length)} loaded</span>`);
   }
   function readMetrics(r) {
     const p = r.backfill || r.progress || r.discovery || {};
@@ -237,8 +245,8 @@
     };
     return `<div class="table-wrap overview-coverage"><table><caption class="sr-only">Corpus collection grouped by source, account and harness</caption><thead><tr><th scope="col">Source / scope</th><th scope="col">Read so far</th><th scope="col">Partitions / pending</th><th scope="col">Collection</th></tr></thead><tbody>${groups.map((g) => `<tr><td><div class="cell-title">${escape(title(g.name))}</div>${g.account || g.harness ? `<div class="cell-sub">${escape([g.account, g.harness].filter(Boolean).join(' · '))}</div>` : ''}</td><td>${metric(g, 'records', 'records')}${metric(g, 'files', 'files read')}${metric(g, 'pages', 'pages')}${metric(g, 'bytes', 'bytes captured')}${metric(g, 'chars', 'characters captured')}${!g.metrics.records && !g.metrics.files && !g.metrics.pages ? '<span class="section-meta">Read count unknown</span>' : ''}${metric(g, 'discoveredFiles', 'files discoverable')}${metric(g, 'unchangedFiles', 'files unchanged')}${metric(g, 'pendingFiles', 'files deferred')}</td><td><div>${number(g.complete)} complete / ${number(g.partitions)} observed</div><div class="cell-sub">${number(g.pending)} pending${g.unknown ? ` · ${number(g.unknown)} completeness unknown` : ''}</div></td><td>${Object.entries(g.statuses).map(([status, count]) => `<span class="status-count">${badge(status)}${g.partitions > 1 ? ` ${number(count)}` : ''}</span>`).join(' ')}${g.observed_at ? `<div class="cell-sub">${escape(relative(g.observed_at))}</div>` : ''}</td></tr>`).join('')}</tbody></table></div><div class="table-footer"><span>${number(groups.length)} source groups · latest report per partition · read counts retain their units</span><button type="button" class="text-button" data-open="sources">Browse all partitions →</button></div>`;
   }
-  function stat(label, value, note, accent = false) {
-    return `<div class="stat"><div class="stat-label">${escape(label)}</div><div class="stat-value ${accent ? 'accent' : ''}">${number(value)}</div><div class="stat-foot">${escape(note)}</div></div>`;
+  function stat(label, value, note, accent = false, pending = false) {
+    return `<div class="stat"><div class="stat-label">${escape(label)}</div><div class="stat-value ${accent ? 'accent' : ''}">${pending && !present(value) ? 'Preparing' : number(value)}</div><div class="stat-foot">${escape(note)}</div></div>`;
   }
   function activityChart(rows) {
     if (!rows?.length) return empty('Daily activity has not been collected yet.');
@@ -252,12 +260,13 @@
   }
   function overview() {
     const s = state.snapshot || {}, c = s.counts || {}, u = s.usage || {}, census = s.census, live = census?.counts || {};
+    const totalsPending = s.summary_totals_ready === false;
     const awaiting = '<div class="stat"><div class="stat-label">Live agent census</div><div class="stat-value awaiting">Awaiting live census</div><div class="stat-foot">Machine, cloud, and harness observations</div></div>';
     const censusStats = census ? `${stat('Observed runtime census', live.observed_instances, 'Observed instances · lower bound', true)}${stat('Executing', live.executing, 'Confirmed within observed sources')}${stat('Waiting', live.waiting, 'Confirmed within observed sources')}${stat('State unknown', live.unknown, 'Execution state or binding unavailable')}` : `${awaiting}${stat('Executing', null, 'Awaiting live census')}${stat('Waiting', null, 'Awaiting live census')}${stat('State unknown', null, 'Awaiting live census')}`;
     const censusStatus = census?.complete === true ? badge('complete') : census?.complete === false ? badge('partial') : badge('coverage unknown');
-    const stats = `<div class="section-label"><h2>Live agent census</h2><span>${censusStatus} · ${census ? `Observed ${escape(date(first(census.observed_at, s.observed_at)))}` : 'Awaiting runtime observations'}</span></div><section class="stats census-stats" aria-label="Live agent census">${censusStats}</section><div class="section-label"><h2>Historical activity</h2><span>Collected Slack, GitHub, machine, cloud, and harness records</span></div><section class="stats history-stats" aria-label="Historical activity totals">${stat('Historical sessions', c.sessions, 'Session records across collected history')}${stat('Historical events', c.events, 'Events already ingested')}</section>`;
+    const stats = `<div class="section-label"><h2>Live agent census</h2><span>${censusStatus} · ${census ? `Observed ${escape(date(first(census.observed_at, s.observed_at)))}` : 'Awaiting runtime observations'}</span></div><section class="stats census-stats" aria-label="Live agent census">${censusStats}</section><div class="section-label"><h2>Historical activity</h2><span>${totalsPending ? 'Preparing totals from captured history · detail views remain available' : 'Collected Slack, GitHub, machine, cloud, and harness records'}</span></div><section class="stats history-stats" aria-label="Historical activity totals">${stat('Historical sessions', c.sessions, 'Session records across collected history', false, totalsPending)}${stat('Historical events', c.events, 'Events already ingested', false, totalsPending)}</section>`;
     const accountingCoverage = typeof u.accounting_coverage === 'number' ? new Intl.NumberFormat(undefined, { style: 'percent', maximumFractionDigits: 1 }).format(u.accounting_coverage) : typeof u.accounting_coverage === 'object' && u.accounting_coverage !== null ? JSON.stringify(u.accounting_coverage) : title(u.accounting_coverage);
-    const usage = `<div class="panel-body"><div class="usage-grid"><div class="usage-item"><span>Input tokens</span><strong>${compact(u.input_tokens)}</strong></div><div class="usage-item"><span>Output tokens</span><strong>${compact(u.output_tokens)}</strong></div><div class="usage-item"><span>Cached tokens</span><strong>${compact(u.cached_tokens)}</strong></div><div class="usage-item"><span>Recorded cost</span><strong>${money(u.cost_usd)}</strong></div></div><div class="coverage-note">Accounting coverage: ${escape(accountingCoverage)}. Values reflect the usage fields supplied by collected sources.</div></div>`;
+    const usage = totalsPending ? '<div class="panel-body">Historical usage totals are being prepared from captured records. Usage fields supplied by individual sources remain visible in their detail views.</div>' : `<div class="panel-body"><div class="usage-grid"><div class="usage-item"><span>Input tokens</span><strong>${compact(u.input_tokens)}</strong></div><div class="usage-item"><span>Output tokens</span><strong>${compact(u.output_tokens)}</strong></div><div class="usage-item"><span>Cached tokens</span><strong>${compact(u.cached_tokens)}</strong></div><div class="usage-item"><span>Recorded cost</span><strong>${money(u.cost_usd)}</strong></div></div><div class="coverage-note">Accounting coverage: ${escape(accountingCoverage)}. Values reflect the usage fields supplied by collected sources.</div></div>`;
     const providerBody = providerFootprint(s);
     const sources = (s.sources || s.coverage || []).filter(matches);
     const censusCoverage = coverageRows(census?.coverage).filter(matches);
@@ -276,7 +285,9 @@
     const capturePanel = capture ? panel('Captured source', `<div class="panel-body capture-grid"><div class="usage-item"><span>Stored source records</span><strong>${number(capture.records)}</strong></div><div class="usage-item"><span>UTF-8 serialized bytes stored</span><strong>${number(capture.bytes)}</strong></div><div class="usage-item"><span>Characters stored</span><strong>${number(capture.characters)}</strong></div></div>`, 'Encrypted stored payloads · full original records are linked from activity') : '';
     const storage = s.storage;
     const storageNotice = storage?.status === 'pending_storage' ? `<div class="notice" role="status"><strong>Source backfill is awaiting storage capacity.</strong> ${number(Math.floor(Number(storage.free_bytes || 0) / 1048576))} MiB free on the collector drive. Captured originals and unread cursors are retained. Census and dashboard reads continue; swarm work proceeds independently.</div>` : '';
-    return `${storageNotice}${stats}${capturePanel}<div class="grid spaced-grid">${panel('Census harness & source coverage', censusBody, 'Live runtime discovery across the swarm')}${panel('Provider & model footprint', providerBody, 'Models and harnesses found in runtime and history')}</div>${panel('Full corpus collection & backfill', groupedCoverage(sources, s.source_groups), 'All recorded source partitions grouped by service; every account and detailed read count remains in Sources')}<div class="grid spaced-grid">${panel('Activity over time', activityChart(s.activity), 'Daily historical event volume')}${panel('Recorded usage', usage, 'Historical collected totals · USD')}</div>${table('events', state.data.events || [], 'Recent activity')}`;
+    const sourceBody = totalsPending && !sources.length && !s.source_groups?.length ? '<div class="panel-body">Source totals are being prepared. <button type="button" class="text-button" data-open="sources">Browse collected source partitions →</button></div>' : groupedCoverage(sources, s.source_groups);
+    const activityBody = totalsPending && !s.activity?.length ? '<div class="panel-body">Daily historical activity totals are being prepared.</div>' : activityChart(s.activity);
+    return `${storageNotice}${stats}${capturePanel}<div class="grid spaced-grid">${panel('Census harness & source coverage', censusBody, 'Live runtime discovery across the swarm')}${panel('Provider & model footprint', providerBody, 'Models and harnesses found in runtime and history')}</div>${panel('Full corpus collection & backfill', sourceBody, 'All recorded source partitions grouped by service; every account and detailed read count remains in Sources')}<div class="grid spaced-grid">${panel('Activity over time', activityBody, 'Daily historical event volume')}${panel('Recorded usage', usage, 'Historical collected totals · USD')}</div>${table('events', state.data.events || [], 'Recent activity')}`;
   }
   function providerFootprint(s) {
     const map = new Map();
@@ -304,18 +315,38 @@
     }
     return rows;
   }
+  function peersView() {
+    const census = state.snapshot?.census;
+    const captured = state.data.peers || [];
+    const recordedBySession = new Map(captured.filter((r) => r.session_id).map((r) => [r.session_id, r]));
+    const runtime = (census?.peers || []).map((r) => {
+      const recorded = recordedBySession.get(r.session_id);
+      return { ...r, recordedContext: recorded && provider(recorded) === provider(r) && harness(recorded) === harness(r) ? recorded : null };
+    }).sort((a, b) => {
+      const priority = (r) => r.status === 'executing' ? 0 : r.status === 'waiting' ? 1 : 2;
+      return priority(a) - priority(b) || String(harness(a) || '').localeCompare(String(harness(b) || ''));
+    });
+    state.resultMeta.runtime = { complete: census?.complete, total: census?.counts?.observed_instances, observed_at: census?.observed_at };
+    const counts = census?.counts || {};
+    const totals = census ? `<div class="section-label"><h2>Observed runtime census</h2><span>${census.complete === true ? badge('complete') : census.complete === false ? badge('partial') : badge('coverage unknown')} · ${escape(first(census.scope, 'Connected runtime observations'))}</span></div><section class="stats census-stats" aria-label="Observed runtime census">${stat('Observed instances', counts.observed_instances, 'Connected runtime sources · lower bound', true)}${stat('Executing', counts.executing, 'Confirmed within observed sources')}${stat('Waiting', counts.waiting, 'Confirmed within observed sources')}${stat('State unknown', counts.unknown, 'Execution state or task binding unmeasured')}</section>` : panel('Runtime census is loading', '<div class="panel-body">Runtime instances will appear as the census becomes available. Captured session history can be opened below.</div>');
+    const live = census ? table('runtime', runtime, 'Observed runtime instances') : '';
+    const history = `<details id="captured-history" class="panel spaced-grid" ${state.historyOpen ? 'open' : ''}><summary class="panel-head"><div><strong>Captured session history</strong><p>${number(captured.length)} loaded records across captured sources · channel, repository, and session identifiers</p></div><span class="section-meta">${state.historyOpen ? 'Collapse' : 'Open history'}</span></summary>${state.historyOpen ? table('peers', captured, 'Captured source sessions') : ''}</details>`;
+    const coverage = coverageRows(census?.coverage);
+    const sources = coverage.length ? panel('Runtime source coverage', `<div class="panel-body mini-list">${coverage.map((r) => `<div class="mini-row"><div><div class="mini-label">${escape(title(first(source(r), r.name, r.source_id)))}</div>${r.scope ? `<div class="mini-sub">${escape(r.scope)}</div>` : ''}${r.unread_regions?.length ? `<div class="mini-sub">Unobserved: ${escape(r.unread_regions.join(' · '))}</div>` : ''}${r.observed_at ? `<div class="mini-sub">Source observed ${escape(date(r.observed_at))} · ${escape(relative(r.observed_at))}</div>` : ''}</div><div class="mini-number">${badge(first(r.freshness?.state === 'STALE' || r.fresh === false ? 'stale' : null, r.status, 'unknown'))}${r.complete === false ? '<div class="mini-sub">Partial coverage</div>' : ''}</div></div>`).join('')}</div>`, 'All reported runtime roads, including unavailable sources and unknown browser or cloud bindings') : '';
+    return `${totals}${live}${history}${sources ? `<div class="spaced-grid">${sources}</div>` : ''}`;
+  }
   function render() {
-    if (!state.snapshot) return;
-    $('content').setAttribute('aria-busy', String(state.loading));
-    $('content').innerHTML = state.view === 'overview' ? overview() : table(state.view, state.data[state.view] || []);
     document.querySelectorAll('.tab').forEach((b) => {
       const active = b.dataset.view === state.view;
       b.classList.toggle('active', active);
       if (active) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
     });
+    const view = state.view === 'overview' ? 'events' : state.view;
+    $('content').setAttribute('aria-busy', String(Boolean(state.viewLoading[view] || (state.view === 'overview' && state.loading))));
+    $('content').innerHTML = state.view === 'overview' ? state.snapshot ? overview() : `${panel(state.summaryError ? 'Summary is unavailable' : 'Summary is being prepared', '<div class="panel-body">Collection totals will appear when the summary is available. You can browse every detail view and the latest collected activity below.</div>')}${table('events', state.data.events || [], 'Recent activity')}` : state.view === 'peers' ? peersView() : table(state.view, state.data[state.view] || []);
   }
   function updateFilters() {
-    const all = [...Object.values(state.data).flat(), ...(state.snapshot?.providers || []), ...(state.snapshot?.harnesses || []), ...(state.snapshot?.sources || []), ...(state.snapshot?.source_groups || []).map((group) => ({ source: group.name, provider: group.name, harness: group.harness })), ...coverageRows(state.snapshot?.census?.coverage)];
+    const all = state.view === 'overview' ? [...(state.data.events || []), ...(state.data.peers || []), ...(state.snapshot?.providers || []), ...(state.snapshot?.harnesses || []), ...(state.snapshot?.sources || []), ...(state.snapshot?.source_groups || []).map((group) => ({ source: group.name, harness: group.harness })), ...coverageRows(state.snapshot?.census?.coverage)] : state.view === 'peers' ? [...(state.snapshot?.census?.peers || []), ...(state.data.peers || [])] : state.data[state.view] || [];
     for (const [id, fn, label] of [['provider', provider, 'providers'], ['harness', harness, 'harnesses'], ['source', source, 'sources']]) {
       const values = [...new Set(all.map(fn).filter(present).map(String))].sort();
       if (state.filters[id] && !values.includes(state.filters[id])) values.push(state.filters[id]);
@@ -341,56 +372,73 @@
   };
   function seed(data) {
     for (const view of Object.keys(endpoints)) {
+      if (state.loadedViews[view]) continue;
       const rows = arrayFor(data, view);
       if (rows.length || !state.data[view]) state.data[view] = rows;
       const meta = data.result_metadata?.[view] || data[`${view}_metadata`] || data[`${view}_meta`];
       if (meta) state.resultMeta[view] = meta;
     }
     if (!state.data.sources?.length) state.data.sources = data.sources || [];
-    if (Array.isArray(data.census?.peers)) {
-      const union = new Map();
-      for (const r of [...(state.data.peers || []), ...data.census.peers]) union.set(first(r.session_id, r.instance_id, r.agent_id, r.peer_id, r.id, JSON.stringify(r)), r);
-      state.data.peers = [...union.values()];
-    }
   }
   function header() {
-    $('mode').textContent = state.mode === 'static' ? 'Saved snapshot' : state.snapshot?.summary_refreshing ? 'Refreshing summary' : 'Collected data';
-    $('observed-at').textContent = `Observed ${date(state.snapshot?.observed_at)}${present(state.snapshot?.summary_cache_age_seconds) ? ` · summary ${Math.round(state.snapshot.summary_cache_age_seconds)}s old` : ''}`;
+    $('mode').textContent = state.mode === 'static' ? 'Saved snapshot' : state.summaryError ? state.snapshot?.census?.observed_at ? 'Runtime available · totals retrying' : 'Historical summary retrying' : state.summaryPending ? 'Preparing summary' : state.snapshot?.summary_totals_ready === false ? 'Live census · preparing totals' : state.snapshot?.summary_refreshing ? 'Refreshing summary' : state.snapshot ? 'Collected data' : 'Connecting';
+    const runtimeObserved = state.snapshot?.census?.observed_at;
+    const historicalObserved = state.snapshot?.summary_historical_observed_at || state.snapshot?.observed_at;
+    $('observed-at').textContent = state.snapshot ? `${runtimeObserved ? `Runtime observed ${date(runtimeObserved)}` : 'Runtime observation pending'}${state.snapshot.summary_totals_ready === false ? ' · historical totals preparing' : historicalObserved ? ` · historical totals ${relative(historicalObserved)}` : ''}` : 'Waiting for the first completed summary · detail views remain available';
     $('json-link').href = state.mode === 'static' ? '../data-snapshot.json' : '/api/telemetry/snapshot';
     $('agent-tools').hidden = state.mode === 'static';
     $('peer-tab-count').textContent = present(state.snapshot?.census?.counts?.observed_instances) ? number(state.snapshot.census.counts.observed_instances) : '';
   }
-  async function loadView(view, append = false) {
-    if (state.mode !== 'api') return;
-    const generation = state.generation;
-    const serial = state.requestSerial[view] = (state.requestSerial[view] || 0) + 1;
+  function loadView(view, append = false) {
+    if (state.mode !== 'api') return Promise.resolve();
     const query = new URLSearchParams({ limit: view === 'events' || view === 'sources' || view === 'accounts' || view === 'notifications' ? '100' : '1000' });
     if (view === 'events') query.set('order', 'desc');
     if (append && state.cursors[view]) query.set('cursor', state.cursors[view]);
     if (view === 'events' || view === 'sources') for (const [k, v] of Object.entries(state.filters)) if (v) query.set(k, v);
-    try {
-      const data = await fetchJson(`/api/telemetry/${endpoints[view]}?${query}`);
-      if (generation !== state.generation || serial !== state.requestSerial[view]) return;
-      const rows = arrayFor(data, view);
-      state.data[view] = append ? [...(state.data[view] || []), ...rows] : rows;
-      state.cursors[view] = data.has_more === false ? null : data.next_cursor || null;
-      state.resultMeta[view] = { complete: data.complete, truncated: data.truncated, total: first(data.total, data.total_count, data.available), has_more: data.has_more };
-      delete state.errors[view];
-    } catch (e) {
-      if (generation !== state.generation || serial !== state.requestSerial[view]) return;
-      state.errors[view] = `The ${endpoints[view]} view could not be refreshed (${e.message}).`;
-    }
-    updateFilters();
+    const key = query.toString();
+    if (state.requests[view]?.key === key) return state.requests[view].promise;
+    const serial = state.requestSerial[view] = (state.requestSerial[view] || 0) + 1;
+    state.viewLoading[view] = true;
     render();
+    const request = (async () => {
+      try {
+        const data = await fetchJson(`/api/telemetry/${endpoints[view]}?${query}`);
+        if (serial !== state.requestSerial[view] || state.mode !== 'api') return;
+        const rows = arrayFor(data, view);
+        state.data[view] = append ? [...(state.data[view] || []), ...rows] : rows;
+        state.loadedViews[view] = true;
+        state.cursors[view] = data.has_more === false ? null : data.next_cursor || null;
+        state.resultMeta[view] = { complete: data.complete, truncated: data.truncated, total: first(data.total, data.total_count, data.available), has_more: data.has_more, observed_at: data.observed_at };
+        delete state.errors[view];
+        delete state.failedAppends[view];
+      } catch (e) {
+        if (serial !== state.requestSerial[view] || state.mode !== 'api') return;
+        state.errors[view] = `The ${endpoints[view]} view could not be refreshed (${e.name === 'AbortError' ? 'request timed out' : e.message}).`;
+        state.failedAppends[view] = append;
+      } finally {
+        if (serial === state.requestSerial[view]) {
+          state.viewLoading[view] = false;
+          delete state.requests[view];
+          updateFilters();
+          render();
+        }
+      }
+    })();
+    state.requests[view] = { key, promise: request };
+    return request;
   }
-  async function refresh() {
+  function loadCurrentView() {
+    return Promise.all((state.view === 'overview' ? ['events', 'peers'] : [state.view]).map((view) => loadView(view)));
+  }
+  async function refresh(reloadDetails = true) {
     if (state.loading) return;
     clearTimeout(state.summaryTimer);
     state.loading = true;
-    state.generation++;
     $('refresh').disabled = true;
-    $('content').setAttribute('aria-busy', 'true');
-    $('notice').hidden = true;
+    let retryAfter = null;
+    if (reloadDetails) loadCurrentView();
+    header();
+    render();
     try {
       let data;
       try { data = await fetchJson('/api/telemetry/summary'); state.mode = 'api'; }
@@ -403,56 +451,56 @@
       }
       if (state.mode === 'api' && data.summary_ready === false) {
         state.summaryPending = true;
-        $('mode').textContent = 'Preparing summary';
-        $('observed-at').textContent = 'Waiting for the first completed summary';
+        state.summaryError = data.summary_refresh_error || null;
         $('notice').textContent = data.summary_refresh_error ? `The summary refresh needs recovery (${data.summary_refresh_error}). Retrying while the collected records remain available.` : 'Preparing the complete summary from captured records. Source detail and original records remain available.';
         $('notice').hidden = false;
-        if (!state.snapshot) $('content').innerHTML = '<div class="loading"><span class="spinner" aria-hidden="true"></span><div><strong>Preparing collected telemetry</strong><span class="loading-note">Counts cover all recorded partitions. Detailed records load when their view is opened.</span></div></div>';
-        state.summaryTimer = setTimeout(refresh, 1500);
+        retryAfter = 2000;
         return;
       }
       state.summaryPending = false;
-      const previousSnapshot = state.snapshot;
+      state.summaryError = data.summary_refresh_error || null;
       state.snapshot = data.snapshot || data;
-      if (!previousSnapshot) {
-        state.data = {};
-        state.resultMeta = {};
-        state.pages = {};
-        state.cursors = {};
-        state.errors = {};
-      }
       seed(state.snapshot);
       if (data.snapshot) seed(data);
-      header(); updateFilters(); render();
-      if (state.snapshot.summary_refreshing) {
-        $('notice').textContent = 'Showing the last completed summary while the latest captured totals refresh. All source partitions remain included.';
+      $('notice').hidden = state.mode !== 'static';
+      if (state.snapshot.summary_live_error || state.snapshot.summary_live_from_cache || state.snapshot.summary_live_stale) {
+        $('notice').textContent = `The runtime census read needs recovery${state.snapshot.summary_live_error ? ` (${state.snapshot.summary_live_error})` : ''}. Displaying the prior source observation while the live read retries; historical totals and detail views remain available.`;
         $('notice').hidden = false;
-        state.summaryTimer = setTimeout(refresh, 2000);
-      }
-      if (state.mode === 'api') {
-        const needed = state.view === 'overview' ? ['events', 'peers'] : [state.view];
-        await Promise.all(needed.filter((view) => !state.data[view]?.length || !state.snapshot.summary_refreshing).map((view) => loadView(view)));
+        retryAfter = 3000;
+      } else if (state.snapshot.summary_refreshing || state.snapshot.summary_totals_ready === false || state.summaryError) {
+        $('notice').textContent = state.summaryError ? `The historical totals refresh failed (${state.summaryError}); retrying while the runtime census and collected detail views remain available.` : state.snapshot.summary_totals_ready === false ? 'Runtime census is available. Historical totals are being prepared from captured records; every detail view remains available.' : 'Showing the last completed summary while the latest captured totals refresh. All source partitions remain included.';
+        $('notice').hidden = false;
+        retryAfter = 3000;
       }
     } catch (e) {
-      $('notice').textContent = `The telemetry summary could not be refreshed (${e.message}). ${state.snapshot ? 'Showing the last completed view; retrying the summary.' : 'Retrying the local summary without downloading a second full snapshot.'}`;
+      state.summaryError = e.name === 'AbortError' ? 'request timed out' : e.message;
+      $('notice').textContent = `The telemetry summary could not be refreshed (${state.summaryError}). ${state.snapshot ? 'Showing the last available summary while it retries.' : 'Retrying the summary.'} Collected detail views remain available.`;
       $('notice').hidden = false;
-      if (!state.snapshot) $('content').innerHTML = '<div class="loading"><span class="spinner" aria-hidden="true"></span> Reconnecting to collected telemetry…</div>';
-      if (state.mode !== 'static') state.summaryTimer = setTimeout(refresh, 3000);
+      if (state.mode !== 'static') retryAfter = 3000;
     } finally {
       state.loading = false;
       $('refresh').disabled = false;
-      $('content').setAttribute('aria-busy', String(Boolean(state.summaryPending)));
+      header();
+      updateFilters();
+      render();
+      if (state.mode === 'api' && retryAfter === null) retryAfter = 10000;
+      if (retryAfter !== null) state.summaryTimer = setTimeout(() => refresh(false), retryAfter);
     }
   }
-  async function changeView(view) {
+  async function changeView(view, updateHistory = true) {
     if (!labels[view]) return;
     state.view = view;
-    history.replaceState(null, '', `#${view}`);
+    if (updateHistory && location.hash !== `#${view}`) history.pushState(null, '', `#${view}`);
+    updateFilters();
     render();
-    if (view !== 'overview' && state.mode === 'api') await loadView(view);
+    if (state.mode === 'api') await loadCurrentView();
   }
   document.querySelectorAll('.tab').forEach((b) => b.addEventListener('click', () => changeView(b.dataset.view)));
-  $('refresh').addEventListener('click', refresh);
+  const hashView = () => labels[location.hash.slice(1)] ? location.hash.slice(1) : 'overview';
+  const syncView = () => { const view = hashView(); if (view !== state.view) changeView(view, false); };
+  window.addEventListener('hashchange', syncView);
+  window.addEventListener('popstate', syncView);
+  $('refresh').addEventListener('click', () => refresh());
   let debounce;
   function filterChanged() {
     state.filters = { q: $('search').value.trim(), provider: $('provider').value, harness: $('harness').value, source: $('source').value };
@@ -474,6 +522,7 @@
     if (!b) return;
     if (b.dataset.open) changeView(b.dataset.open);
     if (b.dataset.more) { b.disabled = true; b.textContent = 'Loading…'; loadView(b.dataset.more, true); }
+    if (b.dataset.retry) loadView(b.dataset.retry, state.failedAppends[b.dataset.retry] === true);
     if (b.dataset.page) { state.pages[b.dataset.page] = (state.pages[b.dataset.page] || 0) + Number(b.dataset.step); render(); $('content').querySelector('.panel-head')?.scrollIntoView({ block: 'start' }); }
     if (b.dataset.sort) {
       const view = b.dataset.sort, index = Number(b.dataset.column), prev = state.sort[view];
@@ -483,7 +532,11 @@
       $('content').querySelector(`[data-sort="${view}"][data-column="${index}"]`)?.focus();
     }
   });
-  const requested = location.hash.slice(1);
-  if (labels[requested]) state.view = requested;
+  $('content').addEventListener('toggle', (event) => {
+    if (event.target.id !== 'captured-history' || event.target.open === state.historyOpen) return;
+    state.historyOpen = event.target.open;
+    render();
+  }, true);
+  state.view = hashView();
   refresh();
 })();
