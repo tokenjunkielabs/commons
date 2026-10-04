@@ -158,7 +158,12 @@ class LiveCollectors:
                 primary = (getattr(exc, "rate_limit_kind", None) == "primary"
                            and reported_resource in (None, resource))
                 limited_scope = scope if primary else "github:GET"
-                retry = self.request_budget.rate_limited(limited_scope, getattr(exc, "retry_after", None), reset_at=reset)
+                # One response can report both a secondary limit and primary
+                # exhaustion. Keep the resource reset out of the shared delay.
+                reset_scope = (scope if not primary and reset is not None
+                               and reported_resource in (None, resource) else None)
+                retry = self.request_budget.rate_limited(limited_scope, getattr(exc, "retry_after", None),
+                    reset_at=reset, reset_scope=reset_scope)
                 raise SourceFailure("github_rate_limited", {"http_status": getattr(exc, "http_status", None),
                     "rate_limit_remaining": getattr(exc, "rate_limit_remaining", None),
                     "rate_limit_reset": reset, "rate_limit_resource": reported_resource,

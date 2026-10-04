@@ -133,19 +133,38 @@ class RequestBudget:
         if deferred is not None:
             raise deferred
 
-    def rate_limited(self, scope, retry_after=None, reset_at=None, *, observation_id=None):
+    def rate_limited(self, scope, retry_after=None, reset_at=None, *, observation_id=None,
+                     reset_scope=None):
         """Record one provider observation; exact named retries never count twice.
 
         The caller keeps one ID per actual provider response. The fingerprint
         binds it to the original scope/evidence without retaining header text.
         Replays return the currently governing deadline, including newer limits.
+        A separate reset_scope keeps a resource reset out of a shared secondary
+        cooldown. Both facts commit atomically and count as one response.
         """
+        if reset_scope is not None:
+            self._lease_name(reset_scope)
+        separate_reset = reset_scope is not None and reset_scope != scope
+
+        def reset_receipt(db, now):
+            row = db.execute("SELECT * FROM read_budget WHERE scope=?", (reset_scope,)).fetchone()
+            if row is None:
+                return {}
+            return {"reset_cooldown": {"scope": reset_scope,
+                    "retry_not_before": _iso(row["retry_until"]),
+                    "retry_after_seconds": max(0, row["retry_until"] - now),
+                    "retry_basis": row["retry_basis"]}}
+
         fingerprint = None
         if observation_id is not None:
             if (not isinstance(observation_id, str) or not 1 <= len(observation_id) <= 200
                     or any(ord(char) < 32 for char in observation_id)):
                 raise ValueError("observation_id must be nonempty text up to 200 characters.")
-            fingerprint = hashlib.sha256(json.dumps([scope, retry_after, reset_at],
+            evidence = [scope, retry_after, reset_at]
+            if reset_scope is not None:
+                evidence.append(reset_scope)
+            fingerprint = hashlib.sha256(json.dumps(evidence,
                 sort_keys=True, separators=(",", ":"), allow_nan=False).encode()).hexdigest()
         with self._transaction() as db:
             now = self.clock()
@@ -159,10 +178,11 @@ class RequestBudget:
                     return {"scope": scope, "retry_not_before": _iso(row["retry_until"]),
                             "retry_after_seconds": max(0, row["retry_until"] - now),
                             "retry_basis": row["retry_basis"], "observation_id": observation_id,
-                            "replayed": True}
+                            "replayed": True, **(reset_receipt(db, now) if separate_reset else {})}
             seconds, basis = retry_seconds(retry_after, now, self.fallback_seconds)
-            if (not isinstance(reset_at, bool) and isinstance(reset_at, (int, float))
-                    and math.isfinite(reset_at) and now <= reset_at <= now + 3153600000):
+            valid_reset = (not isinstance(reset_at, bool) and isinstance(reset_at, (int, float))
+                           and math.isfinite(reset_at) and now <= reset_at <= now + 3153600000)
+            if valid_reset and not separate_reset:
                 seconds = max(reset_at - now, seconds if basis == "provider" else 0)
                 basis = "provider_retry_and_reset" if basis == "provider" else "provider_reset"
             streak = 0
@@ -182,12 +202,24 @@ class RequestBudget:
             db.execute("""UPDATE read_budget SET retry_until=?,last_limited=?,
                 limited=limited+1,retry_basis=?,fallback_streak=? WHERE scope=?""",
                 (until, now, basis, streak, scope))
+            if separate_reset and valid_reset:
+                reset_row = self._row(db, reset_scope)
+                reset_until = max(reset_at, now + 1)
+                reset_basis = "provider_reset" + ("_minimum_delay" if reset_at < now + 1 else "")
+                if reset_row["retry_until"] >= reset_until:
+                    reset_until = reset_row["retry_until"]
+                    reset_basis = reset_row["retry_basis"] or reset_basis
+                db.execute("""UPDATE read_budget SET retry_until=?,last_limited=?,
+                    limited=limited+1,retry_basis=?,fallback_streak=0 WHERE scope=?""",
+                    (reset_until, now, reset_basis, reset_scope))
+            reset_evidence = reset_receipt(db, now) if separate_reset else {}
             if observation_id is not None:
                 db.execute("INSERT INTO provider_limit_observations(observation_id,fingerprint) VALUES(?,?)",
                            (observation_id, fingerprint))
             self._limited += 1
         return {"scope": scope, "retry_not_before": _iso(until),
                 "retry_after_seconds": max(0, until - now), "retry_basis": basis,
+                **reset_evidence,
                 **({"observation_id": observation_id, "replayed": False} if observation_id is not None else {})}
 
     def succeeded(self, scope, *, shared_scopes=()):
