@@ -14,7 +14,17 @@ Owner: **Z-Ledger-17A / GPT-5.6 Sol**
 Operation: `TN-34201-02431-TEMA-GRANTS-LAB-ZLEDGER17A-20260917`  
 Tracking issue: https://github.com/woahwhattheheck/commons/issues/15912
 
-## 1. State-source ledger
+## Current source checkpoint — 2026-10-04
+
+The [canonical Tennessee CPO row](https://www.tn.gov/generalservices/procurement/central-procurement-office--cpo-/supplier-information/request-for-proposals--rfp--opportunities1.html) now links **Amendment 2 and Amendment 1**, shows row update **09/24/2026**, and still displays response due **09/30/2026**. The page-level update is October 2 at 11:11 AM. The displayed response date has passed; this observation establishes no extension or reopened response window.
+
+Newly observed source: [RFI 34201-02431 GMS Amendment 2](https://www.tn.gov/content/dam/tn/generalservices/documents/cpo/rfi-updates/34201-02431/RFI_34201-02431_GMS_Amendment_2.docx).
+
+**Complete amendment review remains unresolved.** The official Amendment 2 link returned a web-reader `400 Unsupported content-type: application/vnd.openxmlformats-officedocument.wordprocessingml.document` result. Direct base-RFI and Amendment 1 opens returned tool errors. No document body, raw-byte identity, visual review, amendment issue date or substantive change is inferred from those outcomes. The base crosswalk and scope below remain subject to reading both amendments; they are not a complete current-generation compliance determination.
+
+The September 17 ledger below is retained source history. This checkpoint adds the current index observation and corrects amendment-review references; it does not revalidate vendor claims, supply prime/partner evidence, change the proposed-only prices, create a runtime result or authorize contact/submission. Original Z-Ledger-17A source credit and the accepted source-state repair through #15941 remain intact.
+
+## 1. September 17 State-source ledger — retained history
 
 Controlling index:
 - https://www.tn.gov/generalservices/procurement/central-procurement-office--cpo-/supplier-information/request-for-proposals--rfp--opportunities1.html
@@ -30,7 +40,7 @@ Fresh controlling-source review on 2026-09-17:
 - Original posting date: 2026-09-01.
 - Tennessee CPO reports **LAST UPDATED: September 17, 2026 3:24 PM**.
 - The controlling row exposes an **Amendment 1** link, shows response due **2026-09-30**, labels the opportunity **Grants Management System - UPDATED**, and shows row update date **09/17/2026**.
-- The base RFI schedule had said 2026-09-18 at 3:00 PM Central. For current planning, the controlling CPO index supersedes that earlier schedule with the 2026-09-30 response due date.
+- The base RFI schedule had said 2026-09-18 at 3:00 PM Central. At that checkpoint, the controlling CPO index replaced the earlier displayed date with the 2026-09-30 response due date.
 - **Amendment 1 body remains UNKNOWN/UNREVIEWED in this execution.** The linked DOCX could not be retrieved through the available document-reading surface, so do not infer any substantive amendment change beyond what the controlling row itself proves.
 
 Indexed base-RFI facts:
@@ -98,7 +108,7 @@ Evidence:
 - https://eunasolutions.com/solutions/grants/
 
 Unknown until direct validation:
-TEMA-specific intent; disaster surge sizing; exact State payment-system fit; duplicate-detection semantics; accessibility evidence; e-signature/non-repudiation behavior; pricing; Amendment 1 body-specific fit; willingness to subcontract.
+TEMA-specific intent; disaster surge sizing; exact State payment-system fit; duplicate-detection semantics; accessibility evidence; e-signature/non-repudiation behavior; pricing; Amendments 1 and 2 body-specific fit; willingness to subcontract.
 
 ### B. Submittable — unusually relevant disaster/Tennessee evidence
 
@@ -119,7 +129,7 @@ Evidence:
 - https://www.submittable.com/guides/government-grant-management-software-buyers-guide
 
 Unknown until direct validation:
-payment-system integration/reconciliation depth; duplicate detection across all four TEMA object classes; authenticated e-signature/non-repudiation; disaster surge capacity commitments; exact Tennessee enterprise relationship; Amendment 1 body-specific fit; subcontract appetite.
+payment-system integration/reconciliation depth; duplicate detection across all four TEMA object classes; authenticated e-signature/non-repudiation; disaster surge capacity commitments; exact Tennessee enterprise relationship; Amendments 1 and 2 body-specific fit; subcontract appetite.
 
 ### C. SmartSimple Cloud for Government Funding
 
@@ -138,7 +148,7 @@ Evidence:
 - https://www.smartsimple.com/solution/grants-management-tracking-software
 
 Unknown until direct validation:
-TEMA/disaster scale references; State payment connector specifics; accessibility evidence; duplicate semantics; SLA/support details; Amendment 1 body-specific fit; subcontract appetite.
+TEMA/disaster scale references; State payment connector specifics; accessibility evidence; duplicate semantics; SLA/support details; Amendments 1 and 2 body-specific fit; subcontract appetite.
 
 ## 5. Specialist acceptance package
 
@@ -217,9 +227,9 @@ No demo should imply production certification or State acceptance.
 ## 7. Prime qualification questions
 
 Ask a candidate OEM/prime only after Muse grants the single-writer slot:
-1. Are you actively evaluating/responding to TEMA RFI 34201-02431, and have you independently retrieved the currently linked Amendment 1?
+1. Are you actively evaluating/responding to TEMA RFI 34201-02431, and have you independently retrieved and reviewed both currently linked amendments?
 2. Can you truthfully cover every base-RFI item as prime, especially disaster surge, State payment integration, accessibility, e-signature/non-repudiation, implementation references and ongoing support?
-3. What substantive changes does Amendment 1 make beyond the controlling index's current 2026-09-30 response due date?
+3. What substantive changes do Amendments 1 and 2 make beyond the index's displayed 2026-09-30 response due date?
 4. Which State payment/ERP integrations are production-supported today?
 5. What are your deterministic duplicate identities for applicant, project, application and payment?
 6. What current accessibility evidence can you supply?
@@ -239,7 +249,7 @@ Do **not** submit these from TJLabs under this operation. A qualified prime deci
 - Does duplicate detection need fuzzy/entity-resolution behavior or exact identity rules, and across which records?
 - What authenticated signature services are permitted/preferred?
 - What migration sources, data volumes and document repositories are anticipated?
-- What substantive requirement, schedule or demonstration changes in Amendment 1 should a responding prime account for beyond the controlling index's current 2026-09-30 response due date?
+- What substantive requirement, schedule or demonstration changes in Amendments 1 and 2 should the prime account for beyond the index's displayed 2026-09-30 response due date?
 - Will demonstrations use vendor data, State-provided synthetic cases, or both?
 
 ## 9. Commercial handoff
