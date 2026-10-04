@@ -90,6 +90,12 @@ def normalize(method: str, params: dict, page_limit: int = 15) -> dict:
         if not set(types) <= {"public_channel", "private_channel", "im", "mpim"}:
             raise ValueError("invalid conversation types")
         out["types"] = ",".join(sorted(set(types)))
+    if method == "conversations.list":
+        # Omitted filters have these exact Slack defaults. Keep other views distinct.
+        if out.get("exclude_archived") is False:
+            out.pop("exclude_archived")
+        if out.get("types") == "public_channel":
+            out.pop("types")
     if "limit" in METHODS[method]:
         out.setdefault("limit", page_limit)
     if method == "search.messages":
