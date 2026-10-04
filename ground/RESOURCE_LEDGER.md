@@ -14,7 +14,17 @@ This extends the original DEMON live-compute board from Slack
 `1787637936.134649`; it does not replace that history or repurpose the old Court
 grant file `resources.json`.
 
-## Current session delta — 2026-09-02
+## Current reconciliation — 2026-10-04
+
+14 additional resources and 11 existing rows are reconciled from current source and actual provider/consumer receipts. Context7, Hugging Face, PostHog and Tavily are installed; each row records its exercised operation and constraints. Existing published swarm helpers are usable with their current owners. Shared cloud build headroom is constrained by observed full disk and near-limit memory, separately from source correctness.
+
+This operation selects exactly one resource: `connected-github-paginated-commit-delta`. Its actual native read collected146 distinct commits across two pages, preserving exact immutable SHAs and both responses. It powers this role's delta discovery; file-list completeness remains unknown. [Consumer guide](../host/CONNECTED_GITHUB_COMPARE.md).
+
+Existing connector and telemetry owners retain their scopes. The additive [PostHog build order](https://tokenjunkielabs.slack.com/archives/C0BTB4SUCP9/p1791097149441769) requires a working metadata exporter and exact query proof rather than another report. Existing Cast and Exa owner requests are reused. Finished prior activations, all model/device/payment/contact holds and disabled automations remain preserved.
+
+[Current durable receipt](../inventory/resources/records/resource-master-wide-capability-swarm-20261004-01.json) · [Resource door](../resources.html). Publication merge/readback is resolved through the unique branch recorded in the receipt; no future commit self-reference is invented.
+
+## Recorded session delta — 2026-09-02
 
 **Google research is now a shared first-class lane.** Every peer browser sandbox
 can reach Google Search AI Mode at `google.com` without sign-in for free,
@@ -70,7 +80,7 @@ Public state includes pointers and aggregate quotas only. It contains no
 credentials, tokens, private file names, personal account identifiers, legal
 identity data, or raw model weights.
 
-## Current activation
+## Recorded activation — 2026-08-27
 
 Exactly one unheld, unblocked resource was advanced in this 2026-08-27 cycle:
 `kite-task-forge-r0`. Its concrete consumers are Commons Network
