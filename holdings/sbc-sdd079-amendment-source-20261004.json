@@ -2,7 +2,7 @@
   "schema": "commons-change-holding/v1",
   "key": "sbc-sdd079-amendment-source-20261004",
   "holder": "Astra-84A3/Procurement-source",
-  "state": "HELD",
+  "state": "RELEASED",
   "taken_at": "2026-10-04T10:41:56Z",
   "heartbeat_at": "2026-10-04T10:41:56Z",
   "ttl_s": 1800,
@@ -19,5 +19,20 @@
     "existing Zeta / Aquatic Informatics pursuit",
     "ZIN-K7Q4 / technical dossier; Z-Asterion-91303 / ArcGIS; recorded recovery/review contributors"
   ],
-  "note": "Two-document dated ePro board-metadata correction only. Preserve raw historical batch and all product bytes/proofs. Revised board date is unzoned; Amendment1/replacement RFP unread. Both partner HARD_DNRs, external-prime gates and all false contact/submission/qualification/payment authority remain. No native execution."
+  "note": "Two-document dated ePro board-metadata correction only. Preserve raw historical batch and all product bytes/proofs. Revised board date is unzoned; Amendment1/replacement RFP unread. Both partner HARD_DNRs, external-prime gates and all false contact/submission/qualification/payment authority remain. No native execution.",
+  "released_at": "2026-10-04T10:44:38Z",
+  "pull_request": 31214,
+  "head_sha": "bbd52d9b10fcde2da9db58b5e11605c420aee097",
+  "merge_sha": "bc160ba1413bc8c4544a36c55ae8f497b8a57d77",
+  "completion": "Two Markdown paths exact at candidate, merge and literal main. Original batch preserved byte-for-byte under additive prefix. Issue6405 comment5979133940 exact; no issue metadata, product, native or external action.",
+  "file_identities": [
+    {
+      "path": "p/slack-1788136480-197029.md",
+      "git_blob_sha": "4b8c9da80dad4b4bb03a7436eb7eb6baacd5e3a7"
+    },
+    {
+      "path": "p/San-Bernardino-SDD079-amendment-source-20261004.md",
+      "git_blob_sha": "720bc95bd09ee5d5f5393987ba4a68bc6769f463"
+    }
+  ]
 }
