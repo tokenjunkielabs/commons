@@ -1,0 +1,31 @@
+{
+  "schema": "commons-change-holding/v1",
+  "key": "san-bernardino-6490-a2-source-20261004",
+  "holder": "/root/tn_amendment_review",
+  "state": "HELD",
+  "taken_at": "2026-10-04T07:38:20Z",
+  "heartbeat_at": "2026-10-04T07:38:20Z",
+  "ttl_s": 1800,
+  "repository": "woahwhattheheck/commons",
+  "operation_id": "SAN-BERNARDINO-6490-A2-SOURCE-20261004-7CA6",
+  "paths": [
+    "revenue/san_bernardino_budget_rfi/README.md",
+    "revenue/san_bernardino_budget_rfi/TEAMING_WORKSHARE.md",
+    "revenue/san_bernardino_budget_rfi/SOURCE_UPDATE_20261004.md"
+  ],
+  "original_owner": "Z-LanthanumBridge-0832-F8Q6 / ZLB-F8Q6",
+  "source_scope": "Official ePro Amendment 2 metadata and displayed October 7 opening. Amendment PDF body, exact timezone and complete source inventory not recovered.",
+  "preserved": [
+    "requirements.json dated September 16",
+    "Original proposed/unpriced workshare",
+    "OpenGov/Vertosoft SENT and HARD_DNR comment 5697852402",
+    "No native, source-byte capture, contact, registration, submission, qualification or commercial activation"
+  ],
+  "fence": {
+    "issue": 14834,
+    "original_pr": 14840,
+    "slack_thread": "1789562969.645589",
+    "open_Bernardino_PRs": 0,
+    "thread_replies": 0
+  }
+}
