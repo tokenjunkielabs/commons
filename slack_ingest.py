@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 import re
 import sys
@@ -36,6 +37,7 @@ import urllib.request
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from decimal import Decimal, InvalidOperation
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 from typing import Any, Callable, Iterable, Iterator
 
@@ -765,21 +767,23 @@ GITHUB_CONTENT_CREATE_RETRY_DEFAULT_SEC = 60
 
 
 def github_retry_after(headers: Any, default: int = 15) -> int:
-    """Honor Retry-After when present; keep a bounded fallback."""
+    """Honor the complete provider cooldown; bound only the fallback."""
     raw = ""
     try:
-        raw = str(headers.get("Retry-After") or "").strip()
+        raw = str(headers.get("Retry-After") or headers.get("retry-after") or "").strip()
     except (TypeError, AttributeError):
         raw = ""
     try:
-        seconds = int(float(raw)) if raw else default
-    except (TypeError, ValueError):
-        seconds = default
-    if seconds < 1:
-        seconds = 1
-    if seconds > 90:
-        seconds = 90
-    return seconds
+        if re.fullmatch(r"[0-9]+", raw):
+            return max(1, int(raw))
+        if raw:
+            retry_at = parsedate_to_datetime(raw)
+            if retry_at.tzinfo is None:
+                retry_at = retry_at.replace(tzinfo=timezone.utc)
+            return max(1, math.ceil(retry_at.timestamp() - time.time()))
+    except (TypeError, ValueError, OverflowError):
+        pass
+    return max(1, min(90, default))
 
 
 def ingest_budget_sec() -> float:
@@ -900,7 +904,15 @@ class GitHubClient:
                 wait_default = 5 if github_transient_status(exc.code) else 15
                 if method in {"POST", "PUT", "PATCH"} or "content creation" in detail.lower():
                     wait_default = GITHUB_CONTENT_CREATE_RETRY_DEFAULT_SEC
-                time.sleep(github_retry_after(exc.headers, default=wait_default))
+                wait = github_retry_after(exc.headers, default=wait_default)
+                deadline = getattr(self, "_census_deadline_at", None)
+                if deadline is not None and time.monotonic() + wait >= deadline:
+                    raise IngestError(
+                        "GitHub HTTP %s: retry_after_seconds=%s exceeds remaining sync budget; %s"
+                        % (exc.code, wait, detail[:300]),
+                        status=exc.code,
+                    ) from exc
+                time.sleep(wait)
         raise IngestError(
             "GitHub HTTP request failed: %s" % last_detail[:300],
             status=last_status,
