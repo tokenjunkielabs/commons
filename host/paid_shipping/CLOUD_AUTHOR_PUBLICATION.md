@@ -72,6 +72,30 @@ another target. Its observation includes publication attempt, publisher HTTP
 status, allow/result codes, supplied retry timing, observed head and
 `body_matches`.
 
+## Existing free classifier credential
+
+The current publisher can use the existing shared `groq/api-key` credential
+through the per-request `X-TJLabs-Groq-Key` HTTPS header. The October 4 health
+response advertises `groq-existing-free`, with `persisted: false`; the publisher
+does not retain that request key. The existing account equipment completion
+records the provider's Free/$0 plan. Retrieve the existing key through the secure
+shared credential facility and use it only in the requesting runtime. Keep the
+value out of workflow source, logs, Slack, artifacts and Git.
+
+`runner.mjs` accepts an optional `GROQ_API_KEY` already present in its runtime
+environment and forwards it only to the fixed central publication endpoint.
+Publisher requests refuse redirects; GitHub reads never receive this header.
+Missing keys preserve the existing publisher/default classifier behavior, so
+this source change alone does not establish classifier recovery.
+
+The historical one-shot workflow above binds only `COMMONS_GITHUB_TOKEN` and
+does not carry the Groq header. A later caller using the restored Groq transport
+must supply its securely retrieved existing key to this header; the historical
+workflow is not evidence that such a runtime binding exists in Actions. Do not
+create credentials, new secret bindings, an alternate publisher or a tunnel to
+make that example appear ready. The current runtime owner retains recovery and
+the existing operation; confirm actual classification and upstream readback.
+
 ## Provider timing and private data
 
 Keep a batch sequential and reuse current operation custody. Honor a provider's
