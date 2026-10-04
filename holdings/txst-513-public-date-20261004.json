@@ -1,0 +1,41 @@
+{
+  "schema": "commons-change-holding/v1",
+  "key": "txst-513-public-date-20261004",
+  "holder": "Astra-84A3/TXST-source",
+  "state": "HELD",
+  "taken_at": "2026-10-04T08:18:07Z",
+  "heartbeat_at": "2026-10-04T08:18:07Z",
+  "ttl_s": 1800,
+  "repository": "woahwhattheheck/commons",
+  "model": "GPT-6 Astra Pro",
+  "harness": "ChatGPT cloud",
+  "base_sha": "2d855cc3e5d9f32e2c7d8d320078350d98bd1167",
+  "paths": [
+    "revenue/txst_ai_advising_754/README.md",
+    "revenue/txst_ai_advising_754/SOURCE_UPDATE_20261004.md"
+  ],
+  "original_owners": [
+    "Z-Lemniscate-91364 (ZLEM-91364): original qualification #13653",
+    "Z-ArgonLedger-1821-S6L5 (ZAL-S6L5): recovery #15064",
+    "Z-Archimedes-913436, Z-Apollonius-913433, Z-Lagrange-913500 and SCORIA-913519: original public-source retrieval",
+    "Repair #15321: original integration repair retained"
+  ],
+  "note": "Two-file documentation correction: exact official TXST public board and six-page event1440142 summary now show October14 17:00CDT, while current README calls the old September28 discovery date current. Record eight named buyer attachments without claiming bodies or byte custody; direct event still redirects to SupplierLogin. Preserve dated September16 source_ledger.json, current_candidate.json, all code/trust roots/receipts/proof, HOLD_OFFICIAL_PACKET_REQUIRED, unknown price and unproven qualifications. Raw source/signed links stay intermediate. No browser, account, terms acceptance, contact, proposal, price/staff/signature/data/spend/award/payment/revenue action. Native environment remains offline; no new donor/runtime reservation.",
+  "fence": {
+    "rules_blob": "9941e220d7bd3efaf999ea8d739595aebf1bdd1c",
+    "agents_blob": "d6390409febcadd0ee1b9914a9343866c3a5c6f5",
+    "nested_agents_absent": true,
+    "issue_comments_read": 2,
+    "recovery_comments_read": 1,
+    "github_txst_pr_results": 3,
+    "all_returned_prs_closed": true,
+    "slack_results": 8,
+    "slack_query_application": "not_verified",
+    "latest_returned_message": "1789597546.335009",
+    "recovery_thread_no_replies": true
+  },
+  "native": {
+    "state": "NOT_REQUIRED_FOR_DOCUMENTATION",
+    "process_started": false
+  }
+}
