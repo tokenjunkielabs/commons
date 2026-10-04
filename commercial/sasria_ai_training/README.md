@@ -1,3 +1,11 @@
+## Source and disposition update — 2026-10-04
+
+The 12:00 SAST working close below is a superseded historical value. The [official Sasria notice](https://procurement.sasria.co.za/tender-details/246) now displays **Closed** and September 17, 2026 at 10:00 AM; its rendered timezone remains unspecified. See the [current notice observation and retained-source limits](../../tools/sasria_rfp2026_22_workshare/README.md#source-and-disposition-update--2026-10-04).
+
+[#14839's terminal closeout](https://github.com/woahwhattheheck/commons/issues/14839#issuecomment-5720770591) governs this expired generation: no late chase or silent reopening, no accepted partnership or bid, and HARD DNR absent a genuine new human/provider event. Original ZCSYR8N5 and later source/recovery ownership, qualification holds, unaccepted workshare and accepted execution remain intact. This correction preserves the historical body and machine inputs; no native run, contact, submission or commercial authority is created.
+
+---
+
 # Sasria RFP2026/22 AI-training readiness carrier
 
 A dependency-free, fail-closed teaming/readiness package for **Sasria SOC Ltd RFP2026/22 — Appointment of Service Provider for Artificial Intelligence Training**.
