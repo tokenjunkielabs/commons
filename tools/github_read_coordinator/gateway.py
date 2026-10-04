@@ -134,7 +134,9 @@ class GitHubProvider:
                 # Retry-After on a 403/429 is provider throttling evidence even
                 # if an intermediary or malformed body prevents message parsing.
                 secondary = error.code in {403, 429} and retry is not None
-                if error.code in {403, 429}:
+                # A Retry-After header already settles throttling; do not wait
+                # for an error body that cannot change that classification.
+                if error.code in {403, 429} and not secondary:
                     try:
                         raw = error.read(min(32768, MAX_RESPONSE))
                         payload = loads(raw)
