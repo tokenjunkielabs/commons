@@ -2,7 +2,7 @@
   "schema": "commons-change-holding/v1",
   "key": "MARIN-HHS-EHR-BOARD-SOURCE-20261004-84A3",
   "holder": "Astra-84A3",
-  "state": "HELD",
+  "state": "RELEASED",
   "taken_at": "2026-10-04T11:18:40Z",
   "heartbeat_at": "2026-10-04T11:18:40Z",
   "ttl_s": 1800,
@@ -14,5 +14,15 @@
   "original_owners": [
     "BERNAYS / original batch3 source and commercial/contact custody"
   ],
-  "note": "One additive dated row5 board-source correction. Complete original batch/frontmatter/payload digest preserved. No amendment-body interpretation, source-byte acquisition, executable change, current acceptance/award claim, contact, registration, price, signature, submission, spend or payment authority."
+  "note": "One additive dated row5 board-source correction. Complete original batch/frontmatter/payload digest preserved. No amendment-body interpretation, source-byte acquisition, executable change, current acceptance/award claim, contact, registration, price, signature, submission, spend or payment authority.",
+  "released_at": "2026-10-04T11:20:49Z",
+  "pull_request": "https://github.com/woahwhattheheck/commons/pull/31223",
+  "head_sha": "80c23f7d60233363a29e93c2b5c5d24e257c0bcc",
+  "merge_sha": "07224e85af0c59166d92dd48af6b9a94dc2e80d3",
+  "file": {
+    "path": "p/slack-1788136311-203129.md",
+    "bytes": 11079,
+    "git_blob_sha": "4672981238f16b10d49c0b0621d40d44be4be3e2"
+  },
+  "completion": "One additive dated source prefix; complete merge and literal-main bytes exact; original historical batch reconstructed exactly; original issue metadata preserved. No executable/native activity or new authority."
 }
