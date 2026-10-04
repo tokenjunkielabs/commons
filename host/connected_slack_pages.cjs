@@ -567,7 +567,7 @@ function projectSlackSearchResults(response, request, options = {}) {
         bad('UNSUPPORTED_LAYOUT', 'Expected one bounded detailed messages section.');
       }
       declared = Number(section[1]);
-      const pattern = /^### Result ([1-9][0-9]*) of ([1-9][0-9]*)\nChannel: [^\r\n]+ \(ID: ([CGD][A-Z0-9]{1,127})\)\n(?:Participants: [^\r\n]+\n)?From: [^\r\n]+ \(ID: [UW][A-Z0-9]{1,127}\) ?\nTime: [^\r\n]+\nMessage_ts: ([0-9]{1,16}\.[0-9]{1,16})\nPermalink: \[link\]\((https:\/\/[^\s()]+)\)\nText: \n/gm;
+      const pattern = /^### Result ([1-9][0-9]*) of ([1-9][0-9]*)\nChannel: [^\r\n]+ \(ID: ([CGD][A-Z0-9]{1,127})\)\n(?:Participants: [^\r\n]+\n)?From: [^\r\n]+ \(ID: [UW][A-Z0-9]{1,127}\)(?: |  \[BOT\])?\nTime: [^\r\n]+\nMessage_ts: ([0-9]{1,16}\.[0-9]{1,16})\n(?:Reply count: [0-9]{1,16}\n)?Permalink: \[link\]\((https:\/\/[^\s()]+)\)\nText: \n/gm;
       const headers = Array.from(rendered.matchAll(pattern));
       const markers = (rendered.match(/^### Result\b/gm) || []).length;
       result.coverage.declared_results = declared;

@@ -260,7 +260,9 @@ The parser recognizes one detailed `## Messages (N results)` section with
 declared count, numbering and distinct channel/message pairs. Permalink channel
 and timestamp digits must agree with the rendered header. A single optional
 `Participants:` header line is retained as opaque header text, including the
-observed DM form. Author names, participant names, time labels and IDs are never
+observed DM form. An optional `Reply count:` line and the exact two-space
+`[BOT]` author suffix also remain opaque header metadata; neither grants authority.
+Author names, participant names, time labels and IDs are never
 used to authenticate a person or infer channel membership, ownership or thread
 custody. No parent timestamp is inferred from a search permalink.
 
@@ -322,3 +324,20 @@ Both existing function bodies remain byte-identical. Actual retained parent-only
 and parent-plus-one-reply responses produced JSON-identical message projections
 before and after the addition. The search response and request remained unchanged.
 No OS process, fixture, test file, dependency or workflow was added.
+
+
+### Optional native search headers, 2026-10-04
+
+An actual retained six-result work search included one `Reply count:` header and
+one bot-marked author header. The earlier grammar recognized only four results
+and refused the page. The optional metadata forms now admit all six complete
+result ranges. A separate retained eight-result search, including a DM Participants
+line and a reply-count header, also projects completely. The preceding ordinary
+six-result work search remains JSON-identical.
+
+Two separately controlled malformed headers—a nonnumeric reply count and an
+unknown author marker—still refuse without results. Complete selected content
+matches its recorded ranges and the original native responses remain unchanged.
+Only the search-header grammar changes; the collector and channel/thread projector
+remain byte-identical. No provider call, OS process or repository test was used
+for these retained-source observations.
