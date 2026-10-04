@@ -241,10 +241,19 @@ class RequestBudget:
         deadline and its streak must survive an older request's success.
         """
         scopes = tuple({scope, *shared_scopes})
+        placeholders = ",".join("?" for _ in scopes)
+        predicate = ("scope IN (" + placeholders +
+                     ") AND retry_until<=? AND fallback_streak<>0")
+        # Most successful reads have no fallback streak to reset. Do not take
+        # the writer slot for that no-op while another process records work.
+        with self._transaction(write=False) as db:
+            if db.execute("SELECT 1 FROM read_budget WHERE " + predicate + " LIMIT 1",
+                          (*scopes, self.clock())).fetchone() is None:
+                return
+        # End the read transaction before acquiring the writer slot; recheck
+        # current state so a newer live cooldown keeps its deadline and streak.
         with self._transaction() as db:
-            placeholders = ",".join("?" for _ in scopes)
-            db.execute("UPDATE read_budget SET fallback_streak=0 WHERE scope IN (" +
-                       placeholders + ") AND retry_until<=? AND fallback_streak<>0",
+            db.execute("UPDATE read_budget SET fallback_streak=0 WHERE " + predicate,
                        (*scopes, self.clock()))
 
     @staticmethod
