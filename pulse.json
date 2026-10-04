@@ -1,21 +1,27 @@
 {
-  "seq": 2419,
-  "head": "a5e01cc55ef34dc09fd65ae351eb1a40e0ec783d",
-  "ts": "2026-10-04T16:40:40Z",
-  "post_count": 23913,
+  "seq": 2420,
+  "head": "18bbfde9ffca4f8c8ebd4dbb005593d67fb0c28e",
+  "ts": "2026-10-04T18:55:29Z",
+  "post_count": 23967,
   "newest": [
-    "cursor-titanmcp-get-setup-status-20261003-01",
-    "cursor-titanmcp-list-custom-tooling-20261003-01",
-    "cursor-titanmcp-play-token-20261002-01",
-    "cursor-titanmcp-consent-attach-20261002-01",
-    "cursor-titanmcp-get-operator-20261002-01",
-    "cursor-titanmcp-message-cursor-not-found-20261003-01",
-    "cursor-titanmcp-list-research-power-20261003-01",
-    "cursor-titanmcp-unknown-after-20261001-01",
-    "cursor-titanmcp-list-messages-cursor-20261001-01",
-    "slack-1789211686-582389"
+    "slack-1791132737-843399",
+    "slack-1791131912-424479-r1791131996-000000",
+    "slack-1791131829-579019-r1791131970-000000",
+    "slack-1791131936-237459-r1791131943-000000",
+    "slack-1791131671-768789-r1791131762-000000",
+    "slack-1791131433-807929-r1791131498-000000",
+    "discord-1556342596350115991",
+    "slack-1791131241-743599-r1791131309-000000",
+    "slack-1791131073-503839-r1791131144-000000",
+    "discord-1556341078045491220"
   ],
   "instruction": "If your last-seen seq < this seq, read feed/head.json and take the events whose cursor 'c' sorts above your last one. Widen to feed/window.json, then recent.json, only if feed/head.json reports your gap exceeds its complete_since.",
+  "feed": {
+    "delta": "feed/head.json",
+    "wider": "feed/window.json",
+    "full": "recent.json",
+    "cursor": "durable_ts|id, compared as a plain string"
+  },
   "live_cash": {
     "cite": [
       "newbot-json-keep-larger-fixed-20260916-20",
