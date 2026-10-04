@@ -18,7 +18,7 @@ const overview = projectWebSources(retainedResponse, {
 });
 ~~~
 
-Pass the actual web-tool CallToolResult with its content array. The supported source header rendering has a title and HTTP(S) URL on one line, followed by a returned search/view/fetch/news reference and a numeric word-limit marker. The adapter reads that rendering; it does not synthesize source IDs from URLs or interpret arbitrary prose as an empty result set.
+Pass the actual web-tool CallToolResult with its content array. The supported source header rendering has a title and HTTP(S) URL on one line, followed by a returned search/view/fetch/news reference and a numeric word-limit marker. The same header-shaped boundary with an empty or unsupported URL separates an unparsed block; it is not added as a citable source. The adapter reads that rendering; it does not synthesize source IDs from URLs or interpret arbitrary prose as an empty result set.
 
 A successful response has status PROJECTED and a sources array. Each source includes:
 
@@ -27,7 +27,7 @@ A successful response has status PROJECTED and a sources array. Each source incl
 | source_index | Position across all parsed source blocks, in original content-item order |
 | content_index | Index of the original text item in the supplied content array |
 | reference_id, title, url, word_limit | Fields read directly from the supported rendered header |
-| rendered_source_range | Entire source block, from its title to the next detected source header or text-item end |
+| rendered_source_range | Entire supported source block, from its title to the next detected rendered header boundary or text-item end |
 | rendered_header_range | Title, URL, reference and word-limit prefix |
 | rendered_content_range | Remaining source content, including returned crawl/publication metadata and page text |
 | rendered_content | Bounded literal prefix of that content |
@@ -36,7 +36,7 @@ A successful response has status PROJECTED and a sources array. Each source incl
 
 All ranges are half-open UTF-16 code-unit offsets in response.content[content_index].text. They are **rendered response ranges**, not byte offsets in the original web page. CRLFs, entities, citations, line labels and separators are retained. The adapter does not decode HTML entities, remove link wrappers, normalize whitespace, or turn an open-result line label into a page byte offset. A prefix boundary backs up one code unit if necessary to avoid splitting a surrogate pair.
 
-The rendered source block extends to the next header. Inter-source separator lines immediately before that header consequently remain at the end of the preceding content range.
+The rendered source block extends to the next detected header boundary, including a boundary whose URL is empty or unsupported. Separator lines immediately before that header consequently remain at the end of the preceding content range; the unsupported header and its following body do not.
 
 ## Continue within the retained response
 
@@ -87,9 +87,9 @@ All text is parsed before output selection. Limiting the returned sources does n
 
 The output always identifies its scope as retained_response_only, snapshot false, and provider_completeness not_inferred. It reports parsed source count, selected and omitted indices, selected/returned content lengths, and truncated source count.
 
-Non-text items are identified by their original index and type; their payload is not decoded or represented as page text. Text before a recognized first header, and complete text items with no supported header, remain visible as unparsed_text_ranges. Duplicate rendered reference IDs are preserved as separate source entries and listed in duplicate_reference_ids; the adapter does not silently deduplicate them.
+Non-text items are identified by their original index and type; their payload is not decoded or represented as page text. Text before a recognized first header, complete text items with no recognized header, and header blocks without a supported URL remain visible as unparsed_text_ranges. Repeated supported-source reference IDs are preserved as separate source entries and listed in duplicate_reference_ids; the adapter does not silently deduplicate them.
 
-all_rendered_source_content_included means that all detected blocks were returned without content truncation. It does not assert completeness of the underlying pages, retrieval results, provider pagination or non-text payloads. all_input_text_has_source_headers describes only the absence of unparsed text ranges in this rendering.
+all_rendered_source_content_included means that all parsed HTTP(S) source blocks were returned without content truncation. It does not assert completeness of the underlying pages, retrieval results, provider pagination or non-text payloads. all_input_text_has_source_headers describes only the absence of unparsed text ranges in this rendering.
 
 | Status | Meaning |
 | --- | --- |
@@ -101,6 +101,38 @@ all_rendered_source_content_included means that all detected blocks were returne
 | UNRECOGNIZED_RENDERING | No supported source headers were found |
 
 A no-header result is **not** evidence that a search found zero results. It may be another native rendering, a provider notice or text that requires direct inspection. Invalid caller options throw TypeError or RangeError rather than silently changing selection.
+
+## Mixed source and unsupported-header blocks
+
+A renderer-shaped boundary is recognized before its URL is classified. Its title,
+parenthesized URL field, supported reference shape and numeric word-limit marker
+must have the same line structure described above. Only an HTTP(S) URL with no
+whitespace is accepted for a source entry.
+
+A boundary with an empty URL, or another unsupported URL representation, closes
+the preceding source. Its complete block remains in `unparsed_text_ranges`
+until the next recognized boundary or text-item end. That entry includes the
+original `content_index`, half-open `range`,
+`reference_id`, `rendered_header_range` and reason
+`SOURCE_HEADER_WITHOUT_SUPPORTED_URL`. Retrieve that exact slice
+from the original text item when its contents matter.
+
+This keeps a rendered error notice from becoming part of the preceding page's
+content. The title is not an error classifier: a header named "Internal Error"
+is handled through its URL representation, and an arbitrary error-looking title
+does not by itself establish provider failure or source authority.
+
+A mixed response can remain PROJECTED with useful sources and an explicit
+unparsed block. Its `all_input_text_has_source_headers` is false.
+A response containing only unsupported-URL blocks remains
+UNRECOGNIZED_RENDERING with its unparsed ranges retained. Top-level
+`isError: true` still returns PROVIDER_ERROR as before. Header-size,
+word-limit, input-size and selection bounds continue to apply.
+
+The adapter cannot identify every possible notice format or authenticate a
+header-shaped quotation inside page text. This change handles the documented
+boundary structure; it does not turn every unrecognized rendering into a known
+error or establish that no other text needs inspection.
 
 ## Evidence boundary
 
@@ -119,3 +151,28 @@ The initial consumer was the October 4 R.O.A.D. Barbados source intake. The reta
 The next official-page open used the existing URL from the baseline README. Its fresh retained response contained 19,638 code units and one supported source. The consumer first read a 600-code-unit preview, then selected that observed source index for its complete 19,459-code-unit content. Both calls used the same retained response; no search/open operation was replayed.
 
 These were calls to the exported API on actual tool responses. No synthetic input, fixture, new test, native process, screenshot or copied source-body artifact was used. The full responses and selections remain in the caller's session; this guide stores only the operating example and measured scope.
+
+
+### Mixed-response correction, October 4, 2026
+
+A later Alameda procurement intake combined an existing official-board link
+click with a search for a project number and addendum. The retained native
+response had one text item containing 23,961 UTF-16 code units and nine supported
+source headers. A trailing empty-URL error block was previously absorbed into
+the last search source's body, while the view reported no unparsed text.
+
+The consumer ran the corrected public API once on that full retained response,
+using the exact prepared Git blob
+`31ab954857c86ae3985a78c7254d68c015ef61ef`. The same nine supported sources
+were retained. The last source's range changed from [21,853, 23,961) to
+[21,853, 23,766). The remaining 195 code units became an explicit unparsed range
+[23,766, 23,961), with its own rendered reference and header range
+[23,766, 23,813). The coverage flag for all input text having source headers
+changed from true to false.
+
+The earlier range and coverage values came from the already retained original
+projection; the old API was not rerun. The corrected invocation used no new
+search, click, portal request, native process, synthetic response or fixture.
+The original mixed tool response remains with the consumer. No source body is
+copied into this guide, and no procurement finding is inferred from the search
+results or failed click.
