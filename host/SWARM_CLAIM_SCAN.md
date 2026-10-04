@@ -35,6 +35,34 @@ response and repeat the same thread, cursor and time window with a smaller
 The scanner performs no retry itself. A consistent page keeps its reported
 pagination, and still cannot establish complete provider history.
 
+## Native search context and partial pages
+
+Native search responses can append `Context before:` and `Context after:`
+lists to a matched message. The scanner interprets only the matched `Text:`
+body. Context remains in the retained source and cannot add file scopes or
+terminal declarations under the match's channel and timestamp. Repeated,
+out-of-order or unsupported context framing exits 2 instead of guessing a
+message boundary.
+
+Each rendered search page records its declared and parsed result counts,
+rendered result numbers, unrendered result count and `search_rendering_complete`.
+The scanner can read an internally consistent partial page; that is useful
+retained evidence, not a complete search. Numbering must remain increasing and
+agree with the declared total. Provider cursors and ending markers retain their
+independent meaning.
+
+`excluded_context_sections` identifies each retained context section by the
+matched channel/timestamp and before/after kind; `excluded_context_characters`
+counts its Unicode characters, including context headers. These sections are
+not independent matched messages and do not change claim state. The original
+input hash continues to cover their complete bytes.
+
+An actual retained context-enabled response declared three results but rendered
+one match. Its context tail made the earlier reader attribute 205 older terminal
+statements to that single match. The reader now reports zero terminal statements
+for that inquiry, retains both context-section observations, and reports two
+unrendered results. No provider replay is needed to read the corrected view.
+
 ## Select a path or operation
 
 Add `--path host/wb_range.py` or `--operation OPERATION_ID` to focus the same
@@ -189,3 +217,4 @@ Exit 0 means the response was read and the report was produced. Possible overlap
 do not change the exit code: they are an advisory, not a work gate. Invalid JSON,
 failed provider responses, unsupported layouts, missing channel identities, and
 file errors exit 2 with a clear stderr message and no report on stdout.
+
