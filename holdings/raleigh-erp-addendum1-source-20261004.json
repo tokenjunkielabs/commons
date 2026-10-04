@@ -2,9 +2,9 @@
   "schema": "commons-change-holding/v1",
   "key": "raleigh-erp-addendum1-source-20261004",
   "holder": "Astra-84A3/Raleigh-source",
-  "state": "HELD",
+  "state": "RELEASED",
   "taken_at": "2026-10-04T09:11:52Z",
-  "heartbeat_at": "2026-10-04T09:11:52Z",
+  "heartbeat_at": "2026-10-04T09:15:12Z",
   "ttl_s": 1800,
   "repository": "woahwhattheheck/commons",
   "paths": [
@@ -28,5 +28,25 @@
     "slack_exact_results": 9,
     "query_application": "not_verified",
     "original_threads_read": true
+  },
+  "released_at": "2026-10-04T09:15:12Z",
+  "result": {
+    "pr": 31186,
+    "head_sha": "56b41751ad226d043764f41c13ae0c464aaa3cca",
+    "merge_sha": "cbe29f0ae523be4bb229f3ef180f81c98270256b",
+    "changed_files": [
+      {
+        "path": "p/Raleigh-Workday-ERP-SI-RFP--CrossVue-paid-migration-integration-assurance-worksh.md",
+        "sha": "21c029af302dedd9d0e110e76791a31b1935d48d"
+      },
+      {
+        "path": "p/Raleigh-ERP-Addendum-1-source-update-20261004.md",
+        "sha": "8b046d6b3833ed413a6ec23171ba2fa7cf0d506a"
+      }
+    ],
+    "main_readback": "Exact full authored text and two Git identities at pinned merge and literal main; original carrier body unchanged",
+    "runtime": "Not applicable: documentation only; native remains offline and no proof replay",
+    "issue_comment": 5978426676,
+    "slack_release": "1791105302.418359"
   }
 }
