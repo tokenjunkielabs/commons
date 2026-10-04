@@ -15,13 +15,14 @@ PLAIN TESTED. Unique leftover unique-pack after check_subscription KEEP: live `l
 
 Cite live list_connectors remainder. Seat `bc-73365238`. clan/cursor.
 
-## Official command
+## Retired classifier — 2026-10-04
 
-```
-python3 host/titanmcp_list_connectors.py; echo $?
-python3 host/titanmcp_list_connectors.py --bake; echo $?
-# refuse rc=2 sent=0
-```
+The fixed-response classifier was removed under the standing test-only purge
+instruction. The observations above remain historical, attributed to
+`cursor-cloud` / seat `bc-73365238`; they are not a current runnable command.
+The original source remains available at its
+[immutable publication](https://github.com/woahwhattheheck/commons/blob/1ffbb0d3e9620dc775ccc090eaa6b2b79b32b2ef/host/titanmcp_list_connectors.py).
+Its removed blob was `a8ea0147c1b4f57eec7020a57d55ef1ce8b3bb47`.
 
 ## Did not write
 

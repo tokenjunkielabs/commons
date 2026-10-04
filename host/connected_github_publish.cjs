@@ -38,7 +38,7 @@ function branch(value, label) {
   return value;
 }
 
-function validateFiles(input) {
+function validateFiles(input, allowDeletions = false) {
   if (!Array.isArray(input.files) || !input.files.length) throw new TypeError('files must contain at least one source file');
   const paths = new Set();
   const files = input.files.map((file, index) => {
@@ -53,6 +53,18 @@ function validateFiles(input) {
     if (!Object.prototype.hasOwnProperty.call(file, 'expected_blob_sha')
         || (file.expected_blob_sha !== null && (typeof file.expected_blob_sha !== 'string' || !SHA.test(file.expected_blob_sha)))) {
       throw new TypeError(`Supply the observed expected_blob_sha, or null for a new file: ${path}`);
+    }
+    if (Object.prototype.hasOwnProperty.call(file, 'delete') && typeof file.delete !== 'boolean') {
+      throw new TypeError(`delete must be boolean when supplied: ${path}`);
+    }
+    if (file.delete === true) {
+      if (!allowDeletions) throw new TypeError(`Explicit deletion is supported only by the Contents publisher: ${path}`);
+      if (file.expected_blob_sha === null) throw new TypeError(`Deletion requires the observed existing blob: ${path}`);
+      if (['content', 'encoding', 'mode', 'expected_new_blob_sha'].some(key =>
+        Object.prototype.hasOwnProperty.call(file, key))) {
+        throw new TypeError(`Deletion does not accept content, encoding, mode or a new-blob pin: ${path}`);
+      }
+      return {...file, path, delete: true};
     }
     if (typeof file.content !== 'string') throw new TypeError(`content must be a string: ${path}`);
     const encoding = file.encoding ?? 'utf-8';
@@ -88,7 +100,7 @@ function validateFiles(input) {
   return files;
 }
 
-function validate(input) {
+function validate(input, allowDeletions = false) {
   object(input, 'change');
   const repo = text(input.repository_full_name, 'repository_full_name');
   if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repo)
@@ -104,7 +116,7 @@ function validate(input) {
   if (input.body !== undefined && typeof input.body !== 'string') throw new TypeError('body must be a string');
   const title = text(input.title, 'title');
   const message = text(input.commit_message ?? title, 'commit_message');
-  const files = validateFiles(input);
+  const files = validateFiles(input, allowDeletions);
   return {repository_full_name: repo, base_branch: base, branch_name: head,
     title, body: input.body ?? '', commit_message: message, files,
     merge: input.merge === true, merge_method: method};
@@ -1414,10 +1426,10 @@ async function publishGitHubContentsChange(tools, change, options = {}) {
   let lastResponse;
   let announce = async () => {};
   try {
-    const spec = validate(change);
+    const spec = validate(change, true);
     if (spec.files.length > 300) throw new TypeError('Contents publication supports at most 300 file paths');
-    if (spec.files.some(file => file.encoding !== 'utf-8' || file.mode !== undefined)) {
-      throw new TypeError('Contents publication accepts UTF-8 content only, without caller-selected Git modes');
+    if (spec.files.some(file => file.delete !== true && (file.encoding !== 'utf-8' || file.mode !== undefined))) {
+      throw new TypeError('Contents publication accepts UTF-8 content or explicit deletion, without caller-selected Git modes');
     }
     if (options.retained_trees !== undefined) {
       throw new TypeError('retained_trees belongs to the Git Trees publisher, not Contents publication');
@@ -1438,6 +1450,7 @@ async function publishGitHubContentsChange(tools, change, options = {}) {
       if (!Array.isArray(saved.files) || saved.files.length !== spec.files.length
           || saved.files.some((file, index) => file.path !== spec.files[index].path
             || file.previous_blob_sha !== spec.files[index].expected_blob_sha
+            || (file.delete === true) !== (spec.files[index].delete === true)
             || file.expected_new_blob_sha !== spec.files[index].expected_new_blob_sha)) {
         throw new Error('Retained branch file preimages or source pins differ from the prepared change');
       }
@@ -1448,14 +1461,15 @@ async function publishGitHubContentsChange(tools, change, options = {}) {
     const repository_full_name = spec.repository_full_name;
     Object.assign(progress, {repository_full_name, base_branch: spec.base_branch, branch_name: spec.branch_name});
     const actions = ['fetch', 'fetch_file', 'fetch_blob', 'create_branch',
-      'create_file', 'update_file', 'create_pull_request', 'merge_pull_request'];
+      'create_file', 'update_file', 'delete_file', 'create_pull_request', 'merge_pull_request'];
     const bindings = Object.fromEntries(actions.map(action => [action,
       options.bindings?.[action] ?? 'mcp__codex_apps__github_' + action]));
     const required = actions.filter(action => action !== 'fetch_blob'
       && (action !== 'create_branch' || saved === undefined)
       && (action !== 'merge_pull_request' || spec.merge)
-      && (action !== 'create_file' || spec.files.some(file => file.expected_blob_sha === null))
-      && (action !== 'update_file' || spec.files.some(file => file.expected_blob_sha !== null)));
+      && (action !== 'create_file' || spec.files.some(file => file.delete !== true && file.expected_blob_sha === null))
+      && (action !== 'update_file' || spec.files.some(file => file.delete !== true && file.expected_blob_sha !== null))
+      && (action !== 'delete_file' || spec.files.some(file => file.delete === true)));
     for (const action of required) {
       if (typeof tools?.[bindings[action]] !== 'function') {
         throw new Error('Binding not present: ' + bindings[action] + '. Repeat discovery alongside independent work.');
@@ -1469,8 +1483,10 @@ async function publishGitHubContentsChange(tools, change, options = {}) {
     const call = async (action, args) => {
       progress.calls[action] = (progress.calls[action] ?? 0) + 1;
       lastResponse = undefined;
-      lastResponse = await tools[bindings[action]](args);
-      return unpack(lastResponse, action);
+      const response = await tools[bindings[action]](args);
+      lastResponse = response;
+      try { return unpack(response, action); }
+      catch (error) { error.native_response = response; throw error; }
     };
     const write = async (action, args, context) => {
       progress.pending_write = {action, ...context, state: 'calling'};
@@ -1496,6 +1512,18 @@ async function publishGitHubContentsChange(tools, change, options = {}) {
       progress.observed_branch_sha = observed;
       if (observed !== expected) throw new Error('Contents branch moved; reconcile it before another write');
     };
+    const readDeletedPath = async (path, ref) => {
+      try {
+        const data = await call('fetch_file', {repository_full_name, path, ref, encoding: 'utf-8'});
+        return {path, expected_absent: true, observed_absent: false,
+          observed_blob_sha: sha(data.sha, 'Deleted path readback'), matches: false};
+      } catch (error) {
+        // Use this read's own response: final file reads may complete concurrently.
+        if (!isMissingFileResponse(error.native_response)) throw error;
+        return {path, expected_absent: true, observed_absent: true,
+          observed_blob_sha: null, http_status: 404, connector_error_code: 'NOT_FOUND', matches: true};
+      }
+    };
     progress.stage = 'read_base';
     const base = await fetchJSON(refURL(spec.base_branch));
     if (base.ref !== 'refs/heads/' + spec.base_branch) throw new Error('Contents base ref response identifies a different branch');
@@ -1508,7 +1536,7 @@ async function publishGitHubContentsChange(tools, change, options = {}) {
         existing = await call('fetch_file', {repository_full_name, path: source.path,
           ref: progress.base_commit_sha, encoding: 'utf-8'});
       } catch (error) {
-        if (!isMissingFileResponse(lastResponse)) throw error;
+        if (!isMissingFileResponse(error.native_response)) throw error;
         existing = null;
       }
       const observed = existing === null ? null : sha(existing.sha, 'Contents preimage blob');
@@ -1517,10 +1545,11 @@ async function publishGitHubContentsChange(tools, change, options = {}) {
           + (source.expected_blob_sha ?? 'absent') + ', observed ' + (observed ?? 'absent'));
       }
       const file = {path: source.path, previous_blob_sha: observed, write_required: true};
+      if (source.delete === true) file.delete = true;
       if (source.expected_new_blob_sha !== undefined) file.expected_new_blob_sha = source.expected_new_blob_sha;
       // A positive Contents response is a blob/content observation, not Git-mode or symlink proof.
       // Skip only a complete exact-content match; omitted preimage text is not an empty file.
-      if (existing !== null && typeof existing.content === 'string'
+      if (source.delete !== true && existing !== null && typeof existing.content === 'string'
           && (existing.content !== '' || observed === EMPTY_BLOB_SHA)
           && existing.content === source.content) {
         file.blob_sha = observed;
@@ -1559,11 +1588,13 @@ async function publishGitHubContentsChange(tools, change, options = {}) {
     for (const file of candidates) {
       const source = sourceByPath.get(file.path);
       const parent = progress.commit_sha;
-      const action = file.previous_blob_sha === null ? 'create_file' : 'update_file';
+      const action = file.delete === true ? 'delete_file'
+        : file.previous_blob_sha === null ? 'create_file' : 'update_file';
       progress.stage = 'write_contents';
       const result = await write(action, {repository_full_name, branch: spec.branch_name,
-        path: file.path, content: source.content, message: spec.commit_message,
-        ...(action === 'update_file' ? {sha: file.previous_blob_sha} : {})},
+        path: file.path, message: spec.commit_message,
+        ...(file.delete === true ? {} : {content: source.content}),
+        ...(action === 'create_file' ? {} : {sha: file.previous_blob_sha})},
       {path: file.path, expected_parent_sha: parent, previous_blob_sha: file.previous_blob_sha});
       const commitSHA = sha(result.commit_sha, 'Contents commit');
       const record = {action, path: file.path, parent_sha: parent, commit_sha: commitSHA, verified: false};
@@ -1579,22 +1610,34 @@ async function publishGitHubContentsChange(tools, change, options = {}) {
         throw new Error('Contents commit has an unexpected parent; reconcile the branch before another write');
       }
       const changed = commit.files;
-      const expectedStatus = action === 'create_file' ? 'added' : 'modified';
+      const expectedStatus = file.delete === true ? 'removed' : action === 'create_file' ? 'added' : 'modified';
       if (!Array.isArray(changed) || changed.length !== 1 || changed[0].filename !== file.path
           || changed[0].status !== expectedStatus || changed[0].previous_filename !== undefined) {
         throw new Error('Contents commit does not contain exactly the intended path and change kind');
       }
-      record.commit_blob_sha = sha(changed[0].sha, 'Contents changed-file blob');
-      if (record.response_blob_sha !== undefined && record.response_blob_sha !== record.commit_blob_sha) {
-        throw new Error('Contents response and commit disagree on the updated blob');
+      if (file.delete === true) {
+        record.removed_blob_sha = sha(changed[0].sha, 'Contents removed-file blob');
+        if (record.removed_blob_sha !== file.previous_blob_sha) {
+          throw new Error('Contents deletion removed a different preimage blob');
+        }
+        record.readback = await readDeletedPath(file.path, commitSHA);
+        if (!record.readback.matches) {
+          throw new Error('Deleted path is still present at its Contents commit; reconcile without replaying the deletion');
+        }
+        file.blob_sha = null;
+      } else {
+        record.commit_blob_sha = sha(changed[0].sha, 'Contents changed-file blob');
+        if (record.response_blob_sha !== undefined && record.response_blob_sha !== record.commit_blob_sha) {
+          throw new Error('Contents response and commit disagree on the updated blob');
+        }
+        const data = await call('fetch_file', {repository_full_name, path: file.path,
+          ref: commitSHA, encoding: 'utf-8'});
+        record.readback = await resolveReadback(file, source, data, readBlob);
+        if (!record.readback.matches || file.blob_sha !== record.commit_blob_sha) {
+          throw new Error('Contents commit source readback did not match; finish reconciliation without replaying the write');
+        }
+        checkNewBlobPin(file, source);
       }
-      const data = await call('fetch_file', {repository_full_name, path: file.path,
-        ref: commitSHA, encoding: 'utf-8'});
-      record.readback = await resolveReadback(file, source, data, readBlob);
-      if (!record.readback.matches || file.blob_sha !== record.commit_blob_sha) {
-        throw new Error('Contents commit source readback did not match; finish reconciliation without replaying the write');
-      }
-      checkNewBlobPin(file, source);
       await requireBranchHead(commitSHA);
       record.verified = true;
       await announce();
@@ -1615,8 +1658,9 @@ async function publishGitHubContentsChange(tools, change, options = {}) {
     const observedPaths = new Set();
     for (const changed of comparison.files) {
       const expected = expectedPaths.get(changed.filename);
-      if (!expected || observedPaths.has(changed.filename) || changed.sha !== expected.blob_sha
-          || changed.status !== (expected.previous_blob_sha === null ? 'added' : 'modified')
+      if (!expected || observedPaths.has(changed.filename)
+          || changed.sha !== (expected.delete === true ? expected.previous_blob_sha : expected.blob_sha)
+          || changed.status !== (expected.delete === true ? 'removed' : expected.previous_blob_sha === null ? 'added' : 'modified')
           || changed.previous_filename !== undefined) {
         throw new Error('Contents aggregate paths or final blobs differ from the prepared change');
       }
@@ -1648,7 +1692,7 @@ async function publishGitHubContentsChange(tools, change, options = {}) {
             current = await call('fetch_file', {repository_full_name, path: file.path,
               ref: progress.current_base_commit_sha, encoding: 'utf-8'});
           } catch (error) {
-            if (!isMissingFileResponse(lastResponse)) throw error;
+            if (!isMissingFileResponse(error.native_response)) throw error;
             current = null;
           }
           const observed = current === null ? null : sha(current.sha, 'Current pre-merge file');
@@ -1673,6 +1717,9 @@ async function publishGitHubContentsChange(tools, change, options = {}) {
     progress.stage = 'readback';
     progress.readback_ref = progress.merge_sha ?? progress.commit_sha;
     const reads = await settleReadbacks(progress.files, async file => {
+      if (file.delete === true) {
+        return {...await readDeletedPath(file.path, progress.readback_ref), removed_blob_sha: file.previous_blob_sha};
+      }
       const source = sourceByPath.get(file.path);
       const data = await call('fetch_file', {repository_full_name, path: file.path,
         ref: progress.readback_ref, encoding: 'utf-8'});
