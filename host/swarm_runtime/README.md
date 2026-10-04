@@ -164,8 +164,14 @@ operation identity and do not emit replacement events.
 Use one shared `--url` deployment for the fleet. The command-center adapter uses
 its existing state directory, provider request budget and collected work snapshot.
 Provider refresh adds a process-shared file lock, durable response cache, 60-second
-mutable-response TTL, immutable merge caching, paginated timeline progress and
-bounded task rotation. Cache reads use the existing task-key index for only the
+mutable-response TTL, immutable merge and full-commit comparison caching,
+paginated timeline progress and bounded task rotation. Comparisons retain only
+complete ancestry evidence between two full 40- or 64-character commit hashes;
+existing retained comparisons qualify without another provider read. Branch
+references keep their 60-second TTL, and a changed target commit selects a new
+comparison. Symbolic or abbreviated comparisons, incomplete responses and
+provider errors retain their existing expiry/retry behavior.
+Cache reads use the existing task-key index for only the
 requested facts, with at most 500 SQL parameters per batch; a small refresh does
 not scan the entire retained cache. A persistent shared client budget permits a burst of four
 requests and replenishes one request every three seconds; cache hits are free.
