@@ -158,9 +158,30 @@ def _get_json(url: str, *, timeout: float = 15.0) -> dict[str, Any]:
 class UpstreamClient:
     def __init__(self, base_url: str) -> None:
         self.base_url = base_url.rstrip("/")
+        self._health_lock = threading.Lock()
+        self._health_result: dict[str, Any] = {}
+        self._health_expires = 0.0
 
     def health(self) -> dict[str, Any]:
-        return _get_json(self.base_url + "/health", timeout=10)
+        # The optional model process must not hide working local equipment.
+        # Cache observations briefly, including failures, so status readers do
+        # not turn an unavailable upstream into a rapid reconnect loop.
+        with self._health_lock:
+            now = time.monotonic()
+            if self._health_result and now < self._health_expires:
+                return {**self._health_result, "cached": True,
+                        "retry_after": max(0.0, self._health_expires - now)}
+            try:
+                result = _get_json(self.base_url + "/health", timeout=10)
+                result = {**result, "state": "available" if result.get("ok") else "unavailable"}
+            except GatewayError as exc:
+                result = {"ok": False, "state": "unavailable", "peers": None,
+                          "error": exc.code, "message": redacted(str(exc))}
+            result["observed_at"] = _utc_now()
+            result["cached"] = False
+            self._health_result = result
+            self._health_expires = time.monotonic() + (10.0 if result.get("ok") else 30.0)
+            return dict(result)
 
     def turn(
         self,
@@ -190,9 +211,13 @@ class McpCatalog:
         self.ttl_seconds = ttl_seconds
         self._tools: list[dict[str, Any]] = []
         self._expires = 0.0
+        self._retry_after = 0.0
+        self._observed_at: str | None = None
+        self._last_success_at: str | None = None
+        self._discovery_error: dict[str, Any] | None = None
         self._lock = threading.Lock()
 
-    def _rpc(self, method: str, params: dict[str, Any]) -> dict[str, Any]:
+    def _rpc(self, method: str, params: dict[str, Any], *, timeout: float = 120.0) -> dict[str, Any]:
         identifier = uuid.uuid4().hex
         response = _post_json(
             self.url,
@@ -201,6 +226,7 @@ class McpCatalog:
                 "Accept": "application/json, text/event-stream",
                 "MCP-Protocol-Version": MCP_PROTOCOL,
             },
+            timeout=timeout,
         )
         effect = method == "tools/call"
         if (response.get("jsonrpc") != "2.0" or type(response.get("id")) is not type(identifier)
@@ -222,28 +248,52 @@ class McpCatalog:
 
     def tools(self, *, force: bool = False) -> list[dict[str, Any]]:
         with self._lock:
+            if time.monotonic() < self._retry_after:
+                return list(self._tools)
             if not force and self._tools and time.monotonic() < self._expires:
                 return list(self._tools)
-            tools = self._rpc("tools/list", {}).get("tools")
-            if not isinstance(tools, list) or not tools:
-                raise GatewayError("Commons MCP tools/list returned no tools")
-            clean = []
-            for item in tools:
-                if isinstance(item, dict) and isinstance(item.get("name"), str):
-                    clean.append(
-                        {
-                            "name": item["name"],
-                            "description": str(item.get("description") or ""),
-                            "inputSchema": item.get("inputSchema")
-                            if isinstance(item.get("inputSchema"), dict)
-                            else {},
-                        }
-                    )
-            if not clean:
-                raise GatewayError("Commons MCP tools/list contained no named tools")
+            try:
+                tools = self._rpc("tools/list", {}, timeout=10.0).get("tools")
+                if not isinstance(tools, list) or not tools:
+                    raise GatewayError("Commons MCP tools/list returned no tools")
+                clean = []
+                for item in tools:
+                    if isinstance(item, dict) and isinstance(item.get("name"), str):
+                        clean.append(
+                            {
+                                "name": item["name"],
+                                "description": str(item.get("description") or ""),
+                                "inputSchema": item.get("inputSchema")
+                                if isinstance(item.get("inputSchema"), dict)
+                                else {},
+                            }
+                        )
+                if not clean:
+                    raise GatewayError("Commons MCP tools/list contained no named tools")
+            except GatewayError as exc:
+                self._observed_at = _utc_now()
+                self._discovery_error = {"code": exc.code, "message": redacted(str(exc))}
+                self._retry_after = time.monotonic() + 30.0
+                # Retain known remote names, but expose their stale discovery
+                # state separately. Calls still use the real native RPC road.
+                return list(self._tools)
             self._tools = clean
             self._expires = time.monotonic() + self.ttl_seconds
+            self._observed_at = self._last_success_at = _utc_now()
+            self._discovery_error = None
+            self._retry_after = 0.0
             return list(clean)
+
+    def discovery_status(self) -> dict[str, Any]:
+        with self._lock:
+            stale = bool(self._tools) and (bool(self._discovery_error)
+                                          or time.monotonic() >= self._expires)
+            return {"source": self.url, "ok": bool(self._tools) and not stale,
+                    "state": "stale" if stale else ("available" if self._tools else "unavailable"),
+                    "cached_tool_count": len(self._tools), "stale": stale,
+                    "observed_at": self._observed_at, "last_success_at": self._last_success_at,
+                    "error": self._discovery_error,
+                    "retry_after": max(0.0, self._retry_after - time.monotonic())}
 
     def call(self, name: str, arguments: dict[str, Any]) -> dict[str, Any]:
         return self._rpc("tools/call", {"name": name, "arguments": arguments})
@@ -767,12 +817,16 @@ class Handler(BaseHTTPRequestHandler):
         try:
             if parsed.path == "/v1/tools":
                 bindings = getattr(self.server.catalog, "source_bindings", None)
-                self._send(200, {"ok": True, "tools": self.server.catalog.tools(),
+                tools = self.server.catalog.tools()
+                remote = getattr(self.server.catalog, "commons", self.server.catalog)
+                self._send(200, {"ok": True, "tools": tools,
+                                "commons_mcp": remote.discovery_status() if hasattr(remote, "discovery_status") else None,
                                 "source_bindings": bindings.describe() if bindings is not None else []})
                 return
             if parsed.path in ("/", "/health", "/v1/peers"):
                 upstream = self.server.upstream.health()
                 tools = self.server.catalog.tools()
+                remote = getattr(self.server.catalog, "commons", self.server.catalog)
                 self._send(
                     200,
                     {
@@ -782,6 +836,8 @@ class Handler(BaseHTTPRequestHandler):
                         "tool_result_boundary": BOUNDARY_VERSION,
                         "upstream": self.server.upstream.base_url,
                         "upstream_ok": bool(upstream.get("ok")),
+                        "upstream_health": upstream,
+                        "commons_mcp": remote.discovery_status() if hasattr(remote, "discovery_status") else None,
                         "peers": upstream.get("peers"),
                         "tool_count": len(tools),
                         "tools": [item["name"] for item in tools],

@@ -14,7 +14,15 @@ This extends the original DEMON live-compute board from Slack
 `1787637936.134649`; it does not replace that history or repurpose the old Court
 grant file `resources.json`.
 
-## Current session delta — 2026-09-02
+## Current reconciliation — 2026-10-04
+
+The canonical graph contains 185 resources. The new fast A304081 counter supplies eight previously absent individual near-cap values to the existing finite point atlas: **30, 32, 30, 32, 60, 33, 34, 34** for inputs999999999991 through999999999998. The activation merged in [PR #31216](https://github.com/woahwhattheheck/commons/pull/31216) at `e7689bce589d6e9a6b62c93342ff39fb4db8941c`; all five current-main blob identities and full contents matched, and the exact claim is released. The complete [new dataset](../research/a304081/resource-master-successor-counts-20261004-01.json) retains4,224candidate pairs,4,200classifications and285representations. Original source, prior data, accepted C++ computation and research custody remain unchanged. This adds finite point data; no global conjecture or prize result is claimed.
+
+Newly reconciled source/data also includes numerical Erdos978 gap navigation, the landed cloud swarm launcher, a perishable DOTT software APK and the bounty-audit HTTP response-release repair. Cloud launcher source does not establish a live service; the DOTT artifact expiresNovember3 and predates the later callback repair. Original consumers and owners remain.
+
+The [durable activation record](../inventory/resources/records/resource-master-fast-point-counter-activation-20261004-01.json) fixes the fully collected main window at4462d621 /2026-10-04T10:28:37Z, with exact later observations separate. Seven channel roots,85swarm replies and changed-old-thread discovery are retained. The1,182-tool surface and25automation states are unchanged. Account Chad's HomeOps upload request is already delivered; no resend. No new independent unheld implementation gap was found, so no duplicate build-order root or worker was created.
+
+## Recorded session delta — 2026-09-02
 
 **Google research is now a shared first-class lane.** Every peer browser sandbox
 can reach Google Search AI Mode at `google.com` without sign-in for free,
@@ -70,7 +78,7 @@ Public state includes pointers and aggregate quotas only. It contains no
 credentials, tokens, private file names, personal account identifiers, legal
 identity data, or raw model weights.
 
-## Current activation
+## Recorded activation — 2026-08-27
 
 Exactly one unheld, unblocked resource was advanced in this 2026-08-27 cycle:
 `kite-task-forge-r0`. Its concrete consumers are Commons Network
@@ -177,3 +185,4 @@ Shelf: [tools-cash.html](../tools-cash.html). Catalog: [commerce.html](../commer
 ## Contest product (titanmcp)
 
 Live judge pad (≠ Commons Shared Pad / ≠ Commons `/mcp`): https://webmcp-pad.vercel.app/ — **titanmcp 1.4.5**, 24 tools, Agent Resources, `syncConsents`. Board: [titanmcp.html](../titanmcp.html). Cite Latch Pad KEEP. Submit/YouTube wait Bryce exact go.
+

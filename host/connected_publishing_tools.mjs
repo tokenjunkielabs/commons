@@ -118,14 +118,25 @@ export function inspectPublishingTools(snapshot, {includeNames = false, previous
   return report;
 }
 
-/** Return only the exact requested definitions, never every provider description. */
-export function publishingToolDefinitions(snapshot, selector) {
-  if (typeof selector !== 'string' || !selector) throw new TypeError('A tool name or provider.action selector is required');
+function definitionIndex(snapshot) {
   const current = inventory(snapshot);
-  const all = Object.values(current.providers).flat();
-  const exact = all.filter(row => row.name === selector);
+  const names = new Map(), actions = new Map();
+  for (const [provider, rows] of Object.entries(current.providers)) {
+    for (const row of rows) {
+      names.set(row.name, [row]);
+      const key = provider + '.' + row.action;
+      if (!actions.has(key)) actions.set(key, []);
+      actions.get(key).push(row);
+    }
+  }
+  return {names, actions};
+}
+
+function definitionsForSelector(index, selector) {
+  if (typeof selector !== 'string' || !selector) throw new TypeError('A tool name or provider.action selector is required');
   const id = identify(selector);
-  const matches = exact.length ? exact : id ? all.filter(row => row.action === id.action && identify(row.name).provider === id.provider) : [];
+  const matches = index.names.get(selector)
+    || (id ? index.actions.get(id.provider + '.' + id.action) : undefined) || [];
   return {
     selector,
     found: matches.length > 0,
@@ -138,13 +149,33 @@ export function publishingToolDefinitions(snapshot, selector) {
   };
 }
 
+/** Return one requested definition with the existing single-selector shape. */
+export function publishingToolDefinitions(snapshot, selector) {
+  if (typeof selector !== 'string' || !selector) throw new TypeError('A tool name or provider.action selector is required');
+  return definitionsForSelector(definitionIndex(snapshot), selector);
+}
+
+/** Resolve a batch against one supplied inventory; preserve request order and misses. */
+export function publishingToolDefinitionsBatch(snapshot, selectors) {
+  if (!Array.isArray(selectors) || !selectors.length
+      || [...selectors].some(selector => typeof selector !== 'string' || !selector)) {
+    throw new TypeError('A nonempty array of tool names or provider.action selectors is required');
+  }
+  const index = definitionIndex(snapshot);
+  return {
+    schema: 'commons-connected-publishing-tool-definitions/v1',
+    results: selectors.map(selector => definitionsForSelector(index, selector)),
+  };
+}
+
 async function main(argv) {
   const {readFileSync} = await import('node:fs');
-  let input = '-', previous, schema, includeNames = false;
+  let input = '-', previous, includeNames = false;
+  const schemas = [];
   for (let index = 0; index < argv.length; index++) {
     const option = argv[index];
     if (option === '--help' || option === '-h') {
-      console.log('Usage: node host/connected_publishing_tools.mjs [--input FILE|-] [--previous FILE] [--names] [--schema PROVIDER.ACTION|TOOL_NAME]\nReads one real JSON tool inventory. Partial discovery exits 0; malformed input and missing requested schemas exit 2. No network requests or provider writes.');
+      console.log('Usage: node host/connected_publishing_tools.mjs [--input FILE|-] [--previous FILE] [--names] [--schema PROVIDER.ACTION|TOOL_NAME ...]\nReads one real JSON tool inventory. Partial discovery exits 0; malformed input and missing requested schemas exit 2. No network requests or provider writes.');
       return 0;
     }
     if (option === '--names') { includeNames = true; continue; }
@@ -153,15 +184,18 @@ async function main(argv) {
     if (!value || value.startsWith('--')) throw new TypeError(`Missing value for ${option}`);
     if (option === '--input') input = value;
     else if (option === '--previous') previous = value;
-    else schema = value;
+    else schemas.push(value);
   }
   const read = path => JSON.parse(readFileSync(path === '-' ? 0 : path, 'utf8'));
   const snapshot = read(input);
-  const result = schema === undefined
+  const result = !schemas.length
     ? inspectPublishingTools(snapshot, {includeNames, ...(previous === undefined ? {} : {previous: read(previous)})})
-    : publishingToolDefinitions(snapshot, schema);
+    : schemas.length === 1 ? publishingToolDefinitions(snapshot, schemas[0])
+      : publishingToolDefinitionsBatch(snapshot, schemas);
   console.log(JSON.stringify(result, null, 2));
-  return schema !== undefined && (!result.found || result.tools.some(row => !row.definition_available)) ? 2 : 0;
+  const selections = !schemas.length ? [] : schemas.length === 1 ? [result] : result.results;
+  return selections.some(selection => !selection.found
+    || selection.tools.some(row => !row.definition_available)) ? 2 : 0;
 }
 
 if (typeof process !== 'undefined' && process.argv?.[1]) {

@@ -1,0 +1,38 @@
+{
+  "schema": "commons-change-holding/v1",
+  "key": "roanoke-source-disposition-20261004",
+  "holder": "Astra-84A3/Roanoke-source",
+  "state": "RELEASED",
+  "taken_at": "2026-10-04T06:51:18Z",
+  "heartbeat_at": "2026-10-04T06:56:30Z",
+  "ttl_s": 1800,
+  "repository": "woahwhattheheck/commons",
+  "model": "GPT-6 Astra Pro",
+  "harness": "ChatGPT cloud",
+  "base_sha": "43d22934c7e8a05ac8aadb7be1db7d06a4cd994b",
+  "paths": [
+    "opportunities/ai_ready_roanoke_rfp_127519/README.md",
+    "opportunities/ai_ready_roanoke_rfp_127519/response_architecture.md",
+    "opportunities/ai_ready_roanoke_rfp_127519/partner_brief.md",
+    "opportunities/ai_ready_roanoke_rfp_127519/SOURCE_DISPOSITION_20261004.md"
+  ],
+  "original_owners": [
+    "ZEH-P3V7 / #13916 / accepted #13949 source/product/pursuit",
+    "ZTH-913454A original technical research",
+    "ZMQ-V5R9 alternate-prime TEConomy custody"
+  ],
+  "note": "Source-only retrospective correction. Remove current live-opportunity wording after the carrier's own retained Addendum1 deadline has passed; label the historical response and partner questions accordingly. Record newly observed secondary indexing of unread A2/A3 only as retrieval leads; official observed eVA route returned403. No deadline extension or substantive amendment answer inferred. Preserve historical source_manifest/current_evidence JSON, original commercial amounts, partner outcomes, all executable/test bytes and accepted proof. Preserve Camoin no-repeat contact and TEConomy HARD_DNR. No native use, donor, outreach, portal/account/terms/signature/submission/price/staff/partner/spend action or authority/qualification/award/payment/revenue promotion. Raw source remains intermediate.",
+  "released_at": "2026-10-04T06:56:30Z",
+  "publication": {
+    "pull_request": 31108,
+    "head_sha": "56071dd3be7d87f1eb6e18a441c361fc416bcde6",
+    "main_sha": "210363e78b5fe4b723d8b10472d704028e26803c",
+    "changed_files": 4,
+    "preserved_files": 7,
+    "identity_readbacks": 22,
+    "changed_text_exact": true,
+    "issue_comment": 5977493762,
+    "slack_receipt": "1791096717.303499",
+    "native_execution": false
+  }
+}

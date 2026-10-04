@@ -322,6 +322,15 @@ def _software_report_match(sentence: str, context: str, wording: str, rule: str,
     )
 
 
+def _zero_error_count(prefix: str) -> bool:
+    # Match a literal count, not a decimal suffix, bound, or negated count.
+    count = re.search(r"(?:^|\s)(?:0|zero|no)\s+(?:scrape\s+)?$", prefix, re.I)
+    return count is not None and not re.search(
+        r"\b(?:not|never|without|isn't|aren't|wasn't|weren't|least|most|than|"
+        r"over|under|above|below)(?:\s+with)?\s*$", prefix[:count.start()], re.I
+    )
+
+
 def check_publication(body: str, subject: str = "") -> dict:
     """Check outgoing subject/body without logging, storing, or judging truth."""
     if not isinstance(body, str) or not isinstance(subject, str):
@@ -356,6 +365,10 @@ def check_publication(body: str, subject: str = "") -> dict:
                 for pattern in rule["patterns"]:
                     for match in re.finditer(pattern, sentence, re.I):
                         if rule["name"] == "unfavorable_finding" and re.search(r"\b(?:no|zero|without|free of)\s+(?:(?:remaining|current|known|observed|active)\s+){0,3}$", sentence[:match.start()], re.I):
+                            continue
+                        if (rule["name"] == "unfavorable_finding" and software_report
+                                and match.group().lower() in {"error", "errors"}
+                                and _zero_error_count(sentence[:match.start()])):
                             continue
                         if _software_report_match(sentence, context, match.group(), rule["name"], software_report):
                             continue

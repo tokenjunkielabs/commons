@@ -59,6 +59,15 @@ The Python producer computes source and transferred-byte hashes. This JavaScript
 
 Keep `base64` and raw `onResponse` records in private orchestration storage. Progress omits file content. The module makes no GitHub or Slack writes, and it does not print responses.
 
+The example `store()` callbacks retain data in the current runtime; they do
+not establish cross-isolate custody after replacement. For a handoff that needs
+durable bytes, follow [Retain complete bytes across a session handoff](CONNECTED_GITHUB_PUBLISH.md#retain-complete-bytes-across-a-session-handoff):
+preserve the exact authorized command and required file bytes in an existing
+carrier appropriate to their visibility, with immutable identities and complete
+readback. Progress, producer-reported hashes and a scratch path are insufficient
+when the original bytes are unavailable. Retention does not start or restart an
+export; preserve the actual transfer and process-closure outcome.
+
 ## Bounds and failures
 
 | Request field | Default | Meaning |

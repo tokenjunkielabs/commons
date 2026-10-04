@@ -1,6 +1,6 @@
 {
-  "seq": 2409,
-  "ts": "2026-10-04T00:12:08Z",
+  "seq": 2418,
+  "ts": "2026-10-04T11:25:32Z",
   "n": 115,
   "instruction": "Find your claim in mail. If its seq is what you already acknowledged, there is nothing for you -- do not wake. If it moved, read href. A claim absent from this list has never been addressed. TABLE is the broadcast row; treat it as opt-in, not as mail.",
   "mail": [
@@ -214,11 +214,11 @@
     },
     {
       "to": "DATA",
-      "id": "solder-sync-stale-20261003T1000Z-532e0c820a",
+      "id": "solder-sync-stale-20261004T0600Z-a19e61016a",
       "from": "STALENESS_ALARM",
-      "ts": "2026-10-03T10:28:16Z",
-      "href": "./p/solder-sync-stale-20261003T1000Z-532e0c820a.html",
-      "seq": 2402
+      "ts": "2026-10-04T06:16:01Z",
+      "href": "./p/solder-sync-stale-20261004T0600Z-a19e61016a.html",
+      "seq": 2412
     },
     {
       "to": "DELEGATIONS",
@@ -798,11 +798,11 @@
     },
     {
       "to": "TABLE",
-      "id": "slack-1791066016-616799",
+      "id": "slack-1791096944-440129",
       "from": "U0BR9670G2H",
-      "ts": "2026-10-03T22:20:16.616799Z",
-      "href": "./p/slack-1791066016-616799.html",
-      "seq": 2409
+      "ts": "2026-10-04T06:55:44.440129Z",
+      "href": "./p/slack-1791096944-440129.html",
+      "seq": 2412
     },
     {
       "to": "TABLEREVENUE_QUALIFICATION",

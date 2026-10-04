@@ -258,3 +258,68 @@ literal/mismatch outcomes for that rendering. Enabling this new mode reports
 a presentation match with one URL wrapper and one fragment label. This is a
 comparison of the captured rendering, not a claim about Slack's raw storage
 or a general rule for every truncated display label.
+
+## Compare one exact fenced payload
+
+`compareSlackFencedPayload(result, expectedPayload)` selects the same bounded
+native message as the whole-message comparator, then compares the raw characters
+inside one triple-backtick delimiter pair. Supply the prepared payload separately.
+This is useful when an original PR-body handoff has an intact fenced payload but
+Slack's rendered envelope differs from the authored whole message.
+
+```javascript
+const {compareSlackPublication, compareSlackFencedPayload} = moduleBox.exports;
+const wholeMessage = compareSlackPublication(result, preparedMessage, {
+  normalization: 'slack_bare_urls_entities',
+});
+const payload = compareSlackFencedPayload(result, separatelyPreparedBody);
+text({wholeMessage, payload});
+```
+
+The two results describe different spans. A payload result never changes,
+upgrades or replaces a whole-message `mismatch`. Prefixes, suffixes, links and
+other text outside the fence are not compared by this export. Its metadata
+states `evidence_scope: single_fenced_payload`, `normalization: none` and
+`whole_message_comparison: not_performed`; the latter refers only to this
+function. Keep the existing whole-message result when that evidence is needed.
+
+### Exact span and supported delimiters
+
+The selector reuses the existing request identity, payload consistency, target
+message and native framing checks. Within that selected message it requires
+exactly two runs of exactly three backticks. The opening run must begin the
+message or follow an LF; the closing run must end the message or precede an LF.
+Multiple pairs, nested backtick fences, longer backtick runs, tilde-fence lines
+and unsupported delimiter placement return `uncomparable`. Inline single or
+double backticks remain ordinary payload characters. This is a deliberately
+bounded delimiter format, not a general Markdown parser.
+
+Every character between the two delimiter runs participates in literal equality,
+including any leading or trailing LF, spaces, language-label text, entities and
+URL markup. The function does not trim, remove a fence-adjacent newline, strip
+a language label, decode entities, rewrite links or interpret Markdown.
+Consequently, a rendering that retains boundary LFs differs from a separately
+prepared body that lacks those LFs. Do not trim either input to turn that result
+into a match. The native rendering can also elide the authored boundary LFs;
+in that case the retained raw interior is compared exactly as returned.
+
+| Status | Meaning |
+| --- | --- |
+| `exact` | The raw interior equals the separately supplied payload literally. |
+| `mismatch` | One supported fence pair was selected, but its interior differs. |
+| `uncomparable` | Capture, message selection or fence boundaries are unavailable or ambiguous. |
+
+`matches` and `literal_match` are true for exact, false for mismatch and null
+for uncomparable. The result includes the selected channel/message/parent IDs.
+Once a supported pair is found, `fence.opening`, `fence.payload` and
+`fence.closing` contain start/end offsets into the selected rendered message
+body. Offsets and `expected_length`/`observed_length` use JavaScript UTF-16 code
+units; ranges are half-open, with the end excluded. The metadata states this
+origin, unit and range convention explicitly. No message or payload text is
+returned. Invalid caller arguments raise TypeError.
+
+This pure operation makes no provider call and mutates neither input. It does
+not independently authenticate a message or author, establish raw Slack storage
+identity, compare the outer envelope, or grant permission to update the upstream
+PR body. An exact Slack payload leaves any separate GitHub publication or
+maintainer-action boundary unchanged.

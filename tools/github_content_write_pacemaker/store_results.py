@@ -35,8 +35,11 @@ class StoreResultsMixin:
                      "rate_limited": COOLDOWN,
                      "ambiguous": RECONCILE_REQUIRED}[classification]
             if classification == "rate_limited":
-                if not retry_at or parse_time(retry_at, "retry_at") <= self.clock():
-                    raise PacemakerError("rate limit requires future retry_at")
+                if not retry_at:
+                    raise PacemakerError("rate limit requires retry_at")
+                parse_time(retry_at, "retry_at")
+                # A known rejection stays known even if its deadline elapsed
+                # before recording. claim_next applies the retained deadline.
                 db.execute("UPDATE meta SET cooldown_until=?,cooldown_reason=? WHERE singleton=1",
                            (retry_at, reason))
             else:

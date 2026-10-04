@@ -81,80 +81,82 @@
         {
           "path": "000670000087814/27-87814 Att A - IVOSB Commitment Form.docx",
           "byte_count": 57431,
-          "review_state": "RETAINED_NOT_REVIEWED"
+          "review_state": "READ_TEXT_AND_STRUCTURE"
         },
         {
           "path": "000670000087814/27-87814 Att B - Sample Contract.docx",
           "byte_count": 71996,
-          "review_state": "RETAINED_NOT_REVIEWED"
+          "review_state": "READ_TEXT_AND_STRUCTURE"
         },
         {
           "path": "000670000087814/27-87814 Att B1 - IOT-IaaS.docx",
           "byte_count": 40864,
-          "review_state": "RETAINED_NOT_REVIEWED"
+          "review_state": "READ_TEXT_AND_STRUCTURE"
         },
         {
           "path": "000670000087814/27-87814 Att B2 - IOT-PaaS.docx",
           "byte_count": 38705,
-          "review_state": "RETAINED_NOT_REVIEWED"
+          "review_state": "READ_TEXT_AND_STRUCTURE"
         },
         {
           "path": "000670000087814/27-87814 Att B3 - IOT-SaaS.docx",
           "byte_count": 40890,
-          "review_state": "RETAINED_NOT_REVIEWED"
+          "review_state": "READ_TEXT_AND_STRUCTURE"
         },
         {
           "path": "000670000087814/27-87814 Att D - Cost Proposal Template.xlsx",
           "byte_count": 38516,
-          "review_state": "RETAINED_NOT_REVIEWED"
+          "review_state": "READ_TEXT_AND_STRUCTURE"
         },
         {
           "path": "000670000087814/27-87814 Att E - Business Proposal.docx",
           "byte_count": 45968,
-          "review_state": "RETAINED_NOT_REVIEWED"
+          "review_state": "READ_TEXT_AND_STRUCTURE"
         },
         {
           "path": "000670000087814/27-87814 Att F - Technical Proposal Template.docx",
           "byte_count": 50155,
-          "review_state": "RETAINED_NOT_REVIEWED"
+          "review_state": "READ_TEXT_AND_STRUCTURE"
         },
         {
           "path": "000670000087814/27-87814 Att G - Q&A Template.xlsx",
           "byte_count": 21353,
-          "review_state": "RETAINED_NOT_REVIEWED"
+          "review_state": "READ_TEXT_AND_STRUCTURE"
         },
         {
           "path": "000670000087814/27-87814 Att H - Reference Check Form.docx",
           "byte_count": 37115,
-          "review_state": "RETAINED_NOT_REVIEWED"
+          "review_state": "READ_TEXT_AND_STRUCTURE"
         },
         {
           "path": "000670000087814/27-87814 Att I - Pre-Proposal Network Form.docx",
           "byte_count": 36482,
-          "review_state": "RETAINED_NOT_REVIEWED"
+          "review_state": "READ_TEXT_AND_STRUCTURE"
         },
         {
           "path": "000670000087814/27-87814 Att J - Attestation Form.docx",
           "byte_count": 46494,
-          "review_state": "RETAINED_NOT_REVIEWED"
+          "review_state": "READ_TEXT_AND_STRUCTURE"
         },
         {
           "path": "000670000087814/27-87814 Att K - Statement of Work.docx",
           "byte_count": 51843,
-          "review_state": "RETAINED_NOT_REVIEWED"
+          "review_state": "READ_TEXT_AND_STRUCTURE"
         },
         {
           "path": "000670000087814/27-87814 Att L - AI Technical Proposal Questions.docx",
           "byte_count": 36600,
-          "review_state": "RETAINED_NOT_REVIEWED"
+          "review_state": "READ_TEXT_AND_STRUCTURE"
         },
         {
           "path": "000670000087814/27-87814 Att M-Infrastructure Overview.docx",
           "byte_count": 42858,
-          "review_state": "RETAINED_NOT_REVIEWED"
+          "review_state": "READ_TEXT_AND_STRUCTURE"
         }
       ],
-      "review_boundary": "Main RFP reviewed. Attachment contents and Supplier Portal comparison remain separate unfinished work; retained bytes do not prove respondent compliance."
+      "review_boundary": "Main RFP reviewed during source recovery. All 15 retained Office attachments reviewed as text, tables, workbook stored formulas/cached values and package relationships; no Word/Excel rendering or recalculation. The exact ZIP and authority generation are unchanged. Current policy/annex retrieval, Supplier Portal comparison, clarification answers, respondent qualification and accepted terms/pricing/workshare remain separate unfinished work.",
+      "attachment_reviewed_at": "2026-10-04T05:35:03Z",
+      "attachment_review_relpath": "ATTACHMENT_REVIEW.md"
     },
     {
       "id": "publicbidsearch-mirror",

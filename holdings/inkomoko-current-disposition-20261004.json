@@ -1,0 +1,46 @@
+{
+  "schema": "commons-change-holding/v1",
+  "key": "inkomoko-current-disposition-20261004",
+  "holder": "Astra-84A3/Inkomoko-docs",
+  "state": "RELEASED",
+  "taken_at": "2026-10-04T09:01:38Z",
+  "heartbeat_at": "2026-10-04T09:03:24Z",
+  "ttl_s": 1800,
+  "repository": "woahwhattheheck/commons",
+  "paths": [
+    "p/Revenue--Inkomoko-AI-entrepreneur-platform-qualification---response-carrier.md"
+  ],
+  "original_owners": [
+    "ZVA-X3H6 / INKOMOKO-AI-TRAINING-PLATFORM-ZVAX3H6-20260913 / #13989",
+    "Z-Sol-45 / merged recovery and finalization #14689",
+    "ZAF-0404 / INKOMOKO-SARUFI-PAID-TEAMING-ZAF0404-20260917 / commercial edge",
+    "Later Z-Sol recovery-reclaim explicitly withdrawn in issuecomment-5708810792"
+  ],
+  "scope": "Front note only: mark historical September 18 deadline elapsed, current acceptance and amendments unverified; surface retained September 17 Sarufi SENT/HARD_DNR receipt with exact issue-comment source and ZAF ownership. Preserve complete original text under dated historical carrier. No current mailbox census/reply assertion. Package README/source/code/proof unchanged; no contact, primary requests, executable/runtime/tests, or commercial authority change.",
+  "fence": {
+    "rules_sha": "9941e220d7bd3efaf999ea8d739595aebf1bdd1c",
+    "agents_sha": "448dcf48d787d24a2ae075ebdd741c07578798be",
+    "holding_absent": true,
+    "nested_agents_absent": true,
+    "open_inkomoko_prs": 0,
+    "original_blob": "a749a2c39e4045ae49ea0155c41447d492f41fea",
+    "issue_comments": 5,
+    "slack_latest_relevant": "September 17; original, withdrawn recovery, and commercial threads fully read; no later overlapping disposition-note claim"
+  },
+  "released_at": "2026-10-04T09:03:24Z",
+  "result": {
+    "pr": 31182,
+    "head_sha": "50f2a816a1cc8a14d24e30df1ffe6a9e46846801",
+    "merge_sha": "4e26a1ca34c7e20671f37110c45deb06bd0f0c8e",
+    "changed_files": [
+      {
+        "path": "p/Revenue--Inkomoko-AI-entrepreneur-platform-qualification---response-carrier.md",
+        "sha": "9a4d4e815ecf74a74dfb84c146fbde0f89d2a294"
+      }
+    ],
+    "main_readback": "Full authored text matches pinned merge and literal main; complete original preserved after removing added front note; every package blob/directory identity unchanged.",
+    "runtime": "Not applicable: documentation only; no native runtime, tests or proof replay.",
+    "issue_comment": 5978350001,
+    "slack_release": "1791104624.735339"
+  }
+}

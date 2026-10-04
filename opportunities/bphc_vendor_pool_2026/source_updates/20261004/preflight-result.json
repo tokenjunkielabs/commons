@@ -1,0 +1,52 @@
+{
+  "authority": {
+    "award_or_revenue_claim_authorized": false,
+    "contract_or_signature_authorized": false,
+    "email_or_external_submission_authorized": false,
+    "external_contact_authorized": false,
+    "legal_or_compliance_certification_authorized": false,
+    "pricing_commitment_authorized": false,
+    "qualification_assertion_authorized": false,
+    "reference_contact_authorized": false
+  },
+  "blockers": [
+    "DEI_APPROACH_REQUIRED",
+    "EXPERIENCE_0_INCOMPLETE",
+    "LIVING_WAGE_OBLIGATION_REVIEW_REQUIRED",
+    "ORGANIZATION_LEGAL_NAME_REQUIRED",
+    "ORGANIZATION_MISSION_REQUIRED",
+    "ORGANIZATION_WEBSITE_REQUIRED",
+    "PAGE_PLAN_DEI_APPROACH_REQUIRED",
+    "PAGE_PLAN_EXPERIENCE_AND_QUALIFICATIONS_REQUIRED",
+    "PAGE_PLAN_ORGANIZATIONAL_OVERVIEW_AND_MISSION_REQUIRED",
+    "PAGE_PLAN_PRICING_REQUIRED",
+    "PAGE_PLAN_TEAM_AND_STAFFING_REQUIRED",
+    "PLACEHOLDERS_REMAIN:owner.dei_approach,owner.organization.boston_community_knowledge,owner.organization.legal_name,owner.organization.mission,owner.organization.website,owner.pricing.basis,owner.pricing.schedule,owner.qualifying_experience[0].category,owner.qualifying_experience[0].client_type,owner.qualifying_experience[0].engagement_name,owner.qualifying_experience[0].evidence_ref,owner.qualifying_experience[0].outcomes,owner.qualifying_experience[0].scope,owner.references[0].contact_delivery_plan,owner.references[0].organization,owner.references[0].relationship,owner.references[1].contact_delivery_plan,owner.references[1].organization,owner.references[1].relationship,owner.service_request_tracking,owner.team[0].evidence_ref,owner.team[0].role,owner.team[0].staffing_summary",
+    "PRICING_OWNER_APPROVAL_REQUIRED",
+    "PRICING_REQUIRED",
+    "PROPOSAL_DEADLINE_PASSED",
+    "QUALIFYING_PUBLIC_HEALTH_NONPROFIT_OR_GOVERNMENT_EXPERIENCE_REQUIRED",
+    "REFERENCE_0_INCOMPLETE",
+    "REFERENCE_1_INCOMPLETE",
+    "SAM_EXCLUSION_REQUIREMENT_REVIEW_REQUIRED",
+    "SELECT_AT_LEAST_ONE_TRACK",
+    "TEAM_0_INCOMPLETE"
+  ],
+  "evaluated_at": "2026-10-04T11:57:28Z",
+  "owner_input_sha256": "d356d61f4e33fed96e3d834f54a975a779ce3c99e731b2cc21237b5b62b98786",
+  "qualifying_experience_count": 0,
+  "receipt_sha256": "ace6b288314efd16053b561d16d71869160c00770148a992838522c4a717dceb",
+  "reference_count": 0,
+  "schema": "bphc.vendor_pool.preflight_receipt/v1",
+  "selected_tracks": [],
+  "source_ambiguities": [
+    "Q103 (Q&A p7) contains conflicting extracted 12-point and 10-point wording; the web screenshot returned an iframe, so typography remains visually unverified.",
+    "Q41 (Q&A p9) defers its personnel-experience/reference question; Q23, Q57, Q59 and Q104 (pp9-10), plus the experience Q74 (p18), expressly permit accurately attributed prior-employment experience."
+  ],
+  "source_snapshot_sha256": "7440025425a45734ef1431692a1419fa556b0d45f3946eb221851bb6aca7118f",
+  "state": "DEADLINE_PASSED",
+  "warnings": [
+    "BOSTON_COMMUNITY_KNOWLEDGE_NOT_SUPPORTED_OR_NOT_SUPPLIED",
+    "SERVICE_REQUEST_TRACKING_PREFERENCE_NOT_ADDRESSED"
+  ]
+}

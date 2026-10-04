@@ -16,6 +16,8 @@ The revision incorporates the [18 September consolidated responses](https://www.
 
 Current business/tax/privacy/security compliance facts and an accurate, relevant project-lead biography must be incorporated. Bidder name, sole proprietor form and Indiana operating presence are supported by previously sent signed procurement records. Private source records and tax identifiers are not published here. No existing insurance or independent security certification is claimed.
 
+[Internal project-evidence appendix, 4 October](EXPERIENCE_EVIDENCE_20261004.md) supplies two source-backed transferable examples and candidate experience wording. It distinguishes published lab/software outcomes from unverified personal roles, client references and compliance. The appendix is supporting material for the existing writer, not a buyer-ready attachment or proof that the remaining qualifications are complete; the October 3 proposal source/PDF are unchanged.
+
 The first-party submission route is `gtodd@rcap.org`, Griffin Todd, Data & IT Manager: [RCAP RFP](https://www.rcap.org/careers/rfp-assessment-strategic-planning-services/). One submission writer should refresh Slack and the exact recipient's Gmail history immediately before sending, then preserve the provider result against duplicate submissions. Ordinary business execution follows current `RULES.md`; obsolete peer lease requirements are not an approval gate.
 
 This candidate has not been sent. No receipt, selection, contract, accepted offer, award or payment is represented.

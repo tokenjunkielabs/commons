@@ -27,6 +27,7 @@ system integration, and explicit cost/single-source sensitivity gates.
 - `submission/public_summary_slide.md` — one-slide copy/layout.
 - `submission/video_script.md` — <=90 s script/shot plan.
 - `evidence/sources.md` — literature + competition authority ledger.
+- [Manufacturing prior-art review (2026-10-04)](evidence/prior_art_review_20261004.md) — nine-source comparison and unresolved design evidence.
 - `model/production_model.py` — exact-decimal manufacturing scenario comparator.
 - `model/example_*.synthetic.json` — intentionally synthetic examples, never supplier quotes.
 - `validate_submission.py` + `readiness.json` — fail-closed release gate.
@@ -45,3 +46,8 @@ python competitions/storage-design-step-2026/validate_submission.py --require-re
 quote-backed manufacturing inputs, EHS/hazmat review, final slide/video, human technical review, HeroX terms
 acceptance, and explicit human submission authorization. No registration, submission, equipment purchase, prize,
 award, or revenue claim is represented by this repository.
+
+The dated [prior-art review](evidence/prior_art_review_20261004.md) identifies earlier disclosures and experiments
+covering the proposed manufacturing features. The current packet does not yet demonstrate a design-specific
+distinction or measured savings. This bounded review leaves all readiness gates false, including the independent
+novelty-search and human-review gates; it assigns no official prize score.

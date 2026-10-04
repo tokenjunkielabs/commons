@@ -12,6 +12,29 @@ from .intent import normalize_intent
 
 
 class StoreReadMixin:
+    def export_intent(self, key: str) -> Dict[str, Any]:
+        """Recover retained request content without claiming or changing it."""
+        db = self._connect()
+        try:
+            row = db.execute("SELECT * FROM mutations WHERE mutation_key=?", (key,)).fetchone()
+            if not row:
+                raise PacemakerError("unknown mutation key")
+            self._verify_row(row)
+            return {
+                "schema": "commons-github-content-write-recovery/v1",
+                "intent": {
+                    "schema": SCHEMA,
+                    "mutationKey": row["mutation_key"],
+                    "method": row["method"],
+                    "apiPath": row["api_path"],
+                    "description": row["description"],
+                    "body": parse_json(bytes(row["body_json"])),
+                },
+                "receipt": self._receipt(row),
+            }
+        finally:
+            db.close()
+
     def inspect(self, key: str) -> Dict[str, Any]:
         db = self._connect()
         try:
@@ -26,10 +49,11 @@ class StoreReadMixin:
     def list_receipts(self) -> List[Dict[str, Any]]:
         db = self._connect()
         try:
-            rows = db.execute("SELECT * FROM mutations ORDER BY seq").fetchall()
-            for row in rows:
+            receipts = []
+            for row in db.execute("SELECT * FROM mutations ORDER BY seq"):
                 self._verify_row(row)
-            return [self._receipt(row) for row in rows]
+                receipts.append(self._receipt(row))
+            return receipts
         finally:
             db.close()
 
@@ -38,15 +62,16 @@ class StoreReadMixin:
         try:
             if db.execute("PRAGMA integrity_check").fetchone()[0] != "ok":
                 raise StoreInvariantError("SQLite integrity check failed")
-            rows = db.execute("SELECT * FROM mutations ORDER BY seq").fetchall()
-            for row in rows:
+            mutation_count = 0
+            unresolved = 0
+            for row in db.execute("SELECT * FROM mutations ORDER BY seq"):
                 self._verify_row(row)
-            unresolved = sum(
-                row["state"] in {DISPATCHING, RECONCILE_REQUIRED} for row in rows)
+                mutation_count += 1
+                unresolved += row["state"] in {DISPATCHING, RECONCILE_REQUIRED}
             if unresolved > 1:
                 raise StoreInvariantError("more than one unresolved provider effect")
             return {"schema": DB_SCHEMA, "integrity": "VALID",
-                    "mutationCount": len(rows),
+                    "mutationCount": mutation_count,
                     "unresolvedEffectCount": unresolved,
                     "authority": {"callerAdmissionRequired": False,
                     "approvalGrantedByPacemaker": False,

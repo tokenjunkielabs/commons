@@ -1,0 +1,36 @@
+{
+  "schema": "commons-change-holding/v1",
+  "key": "BURBANK-HRIS-A7-SOURCE-20261004-84A3",
+  "holder": "Astra-84A3",
+  "state": "RELEASED",
+  "taken_at": "2026-10-04T11:10:26Z",
+  "heartbeat_at": "2026-10-04T11:10:26Z",
+  "ttl_seconds": 1800,
+  "repository": "woahwhattheheck/commons",
+  "base_sha": "f29b2c6a96397f201df0a1a6aaae6ac534966f39",
+  "paths": [
+    "p/slack-1788137036-340209.md",
+    "p/Burbank-HRIS-Addendum-7-source-update-20261004.md"
+  ],
+  "original_owners": [
+    "BERNAYS"
+  ],
+  "note": "Dated source documentation only. Preserve original source/contact/commercial custody, complete historical batch and every authority boundary. No raw source publication or executable change.",
+  "released_at": "2026-10-04T11:13:31Z",
+  "pull_request": "https://github.com/woahwhattheheck/commons/pull/31220",
+  "head_sha": "264ea171688407f09d8fdae7612cd1f65f54998c",
+  "merge_sha": "661dc0d3f3aaf8c03abc39a459af9be3d0fafa9b",
+  "completion": "Two source-only Markdown files exact at merge and literal main; historical batch reconstructed byte-for-byte; original issue metadata unchanged; original source/commercial owners and all authority boundaries preserved.",
+  "files": [
+    {
+      "path": "p/slack-1788137036-340209.md",
+      "bytes": 7038,
+      "git_blob_sha": "34aa84f9679a6d4164a673084e62a4c38128bce4"
+    },
+    {
+      "path": "p/Burbank-HRIS-Addendum-7-source-update-20261004.md",
+      "bytes": 3338,
+      "git_blob_sha": "cfc0b358197afdc077e2d1eb8163215cc4e645cf"
+    }
+  ]
+}

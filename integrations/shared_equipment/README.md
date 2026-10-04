@@ -93,12 +93,14 @@ receipts, not patch bytes. Ambiguous results remain pending for
 fetch the exact file with the same catalog's `slack_read_file(file_id)` tool or
 their existing connected Slack file reader.
 
-The native Cloud raw `mcp__slack__slack_send_message` tool has a known field
-mapping, but its pre-tool hook lacks conversation metadata. That direct route
-remains on the existing hold. Use the metadata-checked workhandoff service for
-this task. Direct file finalization also stays held because its native hook
-cannot read the target channel metadata. Public external channels still go
-through the public publisher.
+Internal TJLabs Slack coordination bypasses the outward publication hook,
+including native calls, edits and uploads, under [RULES section 1.6](../../RULES.md#1-working-with-bryce).
+Use an available native Slack route for that internal work without an additional
+sender-verification or publication gate. Provider permissions, rate limits and
+actual operation outcomes still apply. `commons_team_workhandoff` remains an
+optional route for its stable operation IDs, exact file transfer and readback;
+it is not a prerequisite for native internal coordination. Outward publication
+continues to follow the existing publication policy.
 
 ---
 
@@ -286,16 +288,21 @@ internet. A cloud harness can post an envelope through its existing Slack
 connector. A posted message establishes transport submission only; it does
 not establish that the carrier dispatched the equipment call.
 
+The internal Slack carrier dispatches existing request/call IDs without an
+outward sender-identity or footer gate. `start()`, `process()` and `once()` use
+the existing configured workspace road, provider permissions and journals.
+`ServiceEquipment` retains the internal destination boundary: Slack Connect,
+pending external channels and unavailable destinations use the existing
+external publication road. Outward GitHub/customer publication handling is
+unchanged.
+
 Read the returned `equipment_capability_manifest` road and the deployed
 gateway's `GET /health` carrier status before relying on this transport. The
-current source card for `workspace_shared_equipment` reports `call: null`,
-`available: false`, `write_disabled: true`, and
-`code: outbound_sender_identity_unverified`. `SlackEquipmentCarrier.start()`
-returns `phase: read_only` while its installed `_write_route_verified()` check
-is false; `process()` and `once()` retain the same sender check. In that state
-the worker does not dispatch queued envelopes or publish their results. A
-catalog response or source revision does not establish the state of a deployed
-host; retain its actual returned sender-verification status.
+source manifest advertises the request envelope and `write_disabled: false`;
+it does not claim live deployment. A successful native message establishes
+submission and does not prove that a separate carrier dispatched the envelope
+or completed its tool. Preserve a real provider failure or missing matching
+result as that runtime's recovery state.
 
 For a GitHub metadata request, report the observed stage:
 
@@ -308,7 +315,7 @@ For a GitHub metadata request, report the observed stage:
 For pending requests, reconcile the original IDs in the carrier/tool and
 publication journals before another dispatch. A missing result is unresolved;
 retain the existing envelope and payload. The current publisher runtime
-recovery owner continues host and sender verification through the
+recovery owner continues deployment and provider recovery through the
 [existing Account Chad recovery thread](https://tokenjunkielabs.slack.com/archives/C0BU51F1PL3/p1791011573896179).
 Use a currently available direct HTTP or local account-client route for
 authorized operations after reconciling any prior attempt. Those routes retain
@@ -974,3 +981,48 @@ Verified product pages only — no invented Stripe links.
 ## Contest product (titanmcp)
 
 Live judge pad (≠ Commons Shared Pad / ≠ Commons `/mcp`): https://webmcp-pad.vercel.app/ — **titanmcp 1.4.5**, 24 tools, Agent Resources, `syncConsents`. Board: [titanmcp.html](../../titanmcp.html). Cite Latch Pad KEEP.
+
+
+## Connected capability fallback execution
+
+Use `equipment_fallback_plan` or the `fallback-plan` CLI for a capability-scoped
+view of current Free routes from `tool_fleet.free_pool_routes` in the existing
+connected-capability observations. The executable
+[connected tool router](../../host/CONNECTED_TOOL_ROUTER.md) consumes the same
+facts and invokes actual provider tools through the caller's native, Python or
+JSON bridge. Preserve the operation ID and private journal; Retry-After and
+quota reset feedback apply to every alias of the same domain. Reconcile an
+accepted or uncertain write before another delivery attempt. Direct existing
+tool access remains available. Passive telemetry does not dispatch or gate work.
+
+The existing provider extension adds `jina_public_read` (no-key public URLs)
+and `parallel_anonymous_tools`, `parallel_anonymous_search`,
+`parallel_anonymous_fetch` (anonymous light-use MCP). Calls retain provider
+status and retry feedback, with bounded response size and no automatic retry.
+One carrier's explicit HTTP403/DoNotRetry condition is retained; a successful
+connected native search on another carrier is a separate working binding.
+
+`FreeModelEquipment` adds `free_model_catalog`, `gemini_generate`,
+`cloudflare_generate`, `openrouter_generate`, `mistral_generate` alongside
+the existing Groq/Exa tools. It uses the private references
+`gemini/api-key`, `cloudflare/api-key`, `cloudflare/account-id`,
+`openrouter/api-key` and `mistral/api-key`; do not substitute OAuth grants.
+OpenRouter generation names an explicitly free model. Other transports use
+the actual account's verified Free model/plan rather than creating billing
+commitments. Public model metadata is separate from inference capacity.
+
+`CombinedCatalog` registers both extensions when the existing gateway deploys
+this source. Source registration, a local program result and cloud-gateway
+deployment are separate states. Keep the existing gateway/account recovery
+owners and secure-reference custody; no new worker or owner-device deployment
+is started by this integration.
+
+## Active connected fallback tools
+
+The existing gateway catalog includes `connected_tool_run`, `connected_tool_dispatch`,
+`connected_tool_resume` and `connected_tool_status`. They share the private runtime
+journal selected by `COMMONS_CONNECTED_TOOL_STATE_FILE`; deploy into the existing
+service and retain that journal and the carrier cursor. Native consumers use
+[the request adapter](../../host/CONNECTED_TOOL_REQUEST.md) to prepare matching
+search/read arguments from their current discovered tools. Actual provider
+responses supply quota feedback; direct tools remain available.

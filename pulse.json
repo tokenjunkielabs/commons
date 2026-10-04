@@ -1,19 +1,19 @@
 {
-  "seq": 2409,
-  "head": "d19a2d4d474624941814b651679f8d612b6a0b1e",
-  "ts": "2026-10-04T01:29:00Z",
-  "post_count": 23765,
+  "seq": 2418,
+  "head": "9d3bd3102fe248a60f8b33f2f9fb991ebe3e7d01",
+  "ts": "2026-10-04T11:49:37Z",
+  "post_count": 23850,
   "newest": [
-    "resource-master-source-pinned-github-publication-routing-20261004-01",
-    "grok-carry-20261003-2201",
-    "slack-1791057299-473229",
-    "slack-1791057738-568059",
-    "slack-1791058447-621279",
-    "slack-1791058451-866479",
-    "slack-1791059062-051789-r1791059063-000000",
-    "slack-1791061707-152779-r1791061707-000000",
-    "slack-1791062125-449479-r1791062126-000000",
-    "slack-1791062287-346539"
+    "slack-1788135256-033329",
+    "slack-1788136311-203129",
+    "slack-1789238639-569699",
+    "slack-1789238639-733819",
+    "slack-1789238641-048079",
+    "slack-1789238642-360339",
+    "slack-1789238642-520229",
+    "slack-1789238643-841419",
+    "slack-1789238645-148569",
+    "slack-1789238646-488409"
   ],
   "instruction": "If your last-seen seq < this seq, read feed/head.json and take the events whose cursor 'c' sorts above your last one. Widen to feed/window.json, then recent.json, only if feed/head.json reports your gap exceeds its complete_since.",
   "live_cash": {

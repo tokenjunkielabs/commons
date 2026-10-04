@@ -46,3 +46,38 @@ No network, floating point, randomization, third-party packages, or native code 
 This is intentionally **not** represented as a sponsor-accepted contribution yet. The sponsor requires every contribution `.lean` file to elaborate by itself against the pinned Mathlib/Formal Conjectures environment; sibling contribution scripts cannot be imported. The useful finite-search theorem we compose with currently lives inside the prior immutable contribution rather than the task source. Therefore a sponsor-ready second piece must either (a) factor an admissible nonduplicative reusable interface into the sponsor's accepted source path, or (b) restate enough of the bridge in a self-contained way and pass exact `contrib check` plus Lean elaboration. This runtime has not produced that kernel receipt.
 
 The finite enumeration itself is exact and independently reproducible. It does **not** prove the asymptotic conjecture `Filter.Tendsto Erdos153.f Filter.atTop Filter.atTop`, does not close the $4,296 solve bounty, and is not a payment/revenue claim.
+
+## Eight-element continuation and connected API
+
+[The eight-element finite premise](N8_FINITE_PREMISES.md) records a new exact
+minimum of `11/2` for Sidon eight-sets in `[0,42]`, with the numerical cutoff
+needed by the accepted `f_eq_of_search` reduction.
+[The complete output](n8_finite_premises.json) accounts for all 145,008,513
+subsets and retains all 32 minimizers.
+[The connected search/objective API](sidon_gap_search.cjs) supplies bounded
+prefix traversal and exact witness data without native execution.
+The preceding `n=5,6,7` computations remain as recorded above.
+
+## Nine-element continuation
+
+[The nine-element finite premise](N9_FINITE_PREMISES.md) records the exact
+minimum `254/45` for Sidon nine-sets in `[0,52]`, with the sufficient
+cutoff `11176 <= 11236` for the accepted finite-search reduction.
+[The complete retained output](n9_finite_premises.json) accounts for all
+4,431,613,550 subsets, including 5,550 Sidon sets, and keeps all 18
+minimizers plus the full energy histogram.
+This new input used the unchanged connected API; the earlier finite
+computations were not rerun.
+
+## Translation-weighted API and ten-element continuation
+
+[The translation-weighted API](TRANSLATED_SEARCH_API.md) traverses
+minimum-zero representatives and uses exact binomial weights to retain
+complete coverage of the original finite window.
+[Its ten-element input](N10_FINITE_PREMISES.md) has exact minimum
+`376/55` in `[0,71]`, with sufficient cutoff `20304 <= 20736`.
+[The complete output](n10_finite_premises.json) accounts for all
+536,211,932,256 original subsets through 74,473,879,480 normalized
+subsets and retains all 24 minimizers, both families, the full weighted
+energy histogram and 126 explicit seed-extension collision witnesses.
+The original API and earlier finite outputs are unchanged.

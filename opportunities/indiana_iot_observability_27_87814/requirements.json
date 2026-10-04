@@ -30,31 +30,31 @@
       "id": "teaming_rules",
       "state": "UNKNOWN",
       "evidence": [],
-      "note": "Single respondent required (1.2); Attachment B and allocation of subcontract obligations remain unreviewed."
+      "note": "Retained terms reviewed in ATTACHMENT_REVIEW.md: main RFP 1.2, B 5.B, B1-B3 17 and E 13 bind the single respondent/subcontract structure. Named partner obligations, State consent and executed or signed agreements remain unestablished; no positive qualification binding added."
     },
     {
       "id": "prime_platform_qualification",
       "state": "UNKNOWN",
       "evidence": [],
-      "note": "No owner platform credential or qualifying reference asserted."
+      "note": "F Mandatory Requirements and E 3-6/9-10 specify authorization, financial and reference evidence. Source requirements reviewed; no owner platform credential, qualifying state references or financial evidence supplied."
     },
     {
       "id": "security_compliance",
       "state": "UNKNOWN",
       "evidence": [],
-      "note": "Main RFP 1.3 and retained B1-B3/F/K require review; no owner compliance evidence."
+      "note": "B1-B3, F, K and M reviewed in ATTACHMENT_REVIEW.md. Selected hosting allocation, current policy/annex evidence, security authorization and owner compliance remain unresolved."
     },
     {
       "id": "staffing_capacity",
       "state": "UNKNOWN",
       "evidence": [],
-      "note": "No owner staffing commitment asserted."
+      "note": "E 13 and K Project Management identify staff/subcontractor roles and supporting information. No owner staffing commitment or accepted resource allocation supplied."
     },
     {
       "id": "pricing_forms",
       "state": "UNKNOWN",
       "evidence": [],
-      "note": "Attachment D retained; workbook review, completed pricing and authority remain unresolved."
+      "note": "Attachment D's 12 sheets, input instructions and 125 stored formulas reviewed without calculation or edits. Three-/five-year current/target pricing, unit rates, consumption assumptions, escalation caps and owner price authority remain unresolved; saved zero formula caches are not prices."
     },
     {
       "id": "paid_specialist_workshare",

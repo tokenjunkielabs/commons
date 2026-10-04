@@ -67,6 +67,18 @@ class RequestBudget:
         self._lock = threading.RLock()
         self._memory = sqlite3.connect(":memory:", check_same_thread=False) if self.path is None else None
         self._attempts = self._deferred = self._limited = 0
+        with self._transaction(write=False) as db:
+            tables = {row["name"] for row in db.execute(
+                "SELECT name FROM sqlite_master WHERE type='table'")}
+            schema_ready = {
+                "read_budget", "provider_capacity", "provider_leases",
+                "provider_limit_observations",
+            } <= tables
+            if schema_ready:
+                columns = {row["name"] for row in db.execute("PRAGMA table_info(read_budget)")}
+                schema_ready = "fallback_streak" in columns
+        if schema_ready:
+            return
         with self._transaction() as db:
             db.execute("""CREATE TABLE IF NOT EXISTS read_budget(
                 scope TEXT PRIMARY KEY, retry_until REAL NOT NULL DEFAULT 0, last_attempt REAL,
@@ -85,13 +97,13 @@ class RequestBudget:
                 observation_id TEXT PRIMARY KEY, fingerprint TEXT NOT NULL)""")
 
     @contextmanager
-    def _transaction(self):
+    def _transaction(self, *, write=True):
         with self._lock:
             db = self._memory or sqlite3.connect(str(self.path), timeout=10)
             db.row_factory = sqlite3.Row
             try:
                 db.execute("PRAGMA busy_timeout=10000")
-                db.execute("BEGIN IMMEDIATE")
+                db.execute("BEGIN IMMEDIATE" if write else "BEGIN")
                 yield db
                 db.commit()
             except Exception:
@@ -133,19 +145,38 @@ class RequestBudget:
         if deferred is not None:
             raise deferred
 
-    def rate_limited(self, scope, retry_after=None, reset_at=None, *, observation_id=None):
+    def rate_limited(self, scope, retry_after=None, reset_at=None, *, observation_id=None,
+                     reset_scope=None):
         """Record one provider observation; exact named retries never count twice.
 
         The caller keeps one ID per actual provider response. The fingerprint
         binds it to the original scope/evidence without retaining header text.
         Replays return the currently governing deadline, including newer limits.
+        A separate reset_scope keeps a resource reset out of a shared secondary
+        cooldown. Both facts commit atomically and count as one response.
         """
+        if reset_scope is not None:
+            self._lease_name(reset_scope)
+        separate_reset = reset_scope is not None and reset_scope != scope
+
+        def reset_receipt(db, now):
+            row = db.execute("SELECT * FROM read_budget WHERE scope=?", (reset_scope,)).fetchone()
+            if row is None:
+                return {}
+            return {"reset_cooldown": {"scope": reset_scope,
+                    "retry_not_before": _iso(row["retry_until"]),
+                    "retry_after_seconds": max(0, row["retry_until"] - now),
+                    "retry_basis": row["retry_basis"]}}
+
         fingerprint = None
         if observation_id is not None:
             if (not isinstance(observation_id, str) or not 1 <= len(observation_id) <= 200
                     or any(ord(char) < 32 for char in observation_id)):
                 raise ValueError("observation_id must be nonempty text up to 200 characters.")
-            fingerprint = hashlib.sha256(json.dumps([scope, retry_after, reset_at],
+            evidence = [scope, retry_after, reset_at]
+            if reset_scope is not None:
+                evidence.append(reset_scope)
+            fingerprint = hashlib.sha256(json.dumps(evidence,
                 sort_keys=True, separators=(",", ":"), allow_nan=False).encode()).hexdigest()
         with self._transaction() as db:
             now = self.clock()
@@ -159,10 +190,11 @@ class RequestBudget:
                     return {"scope": scope, "retry_not_before": _iso(row["retry_until"]),
                             "retry_after_seconds": max(0, row["retry_until"] - now),
                             "retry_basis": row["retry_basis"], "observation_id": observation_id,
-                            "replayed": True}
+                            "replayed": True, **(reset_receipt(db, now) if separate_reset else {})}
             seconds, basis = retry_seconds(retry_after, now, self.fallback_seconds)
-            if (not isinstance(reset_at, bool) and isinstance(reset_at, (int, float))
-                    and math.isfinite(reset_at) and now <= reset_at <= now + 3153600000):
+            valid_reset = (not isinstance(reset_at, bool) and isinstance(reset_at, (int, float))
+                           and math.isfinite(reset_at) and now <= reset_at <= now + 3153600000)
+            if valid_reset and not separate_reset:
                 seconds = max(reset_at - now, seconds if basis == "provider" else 0)
                 basis = "provider_retry_and_reset" if basis == "provider" else "provider_reset"
             streak = 0
@@ -182,12 +214,24 @@ class RequestBudget:
             db.execute("""UPDATE read_budget SET retry_until=?,last_limited=?,
                 limited=limited+1,retry_basis=?,fallback_streak=? WHERE scope=?""",
                 (until, now, basis, streak, scope))
+            if separate_reset and valid_reset:
+                reset_row = self._row(db, reset_scope)
+                reset_until = max(reset_at, now + 1)
+                reset_basis = "provider_reset" + ("_minimum_delay" if reset_at < now + 1 else "")
+                if reset_row["retry_until"] >= reset_until:
+                    reset_until = reset_row["retry_until"]
+                    reset_basis = reset_row["retry_basis"] or reset_basis
+                db.execute("""UPDATE read_budget SET retry_until=?,last_limited=?,
+                    limited=limited+1,retry_basis=?,fallback_streak=0 WHERE scope=?""",
+                    (reset_until, now, reset_basis, reset_scope))
+            reset_evidence = reset_receipt(db, now) if separate_reset else {}
             if observation_id is not None:
                 db.execute("INSERT INTO provider_limit_observations(observation_id,fingerprint) VALUES(?,?)",
                            (observation_id, fingerprint))
             self._limited += 1
         return {"scope": scope, "retry_not_before": _iso(until),
                 "retry_after_seconds": max(0, until - now), "retry_basis": basis,
+                **reset_evidence,
                 **({"observation_id": observation_id, "replayed": False} if observation_id is not None else {})}
 
     def succeeded(self, scope, *, shared_scopes=()):
@@ -197,10 +241,19 @@ class RequestBudget:
         deadline and its streak must survive an older request's success.
         """
         scopes = tuple({scope, *shared_scopes})
+        placeholders = ",".join("?" for _ in scopes)
+        predicate = ("scope IN (" + placeholders +
+                     ") AND retry_until<=? AND fallback_streak<>0")
+        # Most successful reads have no fallback streak to reset. Do not take
+        # the writer slot for that no-op while another process records work.
+        with self._transaction(write=False) as db:
+            if db.execute("SELECT 1 FROM read_budget WHERE " + predicate + " LIMIT 1",
+                          (*scopes, self.clock())).fetchone() is None:
+                return
+        # End the read transaction before acquiring the writer slot; recheck
+        # current state so a newer live cooldown keeps its deadline and streak.
         with self._transaction() as db:
-            placeholders = ",".join("?" for _ in scopes)
-            db.execute("UPDATE read_budget SET fallback_streak=0 WHERE scope IN (" +
-                       placeholders + ") AND retry_until<=? AND fallback_streak<>0",
+            db.execute("UPDATE read_budget SET fallback_streak=0 WHERE " + predicate,
                        (*scopes, self.clock()))
 
     @staticmethod
@@ -256,9 +309,12 @@ class RequestBudget:
             db.execute("DELETE FROM provider_leases WHERE scope=? AND expires_at<=?", (scope, now))
             row = db.execute("SELECT * FROM provider_leases WHERE scope=? AND holder=?", (scope, holder)).fetchone()
             if row is None:
-                active = db.execute("SELECT COUNT(*),MIN(expires_at) FROM provider_leases WHERE scope=?", (scope,)).fetchone()
-                if active[0] >= policy["capacity"]:
-                    raise RequestDeferred(scope, active[1], "capacity_exhausted")
+                active = db.execute("SELECT expires_at FROM provider_leases WHERE scope=? "
+                                    "ORDER BY expires_at", (scope,)).fetchall()
+                if len(active) >= policy["capacity"]:
+                    # A capacity reduction can require several leases to expire.
+                    until = active[len(active) - policy["capacity"]]["expires_at"]
+                    raise RequestDeferred(scope, until, "capacity_exhausted")
                 db.execute("INSERT INTO provider_leases(scope,holder,lease_id,expires_at) VALUES(?,?,?,?)",
                            (scope, holder, uuid.uuid4().hex, now + ttl_seconds))
                 row = db.execute("SELECT * FROM provider_leases WHERE scope=? AND holder=?", (scope, holder)).fetchone()
@@ -292,7 +348,7 @@ class RequestBudget:
 
     def lease_status(self, scope, *, shared_scopes=()):
         self._lease_name(scope)
-        with self._transaction() as db:
+        with self._transaction(write=False) as db:
             now = self.clock()
             policy = db.execute("SELECT capacity FROM provider_capacity WHERE scope=?", (scope,)).fetchone()
             active = db.execute("SELECT holder,expires_at FROM provider_leases WHERE scope=? AND expires_at>? "
@@ -304,17 +360,22 @@ class RequestBudget:
             elif policy is None:
                 reason = "capacity_unconfigured"
             elif len(active) >= policy["capacity"]:
-                reason, until = "capacity_exhausted", active[0]["expires_at"]
+                reason = "capacity_exhausted"
+                until = active[len(active) - policy["capacity"]]["expires_at"]
             return {"scope": scope, "capacity": policy["capacity"] if policy else None,
                     "active": len(active), "admission_available": reason is None,
                     "reason": reason, "retry_not_before": _iso(until),
                     "leases": [{"holder": row["holder"], "expires_at": _iso(row["expires_at"])} for row in active]}
 
     def metrics(self):
-        with self._transaction() as db:
+        with self._transaction(write=False) as db:
             now = self.clock()
             scopes = []
-            for row in db.execute("SELECT * FROM read_budget ORDER BY retry_until DESC,scope LIMIT 100"):
+            for row in db.execute("""SELECT * FROM read_budget
+                    ORDER BY CASE WHEN retry_until>? THEN 0 ELSE 1 END,
+                    CASE WHEN retry_until>? THEN retry_until
+                         ELSE MAX(COALESCE(last_attempt,0),COALESCE(last_limited,0)) END DESC,
+                    scope LIMIT 100""", (now, now)):
                 until = row["retry_until"]
                 scopes.append({"scope": row["scope"],
                     "state": "rate_limited" if now < until else "ready",

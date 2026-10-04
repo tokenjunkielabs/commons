@@ -1,14 +1,16 @@
-# WRF 5417 — Domenico Santoro research-teaming call brief
+# WRF 5417 — Historical research-teaming call brief
 
-> **INTERNAL / SUPPORT-ONLY.** This is call preparation, not a proposal submission, Western University commitment, named-team authorization, cost-share commitment, or permission to contact anyone else. The live carrier remains `HOLD / NOT SUBMITTED / $0 BOOKED` until the existing readiness gates clear.
+> **ARCHIVED / NO CONTACT ACTION.** This brief records preparation before the later explicit decline. Domenico Santoro / Western remains **DECLINED / HARD DNR** for this pursuit. The September 14, 2026 submission window has passed; the canonical disposition is **DEADLINE EXPIRED / NO PROVEN SUBMISSION / NOT AUTHORIZED**. The questions and agenda below are retained technical history, not a live meeting, follow-up plan or participant commitment.
 
-## Mailbox / trust state
+## Current disposition — reconciled October 4, 2026
 
-Dr. Domenico Santoro replied that he was interested in hearing the idea and offered same-day call windows. Parallel automation then sent multiple scheduling replies within seconds, prompting him to ask whether the outreach was a scam. One cleanup reply has already been sent acknowledging the automation collision, apologizing, withdrawing the noisy scheduling messages, and stating that Bryce will wait for Dr. Santoro to confirm a time or send a call link.
+The canonical [terminal partner disposition](https://github.com/woahwhattheheck/commons/issues/13845#issuecomment-5658237574) and [contact restriction](https://github.com/woahwhattheheck/commons/issues/13845#issuecomment-5658251151) supersede the earlier interested/scheduling state. Do not use this brief to send a reminder, reschedule, persuade, request a referral, contact an alternate Western recipient, or name Santoro/Western as a participating organization. The existing record permits reconsideration only after a materially new inbound human event explicitly reopens the conversation; this document read establishes no reopening event and performed no mailbox refresh.
 
-**Single-writer rule:** do not send another scheduling, reassurance, reminder, deck, attachment, calendar invite, or follow-up unless Dr. Santoro replies again or Bryce explicitly takes over the thread. The call is not assumed booked merely because earlier messages proposed times.
+The [post-deadline disposition](https://github.com/woahwhattheheck/commons/issues/13845#issuecomment-5675066130) records no proven submission. Original proposal ownership remains Z-CassiniHarbor-913841-K4N7. The buyer's separate owner-as-PI interpretation and the completed readiness-authority repair remain unchanged; neither establishes a participant, finance, utility-consent, cost-share or submission fact.
 
-If the call happens, begin with one sentence only: *“Thanks for still considering the conversation after the duplicate emails; I’m keeping this focused on whether the research idea and a truthful role make sense.”* Then move immediately to substance.
+## Historical preparation boundary
+
+Everything below through the public source anchors describes the earlier proposed discussion. It remains available as generic research planning and prior-art context. It is not evidence that a call happened, a role was agreed, a person or institution consented, or any current action is authorized.
 
 ## Why this conversation matters
 
@@ -116,7 +118,7 @@ If only five questions fit, use these:
 | Advisor/subcontractor only | Define deliverables/hours/rate later; do not invent effort or budget now |
 | Referral offered | Contact the referred person only after the referral is actually made or permission is explicit |
 | No participation | Record no; do not name Western/Dr. Santoro; continue partner route |
-| No reply after cleanup | Do not chase immediately; preserve trust and let the existing owner decide any later follow-up |
+| Earlier no-reply state | Superseded by the explicit decline above; no follow-up action remains |
 
 ## Non-negotiable boundaries
 
@@ -132,6 +134,6 @@ If only five questions fit, use these:
 - Antonini G, Pearce JM, Berruti F, Santoro D. *A novel camera-based sensor for real-time wastewater quality monitoring.* Water Practice & Technology (2024). DOI: `10.2166/wpt.2024.211`
 - Existing internal proposal architecture: `opportunities/wrf_5417_camera_ai/proposal_draft.md`
 
-## Internal handoff note
+## Internal handoff — historical carrier
 
-The call should update live issue `#13845` with facts only: response status, agreed/declined role, permissions, named institutional approver if supplied, requested follow-up, and which readiness gates changed. Do not convert conversational enthusiasm into `PROVEN` evidence without the required documents/consents.
+Use the current disposition above when consuming this archived brief. Preserve the closed canonical issue and original owner; do not reopen the pursuit or convert the historical agenda into PROVEN team, consent, finance or submission evidence. No call, contact, portal action or readiness execution was performed for this document correction.

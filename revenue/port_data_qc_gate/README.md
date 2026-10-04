@@ -2,6 +2,20 @@
 
 This package is a buyer-neutral, offline evidence primitive for data-consolidation and reporting work. It was motivated by a bounded integration-QA teaming seam around Port of Tacoma / Northwest Seaport Alliance RFP **072026-1047**, but it contains no buyer data, maritime credentials, proposal language, or buyer-specific implementation.
 
+## Current procurement source context
+
+The [2026-10-04 source observation](source_updates/20261004/SOURCE_CURRENTNESS.md)
+links the original RFP, formal addenda and the current aggregate Q&A07 to this
+reusable gate. It distinguishes procurement scope and supplier responsibilities
+from the gate's evidence-only result.
+
+An approved policy and `capture_complete=true` are supplied evidence. This engine
+does not establish that all required terminal feeds have been obtained, that EDI
+mappings are complete, that a hosting design satisfies the Port's requirements, or
+that a proposed supplier is qualified. Those facts need their own source and
+owner review. The dated minimal-shape example below remains an illustration;
+current freshness is decided by the process-owned API using the actual input.
+
 ## Temporal authority
 
 The public current API owns its clock.

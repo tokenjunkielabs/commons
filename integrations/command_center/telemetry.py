@@ -28,6 +28,7 @@ def _linux_process_limits():
         "memory_current_bytes": None,
         "memory_headroom_bytes": None,
         "memory_events": [],
+        "memory_stats": [],
         "cgroup_version": None,
         "cgroup_status": "unavailable",
         "controller_status": {"cpu": "unavailable", "memory": "unavailable"},
@@ -38,7 +39,9 @@ def _linux_process_limits():
             "Memory headroom is limit minus current usage, shared with descendants "
             "and excluding reclaim. Ancestors outside the visible mount are unmeasured. "
             "Memory event counters are cumulative, not attributed to a command. "
-            "Hierarchical counters overlap and must not be summed across ancestors."
+            "Hierarchical counters overlap and must not be summed across ancestors. "
+            "Memory stat byte fields overlap; current usage is not process heap, "
+            "and reclaimable or inactive bytes are not guaranteed available capacity."
         ),
     }
     try:
@@ -166,6 +169,29 @@ def _linux_process_limits():
             except ValueError:
                 result["read_errors"].append({"source": str(event_path),
                                               "error": "invalid_memory_events"})
+        stat_path = directory / "memory.stat"
+        stats = read(stat_path)
+        if stats is not None:
+            try:
+                counters = {}
+                for line in stats.splitlines():
+                    name, count = line.split()
+                    if name in counters:
+                        raise ValueError("duplicate memory stat counter")
+                    counters[name] = integer(count)
+                if not counters:
+                    raise ValueError("empty memory stat counters")
+                result["memory_stats"].append({
+                    "source": str(stat_path),
+                    "scope": "cgroup_and_descendants",
+                    "bytes": {name: counters[name] for name in (
+                        "anon", "file", "kernel", "shmem", "inactive_file", "active_file",
+                        "file_dirty", "file_writeback", "slab_reclaimable", "slab_unreclaimable",
+                    ) if name in counters},
+                })
+            except ValueError:
+                result["read_errors"].append({"source": str(stat_path),
+                                              "error": "invalid_memory_stats"})
         if directory == mount:
             break
         directory = directory.parent

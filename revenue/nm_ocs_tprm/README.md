@@ -1,14 +1,20 @@
 # New Mexico OCS2026.01 — TPRM technical carrier
 
-This directory is a **buyer-shaped technical reference carrier** for New Mexico Office of Cybersecurity opportunity **OCS2026.01, Cyber Third-Party Risk Management**.
+This directory is a **technical reference carrier** for New Mexico Office of Cybersecurity opportunity **OCS2026.01, Cyber Third-Party Risk Management**.
 
 It is not a quote, proposal submission, legal opinion, compliance certification, eligibility representation, or evidence of an award. The current controlling RFQ bytes have not been bound into this repository, so direct-prime eligibility remains unverified.
 
-## Why this exists
+## Source checkpoint — October 4, 2026
 
-Public/current procurement mirrors describe a project to design, develop, and deliver a scalable, multi-tenant third-party risk-management framework, program, and toolset for New Mexico SLCGP local entities, including higher education, county, municipal, and tribal organizations.
+The official RFQ and dated Q&A text are now located and read. [`SOURCE_CURRENTNESS_20261004.md`](SOURCE_CURRENTNESS_20261004.md) records the buyer-scope correction, source locators and remaining gaps; [`source_observation_20261004.json`](source_observation_20261004.json) records coverage. This document update does not supply raw PDF identities, supplier evidence or a new qualification result.
 
-The technical themes reported consistently across current sources are:
+The original build in [#15842 / #15867](https://github.com/woahwhattheheck/commons/pull/15867), ZZ-KESTREL-M8D3 recovery and ZZ-IBIS-93C-R3 repair/review remain credited. Engine behavior and accepted proof are unchanged.
+
+## Original carrier design
+
+The September 18 mirror-based source generation described a project to design, develop, and deliver a scalable, multi-tenant third-party risk-management framework, program, and toolset for New Mexico SLCGP local entities, including higher education, county, municipal, and tribal organizations.
+
+The original reference design drew on these reported themes; this list is historical context for the implementation:
 
 - third-party discovery and inventory;
 - vendor tiering and assessment;
@@ -20,7 +26,7 @@ The technical themes reported consistently across current sources are:
 - legal / contractual gap analysis; and
 - a functional multi-tenant TPRM toolset.
 
-The public source ledger is in [`PUBLIC_SOURCE_LEDGER.json`](PUBLIC_SOURCE_LEDGER.json). It deliberately classifies all currently bound opportunity sources as secondary/indexed evidence and keeps `controlling_rfq_bound=false`.
+[`PUBLIC_SOURCE_LEDGER.json`](PUBLIC_SOURCE_LEDGER.json) remains the unchanged September 18 observation, with its secondary-source classification and `controlling_rfq_bound=false`. The new official text observation is separate. The retained public-only qualification example is still a historical, incomplete input.
 
 ## What ships
 
@@ -66,18 +72,13 @@ No network or provider side effects exist in the reference engine or CLI.
 
 ## Specialist workshare
 
-[`WORKSHARE.md`](WORKSHARE.md) defines a bounded paid specialist role that a qualified prime can consume without transferring procurement/legal authority to this technical carrier.
-
-In short: TJLabs can contribute toolset engineering, evidence lineage, tenant isolation, assessment/monitoring workflows, test/evaluation harnesses, implementation documentation, and training evidence. Legal opinions, ordinance drafting as legal advice, procurement certifications, prime credentials, buyer submission, and signatures remain outside the technical workshare.
+[`WORKSHARE.md`](WORKSHARE.md) maps the source checkpoint to the current internal specialist posture and labels the engineering workstreams as reference capabilities. An RFQ response must identify its actual deliverables and qualified personnel; the existence of this engine does not establish a buyer purchase, a completed deliverable or procurement/legal authority.
 
 ## Run locally
 
 From repository root:
 
 ```bash
-python -m unittest discover -s revenue/nm_ocs_tprm/tests -p 'test_*.py' -v
-python -O -m unittest discover -s revenue/nm_ocs_tprm/tests -p 'test_*.py' -v
-python -m compileall -q revenue/nm_ocs_tprm
 python revenue/nm_ocs_tprm/verify_manifest.py
 ```
 
@@ -107,11 +108,11 @@ Nothing in this directory authorizes:
 
 Those require separate current evidence and owner/provider authority.
 
-## Current source trail
+## Historical source trail
 
 - ContractRadar: https://contractradar.io/posts/4eaf9a06-6996-410b-8f81-8a0c24b507c8
 - HigherGov: https://www.highergov.com/sl/contract-opportunity/nm-cyber-third-party-risk-management-74052876/
 - CLEATUS RFQ index: https://www.cleat.ai/government/contracts/cyber-third-party-risk-management-z5p9
 - Craxy cached-document index: https://craxy.ai/find-rfps/cmu55x93t01pbyd0x67celjpb
 
-The opportunity is reported as due **2026-10-16**. The first future capture step is to bind the exact controlling RFQ and amendments, then run the qualification gate before any direct-prime representation or external contact.
+The dated checkpoint records the official response date and remaining scope questions. Exact PDF binding and any subsequently published Q&A remain source work. Supplier evidence and an actual new qualification input/output are absent; the historical example is unchanged.

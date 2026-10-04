@@ -1,6 +1,6 @@
 # Erdős 978(iii): finite CRT sieve continuation
 
-Target: prove that `n^4 + 2` is squarefree for infinitely many natural numbers.  The current Conjectures.io task is `fc-8432eac9-parts-iii-778ca9541c-formalized-v1`, commitment `sha256:b80bef9dde235afd4e086e4500d7be4747b878494fb94a14589c639decefc67a`, source-type SHA-256 `3e683925ba54f309a76278d99386826c87b151bb5cb1df828d0e3643f0e240fa`.
+Target: prove that `n^4 + 2` is squarefree for infinitely many natural numbers.  The original #16072 carrier records Conjectures.io task `fc-8432eac9-parts-iii-778ca9541c-formalized-v1`, commitment `sha256:b80bef9dde235afd4e086e4500d7be4747b878494fb94a14589c639decefc67a`, source-type SHA-256 `3e683925ba54f309a76278d99386826c87b151bb5cb1df828d0e3643f0e240fa`.
 
 ## What is new here
 
@@ -36,3 +36,31 @@ python finite_crt_sieve.py --receipt > receipt.json
 ## Formalization handoff
 
 `LEAN_HANDOFF.md` gives a sponsor-shaped decomposition for the genuinely new CRT composition lemmas.  It is intentionally marked **UNEXECUTED** in this environment.  A sponsor submission should happen only after the file is turned into a self-contained `Contribution.*` Lean script, elaborated against the exact pinned task environment, and run through the current contribution checks.
+
+## Connected CRT index and retained local data
+
+[Exact CRT addressing](CONNECTED_CRT_INDEX.md) documents the dependency-free
+`BigInt` interface in [finite_crt_index.cjs](finite_crt_index.cjs).
+[The retained prime block](prime_block_252_1024.json) contains complete local
+obstruction/lift records for `251 < p <= 1024` and actual rank/select use over
+their 654-digit product modulus. This is a reusable API and data continuation;
+the guide credits the prior report's overlapping calculations. The accepted
+prime range through 251 and the original finite/global evidence boundary remain
+as recorded above.
+
+## Ordinary numerical interval navigation
+
+[The numerical interval guide](NUMERIC_RESIDUE_INTERVAL_INDEX.md) documents
+[residue_interval_index.cjs](residue_interval_index.cjs). It compiles forbidden
+congruence hits in a finite interval and indexes the complementary gaps in
+increasing integer order. Its work budget bounds emitted congruence hits, and
+the saved exclusions can initialize a fresh runtime without recompilation.
+
+[The complete interval dataset](residue_interval_45773612811_45775397187.json)
+uses the retained 118 prime rules above on the inclusive interval
+`[45,773,612,811, 45,775,397,187]`. Its 816 distinct exclusions have explicit
+proper square-divisor witnesses; the remaining 1,783,561 candidates occupy
+817 maximal gaps, all retained with numerical rank ranges. The endpoint values
+come from [Commons #31166](https://github.com/woahwhattheheck/commons/pull/31166).
+They determine this consumer's interval and confer no quartic squarefreeness
+property. The result concerns exactly the selected primes `251 < p <= 1024`.

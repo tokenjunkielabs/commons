@@ -10,7 +10,7 @@ It does not grant, infer or proxy any GitHub write authority. The upstream provi
 
 - request-key singleflight so identical reads have one upstream owner;
 - a short cross-process burst fence before distinct calls;
-- separate primary `core` and `search` cooldown buckets;
+- separate primary `core`, issue/PR `search`, and `code_search` cooldowns;
 - a principal-wide `secondary` cooldown when GitHub reports a secondary limit;
 - persisted `Retry-After` / `X-RateLimit-Reset` backoff that never shortens an existing cooldown;
 - successful final-quota responses preserved while subsequent uncached reads in that primary bucket pause until reset;
@@ -20,9 +20,19 @@ It does not grant, infer or proxy any GitHub write authority. The upstream provi
 
 The coordinator is advisory infrastructure for processes that actually route reads through it. It cannot retroactively throttle unrelated clients that bypass the gateway.
 
+GitHub distinguishes [issue/PR search and code-search rate resources](https://docs.github.com/en/rest/rate-limit/rate-limit#about-rate-limits). The local primary buckets are `issue_search` and `code_search`, so an exhausted code-search quota does not pause issue/PR discovery, or vice versa. An existing legacy `search` cooldown remains a floor for both resources until its recorded deadline expires, including late completions from legacy leases; no database rewrite is needed. Restart workers with the updated source to use the split buckets. Secondary cooldowns and the shared burst interval still apply across all routes.
+
 Repository owner and name are normalized to lowercase before request hashing. Case variants therefore share one in-flight read and cached response, matching GitHub's repository identity. File paths, refs, branch names and search text retain their original case.
 
-Lease and cache decisions use the time after obtaining SQLite's write transaction, so waiting for another writer does not consume a newly issued lease or admit an expired completion. Completion retains its response-observation timestamp for cached payload freshness and provider Retry-After/reset deadlines, then measures lease expiry and remaining cooldown after the lock wait. JSON serialization and completed-response decoding remain outside the write transaction.
+Issue-list requests also normalize GitHub's [documented defaults](https://docs.github.com/en/rest/issues/issues#list-repository-issues) (`state=open`, `sort=created`, `direction=desc`), so omitted and explicit defaults share the same in-flight read and cache entry.
+
+Completed cache hits read the block state and cached payload in one SQLite read snapshot without taking the writer slot. JSON decoding follows the end of that snapshot. A miss, an expired entry, or `max_age_seconds=0` uses the existing write transaction and rechecks the current state before granting a lease. Expiry cleanup occurs on that path; retained entries stay bounded by the existing completion limit. A cached observation may precede a concurrent writer's commit, as with any SQLite snapshot.
+
+Lease-acquisition decisions use the time after obtaining SQLite's write transaction, so waiting for another writer does not consume a newly issued lease or admit an expired completion. Completion retains its response-observation timestamp for cached payload freshness and provider Retry-After/reset deadlines, then measures lease expiry and remaining cooldown after the lock wait. JSON serialization and completed-response decoding remain outside the write transaction.
+
+When a response reports both secondary throttling and an exhausted primary quota, the coordinator retains both cooldowns. The principal-wide secondary pause follows Retry-After, while the exhausted primary bucket retains the later of Retry-After and its reset deadline. A shorter secondary pause cannot reopen that primary bucket early, including after a process restart or an expired lease completion.
+
+`Retry-After` accepts both integer seconds and an [HTTP-date](https://www.rfc-editor.org/rfc/rfc9110.html#name-retry-after). Date delays use the response-observation clock, with UTC for the obsolete zone-less HTTP-date form, and round up to the next whole second. Valid Retry-After waits are retained in full, including those longer than one day; malformed values keep the existing fallback. This uses the same persisted cooldowns and does not add retries or polling. Date accuracy depends on the caller's UTC clock.
 
 ## Run
 
@@ -51,6 +61,8 @@ Example local request body:
 ```
 
 Possible broker states are `FETCHED`, `CACHED`, `BUSY`, `COOLDOWN`, `AUTH_BLOCKED`, `UPSTREAM_ERROR`, and `DISCARDED`. Every envelope includes `provider_write_authority: false`.
+
+For an in-flight duplicate, `BUSY` advises a one-second local cache recheck. The original lease remains active until completion or expiry, so rechecking cannot start another upstream request while its owner is fetching. Provider `COOLDOWN` responses retain their full retry/reset delay.
 
 ## Supported upstream reads
 

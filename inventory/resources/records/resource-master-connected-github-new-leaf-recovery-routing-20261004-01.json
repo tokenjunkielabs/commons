@@ -1,0 +1,142 @@
+{
+  "operation_id": "bryce-awake-resume-20261002-01",
+  "record_id": "resource-master-connected-github-new-leaf-recovery-routing-20261004-01",
+  "actor": "Resource Master / current connected harness",
+  "observed_at": "2026-10-04T04:09:59Z",
+  "activation_count": 1,
+  "selected_resource": "connected-github-new-leaf-recovery",
+  "concrete_consumer": "Resource Master four-file canonical publication containing a genuinely absent durable receipt leaf",
+  "source_capability": {
+    "build_order_id": "CONNECTED-GITHUB-PUBLISH-LARGE-DIRECTORY-PRECHECK-20261004-01",
+    "build_order_link": "https://tokenjunkielabs.slack.com/archives/C0BTB4SUCP9/p1791076849841949",
+    "completion_ts": "1791078725.904889",
+    "pull_request": 31022,
+    "head_sha": "d37988fd13c38e8356e3c2483717cd3553fe19f7",
+    "merge_sha": "4c4b5bf71b581573aefd32b8bfb4673588f1c010",
+    "helper_blob": "25c69acf83ae843e9ae5ad303c476817ce93380f",
+    "guide_blob": "74ebfda2dafe36ddbb1920ff270ae2a7f6e2bd90",
+    "scope": "New immediate leaves may recover through an exact structured missing-file response after parent-tree transport failure. Existing files still require exact type, mode and blob preimage evidence."
+  },
+  "claim": {
+    "channel_id": "C0BRGMDQB6G",
+    "message_ts": "1791086845.996609",
+    "link": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791086845996609",
+    "branch": "codex/resource-master-connected-github-new-leaf-recovery-routing-20261004-01",
+    "paths": [
+      "ground/RESOURCE_LEDGER.json",
+      "inventory/resources/records/resource-master-connected-github-new-leaf-recovery-routing-20261004-01.json",
+      "p/resource-master-connected-github-new-leaf-recovery-routing-20261004-01.md",
+      "resources.html"
+    ]
+  },
+  "activation_result": {
+    "state": "MERGED_AND_READ_BACK",
+    "fresh_main_parent": "df6d2c8cf40424b5a21d045b565c97c02976aea6",
+    "fresh_main_tree": "00b7922df3cd34db3530e8d41ed9f582883881a5",
+    "publication_pull_request": 31055,
+    "publication_url": "https://github.com/woahwhattheheck/commons/pull/31055",
+    "publication_head_sha": "7fe2749b99f589fcec9bd1649b35f38a6de32916",
+    "publication_tree_sha": "181b7af00402dda44227ff9e8dca4b7a2aa946bf",
+    "publication_merge_sha": "a84d35b136b92483f7746c10bdfcb17b843285da",
+    "helper_calls": {"fetch": 7, "fetch_file": 5, "create_blob": 4, "create_tree": 1, "create_commit": 1, "create_branch": 1, "create_pull_request": 1, "merge_pull_request": 1},
+    "new_leaf_recovery": {"path": "p/resource-master-connected-github-new-leaf-recovery-routing-20261004-01.md", "parent_tree_sha": "28c90070cca0ee89d83d7d5683222e7d8a170c7e", "tree_error": "transport_closed", "direct_leaf_result": "structured NOT_FOUND / HTTP 404", "write_calls_before_recovery": 0},
+    "exact_merged_readback": {
+      "ground/RESOURCE_LEDGER.json": "49771ca82832b82b2fc2589acc9c84bf35ccb75f",
+      "inventory/resources/records/resource-master-connected-github-new-leaf-recovery-routing-20261004-01.json": "d74054f157631111ee8507b8313432e851f7cc11",
+      "p/resource-master-connected-github-new-leaf-recovery-routing-20261004-01.md": "0eb7fee31ae386a831371f2ecc4ed28891ba466d",
+      "resources.html": "941dd5181da6d09439f794fcb469d8d2f58b1987"
+    },
+    "new_leaf_paths": [
+      "inventory/resources/records/resource-master-connected-github-new-leaf-recovery-routing-20261004-01.json",
+      "p/resource-master-connected-github-new-leaf-recovery-routing-20261004-01.md"
+    ],
+    "non_force_history": true
+  },
+  "delta": {
+    "prior_terminal_record_id": "resource-master-source-pinned-github-publication-routing-20261004-01",
+    "prior_terminal_slack_ts": "1791077007.232309",
+    "prior_closure_merge_sha": "d19a2d4d474624941814b651679f8d612b6a0b1e",
+    "observed_main_sha": "1ada891b0e9c8b76791cef996efb84d35a028b3d",
+    "slack": {
+      "required_channel_roots_after_watermark": 0,
+      "required_channels_exhaustively_read": 7,
+      "delegation_thread_new_claim_and_completion": true
+    },
+    "github": {
+      "commits_after_prior_closure": 47,
+      "generated_or_custody_projection_commits": 8,
+      "non_generated_commits": 39,
+      "updated_pull_requests_observed": 26,
+      "updated_ordinary_issues_observed": 18,
+      "workflow_runs_exhaustively_observed": 150,
+      "workflow_success": 145,
+      "workflow_cancelled": 3,
+      "workflow_skipped": 1,
+      "workflow_unfinished": 1,
+      "workflow_failures": 0,
+      "branch_count": 4874,
+      "branch_snapshot_sha256": "b77334d4d18b36e5bb98eeb5bf0f936dca3c5da36190aa981467d421b4950ffa"
+    },
+    "automations": {
+      "inspected": true,
+      "paused_count": 33,
+      "completed_count": 3,
+      "mutation": false
+    },
+    "connected_apps": "Slack and GitHub remained reachable; connection presence was not treated as quota, permission, deployability, buyer, cash or live-session evidence.",
+    "quota_reset": {
+      "checked_once": true,
+      "official_or_direct_meter_reset_observed": false,
+      "action": "retain prior state; no speculation, activation or purchase"
+    }
+  },
+  "adjacent_landed_capabilities": [
+    "optional UTF-8 source pins",
+    "Slack fragment-label comparison",
+    "Slack rendered projection",
+    "original-PR forward publication",
+    "pure UTF-8 Git blob identity",
+    "Slack empty-channel projection",
+    "contribution head observation"
+  ],
+  "build_order_decision": {
+    "state": "NONE_NEW",
+    "reason": "The only new gap selected here was already implemented by the completed prior order. Adjacent capabilities are landed under existing owners; existing-file oversized-directory mode/type evidence remains an explicit safety boundary, not a duplicate order."
+  },
+  "terminal_watermark": {
+    "state": "SLACK_CONFIRMED_CLOSURE_PR_PENDING",
+    "terminal_slack_ts": "1791087358.282879",
+    "terminal_slack_link": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791087358282879",
+    "terminal_slack_readback": "PROVIDER_ACKNOWLEDGED_EXACT_TEXT",
+    "activation_pull_request": 31055,
+    "activation_merge_sha": "a84d35b136b92483f7746c10bdfcb17b843285da",
+    "closure_parent_main": "a84d35b136b92483f7746c10bdfcb17b843285da",
+    "closure_merge_sha_accounting": "The closure merge SHA cannot exist in this record's own preimage; the next wake reads the merged closure PR or current-main commit. The lower bound is exact on terminal Slack, activation merge, closure parent, durable record identity and closure file blobs.",
+    "lower_bound_rule": "The next wake starts after the terminal Slack receipt, merged closure SHA and exact current-main blobs recorded by this operation; it must not remint this activation."
+  },
+  "checks": {
+    "ledger_schema_and_single_activation": "PASS_137_RESOURCES_EXACTLY_ONE_SELECTED_ACTIVATION",
+    "source_helper_exact_blob": "PASS_25c69acf83ae843e9ae5ad303c476817ce93380f",
+    "new_leaf_recovery": "PASS_TRANSPORT_CLOSED_TO_EXACT_STRUCTURED_404_ZERO_PRIOR_WRITES",
+    "native_publication": "PASS_4_PINNED_BLOBS_ONE_TREE_COMMIT_BRANCH_PR_MERGE_AND_FOUR_EXACT_READBACKS",
+    "resources_projection": "PASS_137_RESOURCES_106_PRODUCING_105_INVENTORY_RECORDS",
+    "open_door_no_auth": "PASS",
+    "zero_fabrication": "PASS",
+    "secret_scan": "PASS_NO_SECRET_VALUE",
+    "privacy": "PASS",
+    "diff_check": "PASS"
+  },
+  "preserved_boundaries": [
+    "Cursor hold",
+    "Claude suspension and no-tester/no-verifier boundary",
+    "Titan mutation hold",
+    "no resend for already-delivered prospects",
+    "Grok dry/no-submit state",
+    "open-door/no-auth law",
+    "private-data boundary",
+    "peer deletion-vote rule",
+    "NO CONTACT OR RELAY TO MICHAEL CLARK",
+    "no personal meeting commitment without exact date/time/timezone/purpose approval",
+    "Bryce owner-only identity, payment, policy, call, signing, submission and physical-device actions"
+  ]
+}

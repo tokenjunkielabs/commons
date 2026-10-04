@@ -1,0 +1,263 @@
+{
+  "schema": "port-data-qc-source-observation/v1",
+  "operation_id": "PORT-TACOMA-QA07-SOURCE-20261004-84A3",
+  "observed_at": "2026-10-04T04:11:38Z",
+  "repository": "woahwhattheheck/commons",
+  "package_path": "revenue/port_data_qc_gate",
+  "source_procurement": "072026-1047",
+  "observation_kind": "DOCUMENTATION_ONLY_SOURCE_BINDING",
+  "source_documents": [
+    {
+      "id": "board",
+      "url": "https://www.portoftacoma.com/business/contracting/procurement/data-consolidation-and-reporting-services-2026",
+      "issued_on": null,
+      "read_mode": "official_web_text",
+      "physical_page_count": null,
+      "observed_text_line_count": 59,
+      "text_read_complete": true,
+      "raw_byte_count": null,
+      "raw_sha256": null,
+      "raw_git_blob": null,
+      "raw_source_published": false
+    },
+    {
+      "id": "rfp",
+      "url": "https://s3.us-west-2.amazonaws.com/portoftacoma.com.if-us-west-2-or/s3fs-public/2026-08/072026-1047_rfp_0.pdf",
+      "issued_on": null,
+      "read_mode": "official_web_text",
+      "physical_page_count": 24,
+      "observed_text_line_count": 1478,
+      "text_read_complete": true,
+      "raw_byte_count": null,
+      "raw_sha256": null,
+      "raw_git_blob": null,
+      "raw_source_published": false
+    },
+    {
+      "id": "addendum_01r1",
+      "url": "https://s3.us-west-2.amazonaws.com/portoftacoma.com.if-us-west-2-or/s3fs-public/2026-09/072026-1047_addendum_01r1.pdf",
+      "issued_on": "2026-09-04",
+      "read_mode": "official_web_text",
+      "physical_page_count": 1,
+      "observed_text_line_count": 24,
+      "text_read_complete": true,
+      "raw_byte_count": null,
+      "raw_sha256": null,
+      "raw_git_blob": null,
+      "raw_source_published": false
+    },
+    {
+      "id": "addendum_02",
+      "url": "https://s3.us-west-2.amazonaws.com/portoftacoma.com.if-us-west-2-or/s3fs-public/2026-09/072026-1047_addendum_02.pdf",
+      "issued_on": "2026-09-15",
+      "read_mode": "official_web_text",
+      "physical_page_count": 9,
+      "observed_text_line_count": 898,
+      "text_read_complete": true,
+      "raw_byte_count": null,
+      "raw_sha256": null,
+      "raw_git_blob": null,
+      "raw_source_published": false
+    },
+    {
+      "id": "addendum_03",
+      "url": "https://s3.us-west-2.amazonaws.com/portoftacoma.com.if-us-west-2-or/s3fs-public/2026-10/072026-1047_addendum_03.pdf",
+      "issued_on": "2026-10-02",
+      "read_mode": "official_web_text",
+      "physical_page_count": 10,
+      "observed_text_line_count": 456,
+      "text_read_complete": true,
+      "raw_byte_count": null,
+      "raw_sha256": null,
+      "raw_git_blob": null,
+      "raw_source_published": false
+    },
+    {
+      "id": "qa07",
+      "url": "https://s3.us-west-2.amazonaws.com/portoftacoma.com.if-us-west-2-or/s3fs-public/2026-10/072026-1047_q_and_a_07.pdf",
+      "issued_on": "2026-10-02",
+      "read_mode": "official_web_text",
+      "physical_page_count": 29,
+      "observed_text_line_count": 1642,
+      "text_read_complete": true,
+      "raw_byte_count": null,
+      "raw_sha256": null,
+      "raw_git_blob": null,
+      "raw_source_published": false
+    }
+  ],
+  "qa_coverage": {
+    "source_id": "qa07",
+    "first_entry": 1,
+    "last_entry": 165,
+    "entry_count": 165,
+    "aggregate": true,
+    "prior_generations_available": false,
+    "all_answers_newly_changed": false,
+    "question_references": [
+      {
+        "questions": "006/031/137/141",
+        "physical_pages": "1, 4, 16–17"
+      },
+      {
+        "questions": "028/081/109/126",
+        "physical_pages": "4, 9, 11, 13"
+      },
+      {
+        "questions": "033",
+        "physical_pages": "4"
+      },
+      {
+        "questions": "018/030/077",
+        "physical_pages": "3, 4, 8"
+      },
+      {
+        "questions": "074/107/112/113",
+        "physical_pages": "8, 11–12"
+      },
+      {
+        "questions": "011/122",
+        "physical_pages": "2, 13"
+      },
+      {
+        "questions": "124/125/134",
+        "physical_pages": "13, 15"
+      },
+      {
+        "questions": "127",
+        "physical_pages": "14"
+      },
+      {
+        "questions": "118",
+        "physical_pages": "12"
+      }
+    ]
+  },
+  "schedule": {
+    "source_ids": [
+      "board",
+      "addendum_01r1"
+    ],
+    "proposal_date": "2026-10-09",
+    "proposal_time_display": "2:00 PM",
+    "proposal_timezone": null,
+    "proposal_utc": null,
+    "questions_date": "2026-09-18",
+    "questions_time_display": "2:00 PM",
+    "new_deadline_change": false,
+    "historical_september13_schedule_preserved": true
+  },
+  "unread_sources": [
+    {
+      "board_document": "attachment_d-cost_breakdown.docx",
+      "state": "NOT_READ"
+    },
+    {
+      "board_document": "attachment_e_requirements_r1.xlsx",
+      "state": "NOT_READ"
+    }
+  ],
+  "source_limits": {
+    "raw_byte_binding": false,
+    "visual_redline_review": false,
+    "screenshot_attempt_result": "TEXT_PLACEHOLDERS_ONLY",
+    "full_packet_compliance_review": false
+  },
+  "unresolved_references": [
+    {
+      "id": "license_duration",
+      "references": [
+        "qa07 Q118 p12",
+        "addendum_03 section 6 p3"
+      ],
+      "disposition": "UNRESOLVED"
+    },
+    {
+      "id": "notice_period_formatting",
+      "references": [
+        "addendum_03 section 14(d) p5"
+      ],
+      "disposition": "UNRESOLVED_WITHOUT_VISUAL_READING"
+    },
+    {
+      "id": "renumbered_contract_cross_references",
+      "references": [
+        "addendum_03 sections 19,20,24"
+      ],
+      "disposition": "NO_AUTOMATIC_RENUMBERING_OR_LEGAL_ACCEPTANCE"
+    }
+  ],
+  "repository_provenance": {
+    "inspected_main": "1ada891b0e9c8b76791cef996efb84d35a028b3d",
+    "original_source_pr": 13665,
+    "original_source_merge": "954ad495f1f154dbc44926cfe6462c0e09e4e5f7",
+    "accepted_repair_pr": 14426,
+    "accepted_repair_merge": "4ed83cf16f9bcc3fb57619e5d106d96e04dff1f7",
+    "previous_readme_blob": "0ea376436c790f30b26d08c2b7ccdd6f9975378d",
+    "unchanged_product_files": [
+      {
+        "path": "revenue/port_data_qc_gate/__init__.py",
+        "git_blob": "1998ffd62be91b0d28720e588ba01c69f58661af"
+      },
+      {
+        "path": "revenue/port_data_qc_gate/_legacy_engine.py",
+        "git_blob": "f83e9ca53f0ed5e37ce402de4f127601ee7fc043"
+      },
+      {
+        "path": "revenue/port_data_qc_gate/_legacy_engine_source.pydata",
+        "git_blob": "b992de81a24a0c2dcc5933f09a2dbe828cdfc370"
+      },
+      {
+        "path": "revenue/port_data_qc_gate/gate.py",
+        "git_blob": "42e464d0fa079c9e2b10e213bee582da575168fb"
+      },
+      {
+        "path": "revenue/port_data_qc_gate/test_gate.py",
+        "git_blob": "2749ba969fe5208968da16b89a8fc6702dde13b1"
+      },
+      {
+        "path": "revenue/port_data_qc_gate/test_legacy_boundary.py",
+        "git_blob": "14132d5d845fd355e85e744c5927a2a717842736"
+      },
+      {
+        "path": "revenue/port_data_qc_gate/test_temporal_equivalence.py",
+        "git_blob": "c78d5b05fa326e4fff8dfde1a51cbc75c9bd781a"
+      }
+    ]
+  },
+  "runtime": {
+    "state": "NOT_REQUIRED_FOR_DOCUMENTATION_ONLY_CHANGE",
+    "attempted": false,
+    "executable_files_changed": false,
+    "inputs_changed": false,
+    "accepted_proof_replayed": false,
+    "new_native_reservation": false
+  },
+  "ownership": {
+    "source": "Z-Galois-913456-X731",
+    "predecessor": "Z-Rocinante",
+    "source_red": "Z-RiemannHarbor-0059-K7P2",
+    "accepted_repair": "ZSOL19",
+    "relationship": "Z-Riemann-913432-XQ7M5 / ZRI-913432-XQ7M5",
+    "original_build_thread": "https://tokenjunkielabs.slack.com/archives/C0BTRNE6Y58/p1789290063513879",
+    "original_commercial_thread": "https://tokenjunkielabs.slack.com/archives/C0BTTA66TK3/p1789289924816049",
+    "kale_contact_state": "HARD_DNR",
+    "newer_human_event_established": false
+  },
+  "authority": {
+    "evidence_only": true,
+    "qualified_supplier": false,
+    "operational_release": false,
+    "contact": false,
+    "registration": false,
+    "terms_acceptance": false,
+    "signature": false,
+    "submission": false,
+    "price_commitment": false,
+    "staff_or_partner_commitment": false,
+    "spend": false,
+    "award": false,
+    "payment": false,
+    "revenue": false
+  }
+}

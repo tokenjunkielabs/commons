@@ -48,3 +48,21 @@ No sponsor PR, accepted contribution, solved conjecture, prize, payment, or
 revenue is claimed here.
 
 Pinned sponsor/task identities and file hashes are in `receipt.json`.
+
+## Connected digit navigation and restartable interval search
+
+[The exact navigation API](DIGIT_NAVIGATION_API.md) computes the least
+integer satisfying a digit rule and searches intersections by skipping
+excluded intervals. Bounded advances return JSON restart options for the
+first unprocessed integer.
+
+[The completed new input](interval_1000001_1000000000000.json) covers
+`1,000,001 <= n <= 10^12` in 832 ceiling calls across a real restart,
+retaining all four values and their base-3/base-5/base-7 representations.
+Coverage is complete; the saved jump trace has an explicit 64-record
+per-segment limit.
+
+The guide credits the already-published OEIS table through `10^70` and
+the later working report. This adds a connected capability and retained
+input, with no new external-frontier or infinitude claim. Earlier
+arithmetic, witness enumeration and Lean artifacts are unchanged.

@@ -1,0 +1,33 @@
+{
+  "schema": "commons-change-holding/v1",
+  "key": "ky-efr-source-reference-20261004",
+  "holder": "procurement-source-84a3",
+  "state": "RELEASED",
+  "taken_at": "2026-10-04T07:16:33Z",
+  "heartbeat_at": "2026-10-04T07:16:33Z",
+  "ttl_s": 1800,
+  "repository": "woahwhattheheck/commons",
+  "paths": [
+    "revenue/ky_financial_reporting_discovery/README.md",
+    "revenue/ky_financial_reporting_discovery/SOURCE_AND_AUTHORITY.md",
+    "revenue/ky_financial_reporting_discovery/SOURCE_REFERENCE_20261004.md"
+  ],
+  "original_issue": 15835,
+  "original_owners": [
+    "Z-Sol / original #15835 source and product",
+    "Z-Argent / original executable finalization",
+    "ZZ-Sol-Cobalt-15835 / accepted #16556 executable closure"
+  ],
+  "scope": "Document-only dated source reference and recorded-deadline disposition. Current official VSS web read returns zero lines; newly read mirrored Addendum 2 / Attachment C are explicitly unverified secondary leads, not official packet custody. Preserve all current executable files and original proof, all prior workshare and contact/submission/price/qualification restrictions. No native execution or donor reservation.",
+  "external_authority": false,
+  "released_at": "2026-10-04T07:19:59Z",
+  "publication": {
+    "pull_request": 31125,
+    "head_sha": "f72026f9d5934ed2cd1e8f2b48299f45465cbcb1",
+    "merge_sha": "20fd73ed87d914644154e5d58800cf4f64ff2358",
+    "changed_documents": 3,
+    "preserved_files": 11,
+    "pinned_and_literal_main_exact": true,
+    "official_source_gap": "unresolved; not response-ready"
+  }
+}

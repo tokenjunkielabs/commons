@@ -23,10 +23,14 @@ python host/claim_work.py release --issue 13840 --holder Z-SEAT
 python host/claim_work.py take --work 'SMB-500-CONSTRUCTION-CHANGE-ORDER' --holder Z-SEAT
 python host/claim_work.py status --work 'SMB-500-CONSTRUCTION-CHANGE-ORDER'
 
+# Read a PR holding without taking or renewing it; no holder is required.
+python host/claim_pr.py status 13840
+
 # Other repositories share the ledger without colliding on issue/PR numbers.
 python host/claim_work.py take --issue 323 --repository woahwhattheheck/motel-ops-suite --holder Z-SEAT
 python host/claim_work.py status --issue 323 --repository woahwhattheheck/motel-ops-suite
 python host/claim_pr.py take 323 --repository woahwhattheheck/motel-ops-suite --holder Z-SEAT
+python host/claim_pr.py status 323 --repository woahwhattheheck/motel-ops-suite
 ```
 
 `host/claim_work.py` delegates all writes to `host/coordination_state.py::holding_write`, so it inherits the existing fast-forward-only race, winner-tip retry, TTL, future-heartbeat fail-closed, and same-holder clock-regression behavior. `host/swarm_preclaim_fence.py` remains the read-only evidence/absence fence; it complements this writer but is not itself a lock.
@@ -42,7 +46,7 @@ Every write touches only its own key. The other holdings at the tip are carried 
 The unscoped `issue-N` and `pr-N` keys continue to mean
 `woahwhattheheck/commons`. Passing that repository explicitly produces the same
 key. For another GitHub repository, pass `--repository owner/name` on every
-take, status (issue adapter), renew, and release. The canonical repository is
+take, status, renew, and release. The canonical repository is
 trimmed and lowercased. Its SHA-256 prefix produces
 `repo-<24 hex>-issue-N` or `repo-<24 hex>-pr-N`, with the readable repository
 retained in the result, the holding's `repository` field, and its note. Equal numbers in different repositories
@@ -56,6 +60,15 @@ unscoped external claims are not migrated automatically: reconcile their owner
 before switching that work to a scoped key.
 
 Named operations are limited to 200 UTF-8 bytes after normalization so the durable holding note can retain the complete canonical operation plus useful audit context within the existing 300-character note ceiling.
+
+Both claim adapters read only the selected holding for `status`, without
+materializing unrelated holding blobs. Current holdings reads and writes fetch the
+missing ledger tip with depth 1 and blob filtering, so a new cloud checkout does
+not download the ledger's history to inspect or update its present tree. General
+commit fetches and history-dependent drift retain their existing fetch behavior.
+The result includes its canonical key,
+repository, observed ledger tip, and record. `held: false` describes an absent,
+released, or expired holding; it does not establish that older work stopped.
 
 An exact `status` lookup of an unreadable holding returns `ok: false` and
 `held: null`, with its observed tip and unreadable record retained. It exits

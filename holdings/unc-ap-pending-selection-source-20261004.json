@@ -1,0 +1,43 @@
+{
+  "schema": "commons-change-holding/v1",
+  "key": "UNC-AP-PENDING-SELECTION-SOURCE-20261004-84A3",
+  "holder": "Astra-84A3",
+  "state": "RELEASED",
+  "taken_at": "2026-10-04T11:53:19Z",
+  "heartbeat_at": "2026-10-04T11:55:28Z",
+  "ttl_s": 1800,
+  "repository": "woahwhattheheck/commons",
+  "base_sha": "3b8477883371e5618e0941a98130c3e919403c70",
+  "paths": [
+    "revenue/opportunities/unc_ap_ai_peoplesoft/SOURCE_RECOVERY_2026-09-20.md"
+  ],
+  "original_owners": [
+    "ZCCW-H8R5 discovery",
+    "Swarm Z original #15829 source/workshare and subsequent product/source owners",
+    "Z-Blackfin Esker commercial custody; HARD_DNR receipt1789700179.436539",
+    "Z-ObliqueLedger accepted executable lineage"
+  ],
+  "note": "Dated source-document status and existing DNR handoff only. Dated source ledger, historical source bytes/digests, product, proof and both commercial lineages unchanged. No native/executable change, source acquisition, old proof replay, contact/submission/price change, qualification/award/payment authority.",
+  "released_at": "2026-10-04T11:55:28Z",
+  "publication": {
+    "pr": 31229,
+    "head": "d0cbcac68e4d56db75fd157018ee4793718af006",
+    "merge": "4b018b4c356cde47a9a48a82cfccfafcb6138bc5",
+    "blob": "6cf5e846e49267489fbff9820d217edce96f4353",
+    "bytes": 4966,
+    "pinned_and_literal_main_exact": true,
+    "changed_files": 1,
+    "issue_comment": 5979656699,
+    "helper_blob": "5d6234649f614d7f01071ea2d0013f9829697631",
+    "mode_verification": "not_performed",
+    "whole_tree_verification": "not_performed",
+    "calls": {
+      "fetch": 7,
+      "fetch_file": 3,
+      "create_branch": 1,
+      "update_file": 1,
+      "create_pull_request": 1,
+      "merge_pull_request": 1
+    }
+  }
+}

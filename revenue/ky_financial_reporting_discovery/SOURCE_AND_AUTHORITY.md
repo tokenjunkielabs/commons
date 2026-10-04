@@ -1,6 +1,10 @@
 # Source and authority notes
 
-## Solicitation identity
+## October 4 source disposition
+
+The recorded response cutoff has passed. [The dated reference note](SOURCE_REFERENCE_20261004.md) replaces the assumption that the later question-response material has never been seen: a mirror was read, while official current-generation bytes and workbook completeness remain unresolved. Preserve that distinction before reusing any source-derived response claim. No extension, late-response route or buyer acceptance is established.
+
+## Historical solicitation identity
 
 - Commonwealth of Kentucky, Finance and Administration Cabinet
 - Office of Statewide Accounting Services
@@ -42,9 +46,9 @@ https://finance.ky.gov/office-of-the-secretary/FinanceForms/How%20to%20Submit%20
 Research mirror for RFI files:
 https://govtribe.com/opportunity/state-local-contract-opportunity/rfi-sas-enterprise-financial-reporting-discovery-rfi75827000000061
 
-## Authority gate
+## Authority boundary
 
-Before any external response:
+Any separately authorized future external-use decision must first:
 1. recover and review the current VSS solicitation generation and all addenda;
 2. reconcile the September 23 question-response addendum;
 3. verify the exact submission mechanics in the current package;

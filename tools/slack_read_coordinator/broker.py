@@ -77,6 +77,10 @@ def normalize(method: str, params: dict, page_limit: int = 15) -> dict:
     for key in ("oldest", "latest", "ts"):
         if key in out and not re.fullmatch(r"[0-9]{1,12}(?:\.[0-9]{1,9})?", out[key]):
             raise ValueError("timestamp must remain a decimal string")
+    if method in {"conversations.history", "conversations.replies"}:
+        # Slack ignores inclusive without time bounds; false is its default.
+        if not {"oldest", "latest"} & out.keys() or out.get("inclusive") is False:
+            out.pop("inclusive", None)
     if "sort" in out and out["sort"] not in {"score", "timestamp"}:
         raise ValueError("invalid sort")
     if "sort_dir" in out and out["sort_dir"] not in {"asc", "desc"}:
@@ -184,6 +188,21 @@ class Broker:
             raise ValueError("invalid cache age")
         key = hashlib.sha256(dumps([method, params]).encode()).hexdigest()
         with self.connect() as db:
+            if max_age_seconds > 0:
+                # A completed cache read does not need the single writer slot.
+                # Read the block state and payload from one snapshot, then end
+                # it before decoding or entering the lease-acquisition path.
+                db.execute("BEGIN")
+                blocked = db.execute("SELECT reason FROM blocked WHERE namespace=?", (self.namespace,)).fetchone()
+                if blocked:
+                    return self.envelope("AUTH_BLOCKED", error=blocked[0])
+                row = db.execute("SELECT fetched,payload FROM cache WHERE namespace=? AND key=?", (self.namespace, key)).fetchone()
+                now = self.now()
+                db.commit()
+                if row and 0 <= now - row[0] <= max_age_seconds:
+                    return self.envelope("CACHED", fetched_at=row[0], age_seconds=now-row[0], data=loads(row[1]))
+                # A miss must recheck state after obtaining the write lock;
+                # another process may have completed or invalidated this key.
             db.execute("BEGIN IMMEDIATE")
             now = self.now()
             blocked = db.execute("SELECT reason FROM blocked WHERE namespace=?", (self.namespace,)).fetchone()
@@ -198,7 +217,9 @@ class Broker:
                 return self.envelope("CACHED", fetched_at=row[0], age_seconds=now-row[0], data=loads(row[1]))
             flight = db.execute("SELECT expires FROM flight WHERE namespace=? AND key=?", (self.namespace, key)).fetchone()
             if flight:
-                return self.envelope("BUSY", retry_after_seconds=max(1, math.ceil(flight[0] - now)))
+                # The writer may finish before lease expiry; recheck its cache soon.
+                # acquire still fences dispatch with the live lease and method budget.
+                return self.envelope("BUSY", retry_after_seconds=1)
             rate = db.execute("SELECT next_at FROM rate WHERE scope=? AND method=?", (self.rate_scope, method)).fetchone()
             if rate and rate[0] > now:
                 return self.envelope("COOLDOWN", retry_after_seconds=math.ceil(rate[0] - now))
