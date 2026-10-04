@@ -346,7 +346,7 @@ class ServiceEquipment(GitHubSlackEquipment):
                 value = getattr(exc, attribute, None)
                 if value is not None:
                     result[attribute] = list(value) if isinstance(value, tuple) else value
-            return result
+            return redacted(result)
 
     def _token_pool_batch(self, selected: list[str]) -> dict:
         observed_at = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
