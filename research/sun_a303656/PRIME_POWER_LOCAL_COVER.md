@@ -1,7 +1,6 @@
 # A303656: prime-power coverage and the finite-offset limit
 
-**Analytic result.** For every prime power $p^k$, every residue is represented by
-$x^2+y^2+3^c+5^d$ even with $c,d\in\{0,1\}$. This local statement cannot be combined across prime powers by choosing the exponents independently. In fact, every fixed finite set of exact exponent pairs fails for infinitely many positive integers.
+**Analytic results.** Every individual prime power is covered even with $c,d\in\{0,1\}$. For each target $n>1$ and each prime, one of those four offsets fits below $n$ and works at every depth of that prime. Different primes may require different exponent pairs, and every fixed finite set of exact pairs fails for infinitely many global equality targets.
 
 These are elementary local-coverage and route-exclusion lemmas. They neither prove nor disprove Sun's original conjecture, which permits arbitrary nonnegative exponents. No novelty claim is made.
 
@@ -31,7 +30,7 @@ S=\{3^c+5^d:c,d\in\{0,1\}\}=\{2,4,6,8\}.
 \tag{2}
 $$
 
-The choice of $(c,d)$ in (1) may depend on the prime power. There is no claim here that one choice works simultaneously for every prime power dividing a composite modulus. There is also no magnitude bound on the nonnegative representatives $x,y$, so (1) is not an equality representation of $n$.
+The constructions below choose $(c,d)$ from $n$ and $p$, independently of the depth $k$. For $n>1$, Corollary 1.1 also ensures $3^c+5^d\le n$. Different primes may require different choices. The nonnegative square coordinates $x,y$ have no magnitude bound, so the congruence does not establish an equality representation of $n$.
 
 ## 2. Odd prime powers
 
@@ -103,6 +102,29 @@ n\equiv x^2+y^2+s\pmod{2^k},
 $$
 
 which completes Theorem 1. Negative intermediate integers cause no problem in a congruence; the result does not assert a nonnegative equality remainder.
+
+### 3.1. The offset can be bounded and fixed across all depths
+
+**Corollary 1.1.** For every integer $n>1$ and every prime $p$, there are $c,d\in\{0,1\}$ with $s=3^c+5^d\le n$ such that, for every $k\ge1$, there are nonnegative integers $x_k,y_k$ satisfying
+
+$$
+n\equiv x_k^2+y_k^2+s\pmod{p^k}.
+$$
+
+For $n\ge8$, all four offsets are at most $n$. At an odd prime, Section 2 selects one of $2$ and $4$ with a unit remainder and lifts that same remainder at every depth. At $p=2$, Section 3's table selects a single offset from $n\bmod8$; its choice does not depend on $k$. Thus one bounded offset serves all depths of the chosen prime.
+
+For $2\le n\le7$, the following exact equalities cover all primes and depths at once. Every row satisfies $n=x^2+y^2+3^c+5^d$.
+
+| $n$ | $x$ | $y$ | $c$ | $d$ |
+|---:|---:|---:|---:|---:|
+| $2$ | $0$ | $0$ | $0$ | $0$ |
+| $3$ | $1$ | $0$ | $0$ | $0$ |
+| $4$ | $1$ | $1$ | $0$ | $0$ |
+| $5$ | $1$ | $0$ | $1$ | $0$ |
+| $6$ | $1$ | $1$ | $1$ | $0$ |
+| $7$ | $1$ | $0$ | $0$ | $1$ |
+
+This proves the corollary directly from the preceding constructions. It strengthens their quantifier and magnitude statement without adding a computation. The exponent pair stays fixed across the powers of one prime; a common pair for different primes is a separate requirement, and the next section gives an explicit obstruction to that stronger assertion for this palette.
 
 ## 4. A composite obstruction for the same four offsets
 
