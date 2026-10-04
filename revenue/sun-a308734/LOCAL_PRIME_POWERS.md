@@ -1,6 +1,6 @@
-# A308734: unrestricted coverage at every prime power
+# A308734: prime-power coverage with bounded restricted pairs
 
-**Result.** Every residue modulo every individual prime power has a representation of the A308734 shape when all exponents and square coordinates are allowed to range freely. The proof gives explicit choices for the restricted squares. It does not impose the size conditions required for an equality representation of a given positive integer.
+**Results.** For every target $n>1$ and every prime $p$, one legal restricted pair of total at most $n$ leaves a sum-of-two-squares remainder modulo every power of $p$. That pair can depend on the prime but stays fixed across its depths. Square-coordinate sizes remain unrestricted. Sections 1–2 also prove unrestricted congruence coverage for every integer target, including zero and negative targets.
 
 The original [#14694](https://github.com/woahwhattheheck/commons/issues/14694) research scope and the [local-atlas work thread](https://tokenjunkielabs.slack.com/archives/C0C3MEWHTR6/p1789716589817269) retain their history. The finite local certificates in [#14716](https://github.com/woahwhattheheck/commons/pull/14716) and ZVLK-R5Q7's [#14719](https://github.com/woahwhattheheck/commons/pull/14719) remain separate and unchanged. The latter already proves the general fixed-finite-offset barrier used below.
 
@@ -14,7 +14,7 @@ $$
 
 with all six variables nonnegative integers.
 
-**Theorem.** For every prime $p$, every integer $k\ge1$ and every integer $n$, there are nonnegative integers $x,y,a,b,c,d$ with
+**Theorem 1 — unrestricted coverage.** For every prime $p$, every integer $k\ge1$ and every integer $n$, there are nonnegative integers $x,y,a,b,c,d$ with
 
 $$
 n\equiv x^2+y^2+4^a9^b+4^c25^d\pmod{p^k}.
@@ -115,20 +115,111 @@ $$
 
 All six variables are nonnegative integers. The case $N=0$ and the cases $q=1,2$ were included explicitly, so the theorem holds at every dyadic depth. The construction is an existence statement for each finite modulus.
 
-## 3. What this settles, and what it leaves open
+## 3. A bounded restricted pair works at every depth of a fixed prime
 
-The theorem settles **unrestricted residue coverage at a single prime power** for all primes and all depths. It is not a count estimate for the finite family of restricted pairs available below a fixed target.
+For the positive target domain, the preceding unrestricted theorem has a stronger form.
 
-In particular:
+**Theorem 2.** For every integer $n>1$ and every prime $p$, there are nonnegative exponents $a,b,c,d$ such that
 
-- In the dyadic construction, a positive restricted square may be chosen to vanish modulo $2^k$. That term can exceed the representative $N$. Replacing a modular zero with such a term gives no equality representation of $N$.
-- A finite family constrained by $4^a9^b+4^c25^d\le n$ is a different object. The theorem does not guarantee a surviving pair in that bounded family, nor a uniform density of survivors.
-- At different prime powers, the chosen exponent tuples may differ. CRT can combine square coordinates after one common tuple is fixed; it cannot combine incompatible choices of the global restricted pair.
-- No arbitrary-composite-modulus theorem follows from (1) alone, and no global sum-of-two-squares remainder is obtained merely by passing selected congruence conditions.
+$$
+T=4^a9^b+4^c25^d\le n
+$$
 
-These distinctions preserve the useful existing work on bounded families, simultaneous obstruction primes and higher odd valuations. The new result prevents an unrestricted single-prime-power atlas from being mistaken for a remaining existence obstacle; it does not retire those more constrained tasks.
+and, for every $k\ge1$, there are nonnegative integers $x_k,y_k$ with
 
-## 4. Consume the existing finite-offset barrier
+$$
+n\equiv x_k^2+y_k^2+T\pmod{p^k}.
+\tag{2}
+$$
+
+The restricted pair is selected once for the chosen $n,p$ and does not change with $k$. In quantifier form,
+
+$$
+\forall n>1\ \forall p\ \exists T(n,p)\le n\ \forall k\ge1\quad
+\exists x_k,y_k:\quad n\equiv x_k^2+y_k^2+T(n,p)\pmod{p^k}.
+$$
+
+### Odd primes and the small targets
+
+For $n\ge10$, both legal shifts $2$ and $10$ fit below $n$. Section 1 chooses one whose remainder is a unit modulo the given odd prime. That same remainder lifts to a sum of two squares at every depth, so the selected shift stays fixed.
+
+The targets $2\le n\le9$ have the following exact representations, valid simultaneously at all primes and depths. Every row has $b=d=0$, and the columns satisfy $n=x^2+y^2+4^a+4^c$.
+
+| $n$ | $x$ | $y$ | $a$ | $c$ |
+|---:|---:|---:|---:|---:|
+| $2$ | $0$ | $0$ | $0$ | $0$ |
+| $3$ | $1$ | $0$ | $0$ | $0$ |
+| $4$ | $1$ | $1$ | $0$ | $0$ |
+| $5$ | $0$ | $0$ | $0$ | $1$ |
+| $6$ | $1$ | $0$ | $0$ | $1$ |
+| $7$ | $1$ | $2$ | $0$ | $0$ |
+| $8$ | $0$ | $0$ | $1$ | $1$ |
+| $9$ | $2$ | $0$ | $0$ | $1$ |
+
+This completes the odd-prime part of Theorem 2.
+
+### A bounded dyadic choice from the 4-adic core
+
+Write $n=4^v m$ with $4\nmid m$. First suppose $m\ge8$. Select a core shift from the three legal totals
+
+$$
+2=1+1,\qquad 5=1+4,\qquad 8=4+4
+$$
+
+using the following table, and put $r=m-s$.
+
+| $m\bmod8$ | core shift $s$ | $r\bmod8$ | fixed $z$ |
+|---|---:|---:|---:|
+| $1$ | $8$ | $1$ | $0$ |
+| $2$ | $5$ | $5$ | $2$ |
+| $3$ | $2$ | $1$ | $0$ |
+| $5$ | $8$ | $5$ | $2$ |
+| $6$ | $5$ | $1$ | $0$ |
+| $7$ | $2$ | $5$ | $2$ |
+
+In every row, $s\le8\le m$ and $r-z^2\equiv1\pmod8$. The square-root lemma supplies, for each $k\ge1$, a nonnegative $u_k$ with
+
+$$
+u_k^2\equiv r-z^2\pmod{2^k}.
+$$
+
+Choose $T=4^v s$, $x_k=2^v u_k$ and $y_k=2^v z$. If $s=2$, take $a=c=v$; if $s=5$, take $a=v,c=v+1$; if $s=8$, take $a=c=v+1$. In all cases $b=d=0$, the restricted pair is independent of $k$, and
+
+$$
+T\le4^v m=n,\qquad
+x_k^2+y_k^2+T
+\equiv4^v(u_k^2+z^2+s)
+\equiv4^v m=n\pmod{2^k}.
+$$
+
+The restricted exponents are selected from the target's core, independently of the modulus, and their total is at most $n$.
+
+For the remaining cores $m\in\{2,3,5,6,7\}$, take the exact row for $n=m$ in the preceding small-target table. Multiplying its square coordinates by $2^v$ and adding $v$ to $a,c$ gives an exact representation of $4^v m$. The restricted total therefore also fits below $n$.
+
+Finally, if $m=1$, the assumption $n>1$ forces $v\ge1$. The explicit equality
+
+$$
+4^v=(2^{v-1})^2+(2^{v-1})^2+4^{v-1}+4^{v-1}
+$$
+
+covers this core. Its restricted total is $2\cdot4^{v-1}=n/2$. This small-core case is necessary: a reduction to the 4-free core alone would leave the excluded target $1$.
+
+Theorem 2 follows. The 4-adic scaling step uses the elementary witness scaling already present in [#14719](https://github.com/woahwhattheheck/commons/pull/14719); the new table chooses a bounded pair that works at every dyadic depth. The [#14716](https://github.com/woahwhattheheck/commons/pull/14716) atlas retains its different, simultaneous-prime strength: its 20 shifts at most $85$ supply a unit remainder at eight specified obstruction primes at once, and hence every depth at those primes when $n\ge85$. Theorem 2 covers arbitrary individual primes and does not replace that simultaneous statement.
+
+## 4. What this settles, and what it leaves open
+
+Theorem 1 settles unrestricted residue coverage at every individual prime power for all integer targets. Theorem 2 strengthens the result on the actual domain $n>1$: the finite family of restricted pairs with total at most $n$ always contains a pair that survives every depth of any one chosen prime.
+
+The distinctions that still matter are these:
+
+- The selected restricted pair may differ between primes. The order $\forall p\,\exists T(n,p)$ does not provide one $T(n)$ that works at all primes.
+- The square coordinates $x_k,y_k$ remain modular choices. Their squares need not fit below the nonnegative remainder $n-T$, so the construction does not give an integer equality.
+- The proof guarantees existence inside the bounded pair family at each individual prime, but no uniform density of surviving pairs or common survivor for a growing set of primes.
+- CRT combines square coordinates after one common restricted pair is fixed. It cannot combine incompatible restricted-pair choices; an arbitrary-composite-modulus statement therefore needs an additional argument.
+
+Unrestricted single-prime existence and bounded single-prime existence are both settled here, at every prime-power depth. The remaining local work concerns simultaneous primes and survivor counts, followed by the global arithmetic needed for an equality representation.
+
+## 5. Consume the existing finite-offset barrier
 
 [Proposition 3 of the earlier residue-covering memo](../../research/sun_a308734_residue_covering/RESEARCH_MEMO.md), blob **1ce6e341421755ba7603c0fa2247d4772d0ce7f9**, already proves the following result in ZVLK-R5Q7's accepted [#14719](https://github.com/woahwhattheheck/commons/pull/14719):
 
@@ -138,7 +229,7 @@ The proof assigns a distinct prime $p_s\equiv3\pmod4$ to each shift $s$ and impo
 
 That existing proposition applies to any fixed finite list of A308734 exponent tuples. It also applies directly to A303656, which is why the companion local note now cites this earlier source explicitly. The finite-offset barrier is retained as prior work; no new verifier or numerical countercertificate is introduced.
 
-Together, the two results say that unrestricted individual prime powers are covered, while one fixed finite list of exact shifts cannot supply every global equality. They do not exclude growing families, finite descriptions of infinitely many exponent tuples, or arguments that also control magnitude and cross-prime compatibility.
+Together, these results give bounded individual-prime coverage for every target $n>1$, while one fixed finite list of exact shifts cannot supply every global equality. They do not exclude growing families, finite descriptions of infinitely many exponent tuples, or arguments that also control magnitude and cross-prime compatibility.
 
 ## Sources and evidence boundary
 
