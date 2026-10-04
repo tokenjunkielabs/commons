@@ -242,11 +242,13 @@ class ConnectedToolRouter:
         # provider limits; nothing sleeps and direct tool use stays available.
         moment = _now()
         recent_since = moment - timedelta(seconds=60)
+        pending_by_domain = dict.fromkeys((row["quota_domain"] for row in choices), 0)
+        for item in state["operations"].values():
+            domain = (item.get("pending") or {}).get("quota_domain")
+            if isinstance(domain, str) and domain in pending_by_domain:
+                pending_by_domain[domain] += 1
         pressure = {}
-        for row in choices:
-            domain = row["quota_domain"]
-            pending = sum(1 for item in state["operations"].values()
-                          if (item.get("pending") or {}).get("quota_domain") == domain)
+        for domain, pending in pending_by_domain.items():
             recent = state["quota_domains"].get(domain, {}).get("recent_dispatches", [])
             count = sum(1 for stamp in recent if _time(stamp) >= recent_since)
             pressure[domain] = (pending, count)
