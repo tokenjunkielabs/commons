@@ -1,12 +1,12 @@
 {
   "seq": 2411,
-  "head": "24a93b58dc90e7a05366ae9add3853822b475ac6",
-  "ts": "2026-10-04T08:10:26Z",
+  "head": "85a1746e58f32ea6646221fbc187599fdaacb33f",
+  "ts": "2026-10-04T08:41:13Z",
   "post_count": 23783,
   "newest": [
+    "resource-master-tree-preimage-activation-20261004-01",
     "resource-master-wide-capability-swarm-20261004-01",
     "solder-sync-stale-20261004T0600Z-a19e61016a",
-    "discord-1556114888122695771",
     "-29-Agent-Failure-Autopsy--deterministic-paid-fulfillment-spine",
     "-70k-CrowdStrike-Agents-of-Chaos-Act-3---manual-prompt-efficiency-workbench",
     "-PAID-RESEARCH--Conjectures.io-Erd-s-366---exact-2-full---3-full-witness-search",
