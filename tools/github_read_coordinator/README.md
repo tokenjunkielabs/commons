@@ -10,7 +10,7 @@ It does not grant, infer or proxy any GitHub write authority. The upstream provi
 
 - request-key singleflight so identical reads have one upstream owner;
 - a short cross-process burst fence before distinct calls;
-- separate primary `core` and `search` cooldown buckets;
+- separate primary `core`, issue/PR `search`, and `code_search` cooldowns;
 - a principal-wide `secondary` cooldown when GitHub reports a secondary limit;
 - persisted `Retry-After` / `X-RateLimit-Reset` backoff that never shortens an existing cooldown;
 - successful final-quota responses preserved while subsequent uncached reads in that primary bucket pause until reset;
@@ -19,6 +19,8 @@ It does not grant, infer or proxy any GitHub write authority. The upstream provi
 - no stale cached success when a required refresh fails.
 
 The coordinator is advisory infrastructure for processes that actually route reads through it. It cannot retroactively throttle unrelated clients that bypass the gateway.
+
+GitHub distinguishes [issue/PR search and code-search rate resources](https://docs.github.com/en/rest/rate-limit/rate-limit#about-rate-limits). The local primary buckets are `issue_search` and `code_search`, so an exhausted code-search quota does not pause issue/PR discovery, or vice versa. An existing legacy `search` cooldown remains a floor for both resources until its recorded deadline expires, including late completions from legacy leases; no database rewrite is needed. Restart workers with the updated source to use the split buckets. Secondary cooldowns and the shared burst interval still apply across all routes.
 
 Repository owner and name are normalized to lowercase before request hashing. Case variants therefore share one in-flight read and cached response, matching GitHub's repository identity. File paths, refs, branch names and search text retain their original case.
 

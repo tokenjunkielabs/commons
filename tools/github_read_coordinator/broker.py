@@ -76,7 +76,9 @@ def _safe_path(value: Any) -> str:
 
 
 def route_bucket(route: str) -> str:
-    return "search" if route in SEARCH_ROUTES else "core"
+    if route in SEARCH_ROUTES:
+        return "code_search" if route == "search.code" else "issue_search"
+    return "core"
 
 
 def normalize(route: str, params: dict) -> dict:
@@ -243,9 +245,12 @@ class Broker:
         return {"state": state, "provider_write_authority": False, **fields}
 
     def _cooldown(self, db, bucket: str, now: float) -> int | None:
+        # Older workers recorded both search resources in one bucket. Honor
+        # that shared floor until it expires, including late legacy completions.
+        legacy = "search" if bucket in {"issue_search", "code_search"} else bucket
         rows = db.execute(
-            "SELECT bucket,next_at FROM rate WHERE scope=? AND bucket IN (?,?,?)",
-            (self.scope, "secondary", "burst", bucket),
+            "SELECT bucket,next_at FROM rate WHERE scope=? AND bucket IN (?,?,?,?)",
+            (self.scope, "secondary", "burst", bucket, legacy),
         ).fetchall()
         future = [row["next_at"] for row in rows if row["next_at"] > now]
         return max(1, math.ceil(max(future) - now)) if future else None
