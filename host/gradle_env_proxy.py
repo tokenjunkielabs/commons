@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+from contextlib import ExitStack
 import errno
 import fcntl
 import ipaddress
@@ -15,7 +16,49 @@ import shutil
 import stat
 import subprocess
 import sys
+import tempfile
 from urllib.parse import urlsplit
+
+
+FORKED_PROXY_INIT = r"""
+// Only endpoint/bypass settings and an explicit trust-store path are inherited.
+// No credentials or property values are logged.
+def inheritProxyDefaults = { fork ->
+    fork.doFirst {
+        def explicit = fork.systemProperties.keySet().collect { it.toString() } as Set
+        // Include lazy argument providers at execution time, when their inputs
+        // are ready, so a task-specific endpoint is never mixed with a default.
+        fork.allJvmArgs.each { argument ->
+            if (argument.startsWith('-D')) {
+                explicit.add(argument.substring(2).split('=', 2)[0])
+            }
+        }
+        ['http', 'https'].each { protocol ->
+            def endpoint = [protocol + '.proxyHost', protocol + '.proxyPort']
+            if (!endpoint.any { explicit.contains(it) }) {
+                endpoint.each { key ->
+                    def value = System.getProperty(key)
+                    if (value != null) {
+                        fork.systemProperty(key, value)
+                    }
+                }
+            }
+        }
+        ['http.nonProxyHosts', 'javax.net.ssl.trustStore'].each { key ->
+            if (!explicit.contains(key)) {
+                def value = System.getProperty(key)
+                if (value != null) {
+                    fork.systemProperty(key, value)
+                }
+            }
+        }
+    }
+}
+gradle.beforeProject { project ->
+    project.tasks.withType(org.gradle.api.tasks.testing.Test).configureEach(inheritProxyDefaults)
+    project.tasks.withType(org.gradle.api.tasks.JavaExec).configureEach(inheritProxyDefaults)
+}
+"""
 
 
 def proxy_properties(environment: dict[str, str]) -> dict[str, str]:
@@ -188,6 +231,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--project", type=Path, default=Path.cwd(), help="Gradle project directory (default: current directory)")
     parser.add_argument("--refresh-env-proxy", action="store_true", help="Replace inherited GRADLE_OPTS proxy endpoint flags with this invocation's environment")
+    parser.add_argument("--forked-jvms", action="store_true", help="Supply missing Test/JavaExec proxy defaults through a temporary Gradle init script")
     parser.add_argument("--build-lock", type=Path, help="Try a shared cooperative POSIX lock without waiting; retain its file after release")
     parser.add_argument("--min-free-disk-mib", type=int, help="Require this nonnegative free-space floor on the selected project and Gradle user home")
     parser.add_argument("arguments", nargs=argparse.REMAINDER, help="Wrapper arguments after --")
@@ -238,8 +282,15 @@ def main() -> int:
         if args.min_free_disk_mib is not None:
             check_free_disk(*storage_paths(environment, project, arguments), args.min_free_disk_mib)
         print(f"Gradle environment proxy: {len(properties)} JVM properties applied; existing explicit settings preserved", file=sys.stderr, flush=True)
-        command = [str(wrapper), *options, *arguments]
-        result = subprocess.run(command, cwd=project, env=environment, check=False)
+        with ExitStack() as temporary:
+            init_options: list[str] = []
+            if args.forked_jvms:
+                directory = temporary.enter_context(tempfile.TemporaryDirectory(prefix="gradle-env-proxy-"))
+                init_script = Path(directory) / "forked-proxy.gradle"
+                init_script.write_text(FORKED_PROXY_INIT, encoding="utf-8")
+                init_options = ["--init-script", str(init_script)]
+            command = [str(wrapper), *options, *init_options, *arguments]
+            result = subprocess.run(command, cwd=project, env=environment, check=False)
         return result.returncode if result.returncode >= 0 else 128 - result.returncode
     except AdmissionUnavailable as error:
         print(f"Gradle environment proxy: {error}", file=sys.stderr)
