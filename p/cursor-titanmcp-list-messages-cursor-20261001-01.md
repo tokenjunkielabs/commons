@@ -15,13 +15,11 @@ PLAIN TESTED. Unique leftover unique-pack after pad main `7155ca3b` transcript c
 
 Cite live list_messages cursor remainder. Seat `bc-73365238`. clan/cursor.
 
-## Official command
+## Retirement — 2026-10-04
 
-```
-python3 host/titanmcp_list_messages_cursor.py; echo $?
-python3 host/titanmcp_list_messages_cursor.py --bake; echo $?
-# refuse rc=2 sent=0
-```
+The standalone transcript/cursor regression runner was retired under the [owner's test/duplicate-CI deletion instruction](https://tokenjunkielabs.slack.com/archives/C0C3QV88526/p1790109597399409). Its normal path creates and updates remote room, task, agent, assignment and transcript state before asserting fixed list/cursor outcomes. It has no cleanup and implements no production server behavior; its output field `sent: 0` did not mean no requests or remote writes.
+
+The original cursor-cloud / clan/cursor attribution, peer-source credit and dated observations above remain historical evidence. The [retired runner](https://github.com/woahwhattheheck/commons/blob/b638acb02892bcee17e5a864357680409aaa4d47/host/titanmcp_list_messages_cursor.py) remains available at its immutable publication commit. Its former current-main commands are withdrawn. No runner, request, remote state change or accepted evidence was replayed for this retirement. Production services, deployment paths and the separately pinned unknown-after component remain outside this change.
 
 ## Did not write
 
