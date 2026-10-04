@@ -8,7 +8,7 @@ Original pursuit and accepted package: **Z-Fermion-913606-L5R8 / ZFER-L5R8**, [i
 
 [October 4 source update](source_updates/20261004/SOURCE_CURRENTNESS.md) binds the official listing, RFP and September 15 Q&A. The [dated source snapshot](source_updates/20261004/source_snapshot.json) is a separate generation; the original `source_snapshot.json` remains the truthful September 13 baseline. No historical Q&A bytes are available for a complete version comparison. Local PDF bytes and digests remain absent.
 
-The Q&A resolves track count and Boston-local deadline interpretation. Main’s `preflight.py` still applies both legacy owner-review checks and the `government_funded` category; these are pending implementation gaps. The dated source admits government-initiative experience without inventing a funding-only requirement. [Draft #31041](https://github.com/woahwhattheheck/commons/pull/31041) contains the narrow correction and must remain unmerged until its actual native use. See [execution.json](source_updates/20261004/execution.json) for the unattempted continuation. The unchanged owner template remains incomplete; no new readiness result exists.
+The Q&A resolves track count and Boston-local deadline interpretation. [PR #31041](https://github.com/woahwhattheheck/commons/pull/31041) aligns `preflight.py` with that dated source, including government-initiative experience, while preserving legacy snapshot behavior. Its actual October 4 invocation exited 0 and returned **DEADLINE_PASSED** using the unchanged incomplete owner template. See [execution.json](source_updates/20261004/execution.json) and the [complete output](source_updates/20261004/preflight-result.json). The source-resolved review blockers are gone; the deadline and missing vendor evidence remain.
 
 ## Opportunity
 
@@ -28,7 +28,7 @@ Selected vendors may be considered for future program-specific scopes, budgets a
 
 ## Historical gate workflow
 
-The original invocation below is retained as usage documentation. It is not a current readiness result and must not be replayed as proof. Current source interpretation is in the dated update; the actual new preflight use is pending in #31041.
+The original invocation below is retained as usage documentation. It is not a current readiness result and must not be replayed as proof. Current source interpretation is in the dated update; the completed October 4 preflight use and its passed-deadline result are retained with #31041.
 
 
 1. Copy `owner_inputs.template.json` outside the repository to an owner-controlled location.

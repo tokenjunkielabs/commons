@@ -33,10 +33,12 @@ The [original September 13 snapshot](https://github.com/woahwhattheheck/commons/
 
 The [dated snapshot](source_snapshot.json) carries these source fields and the RFP’s four questions per track. Grant Writing retains the printed a/b/d/e order. The original RFP wording “EST” remains recorded alongside Q43’s clarification; its UTC conversion is a derived value, not a UTC timestamp printed by BPHC.
 
-## Current executable boundary
+## Current executable behavior
 
-Main’s accepted preflight remains unchanged. It still asks for manual review of the track count and EST label and uses the legacy `government_funded` enum. Current RFP p5 says government initiatives; a funding-only condition is not stated. These differences are explicit pending implementation work.
+[PR #31041](https://github.com/woahwhattheheck/commons/pull/31041) aligns the preflight with the dated source while preserving the original snapshot's fallback behavior. It uses the resolved four-track selection, admits the source's government-initiative category and uses the clarified Boston-local deadline.
 
-[Draft #31041](https://github.com/woahwhattheheck/commons/pull/31041) consumes the clarified source values while preserving legacy behavior for the old snapshot. Its actual native use has **not been attempted**. [execution.json](execution.json) identifies the candidate and the unchanged, incomplete owner template. The shared executor is offline; Redmond’s retained-source continuation has prior custody. No additional native reservation or old proof replay was made.
+At 2026-10-04T11:57:28Z, the unchanged candidate ran once with the dated source and unchanged incomplete owner template on Python 3.12.14 / Linux. The command exited 0 in 63.019 ms with empty stderr. Its actual result is **DEADLINE_PASSED**, with 21 remaining completeness/deadline blockers. The two source-resolved review blockers are absent; missing vendor information and the passed deadline remain. This is one process observation, not a performance benchmark.
 
-No new readiness state, blocker count or successful execution is claimed. The closed listing, passed deadline, unknown budget and missing vendor facts remain separate. Source and output authority flags remain false. Raw source bodies, extracted text and images remain intermediate; this publication contains original analysis and metadata.
+[execution.json](execution.json) identifies the executed source and input blobs. [preflight-result.json](preflight-result.json) contains the complete actual output. Input/source bytes remained unchanged. No capture, PDF extraction, test suite or historical proof was repeated.
+
+The closed listing, passed deadline, unknown budget and missing vendor facts remain separate. Source and output authority flags remain false. Raw source bodies, extracted text and images remain intermediate; this publication contains original analysis and metadata.

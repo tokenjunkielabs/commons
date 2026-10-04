@@ -2,23 +2,23 @@
   "schema": "bphc.vendor_pool.source_update_execution/v1",
   "opportunity_id": "BPHC_CONSULTANT_QUALIFIED_VENDOR_POOL_2026",
   "prepared_at": "2026-10-04T03:09:16Z",
-  "state": "PENDING",
-  "native_attempted": false,
-  "native_process_started": false,
-  "native_exit_code": null,
-  "readiness_state": null,
-  "blocker_count": null,
-  "reason": "Shared executor environment_offline observed by coordinated native lanes. This BPHC invocation has not been attempted.",
+  "state": "COMPLETED",
+  "native_attempted": true,
+  "native_process_started": true,
+  "native_exit_code": 0,
+  "readiness_state": "DEADLINE_PASSED",
+  "blocker_count": 21,
+  "reason": "The committed preflight ran once on the dated source and unchanged incomplete owner template in an independent cloud process.",
   "prior_native_custody": "Redmond retained-source continuation",
   "minimum_headroom_bytes": 33554432,
   "candidate": {
     "pull_request": 31041,
-    "draft": true,
+    "draft": false,
     "commit": "3058d40942b21d3840cef61ab9b0a442435cbb34",
     "path": "opportunities/bphc_vendor_pool_2026/preflight.py",
     "git_blob": "f414869de40b1f208d2bb21a644b35eae75c8d96",
-    "merged": false,
-    "actual_use_completed": false
+    "actual_use_completed": true,
+    "publication_status": "See original pull request 31041 for live merge state"
   },
   "source": {
     "path": "opportunities/bphc_vendor_pool_2026/source_updates/20261004/source_snapshot.json",
@@ -31,14 +31,6 @@
     "git_blob": "acd0966decc2174e8018b45dce8e19d032968719",
     "content_changed": false,
     "owner_evidence_supplied": false
-  },
-  "main_preflight": {
-    "git_blob": "cd6b9dca70e5294fb38ce9bc0ace10baf2e4caf1",
-    "content_changed": false,
-    "legacy_track_review": true,
-    "legacy_est_review": true,
-    "legacy_est_deadline_interpretation": true,
-    "legacy_government_funded_category": true
   },
   "planned_use": {
     "entrypoint": "python3 -B <candidate-root>/opportunities/bphc_vendor_pool_2026/preflight.py",
@@ -61,5 +53,33 @@
     "qualification_assertion_authorized": false,
     "reference_nomination_authorized": false,
     "submission_authorized": false
+  },
+  "executed_at": "2026-10-04T11:57:28Z",
+  "runtime": {
+    "python": "3.12.14",
+    "platform": "Linux",
+    "elapsed_ms": 63.019,
+    "invocations": 1,
+    "stderr_bytes": 0,
+    "source_files_unchanged": true
+  },
+  "prior_main_preflight": {
+    "git_blob": "cd6b9dca70e5294fb38ce9bc0ace10baf2e4caf1",
+    "content_changed": false,
+    "legacy_track_review": true,
+    "legacy_est_review": true,
+    "legacy_est_deadline_interpretation": true,
+    "legacy_government_funded_category": true
+  },
+  "actual_output": {
+    "path": "opportunities/bphc_vendor_pool_2026/source_updates/20261004/preflight-result.json",
+    "sha256": "276de927c5f2a8ff826ad0bed30264db3a2fd7960a5215d23fb46e73132f15cc",
+    "receipt_sha256": "ace6b288314efd16053b561d16d71869160c00770148a992838522c4a717dceb"
+  },
+  "observed_behavior": {
+    "resolved_track_review_absent": true,
+    "resolved_timezone_review_absent": true,
+    "passed_deadline_retained": true,
+    "owner_evidence_supplied": false
   }
 }
