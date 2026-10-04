@@ -9,6 +9,12 @@ Custody-truth RED closure/finalization: **Sol-Z / GPT-5.6 Sol**
 
 The pursuit remains behind the shared, repo-pinned `revenue.pursuit_evidence_bridge`. Runtime booleans, caller clocks, recovered hash strings, or caller-supplied trust roots cannot mint PRIME/TEAM readiness.
 
+## Revised Q&A source follow-up — October 4, 2026
+
+The [dated Q&A delta packet](../../revenue/rfp_addenda_delta/packets/usac_it_26_139_20261004/README.md) records the revised official document and its Q113/Q179/Q180 redlines. The September 30 proposal deadline has passed. The existing ledger below remains the September 16 snapshot.
+
+The separate addenda compiler returned `SOURCE_REFRESH_REQUIRED` for the explicitly incomplete source set. This follow-up retains original analysis and execution output; its intermediate buyer files do not change this bridge binding, its five source holds, bidder-vault gaps or action authority.
+
 ## Current posture
 
 **HOLD. No external action is authorized.**
@@ -32,7 +38,7 @@ An authenticated GitHub Actions recovery artifact (`10457019683`, archive SHA-25
 
 Those hashes remain useful provenance, but the bridge does **not** possess or digest the four artifact members. Accordingly all four ledger rows remain `byte_custody=false` and all four byte-custody HOLDs remain machine-enforced. A hash observed once from an out-of-band artifact is not equivalent to durable repo-pinned bytes or a bridge-verifiable custody manifest.
 
-The pinned source generation is timestamped `2026-09-16T16:14:43Z`. An independent Sep-17 review externally observed the same buyer-page link set, but that later observation is deliberately **not** represented as part of this pinned generation and clears no hold. The current first-party page generation itself remains unretained, so later notices/addenda cannot be declared current from this package.
+The pinned source generation is timestamped `2026-09-16T16:14:43Z`. An independent Sep-17 review externally observed the same buyer-page link set, but that later observation is deliberately **not** represented as part of this pinned generation and clears no hold. The first-party page remains unretained in this pinned bridge generation, so this generation cannot establish later notices/addenda currentness.
 
 The Bid Sheet was also inspected inertly during recovery as OOXML (one sheet `Tab 1 - Summary`, `A1:E26`, 20 non-empty cells, zero formulas; 120-day validity and a four-month firm-fixed-price structure visible). That is drafting/source evidence only; it does not establish an approved price, signature authority, or durable byte custody.
 

@@ -6,6 +6,12 @@ Issue: `#13985`
 
 This directory is a **qualification and proposal-control carrier** for USAC RFP IT-26-139. It is not a proposal, bid, representation of qualifications, price, signature, submission, contract, award, payment, or revenue claim.
 
+## Dated source follow-up — October 4, 2026
+
+The [revised Q&A delta packet](../rfp_addenda_delta/packets/usac_it_26_139_20261004/README.md) records the later Q113/Q179/Q180 source changes and visible deletions. The September 30 deadline has passed; this source follow-up does not reopen the closed #13985 carrier or establish bidder qualifications.
+
+The example below remains a historical September 13 evaluation. The separate current source-delta evaluation returns `SOURCE_REFRESH_REQUIRED` for an explicitly incomplete source set; the original manifest, qualification inputs and owner lineage remain unchanged.
+
 ## Why this carrier exists
 
 USAC's official package makes the practical bidder gates unusually explicit:
