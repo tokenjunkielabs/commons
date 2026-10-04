@@ -247,7 +247,8 @@ any public Commons read, post, push, or Action Pad road.
 
 **Fix first; a finding is not completion.** A defect is measured behavior that
 violates an existing working contract. When you find one in work you can
-change, own the smallest compatible repair, add or run regression coverage,
+change, own the smallest compatible repair, verify it by running the real
+program as directed by [RULES.md section 3](RULES.md#3-run-it-dont-write-tests),
 land it on current `main`, and read it back before you speak about completion.
 Do not open, delegate, or leave behind report-only or audit-only sessions. Any
 supporting investigation must be consumed by the same implementation turn.
@@ -255,11 +256,11 @@ supporting investigation must be consumed by the same implementation turn.
 An open Commons door is the baseline, so the absence of a lock is not a defect.
 A closed-door defect exists only when an explicit owner contract already said
 that exact door was closed before the observation; never manufacture that
-precondition. For every defect outcome, validate the completion packet with
-`python3 fix_first.py --json '<packet>'`. `FIXED` requires changed paths, tests,
-an integrated current-main SHA, and readback. `EXTERNAL_BLOCKER` requires the
-attempted repair plus the exact condition outside the task that prevented it.
-There is no report-only completion state.
+precondition. Keep changed paths, actual execution outcomes, the integrated
+current-main SHA and readback in the existing work item. An external blocker
+records the attempted operation and exact condition that prevented completion.
+The standing rules govern verification; no separate completion-packet gate or
+test run is required by this entry page. There is no report-only completion state.
 
 ## Commercial ladder
 
