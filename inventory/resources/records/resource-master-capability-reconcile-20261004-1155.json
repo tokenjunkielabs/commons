@@ -1,0 +1,167 @@
+{
+  "schema": "commons.resource_master.activation/v1",
+  "id": "resource-master-capability-reconcile-20261004-1155",
+  "operation_id": "RESOURCE-MASTER-CAPABILITY-RECONCILE-20261004-1155",
+  "observed_at": "2026-10-04T16:06:12Z",
+  "selected_resources": [
+    "retained-gmail-mime-projector",
+    "connected-github-source-pinned-publisher",
+    "connected-slack-native-page-collector",
+    "github-quota-aware-read-coordinator",
+    "algora-payout-receiving-rail",
+    "railway-connected-hosting-tools"
+  ],
+  "activation_count": 6,
+  "producing_outcomes": [
+    {
+      "resource": "retained-gmail-mime-projector",
+      "result": "NATIVE_LABEL_DATE_METADATA_LANDED",
+      "receipt": "https://github.com/woahwhattheheck/commons/pull/31332",
+      "merge": "e18f408cd35b981c43412836279b51d1d5aa2ca9"
+    },
+    {
+      "resource": "connected-github-source-pinned-publisher",
+      "result": "NATIVE_ENVELOPE_FREE_CLASSIFIER_AND_GUARDED_DELETE_LANDED",
+      "receipts": [
+        "https://github.com/woahwhattheheck/commons/pull/31342",
+        "https://github.com/woahwhattheheck/commons/pull/31339",
+        "https://github.com/woahwhattheheck/commons/pull/31349"
+      ]
+    },
+    {
+      "resource": "connected-slack-native-page-collector",
+      "result": "DATE_FILTER_AND_REPEAT_EVIDENCE_LANDED",
+      "receipts": [
+        "https://github.com/woahwhattheheck/commons/pull/31347",
+        "https://github.com/woahwhattheheck/commons/pull/31345"
+      ]
+    },
+    {
+      "resource": "github-quota-aware-read-coordinator",
+      "result": "SHARED_UNKNOWN_SECONDARY_BACKOFF_LANDED",
+      "receipt": "bounty-concierge PR819 merge7895ceefd18206fbcfeeecb5a9706a9a381e6d23"
+    },
+    {
+      "resource": "railway-connected-hosting-tools",
+      "result": "READ_ONLY_PROJECT_AND_DEPLOYMENT_STATE_OBSERVED",
+      "projects_observed": 2,
+      "provider_mutations": 0
+    },
+    {
+      "resource": "algora-payout-receiving-rail",
+      "result": "OWNER_RECEIVING_RAIL_READY",
+      "award_or_payout_claimed": false
+    },
+    {
+      "resource": "rcap-dcs-proposal-owner-facts",
+      "result": "EXISTING_DRAFT_ATTACHMENT_SEND_FOLLOWUP_ROUTED",
+      "receipt": "https://tokenjunkielabs.slack.com/archives/C0BU51F1PL3/p1791129527633219?thread_ts=1790977806.441259&cid=C0BU51F1PL3",
+      "submission_claimed": false
+    }
+  ],
+  "lifecycle_changes": [
+    {
+      "resource": "Port of LA RAMP229778",
+      "to": "LIVE_WINDOW_HELD",
+      "deadline": "2026-10-13 15:00 PT",
+      "owner": "existing ZCCW/Master-of-Accounts"
+    },
+    {
+      "resource": "Jackson ERP 20477-092226",
+      "to": "LIVE_WINDOW_HELD",
+      "deadline": "2026-10-06 15:30 timezone unverified"
+    },
+    {
+      "resource": "Lexington SC RFP27-04",
+      "to": "LIVE_WINDOW_HELD",
+      "deadline": "2026-10-20 15:00 timezone unprinted"
+    },
+    {
+      "resource": "WFHA software solicitation",
+      "to": "LIVE_WINDOW_HELD",
+      "deadline": "2026-10-29 14:00 timezone unverified"
+    },
+    {
+      "resource": "Mineral Wells insurance procurement",
+      "to": "NOT_SOFTWARE_BUYER_DEMAND"
+    },
+    {
+      "resource": "legacy public prospect rows",
+      "to": "CLOSED_PASSED_OR_UNKNOWN_AWARD",
+      "count_boundary": "multiple exact rows in Slack delta; not retained as live buyers"
+    },
+    {
+      "resource": "microG/GmsCore PR3841",
+      "to": "OPEN_UNMERGED_HEAD_MOVED",
+      "head": "2de4887ea7ffd27ec86256f3ccbd48e3e46a8baf"
+    },
+    {
+      "resource": "CBB issues1_and3",
+      "to": "COLLIDED_BY_COMPETING_TRIES"
+    }
+  ],
+  "commercial_observation": {
+    "stripe_new_payment_intents": 0,
+    "stripe_new_checkout_sessions": 0,
+    "stripe_new_balance_transactions": 0,
+    "balance_available_usd": "0.00",
+    "balance_pending_usd": "0.00",
+    "orders_settlements_payouts_revenue_cash_claimed": 0
+  },
+  "quota_lifecycle": {
+    "decision": "RETAIN_PRIOR_STATE",
+    "official_new_reset_evidence": false,
+    "direct_meter_change_observed": false,
+    "reset_activated": false,
+    "reset_purchased": false
+  },
+  "automations": {
+    "total": 25,
+    "enabled": 3,
+    "disabled": 22,
+    "records_updated_after_lower_bound": 0,
+    "resource_master_enabled": true,
+    "schedule_changed": false,
+    "disabled_tasks_restarted": 0
+  },
+  "build_orders": [
+    {
+      "id": "ACCOUNT-TRANSCRIPT-CREDENTIAL-REDACTION-20261004-01",
+      "link": "https://tokenjunkielabs.slack.com/archives/C0BTB4SUCP9/p1791129667279309",
+      "consumer": "Account Chad and owner-browser/provider-login workers",
+      "state": "POSTED_UNCLAIMED"
+    }
+  ],
+  "claims": {
+    "claim_link": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791129624419299",
+    "exact_paths": [
+      "ground/RESOURCE_LEDGER.json",
+      "ground/RESOURCE_LEDGER.md",
+      "resources.html",
+      "inventory/resources/records/resource-master-capability-reconcile-20261004-1155.json"
+    ],
+    "release_pending_publication": true
+  },
+  "current_terminal_watermark": {
+    "inherits_record_id": "resource-master-revenue-delta-20261004-0856",
+    "fully_collected_commit_range_head": "880810130b9b2cee24bebb95591c7d4a478115d7",
+    "fully_swept_window_upper": "2026-10-04T16:06:12Z",
+    "bounded_commons_main_from_exclusive": "b4ed202eedf35d5e61e5247981760b935d40877c",
+    "bounded_commons_main_through": "880810130b9b2cee24bebb95591c7d4a478115d7",
+    "bounded_slack_from_exclusive": "1791119328.701679",
+    "bounded_slack_through": "1791129667.279309",
+    "current_main_snapshot_is_fully_swept": true,
+    "publication_observations_after_upper_are_not_swept": true
+  },
+  "checks": {
+    "exact_path_claim": true,
+    "private_data_preserved": true,
+    "no_new_tests_fixtures_workflows": true,
+    "no_paid_compute": true,
+    "open_door_no_auth": true,
+    "zero_fabrication": true,
+    "no_contact_or_relay_to_michael_clark": true,
+    "no_personal_meeting_commitment": true,
+    "no_provider_mutation": true
+  }
+}
