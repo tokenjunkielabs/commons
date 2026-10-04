@@ -1516,7 +1516,7 @@ def holding_write(git, key, holder, action, ttl_s=1800, note="", now=None,
     for _ in range(attempts):
         tip = _remote_tip(git, branch, remote)
         if tip:
-            git.fetch([tip], remote)
+            git.fetch([tip], remote, depth=1)
         try:
             holdings = _read_holdings(git, tip, want=path)
         except HoldingUnreadable as exc:

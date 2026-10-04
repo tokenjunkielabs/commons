@@ -62,10 +62,10 @@ before switching that work to a scoped key.
 Named operations are limited to 200 UTF-8 bytes after normalization so the durable holding note can retain the complete canonical operation plus useful audit context within the existing 300-character note ceiling.
 
 Both claim adapters read only the selected holding for `status`, without
-materializing unrelated holding blobs. Current holdings reads fetch the missing
-ledger tip with depth 1 and blob filtering, so a new cloud checkout does not
-download the ledger's history to inspect its present tree. General commit fetches,
-history-dependent drift, and claim writes retain their existing fetch behavior.
+materializing unrelated holding blobs. Current holdings reads and writes fetch the
+missing ledger tip with depth 1 and blob filtering, so a new cloud checkout does
+not download the ledger's history to inspect or update its present tree. General
+commit fetches and history-dependent drift retain their existing fetch behavior.
 The result includes its canonical key,
 repository, observed ledger tip, and record. `held: false` describes an absent,
 released, or expired holding; it does not establish that older work stopped.
