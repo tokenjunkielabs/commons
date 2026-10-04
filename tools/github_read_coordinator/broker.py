@@ -332,11 +332,11 @@ class Broker:
             transaction_now = self.now()
             if limited:
                 self._extend(db, limit_bucket, now + delay)
-            # The final permitted request can succeed while exhausting its
-            # primary quota. Preserve that response, but prevent subsequent
-            # uncached calls in the same bucket until the reset. Persist this
-            # observation even if its lease expired while the response arrived.
-            if result.status == 200 and remaining_zero:
+            # Primary exhaustion can coincide with a secondary limit. Keep its
+            # reset floor independently so a shorter Retry-After cannot reopen
+            # that quota bucket early. Successful final requests keep their
+            # payload, and expired leases still carry quota observations.
+            if remaining_zero and result.status in {200, 403, 429}:
                 primary_delay = max(retry or 0, reset_delay(result.rate_reset, now) or 0) or 60
                 self._extend(db, lease.bucket, now + primary_delay)
             if result.status == 401:
