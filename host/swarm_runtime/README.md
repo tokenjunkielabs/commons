@@ -168,9 +168,12 @@ mutable-response TTL, immutable merge and full-commit comparison caching,
 paginated timeline progress and bounded task rotation. Comparisons retain only
 complete ancestry evidence between two full 40- or 64-character commit hashes;
 existing retained comparisons qualify without another provider read. Branch
-references keep their 60-second TTL, and a changed target commit selects a new
-comparison. Symbolic or abbreviated comparisons, incomplete responses and
-provider errors retain their existing expiry/retry behavior.
+references keep their 60-second TTL. When a full artifact or PR head SHA equals
+the resolved target head, reconciliation uses that branch observation directly.
+The evidence cites the branch endpoint and records `target_head_identity` as its
+proof method. Differing heads use the pinned comparison lookup, and a changed
+target commit selects a new comparison. Symbolic or abbreviated comparisons,
+incomplete responses and provider errors retain their existing expiry/retry behavior.
 Cache reads use the existing task-key index for only the
 requested facts, with at most 500 SQL parameters per batch; a small refresh does
 not scan the entire retained cache. A persistent shared client budget permits a burst of four
