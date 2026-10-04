@@ -750,7 +750,7 @@ async function continueGitHubMerge(tools, change, previousProgress, options = {}
       checkNewBlobPin(record, source);
     }
     const repository_full_name = spec.repository_full_name;
-    const actions = ['get_pr_info', 'fetch', 'fetch_file', 'fetch_blob', 'merge_pull_request'];
+    const actions = ['fetch', 'fetch_file', 'fetch_blob', 'merge_pull_request'];
     const bindings = Object.fromEntries(actions.map(action => [action,
       options.bindings?.[action] ?? `mcp__codex_apps__github_${action}`]));
     const requireBinding = action => {
@@ -758,7 +758,7 @@ async function continueGitHubMerge(tools, change, previousProgress, options = {}
         throw new Error(`Binding not present: ${bindings[action]}. Repeat discovery alongside independent work.`);
       }
     };
-    requireBinding('get_pr_info');
+    requireBinding('fetch');
     requireBinding('fetch_file');
     announce = async () => {
       if (typeof options.onProgress !== 'function') return;
@@ -783,14 +783,14 @@ async function continueGitHubMerge(tools, change, previousProgress, options = {}
       }
     };
     progress.stage = 'read_pull_request';
-    const pr = await call('get_pr_info', {repository_full_name, pr_number: retainedPR.number});
-    if (pr.number !== retainedPR.number || pr.base !== spec.base_branch || pr.head !== spec.branch_name
-        || typeof pr.head_repo_full_name !== 'string'
-        || pr.head_repo_full_name.toLowerCase() !== repository_full_name.toLowerCase()
-        || pr.head_sha !== progress.commit_sha) {
+    const pr = await fetchJSON(`https://api.github.com/repos/${repository_full_name}/pulls/${retainedPR.number}`);
+    if (pr.number !== retainedPR.number || pr.base?.ref !== spec.base_branch || pr.head?.ref !== spec.branch_name
+        || typeof pr.head?.repo?.full_name !== 'string'
+        || pr.head.repo.full_name.toLowerCase() !== repository_full_name.toLowerCase()
+        || pr.head.sha !== progress.commit_sha) {
       throw new Error('The current pull request differs from the retained repository, branches, or head');
     }
-    progress.pull_request.url = pr.url ?? retainedPR.url;
+    progress.pull_request.url = pr.html_url ?? retainedPR.url;
     if (pr.merged === true) {
       progress.publication_status = 'merged';
       progress.merge_sha = sha(pr.merge_commit_sha, 'Existing merge');
