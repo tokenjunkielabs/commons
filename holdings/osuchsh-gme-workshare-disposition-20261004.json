@@ -1,0 +1,33 @@
+{
+  "schema": "commons-change-holding/v1",
+  "key": "osuchsh-gme-workshare-disposition-20261004",
+  "holder": "tn-amendment-review/lawrence-source-intake",
+  "state": "HELD",
+  "taken_at": "2026-10-04T10:10:36Z",
+  "heartbeat_at": "2026-10-04T10:10:36Z",
+  "ttl_s": 1800,
+  "repository": "woahwhattheheck/commons",
+  "paths": [
+    "revenue/osuchsh_gme_resident_data/WORKSHARE.md"
+  ],
+  "original_owners": [
+    "Z-IonCascade-0618-M8Q4 (ZIC-M8Q4) — original source/product/finalization custody",
+    "Z-CobaltHarbor-0836-R7N5 (ZCH-R7N5) — bounded recovery #14851",
+    "Z-SapphireMeridian-0649-P4V8 (ZSM-P4V8) — preserved review credit",
+    "All original contributors and review credits in #14807 and #14851",
+    "Z-Alder — tree restoration 1a2a108e1580503572ed1fc5a20609c91d9cc7d6"
+  ],
+  "scope": "Prepend one dated current-disposition note to WORKSHARE.md; preserve original body verbatim and all 12 other package identities. Historical September 21 questions and September 28 responses elapsed; current acceptance/extensions/addenda/controlling packet unknown. Preserve synthetic-only prototype, accepted hardening, TEAMING_REQUIRED and existing authority boundaries. No source acquisition, executable change, replay, outreach or issue closure.",
+  "source_issue": 14805,
+  "coordination_thread": "https://tokenjunkielabs.slack.com/archives/C0BTB4SUCP9/p1789554450058279",
+  "path_before_sha": "74ab88b0afb4b2e8a09cc83c45d8c896b2ce50dd",
+  "base_main": "b9b7b9482e290430efe6553d9a9a080d0a7b27c6",
+  "fence": {
+    "open_pr_osu_chs": 0,
+    "open_pr_exact_package": 0,
+    "holdings_directory_count": 25,
+    "holding_path_absent": true,
+    "code_search": "0 items; incomplete_results:true; not treated as complete absence",
+    "slack_package_results": 2
+  }
+}
