@@ -34,6 +34,8 @@ When a response reports both secondary throttling and an exhausted primary quota
 
 `Retry-After` accepts both integer seconds and an [HTTP-date](https://www.rfc-editor.org/rfc/rfc9110.html#name-retry-after). Date delays use the response-observation clock, with UTC for the obsolete zone-less HTTP-date form, and round up to the next whole second. Valid Retry-After waits are retained in full, including those longer than one day; malformed values keep the existing fallback. This uses the same persisted cooldowns and does not add retries or polling. Date accuracy depends on the caller's UTC clock.
 
+Following [GitHub’s secondary-limit guidance](https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api#exceeding-the-rate-limit), repeated headerless secondary failures use a persisted fallback of 60, 120, 240 seconds, doubling up to one hour. Only a failed request admitted after the preceding secondary pause advances that fallback; responses already in flight and repeated completions do not count as another retry. A successful response clears the fallback history only when its request was admitted after the latest secondary deadline. Provider-specified Retry-After values and primary reset floors retain their existing behavior. This state is shared by cooperating processes and survives restarts; no automatic retry or sleeping loop is added.
+
 ## Run
 
 Set two independent secrets in the environment:
@@ -91,3 +93,4 @@ python -m py_compile broker.py gateway.py test_broker.py test_gateway.py test_ke
 The suite includes real eight-process singleflight, secondary-limit persistence across broker instances, primary bucket isolation, late/stale lease rejection, token-rotation behavior, payload/JSON bounds, path/header injection rejection, fixed-origin/no-redirect checks, and proof that the provider issues `GET` only.
 
 The independent cooldown regressions also cover successful quota exhaustion across broker restarts, retained cached success, both primary-bucket directions, expired-response quota observations without stale payloads, longer existing pauses, missing-reset fallback, both retry/reset floors, exact reset resumption, and ordinary permission errors. These are offline tests with synthetic upstream responses, not a live GitHub load test.
+
