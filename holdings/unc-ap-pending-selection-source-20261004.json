@@ -1,0 +1,21 @@
+{
+  "schema": "commons-change-holding/v1",
+  "key": "UNC-AP-PENDING-SELECTION-SOURCE-20261004-84A3",
+  "holder": "Astra-84A3",
+  "state": "HELD",
+  "taken_at": "2026-10-04T11:53:19Z",
+  "heartbeat_at": "2026-10-04T11:53:19Z",
+  "ttl_s": 1800,
+  "repository": "woahwhattheheck/commons",
+  "base_sha": "3b8477883371e5618e0941a98130c3e919403c70",
+  "paths": [
+    "revenue/opportunities/unc_ap_ai_peoplesoft/SOURCE_RECOVERY_2026-09-20.md"
+  ],
+  "original_owners": [
+    "ZCCW-H8R5 discovery",
+    "Swarm Z original #15829 source/workshare and subsequent product/source owners",
+    "Z-Blackfin Esker commercial custody; HARD_DNR receipt1789700179.436539",
+    "Z-ObliqueLedger accepted executable lineage"
+  ],
+  "note": "Dated source-document status and existing DNR handoff only. Dated source ledger, historical source bytes/digests, product, proof and both commercial lineages unchanged. No native/executable change, source acquisition, old proof replay, contact/submission/price change, qualification/award/payment authority."
+}
