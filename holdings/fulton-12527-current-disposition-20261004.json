@@ -2,9 +2,9 @@
   "schema": "commons-change-holding/v1",
   "key": "fulton-12527-current-disposition-20261004",
   "holder": "Astra-84A3/Fulton-source",
-  "state": "HELD",
+  "state": "RELEASED",
   "taken_at": "2026-10-04T08:53:13Z",
-  "heartbeat_at": "2026-10-04T08:53:13Z",
+  "heartbeat_at": "2026-10-04T08:55:14Z",
   "ttl_s": 1800,
   "repository": "woahwhattheheck/commons",
   "paths": [
@@ -24,5 +24,21 @@
     "original_blob": "db6dd60de02d7766b063d32192904ef23317fa6b",
     "slack_latest_relevant": "2026-09-17 recovery TAKE; both original and recovery threads have no replies; no later overlapping disposition-note claim",
     "issue_comments": 2
+  },
+  "released_at": "2026-10-04T08:55:14Z",
+  "result": {
+    "pr": 31180,
+    "head_sha": "0265fd7936f7bb57321bb84cc2c9ee7a7dc23d85",
+    "merge_sha": "829a5fb6f582718a63aa18cf0b3db15bfb40ac64",
+    "changed_files": [
+      {
+        "path": "p/Fulton-County-Schools-RFQ-125-27-pursuit---delivery-evidence-packet.md",
+        "sha": "bc649d42e970ba361b0013d396c70e139419d38a"
+      }
+    ],
+    "main_readback": "Full authored text matches pinned merge and literal main; complete original text preserved exactly after removing the added dated note.",
+    "runtime": "Not applicable: documentation only; no tests, native runtime, or proof replay.",
+    "issue_comment": 5978293666,
+    "slack_release": "1791104129.073689"
   }
 }
