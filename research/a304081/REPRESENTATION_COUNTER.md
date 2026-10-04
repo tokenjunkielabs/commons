@@ -91,3 +91,26 @@ The first successful rows give:
 [point_counts_20261004.json](point_counts_20261004.json) retains both complete result objects: all 57 successful representations, all 776 candidate pairs and all 770 per-query classification rows. Compact row formatting changes no result field or value.
 
 These are two individual exact point counts. The old verifier, source-example runs and historically recorded interval search were not replayed. This publication does not claim a new interval search, worldwide priority, a proof for all integers or a prize result. The original mathematical problem remains open.
+
+## Near-cap individual counts
+
+A new constructor invocation of the unchanged counter source `599ec2d630307c4ab1bd548ef01269b2e15cd6c5`, with catalog source `4eb31cfe376c74e9d1e3a56de15dce4e0dbcd362`, prepared the inclusive maximum `1000000000000`. Two new single-input calls produced:
+
+| Input `n` | Candidate pairs | Distinct candidates | `a(n)` | Trial divisions |
+| --- | ---: | ---: | ---: | ---: |
+| 999999999999 | 508 | 505 | **26** | 2,663,718 |
+| 1000000000000 | 548 | 545 | **56** | 5,186,941 |
+
+[point_counts_near_cap_20261004.json](point_counts_near_cap_20261004.json) retains both complete result objects, including every exponent-pair row, successful representation, classification, least divisor, cofactor and operation count. Together they contain 1,056 candidate pairs, 1,050 per-query classification rows and 82 representations.
+
+An evaluated candidate replaced the bounded primality loop's BigInt arithmetic with Number arithmetic under the same maximum. Its complete JSON results matched the retained baseline for both inputs, including all fields, counters and witnesses. The data artifact retains the complete evaluated candidate source and the original source identities. The elapsed observations were:
+
+| Operation | Existing counter | Number candidate |
+| --- | ---: | ---: |
+| Preparation | 238 ms | 229 ms |
+| Count `999999999999` | 201 ms | 202 ms |
+| Count `1000000000000` | 362 ms | 389 ms |
+
+These are one elapsed observation per operation and variant, not a statistical benchmark or a comparison with the C++ search. Neither count call showed an observed speedup, so the Number candidate was not adopted. The published counter remains `599ec2d630307c4ab1bd548ef01269b2e15cd6c5` and continues to use the BigInt classification described above.
+
+These are two additional individual exact point counts, including the maximum supported input. They do not extend the historical interval search, establish worldwide priority, or prove the conjecture. The earlier point-count data, source examples and mathematical attribution remain unchanged.
