@@ -7,6 +7,11 @@ witness for each of the **454,717 exclusions**. The complete surviving integers
 are in [residual_candidates.json](residual_candidates.json), ready for a later
 refinement without rerunning this one.
 
+The later [residual completion](RESIDUAL_COMPLETION.md) provides explicit
+factorizations excluding all 10,618 of these saved candidates. The result and
+dataset on this page remain the inputs to that continuation; neither earlier
+sieve was rerun.
+
 [residue_refinement.cjs](residue_refinement.cjs) supplies a reusable exact API for
 this operation. It works directly in the connected JavaScript runtime, as well
 as through CommonJS. Surviving its selected filters does not establish primality
