@@ -290,6 +290,51 @@ reports a mismatch for those labels. Apply the new comparison to the retained
 captured response and separately prepared text; publication and readback do not
 need to be repeated.
 
+### Optional independent www-prefix and final-slash omission
+
+`slack_bare_urls_entities_www_or_slash_labels` is a separate opt-in mode.
+It includes the base URL/entity transformations and accepts three exact display
+forms of an HTTP(S) target after removing its scheme:
+
+- Remove the initial literal `www.` and preserve every remaining character.
+- Remove exactly one terminal `/` and preserve every preceding character.
+- Remove both that initial `www.` and that one terminal slash.
+
+The target must have the respective prefix or suffix and contain neither
+`?` nor `#`. Recognition uses literal string comparison: no URL decoding,
+case folding, internal-slash changes, path shortening, ellipsis, arbitrary
+label stripping or whitespace normalization. The wrapper is replaced by its
+unchanged full target, including the original scheme, prefix and slash.
+A different target or any other difference in the remaining body still
+mismatches the separately prepared text.
+
+```javascript
+const comparison = compareSlackPublication(nextPublishedResult, nextPreparedMessage, {
+  normalization: 'slack_bare_urls_entities_www_or_slash_labels',
+});
+```
+
+Only this mode adds `normalizations_applied.www_prefix_omissions` and
+`normalizations_applied.terminal_slash_omissions`. A wrapper omitting both
+increments each omission counter once and `bare_url_wrappers` once.
+An exact literal match leaves the counters zero. A normalized whole-body
+match reports `presentation_match` with `literal_match: false`.
+
+The default, base, fragment-label and existing
+`slack_bare_urls_entities_www_slash_labels` modes retain their earlier behavior
+and result shapes. In particular, the existing www-and-slash mode still
+requires both omissions. This new mode does not enable fragment-label elision.
+Selection, framing/ambiguity refusal and single-pass entity handling are
+unchanged; the comparator performs no provider calls or mutation.
+
+The motivating 2026-10-04 native publications contained these independent
+forms: `https://prizeproblems.org/problems/170/` displayed without its scheme
+and final slash, while `https://www.mit.edu/~asah/papers/2402.17995.pdf`
+displayed without its scheme and initial `www.`. Their earlier helper
+mismatches and completed manual dispositions remain preserved. The new mode
+was source-inspected only at publication; those accepted bodies were not
+retrieved or compared again, and no fixture or execution result is claimed.
+
 ## Compare one exact fenced payload
 
 `compareSlackFencedPayload(result, expectedPayload)` selects the same bounded

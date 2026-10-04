@@ -314,17 +314,24 @@ function compareSlackPublication(published, expectedMessage, options = {}) {
   const normalization = options.normalization === undefined ? 'none' : options.normalization;
   if (!['none', 'slack_bare_urls_entities',
     'slack_bare_urls_entities_fragment_labels',
-    'slack_bare_urls_entities_www_slash_labels'].includes(normalization)) {
+    'slack_bare_urls_entities_www_slash_labels',
+    'slack_bare_urls_entities_www_or_slash_labels'].includes(normalization)) {
     throw new TypeError('normalization must be none, slack_bare_urls_entities, '
-      + 'slack_bare_urls_entities_fragment_labels, or slack_bare_urls_entities_www_slash_labels');
+      + 'slack_bare_urls_entities_fragment_labels, slack_bare_urls_entities_www_slash_labels, '
+      + 'or slack_bare_urls_entities_www_or_slash_labels');
   }
   const allowFragmentLabels = normalization === 'slack_bare_urls_entities_fragment_labels';
   const allowWwwSlashLabels = normalization === 'slack_bare_urls_entities_www_slash_labels';
+  const allowIndependentLabels = normalization === 'slack_bare_urls_entities_www_or_slash_labels';
   const result = {status: 'uncomparable', matches: null, literal_match: null,
     body_source: 'native_read_thread_rendering', channel_binding: 'retained_readback_request',
     normalization, normalizations_applied: {bare_url_wrappers: 0, entities: 0}};
   if (allowFragmentLabels) result.normalizations_applied.fragment_labels = 0;
   if (allowWwwSlashLabels) result.normalizations_applied.www_slash_labels = 0;
+  if (allowIndependentLabels) {
+    result.normalizations_applied.www_prefix_omissions = 0;
+    result.normalizations_applied.terminal_slash_omissions = 0;
+  }
   const selection = selectSlackPublicationBody(published, result);
   if (selection.failure) return selection.failure;
   const observed = selection.body;
@@ -345,12 +352,22 @@ function compareSlackPublication(published, expectedMessage, options = {}) {
       const wwwSlashLabel = allowWwwSlashLabels && withoutScheme.startsWith('www.')
         && withoutScheme.endsWith('/') && !/[?#]/.test(withoutScheme)
         && label === withoutScheme.slice(4, -1);
+      const independentTarget = allowIndependentLabels && !/[?#]/.test(withoutScheme);
+      const wwwOnlyLabel = independentTarget && withoutScheme.startsWith('www.')
+        && label === withoutScheme.slice(4);
+      const slashOnlyLabel = independentTarget && withoutScheme.endsWith('/')
+        && label === withoutScheme.slice(0, -1);
+      const independentBothLabel = independentTarget && withoutScheme.startsWith('www.')
+        && withoutScheme.endsWith('/') && label === withoutScheme.slice(4, -1);
       if (label !== undefined && label !== target && label !== withoutScheme
-        && !fragmentLabel && !wwwSlashLabel) {
+        && !fragmentLabel && !wwwSlashLabel
+        && !wwwOnlyLabel && !slashOnlyLabel && !independentBothLabel) {
         return whole;
       }
       if (fragmentLabel) result.normalizations_applied.fragment_labels += 1;
       if (wwwSlashLabel) result.normalizations_applied.www_slash_labels += 1;
+      if (wwwOnlyLabel || independentBothLabel) result.normalizations_applied.www_prefix_omissions += 1;
+      if (slashOnlyLabel || independentBothLabel) result.normalizations_applied.terminal_slash_omissions += 1;
       result.normalizations_applied.bare_url_wrappers += 1;
       return target;
     });
