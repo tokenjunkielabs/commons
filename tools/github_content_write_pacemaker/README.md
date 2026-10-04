@@ -63,6 +63,33 @@ commitments and state. Intents are read through one bounded no-follow regular
 file descriptor. SQLite integrity and all semantic digests are rechecked by
 `verify`.
 
+## Recover an existing intent
+
+`export-intent` reads an existing mutation and prints its complete canonical
+intent, including the original mutation key, description and exact request-body
+strings. Its `commons-github-content-write-recovery/v1` envelope contains `intent`
+(the normal enqueue shape) and the existing body-free `receipt` from the same
+stored row. Stored body and intent digests are checked before any content is
+returned.
+
+```bash
+python -m tools.github_content_write_pacemaker.cli --db /private/pacer.db \
+  export-intent --key existing-operation-id > /private/recovered-intent.json
+```
+
+Use the retained shared database, not a newly initialized queue. Unlike
+`inspect`, this command exposes the complete request body and description;
+keep its output in the existing private cloud carrier rather than a status
+post or a public repository. JSON is canonicalized, while strings retain their
+original Unicode, newlines and whitespace.
+
+Export makes no provider call and does not enqueue, claim, retry or change a
+mutation. `DISPATCHING`, `RECONCILE_REQUIRED`, known rejections and completed
+outcomes stay intact. A replacement session can recover the exact request for
+provider readback through the existing publication path without issuing another
+claim. Continue using the existing result and reconciliation commands with the
+same operation ID; an export is not evidence that a write succeeded or failed.
+
 ## Verification
 
 ```bash
