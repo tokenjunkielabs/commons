@@ -78,6 +78,15 @@ The collector selects `response_format: "detailed"` and defaults `limit` to 20. 
 
 ## Search dates when checking current work
 
+Search collections now expose `search_date_filters` when the explicit native
+`filters` string contains `after:YYYY-MM-DD` or `on:YYYY-MM-DD`.
+Each entry records the operator, date text, and observed semantics:
+`after` is labeled `excludes_named_calendar_date_observed`; `on` is
+`exact_named_calendar_date`. The pure search projector exposes the same array
+at `source.search_date_filters`. This metadata describes the supplied filter
+syntax only; it does not prove provider application, rewrite a query, widen a
+date range, or make an ownership decision.
+
 For current-day ownership intake, use the previous calendar day in the
 workspace's timezone as the `after:` lower bound. For example, an October 4
 check in TokenJunkieLabs uses `after:2026-10-03`. Keep the actual subject,

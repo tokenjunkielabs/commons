@@ -60,6 +60,22 @@ function diagnostic(error) {
     message: String(error?.message ?? error).slice(0, 1200)};
 }
 
+/** Describe explicit native search date operators without changing the request. */
+function searchDateFilters(args) {
+  if (!args || typeof args.filters !== 'string') return [];
+  const found = [];
+  for (const match of args.filters.matchAll(/(?:^|\s)(after|on):(\d{4}-\d{2}-\d{2})(?=\s|$)/g)) {
+    found.push({
+      operator: match[1],
+      date: match[2],
+      semantics: match[1] === 'after'
+        ? 'excludes_named_calendar_date_observed'
+        : 'exact_named_calendar_date',
+    });
+  }
+  return found;
+}
+
 /** Project only the native failure envelope, never nested application payloads. */
 function projectSlackReadFailure(response) {
   const record = value => value && typeof value === 'object' && !Array.isArray(value);
@@ -220,6 +236,9 @@ async function collectSlackPages(tools, request, options = {}) {
       next_cursor: initialCursor, stop_reason: null, snapshot: false,
       coverage: 'native_pagination_only'},
   };
+  if (['search', 'search_public'].includes(operation)) {
+    result.search_date_filters = searchDateFilters(args);
+  }
   const seen = new Set();
   let cursor = initialCursor;
   let mayContinue = true;
@@ -685,7 +704,8 @@ function projectSlackSearchResults(response, request, options = {}) {
       content_basis: 'connector_rendered_content', message_identity: 'rendered_header',
       channel_binding: 'rendered_result_header', rendered_query: null,
       rendered_query_range: null, search_preamble_range: null,
-      query_application: 'not_verified', representations: 0, input_chars: 0},
+      query_application: 'not_verified', search_date_filters: searchDateFilters(args),
+      representations: 0, input_chars: 0},
     limits, coverage: {scope: 'retained_response_only', snapshot: false}, results: [], issue: null};
   const bad = (code, detail) => { throw {searchProjection: true, code, detail}; };
   let charged = 0;
