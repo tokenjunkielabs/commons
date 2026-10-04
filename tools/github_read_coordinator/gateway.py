@@ -234,7 +234,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return
         auth = self.headers.get("Authorization", "")
         expected = "Bearer " + self.server.key
-        if not hmac.compare_digest(auth, expected):
+        if not auth.isascii() or not hmac.compare_digest(auth, expected):
             self.send_json(401, {"state": "UNAUTHORIZED", "provider_write_authority": False})
             return
         raw_length = self.headers.get("Content-Length", "")
