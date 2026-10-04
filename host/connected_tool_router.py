@@ -1,0 +1,450 @@
+"""Execute capability routes through an existing runtime tool bridge.
+
+Native ChatGPT tools use dispatch/resume; Python/MCP consumers supply an invoker
+or a JSON subprocess bridge to run the same loop automatically. Provider limits
+are stored in private runtime state, never in the public capability catalog.
+"""
+from __future__ import annotations
+
+import argparse
+import copy
+import hashlib
+import json
+import math
+import os
+import re
+import subprocess
+import sys
+import tempfile
+import uuid
+from contextlib import contextmanager
+from datetime import datetime, timedelta, timezone
+from email.utils import parsedate_to_datetime
+from pathlib import Path
+from typing import Callable
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+from integrations.shared_equipment.outcomes import effect_uncertain, tool_failed
+from integrations.shared_equipment.provider_io import EquipmentError, redacted
+from integrations.shared_equipment.services import plan_capability_fallback
+
+
+def _now():
+    return datetime.now(timezone.utc)
+
+
+def _iso(value):
+    return value.isoformat().replace("+00:00", "Z")
+
+
+def _time(value):
+    if value is None:
+        return None
+    parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    if parsed.tzinfo is None:
+        raise EquipmentError("runtime timestamps require a timezone")
+    return parsed.astimezone(timezone.utc)
+
+
+def _digest(value):
+    return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":"),
+                                     allow_nan=False).encode("utf-8")).hexdigest()
+
+
+def load_routes(path):
+    value = json.loads(Path(path).read_text(encoding="utf-8"))
+    return value if isinstance(value, list) else value["tool_fleet"]["free_pool_routes"]
+
+
+def _envelopes(value):
+    """Read transport metadata only, not a job status buried in returned data."""
+    if isinstance(value, dict):
+        yield value
+        for key in ("structuredContent", "result", "error"):
+            child = value.get(key)
+            if isinstance(child, dict):
+                yield from _envelopes(child)
+
+
+def response_evidence(value):
+    if not isinstance(value, dict):
+        raise EquipmentError("provider response must be a JSON object")
+    evidence = {"observed_at": _iso(_now()), "uncertain": effect_uncertain(value)}
+    for envelope in _envelopes(value):
+        for key in ("http_status", "retry_after", "retry_not_before", "quota_remaining",
+                    "rate_limit_remaining", "rate_limit_reset", "delivered", "effect", "code", "error_code"):
+            if key in envelope and envelope[key] is not None:
+                evidence.setdefault(key, envelope[key])
+        status = envelope.get("status")
+        if isinstance(status, int) and not isinstance(status, bool):
+            evidence.setdefault("http_status", status)
+        for header_field in ("headers", "rate_limit_headers"):
+            headers = envelope.get(header_field)
+            if not isinstance(headers, dict):
+                continue
+            for key, item in headers.items():
+                key = str(key).lower()
+                if key == "retry-after":
+                    evidence.setdefault("retry_after", item)
+                elif key == "x-ratelimit-remaining":
+                    evidence.setdefault("rate_limit_remaining", item)
+                elif key == "x-ratelimit-reset":
+                    evidence.setdefault("rate_limit_reset", item)
+                elif key == "x-ratelimit-limit":
+                    window = re.search(r"(?:^|;)w=(\d+)", str(item))
+                    if window:
+                        evidence.setdefault("rate_limit_window_seconds", int(window.group(1)))
+    status = evidence.get("http_status")
+    if status is not None and (isinstance(status, bool) or not isinstance(status, int)
+                               or not 100 <= status <= 599):
+        raise EquipmentError("provider http_status must be an HTTP status integer")
+    evidence["failed"] = tool_failed(value) or bool(status and status >= 400)
+    return evidence
+
+
+class ConnectedToolRouter:
+    """One operation journal and cooldown map shared by all bridge consumers."""
+
+    def __init__(self, routes: list[dict], state_file: str | Path):
+        self.routes = copy.deepcopy(routes)
+        self.state_file = Path(state_file).expanduser().resolve()
+
+    @contextmanager
+    def _state(self):
+        self.state_file.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        lock_path = self.state_file.with_suffix(self.state_file.suffix + ".lock")
+        descriptor = os.open(lock_path, os.O_RDWR | os.O_CREAT, 0o600)
+        os.chmod(lock_path, 0o600)
+        try:
+            if os.name == "nt":
+                import msvcrt
+                if os.fstat(descriptor).st_size == 0:
+                    os.write(descriptor, b"0")
+                os.lseek(descriptor, 0, os.SEEK_SET)
+                msvcrt.locking(descriptor, msvcrt.LK_LOCK, 1)
+            else:
+                import fcntl
+                fcntl.flock(descriptor, fcntl.LOCK_EX)
+            state = json.loads(self.state_file.read_text(encoding="utf-8")) if self.state_file.exists() else {
+                "schema": "commons.connected_tool_runtime.v1", "quota_domains": {}, "operations": {}}
+            if state.get("schema") != "commons.connected_tool_runtime.v1":
+                raise EquipmentError("unsupported runtime state schema")
+            yield state
+            serialized = json.dumps(state, ensure_ascii=False, allow_nan=False)
+            temporary = None
+            try:
+                fd, temporary = tempfile.mkstemp(prefix=".router-", dir=self.state_file.parent)
+                with os.fdopen(fd, "w", encoding="utf-8") as stream:
+                    os.chmod(temporary, 0o600)
+                    stream.write(serialized)
+                    stream.flush()
+                    os.fsync(stream.fileno())
+                os.replace(temporary, self.state_file)
+            finally:
+                if temporary and os.path.exists(temporary):
+                    os.unlink(temporary)
+        finally:
+            os.close(descriptor)
+
+    def _routes_for(self, request, state, operation):
+        rows = copy.deepcopy(self.routes)
+        bindings = request.get("bindings", {})
+        if not isinstance(bindings, dict):
+            raise EquipmentError("bindings must map route IDs to tool/arguments objects")
+        for row in rows:
+            limits = state["quota_domains"].get(row["quota_domain"], {})
+            reset_at = _time(limits.get("reset_at"))
+            if reset_at and reset_at <= _now():
+                limits = {key: value for key, value in limits.items()
+                          if key not in {"quota_remaining", "reset_at"}}
+            row.update({key: limits[key] for key in ("cooldown_until", "quota_remaining") if key in limits})
+            binding = bindings.get(row["id"], {})
+            if not isinstance(binding, dict):
+                raise EquipmentError("each runtime binding must be an object")
+            tool = binding.get("tool", row.get("native_tool"))
+            arguments = binding.get("arguments", request.get("arguments_by_route", {}).get(row["id"]))
+            if tool is not None and (not isinstance(tool, str) or not tool.strip()):
+                raise EquipmentError("runtime tool names must be nonempty strings")
+            if tool and isinstance(arguments, dict):
+                row["native_tool"] = tool
+                row["binding_state"] = "callable"
+            else:
+                row["binding_state"] = "runtime_arguments_required"
+            domain = request.get("task_domain")
+            domains = binding.get("task_domains", row.get("task_domains", []))
+            if not isinstance(domains, list) or any(not isinstance(item, str) or not item for item in domains):
+                raise EquipmentError("task_domains must be an array of nonempty strings")
+            if domain and domain not in domains and "*" not in domains:
+                row["binding_state"] = "task_domain_mismatch"
+            if row["id"] in operation["attempted_routes"]:
+                row["binding_state"] = "attempted_this_operation"
+        return rows
+
+    def _next(self, request, state, operation):
+        if operation.get("terminal"):
+            return copy.deepcopy(operation["terminal"])
+        if operation.get("pending"):
+            return {"decision": "AWAITING_PROVIDER_RESPONSE", "operation_id": request["operation_id"],
+                    "dispatch_id": operation["pending"]["dispatch_id"],
+                    "route_id": operation["pending"]["route_id"], "provider_calls": 0}
+        rows = self._routes_for(request, state, operation)
+        selector = {"routes": rows, "capability": request["capability"],
+                    "operation_id": request["operation_id"], "effect": request.get("effect", "read"),
+                    "previous_effect": request.get("previous_effect", "none"),
+                    "input_sensitivity": request.get("input_sensitivity", "public")}
+        last = operation.get("last_failure")
+        if last:
+            selector.update(failed_route=last["route_id"], failure=last["evidence"])
+        plan = plan_capability_fallback(selector)
+        attempted_domains = {next(row["quota_domain"] for row in self.routes if row["id"] == route_id)
+                             for route_id in operation["attempted_routes"]}
+        choices = [row for row in plan["candidates"]
+                   if not row["reasons"] and row["quota_domain"] not in attempted_domains]
+        # Distinct quota domains are useful even when backend independence is
+        # unknown. Preserve the distinction rather than inflating the pool count.
+        if not choices or len(operation["attempted_routes"]) >= request.get("max_attempts", 8):
+            result = {"decision": plan["decision"] if not choices else "ATTEMPT_LIMIT_REACHED",
+                      "operation_id": request["operation_id"], "attempted_routes": operation["attempted_routes"],
+                      "plan": plan, "provider_calls": 0}
+            if result["decision"] == "USE_READY_ROUTE":
+                result["decision"] = "NO_UNTRIED_QUOTA_DOMAIN"
+            return result
+        preferred = request.get("preferred_route")
+        choice = next((row for row in choices if row["id"] == preferred), choices[0])
+        binding = request.get("bindings", {}).get(choice["id"], {})
+        arguments = binding.get("arguments", request.get("arguments_by_route", {}).get(choice["id"]))
+        dispatch = {"decision": "DISPATCH", "operation_id": request["operation_id"],
+                    "dispatch_id": uuid.uuid4().hex, "route_id": choice["id"],
+                    "tool": choice["native_tool"], "arguments": arguments,
+                    "quota_domain": choice["quota_domain"], "backend": choice["backend"],
+                    "shared_backend_with_failed": choice["shared_backend_with_failed"],
+                    "backend_independence_known": choice["backend_independence_known"],
+                    "effect": request.get("effect", "read"), "created_at": _iso(_now()),
+                    "provider_calls": 0, "invocation_required": True}
+        operation["pending"] = dispatch
+        return copy.deepcopy(dispatch)
+
+    def dispatch(self, request: dict):
+        if not isinstance(request, dict):
+            raise EquipmentError("dispatch request must be an object")
+        for key in ("operation_id", "capability"):
+            if not isinstance(request.get(key), str) or not request[key].strip():
+                raise EquipmentError(key + " must be a nonempty string")
+        attempts = request.get("max_attempts", 8)
+        if isinstance(attempts, bool) or not isinstance(attempts, int) or not 1 <= attempts <= 32:
+            raise EquipmentError("max_attempts must be an integer from 1 to 32")
+        if not isinstance(request.get("arguments_by_route", {}), dict):
+            raise EquipmentError("arguments_by_route must be an object")
+        if "task_domain" in request and (not isinstance(request["task_domain"], str) or not request["task_domain"]):
+            raise EquipmentError("task_domain must be a nonempty string")
+        request = copy.deepcopy(request)
+        # An explicit new write starts with no prior effect. A caller recovering
+        # an existing write must supply its actual accepted/unknown state.
+        request.setdefault("previous_effect", "none")
+        fingerprint = _digest(request)
+        with self._state() as state:
+            operation = state["operations"].get(request["operation_id"])
+            if operation and operation["request_digest"] != fingerprint:
+                previous = operation["request"]
+                routing_fields = {"bindings", "arguments_by_route", "max_attempts", "preferred_route", "previous_effect"}
+                previous_intent = {key: value for key, value in previous.items() if key not in routing_fields}
+                current_intent = {key: value for key, value in request.items() if key not in routing_fields}
+                if previous_intent != current_intent:
+                    raise EquipmentError("operation_id already names different inputs; preserve the existing operation")
+                # New connections can extend the same unfinished operation.
+                # Existing route arguments remain immutable and never remint a
+                # provider call already dispatched for this logical operation.
+                for field in ("bindings", "arguments_by_route"):
+                    prior_map, current_map = previous.get(field, {}), request.get(field, {})
+                    if not isinstance(current_map, dict):
+                        raise EquipmentError(field + " must be an object")
+                    if any(key in current_map and current_map[key] != value for key, value in prior_map.items()):
+                        raise EquipmentError("existing route inputs changed under operation_id")
+                    request[field] = {**prior_map, **current_map}
+                if previous.get("previous_effect") in {"accepted", "unknown"}:
+                    request["previous_effect"] = previous["previous_effect"]
+                operation["request"] = request
+                operation["request_digest"] = _digest(request)
+            if operation is None:
+                operation = {"request_digest": fingerprint, "request": request,
+                             "attempted_routes": [], "responses": {}, "created_at": _iso(_now())}
+                state["operations"][request["operation_id"]] = operation
+            return self._next(request, state, operation)
+
+    @staticmethod
+    def _limits(evidence, current):
+        limits = dict(current)
+        observed = _time(evidence["observed_at"])
+        deadline = _time(evidence.get("retry_not_before"))
+        retry_after = evidence.get("retry_after")
+        if retry_after is not None:
+            try:
+                seconds = float(retry_after)
+            except (TypeError, ValueError):
+                additional = parsedate_to_datetime(str(retry_after))
+                if additional.tzinfo is None:
+                    raise EquipmentError("Retry-After HTTP date requires a timezone")
+                additional = additional.astimezone(timezone.utc)
+            else:
+                if not math.isfinite(seconds) or seconds < 0:
+                    raise EquipmentError("Retry-After seconds must be finite and nonnegative")
+                additional = observed + timedelta(seconds=seconds)
+            deadline = max(deadline, additional) if deadline else additional
+        existing = _time(limits.get("cooldown_until"))
+        if deadline:
+            limits["cooldown_until"] = _iso(max(existing, deadline) if existing else deadline)
+        remaining = evidence.get("quota_remaining", evidence.get("rate_limit_remaining"))
+        if remaining is not None:
+            try:
+                remaining = float(remaining)
+            except (TypeError, ValueError):
+                raise EquipmentError("provider remaining quota must be numeric") from None
+            if not math.isfinite(remaining) or remaining < 0:
+                raise EquipmentError("provider remaining quota must be finite and nonnegative")
+            limits["quota_remaining"] = remaining
+        reset = evidence.get("rate_limit_reset")
+        if reset is not None:
+            try:
+                reset_at = datetime.fromtimestamp(float(reset), timezone.utc)
+            except (TypeError, ValueError, OverflowError):
+                reset_at = _time(reset)
+            limits["reset_at"] = _iso(reset_at)
+        elif "quota_remaining" not in evidence and "rate_limit_remaining" in evidence:
+            # A provider's request-window count differs from a credit balance.
+            # Expire it at the supplied deadline/window rather than leaving a
+            # one-minute exhausted window permanently at zero.
+            window = evidence.get("rate_limit_window_seconds")
+            if deadline:
+                limits["reset_at"] = _iso(deadline)
+            elif isinstance(window, int) and 0 < window <= 86400:
+                limits["reset_at"] = _iso(observed + timedelta(seconds=window))
+        limits["observed_at"] = evidence["observed_at"]
+        return limits
+
+    def resume(self, operation_id: str, dispatch_id: str, response: dict):
+        evidence = response_evidence(response)
+        with self._state() as state:
+            operation = state["operations"].get(operation_id)
+            if not operation:
+                raise EquipmentError("operation_id has no dispatch in this private runtime state")
+            if dispatch_id in operation["responses"]:
+                # The earlier result may have emitted another dispatch which
+                # has already run. Return current state, never that old call.
+                return self._next(operation["request"], state, operation)
+            dispatch = operation.get("pending")
+            if not dispatch or dispatch["dispatch_id"] != dispatch_id:
+                raise EquipmentError("dispatch_id does not identify the outstanding provider call")
+            domain = dispatch["quota_domain"]
+            state["quota_domains"][domain] = self._limits(evidence, state["quota_domains"].get(domain, {}))
+            operation["pending"] = None
+            operation["attempted_routes"].append(dispatch["route_id"])
+            result = {"operation_id": operation_id, "route_id": dispatch["route_id"],
+                      "dispatch_id": dispatch_id, "evidence": evidence,
+                      "provider_calls": 1, "attempted_routes": list(operation["attempted_routes"])}
+            request = operation["request"]
+            if not evidence["failed"] and not evidence["uncertain"]:
+                result.update(decision="COMPLETED", result=response)
+                operation["terminal"] = result
+            else:
+                is_write = dispatch["effect"] == "write"
+                status = evidence.get("http_status")
+                rejected = evidence.get("effect") == "rejected" or evidence.get("delivered") is False or bool(
+                    status and 400 <= status < 500 and status not in {408, 409} and not evidence["uncertain"])
+                if is_write and not rejected:
+                    result.update(decision="RECONCILE_EXISTING_WRITE", result=response)
+                    operation["terminal"] = result
+                elif status in {400, 404, 405, 409, 413, 415, 422}:
+                    result.update(decision="REQUEST_FAILED", result=response)
+                    operation["terminal"] = result
+                else:
+                    operation["last_failure"] = {"route_id": dispatch["route_id"], "evidence": evidence}
+                    request["previous_effect"] = "rejected" if is_write else "none"
+                    result = self._next(request, state, operation)
+                    result["previous_response"] = {"route_id": dispatch["route_id"], "evidence": evidence}
+            operation["responses"][dispatch_id] = copy.deepcopy(result)
+            return result
+
+    def status(self, operation_id):
+        with self._state() as state:
+            operation = state["operations"].get(operation_id)
+            if operation is None:
+                return {"decision": "OPERATION_NOT_FOUND", "operation_id": operation_id}
+            return {"operation_id": operation_id, "decision": operation.get("terminal", {}).get(
+                "decision", "AWAITING_PROVIDER_RESPONSE" if operation.get("pending") else "ROUTING"),
+                    "pending_dispatch_id": (operation.get("pending") or {}).get("dispatch_id"),
+                    "attempted_routes": operation["attempted_routes"],
+                    "quota_domains": copy.deepcopy(state["quota_domains"])}
+
+    def run(self, request: dict, invoker: Callable[[dict], dict]):
+        """Run actual bridge calls, switching immediately on eligible failures."""
+        result = self.dispatch(request)
+        calls = 0
+        while result["decision"] == "DISPATCH":
+            dispatch = result
+            try:
+                response = invoker(copy.deepcopy(dispatch))
+            except Exception as exc:
+                # A bridge exception may occur after provider acceptance; writes
+                # retain the pending ID for readback instead of being replayed.
+                response = {"isError": True, "code": type(exc).__name__,
+                            "uncertain": dispatch["effect"] == "write"}
+            calls += 1
+            result = self.resume(dispatch["operation_id"], dispatch["dispatch_id"], response)
+        result["provider_calls_this_run"] = calls
+        return result
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("operation", choices=("dispatch", "resume", "run", "status"))
+    parser.add_argument("--routes-file", type=Path, required=True)
+    parser.add_argument("--state-file", type=Path, required=True,
+                        help="private runtime state outside the git checkout")
+    parser.add_argument("--operation-id", help="existing ID for status")
+    parser.add_argument("--provider-apis", action="store_true", help="invoke existing shared ProviderAPIs tools")
+    parser.add_argument("--bridge-command", nargs=argparse.REMAINDER,
+                        help="JSON stdin/stdout tool bridge; receives tool/arguments and stable operation/dispatch metadata")
+    args = parser.parse_args()
+    try:
+        router = ConnectedToolRouter(load_routes(args.routes_file), args.state_file)
+        if args.operation == "status":
+            result = router.status(args.operation_id)
+        else:
+            request = json.load(sys.stdin)
+            if args.operation == "dispatch":
+                result = router.dispatch(request)
+            elif args.operation == "resume":
+                result = router.resume(request["operation_id"], request["dispatch_id"], request["response"])
+            else:
+                if args.provider_apis:
+                    from integrations.shared_equipment.provider_apis import GroqExaEquipment
+                    equipment = GroqExaEquipment()
+                    from integrations.shared_equipment.free_model_apis import FreeModelEquipment
+                    model_equipment = FreeModelEquipment()
+                    model_tools = {item["name"] for item in model_equipment.tools()}
+                    def invoker(dispatch):
+                        target = model_equipment if dispatch["tool"] in model_tools else equipment
+                        return target.call(dispatch["tool"], dispatch["arguments"])
+                elif args.bridge_command:
+                    def invoker(dispatch):
+                        completed = subprocess.run(args.bridge_command, input=json.dumps(dispatch),
+                                                   capture_output=True, text=True, timeout=90, check=False)
+                        if completed.returncode:
+                            raise EquipmentError("runtime bridge returned a nonzero exit code")
+                        return json.loads(completed.stdout)
+                else:
+                    raise EquipmentError("run requires --provider-apis or --bridge-command")
+                result = router.run(request, invoker)
+        # Native arguments/results belong to the calling private runtime. Secret
+        # credential fields are redacted; the state file is never published.
+        print(json.dumps(redacted(result), ensure_ascii=False, allow_nan=False))
+        return 0 if result["decision"] in {"DISPATCH", "COMPLETED", "AWAITING_PROVIDER_RESPONSE", "ROUTING"} else 3
+    except (OSError, ValueError, KeyError, TypeError, EquipmentError) as exc:
+        print(json.dumps({"isError": True, "code": "connected_router_failed", "message": redacted(str(exc))}))
+        return 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

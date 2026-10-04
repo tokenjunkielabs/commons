@@ -32,16 +32,18 @@
     "providers.business-gmail": "2026-10-04",
     "providers.cal-com": "2026-09-18T03:00:37Z",
     "providers.cerebras-api": "2026-09-18T03:00:37Z",
-    "providers.chatgpt-plugin-fleet": "2026-09-07T04:08:47Z",
+    "providers.chatgpt-plugin-fleet": "2026-10-04T07:27:15.256Z",
     "providers.chatgpt-sites": "2026-10-04",
-    "providers.chatgpt-work-pro": "2026-10-04T06:35Z",
+    "providers.chatgpt-work-pro": "2026-10-04T07:27:15.256Z",
     "providers.claude-code-max": "2026-09-18T03:00:37Z",
-    "providers.context7": "2026-10-04",
+    "providers.cloudflare-workers-ai": "2026-10-04",
+    "providers.context7": "2026-10-04T07:26:02.747Z",
     "providers.cursor-ultra-pool": "2026-09-18T03:00:37Z",
     "providers.dropbox-basic": "2026-10-04",
     "providers.e2b": "2026-09-18T03:00:37Z",
     "providers.exa-research": "2026-10-03T03:47:15Z",
-    "providers.firecrawl": "2026-09-18T03:00:37Z",
+    "providers.firecrawl": "2026-10-04",
+    "providers.gemini-developer-api": "2026-10-04",
     "providers.github-account-and-repository-fleet": "2026-10-04",
     "providers.google-drive": "2026-10-04",
     "providers.google-gemini": "2026-09-18T03:00:37Z",
@@ -49,42 +51,55 @@
     "providers.groq-api": "2026-10-03T03:47:15Z",
     "providers.heygen": "2026-09-18T03:00:37Z",
     "providers.higgsfield": "2026-09-18T03:00:37Z",
-    "providers.hugging-face": "2026-10-04",
+    "providers.hugging-face": "2026-10-04T07:26:02.747Z",
+    "providers.jina-public-reader": "2026-10-04",
     "providers.kaggle-account-binding": "2026-09-18T03:00:37Z",
     "providers.langfuse": "2026-09-18T03:00:37Z",
     "providers.mega": "2026-09-18T03:00:37Z",
+    "providers.mistral-free-api": "2026-10-04",
+    "providers.neon": "2026-10-04",
     "providers.netlify": "2026-10-04",
     "providers.openai-automation-fleet": "2026-09-07T04:08:47Z",
-    "providers.openrouter": "2026-09-18T03:00:37Z",
+    "providers.openrouter": "2026-10-04",
     "providers.oracle-cloud": "2026-09-18T03:00:37Z",
-    "providers.parallel": "2026-09-18T03:00:37Z",
-    "providers.posthog": "2026-10-04",
+    "providers.parallel": "2026-10-04T07:34:45.326Z",
+    "providers.posthog": "2026-10-04T07:26:02.747Z",
     "providers.railway": "2026-10-04",
+    "providers.render": "2026-10-04",
     "providers.revenuecat": "2026-09-18T03:00:37Z",
     "providers.secondary-gmail": "2026-09-18T03:00:37Z",
     "providers.shopify": "2026-09-18T03:00:37Z",
     "providers.slack-workspace": "2026-10-04",
     "providers.stripe-live-and-sandbox": "2026-10-04",
+    "providers.supabase": "2026-10-04",
     "providers.supergrok-heavy": "2026-09-18T03:00:37Z",
     "providers.tavily": "2026-10-04",
+    "providers.tinyfish": "2026-10-04T07:34:45.326Z",
     "providers.vercel": "2026-10-04",
     "providers.whop": "2026-09-18T03:00:37Z",
     "providers.x-commons-swarm": "2026-09-18T03:00:37Z",
     "providers.zapier-mcp": "2026-09-18T03:00:37Z",
     "providers.zep": "2026-09-18T03:00:37Z",
-    "tool_fleet": "2026-10-04T06:34:26.753Z",
+    "tool_fleet": "2026-10-04T07:27:15.256Z",
     "tool_fleet.automations": "2026-09-07T04:08:47Z",
+    "tool_fleet.current_confirmed_plugin_connections": "2026-10-04T07:27:15.256Z",
+    "tool_fleet.free_pool_routes": "2026-10-04T07:31Z",
     "tool_fleet.historical_plugin_search_findings": "2026-09-07T04:08:47Z",
     "tool_fleet.installed_plugins": "2026-09-07T04:08:47Z",
     "tool_fleet.plugin_eligibility_observations": "2026-10-04",
     "tool_fleet.plugin_search_findings.agentmail_plugin": "2026-10-04",
-    "tool_fleet.provider_read_probes": "2026-10-04",
-    "tool_fleet.skill_registry": "2026-10-04T06:35Z",
-    "tool_fleet.tool_registry": "2026-10-04T06:34:26.753Z"
+    "tool_fleet.provider_read_probes": "2026-10-04T07:27:15.256Z",
+    "tool_fleet.skill_registry": "2026-10-04T07:27:15.257Z",
+    "tool_fleet.tool_registry": "2026-10-04T07:27:15.256Z"
   },
   "durable_evidence": {
+    "connected_tool_router": "host/CONNECTED_TOOL_ROUTER.md",
     "current_main": "https://github.com/woahwhattheheck/commons/commit/d66ac9862e3448e2bff54c7386ce27f5a81b3640",
+    "latest_native_read_base_main": "https://github.com/woahwhattheheck/commons/commit/94111e34ab429a385366876e3175182e05ac94e3",
     "oct3_provider_runtime_receipt": "https://tokenjunkielabs.slack.com/archives/C0BU51F1PL3/p1790999235904629",
+    "official_agentmail_free_pricing": "https://www.agentmail.to/pricing",
+    "official_supabase_changelog": "https://supabase.com/changelog",
+    "official_supabase_free_pricing": "https://supabase.com/pricing",
     "owner_correction": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1788305523796789?thread_ts=1788304349.282199&cid=C0BRGMDQB6G",
     "peer_handoff_and_build_order": "https://tokenjunkielabs.slack.com/archives/C0BTB4SUCP9/p1788305514110759",
     "provider_armory_issue": "https://github.com/woahwhattheheck/commons/issues/15900",
@@ -223,10 +238,11 @@
     "No prospect outreach, resend, deployment, device action, payment, revenue, settlement, payout, or cash.",
     "No armory row claims a callable adapter, provider execution, quota, spend, or value merely from account or credential existence.",
     "Current registry and read-auth probes do not prove historical connector utilization, per-carrier visibility, write permission for a specific action, spare hosting capacity, or free model quotas.",
-    "No new or resumed schedule, service deployment, security scan, account creation, outreach, permission edit or spending occurred in the 2026-10-04 capability refresh.",
     "The retained 2026-10-03 Groq producing receipt is distinct from current carrier reach and remaining eligible quota; Exa remains source-only pending its existing owner activation.",
-    "Context7, PostHog and Hugging Face suggestions are directory eligibility observations only: latest installed=false, authentication and callable runtime absent.",
-    "AgentMail and Tavily directory availability is confirmed, but both latest searches report installed=false; current account activity, authentication and usage are unknown."
+    "Nine plugin connections are confirmed; a catalog schema does not prove a live tools/list method, authentication, quota, deployability or execution on every carrier.",
+    "This audit performed no paid purchase, plan upgrade, card entry, new schedule, deployment, security scan, message send or project/inbox creation. Firecrawl official pricing research consumed two existing included credits.",
+    "PostHog default insight metadata is not deployed telemetry. Hugging Face metadata access is not free inference. Firecrawl current credits do not identify its billing price. AgentMail public Free pricing does not identify this connected account plan.",
+    "Supabase Free organization and public $0 allowance are verified, but cost/confirmation methods return UNAVAILABLE; project creation and immutable checkpoint schema remain unexecuted. Neon target project discovery and account plan are pending."
   ],
   "providers": [
     {
@@ -238,18 +254,18 @@
         "Queue Manager",
         "builders"
       ],
-      "evidence": "2026-10-04 actual tool registry and fully paginated skill listing. Subscription billing, per-carrier exposure, historical automation counts, and other carriers remaining limits were not remeasured.",
+      "evidence": "Full registry census and10-page skill pagination completed. Per-method provider reads and typed binding failures are recorded independently; retained account, automation, carrier reach and quota observations keep their earlier timestamps.",
       "freshness": "LIVE_TOOL_AND_SKILL_CENSUS",
       "historical_usage_note": "Existing last_use and retained stage describe historical observations. Current read probes establish readiness and inventory, not fresh workload production or remaining free quota.",
       "holder": "Commons owner",
       "id": "chatgpt-work-pro",
       "kind": "SUBSCRIPTION_AND_HARNESS",
-      "last_probe": "2026-10-04",
+      "last_probe": "2026-10-04T07:27:15.256Z",
       "last_use": "2026-09-07T04:08:47Z",
       "mutation": "TASK_SCOPED",
       "observation_precision": "date",
       "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
-      "observed_at": "2026-10-04T06:35Z",
+      "observed_at": "2026-10-04T07:27:15.256Z",
       "retained_historical_observation": {
         "evidence": "442 tools, 427 connected-app tools across 20 families, 118 fully paginated skills, 14 automations, 7 enabled.",
         "freshness": "LIVE_PROBE",
@@ -261,7 +277,7 @@
       "route_state": "CALLABLE",
       "source_kind": "CURRENT_TOOL_AND_SKILL_REGISTRIES",
       "stage": "PRODUCING",
-      "value": "Current harness exposes 729 callable tools: 717 connected-app tools across 25 families and 12 core tools; fully paginated installed skill registry contains 139 skills across 18 groups."
+      "value": "Current Work carrier advertises989 tool bindings,977 connected-app methods across36 families,12 core tools and186 fully paginated skill bundles. This is exposure, not proof every method executes."
     },
     {
       "authority": "SHARED_ALL_CARRIERS",
@@ -744,43 +760,59 @@
       "consumers": [
         "all GPT carriers"
       ],
-      "current_state_note": "Historical installation census was not refreshed. Registry exposure or installed skill bundles do not prove current schedule enablement or connector authentication.",
-      "evidence": "Historical installed_plugins and prior directory search findings are retained with stale timestamps. Current Context7/PostHog/Hugging Face suggestions remain installed=false and are not callable routes.",
-      "freshness": "RETAINED_HISTORICAL_OBSERVATION",
+      "current_state_note": "Historical11-entry installed_plugins list remains datedSep7; nine current connection confirmations and method probes are separately recorded. Tool schemas, skills, tools/list visibility, auth and workload value are independent.",
+      "evidence": "Context7, PostHog, Hugging Face, AgentMail, Tavily, Supabase, Neon, Render and Firecrawl are now installed/enabled. Eight have successful native reads; Neon requires project discovery. Some advertised methods return tools/list UNAVAILABLE on particular carriers.",
+      "freshness": "CURRENT_PARTIAL_PLUGIN_CONNECTIONS_PLUS_FULL_SKILL_REGISTRY",
       "holder": "Commons",
       "id": "chatgpt-plugin-fleet",
       "kind": "PLUGIN_FLEET",
       "last_use": "2026-09-01T23:32:25Z",
       "mutation": "INSTALL_OR_USE_WHEN_CONCRETE_CONSUMER_EXISTS",
       "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
-      "observed_at": "2026-09-18T03:00:37Z",
+      "observed_at": "2026-10-04T07:27:15.256Z",
       "retained_observed_at": "2026-09-07T04:08:47Z",
       "route_state": "CALLABLE_WITH_CONSTRAINT",
       "source_kind": "PLUGIN_MANAGEMENT",
       "stage": "PRODUCING",
-      "value": "Retained 2026-09-07 installed-plugin list contains 11 entries. Current fully paginated skill registry has 139 bundles, which is a distinct measurement."
+      "value": "Current advertised registry989 bindings across36 app families; fully paginated186 skill bundles across25 groups. Historical plugin-list and automation counts retain their original timestamps."
     },
     {
+      "account_plan": "NOT_EXPOSED",
+      "audit_refreshed_at": "2026-10-04T07:27:15.256Z",
       "authority": "SHARED_ALL_CARRIERS",
-      "callable": false,
-      "capacity": "DECLARED",
-      "condition": "ACTIVE_UNKNOWN",
+      "callable": true,
+      "capacity": "LIVE",
+      "condition": "CONSTRAINED",
+      "connected_allowance": "UNMEASURED",
       "consumers": [
-        "transaction mail",
-        "agent delivery",
-        "round-trip canaries"
+        "task-scoped inbox inventory",
+        "agent mail after proven free allowance"
       ],
-      "evidence": "Root focused 2026-10-04 directory read found the exact AgentMail plugin. This supersedes historical NOT_FOUND and does not confirm install, authentication, inbox creation, idle status or runtime use. AgentMail was discovered but not included in the initial three suggestion offers.",
-      "freshness": "DIRECTORY_AVAILABLE_NOT_INSTALLED",
+      "evidence": "Organization and inbox native reads succeeded, pagination complete. Firecrawl business research independently verified official public Free $0/no-card/3-inbox pricing. The selected account plan and remaining allowance are not exposed by current AgentMail tools, so account-specific free creation is not yet established.",
+      "freshness": "NATIVE_PROVIDER_METHOD_PROBE",
       "holder": "Commons",
       "id": "agentmail",
-      "installed": false,
+      "installed": true,
       "kind": "AGENT_EMAIL_INFRASTRUCTURE",
-      "last_probe": "DIRECTORY_SEARCH_ONLY",
-      "last_use": "2026-08-21T00:00:00Z",
-      "mutation": "ACTIVATE_WITH_BUSINESS_GMAIL_CANARY",
+      "last_probe": "2026-10-04",
+      "last_use": "CURRENT_INVENTORY_READ_ONLY_NO_WORKLOAD_PRODUCTION",
+      "mutation": "TASK_SCOPED_INCLUDED_ALLOWANCE_NO_PAID_UPGRADE",
+      "native_binding_state": "WORKING_METHODS_WITH_CONSTRAINTS",
+      "observation_precision": "date",
       "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
       "observed_at": "2026-10-04",
+      "observed_counts": {
+        "inbox_pagination_complete": true,
+        "inboxes": 0,
+        "selected_organizations": 1
+      },
+      "plugin_name": "AgentMail",
+      "public_free_offer": {
+        "credit_card_required": false,
+        "inboxes": 3,
+        "price_usd_monthly": 0,
+        "url": "https://www.agentmail.to/pricing"
+      },
       "retained_historical_observation": {
         "capacity": "LIVE",
         "condition": "IDLE",
@@ -791,11 +823,18 @@
         "stage": "AVAILABLE",
         "value": "Account exists and Cursor exposes AgentMail as a required plugin; no first inbox yet."
       },
-      "route_state": "ACTIVATE_FIRST",
-      "source_kind": "CURRENT_PLUGIN_DIRECTORY_READ",
-      "stage": "DECLARED",
+      "route_state": "CALLABLE_WITH_CONSTRAINT",
+      "setup_pending": "Prove selected account Free/included inbox allowance before creating a task-scoped inbox.",
+      "source_kind": "CONNECTED_PLUGIN_AND_NATIVE_READ_RECEIPT",
+      "stage": "REACHABLE",
       "suggestion_offered": false,
-      "value": "AgentMail directory plugin is ENABLED/AVAILABLE but installed=false. Existing account and inbox activity are unknown in the current harness."
+      "tool_count": 37,
+      "user_enabled": true,
+      "value": "Authenticated selected organization and complete inbox list reads work; one selected organization and zero inboxes. No inbox was created or message sent.",
+      "working_methods": [
+        "agentmail_list_organizations",
+        "agentmail_list_inboxes"
+      ]
     },
     {
       "authority": "SHARED_ALL_CARRIERS",
@@ -1191,63 +1230,132 @@
         "model workers",
         "routing experiments"
       ],
-      "evidence": "Commons issue #15900 records the 2026-09-17 OpenRouter credential as vaulted/verified without exposing its value; callable integration remains unproven.",
+      "evidence": "The public catalog request performed no secret lookup or model generation. The new generation transport requires an explicitly free model and retains returned upstream identity.",
       "freshness": "SWARM_ARMORY_RECEIPT",
       "holder": "Commons",
       "id": "openrouter",
       "kind": "MODEL_ROUTER_API",
-      "last_use": "NOT_YET_SHARED_ADAPTER",
+      "last_probe": "2026-10-04",
+      "last_use": "2026-10-04",
       "mutation": "INTEGRATE_SHARED_ADAPTER_THEN_TASK_SCOPED",
+      "observation_precision": "date",
       "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
-      "observed_at": "2026-09-18T03:00:37Z",
-      "route_state": "ACTIVATE_FIRST",
-      "source_kind": "SWARM_ARMORY_RECEIPT",
-      "stage": "AVAILABLE",
-      "value": "Shared OpenRouter provider capacity is vaulted; a callable Commons adapter is not yet proven."
+      "observed_at": "2026-10-04",
+      "route_state": "CALLABLE_WITH_CONSTRAINT",
+      "source_kind": "PUBLIC_MODEL_CATALOG_AND_SOURCE_ADAPTER",
+      "stage": "EXERCISED",
+      "value": "Public model catalog returned HTTP 200: 466 models, including 22 entries with zero text token prices. Explicit-free generation transport is ready in source; inference account/key/backend entitlement is not proven."
     },
     {
+      "account_plan": "PRICE_UNMEASURED",
+      "audit_refreshed_at": "2026-10-04T07:27:15.256Z",
       "authority": "SHARED_ALL_CARRIERS",
+      "callable": true,
       "capacity": "LIVE",
       "condition": "CONSTRAINED",
+      "connected_allowance": {
+        "billing_period_end": "2026-10-26T17:54:24.241Z",
+        "billing_period_start": "2026-09-26T17:54:24.241Z",
+        "plan_credits": 1000,
+        "remaining_credits_before_research": 1025,
+        "research_credits_used": 2
+      },
       "consumers": [
         "research workers",
-        "web extraction"
+        "web extraction workers",
+        "provider free-plan research"
       ],
-      "evidence": "Commons issue #15900 records the 2026-09-17 Firecrawl credential as vaulted/verified without exposing its value; callable integration remains unproven.",
-      "freshness": "SWARM_ARMORY_RECEIPT",
+      "evidence": "credit_usage current read returned1025 remaining credits and1000 plan credits for Sep26-Oct26 billing period. Native web search 01a105ca-e0d9-76ba-83d5-16adc87ab43b returned three official AgentMail pricing/blog results and creditsUsed2. This proves included current capability; it does not establish billing plan price or recurring Free allowance.",
+      "freshness": "NATIVE_PROVIDER_METHOD_PROBE",
       "holder": "Commons",
       "id": "firecrawl",
-      "kind": "WEB_EXTRACTION",
-      "last_use": "NOT_YET_SHARED_ADAPTER",
-      "mutation": "INTEGRATE_SHARED_ADAPTER_THEN_TASK_SCOPED",
+      "installed": true,
+      "kind": "WEB_SEARCH_AND_EXTRACTION",
+      "last_probe": "2026-10-04",
+      "last_use": "2026-10-04T07:27:15.256Z",
+      "mutation": "TASK_SCOPED_INCLUDED_ALLOWANCE_NO_PAID_UPGRADE",
+      "native_binding_state": "WORKING_METHODS_WITH_CONSTRAINTS",
+      "observation_precision": "date",
       "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
-      "observed_at": "2026-09-18T03:00:37Z",
-      "route_state": "ACTIVATE_FIRST",
-      "source_kind": "SWARM_ARMORY_RECEIPT",
-      "stage": "AVAILABLE",
-      "value": "Shared Firecrawl provider capacity is vaulted; a callable Commons adapter is not yet proven."
+      "observed_at": "2026-10-04",
+      "observed_counts": {
+        "official_search_results": 3
+      },
+      "plugin_name": "Firecrawl",
+      "retained_historical_observation": {
+        "condition": "CONSTRAINED",
+        "evidence": "Commons issue #15900 records the 2026-09-17 Firecrawl credential as vaulted/verified without exposing its value; callable integration remains unproven.",
+        "freshness": "SWARM_ARMORY_RECEIPT",
+        "last_use": "NOT_YET_SHARED_ADAPTER",
+        "observed_at": "2026-09-18T03:00:37Z",
+        "source_kind": "SWARM_ARMORY_RECEIPT",
+        "stage": "AVAILABLE",
+        "value": "Shared Firecrawl provider capacity is vaulted; a callable Commons adapter is not yet proven."
+      },
+      "route_state": "CALLABLE_WITH_CONSTRAINT",
+      "runtime_receipt": {
+        "credits_used": 2,
+        "search_id": "01a105ca-e0d9-76ba-83d5-16adc87ab43b",
+        "source_url": "https://www.agentmail.to/pricing"
+      },
+      "source_kind": "CONNECTED_PLUGIN_AND_NATIVE_READ_RECEIPT",
+      "stage": "EXERCISED",
+      "tool_count": 27,
+      "user_enabled": true,
+      "value": "Authenticated credit read and official AgentMail pricing research succeeded; initial balance1025, included plan credits1000, actual research consumed2 credits.",
+      "working_methods": [
+        "firecrawl_firecrawl_credit_usage",
+        "firecrawl_firecrawl_search"
+      ]
     },
     {
+      "account_plan": "UNMEASURED",
+      "advertised_not_exercised_methods": [
+        "parallel_search_web_fetch"
+      ],
       "authority": "SHARED_ALL_CARRIERS",
+      "callable": true,
       "capacity": "LIVE",
       "condition": "CONSTRAINED",
+      "connected_allowance": "UNMEASURED",
       "consumers": [
         "research workers",
-        "data gathering"
+        "native web retrieval fallback"
       ],
-      "evidence": "Commons issue #15900 records the 2026-09-17 Parallel credential as vaulted/verified without exposing its value and records a provider-entitlement constraint; callable integration remains unproven.",
-      "freshness": "SWARM_ARMORY_RECEIPT",
+      "evidence": "Plugin dependency metadata installed/enabled and unresolved0. Search returned10official Resend results. Native connection succeeds even though root anonymous HTTP carrier was403. Exact account tier and remaining allowance are unmeasured; optional model analytics omitted, one stable session retained.",
+      "freshness": "NATIVE_PROVIDER_WORKLOAD_RECEIPT",
       "holder": "Commons",
       "id": "parallel",
-      "kind": "RESEARCH_API",
-      "last_use": "NOT_YET_SHARED_ADAPTER",
-      "mutation": "INTEGRATE_SHARED_ADAPTER_THEN_TASK_SCOPED",
+      "installed": true,
+      "kind": "WEB_SEARCH_AND_EXTRACTION",
+      "last_probe": "2026-10-04T07:34:45.326Z",
+      "last_use": "2026-10-04T07:34:45.326Z",
+      "mutation": "TASK_SCOPED_ELIGIBLE_ALLOWANCE_NO_PAID_UPGRADE",
       "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
-      "observed_at": "2026-09-18T03:00:37Z",
-      "route_state": "ACTIVATE_FIRST",
-      "source_kind": "SWARM_ARMORY_RECEIPT",
-      "stage": "AVAILABLE",
-      "value": "Shared Parallel provider capacity is vaulted; a callable Commons adapter is not yet proven and provider entitlement is constrained."
+      "observed_at": "2026-10-04T07:34:45.326Z",
+      "plugin_name": "Parallel Search",
+      "retained_historical_observation": {
+        "freshness": "SWARM_ARMORY_RECEIPT",
+        "last_use": "NOT_YET_SHARED_ADAPTER",
+        "observed_at": "2026-09-18T03:00:37Z",
+        "source_kind": "SWARM_ARMORY_RECEIPT",
+        "stage": "AVAILABLE",
+        "value": "Shared Parallel provider capacity is vaulted; a callable Commons adapter is not yet proven and provider entitlement is constrained."
+      },
+      "route_state": "CALLABLE_WITH_CONSTRAINT",
+      "runtime_receipt": {
+        "results": 10,
+        "search_id": "search_b65db76269a89e1d03db7d6831fee89a",
+        "stable_session": true
+      },
+      "source_kind": "PLUGIN_DEPENDENCY_METADATA_AND_NATIVE_SEARCH",
+      "stage": "EXERCISED",
+      "tool_count": 2,
+      "user_enabled": true,
+      "value": "Installed native Parallel Search returned official Resend Free/no-card pricing and UTC daily quota behavior for the swarm's email fallback research.",
+      "working_methods": [
+        "parallel_search_web_search"
+      ]
     },
     {
       "authority": "SHARED_ALL_CARRIERS",
@@ -1353,120 +1461,522 @@
       "value": "Existing Exa source adapter exposes exa_search and exa_contents; key/login verification remains pending under the existing AccountChad owner."
     },
     {
+      "account_plan": "NOT_EXPOSED",
+      "audit_refreshed_at": "2026-10-04T07:27:15.256Z",
       "authority": "SHARED_ALL_CARRIERS",
-      "callable": false,
-      "capacity": "DECLARED",
-      "condition": "ACTIVE_UNKNOWN",
+      "callable": true,
+      "capacity": "LIVE",
+      "condition": "CONSTRAINED",
+      "connected_allowance": "UNMEASURED",
       "consumers": [
-        "assigned role after installation and readiness probe"
+        "implementation workers",
+        "documentation research"
       ],
-      "evidence": "Initial suggestion was offered; latest plugin-directory search reports installation_policy AVAILABLE and installed=false. No callable tools, authentication, account capacity, free allowance or workload execution are established.",
-      "freshness": "DIRECTORY_SUGGESTION_UNCONFIRMED",
+      "evidence": "Resolve and query-docs native calls succeeded. Fresh resolve recheck succeeded on this audit carrier; connected quota and cross-carrier reach are not measured.",
+      "freshness": "NATIVE_PROVIDER_METHOD_PROBE",
       "holder": "Commons",
       "id": "context7",
-      "installed": false,
+      "installed": true,
       "kind": "DOCUMENTATION_RESEARCH",
-      "last_probe": "DIRECTORY_SEARCH_ONLY",
-      "last_use": "NO_RUNTIME_USE",
-      "mutation": "COMPLETE_SUGGESTED_INSTALL_AND_AUTH_THEN_TASK_SCOPED",
-      "observation_precision": "date",
+      "last_probe": "2026-10-04T07:26:02.747Z",
+      "last_use": "2026-10-04T07:27:15.256Z",
+      "mutation": "TASK_SCOPED_INCLUDED_ALLOWANCE_NO_PAID_UPGRADE",
+      "native_binding_state": "WORKING_METHODS_WITH_CONSTRAINTS",
+      "observation_precision": "timestamp",
       "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
-      "observed_at": "2026-10-04",
+      "observed_at": "2026-10-04T07:26:02.747Z",
       "plugin_name": "Context7",
-      "route_state": "ACTIVATE_FIRST",
-      "source_kind": "DIRECTORY_SUGGESTION_UNCONFIRMED",
-      "stage": "DECLARED",
+      "retained_historical_observation": {
+        "condition": "ACTIVE_UNKNOWN",
+        "evidence": "Initial suggestion was offered; latest plugin-directory search reports installation_policy AVAILABLE and installed=false. No callable tools, authentication, account capacity, free allowance or workload execution are established.",
+        "freshness": "DIRECTORY_SUGGESTION_UNCONFIRMED",
+        "last_use": "NO_RUNTIME_USE",
+        "observed_at": "2026-10-04",
+        "source_kind": "DIRECTORY_SUGGESTION_UNCONFIRMED",
+        "stage": "DECLARED",
+        "value": "Version-specific documentation lookup for implementation workers; eligible directory plugin remains uninstalled."
+      },
+      "route_state": "CALLABLE_WITH_CONSTRAINT",
+      "source_kind": "CONNECTED_PLUGIN_AND_NATIVE_READ_RECEIPT",
+      "stage": "EXERCISED",
       "suggestion_offered": true,
-      "value": "Version-specific documentation lookup for implementation workers; eligible directory plugin remains uninstalled."
+      "tool_count": 2,
+      "user_enabled": true,
+      "value": "Native current SDK documentation lookup works. PostHog JS resolved as /posthog/posthog-js and server SDK capture/shutdown documentation was retrieved.",
+      "working_methods": [
+        "context7_resolve_library_id",
+        "context7_query_docs"
+      ]
     },
     {
+      "account_plan": "UNMEASURED",
+      "audit_refreshed_at": "2026-10-04T07:27:15.256Z",
       "authority": "SHARED_ALL_CARRIERS",
-      "callable": false,
-      "capacity": "DECLARED",
-      "condition": "ACTIVE_UNKNOWN",
+      "callable": true,
+      "capacity": "LIVE",
+      "condition": "CONSTRAINED",
+      "connected_allowance": "UNMEASURED",
       "consumers": [
-        "assigned role after installation and readiness probe"
+        "observability workers",
+        "existing telemetry analysis"
       ],
-      "evidence": "Initial suggestion was offered; latest plugin-directory search reports installation_policy AVAILABLE and installed=false. No callable tools, authentication, account capacity, free allowance or workload execution are established.",
-      "freshness": "DIRECTORY_SUGGESTION_UNCONFIRMED",
+      "evidence": "Authoritative PostHog skills and exact tool schemas loaded before reads. projects-get, organization-get, insights-list and docs-search succeeded. Fresh projects-get recheck succeeded on this carrier. Business knowledge search is not enabled; billing/canvas/MCP-registry extra scopes are absent.",
+      "freshness": "NATIVE_PROVIDER_METHOD_PROBE",
       "holder": "Commons",
       "id": "posthog",
-      "installed": false,
+      "installed": true,
       "kind": "PRODUCT_AND_LLM_OBSERVABILITY",
-      "last_probe": "DIRECTORY_SEARCH_ONLY",
-      "last_use": "NO_RUNTIME_USE",
-      "mutation": "COMPLETE_SUGGESTED_INSTALL_AND_AUTH_THEN_TASK_SCOPED",
-      "observation_precision": "date",
+      "last_probe": "2026-10-04T07:26:02.747Z",
+      "last_use": "2026-10-04T07:27:15.256Z",
+      "mutation": "TASK_SCOPED_INCLUDED_ALLOWANCE_NO_PAID_UPGRADE",
+      "native_binding_state": "WORKING_METHODS_WITH_CONSTRAINTS",
+      "observation_precision": "timestamp",
       "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
-      "observed_at": "2026-10-04",
+      "observed_at": "2026-10-04T07:26:02.747Z",
+      "observed_counts": {
+        "organizations": 1,
+        "projects": 1,
+        "saved_insights": 8
+      },
       "plugin_name": "PostHog",
-      "route_state": "ACTIVATE_FIRST",
-      "source_kind": "DIRECTORY_SUGGESTION_UNCONFIRMED",
-      "stage": "DECLARED",
+      "retained_historical_observation": {
+        "condition": "ACTIVE_UNKNOWN",
+        "evidence": "Initial suggestion was offered; latest plugin-directory search reports installation_policy AVAILABLE and installed=false. No callable tools, authentication, account capacity, free allowance or workload execution are established.",
+        "freshness": "DIRECTORY_SUGGESTION_UNCONFIRMED",
+        "last_use": "NO_RUNTIME_USE",
+        "observed_at": "2026-10-04",
+        "source_kind": "DIRECTORY_SUGGESTION_UNCONFIRMED",
+        "stage": "DECLARED",
+        "value": "Existing telemetry analysis for observability workers; eligible directory plugin remains uninstalled."
+      },
+      "route_state": "CALLABLE_WITH_CONSTRAINT",
+      "source_kind": "CONNECTED_PLUGIN_AND_NATIVE_READ_RECEIPT",
+      "stage": "EXERCISED",
       "suggestion_offered": true,
-      "value": "Existing telemetry analysis for observability workers; eligible directory plugin remains uninstalled."
+      "tool_count": 1,
+      "user_enabled": true,
+      "value": "Authenticated native wrapper reads one organization, one project and eight saved insight metadata records. No event ingestion or production telemetry is established.",
+      "working_methods": [
+        "posthog_exec:projects-get",
+        "posthog_exec:organization-get",
+        "posthog_exec:insights-list",
+        "posthog_exec:docs-search"
+      ]
     },
     {
+      "account_plan": "UNMEASURED",
+      "audit_refreshed_at": "2026-10-04T07:27:15.256Z",
       "authority": "SHARED_ALL_CARRIERS",
-      "callable": false,
-      "capacity": "DECLARED",
-      "condition": "ACTIVE_UNKNOWN",
+      "callable": true,
+      "capacity": "LIVE",
+      "condition": "CONSTRAINED",
+      "connected_allowance": "FREE_INFERENCE_NOT_ESTABLISHED",
       "consumers": [
-        "assigned role after installation and readiness probe"
+        "model research workers",
+        "dataset research workers"
       ],
-      "evidence": "Initial suggestion was offered; latest plugin-directory search reports installation_policy AVAILABLE and installed=false. No callable tools, authentication, account capacity, free allowance or workload execution are established.",
-      "freshness": "DIRECTORY_SUGGESTION_UNCONFIRMED",
+      "evidence": "whoami, model repo metadata and dataset repo metadata succeeded. Fresh whoami and model repo metadata recheck succeeded on this carrier. Another active router carrier separately received UNAVAILABLE/tools-list errors for hf_doc_search and model_search; this is method/carrier visibility, not an installation or global authentication failure.",
+      "freshness": "NATIVE_PROVIDER_METHOD_PROBE",
       "holder": "Commons",
       "id": "hugging-face",
-      "installed": false,
+      "installed": true,
       "kind": "MODEL_DATASET_AND_SPACE_RESEARCH",
-      "last_probe": "DIRECTORY_SEARCH_ONLY",
-      "last_use": "NO_RUNTIME_USE",
-      "mutation": "COMPLETE_SUGGESTED_INSTALL_AND_AUTH_THEN_TASK_SCOPED",
+      "last_probe": "2026-10-04T07:26:02.747Z",
+      "last_use": "2026-10-04T07:27:15.256Z",
+      "mutation": "TASK_SCOPED_INCLUDED_ALLOWANCE_NO_PAID_UPGRADE",
+      "native_binding_state": "WORKING_METHODS_WITH_CONSTRAINTS",
+      "observation_precision": "timestamp",
+      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
+      "observed_at": "2026-10-04T07:26:02.747Z",
+      "observed_counts": {
+        "authenticated_accounts": 1,
+        "organizations": 0
+      },
+      "per_carrier_binding_constraints": [
+        {
+          "carrier": "active connector router",
+          "error": "MCP method not returned by tools/list",
+          "error_code": "UNAVAILABLE",
+          "methods": [
+            "hugging_face_hf_doc_search",
+            "hugging_face_model_search"
+          ]
+        }
+      ],
+      "plugin_name": "Hugging Face",
+      "retained_historical_observation": {
+        "condition": "ACTIVE_UNKNOWN",
+        "evidence": "Initial suggestion was offered; latest plugin-directory search reports installation_policy AVAILABLE and installed=false. No callable tools, authentication, account capacity, free allowance or workload execution are established.",
+        "freshness": "DIRECTORY_SUGGESTION_UNCONFIRMED",
+        "last_use": "NO_RUNTIME_USE",
+        "observed_at": "2026-10-04",
+        "source_kind": "DIRECTORY_SUGGESTION_UNCONFIRMED",
+        "stage": "DECLARED",
+        "value": "Model/dataset research and eligible existing Space tooling; eligible directory plugin remains uninstalled."
+      },
+      "route_state": "CALLABLE_WITH_CONSTRAINT",
+      "source_kind": "CONNECTED_PLUGIN_AND_NATIVE_READ_RECEIPT",
+      "stage": "EXERCISED",
+      "suggestion_offered": true,
+      "tool_count": 9,
+      "user_enabled": true,
+      "value": "Authenticated native model and dataset metadata reads work for Qwen/Qwen3-8B and openai/gsm8k. No hosted inference, jobs, downloads or paid compute were run.",
+      "working_methods": [
+        "hugging_face_hf_whoami",
+        "hugging_face_hub_repo_details"
+      ]
+    },
+    {
+      "account_plan": "UNMEASURED",
+      "audit_refreshed_at": "2026-10-04T07:27:15.256Z",
+      "authority": "SHARED_ALL_CARRIERS",
+      "callable": true,
+      "capacity": "LIVE",
+      "condition": "CONSTRAINED",
+      "connected_allowance": "UNMEASURED",
+      "consumers": [
+        "research workers",
+        "web extraction workers"
+      ],
+      "evidence": "Root search request 0f6247e8-47cd-4e0e-b68a-88b3517e73ea returned five official Notion results; extraction bc7956c0-fa7f-451a-9768-fc8fcea45e00 returned two official Notion/Trello pages with no failed results. No current balance check is available in this receipt.",
+      "freshness": "NATIVE_PROVIDER_METHOD_PROBE",
+      "holder": "Commons",
+      "id": "tavily",
+      "installed": true,
+      "kind": "RESEARCH_API",
+      "last_probe": "2026-10-04",
+      "last_use": "2026-10-04T07:27:15.256Z",
+      "mutation": "TASK_SCOPED_INCLUDED_ALLOWANCE_NO_PAID_UPGRADE",
+      "native_binding_state": "WORKING_METHODS_WITH_CONSTRAINTS",
       "observation_precision": "date",
       "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
       "observed_at": "2026-10-04",
-      "plugin_name": "Hugging Face",
-      "route_state": "ACTIVATE_FIRST",
-      "source_kind": "DIRECTORY_SUGGESTION_UNCONFIRMED",
-      "stage": "DECLARED",
-      "suggestion_offered": true,
-      "value": "Model/dataset research and eligible existing Space tooling; eligible directory plugin remains uninstalled."
+      "observed_counts": {
+        "extracted_pages": 2,
+        "failed_extract_results": 0,
+        "official_search_results": 5
+      },
+      "plugin_name": "Tavily",
+      "retained_historical_observation": {
+        "condition": "ACTIVE_UNKNOWN",
+        "evidence": "Root focused 2026-10-04 directory read reports ENABLED, AVAILABLE and installed=false. Discovered only; not included in initial suggestion offers. Official recurring free credits do not establish this account allowance or runtime readiness.",
+        "freshness": "DIRECTORY_AVAILABLE_NOT_INSTALLED",
+        "last_use": "NO_RUNTIME_USE",
+        "observed_at": "2026-10-04",
+        "source_kind": "CURRENT_PLUGIN_DIRECTORY_READ",
+        "stage": "DECLARED",
+        "value": "Tavily is available in the plugin directory but remains uninstalled; no authenticated research adapter or connected quota is established."
+      },
+      "route_state": "CALLABLE_WITH_CONSTRAINT",
+      "source_kind": "CONNECTED_PLUGIN_AND_NATIVE_READ_RECEIPT",
+      "stage": "EXERCISED",
+      "suggestion_offered": false,
+      "tool_count": 5,
+      "user_enabled": true,
+      "value": "Root authenticated search and extraction completed actual official Notion/Trello rate-page research; remaining connected allowance is unmeasured.",
+      "working_methods": [
+        "tavily_tavily_search",
+        "tavily_tavily_extract"
+      ]
+    },
+    {
+      "account_plan": "free",
+      "audit_refreshed_at": "2026-10-04T07:27:15.256Z",
+      "authority": "SHARED_ALL_CARRIERS",
+      "binding_constraints": [
+        {
+          "error": "MCP method not returned by tools/list",
+          "error_code": "UNAVAILABLE",
+          "methods": [
+            "supabase_get_cost",
+            "supabase_confirm_cost"
+          ]
+        }
+      ],
+      "callable": true,
+      "capacity": "LIVE",
+      "condition": "CONSTRAINED",
+      "connected_allowance": "FREE_ORGANIZATION_ZERO_PROJECTS",
+      "consumers": [
+        "private immutable capability recovery observations",
+        "database documentation research"
+      ],
+      "evidence": "list_organizations, list_projects, get_organization and search_docs succeeded. Fresh official pricing confirms $0 Free and two active project limit; changelog and RLS/grant docs checked. get_cost and confirm_cost(amount=0,monthly,project) each returned typed UNAVAILABLE: method not returned by tools/list. No confirmation ID was returned, no project ID invented, and no create/DDL call performed.",
+      "freshness": "NATIVE_PROVIDER_METHOD_PROBE",
+      "holder": "Commons",
+      "id": "supabase",
+      "installed": true,
+      "kind": "DATABASE_AND_RECOVERY_STORAGE",
+      "last_probe": "2026-10-04",
+      "last_use": "CURRENT_INVENTORY_READ_ONLY_NO_WORKLOAD_PRODUCTION",
+      "mutation": "TASK_SCOPED_INCLUDED_ALLOWANCE_NO_PAID_UPGRADE",
+      "native_binding_state": "WORKING_METHODS_WITH_CONSTRAINTS",
+      "observation_precision": "date",
+      "observed_at": "2026-10-04",
+      "observed_counts": {
+        "organizations": 1,
+        "projects": 0
+      },
+      "plugin_name": "Supabase",
+      "public_free_offer": {
+        "active_projects": 2,
+        "database_mb_per_project": 500,
+        "pause_after_inactivity_days": 7,
+        "price_usd_monthly": 0,
+        "url": "https://supabase.com/pricing"
+      },
+      "route_state": "CALLABLE_WITH_CONSTRAINT",
+      "setup_pending": "Load working confirmation/create bindings, then create authorized $0 swarm-capability-recovery and apply private append-only observation schema; preserve canonical operation IDs and owners.",
+      "source_kind": "CONNECTED_PLUGIN_AND_NATIVE_READ_RECEIPT",
+      "stage": "REACHABLE",
+      "tool_count": 29,
+      "user_enabled": true,
+      "value": "One authenticated Free organization and zero projects; docs and account reads work. Authorized $0 swarm-capability-recovery project remains uncreated because live cost/confirmation methods are absent.",
+      "working_methods": [
+        "supabase_list_organizations",
+        "supabase_list_projects",
+        "supabase_get_organization",
+        "supabase_search_docs"
+      ]
+    },
+    {
+      "account_plan": "UNMEASURED",
+      "audit_refreshed_at": "2026-10-04T07:27:15.256Z",
+      "authority": "SHARED_ALL_CARRIERS",
+      "binding_constraints": [
+        {
+          "error": "project_id required for unscoped connection; project discovery method not advertised",
+          "error_code": "INVALID_ARGUMENT",
+          "method": "neon_describe_project"
+        }
+      ],
+      "callable": false,
+      "capacity": "DECLARED",
+      "condition": "CONSTRAINED",
+      "connected_allowance": "UNMEASURED",
+      "consumers": [
+        "database workers after target project discovery"
+      ],
+      "evidence": "describe_project without a target returned typed INVALID_ARGUMENT stating project_id is required for an unscoped connection and may come from list_projects. The 106 advertised Neon schemas contain no project-list/create method; no existing target was found in the audited repository source. Authentication and account Free plan remain unproven, not failed.",
+      "freshness": "NATIVE_PROVIDER_METHOD_PROBE",
+      "holder": "Commons",
+      "id": "neon",
+      "installed": true,
+      "kind": "POSTGRES_AND_RECOVERY_STORAGE",
+      "last_probe": "2026-10-04",
+      "last_use": "CURRENT_INVENTORY_READ_ONLY_NO_WORKLOAD_PRODUCTION",
+      "mutation": "TASK_SCOPED_INCLUDED_ALLOWANCE_NO_PAID_UPGRADE",
+      "native_binding_state": "PROJECT_BINDING_REQUIRED",
+      "observation_precision": "date",
+      "observed_at": "2026-10-04",
+      "plugin_name": "Neon",
+      "route_state": "CONNECTOR_DISCOVERY",
+      "setup_pending": "Obtain existing owned project metadata through supported provider inventory or attach a grounded project scope before harmless reads or free setup.",
+      "source_kind": "CONNECTED_PLUGIN_AND_NATIVE_READ_RECEIPT",
+      "stage": "AVAILABLE",
+      "tool_count": 106,
+      "user_enabled": true,
+      "value": "Installed native Neon schemas are advertised; current connection is not project-scoped and requires a grounded project ID before project reads.",
+      "working_methods": []
+    },
+    {
+      "account_plan": "UNMEASURED",
+      "audit_refreshed_at": "2026-10-04T07:27:15.256Z",
+      "authority": "SHARED_ALL_CARRIERS",
+      "callable": true,
+      "capacity": "LIVE",
+      "condition": "CONSTRAINED",
+      "connected_allowance": "UNMEASURED",
+      "consumers": [
+        "owned service metadata and repair workers",
+        "eligible static site builders after cost check"
+      ],
+      "evidence": "list_workspaces succeeded. list_services with the grounded owned workspace returned successful null; unscoped list_services returned INVALID_ARGUMENT/no workspace selected. That scope constraint does not establish authentication failure or absence of all account services.",
+      "freshness": "NATIVE_PROVIDER_METHOD_PROBE",
+      "holder": "Commons",
+      "id": "render",
+      "installed": true,
+      "kind": "HOSTING_AND_DEPLOYMENT_OBSERVABILITY",
+      "last_probe": "2026-10-04",
+      "last_use": "CURRENT_INVENTORY_READ_ONLY_NO_WORKLOAD_PRODUCTION",
+      "mutation": "TASK_SCOPED_INCLUDED_ALLOWANCE_NO_PAID_UPGRADE",
+      "native_binding_state": "WORKING_METHODS_WITH_CONSTRAINTS",
+      "observation_precision": "date",
+      "observed_at": "2026-10-04",
+      "observed_counts": {
+        "workspaces": 1
+      },
+      "plugin_name": "Render",
+      "route_state": "CALLABLE_WITH_CONSTRAINT",
+      "setup_pending": "Use explicit grounded workspace ID for reads; prove account/product free eligibility before a concrete new hosting workload.",
+      "source_kind": "CONNECTED_PLUGIN_AND_NATIVE_READ_RECEIPT",
+      "stage": "REACHABLE",
+      "tool_count": 22,
+      "user_enabled": true,
+      "value": "Authenticated native workspace read returns one workspace. Explicitly scoped service read returns literal null with isError=false; no service details or free plan are established.",
+      "working_methods": [
+        "render_list_workspaces",
+        "render_list_services:explicit_workspace"
+      ]
+    },
+    {
+      "account_plan": "ZERO_RATE_SEARCH_FETCH_CONTRACT_VERIFIED",
+      "authority": "SHARED_ALL_CARRIERS",
+      "callable": true,
+      "capacity": "LIVE",
+      "condition": "CONSTRAINED",
+      "connected_allowance": {
+        "auto_reload": "unconfigured",
+        "fetch_usd_per_url": 0,
+        "pending_top_up": false,
+        "search_usd_per_query": 0
+      },
+      "constraints": [
+        "Agent steps, Browser minutes and Monitor runs have positive metered rates; only current Search/Fetch zero-rate methods are activated for free pool use.",
+        "Fresh contract must be checked before later metered tasks; installation does not authorize paid automation."
+      ],
+      "consumers": [
+        "research workers",
+        "page extraction workers"
+      ],
+      "evidence": "Plugin dependency metadata installed/enabled unresolved0. Wallet read succeeded; Search/Fetch rate0 USD, auto-reload unconfigured, no pending top-up. Native search returned10results; one official WorkersAI pricing fetch succeeded. No browser automation, Agent steps, monitors, paid actions or wallet purchase were run.",
+      "freshness": "CURRENT_ACCOUNT_CONTRACT_AND_NATIVE_WORKLOAD_RECEIPT",
+      "holder": "Commons",
+      "id": "tinyfish",
+      "installed": true,
+      "kind": "WEB_SEARCH_EXTRACTION_AND_TASK_BROWSER",
+      "last_probe": "2026-10-04T07:34:45.326Z",
+      "last_use": "2026-10-04T07:34:45.326Z",
+      "mutation": "SEARCH_FETCH_ZERO_CONTRACT_RATE_ONLY",
+      "observed_at": "2026-10-04T07:34:45.326Z",
+      "plugin_name": "TinyFish",
+      "route_state": "CALLABLE_WITH_CONSTRAINT",
+      "runtime_receipt": {
+        "official_fetch_success": true,
+        "official_source": "https://developers.cloudflare.com/workers-ai/platform/pricing/",
+        "search_results": 10
+      },
+      "source_kind": "PLUGIN_DEPENDENCY_METADATA_AND_NATIVE_READS",
+      "stage": "EXERCISED",
+      "tool_count": 20,
+      "user_enabled": true,
+      "value": "Installed native TinyFish exposes currently verified zero-dollar Search/query and Fetch/URL rates and actually researched official Cloudflare free compute/model allowances.",
+      "working_methods": [
+        "tinyfish_get_wallet",
+        "tinyfish_search",
+        "tinyfish_fetch_content"
+      ]
     },
     {
       "authority": "SHARED_ALL_CARRIERS",
-      "callable": false,
-      "capacity": "DECLARED",
-      "condition": "ACTIVE_UNKNOWN",
-      "connected_allowance": "UNKNOWN",
+      "capacity": "LIVE",
+      "condition": "CONSTRAINED",
       "consumers": [
-        "research workers after authenticated setup"
+        "publicdocumentreaders",
+        "nativeextractionfallback"
       ],
-      "evidence": "Root focused 2026-10-04 directory read reports ENABLED, AVAILABLE and installed=false. Discovered only; not included in initial suggestion offers. Official recurring free credits do not establish this account allowance or runtime readiness.",
-      "freshness": "DIRECTORY_AVAILABLE_NOT_INSTALLED",
+      "evidence": "Jina retrieved a public page and Parallel MCP documentation. Provider rate headers report 20 requests/minute; no private credential was read.",
+      "freshness": "CURRENT_SOURCE_AND_PROGRAM",
       "holder": "Commons",
-      "id": "tavily",
-      "installed": false,
-      "kind": "RESEARCH_API",
-      "last_probe": "DIRECTORY_SEARCH_ONLY",
-      "last_use": "NO_RUNTIME_USE",
-      "mutation": "INSTALL_AND_AUTH_BEFORE_TASK_SCOPED_ELIGIBLE_QUOTA",
+      "id": "jina-public-reader",
+      "kind": "PUBLIC_DOCUMENT_READING",
+      "last_probe": "2026-10-04",
+      "last_use": "2026-10-04T07:30:26.801170Z",
+      "mutation": "TASK_SCOPED_ELIGIBLE_FREE_CAPACITY",
       "observation_precision": "date",
-      "observation_scope": "Retained base snapshot unless a component-specific observation or probe is stated.",
       "observed_at": "2026-10-04",
-      "plugin_name": "Tavily",
+      "route_state": "CALLABLE_WITH_CONSTRAINT",
+      "source_kind": "SHARED_EQUIPMENT_IMPLEMENTATION",
+      "source_methods": [
+        "jina_public_read"
+      ],
+      "stage": "EXERCISED",
+      "value": "Actual no-key public URL reading and automatic router retrieval returned HTTP 200 in this cloud VM; existing gateway deployment remains unmeasured."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "AVAILABLE",
+      "condition": "CONSTRAINED",
+      "consumers": [
+        "inferenceworkersafterexistingaccountsetup"
+      ],
+      "evidence": "A real catalog attempt returned credential_unavailable through the existing secure facility. An OAuth grant is not a Google API key.",
+      "freshness": "CURRENT_SOURCE_AND_PROGRAM",
+      "holder": "Commons",
+      "id": "gemini-developer-api",
+      "kind": "MODEL_INFERENCE_API",
+      "last_probe": "2026-10-04",
+      "last_use": "SOURCE_ADAPTER_READY_NO_INFERENCE_CALL",
+      "mutation": "TASK_SCOPED_ELIGIBLE_FREE_CAPACITY",
+      "observation_precision": "date",
+      "observed_at": "2026-10-04",
       "route_state": "ACTIVATE_FIRST",
-      "source_kind": "CURRENT_PLUGIN_DIRECTORY_READ",
-      "stage": "DECLARED",
-      "suggestion_offered": false,
-      "value": "Tavily is available in the plugin directory but remains uninstalled; no authenticated research adapter or connected quota is established."
+      "source_kind": "SHARED_EQUIPMENT_IMPLEMENTATION",
+      "source_methods": [
+        "gemini_generate",
+        "free_model_catalog"
+      ],
+      "stage": "AVAILABLE",
+      "value": "Developer API generation and model catalog transports are registered in source. The actual Free project/model and private API reference are unavailable in this VM. Existing Google OAuth lanes remain separate."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "AVAILABLE",
+      "condition": "CONSTRAINED",
+      "consumers": [
+        "inferenceworkersafterexistingaccountsetup"
+      ],
+      "evidence": "A real catalog attempt returned credential_unavailable. TinyFish retrieved official Free pricing for the existing account setup consumer.",
+      "freshness": "CURRENT_SOURCE_AND_PROGRAM",
+      "holder": "Commons",
+      "id": "cloudflare-workers-ai",
+      "kind": "MODEL_INFERENCE_API",
+      "last_probe": "2026-10-04",
+      "last_use": "SOURCE_ADAPTER_READY_NO_INFERENCE_CALL",
+      "mutation": "TASK_SCOPED_ELIGIBLE_FREE_CAPACITY",
+      "observation_precision": "date",
+      "observed_at": "2026-10-04",
+      "route_state": "ACTIVATE_FIRST",
+      "source_kind": "SHARED_EQUIPMENT_IMPLEMENTATION",
+      "source_methods": [
+        "cloudflare_generate",
+        "free_model_catalog"
+      ],
+      "stage": "AVAILABLE",
+      "value": "Workers AI text generation and model catalog transports are registered in source. Existing account/token references are unavailable in this VM; no model request was sent."
+    },
+    {
+      "authority": "SHARED_ALL_CARRIERS",
+      "capacity": "AVAILABLE",
+      "condition": "CONSTRAINED",
+      "consumers": [
+        "inferenceworkersafterexistingaccountsetup"
+      ],
+      "evidence": "A real catalog attempt returned credential_unavailable. Current Free workspace limits and task terms remain unmeasured.",
+      "freshness": "CURRENT_SOURCE_AND_PROGRAM",
+      "holder": "Commons",
+      "id": "mistral-free-api",
+      "kind": "MODEL_INFERENCE_API",
+      "last_probe": "2026-10-04",
+      "last_use": "SOURCE_ADAPTER_READY_NO_INFERENCE_CALL",
+      "mutation": "TASK_SCOPED_ELIGIBLE_FREE_CAPACITY",
+      "observation_precision": "date",
+      "observed_at": "2026-10-04",
+      "route_state": "ACTIVATE_FIRST",
+      "source_kind": "SHARED_EQUIPMENT_IMPLEMENTATION",
+      "source_methods": [
+        "mistral_generate",
+        "free_model_catalog"
+      ],
+      "stage": "AVAILABLE",
+      "value": "Mistral chat and model catalog transports are registered in source. The existing Free workspace/key is unavailable in this VM; no model request was sent."
     }
   ],
   "schema": "commons-connected-capability-observations/v1",
   "snapshot": {
     "base_main_sha": "d66ac9862e3448e2bff54c7386ce27f5a81b3640",
     "freshness_note": "Global observed_at/source_watermark retain the 2026-09-18 snapshot. Read component_freshness and per-provider observed_at/last_probe for later measurements; the refreshed census does not make retained account, repository, automation, quota or carrier facts current.",
-    "newest_component_observed_at": "2026-10-04T06:35Z",
+    "newest_component_observed_at": "2026-10-04T07:27:15.256Z",
     "observed_at": "2026-09-18T03:00:37Z",
     "refresh_base_main_sha": "8b13250af5876863235fd519e1906f5cca2b0656",
     "route_rule": "All Commons carriers may consume all shared resources; Claude is the sole owner-handled exception.",
@@ -1475,32 +1985,44 @@
     "truth_rule": "Exposure, successful probe, lifecycle stage, condition, authority, mutation, consumption, and value are independent facts."
   },
   "tool_fleet": {
-    "app_families": 25,
+    "advertised_tool_bindings": 989,
+    "app_families": 36,
     "app_family_counts": {
+      "agentmail": 37,
       "airtable": 47,
       "apollo": 4,
       "automations": 7,
       "chatgpt": 37,
       "codex_security_cloud": 18,
+      "context7": 2,
       "dropbox": 24,
       "finances": 14,
+      "firecrawl": 27,
       "github": 89,
       "gmail": 21,
       "google": 3,
       "google_calendar": 15,
       "google_drive": 45,
       "hotline": 1,
+      "hugging_face": 9,
       "library": 11,
+      "neon": 106,
       "netlify": 9,
+      "parallel": 2,
       "personal_context": 1,
       "pets": 11,
       "plugin_management": 6,
+      "posthog": 1,
       "railway": 68,
+      "render": 22,
       "safety": 5,
       "search_service": 1,
       "sites": 25,
       "slack": 38,
       "stripe": 12,
+      "supabase": 29,
+      "tavily": 5,
+      "tinyfish": 20,
       "vercel": 205
     },
     "automations": {
@@ -1508,18 +2030,1144 @@
       "enabled": 6,
       "total": 14
     },
-    "callable_tools": 729,
-    "connected_app_tools": 717,
+    "callable_tools": 989,
+    "connected_app_tools": 977,
     "core_tools": 12,
+    "current_confirmed_plugin_connections": [
+      {
+        "advertised_tools": 2,
+        "installed": true,
+        "native_working_methods": [
+          "context7_resolve_library_id",
+          "context7_query_docs"
+        ],
+        "observed_at": "2026-10-04T07:27:15.256Z",
+        "provider": "Context7",
+        "user_enabled": true
+      },
+      {
+        "advertised_tools": 1,
+        "installed": true,
+        "native_working_methods": [
+          "posthog_exec:projects-get",
+          "posthog_exec:organization-get",
+          "posthog_exec:insights-list",
+          "posthog_exec:docs-search"
+        ],
+        "observed_at": "2026-10-04T07:27:15.256Z",
+        "provider": "PostHog",
+        "user_enabled": true
+      },
+      {
+        "advertised_tools": 9,
+        "installed": true,
+        "native_working_methods": [
+          "hugging_face_hf_whoami",
+          "hugging_face_hub_repo_details"
+        ],
+        "observed_at": "2026-10-04T07:27:15.256Z",
+        "provider": "Hugging Face",
+        "user_enabled": true
+      },
+      {
+        "advertised_tools": 5,
+        "installed": true,
+        "native_working_methods": [
+          "tavily_tavily_search",
+          "tavily_tavily_extract"
+        ],
+        "observed_at": "2026-10-04T07:27:15.256Z",
+        "provider": "Tavily",
+        "user_enabled": true
+      },
+      {
+        "advertised_tools": 37,
+        "installed": true,
+        "native_working_methods": [
+          "agentmail_list_organizations",
+          "agentmail_list_inboxes"
+        ],
+        "observed_at": "2026-10-04T07:27:15.256Z",
+        "provider": "AgentMail",
+        "user_enabled": true
+      },
+      {
+        "advertised_tools": 29,
+        "installed": true,
+        "native_working_methods": [
+          "supabase_list_organizations",
+          "supabase_list_projects",
+          "supabase_get_organization",
+          "supabase_search_docs"
+        ],
+        "observed_at": "2026-10-04T07:27:15.256Z",
+        "provider": "Supabase",
+        "user_enabled": true
+      },
+      {
+        "advertised_tools": 106,
+        "installed": true,
+        "native_working_methods": [],
+        "observed_at": "2026-10-04T07:27:15.256Z",
+        "provider": "Neon",
+        "user_enabled": true
+      },
+      {
+        "advertised_tools": 22,
+        "installed": true,
+        "native_working_methods": [
+          "render_list_workspaces",
+          "render_list_services:explicit_workspace"
+        ],
+        "observed_at": "2026-10-04T07:27:15.256Z",
+        "provider": "Render",
+        "user_enabled": true
+      },
+      {
+        "advertised_tools": 27,
+        "installed": true,
+        "native_working_methods": [
+          "firecrawl_firecrawl_credit_usage",
+          "firecrawl_firecrawl_search"
+        ],
+        "observed_at": "2026-10-04T07:27:15.256Z",
+        "provider": "Firecrawl",
+        "user_enabled": true
+      }
+    ],
+    "free_pool_routes": [
+      {
+        "allowance_type": "recurring_free",
+        "backend": "agentmail",
+        "binding_state": "callable",
+        "capabilities": [
+          "mail"
+        ],
+        "connection_state": "connected",
+        "consumption_state": "organization_inbox_inventory_consumed",
+        "free_evidence": "https://www.agentmail.to/pricing",
+        "free_plan_verified": false,
+        "id": "agentmail-mail",
+        "input_sensitivity": [
+          "public"
+        ],
+        "observation_note": "Organization and inbox inventory returned one organization and zero inboxes. Account Free entitlement is not exposed. No outreach or inbox creation occurred.",
+        "observed_at": "2026-10-04",
+        "onboarding_consumer": "existing mailbox owner",
+        "owner": "existing mailbox owner",
+        "provider": "agentmail",
+        "quota_domain": "agentmail:existing-account-unresolved",
+        "quota_remaining": null,
+        "task_domains": [
+          "*"
+        ]
+      },
+      {
+        "allowance_type": "recurring_free",
+        "backend": "asana",
+        "binding_state": "unbound",
+        "capabilities": [
+          "state",
+          "task_status"
+        ],
+        "connection_state": "suggested_unconfirmed",
+        "consumption_state": "not_observed",
+        "free_evidence": "https://asana.com/pricing",
+        "free_plan_verified": false,
+        "id": "asana-free-capability",
+        "input_sensitivity": [
+          "public"
+        ],
+        "observed_at": "2026-10-04",
+        "onboarding_consumer": "Independent bounded receipt/recovery archive for the existing operator, linking canonical task IDs and completed artifacts; avoid copying live assignee/queue ownership.",
+        "onboarding_instruction": "Use existing Personal Free workspace with eligible user access; no paid Starter/trial/AI or upgrades. Card requirement not independently verified.",
+        "owner": "existing capability owner",
+        "provider": "asana",
+        "published_allowance": "Personal Free:2users, unlimited tasks/projects. Free REST150requests/minute/token; search60/minute; concurrency50GET and15writes; resource/cost limits also apply.",
+        "quota_domain": "asana:existing-account-unresolved",
+        "quota_remaining": null,
+        "task_domains": [
+          "*"
+        ]
+      },
+      {
+        "allowance_type": "recurring_free",
+        "backend": "browserbase",
+        "binding_state": "unbound",
+        "capabilities": [
+          "browser",
+          "search",
+          "url_read"
+        ],
+        "connection_state": "setup_required",
+        "consumption_state": "not_observed",
+        "free_evidence": "https://docs.browserbase.com/account/billing/plans",
+        "free_plan_verified": false,
+        "id": "browserbase-free",
+        "input_sensitivity": [
+          "public"
+        ],
+        "observation_note": "Monthly1browserhour1Ksearch1Kfetch3agentcalls; provider-model-token grant reset unknown.",
+        "observed_at": "2026-10-04",
+        "onboarding_consumer": "existing capability owner",
+        "owner": "existing capability owner",
+        "provider": "browserbase",
+        "quota_domain": "browserbase:existing-account-unresolved",
+        "quota_remaining": null,
+        "task_domains": [
+          "*"
+        ]
+      },
+      {
+        "allowance_type": "recurring_free",
+        "backend": "clickup",
+        "binding_state": "unbound",
+        "capabilities": [
+          "state",
+          "task_status"
+        ],
+        "connection_state": "suggested_unconfirmed",
+        "consumption_state": "not_observed",
+        "free_evidence": "https://clickup.com/pricing",
+        "free_plan_verified": false,
+        "id": "clickup-free-capability",
+        "input_sensitivity": [
+          "public"
+        ],
+        "observed_at": "2026-10-04",
+        "onboarding_consumer": "Source-pinned docs and finished recovery receipts with canonical Commons task links; batch small reads and cache source snapshots.",
+        "onboarding_instruction": "Use owned Free Forever workspace. Do not buy Everything AI, upgrade seats or create automations/schedules. Card requirement not independently verified.",
+        "owner": "existing capability owner",
+        "provider": "clickup",
+        "published_allowance": "Unlimited tasks/members; 60 MB storage. Free hosted MCP without Everything AI: 50 calls per rolling24hours/workspace. REST:100 requests/minute/token.",
+        "quota_domain": "clickup:existing-account-unresolved",
+        "quota_remaining": null,
+        "task_domains": [
+          "*"
+        ]
+      },
+      {
+        "allowance_type": "recurring_free",
+        "backend": "cloudflare-workers-ai",
+        "binding_state": "source_adapter_ready_credential_ref_unavailable_in_this_vm",
+        "capabilities": [
+          "inference"
+        ],
+        "connection_state": "setup_required",
+        "consumption_state": "not_observed",
+        "free_evidence": "https://developers.cloudflare.com/workers-ai/platform/pricing/",
+        "free_plan_verified": false,
+        "id": "cloudflare-workers-ai",
+        "input_sensitivity": [
+          "public"
+        ],
+        "native_tool": "cloudflare_generate",
+        "observation_note": "10Kneurons/day Free hardstop; some frontier models require paid method.",
+        "observed_at": "2026-10-04",
+        "onboarding_consumer": "existing capability owner",
+        "owner": "existing capability owner",
+        "provider": "cloudflare",
+        "quota_domain": "cloudflare:existing-account-unresolved",
+        "quota_remaining": null,
+        "task_domains": [
+          "*"
+        ]
+      },
+      {
+        "allowance_type": "recurring_free",
+        "backend": "coda",
+        "binding_state": "unbound",
+        "capabilities": [
+          "state",
+          "documentation"
+        ],
+        "connection_state": "suggested_unconfirmed",
+        "consumption_state": "not_observed",
+        "free_evidence": "https://help.coda.io/hc/en-us/articles/39555798022797-Doc-limits-on-Free-plan",
+        "free_plan_verified": false,
+        "id": "coda-free-capability",
+        "input_sensitivity": [
+          "public"
+        ],
+        "observed_at": "2026-10-04",
+        "onboarding_consumer": "Compact source-pinned provider/reference table and recovery receipts; preserve source commit/operation IDs; share one cached response within the small MCP budget.",
+        "onboarding_instruction": "Use owned Free doc and role; no paid Doc Maker, pack, AI or upgrades. Card requirement not independently verified. Branding may show Superhuman Docs.",
+        "owner": "existing capability owner",
+        "provider": "coda",
+        "published_allowance": "Shared Free docs: 50 objects and 1,000 rows/doc; unshared docs have no object/row cap. Hosted MCP: 30 requests/week, max60/month. REST read100/6s, write10/6s, doc-content-write3/10s per user, plan-independent; API doc size125MB.",
+        "quota_domain": "coda:existing-account-unresolved",
+        "quota_remaining": null,
+        "task_domains": [
+          "*"
+        ]
+      },
+      {
+        "allowance_type": "recurring_free",
+        "backend": "context7",
+        "binding_state": "callable",
+        "capabilities": [
+          "documentation"
+        ],
+        "connection_state": "connected",
+        "consumption_state": "sdk_docs_consumed",
+        "free_evidence": "https://context7.com/plans",
+        "free_plan_verified": false,
+        "id": "context7-docs",
+        "input_sensitivity": [
+          "public"
+        ],
+        "native_tool": "mcp__codex_apps__context7_query_docs",
+        "observation_note": "Current docs result observed; exact account plan and remaining allowance unmeasured.",
+        "observed_at": "2026-10-04",
+        "onboarding_consumer": "existing capability owner",
+        "owner": "existing capability owner",
+        "provider": "context7",
+        "quota_domain": "context7:existing-account-unresolved",
+        "quota_remaining": null,
+        "task_domains": [
+          "*"
+        ]
+      },
+      {
+        "allowance_type": "recurring_free",
+        "backend": "datadog",
+        "binding_state": "unbound",
+        "capabilities": [
+          "telemetry"
+        ],
+        "connection_state": "setup_required",
+        "consumption_state": "not_observed",
+        "free_evidence": "https://www.datadoghq.com/pricing/",
+        "free_plan_verified": false,
+        "id": "datadog-metrics",
+        "input_sensitivity": [
+          "public"
+        ],
+        "observation_note": "Infrastructure Free5hosts/1day only; verify actual Free account, no paid trial rollover.",
+        "observed_at": "2026-10-04",
+        "onboarding_consumer": "existing telemetry owner",
+        "owner": "existing telemetry owner",
+        "provider": "datadog",
+        "quota_domain": "datadog:existing-account-unresolved",
+        "quota_remaining": null,
+        "task_domains": [
+          "*"
+        ]
+      },
+      {
+        "allowance_type": "one_time_free",
+        "backend": "e2b",
+        "binding_state": "unbound",
+        "capabilities": [
+          "sandbox"
+        ],
+        "connection_state": "setup_required",
+        "consumption_state": "not_observed",
+        "free_evidence": "https://e2b.dev/docs/billing",
+        "free_plan_verified": false,
+        "id": "e2b-signup-grant",
+        "input_sensitivity": [
+          "public"
+        ],
+        "observation_note": "$100one-time no-card;20sandboxes1hour; current SDK rather than archived MCP.",
+        "observed_at": "2026-10-04",
+        "onboarding_consumer": "existing capability owner",
+        "owner": "existing capability owner",
+        "provider": "e2b",
+        "quota_domain": "e2b:existing-account-unresolved",
+        "quota_remaining": null,
+        "task_domains": [
+          "*"
+        ]
+      },
+      {
+        "allowance_type": "recurring_free",
+        "backend": "exa",
+        "binding_state": "unbound",
+        "capabilities": [
+          "search",
+          "url_read"
+        ],
+        "connection_state": "setup_required",
+        "consumption_state": "not_observed",
+        "free_evidence": "https://exa.ai/docs/admin/billing",
+        "free_plan_verified": false,
+        "id": "exa-existing",
+        "input_sensitivity": [
+          "public"
+        ],
+        "native_tool": "exa_search",
+        "observation_note": "Existing adapter; Account Chad continues original setup. Auto-recharge disabled;$0max means unlimited.",
+        "observed_at": "2026-10-04",
+        "onboarding_consumer": "Account Chad existing activation operation",
+        "owner": "Account Chad existing activation operation",
+        "provider": "exa",
+        "quota_domain": "exa:existing-account-unresolved",
+        "quota_remaining": null,
+        "task_domains": [
+          "*"
+        ]
+      },
+      {
+        "allowance_type": "recurring_free",
+        "backend": "figma",
+        "binding_state": "unbound",
+        "capabilities": [
+          "design"
+        ],
+        "connection_state": "suggested_unconfirmed",
+        "consumption_state": "not_observed",
+        "free_evidence": "https://www.figma.com/pricing/",
+        "free_plan_verified": false,
+        "id": "figma-free-capability",
+        "input_sensitivity": [
+          "public"
+        ],
+        "observed_at": "2026-10-04",
+        "onboarding_consumer": "Shared source-linked design diagrams/assets for an existing product task; cache exact frames/screenshots so many builders reuse the same20readcall pool.",
+        "onboarding_instruction": "Use existing Starter resources/seat and inspect whoami. Do not upgrade seat/plan, purchase Make credits, or assume beta tool stays free. Card requirement not independently verified.",
+        "owner": "existing capability owner",
+        "provider": "figma",
+        "published_allowance": "Starter MCP data reads up to20calls/month plus applicable minute limits. Some write tools are exempt; current docs supersede older6calls/month Starter claims. File/seat permissions remain.",
+        "quota_domain": "figma:existing-account-unresolved",
+        "quota_remaining": null,
+        "task_domains": [
+          "*"
+        ]
+      },
+      {
+        "allowance_type": "recurring_free",
+        "backend": "firecrawl",
+        "binding_state": "callable",
+        "capabilities": [
+          "search",
+          "url_read"
+        ],
+        "connection_state": "authenticated",
+        "consumption_state": "official_pricing_search_consumed",
+        "free_evidence": "https://docs.firecrawl.dev/rate-limits",
+        "free_plan_verified": false,
+        "id": "firecrawl-public",
+        "input_sensitivity": [
+          "public"
+        ],
+        "native_tool": "mcp__codex_apps__firecrawl_firecrawl_search",
+        "observation_note": "Current credits were observed before an actual 2-credit official-pricing search. The selected account plan price is not exposed; the credit balance is a dated snapshot.",
+        "observed_at": "2026-10-04",
+        "onboarding_consumer": "existing capability owner",
+        "owner": "existing capability owner",
+        "provider": "firecrawl",
+        "quota_domain": "firecrawl:existing-account-unresolved",
+        "quota_remaining": null,
+        "quota_snapshot": {
+          "credits_used": 2,
+          "observed_on": "2026-10-04",
+          "period_end": "2026-10-26T17:54:24.241Z",
+          "plan_credits": 1000,
+          "remaining_before_research": 1025
+        },
+        "task_domains": [
+          "*"
+        ]
+      },
+      {
+        "allowance_type": "recurring_free",
+        "backend": "google-gemini",
+        "binding_state": "source_adapter_ready_credential_ref_unavailable_in_this_vm",
+        "capabilities": [
+          "inference"
+        ],
+        "connection_state": "setup_required",
+        "consumption_state": "not_observed",
+        "free_evidence": "https://ai.google.dev/gemini-api/docs/pricing",
+        "free_plan_verified": false,
+        "id": "gemini-api-free",
+        "input_sensitivity": [
+          "public"
+        ],
+        "native_tool": "gemini_generate",
+        "observation_note": "Actual project/model allowance required; unpaid-data terms exclude sensitive/confidential/personal inputs and competing-model development.",
+        "observed_at": "2026-10-04",
+        "onboarding_consumer": "existing capability owner",
+        "owner": "existing capability owner",
+        "provider": "gemini",
+        "quota_domain": "gemini:existing-account-unresolved",
+        "quota_remaining": null,
+        "task_domains": [
+          "*"
+        ]
+      },
+      {
+        "allowance_type": "recurring_free",
+        "backend": "gitbook",
+        "binding_state": "unbound",
+        "capabilities": [
+          "documentation",
+          "state"
+        ],
+        "connection_state": "suggested_unconfirmed",
+        "consumption_state": "not_observed",
+        "free_evidence": "https://www.gitbook.com/pricing",
+        "free_plan_verified": false,
+        "id": "gitbook-free-capability",
+        "input_sensitivity": [
+          "public"
+        ],
+        "observed_at": "2026-10-04",
+        "onboarding_consumer": "Public provider/runbook docs synchronized to source-pinned repository material, supplying an independent recovery/read surface; keep private Slack/task data out of public docs.",
+        "onboarding_instruction": "Use owned Free individual/public-doc route. No Premium14daytrial conversion, extra paid members/custom domains or paid AI Ask/Assistant. Card requirement not independently verified.",
+        "owner": "existing capability owner",
+        "provider": "gitbook",
+        "published_allowance": "Free individual plan includes1user, GitSync/integrations/version history; docs site MCP included. Free GitBook Agent10messages/week; no universal API numeric ceiling promised\u2014read X-RateLimit headers.",
+        "quota_domain": "gitbook:existing-account-unresolved",
+        "quota_remaining": null,
+        "task_domains": [
+          "*"
+        ]
+      },
+      {
+        "allowance_type": "recurring_free",
+        "backend": "groq",
+        "binding_state": "existing_gateway_cloud_reach_unconfirmed",
+        "capabilities": [
+          "inference"
+        ],
+        "connection_state": "authenticated",
+        "consumption_state": "existing_publisher_producing",
+        "free_evidence": "https://console.groq.com/docs/rate-limits",
+        "free_plan_verified": true,
+        "id": "groq-existing",
+        "input_sensitivity": [
+          "public"
+        ],
+        "native_tool": "groq_chat_completion",
+        "observation_note": "Retained Oct3Free/$0runtime receipt; current carrier reach/remaining per-model quota not measured.",
+        "observed_at": "2026-10-04",
+        "onboarding_consumer": "existing gateway owner",
+        "owner": "existing gateway owner",
+        "provider": "groq",
+        "quota_domain": "groq:existing-account-unresolved",
+        "quota_remaining": null,
+        "task_domains": [
+          "*"
+        ]
+      },
+      {
+        "allowance_type": "free_tier",
+        "backend": "hugging-face-hub",
+        "binding_state": "callable",
+        "capabilities": [
+          "model_metadata",
+          "dataset_metadata",
+          "documentation"
+        ],
+        "connection_state": "authenticated",
+        "consumption_state": "model_dataset_metadata_consumed",
+        "free_evidence": "https://huggingface.co/docs/hub/rate-limits",
+        "free_plan_verified": true,
+        "id": "hf-hub-metadata",
+        "input_sensitivity": [
+          "public"
+        ],
+        "native_tool": "mcp__codex_apps__hugging_face_hub_repo_details",
+        "observation_note": "Public Hub metadata is free; this does not enable billed Jobs or routed inference.",
+        "observed_at": "2026-10-04",
+        "onboarding_consumer": "existing capability owner",
+        "owner": "existing capability owner",
+        "provider": "hugging-face",
+        "quota_domain": "hugging-face:existing-account-unresolved",
+        "quota_remaining": null,
+        "task_domains": [
+          "hugging-face",
+          "model-selection"
+        ]
+      },
+      {
+        "allowance_type": "no_key_free",
+        "backend": "jina-reader",
+        "binding_state": "callable",
+        "capabilities": [
+          "url_read"
+        ],
+        "connection_state": "not_required",
+        "consumption_state": "actual_public_page_read",
+        "free_evidence": "https://jina.ai/reader/",
+        "free_plan_verified": true,
+        "id": "jina-public-reader",
+        "input_sensitivity": [
+          "public"
+        ],
+        "native_tool": "jina_public_read",
+        "observation_note": "Actual no-key HTTP 200 in this VM with 20 RPM provider headers. Remaining 19 was scoped to that request window; deployment of the existing gateway is unmeasured.",
+        "observed_at": "2026-10-04",
+        "onboarding_consumer": "existing capability owner",
+        "owner": "existing capability owner",
+        "provider": "jina",
+        "quota_domain": "jina:current-egress-ip",
+        "quota_remaining": null,
+        "task_domains": [
+          "*"
+        ]
+      },
+      {
+        "allowance_type": "recurring_free",
+        "backend": "langfuse",
+        "binding_state": "unbound",
+        "capabilities": [
+          "telemetry"
+        ],
+        "connection_state": "setup_required",
+        "consumption_state": "not_observed",
+        "free_evidence": "https://langfuse.com/pricing",
+        "free_plan_verified": false,
+        "id": "langfuse-hobby",
+        "input_sensitivity": [
+          "public"
+        ],
+        "observation_note": "50Kunits/month2users30days; no paid model-based evaluation.",
+        "observed_at": "2026-10-04",
+        "onboarding_consumer": "existing telemetry owner",
+        "owner": "existing telemetry owner",
+        "provider": "langfuse",
+        "quota_domain": "langfuse:existing-account-unresolved",
+        "quota_remaining": null,
+        "task_domains": [
+          "*"
+        ]
+      },
+      {
+        "allowance_type": "recurring_free",
+        "backend": "linear",
+        "binding_state": "unbound",
+        "capabilities": [
+          "state",
+          "task_status"
+        ],
+        "connection_state": "suggested_unconfirmed",
+        "consumption_state": "not_observed",
+        "free_evidence": "https://linear.app/pricing",
+        "free_plan_verified": false,
+        "id": "linear-free-capability",
+        "input_sensitivity": [
+          "public"
+        ],
+        "observed_at": "2026-10-04",
+        "onboarding_consumer": "An independent bounded recovery/exception mirror referencing canonical issue/operation IDs and finished receipts; no second task-claim authority.",
+        "onboarding_instruction": "Use owned Free organization and observe the issue cap; no paid upgrade, paid coding-session/agent entitlement assumed. No card requirement independently verified.",
+        "owner": "existing capability owner",
+        "provider": "linear",
+        "published_allowance": "Unlimited members, 2 teams, 250 issues. REST-equivalent GraphQL API key 2,500 requests/hour/user; OAuth 5,000/hour/user/app-user, with separate complexity and endpoint limits.",
+        "quota_domain": "linear:existing-account-unresolved",
+        "quota_remaining": null,
+        "task_domains": [
+          "*"
+        ]
+      },
+      {
+        "allowance_type": "recurring_free",
+        "backend": "lovable",
+        "binding_state": "unbound",
+        "capabilities": [
+          "app_build",
+          "hosting"
+        ],
+        "connection_state": "suggested_unconfirmed",
+        "consumption_state": "not_observed",
+        "free_evidence": "https://lovable.dev/pricing",
+        "free_plan_verified": false,
+        "id": "lovable-free-capability",
+        "input_sensitivity": [
+          "public"
+        ],
+        "observed_at": "2026-10-04",
+        "onboarding_consumer": "Bounded independent UI/prototype or provider-status artifact using public/authorized input; retain source/result in canonical task and actual credit receipt.",
+        "onboarding_instruction": "No card required advertised. Use owned Free workspace's actual grant balances; no top-up, paid upgrade or paid underlying connected API. Plan/Build/media may consume credits even if ordinary chat is free.",
+        "owner": "existing capability owner",
+        "provider": "lovable",
+        "published_allowance": "5buildcredits/day capped30/month;20Cloudcredits/month;4app-AIfeaturecredits granted (current-account cadence to verify). Daily build grants expire daily. Credits are workspace shared.",
+        "quota_domain": "lovable:existing-account-unresolved",
+        "quota_remaining": null,
+        "task_domains": [
+          "*"
+        ]
+      },
+      {
+        "allowance_type": "recurring_free",
+        "backend": "mistral",
+        "binding_state": "source_adapter_ready_credential_ref_unavailable_in_this_vm",
+        "capabilities": [
+          "inference"
+        ],
+        "connection_state": "setup_required",
+        "consumption_state": "not_observed",
+        "free_evidence": "https://docs.mistral.ai/admin/billing-usage/usage-limits",
+        "free_plan_verified": false,
+        "id": "mistral-free",
+        "input_sensitivity": [
+          "public"
+        ],
+        "native_tool": "mistral_generate",
+        "observation_note": "Official Free mode; actual workspace entitlement/task terms needed.",
+        "observed_at": "2026-10-04",
+        "onboarding_consumer": "existing capability owner",
+        "owner": "existing capability owner",
+        "provider": "mistral",
+        "quota_domain": "mistral:existing-account-unresolved",
+        "quota_remaining": null,
+        "task_domains": [
+          "*"
+        ]
+      },
+      {
+        "allowance_type": "conditional_free",
+        "backend": "modal",
+        "binding_state": "unbound",
+        "capabilities": [
+          "sandbox",
+          "hosting"
+        ],
+        "connection_state": "setup_required",
+        "consumption_state": "not_observed",
+        "free_evidence": "https://modal.com/pricing",
+        "free_plan_verified": false,
+        "id": "modal-bounded-credit",
+        "input_sensitivity": [
+          "public"
+        ],
+        "observation_note": "$30monthly grosscredit paymentmethod required; need verified zero netspend. Model endpoints paid fromfirsttoken.",
+        "observed_at": "2026-10-04",
+        "onboarding_consumer": "existing capability owner",
+        "owner": "existing capability owner",
+        "provider": "modal",
+        "quota_domain": "modal:existing-account-unresolved",
+        "quota_remaining": null,
+        "task_domains": [
+          "*"
+        ]
+      },
+      {
+        "allowance_type": "recurring_free",
+        "backend": "neon",
+        "binding_state": "target_project_required",
+        "capabilities": [
+          "state",
+          "hosting"
+        ],
+        "connection_state": "connected",
+        "consumption_state": "not_observed",
+        "free_evidence": "https://github.com/neondatabase/website/blob/main/content/docs/introduction/plans.md",
+        "free_plan_verified": false,
+        "id": "neon-state",
+        "input_sensitivity": [
+          "public"
+        ],
+        "observation_note": "describe_project requires a project_id; the current connection exposes no list_projects. This is a target-binding requirement, not a measured authentication failure.",
+        "observed_at": "2026-10-04",
+        "onboarding_consumer": "existing state owner",
+        "owner": "existing state owner",
+        "provider": "neon",
+        "quota_domain": "neon:existing-account-unresolved",
+        "quota_remaining": null,
+        "task_domains": [
+          "*"
+        ]
+      },
+      {
+        "allowance_type": "recurring_free",
+        "backend": "notion",
+        "binding_state": "unbound",
+        "capabilities": [
+          "state",
+          "documentation"
+        ],
+        "connection_state": "setup_required",
+        "consumption_state": "not_observed",
+        "free_evidence": "https://www.notion.com/pricing",
+        "free_plan_verified": false,
+        "id": "notion-free-state",
+        "input_sensitivity": [
+          "public"
+        ],
+        "observation_note": "Recovery documents only; freeworkspaceblockcaps and180RPMconnection/workspace shared limits; no paidAI.",
+        "observed_at": "2026-10-04",
+        "onboarding_consumer": "Write a bounded source-pinned recovery/runbook mirror and provider-doc index, with canonical Commons operation IDs and immutable source links; do not fork active task state.",
+        "onboarding_instruction": "Connect an existing Free workspace. No paid Notion AI, Custom Agents, Workers credits, domain or added paid seats. No card requirement independently verified.",
+        "owner": "existing knowledge owner",
+        "provider": "notion",
+        "published_allowance": "Single-member Free has unlimited pages/blocks; multi-member Free has 1,000 lifetime blocks for specified REST connections; 5 MB uploads. Free REST connection 180 requests/minute plus shared workspace/endpoint limits.",
+        "quota_domain": "notion:existing-account-unresolved",
+        "quota_remaining": null,
+        "task_domains": [
+          "*"
+        ]
+      },
+      {
+        "allowance_type": "recurring_free",
+        "backend": "upstream-unresolved",
+        "binding_state": "source_adapter_ready_credential_ref_unavailable_in_this_vm",
+        "capabilities": [
+          "inference"
+        ],
+        "connection_state": "setup_required",
+        "consumption_state": "not_observed",
+        "free_evidence": "https://openrouter.ai/docs/api-reference/limits",
+        "free_plan_verified": false,
+        "id": "openrouter-free",
+        "input_sensitivity": [
+          "public"
+        ],
+        "native_tool": "openrouter_generate",
+        "observation_note": "Explicit :free models only;50requests/day20RPMbase; actual backend identity must resolve before claiming independence.",
+        "observed_at": "2026-10-04",
+        "onboarding_consumer": "existing capability owner",
+        "owner": "existing capability owner",
+        "provider": "openrouter",
+        "quota_domain": "openrouter:existing-account-unresolved",
+        "quota_remaining": null,
+        "task_domains": [
+          "*"
+        ]
+      },
+      {
+        "allowance_type": "no_key_free",
+        "backend": "openrouter-metadata",
+        "binding_state": "callable",
+        "capabilities": [
+          "model_metadata"
+        ],
+        "connection_state": "not_required",
+        "consumption_state": "actual_model_catalog_consumed",
+        "free_evidence": "https://openrouter.ai/docs/api/api-reference/models/get-models",
+        "free_plan_verified": true,
+        "id": "openrouter-public-model-metadata",
+        "input_sensitivity": [
+          "public"
+        ],
+        "native_tool": "free_model_catalog",
+        "observation_note": "Actual HTTP 200 returned 466 models and 22 entries with zero text token prices. No inference request or claim of independent upstream model capacity is made.",
+        "observed_at": "2026-10-04",
+        "onboarding_consumer": "Inspect explicitfree modelids/currentpricing before inference allocation; no tokens called.",
+        "owner": "existing model-selection owner",
+        "provider": "openrouter",
+        "quota_domain": "openrouter:public-catalog-current-egress",
+        "quota_remaining": null,
+        "task_domains": [
+          "*"
+        ]
+      },
+      {
+        "allowance_type": "no_key_free",
+        "backend": "parallel",
+        "binding_state": "callable",
+        "capabilities": [
+          "search",
+          "url_read"
+        ],
+        "connection_state": "connected",
+        "consumption_state": "native_official_search_consumed",
+        "free_evidence": "https://docs.parallel.ai/integrations/mcp/search-mcp",
+        "free_plan_verified": true,
+        "id": "parallel-anonymous",
+        "input_sensitivity": [
+          "public"
+        ],
+        "native_tool": "mcp__codex_apps__parallel_search_web_search",
+        "native_tools": {
+          "search": "mcp__codex_apps__parallel_search_web_search",
+          "url_read": "mcp__codex_apps__parallel_search_web_fetch"
+        },
+        "observation_note": "Anonymous light-use MCP is free. The native connection completed official pricing search. Direct HTTP on this VM returned 403/1010 DoNotRetry, retained as a separate transport outcome; no keyed paid API was used.",
+        "observed_at": "2026-10-04",
+        "onboarding_consumer": "existing capability owner",
+        "owner": "existing capability owner",
+        "provider": "parallel",
+        "quota_domain": "parallel:existing-account-unresolved",
+        "quota_remaining": null,
+        "task_domains": [
+          "*"
+        ],
+        "transport_constraints": [
+          {
+            "code": 1010,
+            "http_status": 403,
+            "retryable": false,
+            "transport": "VManonymousHTTP"
+          },
+          {
+            "search": "succeeded",
+            "transport": "connectednativeMCP"
+          }
+        ]
+      },
+      {
+        "allowance_type": "recurring_free",
+        "backend": "posthog",
+        "binding_state": "callable",
+        "capabilities": [
+          "telemetry"
+        ],
+        "connection_state": "connected",
+        "consumption_state": "project_insight_metadata_consumed",
+        "free_evidence": "https://posthog.com/pricing",
+        "free_plan_verified": false,
+        "id": "posthog-observability",
+        "input_sensitivity": [
+          "public"
+        ],
+        "native_tool": "mcp__codex_apps__posthog_exec",
+        "observation_note": "Project access and schema discovered separately from event ingestion and account allowance.",
+        "observed_at": "2026-10-04",
+        "onboarding_consumer": "existing telemetry owner",
+        "owner": "existing telemetry owner",
+        "provider": "posthog",
+        "quota_domain": "posthog:existing-account-unresolved",
+        "quota_remaining": null,
+        "task_domains": [
+          "*"
+        ]
+      },
+      {
+        "allowance_type": "recurring_free",
+        "backend": "render",
+        "binding_state": "workspace_reader_callable_service_result_unresolved",
+        "capabilities": [
+          "hosting"
+        ],
+        "connection_state": "connected",
+        "consumption_state": "workspace_inventory_consumed",
+        "free_evidence": "https://render.com/docs/free",
+        "free_plan_verified": false,
+        "id": "render-hosting",
+        "input_sensitivity": [
+          "public"
+        ],
+        "observation_note": "One workspace is authenticated; the scoped service call returned null. No new deployment or Free plan entitlement is established.",
+        "observed_at": "2026-10-04",
+        "onboarding_consumer": "existing deployment owner",
+        "owner": "existing deployment owner",
+        "provider": "render",
+        "quota_domain": "render:existing-account-unresolved",
+        "quota_remaining": null,
+        "task_domains": [
+          "*"
+        ]
+      },
+      {
+        "allowance_type": "recurring_free",
+        "backend": "replit",
+        "binding_state": "unbound",
+        "capabilities": [
+          "app_build",
+          "hosting"
+        ],
+        "connection_state": "suggested_unconfirmed",
+        "consumption_state": "not_observed",
+        "free_evidence": "https://docs.replit.com/billing/plans/starter-plan",
+        "free_plan_verified": false,
+        "id": "replit-free-capability",
+        "input_sensitivity": [
+          "public"
+        ],
+        "observed_at": "2026-10-04",
+        "onboarding_consumer": "Small isolated Lite-build preview or design artifact for an existing task, then export/retain source and output in canonical custody before30daylink expiry.",
+        "onboarding_instruction": "No card required advertised for starting; verify Starter/balance and stop at grants. No upgrade, pay-as-you-go, purchase or new paid cloud resources; keep only the permitted bounded app.",
+        "owner": "existing capability owner",
+        "provider": "replit",
+        "published_allowance": "Daily Agent credits with a monthly cap and monthly cloud credits; exact numeric balances in account. Lite build only; one free published app expires after30days. Autonomous Full build requires Core/Pro.",
+        "quota_domain": "replit:existing-account-unresolved",
+        "quota_remaining": null,
+        "task_domains": [
+          "*"
+        ]
+      },
+      {
+        "allowance_type": "recurring_free",
+        "backend": "resend",
+        "binding_state": "unbound",
+        "capabilities": [
+          "mail"
+        ],
+        "connection_state": "setup_required",
+        "consumption_state": "not_observed",
+        "free_evidence": "https://resend.com/pricing",
+        "free_plan_verified": false,
+        "id": "resend-mail",
+        "input_sensitivity": [
+          "public"
+        ],
+        "observation_note": "Free3Ksend+receive/month100/day; Transactional Overages OFF.",
+        "observed_at": "2026-10-04",
+        "onboarding_consumer": "existing mailbox owner",
+        "owner": "existing mailbox owner",
+        "provider": "resend",
+        "quota_domain": "resend:existing-account-unresolved",
+        "quota_remaining": null,
+        "task_domains": [
+          "*"
+        ]
+      },
+      {
+        "allowance_type": "recurring_free",
+        "backend": "supabase",
+        "binding_state": "project_setup_required",
+        "capabilities": [
+          "state",
+          "hosting"
+        ],
+        "connection_state": "connected",
+        "consumption_state": "free_organization_inventory_consumed",
+        "free_evidence": "https://supabase.com/pricing",
+        "free_plan_verified": true,
+        "id": "supabase-state",
+        "input_sensitivity": [
+          "public"
+        ],
+        "observation_note": "Organization Free plan and zero projects are verified. get_cost and confirm_cost returned tool-list UNAVAILABLE; project/schema creation has not completed.",
+        "observed_at": "2026-10-04",
+        "onboarding_consumer": "existing state owner",
+        "owner": "existing state owner",
+        "provider": "supabase",
+        "quota_domain": "supabase:existing-account-unresolved",
+        "quota_remaining": null,
+        "task_domains": [
+          "*"
+        ]
+      },
+      {
+        "allowance_type": "recurring_free",
+        "backend": "tavily",
+        "binding_state": "callable",
+        "capabilities": [
+          "search",
+          "url_read"
+        ],
+        "connection_state": "authenticated",
+        "consumption_state": "official_search_extract_consumed",
+        "free_evidence": "https://docs.tavily.com/documentation/api-credits",
+        "free_plan_verified": false,
+        "id": "tavily-search",
+        "input_sensitivity": [
+          "public"
+        ],
+        "native_tool": "mcp__codex_apps__tavily_tavily_search",
+        "observation_note": "Actual keyed Search and Extract returned results. Remaining credit and account plan unmeasured.",
+        "observed_at": "2026-10-04",
+        "onboarding_consumer": "existing capability owner",
+        "owner": "existing capability owner",
+        "provider": "tavily",
+        "quota_domain": "tavily:existing-account-unresolved",
+        "quota_remaining": null,
+        "task_domains": [
+          "*"
+        ]
+      },
+      {
+        "allowance_type": "recurring_free",
+        "backend": "tinyfish",
+        "binding_state": "callable",
+        "capabilities": [
+          "search",
+          "url_read"
+        ],
+        "connection_state": "authenticated",
+        "consumption_state": "zero_rate_search_fetch_consumed",
+        "free_evidence": "https://www.tinyfish.ai/pricing",
+        "free_plan_verified": true,
+        "id": "tinyfish-free-read",
+        "input_sensitivity": [
+          "public"
+        ],
+        "native_tool": "mcp__codex_apps__tinyfish_search",
+        "native_tools": {
+          "search": "mcp__codex_apps__tinyfish_search",
+          "url_read": "mcp__codex_apps__tinyfish_fetch_content"
+        },
+        "observation_note": "Current wallet contract sets Search/query and Fetch/URL to $0. Auto-reload is unconfigured and no top-up is pending. Actual official-source search and fetch succeeded. Agent, Browser and Monitor have separate positive prices.",
+        "observed_at": "2026-10-04",
+        "onboarding_consumer": "existing capability owner",
+        "owner": "existing capability owner",
+        "provider": "tinyfish",
+        "quota_domain": "tinyfish:connected-account",
+        "quota_remaining": null,
+        "task_domains": [
+          "*"
+        ]
+      },
+      {
+        "allowance_type": "recurring_free",
+        "backend": "trello",
+        "binding_state": "unbound",
+        "capabilities": [
+          "state"
+        ],
+        "connection_state": "setup_required",
+        "consumption_state": "not_observed",
+        "free_evidence": "https://trello.com/pricing",
+        "free_plan_verified": false,
+        "id": "trello-free-state",
+        "input_sensitivity": [
+          "public"
+        ],
+        "observation_note": "Recovery status mirror with canonicalIDs;APIkey300/10s+token100/10s;workspacefreecaps apply.",
+        "observed_at": "2026-10-04",
+        "onboarding_consumer": "A bounded immutable outage/recovery receipt board with stable task links and provider cooldown snapshots; the existing Commons queue remains authoritative.",
+        "onboarding_instruction": "Use owned Free workspace and actual collaborator/board limits. No Premium trial, paid Power-Up or automation schedule. Card requirement not independently verified.",
+        "owner": "existing state owner",
+        "provider": "trello",
+        "published_allowance": "10 boards and 10 collaborators/workspace; unlimited cards; 10 MB/file. REST 300 requests/10 seconds per key and 100/10 seconds per token; narrower endpoint limits apply.",
+        "quota_domain": "trello:existing-account-unresolved",
+        "quota_remaining": null,
+        "task_domains": [
+          "*"
+        ]
+      },
+      {
+        "allowance_type": "recurring_free",
+        "backend": "zep",
+        "binding_state": "unbound",
+        "capabilities": [
+          "memory"
+        ],
+        "connection_state": "setup_required",
+        "consumption_state": "not_observed",
+        "free_evidence": "https://www.getzep.com/pricing/",
+        "free_plan_verified": false,
+        "id": "zep-memory",
+        "input_sensitivity": [
+          "public"
+        ],
+        "observation_note": "10Kcredits/month;1MCPseat compatibleOIDC/Workspace required; no Flex/autotopup.",
+        "observed_at": "2026-10-04",
+        "onboarding_consumer": "existing context owner",
+        "owner": "existing context owner",
+        "provider": "zep",
+        "quota_domain": "zep:existing-account-unresolved",
+        "quota_remaining": null,
+        "task_domains": [
+          "*"
+        ]
+      }
+    ],
+    "free_pool_routes_policy": {
+      "actual_account_plan_separate_from_published_free_offer": true,
+      "gateway_deployment_not_claimed": true,
+      "native_arguments": "caller-supplied schema-correct tool/arguments byroute",
+      "new_paid_commitment_authorized": false,
+      "optional_execution_helper": true,
+      "quota_aliases_do_not_multiply_capacity": true,
+      "runtime_journal": "private/outside-git",
+      "source": "same canonical observations",
+      "task_domain": "docs must match provider/library; genericsearch/read may usewildcard"
+    },
     "freshness_by_component": {
       "automations": "2026-09-07T04:08:47Z",
       "historical_plugin_search_findings": "2026-09-07T04:08:47Z",
       "installed_plugins": "2026-09-07T04:08:47Z",
-      "provider_read_probes": "2026-10-04",
-      "skill_registry": "2026-10-04T06:35Z",
-      "tool_registry": "2026-10-04T06:34:26.753Z"
+      "provider_read_probes": "2026-10-04T07:27:15.256Z",
+      "skill_registry": "2026-10-04T07:27:15.257Z",
+      "tool_registry": "2026-10-04T07:27:15.256Z"
     },
-    "fully_paginated_skills": 139,
+    "fully_paginated_skills": 186,
     "historical_plugin_search_findings": {
       "agentmail_plugin": "NOT_FOUND_IN_CHATGPT_PLUGIN_DIRECTORY",
       "cursor_grok_claude_plugin": "NOT_FOUND_IN_CHATGPT_PLUGIN_DIRECTORY",
@@ -1539,60 +3187,205 @@
       "Task Tool",
       "Vercel"
     ],
+    "new_plugin_read_evidence": [
+      {
+        "account_plan": "NOT_EXPOSED",
+        "binding_constraints": [],
+        "id": "context7",
+        "observed_at": "2026-10-04T07:27:15.256Z",
+        "stage": "EXERCISED",
+        "working_methods": [
+          "context7_resolve_library_id",
+          "context7_query_docs"
+        ]
+      },
+      {
+        "account_plan": "UNMEASURED",
+        "binding_constraints": [],
+        "id": "posthog",
+        "observed_at": "2026-10-04T07:27:15.256Z",
+        "stage": "EXERCISED",
+        "working_methods": [
+          "posthog_exec:projects-get",
+          "posthog_exec:organization-get",
+          "posthog_exec:insights-list",
+          "posthog_exec:docs-search"
+        ]
+      },
+      {
+        "account_plan": "UNMEASURED",
+        "binding_constraints": [
+          {
+            "carrier": "active connector router",
+            "error": "MCP method not returned by tools/list",
+            "error_code": "UNAVAILABLE",
+            "methods": [
+              "hugging_face_hf_doc_search",
+              "hugging_face_model_search"
+            ]
+          }
+        ],
+        "id": "hugging-face",
+        "observed_at": "2026-10-04T07:27:15.256Z",
+        "stage": "EXERCISED",
+        "working_methods": [
+          "hugging_face_hf_whoami",
+          "hugging_face_hub_repo_details"
+        ]
+      },
+      {
+        "account_plan": "UNMEASURED",
+        "binding_constraints": [],
+        "id": "tavily",
+        "observed_at": "2026-10-04T07:27:15.256Z",
+        "stage": "EXERCISED",
+        "working_methods": [
+          "tavily_tavily_search",
+          "tavily_tavily_extract"
+        ]
+      },
+      {
+        "account_plan": "NOT_EXPOSED",
+        "binding_constraints": [],
+        "id": "agentmail",
+        "observed_at": "2026-10-04T07:27:15.256Z",
+        "stage": "REACHABLE",
+        "working_methods": [
+          "agentmail_list_organizations",
+          "agentmail_list_inboxes"
+        ]
+      },
+      {
+        "account_plan": "free",
+        "binding_constraints": [
+          {
+            "error": "MCP method not returned by tools/list",
+            "error_code": "UNAVAILABLE",
+            "methods": [
+              "supabase_get_cost",
+              "supabase_confirm_cost"
+            ]
+          }
+        ],
+        "id": "supabase",
+        "observed_at": "2026-10-04T07:27:15.256Z",
+        "stage": "REACHABLE",
+        "working_methods": [
+          "supabase_list_organizations",
+          "supabase_list_projects",
+          "supabase_get_organization",
+          "supabase_search_docs"
+        ]
+      },
+      {
+        "account_plan": "UNMEASURED",
+        "binding_constraints": [
+          {
+            "error": "project_id required for unscoped connection; project discovery method not advertised",
+            "error_code": "INVALID_ARGUMENT",
+            "method": "neon_describe_project"
+          }
+        ],
+        "id": "neon",
+        "observed_at": "2026-10-04T07:27:15.256Z",
+        "stage": "AVAILABLE",
+        "working_methods": []
+      },
+      {
+        "account_plan": "UNMEASURED",
+        "binding_constraints": [],
+        "id": "render",
+        "observed_at": "2026-10-04T07:27:15.256Z",
+        "stage": "REACHABLE",
+        "working_methods": [
+          "render_list_workspaces",
+          "render_list_services:explicit_workspace"
+        ]
+      },
+      {
+        "account_plan": "PRICE_UNMEASURED",
+        "binding_constraints": [],
+        "id": "firecrawl",
+        "observed_at": "2026-10-04T07:27:15.256Z",
+        "stage": "EXERCISED",
+        "working_methods": [
+          "firecrawl_firecrawl_credit_usage",
+          "firecrawl_firecrawl_search"
+        ]
+      }
+    ],
     "plugin_eligibility_observations": [
       {
-        "callable": false,
+        "callable": true,
         "installation_policy": "AVAILABLE",
-        "installed": false,
-        "observed_at": "2026-10-04",
+        "installed": true,
+        "observed_at": "2026-10-04T07:27:15.256Z",
         "provider": "Context7",
-        "source_kind": "DIRECTORY_SUGGESTION_UNCONFIRMED",
+        "source_kind": "CONNECTED_PLUGIN_NATIVE_METHOD_PROBE",
         "suggestion_offered": true
       },
       {
-        "callable": false,
+        "callable": true,
         "installation_policy": "AVAILABLE",
-        "installed": false,
-        "observed_at": "2026-10-04",
+        "installed": true,
+        "observed_at": "2026-10-04T07:27:15.256Z",
         "provider": "PostHog",
-        "source_kind": "DIRECTORY_SUGGESTION_UNCONFIRMED",
+        "source_kind": "CONNECTED_PLUGIN_NATIVE_METHOD_PROBE",
         "suggestion_offered": true
       },
       {
-        "callable": false,
+        "callable": true,
         "installation_policy": "AVAILABLE",
-        "installed": false,
-        "observed_at": "2026-10-04",
+        "installed": true,
+        "observed_at": "2026-10-04T07:27:15.256Z",
         "provider": "Hugging Face",
-        "source_kind": "DIRECTORY_SUGGESTION_UNCONFIRMED",
+        "source_kind": "CONNECTED_PLUGIN_NATIVE_METHOD_PROBE",
         "suggestion_offered": true
       },
       {
-        "callable": false,
+        "callable": true,
         "installation_policy": "AVAILABLE",
-        "installed": false,
-        "observed_at": "2026-10-04",
+        "installed": true,
+        "observed_at": "2026-10-04T07:27:15.256Z",
         "provider": "AgentMail",
-        "source_kind": "CURRENT_PLUGIN_DIRECTORY_READ",
+        "source_kind": "CONNECTED_PLUGIN_NATIVE_METHOD_PROBE",
         "suggestion_offered": false
       },
       {
-        "callable": false,
+        "callable": true,
         "installation_policy": "AVAILABLE",
-        "installed": false,
-        "observed_at": "2026-10-04",
+        "installed": true,
+        "observed_at": "2026-10-04T07:27:15.256Z",
         "provider": "Tavily",
-        "source_kind": "CURRENT_PLUGIN_DIRECTORY_READ",
+        "source_kind": "CONNECTED_PLUGIN_NATIVE_METHOD_PROBE",
         "suggestion_offered": false
+      },
+      {
+        "callable": true,
+        "installed": true,
+        "observed_at": "2026-10-04T07:34:45.326Z",
+        "provider": "Parallel Search",
+        "source_kind": "CURRENT_DEPENDENCY_AND_NATIVE_WORKLOAD",
+        "suggestion_offered": true,
+        "user_enabled": true
+      },
+      {
+        "callable": true,
+        "installed": true,
+        "observed_at": "2026-10-04T07:34:45.326Z",
+        "provider": "TinyFish",
+        "source_kind": "CURRENT_DEPENDENCY_AND_NATIVE_WORKLOAD",
+        "suggestion_offered": true,
+        "user_enabled": true
       }
     ],
     "plugin_search_findings": {
-      "agentmail_plugin": "AVAILABLE_NOT_INSTALLED",
+      "agentmail_plugin": "INSTALLED_ENABLED_NATIVE_AUTH_READ_SUCCESS",
       "cursor_grok_claude_plugin": "NOT_FOUND_IN_CHATGPT_PLUGIN_DIRECTORY",
       "latent_recommended_plugins": 45
     },
     "plugin_search_findings_observed_at": {
-      "agentmail_plugin": "2026-10-04",
+      "agentmail_plugin": "2026-10-04T07:27:15.256Z",
       "cursor_grok_claude_plugin": "2026-09-07T04:08:47Z",
       "latent_recommended_plugins": "2026-09-07T04:08:47Z"
     },
@@ -1744,14 +3537,21 @@
       "defense-factory": 1,
       "demos": 2,
       "dropbox": 6,
+      "firecrawl": 1,
       "google-drive": 5,
+      "hugging-face": 11,
+      "neon-postgres": 5,
       "netlify": 12,
       "openai-library": 1,
       "pages": 4,
       "plugin-management": 1,
+      "posthog": 1,
+      "render": 21,
       "sites": 4,
       "stripe": 10,
+      "supabase": 2,
       "task-tool": 1,
+      "tavily": 6,
       "template-creator": 1,
       "vercel": 54,
       "work-pets": 3,
@@ -1763,6 +3563,10 @@
       "observed_at": "2026-10-04T06:35Z",
       "pagination_pages": 7,
       "scope": "Fully paginated installed skill bundles; not connector authentication or usage."
-    }
+    },
+    "skill_registry_next_cursor": null,
+    "skill_registry_pages": 10,
+    "tool_count_meaning": "Advertised current-session bindings; tools/list success and authenticated provider evidence are separate per-method facts.",
+    "tools_list_caveat": "The legacy callable_tools field counts advertised bindings. It does not claim all 989 methods returned by live tools/list or executed successfully. Method-level and carrier-level probe results govern routing."
   }
 }

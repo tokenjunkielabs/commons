@@ -981,3 +981,38 @@ Verified product pages only — no invented Stripe links.
 ## Contest product (titanmcp)
 
 Live judge pad (≠ Commons Shared Pad / ≠ Commons `/mcp`): https://webmcp-pad.vercel.app/ — **titanmcp 1.4.5**, 24 tools, Agent Resources, `syncConsents`. Board: [titanmcp.html](../../titanmcp.html). Cite Latch Pad KEEP.
+
+
+## Connected capability fallback execution
+
+Use `equipment_fallback_plan` or the `fallback-plan` CLI for a capability-scoped
+view of current Free routes from `tool_fleet.free_pool_routes` in the existing
+connected-capability observations. The executable
+[connected tool router](../../host/CONNECTED_TOOL_ROUTER.md) consumes the same
+facts and invokes actual provider tools through the caller's native, Python or
+JSON bridge. Preserve the operation ID and private journal; Retry-After and
+quota reset feedback apply to every alias of the same domain. Reconcile an
+accepted or uncertain write before another delivery attempt. Direct existing
+tool access remains available. Passive telemetry does not dispatch or gate work.
+
+The existing provider extension adds `jina_public_read` (no-key public URLs)
+and `parallel_anonymous_tools`, `parallel_anonymous_search`,
+`parallel_anonymous_fetch` (anonymous light-use MCP). Calls retain provider
+status and retry feedback, with bounded response size and no automatic retry.
+One carrier's explicit HTTP403/DoNotRetry condition is retained; a successful
+connected native search on another carrier is a separate working binding.
+
+`FreeModelEquipment` adds `free_model_catalog`, `gemini_generate`,
+`cloudflare_generate`, `openrouter_generate`, `mistral_generate` alongside
+the existing Groq/Exa tools. It uses the private references
+`gemini/api-key`, `cloudflare/api-key`, `cloudflare/account-id`,
+`openrouter/api-key` and `mistral/api-key`; do not substitute OAuth grants.
+OpenRouter generation names an explicitly free model. Other transports use
+the actual account's verified Free model/plan rather than creating billing
+commitments. Public model metadata is separate from inference capacity.
+
+`CombinedCatalog` registers both extensions when the existing gateway deploys
+this source. Source registration, a local program result and cloud-gateway
+deployment are separate states. Keep the existing gateway/account recovery
+owners and secure-reference custody; no new worker or owner-device deployment
+is started by this integration.
