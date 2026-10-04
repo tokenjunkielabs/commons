@@ -60,6 +60,7 @@ def _source(s):
     if pdf is not None and (not isinstance(pdf,str) or not re.fullmatch(r"[0-9a-f]{64}",pdf)): raise PreflightError("rfp_pdf_sha256 must be null or canonical SHA-256")
     if s.get("rfp_pdf_bytes_locally_acquired") is not False and pdf is None: raise PreflightError("source cannot claim local PDF bytes without a digest")
     parse_utc(s.get("checked_at"),"source.checked_at")
+    if "proposal_due_at_utc" in s: parse_utc(s["proposal_due_at_utc"],"source.proposal_due_at_utc")
     try: datetime.strptime(s.get("proposal_due_date",""),"%Y-%m-%d")
     except (TypeError,ValueError) as e: raise PreflightError("proposal_due_date must be YYYY-MM-DD") from e
     if s.get("inclusion_guarantees_work") is not False: raise PreflightError("source must preserve no-guaranteed-work statement")
@@ -88,7 +89,7 @@ def evaluate(s,o,*,trusted_now):
     unknown=sorted(str(x) for x in selected if x not in allowed)
     if unknown: blockers.append("UNKNOWN_SELECTED_TRACK:"+",".join(unknown))
     if s.get("track_count_ambiguity_resolved") is not True and o.get("track_count_ambiguity_reviewed") is not True: blockers.append("REVIEW_FOUR_TRACKS_VS_ALL_THREE_SOURCE_AMBIGUITY")
-    if o.get("deadline_time_label_reviewed") is not True: blockers.append("REVIEW_SOURCE_EST_TIMEZONE_LABEL")
+    if "proposal_due_at_utc" not in s and o.get("deadline_time_label_reviewed") is not True: blockers.append("REVIEW_SOURCE_EST_TIMEZONE_LABEL")
     qualifying=[]; allowed_experience=set(s.get("qualifying_experience_categories",ALLOWED_EXPERIENCE))
     for i,row in enumerate(o["qualifying_experience"]):
         if not isinstance(row,dict): blockers.append(f"EXPERIENCE_{i}_MALFORMED"); continue
@@ -133,8 +134,10 @@ def evaluate(s,o,*,trusted_now):
                 v=tp.get(track)
                 if not _int(v) or v<1: blockers.append(f"TRACK_PAGE_PLAN_REQUIRED:{track}")
                 elif v>lim["selected_track_answers_per_track"]: blockers.append(f"TRACK_PAGE_LIMIT_EXCEEDED:{track}")
-    deadline=datetime.strptime(s["proposal_due_date"]+"T17:00:00","%Y-%m-%dT%H:%M:%S").replace(tzinfo=timezone(timedelta(hours=-5)))
-    if now>deadline.astimezone(timezone.utc): state=DEADLINE_HOLD; blockers.append("PROPOSAL_DEADLINE_PASSED_USING_SOURCE_EST_LABEL")
+    deadline=parse_utc(s["proposal_due_at_utc"],"source.proposal_due_at_utc") if "proposal_due_at_utc" in s else datetime.strptime(s["proposal_due_date"]+"T17:00:00","%Y-%m-%dT%H:%M:%S").replace(tzinfo=timezone(timedelta(hours=-5)))
+    if now>deadline.astimezone(timezone.utc):
+        state=DEADLINE_HOLD
+        blockers.append("PROPOSAL_DEADLINE_PASSED" if "proposal_due_at_utc" in s else "PROPOSAL_DEADLINE_PASSED_USING_SOURCE_EST_LABEL")
     if state not in (SOURCE_HOLD,DEADLINE_HOLD): state=READY if not blockers else OWNER_HOLD
     r={"schema":RECEIPT_SCHEMA,"state":state,"evaluated_at":now.strftime("%Y-%m-%dT%H:%M:%SZ"),"source_snapshot_sha256":digest(s),"owner_input_sha256":digest(o),"selected_tracks":selected,"qualifying_experience_count":len(qualifying),"reference_count":len(ids),"blockers":sorted(set(blockers)),"warnings":sorted(set(warnings)),"source_ambiguities":list(s.get("source_ambiguities",[])),"authority":dict(AUTHORITY)}
     r["receipt_sha256"]=digest(dict(r)); return r
