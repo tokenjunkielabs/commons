@@ -2,8 +2,9 @@
 
 Native runtime snapshots and narrowly recognized live agent CLI processes form
 the observed census. Protocol seats, old command-center rows and open browser
-tabs remain separately labelled declarations/discovery. No read starts or
-resumes work, writes source state, or exposes command lines or message bodies.
+tabs remain separately labelled declarations/discovery. Returned originals and
+event cursors can be committed to private telemetry custody. No read starts or
+resumes work, changes provider state, or exposes command lines or message bodies.
 """
 from __future__ import annotations
 
@@ -12,6 +13,7 @@ import json
 import os
 import subprocess
 import time
+import urllib.error
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
@@ -21,6 +23,17 @@ from urllib.parse import urlsplit
 from .notifications import redact
 
 _PROCESS_CACHE: dict[str, Any] = {}
+_NONTERMINAL = {"queued", "running", "working", "waiting", "active", "pending"}
+_TERMINAL = {"complete", "completed", "completed_observed", "completed_reported", "cancelled", "canceled", "failed", "closed", "archived", "terminated", "stopped", "done", "succeeded"}
+_PROVIDER_TERMINAL = _TERMINAL | {"error", "interrupted"}
+
+
+class CensusStoragePending(RuntimeError):
+    """No additional source read was started below the collection reserve."""
+
+
+class CensusCustodyPending(RuntimeError):
+    """A returned original is retained while its durable write is retried."""
 
 
 def _now() -> str:
@@ -67,18 +80,29 @@ class _NoRedirect(urllib.request.HTTPRedirectHandler):
         return None
 
 
-def _json_read(url: str, timeout: float, payload: Mapping | None = None) -> Any:
+def _json_read(url: str, timeout: float, payload: Mapping | None = None, source_sink=None) -> Any:
     data = json.dumps(payload).encode() if payload is not None else None
     request = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json"})
     opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), _NoRedirect())
-    with opener.open(request, timeout=timeout) as response:
+    try:
+        response = opener.open(request, timeout=timeout)
+    except urllib.error.HTTPError as error:
+        response = error
+    with response:
         raw = response.read(32 * 1024 * 1024 + 1)
+        status = response.status
+    read_at = _now()
     if len(raw) > 32 * 1024 * 1024:
         raise ValueError("source_response_exceeds_32MiB")
-    return _unwrap(json.loads(raw.decode("utf-8")))
+    text = raw.decode("utf-8")
+    if source_sink:
+        source_sink(text, read_at, status)
+    if status >= 400:
+        raise RuntimeError("source_http_error:" + str(status))
+    return _unwrap(json.loads(text))
 
 
-def _tool(base: str, name: str, arguments: Mapping, timeout: float) -> Any:
+def _tool(base: str, name: str, arguments: Mapping, timeout: float, source_sink=None) -> Any:
     # These exact tools are reads. No arbitrary tool name is accepted here.
     allowed = {"command_center_state", "read_observatory", "gemini_events", "gemini_get_request", "grokbot_events", "grokbot_inspect"}
     if name not in allowed:
@@ -86,7 +110,8 @@ def _tool(base: str, name: str, arguments: Mapping, timeout: float) -> Any:
     # A new read ID avoids the gateway replaying a prior census response.
     digest = hashlib.sha256(json.dumps([name, arguments, time.time_ns()], sort_keys=True).encode()).hexdigest()[:24]
     return _json_read(base.rstrip("/") + "/v1/tools/call", timeout,
-                      {"name": name, "arguments": dict(arguments), "request_id": "census-read-" + digest, "call_id": "census-read-" + digest})
+                      {"name": name, "arguments": dict(arguments), "request_id": "census-read-" + digest, "call_id": "census-read-" + digest},
+                      source_sink=(lambda raw, read_at, status: source_sink(name, arguments, raw, read_at, "census-read-" + digest, status)) if source_sink else None)
 
 
 def _rows(value: Any) -> list[dict]:
@@ -107,6 +132,14 @@ def _rows(value: Any) -> list[dict]:
     return rows
 
 
+def _status(row: Mapping) -> str:
+    origin = row.get("origin") if isinstance(row.get("origin"), Mapping) else {}
+    value = row.get("status") or row.get("state") or origin.get("native_execution_status") or "unknown"
+    if isinstance(value, Mapping):
+        value = value.get("type") or value.get("status") or value.get("state") or "unknown"
+    return str(value).lower().replace("-", "_")
+
+
 def _peer(row: Mapping, source: str, read_at: str, *, fresh_read: bool, ttl: float, declared: bool = False) -> dict | None:
     if str(row.get("kind") or "").lower() in {"machine", "runtime", "service", "resource"}:
         return None
@@ -114,10 +147,8 @@ def _peer(row: Mapping, source: str, read_at: str, *, fresh_read: bool, ttl: flo
     sid = row.get("session_id") or row.get("threadId") or row.get("thread_id") or origin.get("canonical_session_id") or origin.get("native_thread_id") or row.get("request_id") or row.get("run_id") or row.get("id")
     if not sid:
         return None
-    state = str(row.get("status") or row.get("state") or origin.get("native_execution_status") or "unknown").lower().replace("-", "_")
-    if isinstance(row.get("status"), Mapping):
-        state = str(row["status"].get("type") or row["status"].get("status") or "unknown").lower()
-    if state in {"complete", "completed", "completed_observed", "completed_reported", "cancelled", "canceled", "failed", "closed", "archived", "terminated", "stopped", "notloaded", "not_loaded", "unloaded"}:
+    state = _status(row)
+    if state in _TERMINAL | {"notloaded", "not_loaded", "unloaded"}:
         return None
     observed = read_at if fresh_read else _timestamp(row.get("runtime_observed_at") or origin.get("metadata_observed_at") or row.get("telemetry_observed_at") or row.get("observed_at"))
     age = _age(observed, read_at)
@@ -195,12 +226,14 @@ def collect_census(config: Mapping | None = None, *, state: Mapping | None = Non
     native_sessions (fresh native API rows or envelope); runtime_snapshots
     ({source,payload,observed_at,fresh_read,complete}); browser_endpoints (known
     existing CDP JSON base URLs); provider_events; max_event_pages/max_inspects.
+    provider_event_state and persist_provider_state retain committed cursors
+    and nonterminal request projections between reads. source_read_allowed
+    guards collection only; source_recorder commits complete returned originals
+    before an event cursor can advance.
     source_snapshots maps read tool names to already fetched source envelopes;
     tool_reader(name, arguments) can bind the existing service connector road.
     Native snapshots with fresh_read=True must be returned by a read in this
     collection run. Provider rows and bakes never inherit a fresh fetch time.
-    Pass the returned state into the next collection to resume provider event
-    pages and retain requests still awaiting fresh inspection.
     """
     config = dict(config or {})
     at = _now()
@@ -219,6 +252,10 @@ def collect_census(config: Mapping | None = None, *, state: Mapping | None = Non
     ttl = max(1, float(config.get("stale_after_seconds", 900)))
     base = str(config.get("gateway_url") or "http://127.0.0.1:8878")
     coverage, live, declared = [], [], []
+    source_reads = {}
+    provider_event_state = {}
+    legacy_events = (state or {}).get("provider_events", {})
+    retained_events = config.get("provider_event_state") or legacy_events
 
     def add_rows(rows: list[dict], source: str, *, fresh_read=False, declaration=False, observed_at=None):
         for row in rows:
@@ -234,13 +271,26 @@ def collect_census(config: Mapping | None = None, *, state: Mapping | None = Non
     def read_tool(name, args):
         snapshots = config.get("source_snapshots") or {}
         if name in snapshots:
+            source_reads[name] = {"fresh_read": False}
             return _unwrap(snapshots[name])
         failures = []
         for attempt in range(2):
             try:
+                allowed = config.get("source_read_allowed")
+                if callable(allowed) and not allowed():
+                    raise CensusStoragePending("collection_storage_reserve")
+                def retain(tool, arguments, raw, read_at, read_id, status):
+                    recorder = config.get("source_recorder")
+                    ref = recorder(tool, arguments, raw, read_at, read_id, status) if callable(recorder) else None
+                    source_reads[tool] = {"observed_at": read_at, "source_record_ref": ref, "fresh_read": True}
                 if callable(config.get("tool_reader")):
-                    return _unwrap(config["tool_reader"](name, args))
-                return _tool(base, name, args, timeout)
+                    result = config["tool_reader"](name, args)
+                    read_at = _now()
+                    retain(name, args, json.dumps(result, ensure_ascii=False), read_at, "census-bound-read-" + hashlib.sha256((name + read_at).encode()).hexdigest()[:24], None)
+                    return _unwrap(result)
+                return _tool(base, name, args, timeout, source_sink=retain)
+            except (CensusStoragePending, CensusCustodyPending):
+                raise
             except Exception as error:
                 failures.append(type(error).__name__)
         raise RuntimeError(";".join(failures))
@@ -250,7 +300,7 @@ def collect_census(config: Mapping | None = None, *, state: Mapping | None = Non
         add_rows(_rows(state), "command_center_state")
         coverage.append({"source": "command_center_state", "status": "observed", "records_read": len(_rows(state)), "observed_at": at, "complete": True, "scope": "existing shared cross-harness session records; record timestamps preserved"})
     except Exception as error:
-        coverage.append({"source": "command_center_state", "status": "unavailable", "error": type(error).__name__, "attempts": 2, "complete": False, "unread_regions": ["session records"]})
+        coverage.append({"source": "command_center_state", "status": "pending_storage" if isinstance(error, CensusStoragePending) else "pending_source_custody" if isinstance(error, CensusCustodyPending) else "unavailable", "error": type(error).__name__, "attempts": 2, "complete": False, "unread_regions": ["session records"]})
     try:
         bake = read_tool("read_observatory", {"view": "census", "limit": 0})
         add_rows(_rows(bake), "read_observatory", declaration=True)
@@ -260,7 +310,7 @@ def collect_census(config: Mapping | None = None, *, state: Mapping | None = Non
                          "complete": not source_gaps and not cursors, "scope": "protocol census declarations", "source_coverage": bake.get("source_coverage", []), "freshness": bake.get("freshness"),
                          "unread_regions": source_gaps + ["census after cursor " + str(cursor) for cursor in cursors]})
     except Exception as error:
-        coverage.append({"source": "read_observatory", "status": "unavailable", "error": type(error).__name__, "attempts": 2, "complete": False, "unread_regions": ["protocol census"]})
+        coverage.append({"source": "read_observatory", "status": "pending_storage" if isinstance(error, CensusStoragePending) else "pending_source_custody" if isinstance(error, CensusCustodyPending) else "unavailable", "error": type(error).__name__, "attempts": 2, "complete": False, "unread_regions": ["protocol census"]})
 
     if "native_sessions" in config:
         rows = _rows(_unwrap(config["native_sessions"]))
@@ -342,68 +392,164 @@ def collect_census(config: Mapping | None = None, *, state: Mapping | None = Non
         except Exception as error:
             coverage.append({"source": source, "status": "unavailable", "error": type(error).__name__, "complete": False})
 
-    previous_events = (state or {}).get("provider_events", {})
-    provider_events = {tool: {**saved, "pending": {key: dict(value) for key, value in saved.get("pending", {}).items()}}
-                       for tool, saved in previous_events.items()}
     if config.get("provider_events", True):
         for tool, inspector, identifier in (("gemini_events", "gemini_get_request", "request_id"), ("grokbot_events", "grokbot_inspect", "run_id")):
-            checkpoint = provider_events.setdefault(tool, {"cursor": 0, "pending": {}})
-            cursor, pages, read = checkpoint.get("cursor", 0), 0, 0
-            latest = checkpoint.setdefault("pending", {})
+            previous = retained_events.get(tool) or legacy_events.get(tool, {})
+            if "nonterminal" not in previous and "pending" in previous:
+                previous = {**previous, "nonterminal": previous["pending"]}
+            committed = json.loads(json.dumps(previous)) if isinstance(previous, Mapping) else {}
+            cursor = committed.get("cursor", 0)
+            pages, read, inspected = 0, 0, 0
+            latest = committed.get("nonterminal", {})
+            latest = dict(latest) if isinstance(latest, Mapping) else {}
             done = False
-            inspected = 0
+            selected = []
+            inspected_keys = set()
+            inspection_errors = {}
+            source_error = None
+
+            def checkpoint():
+                nonlocal committed
+                value = {**committed, "version": 1, "cursor": cursor, "nonterminal": latest,
+                         "checkpoint_acknowledged": True}
+                persist = config.get("persist_provider_state")
+                if callable(persist):
+                    persist(tool, value)
+                # Keep only the state whose write was acknowledged. A failed
+                # checkpoint never becomes the next read cursor.
+                committed = json.loads(json.dumps(value))
+
             try:
+                if isinstance(cursor, bool) or not str(cursor).isdigit():
+                    raise ValueError("invalid_retained_event_cursor")
+                cursor = int(cursor)
                 for _ in range(max(1, min(int(config.get("max_event_pages", 20)), 100))):
                     args = {"after": cursor, "limit": 200}
                     if tool == "grokbot_events":
                         args["wait_ms"] = 0
                     result = read_tool(tool, args)
-                    page = result.get("events", [])
+                    if not isinstance(result, Mapping) or "events" not in result:
+                        raise ValueError("event_page_unavailable")
+                    page = result["events"]
+                    if not isinstance(page, list):
+                        raise ValueError("invalid_event_page")
                     pages += 1
                     read += len(page)
                     for event in page:
+                        if not isinstance(event, Mapping):
+                            continue
                         ident = event.get(identifier)
                         if ident:
-                            ident = str(ident)
-                            if str(event.get("status") or "").lower() in {"queued", "running", "working", "waiting", "active", "pending"}:
-                                # Persist only cursor/inspection metadata, not
-                                # provider message bodies or tool results.
-                                latest[ident] = {**latest.get(ident, {}), **{key: event[key] for key in (identifier, "status", "peer", "ts", "observed_at") if key in event}}
-                            else:
-                                latest.pop(ident, None)
+                            key = str(ident)
+                            state = _status(event)
+                            if state in _PROVIDER_TERMINAL:
+                                latest.pop(key, None)
+                            elif state in _NONTERMINAL or key in latest:
+                                # This is a runtime projection. The complete
+                                # response is retained separately by the sink.
+                                projection = {k: event[k] for k in (identifier, "peer", "status", "state", "ts", "observed_at", "seq") if k in event}
+                                latest[key] = {**latest.get(key, {}), **projection,
+                                               "event_source_ref": source_reads.get(tool, {}).get("source_record_ref")}
                     next_cursor = result.get("next_cursor")
-                    finished = not page or next_cursor is None or str(next_cursor) == str(cursor)
                     if next_cursor is not None:
-                        cursor = next_cursor
-                    checkpoint["cursor"] = cursor
-                    if finished:
-                        done = True
+                        if isinstance(next_cursor, bool) or not str(next_cursor).isdigit() or int(next_cursor) < cursor:
+                            raise ValueError("nonmonotonic_event_cursor")
+                        advanced = int(next_cursor) > cursor
+                        cursor = int(next_cursor)
+                    else:
+                        advanced = False
+                    done = not page
+                    if page and not advanced:
+                        # A nonempty page without a continuation is not a
+                        # completed history and cannot supply a guessed cursor.
+                        raise ValueError("event_continuation_missing")
+                    committed["last_event_read_at"] = source_reads.get(tool, {}).get("observed_at")
+                    committed["last_source_record_ref"] = source_reads.get(tool, {}).get("source_record_ref")
+                    committed["historical_complete"] = bool(committed.get("historical_complete")) or done
+                    checkpoint()
+                    if done:
                         break
-                pending = list(latest.values())
-                pending.sort(key=lambda row: str(row.get("ts") or row.get("observed_at") or ""), reverse=True)
-                # Oldest inspection first preserves the entire outstanding set
-                # when the per-pass inspection budget is smaller than it.
-                pending.sort(key=lambda row: row.get("last_inspected_at") or "")
                 limit = max(0, min(int(config.get("max_inspects", 12)), 100))
-                for event in pending[:limit]:
+                keys = sorted(latest)
+                prior_inspect = str(committed.get("last_inspection_attempt") or committed.get("last_inspected_request") or "")
+                split = next((i for i, key in enumerate(keys) if key > prior_inspect), 0)
+                selected = (keys[split:] + keys[:split])[:limit]
+                for key in selected:
+                    event = latest[key]
                     args = {identifier: event[identifier], "wait_ms": 0}
-                    event["last_inspected_at"] = at
-                    current = read_tool(inspector, args)
+                    try:
+                        current = read_tool(inspector, args)
+                    except (CensusStoragePending, CensusCustodyPending):
+                        raise
+                    except Exception as error:
+                        inspection_errors[key] = type(error).__name__
+                        latest[key] = {**event, "last_inspection_error": type(error).__name__, "last_inspection_attempt_at": _now()}
+                        committed["last_inspection_attempt"] = key
+                        checkpoint()
+                        continue
                     rows = _rows(current) or [dict(current)]
+                    retained_peers = []
+                    info = source_reads.get(inspector, {})
+                    inspected_at = info.get("observed_at")
                     for row in rows:
                         row.setdefault(identifier, event[identifier])
                         row.setdefault("provider", "google" if tool == "gemini_events" else "xai")
                         row.setdefault("harness", "shared-equipment")
                         row.setdefault("peer_id", event.get("peer"))
-                    add_rows(rows, inspector, fresh_read=True)
-                    if any(str(row.get("status") or row.get("state") or "").lower() in {"complete", "completed", "completed_observed", "completed_reported", "cancelled", "canceled", "failed", "error", "closed", "archived", "terminated", "stopped", "interrupted"} for row in rows):
-                        latest.pop(str(event[identifier]), None)
+                        if _status(row) in _PROVIDER_TERMINAL:
+                            continue
+                        if inspected_at:
+                            row["runtime_observed_at"] = inspected_at
+                        peer = _peer(row, inspector, at, fresh_read=False, ttl=ttl)
+                        if peer:
+                            retained_peers.append({**peer, "status": peer["source_status"],
+                                                   "runtime_observed_at": peer["observed_at"],
+                                                   "source_record_ref": info.get("source_record_ref")})
+                    if retained_peers:
+                        latest[key] = {**event, "peers": retained_peers}
+                    elif rows and all(_status(row) in _PROVIDER_TERMINAL for row in rows):
+                        latest.pop(key, None)
+                    committed["last_inspected_request"] = key
+                    committed["last_inspection_attempt"] = key
+                    checkpoint()
                     inspected += 1
-                coverage.append({"source": tool, "status": "observed" if done else "partial", "pages_read": pages, "records_read": read, "next_cursor": cursor,
-                                 "inspected_requests": inspected, "pending_requests": len(latest), "complete": done and len(pending) <= limit, "unread_regions": ([] if done else ["events after cursor " + str(cursor)]) + ([] if len(pending) <= limit else ["remaining nonterminal provider requests"])})
+                    inspected_keys.add(key)
             except Exception as error:
-                coverage.append({"source": tool, "status": "partial" if read else "unavailable", "error": type(error).__name__, "attempts": 2,
-                                 "pages_read": pages, "records_read": read, "next_cursor": cursor, "inspected_requests": inspected, "pending_requests": len(latest), "complete": False, "unread_regions": ["events after cursor " + str(cursor), "nonterminal request readbacks"]})
+                source_error = error
+            provider_event_state[tool] = committed
+            retained = committed.get("nonterminal", {})
+            for event in retained.values():
+                add_rows(event.get("peers", []), inspector)
+            remaining = len(set(retained) - inspected_keys)
+            status = "pending_storage" if isinstance(source_error, CensusStoragePending) else "pending_source_custody" if isinstance(source_error, CensusCustodyPending) else "partial" if source_error or not done or remaining else "observed"
+            row = {"source": tool, "status": status, "pages_read": pages, "records_read": read,
+                   "next_cursor": committed.get("cursor", 0), "inspected_requests": inspected,
+                   "nonterminal_requests_retained": len(retained), "remaining_nonterminal_readbacks": remaining,
+                   "pending_requests": len(retained),
+                   "inspection_errors": inspection_errors,
+                   "observed_at": committed.get("last_event_read_at"), "status_observed_at": at,
+                   "source_record_ref": committed.get("last_source_record_ref"),
+                   "historical_complete": bool(committed.get("historical_complete")),
+                   "cursor_persisted": callable(config.get("persist_provider_state")) and bool(committed.get("checkpoint_acknowledged")),
+                   "complete": source_error is None and done and not remaining,
+                   "unread_regions": ([] if done else ["events after cursor " + str(committed.get("cursor", 0))]) + ([] if not remaining else ["remaining nonterminal provider request readbacks"])}
+            if source_error:
+                row["error"] = type(source_error).__name__
+            coverage.append(row)
+    else:
+        recovery = config.get("census_provider_events_recovery") or {}
+        for tool in ("gemini_events", "grokbot_events"):
+            previous = retained_events.get(tool) or legacy_events.get(tool, {})
+            if "nonterminal" not in previous and "pending" in previous:
+                previous = {**previous, "nonterminal": previous["pending"]}
+            provider_event_state[tool] = previous
+            inspector = "gemini_get_request" if tool == "gemini_events" else "grokbot_inspect"
+            for event in previous.get("nonterminal", {}).values():
+                add_rows(event.get("peers", []), inspector)
+            coverage.append({"source": tool, "status": recovery.get("status", "not_enabled"), "complete": False,
+                             "next_cursor": previous.get("cursor", 0), "observed_at": previous.get("last_event_read_at"),
+                             "status_observed_at": at, "unread_regions": ["provider-event collection awaiting the recorded recovery condition"],
+                             "recovery": recovery})
 
     def dedupe(rows):
         merged = {}
@@ -427,6 +573,7 @@ def collect_census(config: Mapping | None = None, *, state: Mapping | None = Non
               "waiting": sum(peer["status"] == "waiting" for peer in peers), "unknown": sum(peer["status"] == "unknown" for peer in peers), "declared_instances": len(declarations),
               "loaded_idle_sessions": sum(peer["status"] == "idle_session" for peer in declarations)}
     return {"peers": peers, "declared_peers": declarations, "counts": counts, "coverage": coverage, "observed_at": at,
-            "state": {"provider_events": provider_events},
+            "provider_event_state": provider_event_state,
+            "state": {"provider_events": {tool: {**value, "pending": value.get("nonterminal", {})} for tool, value in provider_event_state.items()}},
             "complete": bool(coverage) and all(row.get("complete") for row in coverage),
             "scope": "observed instances across connected runtime roads; protocol declarations and provider tabs reported separately"}
