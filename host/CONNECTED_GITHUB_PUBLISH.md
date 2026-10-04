@@ -247,6 +247,51 @@ source readback, so it records no consumed trees. The option does not alter
 contribution advancement/reconciliation, branch selection, writer sequencing,
 source readback, merge policy or retry behavior.
 
+### Retained-tree validation performance — 2026-10-04
+
+The SHA implementation assembles one bounded padded buffer and uses fixed
+round groups. It preserves Git framing, SHA output and every existing parse,
+source-binding and publication check. The temporary buffer adds at most
+16 MiB + 64 bytes under the existing decoded-byte limit; it is not retained in
+progress or in the parsed result.
+
+The complete production `validateRetainedTrees` entry point was measured on
+the real `p` tree `811c8c2d1806642b1c68f3efc8efac33cbab3055`:
+3,515,140 bytes and 56,020 entries. Each runtime used one warmup per version
+and five alternating before/after pairs. Complete result comparisons occurred
+outside timing and matched for every sample.
+
+| Runtime | Before median | After median | Interpretation |
+| --- | ---: | ---: | --- |
+| Code-mode JavaScript / V8 | 3,163 ms | 2,497 ms | 21.06% lower validation time in this runtime |
+| Node 24.19.0 / V8 13.6, Linux x64 | 473.648 ms | 463.403 ms | Variable, overlapping samples; no stable Node speedup established |
+
+These timings include base64 decoding, complete-object hashing and all record
+parsing. They exclude provider I/O and source publication. They do not measure
+fleet throughput or end-to-end GitHub latency. Source identities, individual
+pairs, the host CPU and method are retained in
+[the raw measurements](retained-tree-performance-20261004.json).
+
+Run the same Node comparison with complete, already authorized local inputs:
+
+```sh
+git show f82e55bf2f0fadcfe4c876ef1391988deb018282:host/connected_github_publish.cjs > /tmp/publisher-before.cjs
+GIT_NO_LAZY_FETCH=1 git cat-file tree 811c8c2d1806642b1c68f3efc8efac33cbab3055 > /tmp/publisher-tree.raw
+node host/benchmark_retained_tree.cjs /tmp/publisher-before.cjs \
+  host/connected_github_publish.cjs /tmp/publisher-tree.raw \
+  811c8c2d1806642b1c68f3efc8efac33cbab3055 p \
+  p/resource-master-wide-capability-swarm-20261004-01.md
+```
+
+The replay evaluates the complete source modules and invokes their original
+validator, with no provider adapter or substitute parser. It independently
+checks Git hashes with Node crypto, including SHA padding boundaries and the
+maximum admitted byte length, and rejects altered tree bytes. The code-mode
+series uses the same original functions/input and alternating order with
+`Date.now` timing; its raw samples are a distinct execution, not Node results
+relabeled as code-mode measurements. Keep raw tree bytes private as described
+in the tree-preimage guide. No dependency install or provider calls are needed.
+
 ### New files under an unreadable parent tree
 
 An oversized directory can make the native Git-tree reader return
@@ -822,4 +867,3 @@ without changing the read result.
 Keep using `reconcileGitHubContribution` when the immutable source comparison
 itself is missing, uncertain, or needs to be established again. Its complete
 source/tree reconciliation remains unchanged.
-
