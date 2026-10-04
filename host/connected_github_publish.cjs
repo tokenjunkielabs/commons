@@ -1,7 +1,7 @@
 'use strict';
 
 // Caller supplies the already-discovered native bindings and authorized change.
-// No filesystem, network client, credential lookup, ref update, or write retry.
+// No filesystem, network client, credential lookup, forced ref update, or write retry.
 const ACTIONS = ['fetch', 'fetch_file', 'fetch_blob', 'create_blob', 'create_tree', 'create_commit',
   'create_branch', 'create_pull_request', 'merge_pull_request'];
 const SHA = /^[0-9a-f]{40}$/;
@@ -38,22 +38,7 @@ function branch(value, label) {
   return value;
 }
 
-function validate(input) {
-  object(input, 'change');
-  const repo = text(input.repository_full_name, 'repository_full_name');
-  if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repo)
-      || repo.split('/').some(part => part === '.' || part === '..')) {
-    throw new TypeError('repository_full_name must be owner/repository');
-  }
-  const base = branch(input.base_branch ?? 'main', 'base_branch');
-  const head = branch(input.branch_name, 'branch_name');
-  if (base === head) throw new TypeError('branch_name must differ from base_branch');
-  if (input.merge !== undefined && typeof input.merge !== 'boolean') throw new TypeError('merge must be boolean');
-  const method = input.merge_method ?? 'merge';
-  if (!['merge', 'squash', 'rebase'].includes(method)) throw new TypeError('unsupported merge_method');
-  if (input.body !== undefined && typeof input.body !== 'string') throw new TypeError('body must be a string');
-  const title = text(input.title, 'title');
-  const message = text(input.commit_message ?? title, 'commit_message');
+function validateFiles(input) {
   if (!Array.isArray(input.files) || !input.files.length) throw new TypeError('files must contain at least one source file');
   const paths = new Set();
   const files = input.files.map((file, index) => {
@@ -100,6 +85,26 @@ function validate(input) {
       if (paths.has(parts.join('/'))) throw new TypeError(`A source file is also a parent directory: ${path}`);
     }
   }
+  return files;
+}
+
+function validate(input) {
+  object(input, 'change');
+  const repo = text(input.repository_full_name, 'repository_full_name');
+  if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repo)
+      || repo.split('/').some(part => part === '.' || part === '..')) {
+    throw new TypeError('repository_full_name must be owner/repository');
+  }
+  const base = branch(input.base_branch ?? 'main', 'base_branch');
+  const head = branch(input.branch_name, 'branch_name');
+  if (base === head) throw new TypeError('branch_name must differ from base_branch');
+  if (input.merge !== undefined && typeof input.merge !== 'boolean') throw new TypeError('merge must be boolean');
+  const method = input.merge_method ?? 'merge';
+  if (!['merge', 'squash', 'rebase'].includes(method)) throw new TypeError('unsupported merge_method');
+  if (input.body !== undefined && typeof input.body !== 'string') throw new TypeError('body must be a string');
+  const title = text(input.title, 'title');
+  const message = text(input.commit_message ?? title, 'commit_message');
+  const files = validateFiles(input);
   return {repository_full_name: repo, base_branch: base, branch_name: head,
     title, body: input.body ?? '', commit_message: message, files,
     merge: input.merge === true, merge_method: method};
@@ -613,7 +618,385 @@ async function continueGitHubMerge(tools, change, previousProgress, options = {}
   }
 }
 
+
+function validateContribution(input) {
+  object(input, 'change');
+  const result = {};
+  for (const key of ['repository_full_name', 'pull_request_repository_full_name']) {
+    const value = text(input[key], key);
+    if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(value)
+        || value.split('/').some(part => part === '.' || part === '..')) {
+      throw new TypeError(key + ' must be owner/repository');
+    }
+    result[key] = value;
+  }
+  if (!Number.isSafeInteger(input.pull_request_number) || input.pull_request_number < 1) {
+    throw new TypeError('pull_request_number must identify the existing pull request');
+  }
+  for (const key of ['merge', 'merge_method', 'title', 'body', 'force']) {
+    if (input[key] !== undefined) throw new TypeError(key + ' is not part of a contribution advancement');
+  }
+  return {...result, pull_request_number: input.pull_request_number,
+    branch_name: branch(input.branch_name, 'branch_name'),
+    base_branch: branch(input.base_branch, 'base_branch'),
+    expected_head_sha: sha(input.expected_head_sha, 'expected_head_sha'),
+    expected_base_sha: sha(input.expected_base_sha, 'expected_base_sha'),
+    commit_message: text(input.commit_message, 'commit_message'), files: validateFiles(input)};
+}
+
+function contributionPR(pr, spec) {
+  if (pr.number !== spec.pull_request_number || pr.head?.ref !== spec.branch_name
+      || pr.base?.ref !== spec.base_branch
+      || pr.head?.repo?.full_name?.toLowerCase() !== spec.repository_full_name.toLowerCase()
+      || pr.base?.repo?.full_name?.toLowerCase() !== spec.pull_request_repository_full_name.toLowerCase()
+      || !['open', 'closed'].includes(pr.state) || typeof pr.merged !== 'boolean') {
+    throw new Error('The pull request differs from the specified repositories or branches');
+  }
+  return {number: pr.number, url: pr.html_url,
+    head_sha: sha(pr.head.sha, 'PR head'), base_sha: sha(pr.base.sha, 'PR base'),
+    state: pr.state, merged: pr.merged, author_login: pr.user?.login ?? null};
+}
+
+function requireContributionHead(pr, spec) {
+  if (pr.state !== 'open' || pr.merged !== false || pr.head_sha !== spec.expected_head_sha
+      || pr.base_sha !== spec.expected_base_sha) {
+    throw new Error('The open contribution head or base changed; reconcile the original PR before publishing');
+  }
+}
+
+function completeContributionTree(data, expected) {
+  if (data.sha !== expected || data.truncated !== false || !Array.isArray(data.tree)) {
+    throw new Error('The contribution tree was not returned completely: ' + expected);
+  }
+  const entries = new Map();
+  for (const entry of data.tree) {
+    if (!entry || typeof entry.path !== 'string'
+        || entry.path.split('/').some(part => !part || part === '.' || part === '..')
+        || entries.has(entry.path) || !['blob', 'tree', 'commit'].includes(entry.type)
+        || typeof entry.mode !== 'string' || !/^[0-7]{6}$/.test(entry.mode)) {
+      throw new Error('The contribution tree contains an invalid or duplicate entry');
+    }
+    sha(entry.sha, 'Contribution tree entry');
+    entries.set(entry.path, entry);
+  }
+  for (const path of entries.keys()) {
+    const parts = path.split('/');
+    while (parts.length > 1) {
+      parts.pop();
+      if (entries.get(parts.join('/'))?.type !== 'tree') {
+        throw new Error('The contribution tree omitted a parent directory: ' + path);
+      }
+    }
+  }
+  return entries;
+}
+
+function contributionFiles(spec, parentEntries) {
+  return spec.files.map(source => {
+    const before = parentEntries.get(source.path);
+    if ((before?.sha ?? null) !== source.expected_blob_sha) {
+      throw new Error('Contribution file changed: ' + source.path);
+    }
+    if (before && (before.type !== 'blob' || !['100644', '100755'].includes(before.mode))) {
+      throw new Error('The contribution path is not a regular file: ' + source.path);
+    }
+    const parts = source.path.split('/');
+    while (parts.length > 1) {
+      parts.pop();
+      const parent = parentEntries.get(parts.join('/'));
+      if (parent && parent.type !== 'tree') {
+        throw new Error('A contribution parent path is not a directory: ' + source.path);
+      }
+    }
+    return {path: source.path, previous_blob_sha: before?.sha ?? null,
+      previous_mode: before?.mode ?? null, mode: source.mode ?? before?.mode ?? '100644',
+      ...(source.expected_new_blob_sha === undefined ? {} : {
+        expected_new_blob_sha: source.expected_new_blob_sha, source_pin_matches: null})};
+  });
+}
+
+function compareContributionTrees(before, after, files, sources) {
+  const targetPaths = new Set(files.map(file => file.path));
+  const parentPaths = new Set();
+  for (const path of targetPaths) {
+    const parts = path.split('/');
+    while (parts.length > 1) { parts.pop(); parentPaths.add(parts.join('/')); }
+  }
+  const same = (a, b) => a?.sha === b?.sha && a?.type === b?.type && a?.mode === b?.mode;
+  let unchangedLeaves = 0;
+  for (const path of new Set([...before.keys(), ...after.keys()])) {
+    if (targetPaths.has(path)) continue;
+    const a = before.get(path), b = after.get(path);
+    if (parentPaths.has(path)) {
+      if ((a && (a.type !== 'tree' || a.mode !== '040000'))
+          || b?.type !== 'tree' || b.mode !== '040000') {
+        throw new Error('A prepared parent directory changed type or mode: ' + path);
+      }
+    } else if (!same(a, b)) {
+      throw new Error('An unrequested contribution path changed: ' + path);
+    }
+    if (a && a.type !== 'tree') unchangedLeaves++;
+  }
+  const changedPaths = [];
+  for (let index = 0; index < files.length; index++) {
+    const file = files[index], entry = after.get(file.path);
+    if (!entry || entry.type !== 'blob' || entry.mode !== file.mode
+        || (file.blob_sha !== undefined && entry.sha !== file.blob_sha)) {
+      throw new Error('The prepared contribution file has a different blob or mode: ' + file.path);
+    }
+    file.blob_sha = entry.sha;
+    checkNewBlobPin(file, sources[index]);
+    if (!same(before.get(file.path), entry)) changedPaths.push(file.path);
+  }
+  return {complete: true, unchanged_leaf_count: unchangedLeaves, changed_paths: changedPaths};
+}
+
+async function contributionOperation(tools, change, options, readOnly, previousProgress) {
+  const progress = {operation: readOnly ? 'contribution_reconciliation' : 'contribution_advance',
+    status: 'incomplete', stage: 'validate', publication_status: 'not_updated',
+    calls: {}, files: [], progress_callback_errors: []};
+  let lastResponse;
+  let announce = async () => {};
+  try {
+    const spec = validateContribution(change);
+    const identityKeys = ['repository_full_name', 'pull_request_repository_full_name',
+      'pull_request_number', 'branch_name', 'base_branch', 'expected_head_sha', 'expected_base_sha'];
+    for (const key of identityKeys) progress[key] = spec[key];
+    progress.parent_commit_sha = spec.expected_head_sha;
+    let saved;
+    if (readOnly) {
+      saved = object(previousProgress, 'previousProgress');
+      if (!['contribution_advance', 'contribution_reconciliation'].includes(saved.operation)) {
+        throw new Error('Retain the existing contribution operation, not a new-PR publication');
+      }
+      for (const key of identityKeys) {
+        if (saved[key] !== spec[key]) throw new Error('Retained contribution differs from change: ' + key);
+      }
+      if (saved.parent_commit_sha !== spec.expected_head_sha) throw new Error('Retained contribution parent changed');
+      for (const key of ['parent_tree_sha', 'tree_sha', 'commit_sha']) {
+        progress[key] = sha(saved[key], 'Retained ' + key);
+      }
+      if (!Array.isArray(saved.files) || saved.files.length !== spec.files.length) {
+        throw new Error('Retain all contribution file versions');
+      }
+      progress.previous_publication_status = saved.publication_status;
+      progress.previous_ref_update_state = saved.ref_update_state ?? null;
+      progress.publication_status = 'unreconciled';
+    }
+    const actions = ['fetch', 'fetch_file', 'fetch_blob',
+      ...(readOnly ? [] : ['create_blob', 'create_tree', 'create_commit', 'update_ref'])];
+    const bindings = Object.fromEntries(actions.map(action => [action,
+      options.bindings?.[action] ?? 'mcp__codex_apps__github_' + action]));
+    for (const action of actions) {
+      if (action === 'fetch_blob' || (action === 'create_blob' && !spec.files.some(file =>
+        file.encoding === 'base64' || file.expected_new_blob_sha !== undefined))) continue;
+      if (typeof tools?.[bindings[action]] !== 'function') {
+        throw new Error('Binding not present: ' + bindings[action] + '. Repeat discovery alongside independent work.');
+      }
+    }
+    announce = async () => {
+      if (typeof options.onProgress !== 'function') return;
+      try { await options.onProgress(JSON.parse(JSON.stringify(progress))); }
+      catch (error) { progress.progress_callback_errors.push(String(error.message ?? error)); }
+    };
+    const call = async (action, args) => {
+      progress.calls[action] = (progress.calls[action] ?? 0) + 1;
+      let response;
+      try {
+        lastResponse = undefined;
+        response = await tools[bindings[action]](args);
+        lastResponse = response;
+        return unpack(response, action);
+      } catch (error) {
+        if (response !== undefined) error.response = response;
+        throw error;
+      }
+    };
+    const fetchJSON = async url => {
+      const payload = await call('fetch', {url});
+      return typeof payload.content === 'string' ? object(JSON.parse(payload.content), 'GitHub resource') : payload;
+    };
+    const repository_full_name = spec.repository_full_name;
+    const api = 'https://api.github.com/repos/' + repository_full_name;
+    const prURL = 'https://api.github.com/repos/' + spec.pull_request_repository_full_name
+      + '/pulls/' + spec.pull_request_number;
+    const refURL = api + '/git/ref/heads/' + spec.branch_name.split('/').map(encodeURIComponent).join('/');
+    const observe = async label => {
+      const outcomes = await Promise.allSettled([fetchJSON(prURL), fetchJSON(refURL)]);
+      const record = {stage: label};
+      for (let index = 0; index < outcomes.length; index++) {
+        if (outcomes[index].status === 'rejected') {
+          const error = outcomes[index].reason;
+          record[index === 0 ? 'pull_request_error' : 'ref_error'] = {
+            message: String(error?.message ?? error),
+            ...(error?.tool_error ? {tool_error: error.tool_error} : {})};
+        }
+      }
+      (progress.observations ??= []).push(record);
+      const failure = outcomes.find(outcome => outcome.status === 'rejected');
+      if (failure) throw failure.reason;
+      record.pull_request = contributionPR(outcomes[0].value, spec);
+      const ref = outcomes[1].value;
+      if (ref.ref !== 'refs/heads/' + spec.branch_name || ref.object?.type !== 'commit') {
+        throw new Error('The reference response does not identify the existing branch');
+      }
+      record.ref_sha = sha(ref.object.sha, 'Contribution branch ref');
+      record.base_changed = record.pull_request.base_sha !== spec.expected_base_sha;
+      return record;
+    };
+    if (!readOnly) {
+      progress.stage = 'read_pull_request';
+      progress.pull_request = contributionPR(await fetchJSON(prURL), spec);
+      requireContributionHead(progress.pull_request, spec);
+    }
+    progress.stage = 'read_parent';
+    const parent = await fetchJSON(api + '/git/commits/' + spec.expected_head_sha);
+    if (parent.sha !== spec.expected_head_sha) throw new Error('The contribution parent identity changed');
+    const parentTree = sha(parent.tree?.sha, 'Contribution parent tree');
+    if (readOnly && parentTree !== progress.parent_tree_sha) throw new Error('Retained contribution parent tree changed');
+    progress.parent_tree_sha = parentTree;
+    const before = completeContributionTree(await fetchJSON(api + '/git/trees/' + parentTree + '?recursive=1'), parentTree);
+    progress.stage = 'check_file_versions';
+    progress.files = contributionFiles(spec, before);
+    if (readOnly) {
+      const retained = new Map(saved.files.map(file => [object(file, 'Retained file').path, file]));
+      if (retained.size !== progress.files.length) throw new Error('Retained contribution paths differ');
+      for (let index = 0; index < progress.files.length; index++) {
+        const file = progress.files[index], source = spec.files[index], old = retained.get(file.path);
+        if (!old || ['previous_blob_sha', 'previous_mode', 'mode'].some(key => old[key] !== file[key])
+            || (old.expected_new_blob_sha !== undefined && old.expected_new_blob_sha !== source.expected_new_blob_sha)) {
+          throw new Error('Retained contribution file or pin changed: ' + file.path);
+        }
+        if (old.blob_sha !== undefined) file.blob_sha = sha(old.blob_sha, 'Retained contribution blob');
+        if (source.encoding === 'base64' || source.expected_new_blob_sha !== undefined) {
+          sha(file.blob_sha, 'Retained source identity');
+          checkNewBlobPin(file, source);
+        }
+      }
+    }
+    await announce();
+    if (!readOnly) {
+      progress.stage = 'create_blobs';
+      for (let index = 0; index < spec.files.length; index++) {
+        const source = spec.files[index], file = progress.files[index];
+        if (source.encoding === 'utf-8' && source.expected_new_blob_sha === undefined) continue;
+        const blob = await call('create_blob', {repository_full_name, content: source.content, encoding: source.encoding});
+        file.blob_sha = sha(blob.sha, 'Created contribution blob');
+        checkNewBlobPin(file, source);
+        await announce();
+      }
+      const candidates = progress.files.filter(file => file.blob_sha === undefined
+        || file.blob_sha !== file.previous_blob_sha || file.mode !== file.previous_mode);
+      if (!candidates.length) {
+        progress.status = 'no_source_changes'; progress.stage = 'complete';
+        await announce(); return progress;
+      }
+      progress.stage = 'create_tree';
+      const sources = new Map(spec.files.map(source => [source.path, source]));
+      const tree = await call('create_tree', {repository_full_name, base_tree_sha: parentTree,
+        tree_elements: candidates.map(file => ({path: file.path, mode: file.mode, type: 'blob',
+          ...(file.blob_sha === undefined ? {content: sources.get(file.path).content} : {sha: file.blob_sha})}))});
+      progress.tree_sha = sha(tree.sha, 'Created contribution tree');
+      await announce();
+      if (progress.tree_sha === parentTree) {
+        for (const file of progress.files) file.blob_sha = file.previous_blob_sha;
+        progress.status = 'no_source_changes'; progress.stage = 'complete';
+        await announce(); return progress;
+      }
+      progress.stage = 'create_commit';
+      const commit = await call('create_commit', {repository_full_name, parent_sha: spec.expected_head_sha,
+        tree_sha: progress.tree_sha, message: spec.commit_message});
+      progress.commit_sha = sha(commit.sha, 'Created contribution commit');
+      await announce();
+    }
+    progress.stage = 'verify_commit';
+    const created = await fetchJSON(api + '/git/commits/' + progress.commit_sha);
+    if (created.sha !== progress.commit_sha || created.tree?.sha !== progress.tree_sha
+        || !Array.isArray(created.parents) || created.parents.length !== 1
+        || created.parents[0].sha !== spec.expected_head_sha || created.message !== spec.commit_message) {
+      throw new Error('The prepared commit differs from its sole parent, tree or message');
+    }
+    const after = completeContributionTree(
+      await fetchJSON(api + '/git/trees/' + progress.tree_sha + '?recursive=1'), progress.tree_sha);
+    progress.tree_comparison = compareContributionTrees(before, after, progress.files, spec.files);
+    progress.commit_verified = true;
+    progress.stage = 'readback';
+    progress.readback_ref = progress.commit_sha;
+    const readBlob = typeof tools?.[bindings.fetch_blob] === 'function'
+      ? blob_sha => call('fetch_blob', {repository_full_name, blob_sha}) : undefined;
+    const reads = await Promise.allSettled(progress.files.map(async (file, index) => {
+      const source = {...spec.files[index], expected_new_blob_sha: file.blob_sha};
+      const data = await call('fetch_file', {repository_full_name, path: file.path,
+        ref: progress.readback_ref, encoding: source.encoding});
+      return resolveReadback(file, source, data, readBlob);
+    }));
+    progress.readback = reads.map((read, index) => read.status === 'fulfilled' ? read.value
+      : {path: progress.files[index].path, matches: false, error: String(read.reason?.message ?? read.reason),
+        ...(read.reason?.tool_error ? {tool_error: read.reason.tool_error} : {})});
+    progress.readback_status = progress.readback.some(row => row.error_code === 'readback_content_unavailable')
+      ? 'content_unavailable' : progress.readback.some(row => !row.matches) ? 'incomplete' : 'complete';
+    await announce();
+    if (progress.readback_status !== 'complete') {
+      throw new Error('Prepared contribution source readback is incomplete; retain this commit without repeating publication');
+    }
+    if (!readOnly) {
+      progress.stage = 'check_current_head';
+      const current = await observe(progress.stage);
+      requireContributionHead(current.pull_request, spec);
+      if (current.ref_sha !== spec.expected_head_sha) throw new Error('The existing contribution branch moved');
+      progress.stage = 'update_ref';
+      progress.ref_update_state = 'unknown';
+      progress.publication_status = 'unknown';
+      progress.ref_update_request = {repository_full_name, branch_name: spec.branch_name,
+        sha: progress.commit_sha, force: false};
+      await announce();
+      const updated = await call('update_ref', progress.ref_update_request);
+      if (updated.success !== true) throw new Error('The ref writer did not confirm its update; reconcile before any continuation');
+      progress.ref_update_state = 'confirmed';
+      progress.publication_status = 'update_confirmed';
+      await announce();
+    }
+    progress.stage = 'read_current_head';
+    const current = await observe(progress.stage);
+    progress.pull_request = current.pull_request;
+    if (current.ref_sha === progress.commit_sha && current.pull_request.head_sha === progress.commit_sha) {
+      progress.publication_status = 'updated';
+      progress.ref_update_state = 'observed_updated';
+      progress.status = 'contribution_branch_updated';
+    } else if (readOnly && current.ref_sha === spec.expected_head_sha
+        && current.pull_request.head_sha === spec.expected_head_sha) {
+      progress.publication_status = 'previous_head_observed';
+      progress.ref_update_state = 'observed_previous';
+      progress.status = 'contribution_branch_not_updated';
+    } else {
+      progress.ref_update_state = 'not_converged';
+      throw new Error('The current branch and PR do not both identify the prepared commit; retain the observations and do not repeat the write');
+    }
+    progress.stage = 'complete';
+    await announce();
+    return progress;
+  } catch (error) {
+    if (error.tool_error) progress.tool_error = error.tool_error;
+    await announce();
+    const failure = new GitHubPublishError(String(error.message ?? error), progress, error);
+    if (error.tool_error) failure.tool_error = error.tool_error;
+    failure.response = error.response ?? lastResponse;
+    throw failure;
+  }
+}
+
+/** Add one nonforce, sole-parent commit to the original open contribution PR. */
+async function advanceGitHubContribution(tools, change, options = {}) {
+  return contributionOperation(tools, change, options, false);
+}
+
+/** Read a retained contribution's source and current refs without any writes. */
+async function reconcileGitHubContribution(tools, change, previousProgress, options = {}) {
+  return contributionOperation(tools, change, options, true, previousProgress);
+}
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {GitHubPublishError, publishGitHubChange, continueGitHubMerge,
+    advanceGitHubContribution, reconcileGitHubContribution,
     inspectReadback, resolveReadback, inspectToolError};
 }
