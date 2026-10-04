@@ -49,6 +49,7 @@ HEADER = re.compile(
     r"^(?:=== THREAD PARENT MESSAGE ===|--- Reply [0-9]+ of [0-9]+ ---|"
     r"=== Message from .+? ===[^\n]*|### Result [0-9]+ of [0-9]+)\s*$", re.M)
 MESSAGE_STAMP = re.compile(r"^Message(?: TS|_ts):\s*([0-9]+\.[0-9]+)\s*$", re.M)
+SEARCH_CONTEXT = re.compile(r"^Context (before|after):[ \t]*(?:\n|$)", re.M)
 CHANNEL = re.compile(r"(?:\(ID:\s*|\()([CGD][A-Z0-9]+)\)")
 FILE_PATH = re.compile(
     r"(?<![A-Za-z0-9_./:-])((?:[A-Za-z0-9_.-]+/)+[A-Za-z0-9_.-]+\.[A-Za-z][A-Za-z0-9]{0,9})"
@@ -155,6 +156,25 @@ def _pagination(page, source, count):
             "next_cursor": cursor, "pagination_known": terminal is not None}
 
 
+def _search_matched_text(body, source, channel, stamp):
+    """Keep native context out of the matched message's declarations."""
+    sections = list(SEARCH_CONTEXT.finditer(body))
+    if not sections:
+        return body, []
+    if (len(sections) > 2 or (len(sections) == 2
+            and [section[1] for section in sections] != ["before", "after"])):
+        raise ScanError(f"{source}: native search context sections repeat or are out of order")
+    omitted = []
+    for index, section in enumerate(sections):
+        end = sections[index + 1].start() if index + 1 < len(sections) else len(body)
+        content = body[section.end():end]
+        if not re.match(r"^- (?:From: |\[See result above\] From: )", content):
+            raise ScanError(f"{source}: unsupported native search context framing")
+        omitted.append({"channel_id": _channel(channel), "message_ts": _stamp(stamp),
+                        "kind": section[1], "characters": end - section.start()})
+    return body[:sections[0].start()], omitted
+
+
 def _rendered(page, fallback_channel, source):
     text = page.get("messages", page.get("results"))
     if not isinstance(text, str):
@@ -174,8 +194,18 @@ def _rendered(page, fallback_channel, source):
                 f"but contains {reply_count}; retain this source response and repeat "
                 'the same thread/cursor/time window with a smaller limit and '
                 'response_format="detailed"')
-    rows = []
+    rows, search_contexts = [], []
     prefix = text[:matches[0].start()] if matches else text
+    search_declared = re.search(r"^## Messages \(([0-9]+) results\)[ \t]*$", prefix, re.M)
+    search_numbers = []
+    if search_declared:
+        total = int(search_declared[1])
+        for heading in matches:
+            number = re.fullmatch(r"### Result ([1-9][0-9]*) of ([1-9][0-9]*)", heading[0].strip())
+            if (not number or int(number[2]) != total or int(number[1]) > total
+                    or (search_numbers and int(number[1]) <= search_numbers[-1])):
+                raise ScanError(f"{source}: inconsistent rendered search result numbering")
+            search_numbers.append(int(number[1]))
     channel_match = CHANNEL.search(prefix)
     default_channel = channel_match[1] if channel_match else fallback_channel
     for index, heading in enumerate(matches):
@@ -196,6 +226,8 @@ def _rendered(page, fallback_channel, source):
             permalink = link[1] if link else None
             body = body[marker.end():]
             body = re.sub(r"\n---\s*$", "", body)
+            body, omitted = _search_matched_text(body, source, channel, stamp[1])
+            search_contexts.extend(omitted)
         else:
             permalink = None
             body = re.sub(r"\n=== THREAD REPLIES \([^\n]*\) ===\s*$", "", body)
@@ -206,7 +238,17 @@ def _rendered(page, fallback_channel, source):
         # Some native empty-history responses carry an empty messages field.
         if text.strip():
             raise ScanError("unsupported rendered Slack message layout")
-    return rows, _pagination(page, source, len(rows))
+    coverage = _pagination(page, source, len(rows))
+    if search_declared:
+        declared_count = int(search_declared[1])
+        coverage.update({"declared_results": declared_count, "parsed_results": len(rows),
+                         "rendered_result_numbers": search_numbers,
+                         "unrendered_results": declared_count - len(rows),
+                         "search_rendering_complete": len(rows) == declared_count,
+                         "search_context_handling": "matched_text_only",
+                         "excluded_context_sections": search_contexts,
+                         "excluded_context_characters": sum(item["characters"] for item in search_contexts)})
+    return rows, coverage
 
 
 def read_responses(value, *, channel_id=None, source="input"):
