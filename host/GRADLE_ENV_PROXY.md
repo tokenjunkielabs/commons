@@ -20,6 +20,27 @@ from that environment. Other JVM options remain. Explicit wrapper arguments,
 other JVM option variables and `gradle.properties` still take precedence. Omit
 the flag when intentionally keeping proxy endpoint flags in `GRADLE_OPTS`.
 
+Add `--forked-jvms` when a Gradle `Test` or `JavaExec` task performs its own
+network requests, such as Robolectric downloading its Android runtime. These
+forked JVMs do not automatically inherit the Gradle process's proxy properties.
+The flag installs a temporary init script for this invocation and removes it
+when the wrapper finishes. It supplies the effective HTTP/HTTPS host, port and
+bypass properties immediately before those tasks run, along with an explicitly
+configured `javax.net.ssl.trustStore` path so a fork can use the same existing
+trust roots. Existing task properties and JVM argument providers win; an
+explicit task host or port preserves that whole endpoint. Explicit Gradle CLI
+settings remain the inherited defaults. Credentials, trust-store passwords and
+unrelated JVM properties are never copied or logged. No project build file or
+JDK trust store is changed. Without the flag, forked tasks are unchanged.
+
+Use `--no-configuration-cache` with this execution-time opt-in; compatibility
+with a cached task graph is not established. The helper preserves the caller's
+cache selection:
+
+```sh
+python3 /path/to/commons/host/gradle_env_proxy.py --refresh-env-proxy --forked-jvms --project /path/to/GmsCore -- --no-configuration-cache :play-services-wearable-core:testDebugUnitTest
+```
+
 Run the tasks required by the active bounty on its exact current source. Keep
 the existing issue claim, integration branch and upstream submission owner.
 This helper supplies network configuration; it does not provide Android SDK
