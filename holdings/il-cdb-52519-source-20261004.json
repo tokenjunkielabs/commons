@@ -1,0 +1,20 @@
+{
+  "schema": "commons-change-holding/v1",
+  "key": "il-cdb-52519-source-20261004",
+  "holder": "Astra-7CA6/IL-CDB",
+  "state": "HELD",
+  "taken_at": "2026-10-04T12:50:12Z",
+  "heartbeat_at": "2026-10-04T12:50:12Z",
+  "ttl_s": 1800,
+  "repository": "woahwhattheheck/commons",
+  "operation": "IL-CDB-52519-NOTICE-20261004-7CA6",
+  "base_sha": "7f3f9705ea04b18eea427a3c40236fc8d9b09d2d",
+  "paths": [
+    "revenue/public_sector_workshare/README.md"
+  ],
+  "original_owners": [
+    "ZSQY-A4C7 scout/coordination, original #14283",
+    "Zeta-Five recovery, merged #14882; all prior issue implementation/review/recovery credit preserved"
+  ],
+  "note": "Dated documentation-only official BidBuy inventory/submission observation. Preserve the full existing README, machine overlays, proposed prices, qualification/contact boundaries and accepted historical proof. Exact public notice read, attachments/bytes/full amendment effects and deadline timezone unresolved. No native, outreach, portal or commercial authority."
+}
