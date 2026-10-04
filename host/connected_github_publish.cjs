@@ -220,12 +220,159 @@ function isMissingFileResponse(response) {
     && payload.error_data?.message === 'Not Found';
 }
 
-/** Resolve exact entries; only an absent leaf can replace an unreadable tree. */
+// Decode whole retained objects locally; no caller-reported leaf or mode is evidence.
+const MAX_RETAINED_TREE_BYTES = 16 * 1024 * 1024;
+const MAX_RETAINED_TREE_ENTRIES = 200000;
+
+function retainedTreeBytes(encoded, remaining) {
+  if (typeof encoded !== 'string' || encoded.length % 4
+      || encoded.length > 4 * Math.ceil(remaining / 3)) {
+    throw new TypeError('Retained tree bytes require bounded, padded base64');
+  }
+  const padding = encoded.endsWith('==') ? 2 : encoded.endsWith('=') ? 1 : 0;
+  const length = encoded.length / 4 * 3 - padding;
+  if (length > remaining || length < 0) throw new TypeError('Retained tree byte bound exceeded');
+  const raw = new Uint8Array(length);
+  const digit = code => code >= 65 && code <= 90 ? code - 65
+    : code >= 97 && code <= 122 ? code - 71
+      : code >= 48 && code <= 57 ? code + 4 : code === 43 ? 62 : code === 47 ? 63 : -1;
+  for (let i = 0, out = 0; i < encoded.length; i += 4) {
+    const a = digit(encoded.charCodeAt(i)), b = digit(encoded.charCodeAt(i + 1));
+    const last = i + 4 === encoded.length;
+    const c = last && padding === 2 ? 0 : digit(encoded.charCodeAt(i + 2));
+    const d = last && padding ? 0 : digit(encoded.charCodeAt(i + 3));
+    if (a < 0 || b < 0 || c < 0 || d < 0
+        || (last && padding === 2 && (encoded[i + 2] !== '=' || (b & 15)))
+        || (last && padding && (encoded[i + 3] !== '=' || (padding === 1 && (c & 3))))) {
+      throw new TypeError('Retained tree bytes require canonical base64');
+    }
+    if (out < length) raw[out++] = (a << 2) | (b >>> 4);
+    if (out < length) raw[out++] = (b << 4) | (c >>> 2);
+    if (out < length) raw[out++] = (c << 6) | d;
+  }
+  return raw;
+}
+
+// SHA-1 over Git's "tree <byte-length>\\0" framing, usable without Node imports.
+function retainedTreeSHA(raw) {
+  const header = 'tree ' + raw.length + '\0';
+  const length = header.length + raw.length;
+  const padded = Math.ceil((length + 9) / 64) * 64;
+  const words = new Int32Array(80);
+  const rotate = (value, bits) => (value << bits) | (value >>> (32 - bits));
+  const byte = index => index < header.length ? header.charCodeAt(index)
+    : index < length ? raw[index - header.length] : index === length ? 128
+      : index >= padded - 4 ? (length * 8) >>> ((padded - 1 - index) * 8) & 255 : 0;
+  let h0 = 0x67452301, h1 = 0xefcdab89, h2 = 0x98badcfe, h3 = 0x10325476, h4 = 0xc3d2e1f0;
+  for (let offset = 0; offset < padded; offset += 64) {
+    for (let i = 0; i < 16; i++) {
+      const at = offset + i * 4;
+      words[i] = byte(at) << 24 | byte(at + 1) << 16 | byte(at + 2) << 8 | byte(at + 3);
+    }
+    for (let i = 16; i < 80; i++) words[i] = rotate(words[i - 3] ^ words[i - 8] ^ words[i - 14] ^ words[i - 16], 1);
+    let a = h0, b = h1, c = h2, d = h3, e = h4;
+    for (let i = 0; i < 80; i++) {
+      const f = i < 20 ? (b & c) | (~b & d) : i < 40 ? b ^ c ^ d
+        : i < 60 ? (b & c) | (b & d) | (c & d) : b ^ c ^ d;
+      const k = i < 20 ? 0x5a827999 : i < 40 ? 0x6ed9eba1 : i < 60 ? 0x8f1bbcdc : 0xca62c1d6;
+      const next = (rotate(a, 5) + f + e + k + words[i]) | 0;
+      e = d; d = c; c = rotate(b, 30); b = a; a = next;
+    }
+    h0 = (h0 + a) | 0; h1 = (h1 + b) | 0; h2 = (h2 + c) | 0; h3 = (h3 + d) | 0; h4 = (h4 + e) | 0;
+  }
+  return [h0, h1, h2, h3, h4].map(value => (value >>> 0).toString(16).padStart(8, '0')).join('');
+}
+
+function parseRetainedTree(raw, expectedSHA) {
+  if (retainedTreeSHA(raw) !== expectedSHA) throw new Error('Retained tree bytes do not match their Git object SHA');
+  const types = {'40000': 'tree', '100644': 'blob', '100755': 'blob', '120000': 'blob', '160000': 'commit'};
+  const entries = [], names = new Set();
+  let previous, previousDirectory;
+  const orderByte = (name, directory, index) => index < name.length ? name[index]
+    : index === name.length && directory ? 47 : -1;
+  for (let at = 0; at < raw.length;) {
+    const space = raw.indexOf(32, at), nul = raw.indexOf(0, space + 1);
+    if (space < at || space - at > 6 || nul < space + 2 || nul + 21 > raw.length) {
+      throw new Error('Incomplete or malformed retained tree record');
+    }
+    const mode = String.fromCharCode(...raw.subarray(at, space));
+    if (!Object.prototype.hasOwnProperty.call(types, mode)) throw new Error('Unsupported retained tree mode');
+    const name = raw.subarray(space + 1, nul);
+    let path;
+    try { path = decodeURIComponent(Array.from(name, value => '%' + value.toString(16).padStart(2, '0')).join('')); }
+    catch (_) { throw new Error('Retained tree names must be strict UTF-8'); }
+    if (!path || path.includes('/') || path === '.' || path === '..' || names.has(path)) {
+      throw new Error('Invalid or duplicate retained tree name');
+    }
+    const directory = mode === '40000';
+    if (previous) {
+      let i = 0, left, right;
+      do {
+        left = orderByte(previous, previousDirectory, i);
+        right = orderByte(name, directory, i++);
+      } while (left === right && left !== -1);
+      if (left >= right) throw new Error('Retained tree records are not in canonical Git order');
+    }
+    names.add(path);
+    entries.push({path, mode: directory ? '040000' : mode, type: types[mode],
+      sha: Array.from(raw.subarray(nul + 1, nul + 21), value => value.toString(16).padStart(2, '0')).join('')});
+    if (entries.length > MAX_RETAINED_TREE_ENTRIES) throw new Error('Retained tree entry bound exceeded');
+    previous = name; previousDirectory = directory; at = nul + 21;
+  }
+  return entries;
+}
+
+function validateRetainedTrees(input, files) {
+  const trees = new Map();
+  if (input === undefined) return trees;
+  if (!Array.isArray(input) || input.length > 16) throw new TypeError('retained_trees must contain at most 16 whole trees');
+  let remaining = MAX_RETAINED_TREE_BYTES;
+  for (const source of input) {
+    object(source, 'retained tree');
+    if (Object.keys(source).some(key => !['path', 'tree_sha', 'raw_base64'].includes(key))) {
+      throw new TypeError('Retained trees accept only path, tree_sha and raw_base64');
+    }
+    const path = source.path;
+    if (typeof path !== 'string' || path.includes('\\') || /[\x00-\x1f\x7f]/.test(path)
+        || (path && path.split('/').some(part => !part || part === '.' || part === '..'))
+        || !files.some(file => path === '' || file.path.startsWith(path + '/'))) {
+      throw new TypeError('Retained tree path must be a canonical parent of a changed file');
+    }
+    if (trees.has(path)) throw new TypeError('Duplicate retained tree path');
+    const treeSHA = sha(source.tree_sha, 'Retained tree');
+    const raw = retainedTreeBytes(source.raw_base64, remaining);
+    remaining -= raw.length;
+    trees.set(path, {tree_sha: treeSHA, bytes: raw.length,
+      tree: parseRetainedTree(raw, treeSHA), consumed: false});
+  }
+  return trees;
+}
+
+function requireRetainedTreesConsumed(trees) {
+  for (const [path, tree] of trees) {
+    if (!tree.consumed) throw new Error('The native parent traversal did not reach retained tree: ' + (path || '/'));
+  }
+}
+
+/** Resolve exact entries from native trees or independently verified whole bytes. */
 function baseFileReader({api, repository_full_name, commitSha, treeSha,
-  fetchJSON, readPreimage, progress, treeLabel}) {
+  fetchJSON, readPreimage, progress, treeLabel, retainedTrees = new Map()}) {
   const trees = new Map();
   const unavailable = new Map();
-  const tree = async current => {
+  const tree = async (current, parentPath) => {
+    const retained = retainedTrees.get(parentPath);
+    if (retained) {
+      if (retained.tree_sha !== current) {
+        throw new Error('Retained tree does not match the native parent at: ' + (parentPath || '/'));
+      }
+      if (!retained.consumed) {
+        retained.consumed = true;
+        (progress.retained_tree_preimages ??= []).push({path: parentPath,
+          base_commit_sha: commitSha, parent_tree_sha: current, bytes: retained.bytes,
+          entries: retained.tree.length, git_object_sha_verified: true});
+      }
+      return retained.tree;
+    }
     if (unavailable.has(current)) throw unavailable.get(current);
     if (!trees.has(current)) {
       let data;
@@ -251,9 +398,11 @@ function baseFileReader({api, repository_full_name, commitSha, treeSha,
     let current = treeSha;
     const parts = path.split('/');
     for (let index = 0; index < parts.length; index++) {
+      const parentPath = parts.slice(0, index).join('/');
       let entries;
-      try { entries = await tree(current); }
+      try { entries = await tree(current, parentPath); }
       catch (error) {
+        if (retainedTrees.has(parentPath)) throw error;
         // The successful prefix reads must already establish the immediate parent.
         if (index === 0 || index !== parts.length - 1 || !unavailable.has(current)) throw error;
         const request = {repository_full_name, path, ref: commitSha, encoding: 'utf-8',
@@ -369,6 +518,7 @@ async function publishGitHubChange(tools, change, options = {}) {
   try {
     const spec = validate(change);
     const readbackConcurrency = readbackLimit(options);
+    const retainedTrees = validateRetainedTrees(options.retained_trees, spec.files);
     progress.readback_concurrency = readbackConcurrency;
     const sourceByPath = new Map(spec.files.map(file => [file.path, file]));
     const repository_full_name = spec.repository_full_name;
@@ -413,7 +563,7 @@ async function publishGitHubChange(tools, change, options = {}) {
     progress.base_tree_sha = sha(base.commit?.commit?.tree?.sha, 'Base tree');
     const existingFile = baseFileReader({api, repository_full_name,
       commitSha: progress.base_commit_sha, treeSha: progress.base_tree_sha,
-      fetchJSON, readPreimage, progress, treeLabel: 'base'});
+      fetchJSON, readPreimage, progress, treeLabel: 'base', retainedTrees});
     progress.stage = 'check_file_versions';
     for (const file of spec.files) {
       const existing = await existingFile(file.path, file.expected_blob_sha);
@@ -428,6 +578,7 @@ async function publishGitHubChange(tools, change, options = {}) {
         ...(file.expected_new_blob_sha === undefined ? {} : {
           expected_new_blob_sha: file.expected_new_blob_sha, source_pin_matches: null})});
     }
+    requireRetainedTreesConsumed(retainedTrees);
     await announce();
     progress.stage = 'create_blobs';
     const createdBlobs = {'utf-8': new Map(), base64: new Map()};
@@ -541,6 +692,7 @@ async function continueGitHubMerge(tools, change, previousProgress, options = {}
   try {
     const spec = validate(change);
     const readbackConcurrency = readbackLimit(options);
+    const retainedTrees = validateRetainedTrees(options.retained_trees, spec.files);
     progress.readback_concurrency = readbackConcurrency;
     if (!spec.merge) throw new TypeError('Set merge: true for this explicit merge continuation');
     const saved = object(previousProgress, 'previousProgress');
@@ -642,7 +794,7 @@ async function continueGitHubMerge(tools, change, previousProgress, options = {}
       progress.current_base_tree_sha = sha(base.commit?.commit?.tree?.sha, 'Current base tree');
       const existingFile = baseFileReader({api, repository_full_name,
         commitSha: progress.current_base_commit_sha, treeSha: progress.current_base_tree_sha,
-        fetchJSON, readPreimage, progress, treeLabel: 'current base'});
+        fetchJSON, readPreimage, progress, treeLabel: 'current base', retainedTrees});
       progress.stage = 'check_file_versions';
       for (const file of progress.files) {
         const existing = await existingFile(file.path, file.previous_blob_sha);
@@ -652,6 +804,7 @@ async function continueGitHubMerge(tools, change, previousProgress, options = {}
           throw new Error(`Base file changed: ${file.path}; read the current source and compose deliberately`);
         }
       }
+      requireRetainedTreesConsumed(retainedTrees);
       await announce();
       progress.stage = 'merge_pull_request';
       const merged = await call('merge_pull_request', {repository_full_name, pr_number: retainedPR.number,

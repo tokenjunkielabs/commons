@@ -130,9 +130,10 @@ text(result); // Source content and the PR body are not copied into progress.
 ## What it preserves
 
 The helper reads the current base branch once, then traverses its exact,
-nonrecursive Git trees. Entry and mode comparisons use complete trees. A bounded
-absence fallback can handle a new immediate leaf when its known parent tree
-cannot be transported; its limits are described below. The helper compares every
+nonrecursive Git trees. Entry and mode comparisons use complete native trees
+or independently checked retained whole-tree bytes. A bounded absence fallback
+can handle a new immediate leaf when its known parent tree cannot be transported;
+its limits are described below. The helper compares every
 source file with the caller's expected version **before the first write**. This
 lets unrelated main-branch changes compose naturally while stopping an obsolete
 postimage from overwriting a changed file. A mismatch gives the path and the
@@ -182,6 +183,69 @@ merely to check their identity. `readback_ref` names that exact source
 snapshot. It does not claim that a later current-main tip is
 unchanged, that a running service reloaded it, or that it is deployed. Source
 execution and product acceptance remain the caller's work.
+
+### Reuse complete tree bytes for a large directory
+
+`publishGitHubChange` and `continueGitHubMerge` accept optional
+`options.retained_trees`. Each entry supplies a repository-relative directory
+`path` (`''` for the root), its lowercase `tree_sha`, and `raw_base64` containing
+the complete raw Git tree object body in canonical padded base64:
+
+```javascript
+const result = await publishGitHubChange(tools, preparedChange, {
+  retained_trees: [{
+    path: 'p',
+    tree_sha: independentlyObservedParentTreeSHA,
+    raw_base64: completeRetainedRawTreeBase64,
+  }],
+  onProgress: state => retainOperationProgress(state),
+});
+```
+
+The adapter decodes and hashes every supplied object's full bytes using Git's
+`tree <byte-length>\0` framing, then parses every record. It checks strict UTF-8
+names, immediate entry names, modes, unique names and canonical Git ordering.
+Compact proof JSON, selected-entry lists and caller-reported mode evidence are
+not accepted. Obtain the raw bytes through the existing
+[tree preimage helper](GITHUB_TREE_PREIMAGE.md); its optional reconstruction
+proposals remain outside this publisher.
+
+Byte identity alone does not establish current source. The publisher still
+reads its own current base commit/root through the native binding and follows
+each parent-to-child tree identity. A retained directory is used only when its
+path is reached and its verified SHA exactly matches that traversal. A stale
+or wrong parent binding stops before writes. Every supplied path must be an
+ancestor of a changed file and must actually be consumed during precheck;
+unused or unreachable supplied directories stop the operation. A retained
+ancestor can establish another retained descendant because both complete
+objects are independently hashed and the chain begins at the native root.
+
+For a matching retained directory, the helper skips its native tree GET. It
+does not first repeat a known oversized request or invoke the narrower file
+fallback. Multiple leaves reuse the same parsed tree. Existing regular-file
+type/mode, expected previous blob and new-source pin checks remain unchanged;
+symlinks, gitlinks and directories cannot become regular-file postimages.
+Complete absence evidence permits the usual new-file path. Omitting the option
+retains the existing complete-tree and new-leaf fallback behavior.
+
+The input permits at most 16 directory objects, 16 MiB of decoded tree bytes
+in total, and 200,000 immediate entries per tree. Duplicate paths, extra fields,
+noncanonical base64 and malformed or hash-mismatched bytes are refused before
+any provider call. The adapter needs no filesystem, Node imports, network
+client, external hashing callback or dependency installation.
+
+`progress.retained_tree_preimages` records only consumed directory paths, their
+native-bound base commit/tree SHA, decoded size, entry count and successful Git
+object check. It never copies the raw bytes or unselected entry names. Retain
+working bytes privately if an explicit continuation needs them.
+
+An open-PR merge continuation checks the supplied bytes against its newly read
+current base. If that directory moved, obtain the matching complete object;
+do not relabel old bytes with the new SHA or substitute a compact receipt.
+An already-merged continuation needs no base precheck and proceeds to immutable
+source readback, so it records no consumed trees. The option does not alter
+contribution advancement/reconciliation, branch selection, writer sequencing,
+source readback, merge policy or retry behavior.
 
 ### New files under an unreadable parent tree
 
