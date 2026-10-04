@@ -369,6 +369,7 @@ class _Handler(BaseHTTPRequestHandler):
             return
         length_header = self.headers.get("Content-Length")
         if length_header is None:
+            self.close_connection = True
             self._send(411, _public_error("length_required"))
             return
         try:
@@ -376,9 +377,11 @@ class _Handler(BaseHTTPRequestHandler):
             if declared < 0:
                 raise ValueError
         except ValueError:
+            self.close_connection = True
             self._send(400, _public_error("content_length_invalid"))
             return
         if declared > self.config.max_body_bytes:
+            self.close_connection = True
             self._send(413, _public_error("body_too_large"))
             return
         try:
