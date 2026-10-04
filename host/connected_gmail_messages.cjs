@@ -55,7 +55,9 @@ function omittedCounts() {
 function projectGmailMessages(response, options = {}) {
   if (!record(options)) fail('INVALID_OPTIONS', '$.options', 'expected an object');
   const limits = { ...DEFAULTS };
+  const sparse = own(options, 'source_indices');
   for (const [key, value] of Object.entries(options)) {
+    if (key === 'source_indices') continue;
     if (!own(DEFAULTS, key) || !Number.isSafeInteger(value) || value < 0) {
       fail('INVALID_OPTIONS', `$.options.${key}`, 'expected a supported nonnegative integer limit');
     }
@@ -86,20 +88,56 @@ function projectGmailMessages(response, options = {}) {
     }
   }
 
+  let indices;
+  if (sparse) {
+    const selection = options.source_indices;
+    if (!Array.isArray(selection) || selection.length > limits.maxMessages) {
+      fail('INVALID_OPTIONS', '$.options.source_indices', 'expected an array with at most maxMessages source indices');
+    }
+    indices = [];
+    for (let position = 0; position < selection.length; position += 1) {
+      const index = selection[position];
+      if (!own(selection, position) || !Number.isSafeInteger(index) || index < 0
+        || index >= inputs.length || (position > 0 && index <= indices[position - 1])) {
+        fail('INVALID_OPTIONS', `$.options.source_indices[${position}]`,
+          'expected an in-range source index in strictly increasing order, without missing entries');
+      }
+      indices.push(index);
+    }
+    limits.source_indices = indices.slice();
+  } else {
+    indices = Array.from({ length: Math.min(inputs.length, limits.maxMessages) }, (_, index) => index);
+  }
+
   const result = {
     format: 'gmail-mime-projection-v1',
     source_shape: batch ? 'batch' : 'single',
     message_count: inputs.length,
     messages: [],
-    omitted: { messages: Math.max(0, inputs.length - limits.maxMessages), body_chars: 0, header_chars: 0, body_parts: 0 },
+    omitted: { messages: inputs.length - indices.length, body_chars: 0, header_chars: 0, body_parts: 0 },
     limits,
   };
+  if (sparse) {
+    const omittedRanges = [];
+    let next = 0;
+    for (const index of indices) {
+      if (next < index) omittedRanges.push([next, index]);
+      next = index + 1;
+    }
+    if (next < inputs.length) omittedRanges.push([next, inputs.length]);
+    result.selection = {
+      source_indices: indices.slice(),
+      omitted_source_index_ranges: omittedRanges,
+      range_end: 'exclusive',
+    };
+  }
   let remaining = limits.maxTotalBodyChars;
-  for (let index = 0; index < Math.min(inputs.length, limits.maxMessages); index += 1) {
+  for (const index of indices) {
     const item = inputs[index];
     const source = sourceOf(index);
     const omitted = omittedCounts();
     const message = { id: item.id, thread_id: item.thread_id, subject: '', from: '', date: '', bodies: [], unavailable_bodies: [], omitted };
+    if (sparse) Object.assign(message, { source_index: index, source_path: source });
     let selectedHeaders = 0;
     for (const name of ['subject', 'from', 'date']) {
       const value = header(item.payload, name);
