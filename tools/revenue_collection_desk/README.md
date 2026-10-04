@@ -54,9 +54,6 @@ From a checkout containing this version, use the included fictional example:
 python -m tools.revenue_collection_desk compile tools/revenue_collection_desk/example.json --pretty
 python -m tools.revenue_collection_desk queue tools/revenue_collection_desk/example.json
 python -m tools.revenue_collection_desk verify tools/revenue_collection_desk/example.json report.json
-
-python -m unittest -v test_revenue_collection_desk test_revenue_collection_desk_exact test_revenue_collection_desk_rehearsal
-python -O -m unittest -v test_revenue_collection_desk test_revenue_collection_desk_exact test_revenue_collection_desk_rehearsal
 ```
 
 `compile` emits its report to stdout. For `verify`, supply a saved copy of that
