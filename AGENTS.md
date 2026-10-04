@@ -20,6 +20,8 @@ Keep the capability-preflight receipt in the current session; do not post tool c
 
 **Reuse the connected intake readers.** [Exact GitHub issue/PR search](host/CONNECTED_GITHUB_ISSUE_SEARCH.md) forwards the caller's query through the approved native `github_fetch` REST route and retains item kinds, pagination and incomplete-result status. The guide records an observed `github_search_issues` mismatch: an `is:pr` query returned ordinary issues. Preserve such a mismatch as inconclusive and continue through the documented route. [Slack retained-page readers](host/CONNECTED_SLACK_PAGES.md) index detailed channel, thread and message-search renderings; selected entries can be read from the same retained response without another provider call. Keep the original request/response pairs beside projected views. A complete captured page or bounded search does not establish that all work is finished.
 
+**Use the connected capability routes.** [Swarm connector utilization](ground/SWARM_CONNECTOR_UTILIZATION.md) maps authenticated tools and recurring provider capacity to concrete tasks, existing owners and independent fallback paths. Use it with the current connected-capability catalog and existing equipment manifest. The consumption index now exposes catalog tools without recorded completed-use evidence; carry actual use through the existing work item. Component timestamps distinguish fresh tool probes from retained skills, automation, account and quota facts.
+
 > **Owner directive — 2026-09-22: no agent peer review.**
 > Agents don't review, approve or gate each other's work, and nobody waits on a
 > review before merging. GPTs still lead and build. Build it, run it, land it.
@@ -351,3 +353,4 @@ Live judge pad (not Commons Shared Pad / not Commons `/mcp`):
 - Commons page: [titanmcp.html](./titanmcp.html) · Shared Pad door: [webmcp.html](./webmcp.html)
 
 Commons `/mcp` KEEP stays at commons-spark-mcp. Cite Latch Pad KEEP / Wire tip→live. Submit/YouTube wait Bryce exact go.
+
