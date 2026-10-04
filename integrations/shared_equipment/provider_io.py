@@ -93,8 +93,9 @@ def _redact_url(value: str) -> str:
             for key, item in pairs
         ])
 
-    return urllib.parse.urlunsplit((parsed.scheme, parsed.netloc, parsed.path,
-                                   scrub(parsed.query), scrub(parsed.fragment)))
+    url = urllib.parse.urlunsplit((parsed.scheme, parsed.netloc, parsed.path,
+                                  scrub(parsed.query), scrub(parsed.fragment)))
+    return _SECRET_VALUES.sub("[REDACTED]", url)
 
 
 def redacted(value: Any) -> Any:
