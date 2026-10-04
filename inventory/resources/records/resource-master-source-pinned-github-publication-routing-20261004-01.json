@@ -8,43 +8,65 @@
   "material_new_resources": [
     {"name": "connected-local-file-chunk-consumer", "source_pull_request": 30996, "source_commit": "7dbb5dd563559cdd26151368d6781dc2b9cecdea", "source_blob": "f8be609983e92e019b1cbc5120d65f145f3fc2ff", "guide_blob": "4788a2b31cef5d8840cfb7237af78853af5e64eb", "stage": "PRODUCING", "condition": "LANDED_EXISTING_OWNER", "own_activation_this_run": false},
     {"name": "javascript-local-esm-source-selector", "source_pull_request": 30999, "source_commit": "c1a1d8c0d06f19e99faeacbf476d657f9913761b", "source_blob": "e4a7df32f7769a6359e679018496a8329129277a", "guide_blob": "36215f0de082335bdebe33c1bb73c06968ebcecb", "stage": "PRODUCING", "condition": "LANDED_EXISTING_OWNER", "own_activation_this_run": false},
-    {"name": "connected-github-source-pinned-publisher", "source_pull_request": 31003, "source_commit": "c5651b426d5653c1f566a00b42f9ce1f07c49d98", "source_blob": "80bd7f95c0f1420ea6d05e489543ef8cd6c2e24f", "guide_blob": "0e3cf46307e603a9d6f7304de8da763a52e528b5", "stage": "PRODUCING", "condition": "OPERATIONAL", "own_activation_this_run": true},
+    {"name": "connected-github-source-pinned-publisher", "source_pull_request": 31003, "source_commit": "c5651b426d5653c1f566a00b42f9ce1f07c49d98", "source_blob": "80bd7f95c0f1420ea6d05e489543ef8cd6c2e24f", "guide_blob": "0e3cf46307e603a9d6f7304de8da763a52e528b5", "stage": "PRODUCING", "condition": "CONSTRAINED_LARGE_DIRECTORY_PRECHECK", "own_activation_this_run": true},
     {"name": "bounded-public-http-capture", "source_pull_request": 31013, "source_commit": "90bf4e0f47b7e3f20aec25c17ecec7d7be5b2980", "source_blob": "b9c02f775d53c875a62d7d3b863df3e31e23cdbd", "guide_blob": "35ebf7beab5ac2c64bc234d89ae990d735c9d166", "stage": "PRODUCING", "condition": "LANDED_EXISTING_OWNER", "own_activation_this_run": false}
   ],
   "activation_result": {
     "claim": {"channel_id": "C0BRGMDQB6G", "message_id": "1791076248.009059", "message_link": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791076248009059"},
     "source": {"ref": "c5651b426d5653c1f566a00b42f9ce1f07c49d98", "path": "host/connected_github_publish.cjs", "blob": "80bd7f95c0f1420ea6d05e489543ef8cd6c2e24f"},
     "prepared_files": ["ground/RESOURCE_LEDGER.json", "inventory/resources/records/resource-master-source-pinned-github-publication-routing-20261004-01.json", "p/resource-master-source-pinned-github-publication-routing-20261004-01.md", "resources.html"],
-    "source_pin_contract": "Every complete prepared file is transferred as base64 and carries an independently computed expected_new_blob_sha checked before tree creation.",
-    "github_mutations": "PENDING_NATIVE_PUBLICATION",
-    "slack_mutations_excluding_claim": 0,
+    "source_pin_contract": "Every complete prepared file was transferred as base64 and its independently computed expected_new_blob_sha matched the native create_blob result before tree creation.",
+    "helper_attempts": {"count": 2, "terminal_stage": "check_file_versions", "fetch_calls_each": 7, "write_calls": 0, "failure": "connected github.fetch transport closed on oversized p/ tree e6c94d132cec35a9d8d523923afb2680b8147632"},
+    "native_continuation": {"created_blobs": 4, "created_tree": "86e1334b7d6afe7f45050b924f1094276ddbddfc", "created_commit": "9efc2fbed91100b7e2c8355c13b14eee28a72350", "created_branch": "codex/resource-master-source-pinned-github-publication-routing-20261004-01", "created_pull_request": 31018, "merge_calls": 1, "replayed_accepted_writes": 0},
+    "github_mutations": 9,
+    "slack_mutations_excluding_claim": 2,
     "workflow_mutations": 0,
     "deployments": 0,
     "owner_only_actions": 0
   },
   "activation_merge": {
-    "state": "PENDING_NATIVE_PUBLICATION",
+    "state": "MERGED_AND_READ_BACK",
     "branch": "codex/resource-master-source-pinned-github-publication-routing-20261004-01",
-    "fresh_main_parent": "90bf4e0f47b7e3f20aec25c17ecec7d7be5b2980",
+    "pull_request": 31018,
+    "url": "https://github.com/woahwhattheheck/commons/pull/31018",
+    "merge_sha": "e27400264a1ff9e80f90a0f87224e2066ed31fc0",
+    "branch_head_sha": "9efc2fbed91100b7e2c8355c13b14eee28a72350",
+    "fresh_main_parent": "86061a0bfbbb1209d26f0bff545d0fbd829322e5",
     "non_force_history": true,
-    "closure_rule": "The post-merge receipt appends the PR, merge SHA, exact current-main blobs, asynchronous checks, terminal Slack receipt, and closure merge accounting without changing the single activation count."
+    "exact_merged_readback": {
+      "ground/RESOURCE_LEDGER.json": "a2fdcb86731612bd06adc08f7ad9ae6ee9d59d48",
+      "inventory/resources/records/resource-master-source-pinned-github-publication-routing-20261004-01.json": "fccf40c366e14b6a28ee3f3edb421b112bd717de",
+      "p/resource-master-source-pinned-github-publication-routing-20261004-01.md": "6465c89f562ca8fc8c8eb5e49dbc4edbe25b96f3",
+      "resources.html": "8294b3a478c0956e39a4590b1d707bd2ca5d0068"
+    },
+    "asynchronous_checks_at_first_observation": {"commit_attachment_lookup": "EMPTY_NOT_SUCCESS"},
+    "closure_rule": "This closure update appends the terminal watermark and current-main receipt without changing the single activation count."
   },
   "terminal_watermark": {
-    "state": "ACTIVATION_PUBLICATION_PENDING",
-    "prior_terminal_slack_ts": "1791066016.616799",
-    "prior_terminal_slack_link": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791066016616799",
-    "prior_closure_main": "84901c9e0785e0d86ccf31d0755cd6c399f4b255",
-    "prior_record_id": "resource-master-connected-github-issue-search-routing-20261003-01"
+    "state": "SLACK_CONFIRMED_CLOSURE_PR_PENDING",
+    "terminal_slack_ts": "1791077007.232309",
+    "terminal_slack_link": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791077007232309",
+    "terminal_slack_readback": "PROVIDER_ACKNOWLEDGED_EXACT_TEXT",
+    "activation_pull_request": 31018,
+    "activation_merge_sha": "e27400264a1ff9e80f90a0f87224e2066ed31fc0",
+    "closure_parent_main": "9cee9e317fdd0d235b187877d921b7bdebef0222",
+    "closure_merge_sha_accounting": "The closure merge SHA cannot exist in this record's own preimage; the next wake reads the merged closure PR or current-main commit. The lower bound is exact on terminal Slack, activation merge, closure parent, and durable record identity.",
+    "lower_bound_rule": "The next wake begins strictly after Slack 1791077007.232309, activation merge e27400264a1ff9e80f90a0f87224e2066ed31fc0, the listed connector observations, and this durable record identity; it must not remint this activation or its already-owned adjacent capabilities."
   },
-  "build_orders": [],
+  "build_orders": [
+    {"id": "CONNECTED-GITHUB-PUBLISH-LARGE-DIRECTORY-PRECHECK-20261004-01", "channel_id": "C0BTB4SUCP9", "message_ts": "1791076849.841949", "link": "https://tokenjunkielabs.slack.com/archives/C0BTB4SUCP9/p1791076849841949", "state": "OPEN_UNCLAIMED_AT_PUBLICATION"}
+  ],
   "build_order_decision": {
-    "state": "NO_NEW_INDEPENDENT_NON_DUPLICATIVE_BUILD_LANE",
-    "reason": "All four newly evidenced capabilities are merged and owned. Open material delivery lanes remain actively owned, provider mirror issues are carrier state, and the selected publisher already has this operation as a direct consumer.",
+    "state": "ONE_NEW_EVIDENCE_BACKED_BUILD_LANE",
+    "reason": "The live activation exposed a distinct oversized-directory precheck failure before writes. Existing work did not cover a bounded file/contents fallback that preserves exact preimage and mode semantics, so one implementation order was posted. Other capabilities and delivery lanes remain merged or owned.",
     "dedupe_sources": "Current main, all open and recently updated pull requests and issues, exact branch inventory, workflow outcomes, all seven required Slack channels, the coordination thread, durable receipts, active claims, #todo, and #delegations",
     "open_pull_requests_at_selection": 0
   },
   "checks": {
     "pinned_publisher_source": "PASS_EXACT_MERGE_AND_BLOB",
+    "all_new_source_pins": "PASS_4_OF_4_BEFORE_TREE_CREATION",
+    "helper_failure_accounting": "PASS_TWO_PREWRITE_FAILURES_ZERO_WRITE_CALLS_NO_BLIND_RETRY",
+    "native_continuation": "PASS_ONE_TREE_COMMIT_BRANCH_PR_MERGE_AND_FOUR_EXACT_READBACKS",
     "ledger_schema_and_single_activation": "PASS_136_RESOURCES_EXACTLY_ONE_SELECTED_ACTIVATION",
     "resources_projection": "PASS_136_RESOURCES_105_PRODUCING_104_INVENTORY_RECORDS",
     "open_door_no_auth": "PASS_DIFF_RETAINS_PUBLIC_READ_ONLY_AND_CONNECTED_NATIVE_CONTRACTS",
