@@ -57,6 +57,23 @@ send the write again.
 
 ## Native ChatGPT tool execution
 
+The existing equipment gateway also exposes `connected_tool_run`,
+`connected_tool_dispatch`, `connected_tool_resume` and `connected_tool_status`.
+`connected_tool_run` takes `{request: REQUEST}` and invokes bindings through the
+gateway's existing catalog adapters. Use `connected_tool_dispatch` with the same
+shape for a native tool outside that catalog; invoke the returned tool once and
+pass its complete response to `connected_tool_resume` with the operation and
+dispatch IDs. Status takes `{operation_id: EXISTING_ID}`. These tools use the same
+router and preserve direct access to every existing tool.
+
+All consumers of one gateway share `~/.commons/connected-tool-runtime.json` by
+default. Existing deployments can set `COMMONS_CONNECTED_TOOL_STATE_FILE` to
+their private persistent journal location before launching the gateway. Keep
+that file outside Git and preserve it when updating the source. No provider
+credential is stored in the published route configuration. A source merge adds
+the callable tools to the gateway catalog; the running gateway still needs its
+normal source refresh to expose them.
+
 Native app tools belong to the host runtime. Use `dispatch` with the request on
 stdin, invoke exactly the returned `tool` with its `arguments`, then use `resume`
 with `{operation_id, dispatch_id, response}` on stdin. The response must be the
@@ -88,6 +105,28 @@ An operation does not retry another alias of a domain it already attempted.
 Shared or unknown backend identity is reported explicitly and never increases
 an asserted count of independent backend pools. A different provider can still
 supply useful capacity; backend independence is a separate fact.
+
+Distinct operations spread across ready quota domains by their outstanding
+dispatch count, then by actual dispatch count over the preceding minute. An
+explicit ready `preferred_route` wins. This chooses among available routes;
+these local counts do not invent a provider quota or delay a call. Pending and
+completed operations keep their existing deduplication behavior.
+
+Provider request and token buckets remain separate. Groq's request/day and
+token/minute remaining headers retain their own observed balances and reset
+deadlines, including relative duration headers. Only an observed exhausted
+bucket excludes a route until its measured reset; a token window never becomes
+an account credit balance. Typed adapter exceptions preserve their original
+HTTP status and Retry-After metadata as well as native results. A bridge failure
+without rejection evidence still requires write reconciliation.
+
+On October 4 the gateway catalog executed a real Jina read of the official Groq
+rate-limit page, completing with HTTP 200 and a provider-reported 19 remaining
+requests in its 60-second window. Two different documentation tasks dispatched
+through the same gateway journal selected Parallel and TinyFish while the first
+was outstanding; both actual native fetches then completed through
+`connected_tool_resume`. This demonstrates gateway execution and distribution
+over current native read routes. No synthetic 429 or Groq balance was inserted.
 
 The operation journal records dispatch intent before invocation. A second
 `dispatch` for an outstanding operation returns `AWAITING_PROVIDER_RESPONSE`
