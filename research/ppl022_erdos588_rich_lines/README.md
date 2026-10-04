@@ -16,6 +16,9 @@ This directory delivers a connected-V8/CommonJS API for exact integer coordinate
 | [integer_plane_projection.cjs](integer_plane_projection.cjs) | Explicit bounded integer projection preserving distinct points and all collinear/noncollinear triples. |
 | [INTEGER_PLANE_PROJECTION_API.md](INTEGER_PLANE_PROJECTION_API.md) | Projection theorem, input/output contract, hard bounds and actual cube result. |
 | [projected_cube_64.json](projected_cube_64.json) | All 64 source/projected cube points, both ID maps, 1,492 lines, incidence assessments and paged exports. |
+| [grid_line_histogram.cjs](grid_line_histogram.cjs) | Exact full grid histograms from Möbius-factorized segment counts, without geometric enumeration. |
+| [GRID_LINE_HISTOGRAM_API.md](GRID_LINE_HISTOGRAM_API.md) | Published attribution, full derivation, integer limits and theorem-derived planar interpretation. |
+| [grid5_dim12_histogram.json](grid5_dim12_histogram.json) | Complete actual histogram for 244,140,625 points, all shared powers, Möbius terms and pair-accounting evidence. |
 
 ## The retained host and the fixed-host optimum
 
@@ -51,5 +54,23 @@ $
 Every projected point, source/planar ID correspondence and all 1,492 line records are retained. The public projection accepts dimensions 1 through 8 and uses explicit integer/digit limits. The unchanged incidence module consumed this new configuration once; no earlier host or subset was recomputed.
 
 The projection guide credits the prior generic-projection construction and makes no claim of global optimality or priority.
+
+
+## Full histograms without enumerating a grid
+
+The histogram API counts consecutive primitive-step segments with Möbius inversion and obtains exact line counts by second differences. The guide credits Haukkanen–Merikoski's published general-grid segment/line identities. Shared integer powers are cached, and all arithmetic uses bounded BigInt operations.
+
+The new actual input $\{0,1,2,3,4\}^{12}$ has 244,140,625 points. Its complete histogram is:
+
+| Multiplicity | Exact lines |
+|---:|---:|
+| 2 | 29,767,389,101,298,792 |
+| 3 | 11,366,735,095,072 |
+| 4 | 127,495,551,352 |
+| 5 | 6,798,573,288 |
+
+Every count is theorem-derived; no points, pairs, projected coordinates or individual lines were enumerated. The existing finite projection theorem gives the planar lower bound $f_5(244140625)\ge6798573288$. The projection API's separate dimension/digit limits remain unchanged.
+
+The saved record contains every Möbius coefficient, all five shared powers, all eight contribution terms and both exact pair-accounting sums. No accepted configuration was recomputed.
 
 The guides credit Erdős and the prior Solymosi–Stojaković construction, and preserve the original finite-set provenance. Earlier Sidon/representation computations were not rerun. No global optimality, external-frontier, novelty, asymptotic, native-execution or sponsor claim is made.
