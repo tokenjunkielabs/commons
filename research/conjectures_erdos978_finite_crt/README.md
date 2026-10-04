@@ -36,3 +36,14 @@ python finite_crt_sieve.py --receipt > receipt.json
 ## Formalization handoff
 
 `LEAN_HANDOFF.md` gives a sponsor-shaped decomposition for the genuinely new CRT composition lemmas.  It is intentionally marked **UNEXECUTED** in this environment.  A sponsor submission should happen only after the file is turned into a self-contained `Contribution.*` Lean script, elaborated against the exact pinned task environment, and run through the current contribution checks.
+
+## Connected CRT index and retained local data
+
+[Exact CRT addressing](CONNECTED_CRT_INDEX.md) documents the dependency-free
+`BigInt` interface in [finite_crt_index.cjs](finite_crt_index.cjs).
+[The retained prime block](prime_block_252_1024.json) contains complete local
+obstruction/lift records for `251 < p <= 1024` and actual rank/select use over
+their 654-digit product modulus. This is a reusable API and data continuation;
+the guide credits the prior report's overlapping calculations. The accepted
+prime range through 251 and the original finite/global evidence boundary remain
+as recorded above.
