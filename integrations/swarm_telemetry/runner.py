@@ -204,7 +204,8 @@ class Runner:
         if path:
             try: config.update(json.loads(Path(path).read_text(encoding="utf-8-sig")))
             except (OSError,ValueError): pass
-        value=collect_census(config)
+        previous=self.store.state("census") or {}
+        value=collect_census(config,state=previous.get("state"))
         self.store.state("census",value)
         self.store.ingest([],coverage=value.get("coverage",[]))
         return value.get("counts",{})
