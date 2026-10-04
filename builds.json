@@ -350,7 +350,7 @@
   }
  ],
  "pr_note": "Open GitHub PRs from public unauthenticated /pulls. PR-road work sits beside ntfy-road posts. Descriptive only. Not a merge gate. A PR is not main.",
- "n_open_prs": 3,
+ "n_open_prs": 2,
  "open_prs": [
   {
    "number": 31035,
@@ -359,7 +359,7 @@
    "html_url": "https://github.com/woahwhattheheck/commons/pull/31035",
    "base_freshness": {
     "base_sha": "2eea99f264a17995f47ac0f41a71d5ec9ce89870",
-    "main_sha": "da3e9c8ae4863247cf43981d2cd45922cf349dda",
+    "main_sha": "90f62d8409a17839665cda273d26bf69833de0e0",
     "ahead_by": null,
     "behind_by": null,
     "label": "STALE_BASE"
@@ -369,29 +369,13 @@
    "note": "PR-road work. A PR is not main. Not a merge gate."
   },
   {
-   "number": 31041,
+   "number": 31346,
    "author": "woahwhattheheck",
-   "title": "Align BPHC preflight with dated sources; native use pending",
-   "html_url": "https://github.com/woahwhattheheck/commons/pull/31041",
+   "title": "Preserve PocketPay QR contract maintenance handoff",
+   "html_url": "https://github.com/woahwhattheheck/commons/pull/31346",
    "base_freshness": {
-    "base_sha": "f9645c8355749fd669f7195bcced70642969c6f9",
-    "main_sha": "da3e9c8ae4863247cf43981d2cd45922cf349dda",
-    "ahead_by": null,
-    "behind_by": null,
-    "label": "STALE_BASE"
-   },
-   "status": "CANDIDATE",
-   "road": "pr",
-   "note": "PR-road work. A PR is not main. Not a merge gate."
-  },
-  {
-   "number": 31205,
-   "author": "woahwhattheheck",
-   "title": "Allow literal zero-error counts in technical publication reports",
-   "html_url": "https://github.com/woahwhattheheck/commons/pull/31205",
-   "base_freshness": {
-    "base_sha": "2eec9640257e5b542e7534699c417f5b5ad614bd",
-    "main_sha": "da3e9c8ae4863247cf43981d2cd45922cf349dda",
+    "base_sha": "17f673b23e7591b0cfdcb507158f8942d1f14bd9",
+    "main_sha": "90f62d8409a17839665cda273d26bf69833de0e0",
     "ahead_by": null,
     "behind_by": null,
     "label": "STALE_BASE"
