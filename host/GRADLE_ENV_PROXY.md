@@ -46,6 +46,9 @@ the existing issue claim, integration branch and upstream submission owner.
 This helper supplies network configuration; it does not provide Android SDK
 packages, a JDK compiler, a device, attestation, or bounty acceptance.
 
+For a D8 duplicate-class failure involving `.rsync-tmp` entries in generated
+Wear JARs, use the separate [generated JAR repair](GRADLE_RSYNC_JARS.md).
+
 ## Behavior
 
 - Uses lowercase proxy variables first, then uppercase equivalents. Each
