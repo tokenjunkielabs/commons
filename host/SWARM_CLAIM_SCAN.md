@@ -84,6 +84,34 @@ and input hashes. An empty selection is still not evidence that work is availabl
 No flags preserves the complete report. Selection changes no claim states or exit
 codes and performs no additional source reads.
 
+## Compare bare filename observations
+
+Declarations sometimes name `bountyhub_catalog.py` without its directory. Those
+spellings now appear in `basename_observations` with their operation, observed
+state, timestamp and source link. They remain `basename_only`; the reader does
+not infer a repository or turn a bare filename into an exact path.
+
+`possible_basename_overlaps` groups the same case-sensitive filename spelling
+across two or more operations whose latest recognized state is
+`declaration_observed`, including separately listed explicit path groups. A
+filename can occur in different directories or repositories, or describe a
+dependency or exclusion. Read the linked declarations to decide whether their
+work overlaps. The report does not make that decision.
+
+These two arrays remain global supplied-history evidence under `--path` and
+`--operation`, alongside `availability_hints`, and are listed in
+`selection.global_evidence_retained`. Existing exact matches, selected operations,
+path/symbol groups and lifecycle states keep their previous meanings. Historical
+bare observations remain visible after a terminal statement, but no longer
+supply an active basename hint. URL text supplies no bare-filename observations.
+
+An actual retained October 4 search contained 12 messages and six recognized
+declarations. Selecting `concierge/bountyhub_catalog.py` still returned the same
+two exact matches. The new advisory also exposed a third declaration naming only
+`bountyhub_catalog.py`, with its original message link, and a separate pair naming
+`AGENTS.md`. This used the same retained response without another provider read;
+it does not establish complete ownership history or a throughput speedup.
+
 ## Read the result
 
 - `operations` lists recognized declarations, extracted source paths, source
@@ -217,4 +245,3 @@ Exit 0 means the response was read and the report was produced. Possible overlap
 do not change the exit code: they are an advisory, not a work gate. Invalid JSON,
 failed provider responses, unsupported layouts, missing channel identities, and
 file errors exit 2 with a clear stderr message and no report on stdout.
-
