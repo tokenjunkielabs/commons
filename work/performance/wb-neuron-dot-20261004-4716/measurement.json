@@ -1,0 +1,1016 @@
+{
+  "all_archived_metric_payloads_byte_equal": true,
+  "benchmark": {
+    "bytes": 12107,
+    "git_blob_sha": "ca592313055e3b36d496f699de2d542dac88982e",
+    "path": "/dev/shm/astra4716/whitebox-neuron/deliverable/measure.py",
+    "sha256": "26a9b23636f5e5b851db0fe84b7f3a711a7b95abe9ef22807859915800311c9b"
+  },
+  "cold_http_sequence_and_bytes_equal": true,
+  "environment": {
+    "cpu_count": 9,
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+    "machine": "x86_64",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "run_directory": "/dev/shm/astra4716/whitebox-neuron/runs/neuron-dot-eqh9dyj7"
+  },
+  "frozen_index": {
+    "bytes": 27052,
+    "git_blob_sha": "e509390dea98714d72d995be1c28e2e755400443",
+    "path": "/dev/shm/astra4716/whitebox-neuron/runs/neuron-dot-eqh9dyj7/prepared-index/wb_range_index.json",
+    "sha256": "df55ce1be765242aaa09be5af2c15fd20d7ab4dfeefed74899f2f60f732144e0"
+  },
+  "limits": [
+    "Warm timing includes fresh Python startup/imports, index and cache reads, decoding, metric scoring, archive writes, and stdout JSON.",
+    "Child CPU is user plus system CPU from RUSAGE_CHILDREN; it excludes the benchmark's loopback server and comparison work.",
+    "Cold means model-weight ranges absent from the application cache; the index and its header cache are prepared identically first.",
+    "Warm application caches and operating-system caches are not flushed. Shared-host scheduling can affect wall time.",
+    "The single cold pair is an observation, not a repeatable cold-latency estimate.",
+    "This inspects stored original-model weights. It performs no model inference, WAN timing, Android/device operation, or payment."
+  ],
+  "model": {
+    "bytes": 1185376,
+    "path": "/dev/shm/astra4716/whitebox-neuron/original/stories260K.gguf",
+    "sha256": "047bf46455a544931cff6fef14d7910154c56afbc23ab1c5e56a72e69912c04b",
+    "source": "https://huggingface.co/ggml-org/tiny-llamas/resolve/def3e2dd70df35ecbf6403ea347de4c5977220c1/stories260K.gguf"
+  },
+  "reference_metric_result": {
+    "clean_top15": 0.7140703255000013,
+    "cleanest": [
+      {
+        "neuron": 104,
+        "top": [
+          {
+            "cos": 0.7874290764359769,
+            "token": "st"
+          },
+          {
+            "cos": 0.2622238155594778,
+            "token": "ig"
+          },
+          {
+            "cos": 0.21069826341924583,
+            "token": "!"
+          },
+          {
+            "cos": 0.2002675661334763,
+            "token": "\u2581y"
+          },
+          {
+            "cos": 0.19902743100309211,
+            "token": "ut"
+          }
+        ],
+        "top1": 0.7874290764359769
+      },
+      {
+        "neuron": 86,
+        "top": [
+          {
+            "cos": 0.7708817179750361,
+            "token": "e"
+          },
+          {
+            "cos": 0.2547174491476533,
+            "token": "es"
+          },
+          {
+            "cos": 0.23255788524548796,
+            "token": "ll"
+          },
+          {
+            "cos": 0.22725884621161319,
+            "token": "\u2581you"
+          },
+          {
+            "cos": 0.18005201426805675,
+            "token": "ce"
+          }
+        ],
+        "top1": 0.7708817179750361
+      },
+      {
+        "neuron": 84,
+        "top": [
+          {
+            "cos": 0.7493811251174042,
+            "token": "a"
+          },
+          {
+            "cos": 0.2574353894891827,
+            "token": "ck"
+          },
+          {
+            "cos": 0.24555888352490005,
+            "token": "\u2581Lily"
+          },
+          {
+            "cos": 0.233970170462448,
+            "token": "\u2581up"
+          },
+          {
+            "cos": 0.218185360524683,
+            "token": "\u2581L"
+          }
+        ],
+        "top1": 0.7493811251174042
+      },
+      {
+        "neuron": 132,
+        "top": [
+          {
+            "cos": 0.7482926202510652,
+            "token": "ou"
+          },
+          {
+            "cos": 0.46353589817604224,
+            "token": "\u2581you"
+          },
+          {
+            "cos": 0.4120384354762734,
+            "token": "nd"
+          },
+          {
+            "cos": 0.3880933512564018,
+            "token": "\u2581we"
+          },
+          {
+            "cos": 0.38540608955121736,
+            "token": "se"
+          }
+        ],
+        "top1": 0.7482926202510652
+      },
+      {
+        "neuron": 131,
+        "top": [
+          {
+            "cos": 0.7482797118487452,
+            "token": "\u2581he"
+          },
+          {
+            "cos": 0.48384250519595534,
+            "token": "\u2581she"
+          },
+          {
+            "cos": 0.4195897905469823,
+            "token": "\u2581He"
+          },
+          {
+            "cos": 0.4173324703102593,
+            "token": "\u2581they"
+          },
+          {
+            "cos": 0.4172940878657875,
+            "token": "\u2581we"
+          }
+        ],
+        "top1": 0.7482797118487452
+      },
+      {
+        "neuron": 88,
+        "top": [
+          {
+            "cos": 0.7278507356075776,
+            "token": "m"
+          },
+          {
+            "cos": 0.2926994902784659,
+            "token": "ily"
+          },
+          {
+            "cos": 0.27423010341162063,
+            "token": "my"
+          },
+          {
+            "cos": 0.2610811655067611,
+            "token": "b"
+          },
+          {
+            "cos": 0.22144077041264007,
+            "token": "il"
+          }
+        ],
+        "top1": 0.7278507356075776
+      },
+      {
+        "neuron": 93,
+        "top": [
+          {
+            "cos": 0.7270404434877363,
+            "token": "\u2581\""
+          },
+          {
+            "cos": 0.4281909296653481,
+            "token": "Y"
+          },
+          {
+            "cos": 0.41592077195287946,
+            "token": "\u2581S"
+          },
+          {
+            "cos": 0.4065966636640096,
+            "token": "N"
+          },
+          {
+            "cos": 0.38342044033112266,
+            "token": "W"
+          }
+        ],
+        "top1": 0.7270404434877363
+      },
+      {
+        "neuron": 127,
+        "top": [
+          {
+            "cos": 0.7186594372415743,
+            "token": "p"
+          },
+          {
+            "cos": 0.32785075042274225,
+            "token": "ot"
+          },
+          {
+            "cos": 0.32578485017552833,
+            "token": "pp"
+          },
+          {
+            "cos": 0.2589563949239471,
+            "token": "in"
+          },
+          {
+            "cos": 0.20896164887805904,
+            "token": "o"
+          }
+        ],
+        "top1": 0.7186594372415743
+      },
+      {
+        "neuron": 169,
+        "top": [
+          {
+            "cos": 0.7170834590790945,
+            "token": "f"
+          },
+          {
+            "cos": 0.3117444682299347,
+            "token": "\u00e9"
+          },
+          {
+            "cos": 0.24185900630950477,
+            "token": "O"
+          },
+          {
+            "cos": 0.2345099197053699,
+            "token": "ut"
+          },
+          {
+            "cos": 0.20582285320166904,
+            "token": "S"
+          }
+        ],
+        "top1": 0.7170834590790945
+      },
+      {
+        "neuron": 140,
+        "top": [
+          {
+            "cos": 0.7034759243641917,
+            "token": "\u2581named"
+          },
+          {
+            "cos": 0.4221730916979258,
+            "token": "\u2581S"
+          },
+          {
+            "cos": 0.36525618119961095,
+            "token": "\u2581was"
+          },
+          {
+            "cos": 0.3589580101640665,
+            "token": "\u2581"
+          },
+          {
+            "cos": 0.33412640460057325,
+            "token": "\u2581B"
+          }
+        ],
+        "top1": 0.7034759243641917
+      },
+      {
+        "neuron": 24,
+        "top": [
+          {
+            "cos": 0.6732057413689535,
+            "token": "ll"
+          },
+          {
+            "cos": 0.3283151290602193,
+            "token": "ver"
+          },
+          {
+            "cos": 0.3262940325761078,
+            "token": "Z"
+          },
+          {
+            "cos": 0.3098548077563349,
+            "token": "\u2581you"
+          },
+          {
+            "cos": 0.3095393172244488,
+            "token": "very"
+          }
+        ],
+        "top1": 0.6732057413689535
+      },
+      {
+        "neuron": 33,
+        "top": [
+          {
+            "cos": 0.6697298427118002,
+            "token": "\u2581and"
+          },
+          {
+            "cos": 0.40860278418331564,
+            "token": "\u2581to"
+          },
+          {
+            "cos": 0.3846967049338411,
+            "token": "\u2581but"
+          },
+          {
+            "cos": 0.3347386259457139,
+            "token": "\u2581t"
+          },
+          {
+            "cos": 0.33214550021286915,
+            "token": "\u2581e"
+          }
+        ],
+        "top1": 0.6697298427118002
+      },
+      {
+        "neuron": 111,
+        "top": [
+          {
+            "cos": 0.6650249871800994,
+            "token": "om"
+          },
+          {
+            "cos": 0.44894131172882745,
+            "token": "\u2581mom"
+          },
+          {
+            "cos": 0.3023623437564213,
+            "token": "my"
+          },
+          {
+            "cos": 0.2903921876731732,
+            "token": "am"
+          },
+          {
+            "cos": 0.2696014602428704,
+            "token": "\u00e9"
+          }
+        ],
+        "top1": 0.6650249871800994
+      },
+      {
+        "neuron": 63,
+        "top": [
+          {
+            "cos": 0.6594293801329557,
+            "token": "er"
+          },
+          {
+            "cos": 0.3608509558058024,
+            "token": "`"
+          },
+          {
+            "cos": 0.35464559682509594,
+            "token": "ch"
+          },
+          {
+            "cos": 0.34402570130371535,
+            "token": "V"
+          },
+          {
+            "cos": 0.3436587132425596,
+            "token": "le"
+          }
+        ],
+        "top1": 0.6594293801329557
+      },
+      {
+        "neuron": 161,
+        "top": [
+          {
+            "cos": 0.6452906796978084,
+            "token": "\u2581so"
+          },
+          {
+            "cos": 0.5711745798197051,
+            "token": "\u2581very"
+          },
+          {
+            "cos": 0.5004147441222575,
+            "token": "\u2581sa"
+          },
+          {
+            "cos": 0.4564391922665115,
+            "token": "\u2581happy"
+          },
+          {
+            "cos": 0.4192258345568906,
+            "token": "\u2581e"
+          }
+        ],
+        "top1": 0.6452906796978084
+      },
+      {
+        "neuron": 114,
+        "top": [
+          {
+            "cos": 0.6130657419639394,
+            "token": "\u2581r"
+          },
+          {
+            "cos": 0.2903552373410702,
+            "token": "o"
+          },
+          {
+            "cos": 0.2810794657796953,
+            "token": "\u2581M"
+          },
+          {
+            "cos": 0.2633974018958539,
+            "token": "\u2581k"
+          },
+          {
+            "cos": 0.258759634731091,
+            "token": "\u2581st"
+          }
+        ],
+        "top1": 0.6130657419639394
+      }
+    ],
+    "mean_all": 0.40410605066932326,
+    "neurons": 172,
+    "tensor": "blk.0.ffn_down.weight",
+    "vocab_rows_scanned": 512
+  },
+  "runs": [
+    {
+      "child_cpu_seconds": 0.46956,
+      "child_system_cpu_seconds": 0.174319,
+      "child_user_cpu_seconds": 0.295241,
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-B",
+        "/dev/shm/astra4716/whitebox-neuron/baseline/host/wb_range.py",
+        "index",
+        "http://127.0.0.1:40893/stories260K.gguf",
+        "--work-dir",
+        "/dev/shm/astra4716/whitebox-neuron/runs/neuron-dot-eqh9dyj7/prepared-index"
+      ],
+      "exit_code": 0,
+      "http": {
+        "body_bytes": 14152,
+        "first_requested_byte": 0,
+        "last_requested_byte": 14151,
+        "ordered_requests_sha256": "3d90cec965dd36f7d64416bb44de28c55598f0623ccf15e88654d0e99c142a8d",
+        "requests": 722,
+        "statuses": [
+          206
+        ]
+      },
+      "pair": 0,
+      "phase": "index-setup",
+      "source": "baseline",
+      "stdout_sha256": "c793e86826eaa249d03d667fcfb4fe2b08c82a90b57869871c4846bf7edeb771",
+      "wall_ns": 546408444
+    },
+    {
+      "archive_payload": {
+        "byte_equal": true,
+        "bytes": 4771,
+        "sha256": "4cd30b02532300275f0f7bc26263db93af3b7d87fffcf9a5673e023a4245d707"
+      },
+      "child_cpu_seconds": 0.66282,
+      "child_system_cpu_seconds": 0.13144899999999998,
+      "child_user_cpu_seconds": 0.5313709999999999,
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-B",
+        "/dev/shm/astra4716/whitebox-neuron/baseline/host/wb_range.py",
+        "metric",
+        "/dev/shm/astra4716/whitebox-neuron/runs/neuron-dot-eqh9dyj7/prepared-index/wb_range_index.json",
+        "neurons",
+        "--units",
+        "512",
+        "--vocab-sample",
+        "1200",
+        "--work-dir",
+        "/dev/shm/astra4716/whitebox-neuron/runs/neuron-dot-eqh9dyj7/baseline"
+      ],
+      "exit_code": 0,
+      "http": {
+        "body_bytes": 175104,
+        "first_requested_byte": 14176,
+        "last_requested_byte": 414047,
+        "ordered_requests_sha256": "df0a8a3edba69bab71c4046da36b14675493261d9275188d73688998172ea7bb",
+        "requests": 65,
+        "statuses": [
+          206
+        ]
+      },
+      "pair": 0,
+      "phase": "cold",
+      "result_shape": {
+        "neurons": 172,
+        "tensor": "blk.0.ffn_down.weight",
+        "vocab_rows_scanned": 512
+      },
+      "source": "baseline",
+      "stdout_sha256": "aa2fb4f727a185929d4913706f80a8b22ef12b9c127da24d1c3baa24d1cf033c",
+      "wall_ns": 673921467
+    },
+    {
+      "archive_payload": {
+        "byte_equal": true,
+        "bytes": 4771,
+        "sha256": "4cd30b02532300275f0f7bc26263db93af3b7d87fffcf9a5673e023a4245d707"
+      },
+      "child_cpu_seconds": 0.440479,
+      "child_system_cpu_seconds": 0.04565999999999998,
+      "child_user_cpu_seconds": 0.39481900000000003,
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-B",
+        "/dev/shm/astra4716/whitebox-neuron/candidate/host/wb_range.py",
+        "metric",
+        "/dev/shm/astra4716/whitebox-neuron/runs/neuron-dot-eqh9dyj7/prepared-index/wb_range_index.json",
+        "neurons",
+        "--units",
+        "512",
+        "--vocab-sample",
+        "1200",
+        "--work-dir",
+        "/dev/shm/astra4716/whitebox-neuron/runs/neuron-dot-eqh9dyj7/candidate"
+      ],
+      "exit_code": 0,
+      "http": {
+        "body_bytes": 175104,
+        "first_requested_byte": 14176,
+        "last_requested_byte": 414047,
+        "ordered_requests_sha256": "df0a8a3edba69bab71c4046da36b14675493261d9275188d73688998172ea7bb",
+        "requests": 65,
+        "statuses": [
+          206
+        ]
+      },
+      "pair": 0,
+      "phase": "cold",
+      "result_shape": {
+        "neurons": 172,
+        "tensor": "blk.0.ffn_down.weight",
+        "vocab_rows_scanned": 512
+      },
+      "source": "candidate",
+      "stdout_sha256": "aa2fb4f727a185929d4913706f80a8b22ef12b9c127da24d1c3baa24d1cf033c",
+      "wall_ns": 451985120
+    },
+    {
+      "archive_payload": {
+        "byte_equal": true,
+        "bytes": 4771,
+        "sha256": "4cd30b02532300275f0f7bc26263db93af3b7d87fffcf9a5673e023a4245d707"
+      },
+      "child_cpu_seconds": 0.47170000000000006,
+      "child_system_cpu_seconds": 0.09665499999999999,
+      "child_user_cpu_seconds": 0.3750450000000001,
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-B",
+        "/dev/shm/astra4716/whitebox-neuron/baseline/host/wb_range.py",
+        "metric",
+        "/dev/shm/astra4716/whitebox-neuron/runs/neuron-dot-eqh9dyj7/prepared-index/wb_range_index.json",
+        "neurons",
+        "--units",
+        "512",
+        "--vocab-sample",
+        "1200",
+        "--work-dir",
+        "/dev/shm/astra4716/whitebox-neuron/runs/neuron-dot-eqh9dyj7/baseline"
+      ],
+      "exit_code": 0,
+      "http": {
+        "body_bytes": 0,
+        "first_requested_byte": null,
+        "last_requested_byte": null,
+        "ordered_requests_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "requests": 0,
+        "statuses": []
+      },
+      "pair": 0,
+      "phase": "warmup",
+      "result_shape": {
+        "neurons": 172,
+        "tensor": "blk.0.ffn_down.weight",
+        "vocab_rows_scanned": 512
+      },
+      "source": "baseline",
+      "stdout_sha256": "aa2fb4f727a185929d4913706f80a8b22ef12b9c127da24d1c3baa24d1cf033c",
+      "wall_ns": 472176108
+    },
+    {
+      "archive_payload": {
+        "byte_equal": true,
+        "bytes": 4771,
+        "sha256": "4cd30b02532300275f0f7bc26263db93af3b7d87fffcf9a5673e023a4245d707"
+      },
+      "child_cpu_seconds": 0.36057999999999996,
+      "child_system_cpu_seconds": 0.10077300000000006,
+      "child_user_cpu_seconds": 0.2598069999999999,
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-B",
+        "/dev/shm/astra4716/whitebox-neuron/candidate/host/wb_range.py",
+        "metric",
+        "/dev/shm/astra4716/whitebox-neuron/runs/neuron-dot-eqh9dyj7/prepared-index/wb_range_index.json",
+        "neurons",
+        "--units",
+        "512",
+        "--vocab-sample",
+        "1200",
+        "--work-dir",
+        "/dev/shm/astra4716/whitebox-neuron/runs/neuron-dot-eqh9dyj7/candidate"
+      ],
+      "exit_code": 0,
+      "http": {
+        "body_bytes": 0,
+        "first_requested_byte": null,
+        "last_requested_byte": null,
+        "ordered_requests_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "requests": 0,
+        "statuses": []
+      },
+      "pair": 0,
+      "phase": "warmup",
+      "result_shape": {
+        "neurons": 172,
+        "tensor": "blk.0.ffn_down.weight",
+        "vocab_rows_scanned": 512
+      },
+      "source": "candidate",
+      "stdout_sha256": "aa2fb4f727a185929d4913706f80a8b22ef12b9c127da24d1c3baa24d1cf033c",
+      "wall_ns": 361047045
+    },
+    {
+      "archive_payload": {
+        "byte_equal": true,
+        "bytes": 4771,
+        "sha256": "4cd30b02532300275f0f7bc26263db93af3b7d87fffcf9a5673e023a4245d707"
+      },
+      "child_cpu_seconds": 0.4987459999999999,
+      "child_system_cpu_seconds": 0.023571999999999926,
+      "child_user_cpu_seconds": 0.475174,
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-B",
+        "/dev/shm/astra4716/whitebox-neuron/baseline/host/wb_range.py",
+        "metric",
+        "/dev/shm/astra4716/whitebox-neuron/runs/neuron-dot-eqh9dyj7/prepared-index/wb_range_index.json",
+        "neurons",
+        "--units",
+        "512",
+        "--vocab-sample",
+        "1200",
+        "--work-dir",
+        "/dev/shm/astra4716/whitebox-neuron/runs/neuron-dot-eqh9dyj7/baseline"
+      ],
+      "exit_code": 0,
+      "http": {
+        "body_bytes": 0,
+        "first_requested_byte": null,
+        "last_requested_byte": null,
+        "ordered_requests_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "requests": 0,
+        "statuses": []
+      },
+      "pair": 0,
+      "phase": "warm",
+      "result_shape": {
+        "neurons": 172,
+        "tensor": "blk.0.ffn_down.weight",
+        "vocab_rows_scanned": 512
+      },
+      "source": "baseline",
+      "stdout_sha256": "aa2fb4f727a185929d4913706f80a8b22ef12b9c127da24d1c3baa24d1cf033c",
+      "wall_ns": 499102194
+    },
+    {
+      "archive_payload": {
+        "byte_equal": true,
+        "bytes": 4771,
+        "sha256": "4cd30b02532300275f0f7bc26263db93af3b7d87fffcf9a5673e023a4245d707"
+      },
+      "child_cpu_seconds": 0.3232999999999999,
+      "child_system_cpu_seconds": 0.02272800000000008,
+      "child_user_cpu_seconds": 0.30057199999999984,
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-B",
+        "/dev/shm/astra4716/whitebox-neuron/candidate/host/wb_range.py",
+        "metric",
+        "/dev/shm/astra4716/whitebox-neuron/runs/neuron-dot-eqh9dyj7/prepared-index/wb_range_index.json",
+        "neurons",
+        "--units",
+        "512",
+        "--vocab-sample",
+        "1200",
+        "--work-dir",
+        "/dev/shm/astra4716/whitebox-neuron/runs/neuron-dot-eqh9dyj7/candidate"
+      ],
+      "exit_code": 0,
+      "http": {
+        "body_bytes": 0,
+        "first_requested_byte": null,
+        "last_requested_byte": null,
+        "ordered_requests_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "requests": 0,
+        "statuses": []
+      },
+      "pair": 0,
+      "phase": "warm",
+      "result_shape": {
+        "neurons": 172,
+        "tensor": "blk.0.ffn_down.weight",
+        "vocab_rows_scanned": 512
+      },
+      "source": "candidate",
+      "stdout_sha256": "aa2fb4f727a185929d4913706f80a8b22ef12b9c127da24d1c3baa24d1cf033c",
+      "wall_ns": 323601094
+    },
+    {
+      "archive_payload": {
+        "byte_equal": true,
+        "bytes": 4771,
+        "sha256": "4cd30b02532300275f0f7bc26263db93af3b7d87fffcf9a5673e023a4245d707"
+      },
+      "child_cpu_seconds": 0.25675600000000043,
+      "child_system_cpu_seconds": 0.038721000000000005,
+      "child_user_cpu_seconds": 0.21803500000000042,
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-B",
+        "/dev/shm/astra4716/whitebox-neuron/candidate/host/wb_range.py",
+        "metric",
+        "/dev/shm/astra4716/whitebox-neuron/runs/neuron-dot-eqh9dyj7/prepared-index/wb_range_index.json",
+        "neurons",
+        "--units",
+        "512",
+        "--vocab-sample",
+        "1200",
+        "--work-dir",
+        "/dev/shm/astra4716/whitebox-neuron/runs/neuron-dot-eqh9dyj7/candidate"
+      ],
+      "exit_code": 0,
+      "http": {
+        "body_bytes": 0,
+        "first_requested_byte": null,
+        "last_requested_byte": null,
+        "ordered_requests_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "requests": 0,
+        "statuses": []
+      },
+      "pair": 1,
+      "phase": "warm",
+      "result_shape": {
+        "neurons": 172,
+        "tensor": "blk.0.ffn_down.weight",
+        "vocab_rows_scanned": 512
+      },
+      "source": "candidate",
+      "stdout_sha256": "aa2fb4f727a185929d4913706f80a8b22ef12b9c127da24d1c3baa24d1cf033c",
+      "wall_ns": 264438627
+    },
+    {
+      "archive_payload": {
+        "byte_equal": true,
+        "bytes": 4771,
+        "sha256": "4cd30b02532300275f0f7bc26263db93af3b7d87fffcf9a5673e023a4245d707"
+      },
+      "child_cpu_seconds": 0.4918359999999997,
+      "child_system_cpu_seconds": 0.0402499999999999,
+      "child_user_cpu_seconds": 0.4515859999999998,
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-B",
+        "/dev/shm/astra4716/whitebox-neuron/baseline/host/wb_range.py",
+        "metric",
+        "/dev/shm/astra4716/whitebox-neuron/runs/neuron-dot-eqh9dyj7/prepared-index/wb_range_index.json",
+        "neurons",
+        "--units",
+        "512",
+        "--vocab-sample",
+        "1200",
+        "--work-dir",
+        "/dev/shm/astra4716/whitebox-neuron/runs/neuron-dot-eqh9dyj7/baseline"
+      ],
+      "exit_code": 0,
+      "http": {
+        "body_bytes": 0,
+        "first_requested_byte": null,
+        "last_requested_byte": null,
+        "ordered_requests_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "requests": 0,
+        "statuses": []
+      },
+      "pair": 1,
+      "phase": "warm",
+      "result_shape": {
+        "neurons": 172,
+        "tensor": "blk.0.ffn_down.weight",
+        "vocab_rows_scanned": 512
+      },
+      "source": "baseline",
+      "stdout_sha256": "aa2fb4f727a185929d4913706f80a8b22ef12b9c127da24d1c3baa24d1cf033c",
+      "wall_ns": 492279558
+    },
+    {
+      "archive_payload": {
+        "byte_equal": true,
+        "bytes": 4771,
+        "sha256": "4cd30b02532300275f0f7bc26263db93af3b7d87fffcf9a5673e023a4245d707"
+      },
+      "child_cpu_seconds": 0.457504,
+      "child_system_cpu_seconds": 0.01911800000000008,
+      "child_user_cpu_seconds": 0.43838599999999994,
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-B",
+        "/dev/shm/astra4716/whitebox-neuron/baseline/host/wb_range.py",
+        "metric",
+        "/dev/shm/astra4716/whitebox-neuron/runs/neuron-dot-eqh9dyj7/prepared-index/wb_range_index.json",
+        "neurons",
+        "--units",
+        "512",
+        "--vocab-sample",
+        "1200",
+        "--work-dir",
+        "/dev/shm/astra4716/whitebox-neuron/runs/neuron-dot-eqh9dyj7/baseline"
+      ],
+      "exit_code": 0,
+      "http": {
+        "body_bytes": 0,
+        "first_requested_byte": null,
+        "last_requested_byte": null,
+        "ordered_requests_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "requests": 0,
+        "statuses": []
+      },
+      "pair": 2,
+      "phase": "warm",
+      "result_shape": {
+        "neurons": 172,
+        "tensor": "blk.0.ffn_down.weight",
+        "vocab_rows_scanned": 512
+      },
+      "source": "baseline",
+      "stdout_sha256": "aa2fb4f727a185929d4913706f80a8b22ef12b9c127da24d1c3baa24d1cf033c",
+      "wall_ns": 458215659
+    },
+    {
+      "archive_payload": {
+        "byte_equal": true,
+        "bytes": 4771,
+        "sha256": "4cd30b02532300275f0f7bc26263db93af3b7d87fffcf9a5673e023a4245d707"
+      },
+      "child_cpu_seconds": 0.3070160000000003,
+      "child_system_cpu_seconds": 0.02908999999999995,
+      "child_user_cpu_seconds": 0.27792600000000034,
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-B",
+        "/dev/shm/astra4716/whitebox-neuron/candidate/host/wb_range.py",
+        "metric",
+        "/dev/shm/astra4716/whitebox-neuron/runs/neuron-dot-eqh9dyj7/prepared-index/wb_range_index.json",
+        "neurons",
+        "--units",
+        "512",
+        "--vocab-sample",
+        "1200",
+        "--work-dir",
+        "/dev/shm/astra4716/whitebox-neuron/runs/neuron-dot-eqh9dyj7/candidate"
+      ],
+      "exit_code": 0,
+      "http": {
+        "body_bytes": 0,
+        "first_requested_byte": null,
+        "last_requested_byte": null,
+        "ordered_requests_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "requests": 0,
+        "statuses": []
+      },
+      "pair": 2,
+      "phase": "warm",
+      "result_shape": {
+        "neurons": 172,
+        "tensor": "blk.0.ffn_down.weight",
+        "vocab_rows_scanned": 512
+      },
+      "source": "candidate",
+      "stdout_sha256": "aa2fb4f727a185929d4913706f80a8b22ef12b9c127da24d1c3baa24d1cf033c",
+      "wall_ns": 307320726
+    }
+  ],
+  "schema": "wb-neuron-dot-measurement/v1",
+  "sources": {
+    "baseline": {
+      "wb_metrics.py": {
+        "bytes": 37882,
+        "git_blob_sha": "e1fbb4aaf82c6965d377bfbdc8274f28f6a06071",
+        "path": "/dev/shm/astra4716/whitebox-neuron/baseline/host/wb_metrics.py",
+        "sha256": "ef2b94bbc34a77b25c1992b038df9432aa4a3739c15bc6c7014ef2f81e733bbd"
+      },
+      "wb_range.py": {
+        "bytes": 98002,
+        "git_blob_sha": "c2a208a5af3503e5fa94d80388b241f05c2e87a3",
+        "path": "/dev/shm/astra4716/whitebox-neuron/baseline/host/wb_range.py",
+        "sha256": "a4e0cbc2d9d6e03be52ec8c7ef8bec1b70e988e50d9be0f1b6661d8ebf0ba280"
+      }
+    },
+    "candidate": {
+      "wb_metrics.py": {
+        "bytes": 37894,
+        "git_blob_sha": "76453f22a6d51bcc978189590ccc3cac00ff8e12",
+        "path": "/dev/shm/astra4716/whitebox-neuron/candidate/host/wb_metrics.py",
+        "sha256": "ab4436dc6ddd68bf47e18a5d8ce869bb0c7f4a352600df64669527c4656babdf"
+      },
+      "wb_range.py": {
+        "bytes": 98002,
+        "git_blob_sha": "c2a208a5af3503e5fa94d80388b241f05c2e87a3",
+        "path": "/dev/shm/astra4716/whitebox-neuron/candidate/host/wb_range.py",
+        "sha256": "a4e0cbc2d9d6e03be52ec8c7ef8bec1b70e988e50d9be0f1b6661d8ebf0ba280"
+      }
+    }
+  },
+  "status": "PASS",
+  "warm_http_requests": 0,
+  "warm_summary": {
+    "child_cpu_seconds": {
+      "candidate_paired_wins": 3,
+      "candidate_reduction_percent": 37.57756650590838,
+      "medians": {
+        "baseline": 0.4918359999999997,
+        "candidate": 0.3070160000000003
+      },
+      "pairs": [
+        {
+          "baseline": 0.4987459999999999,
+          "candidate": 0.3232999999999999
+        },
+        {
+          "baseline": 0.4918359999999997,
+          "candidate": 0.25675600000000043
+        },
+        {
+          "baseline": 0.457504,
+          "candidate": 0.3070160000000003
+        }
+      ]
+    },
+    "wall_ns": {
+      "candidate_paired_wins": 3,
+      "candidate_reduction_percent": 37.57190990246237,
+      "medians": {
+        "baseline": 492279558,
+        "candidate": 307320726
+      },
+      "pairs": [
+        {
+          "baseline": 499102194,
+          "candidate": 323601094
+        },
+        {
+          "baseline": 492279558,
+          "candidate": 264438627
+        },
+        {
+          "baseline": 458215659,
+          "candidate": 307320726
+        }
+      ]
+    }
+  },
+  "workload": {
+    "cold_pairs": 1,
+    "operation": "metric neurons -> archive",
+    "pairs": 3,
+    "units": 512,
+    "vocab_sample": 1200,
+    "warmups_per_source": 1
+  }
+}

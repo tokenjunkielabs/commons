@@ -22,6 +22,7 @@ from __future__ import annotations
 from collections import Counter
 import heapq
 import math
+import operator
 import random
 import re
 import struct
@@ -733,7 +734,7 @@ def neuron_cleanliness(neuron_rows, vocab_rows: dict, *, k: int = 5) -> dict:
     out = []
     for j, nrow in enumerate(neuron_rows):
         u = unit(nrow)
-        scores = ((label, sum(x * y for x, y in zip(u, v)))
+        scores = ((label, sum(map(operator.mul, u, v)))
                   for label, v in vocab_units)
         if finite_vocab and all(math.isfinite(value) for value in u):
             # nsmallest retains encounter order for equal scores, like sorted.
