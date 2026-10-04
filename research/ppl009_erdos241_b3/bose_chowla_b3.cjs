@@ -330,4 +330,272 @@ function constructBoseChowlaB3(options) {
   };
 }
 
-module.exports = { constructBoseChowlaB3, BOSE_CHOWLA_B3_LIMITS };
+
+const CYCLIC_ORBIT_LIMITS = Object.freeze({
+  max_modulus: 65536,
+  max_raw_residues: 1024,
+  max_distinct_residues: 256,
+  max_symmetries: 64,
+  max_classes: 8192,
+  max_representative_residue_evaluations: 2000000,
+  max_optimal_unit_cuts: 65536,
+  max_source_id_characters: 512
+});
+
+// Optimizes an identified finite cyclic set. It does not certify a B3 premise.
+function minimizeCyclicUnitOrbit(options) {
+  if (!options || typeof options !== "object" || Array.isArray(options)) {
+    throw new TypeError("options must be an object");
+  }
+  const modulus = options.modulus;
+  if (!Number.isSafeInteger(modulus) || modulus < 2 ||
+      modulus > CYCLIC_ORBIT_LIMITS.max_modulus) {
+    throw new RangeError("modulus must be an integer from 2 through 65536");
+  }
+  if (typeof options.source_id !== "string" || !options.source_id.trim() ||
+      options.source_id.length > CYCLIC_ORBIT_LIMITS.max_source_id_characters) {
+    throw new TypeError("source_id must be a nonempty string of at most 512 characters");
+  }
+  if (!Array.isArray(options.residues) || options.residues.length < 1 ||
+      options.residues.length > CYCLIC_ORBIT_LIMITS.max_raw_residues) {
+    throw new RangeError("residues must contain from 1 through 1024 raw entries");
+  }
+  function residue(value, label) {
+    if (!Number.isSafeInteger(value) || value < 0 || value >= modulus) {
+      throw new RangeError(label + " must be a canonical residue");
+    }
+    return value === 0 ? 0 : value;
+  }
+  const values = [...new Set(Array.from(options.residues, value =>
+    residue(value, "input residue")))].sort((a, b) => a - b);
+  if (values.length > CYCLIC_ORBIT_LIMITS.max_distinct_residues) {
+    throw new RangeError("too many distinct residues");
+  }
+  const mod = value => ((value % modulus) + modulus) % modulus;
+  const work = {
+    gcd_calls: 0,
+    euclidean_steps: 0,
+    symmetry_residue_evaluations: 0,
+    symmetry_group_products: 0,
+    unit_candidates_examined: 0,
+    coset_member_products: 0,
+    representative_residue_evaluations: 0,
+    gap_records: 0,
+    optimal_cut_records: 0,
+    best_lift_residue_evaluations: 0,
+    source_field_multiplications: 0,
+    source_field_powers_recomputed: 0,
+    triple_sums_enumerated: 0
+  };
+  function gcd(a, b) {
+    work.gcd_calls++;
+    while (b !== 0) {
+      const next = a % b;
+      a = b;
+      b = next;
+      work.euclidean_steps++;
+    }
+    return a;
+  }
+  const inputSymmetries = options.symmetries === undefined ?
+    (modulus === 2 ? [{ multiplier: 1, sign: 1, translation: 0 }] : [
+      { multiplier: 1, sign: 1, translation: 0 },
+      { multiplier: modulus - 1, sign: -1, translation: 0 }
+    ]) : options.symmetries;
+  if (!Array.isArray(inputSymmetries) || inputSymmetries.length < 1 ||
+      inputSymmetries.length > CYCLIC_ORBIT_LIMITS.max_symmetries) {
+    throw new RangeError("symmetries must contain from 1 through 64 records");
+  }
+  const multiplierSet = new Set();
+  const symmetries = Array.from(inputSymmetries, (row, index) => {
+    if (!row || typeof row !== "object" || Array.isArray(row) ||
+        (row.sign !== 1 && row.sign !== -1)) {
+      throw new TypeError("each symmetry needs multiplier, sign 1 or -1, and translation");
+    }
+    const multiplier = residue(row.multiplier, "symmetry multiplier");
+    const translation = residue(row.translation, "symmetry translation");
+    if (multiplier === 0 || gcd(multiplier, modulus) !== 1) {
+      throw new RangeError("a symmetry multiplier must be a unit");
+    }
+    if (multiplierSet.has(multiplier)) throw new TypeError("duplicate symmetry multiplier");
+    multiplierSet.add(multiplier);
+    const image = values.map(value => {
+      work.symmetry_residue_evaluations++;
+      return mod(multiplier * value);
+    }).sort((a, b) => a - b);
+    const expected = values.map(value => mod(row.sign * value + translation))
+      .sort((a, b) => a - b);
+    if (image.some((value, i) => value !== expected[i])) {
+      const error = new Error("supplied symmetry does not preserve the source set as stated");
+      error.name = "InvalidSymmetryError";
+      error.symmetry_index = index;
+      error.observed_image = image;
+      error.expected_image = expected;
+      throw error;
+    }
+    return {
+      multiplier,
+      sign: row.sign,
+      translation,
+      image_residues: image,
+      set_relation_checked: true
+    };
+  }).sort((a, b) => a.multiplier - b.multiplier);
+  if (!multiplierSet.has(1)) throw new TypeError("the symmetry multipliers must include identity");
+  for (const left of symmetries) {
+    for (const right of symmetries) {
+      const product = mod(left.multiplier * right.multiplier);
+      work.symmetry_group_products++;
+      if (!multiplierSet.has(product)) {
+        const error = new Error("symmetry multipliers are not a closed subgroup");
+        error.name = "InvalidSymmetryGroupError";
+        error.closure_witness = { left: left.multiplier, right: right.multiplier, product };
+        throw error;
+      }
+    }
+  }
+
+  const units = [];
+  for (let value = 1; value < modulus; value++) {
+    work.unit_candidates_examined++;
+    if (gcd(value, modulus) === 1) units.push(value);
+  }
+  const classCount = units.length / symmetries.length;
+  if (!Number.isSafeInteger(classCount)) throw new Error("subgroup order does not divide unit count");
+  if (classCount > CYCLIC_ORBIT_LIMITS.max_classes) throw new RangeError("too many quotient classes");
+  if (classCount * values.length > CYCLIC_ORBIT_LIMITS.max_representative_residue_evaluations) {
+    throw new RangeError("representative residue budget exceeded");
+  }
+  const assigned = new Set(), classes = [];
+  for (const representative of units) {
+    if (assigned.has(representative)) continue;
+    const members = symmetries.map(symmetry => {
+      work.coset_member_products++;
+      return mod(representative * symmetry.multiplier);
+    }).sort((a, b) => a - b);
+    for (const member of members) {
+      if (assigned.has(member)) throw new Error("unit cosets overlap");
+      assigned.add(member);
+    }
+    classes.push({ representative, unit_members: members });
+  }
+  if (assigned.size !== units.length || classes.length !== classCount) {
+    throw new Error("unit quotient coverage is incomplete");
+  }
+
+  let bestGap = 0;
+  for (const orbitClass of classes) {
+    const image = values.map(value => {
+      work.representative_residue_evaluations++;
+      return mod(orbitClass.representative * value);
+    }).sort((a, b) => a - b);
+    const gaps = [];
+    let largest = 0;
+    for (let index = 0; index < image.length; index++) {
+      const from = image[index], to = image[(index + 1) % image.length];
+      const distance = index + 1 < image.length ? to - from : modulus + to - from;
+      gaps.push({ from, to, distance, wraps_zero: index + 1 === image.length });
+      largest = Math.max(largest, distance);
+      work.gap_records++;
+    }
+    orbitClass.transformed_residues = image;
+    orbitClass.cyclic_gaps = gaps;
+    orbitClass.largest_gap_distance = largest;
+    orbitClass.largest_gaps = gaps.filter(gap => gap.distance === largest);
+    orbitClass.minimum_interval_length = modulus - largest + 1;
+    bestGap = Math.max(bestGap, largest);
+  }
+  const bestClasses = classes.filter(orbitClass => orbitClass.largest_gap_distance === bestGap);
+  const attainmentCount = bestClasses.reduce((sum, orbitClass) =>
+    sum + orbitClass.largest_gaps.length * symmetries.length, 0);
+  if (attainmentCount > CYCLIC_ORBIT_LIMITS.max_optimal_unit_cuts) {
+    throw new RangeError("too many complete optimal unit/cut records");
+  }
+  const optimalCuts = [];
+  for (const orbitClass of bestClasses) {
+    const representative = orbitClass.representative;
+    for (const symmetry of symmetries) {
+      const unit = mod(representative * symmetry.multiplier);
+      const shift = mod(representative * symmetry.translation);
+      const transform = value => mod(symmetry.sign * value + shift);
+      for (const gap of orbitClass.largest_gaps) {
+        const from = symmetry.sign === 1 ? transform(gap.from) : transform(gap.to);
+        const to = symmetry.sign === 1 ? transform(gap.to) : transform(gap.from);
+        optimalCuts.push({
+          unit,
+          representative,
+          symmetry_multiplier: symmetry.multiplier,
+          sign: symmetry.sign,
+          shift,
+          gap_from: from,
+          gap_to: to,
+          gap_distance: bestGap,
+          start_residue: to,
+          residue_translation: mod(1 - to),
+          interval_length: modulus - bestGap + 1
+        });
+        work.optimal_cut_records++;
+      }
+    }
+  }
+  optimalCuts.sort((a, b) => a.unit - b.unit || a.start_residue - b.start_residue);
+  const best = optimalCuts[0];
+  const mapped = values.map(value => {
+    work.best_lift_residue_evaluations++;
+    const transformed = mod(best.unit * value);
+    return {
+      source_residue: value,
+      multiplied_residue: transformed,
+      positive_integer: mod(transformed - best.start_residue) + 1
+    };
+  }).sort((a, b) => a.positive_integer - b.positive_integer);
+  const positive = mapped.map(row => row.positive_integer);
+  if (positive[0] !== 1 || positive[positive.length - 1] !== best.interval_length) {
+    throw new Error("optimal interval endpoint invariant failed");
+  }
+  return {
+    schema: "cyclic.unit_orbit_interval/v1",
+    status: "EXACT_AFFINE_ORBIT_MINIMUM",
+    source_id: options.source_id,
+    modulus,
+    source_residues: values,
+    raw_residue_entries: options.residues.length,
+    duplicate_residues_removed: options.residues.length - values.length,
+    symmetries,
+    coverage: {
+      unit_count: units.length,
+      symmetry_group_order: symmetries.length,
+      quotient_class_count: classes.length,
+      class_sizes: symmetries.length,
+      covered_units: assigned.size,
+      complete_disjoint_unit_cosets: true,
+      subgroup_closure_checked: true
+    },
+    classes,
+    maximum_empty_gap_distance: bestGap,
+    minimum_positive_interval_length: modulus - bestGap + 1,
+    optimal_representatives: bestClasses.map(row => row.representative),
+    optimal_unit_cuts: optimalCuts,
+    best: {
+      ...best,
+      mapped_elements: mapped,
+      positive_values: positive
+    },
+    validity_boundary: {
+      source_id_authenticated: false,
+      source_B3_property_checked: false,
+      supplied_symmetry_relations_checked: true,
+      optimum_scope: "unit multiplications and translations of this finite cyclic source set",
+      global_extremal_optimum_claimed: false
+    },
+    limits: { ...CYCLIC_ORBIT_LIMITS },
+    work
+  };
+}
+
+module.exports = {
+  constructBoseChowlaB3,
+  BOSE_CHOWLA_B3_LIMITS,
+  minimizeCyclicUnitOrbit,
+  CYCLIC_ORBIT_LIMITS
+};
