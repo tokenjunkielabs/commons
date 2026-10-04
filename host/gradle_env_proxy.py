@@ -98,6 +98,7 @@ def explicit_properties(environment: dict[str, str], project: Path, arguments: l
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--project", type=Path, default=Path.cwd(), help="Gradle project directory (default: current directory)")
+    parser.add_argument("--refresh-env-proxy", action="store_true", help="Replace inherited GRADLE_OPTS proxy endpoint flags with this invocation's environment")
     parser.add_argument("arguments", nargs=argparse.REMAINDER, help="Wrapper arguments after --")
     args = parser.parse_args()
     arguments = args.arguments[1:] if args.arguments[:1] == ["--"] else args.arguments
@@ -107,6 +108,21 @@ def main() -> int:
     try:
         if not wrapper.is_file():
             raise ValueError("The selected project does not contain a Gradle wrapper")
+        if args.refresh_env_proxy:
+            refresh_keys = {
+                f"{protocol}.{part}"
+                for protocol in ("http", "https")
+                if environment.get(f"{protocol}_proxy") or environment.get(f"{protocol.upper()}_PROXY")
+                for part in ("proxyHost", "proxyPort")
+            }
+            try:
+                inherited = shlex.split(environment.get("GRADLE_OPTS", ""))
+            except ValueError:
+                raise ValueError("GRADLE_OPTS contains unmatched quoting") from None
+            environment["GRADLE_OPTS"] = shlex.join(
+                option for option in inherited
+                if not (option.startswith("-D") and option[2:].split("=", 1)[0] in refresh_keys)
+            )
         explicit = explicit_properties(environment, project, arguments)
         proxy_environment = environment.copy()
         # An explicit host/port pair belongs to the caller; do not mix it with
