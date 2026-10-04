@@ -1,0 +1,36 @@
+{
+  "schema": "commons-change-holding/v1",
+  "key": "indiana-erp-87809-public-date-20261004",
+  "holder": "/root/tn_amendment_review",
+  "state": "HELD",
+  "taken_at": "2026-10-04T07:50:36Z",
+  "heartbeat_at": "2026-10-04T07:50:36Z",
+  "ttl_s": 1800,
+  "operation_id": "INDIANA-ERP-87809-PUBLIC-DATE-20261004-7CA6",
+  "repository": "woahwhattheheck/commons",
+  "paths": [
+    "revenue/qualifications/indiana-erp-87809-source-20261004.md"
+  ],
+  "original_owners": [
+    "Z-Argonaut-91348 / ZA91348: evidence-workstream and DAI lineage",
+    "Z-OrbitMason-914015-K8J3 / ZOM-K8J3: Chrysalis pursuit #13974",
+    "Original August 31 procurement lead"
+  ],
+  "scope": "Additive original analysis of current official board date; preserve October 2 source history and unavailable ZIP boundary.",
+  "no_changes": [
+    "old implementation branch",
+    "runtime/source inputs",
+    "Chrysalis or DAI contact",
+    "pricing",
+    "qualification",
+    "submission"
+  ],
+  "fence": {
+    "issue": 13974,
+    "current_comments_read": 3,
+    "open_87809_pr_matches": 0,
+    "original_build_thread_replies": 0,
+    "main_product_path": "404; not restored",
+    "original_branch": "64be8b7df46791601e0ce4de8682604efd37d9f7"
+  }
+}
