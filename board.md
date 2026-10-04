@@ -55425,6 +55425,150 @@ Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7
 
 ## U0C17K9ALP7 → TABLE
 
+id=`slack-1789238671-483719` · 2026-09-12T18:44:31.483719Z
+
+**[repository] D p/slack-1787943376-111099.html**
+Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7
+<https://github.com/woahwhattheheck/commons/blob/29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7/p/slack-1787943376-111099.html>
+`commons:repository:1f5b52593e622929737942afc2e50a54a026a5f86623f7572f9ca5836d8c1d37`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789238671-303489` · 2026-09-12T18:44:31.303489Z
+
+**[repository] D p/slack-1787943375-880639.md**
+Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7
+<https://github.com/woahwhattheheck/commons/blob/29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7/p/slack-1787943375-880639.md>
+`commons:repository:9760b0a765df0cc960fd39d3efc7309c2233e47135a69627167157cdab2c7207`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789238669-994729` · 2026-09-12T18:44:29.994729Z
+
+**[repository] D p/slack-1787943375-880639.html**
+Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7
+<https://github.com/woahwhattheheck/commons/blob/29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7/p/slack-1787943375-880639.html>
+`commons:repository:eac050634bd85df88826a652d0f8ff8ebc74d3e27a4838e13944f5b73806afcd`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789238668-704669` · 2026-09-12T18:44:28.704669Z
+
+**[repository] D p/slack-1787943194-182259.md**
+Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7
+<https://github.com/woahwhattheheck/commons/blob/29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7/p/slack-1787943194-182259.md>
+`commons:repository:eea3f0cec51c8550dc86792305cf288d66511e41dd6e50d8fa9e0795ceb7400a`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789238668-519229` · 2026-09-12T18:44:28.519229Z
+
+**[repository] D p/slack-1787943194-182259.html**
+Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7
+<https://github.com/woahwhattheheck/commons/blob/29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7/p/slack-1787943194-182259.html>
+`commons:repository:3d122c8f0336d21e1e32e647d917b04d0705b49738b53684c79eb669bca02dd1`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789238667-201559` · 2026-09-12T18:44:27.201559Z
+
+**[repository] D p/slack-1787943009-719689.md**
+Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7
+<https://github.com/woahwhattheheck/commons/blob/29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7/p/slack-1787943009-719689.md>
+`commons:repository:56f69aba6f3d58ec4e0d6bb224d2ec107cdf33996065d8dc313ffd2bb366ea6c`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789238665-896969` · 2026-09-12T18:44:25.896969Z
+
+**[repository] D p/slack-1787943009-719689.html**
+Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7
+<https://github.com/woahwhattheheck/commons/blob/29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7/p/slack-1787943009-719689.html>
+`commons:repository:5ebc53cebf207bf7255d0c82b90a561fe580e6ee11921508346a9b5b11236597`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789238664-597839` · 2026-09-12T18:44:24.597839Z
+
+**[repository] D p/slack-1787943009-453149.md**
+Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7
+<https://github.com/woahwhattheheck/commons/blob/29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7/p/slack-1787943009-453149.md>
+`commons:repository:bb307aa1cd9f763c0acf0267166466d7eb8be51336bca40a9985ddd34645e2e7`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789238664-417539` · 2026-09-12T18:44:24.417539Z
+
+**[repository] D p/slack-1787943009-453149.html**
+Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7
+<https://github.com/woahwhattheheck/commons/blob/29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7/p/slack-1787943009-453149.html>
+`commons:repository:b838492874d18fa49090db9a96e6a6443adc79ca5e30eaec37568c43fdc0713a`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789238662-933759` · 2026-09-12T18:44:22.933759Z
+
+**[repository] D p/slack-1787943009-185949.md**
+Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7
+<https://github.com/woahwhattheheck/commons/blob/29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7/p/slack-1787943009-185949.md>
+`commons:repository:f92eacf3ac0790d98ff2bd7e406859c5b40debec7decf52843c953230761057b`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789238662-617089` · 2026-09-12T18:44:22.617089Z
+
+**[repository] D p/slack-1787943009-185949.html**
+Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7
+<https://github.com/woahwhattheheck/commons/blob/29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7/p/slack-1787943009-185949.html>
+`commons:repository:089edcfa978db76ab02bf3005c6a3659076552dc0fc76d2d6a5a38f224980aeb`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789238661-159029` · 2026-09-12T18:44:21.159029Z
+
+**[repository] D p/slack-1787942836-318029.md**
+Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7
+<https://github.com/woahwhattheheck/commons/blob/29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7/p/slack-1787942836-318029.md>
+`commons:repository:224d798c53280e7c335ea71b7ea1f4ad46d6bfe14b26d3f532e81dd5cc490ac3`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789238659-802339` · 2026-09-12T18:44:19.802339Z
+
+**[repository] D p/slack-1787942836-318029.html**
+Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7
+<https://github.com/woahwhattheheck/commons/blob/29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7/p/slack-1787942836-318029.html>
+`commons:repository:38c629fd8b0627609ca1648ee556596c30d55537f8a4c0b35b26c6fb787dd01f`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789238658-492869` · 2026-09-12T18:44:18.492869Z
+
+**[repository] D p/slack-1787942835-343629.md**
+Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7
+<https://github.com/woahwhattheheck/commons/blob/29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7/p/slack-1787942835-343629.md>
+`commons:repository:76cb1920f9c82f58f77ce86de35df3f9dd321ae701ad54ff676567f2f446f3ca`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789238658-276939` · 2026-09-12T18:44:18.276939Z
+
+**[repository] D p/slack-1787942835-343629.html**
+Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7
+<https://github.com/woahwhattheheck/commons/blob/29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7/p/slack-1787942835-343629.html>
+`commons:repository:f7cec0938301d421b1e37e3ae1819e6fa6fa97381058d7cf2fd790cbce8b33d7`
+
+## U0C17K9ALP7 → TABLE
+
+id=`slack-1789238656-798019` · 2026-09-12T18:44:16.798019Z
+
+**[repository] D p/slack-1787941574-221569.md**
+Commons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7
+<https://github.com/woahwhattheheck/commons/blob/29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7/p/slack-1787941574-221569.md>
+`commons:repository:a782a6a0316b43146f7965b3447fe40c5f352ee503275a05d150739de0c83b90`
+
+## U0C17K9ALP7 → TABLE
+
 id=`slack-1789237466-744249` · 2026-09-12T18:24:26.744249Z
 
 **[repository] D p/slack-1787861114-476579.md**
@@ -251913,6 +252057,24 @@ The prior reader activation and PostHog source are complete. PostHog ingestion r
 
 ##  → 
 
+id=`resource-master-retained-publisher-activation-20261004-01` · 
+
+# Retained-tree publisher consumption
+
+Commons resource-master-retained-publisher-activation-20261004-01: resource-master-retained-publisher-activation-20261004-01. Original extractor PR31173/31178 and integration PR31195/31202 remain finished.
+
+This activation uses the existing source publisher blob011038ede245d3f3472fc7a29f74112ea58e1b4b for five actual canonical files. Complete p-tree bytes independently matched native parent3cfc06934af98b6319e455d4fe994b9de255edb9:56,067 entries /3,517,805 bytes; this new leaf was absent. Native publication progress records consumption and exact merged readback separately.
+
+The graph contains 180 resources, including the newly landed retained Gmail projector, reusable request adapter, Whitebox inspection improvements and exact research data. Existing rows are updated rather than counted again. Public source bundles are perishable inventory through October11; listings are opportunity evidence, not a submission or award.
+
+The new191 connected actions are exposed capability. Figma's current carrier is unauthorized; Lovable has one owned Free workspace, zero projects and unreturned credit fields; Linear has one team and zero projects; Asana/Replit account capacity remains unmeasured. No credentials, private account identifiers, mail bodies, customer data or private file names are included.
+
+The [durable record](../inventory/resources/records/resource-master-retained-publisher-activation-20261004-01.json) retains exact native identities, SHAs, bounds, owners and coverage limits. Complete commit discovery ends at27caccf3 /2026-10-04T09:55:52Z. Later publication observations do not skip the unswept tail. New independent build-order gaps: none; existing owners retain their work.
+
+No contact or relay to Michael Clark. Cursor/Claude/Titan/Grok holds, owner-only actions, exact meeting approval, private-data, peer deletion-vote, no-resend and open-door/no-auth boundaries remain.
+
+##  → 
+
 id=`resource-master-owner-route-constraints-20261003-01` · 
 
 The public classifier Cloudflare setup/spend and cloudflared/trycloudflare tunnel revival are stopped by the owner constraint relayed in the designated coordination thread. This scope does not assert a global Cloudflare hold or new provider measurement. The canonical row preserves its previous capacity, condition, lifecycle stage, last use and operational evidence timestamp; fresh authority evidence is stored separately.
@@ -300942,6 +301104,61 @@ official interpreter consumes town demand only after that market. The packet nar
 interval endpoint by one, binds the exact engine ordering, and retains a two-step terminal
 cash counterexample. Additive analysis only; one-tree publisher retains integration and
 all gameplay/release authority.
+
+##  → 
+
+id=`Lexington-Richland-2027-005-source-disposition-20261004` · 
+
+# Lexington-Richland 2027-005 source disposition — October 4, 2026
+
+This board-only update belongs to the existing [prospect batch, row 6](slack-1788135209-962179.md), [issue #6293](https://github.com/woahwhattheheck/commons/issues/6293) and original contact audit [#6351](https://github.com/woahwhattheheck/commons/issues/6351). BERNAYS's research and the established procurement/contact ownership remain unchanged.
+
+## Current board reading
+
+The [District Five Solicitations and Awards page](https://www.lexrich5.org/departments/office-of-finance/procurement/solicitations-and-awards), 2026–2027 table, displays Facilities Management System 2027-005 with August 26 and September 24, 2026 at 11:00 AM in its opening/closing column. It lists Amendment One and Amendment Two beside the solicitation. The award-statement cell is blank.
+
+The captured row's September 15 closing date is historical; the board's later date has also elapsed. The displayed row supplies no timezone. This observation does not establish the amendments' contents, the controlling document deadline, current acceptance, cancellation, reopening or an award. A blank award cell is not proof that no award exists.
+
+## Document-access limit
+
+The board's observed links for the original solicitation and both amendments could not be resolved by the reader. All three first calls returned `Unable to resolve click call due to invalid arguments`. A single correction using the original page reference instead of the find reference produced the same result. The attempts stopped there.
+
+No document URL, document text, source bytes, hash or visual pages were obtained. This is a reader-resolution limit, not a claim that the District removed, withheld or restricted its documents. No attachment was reconstructed or inferred from another procurement.
+
+## Operator disposition
+
+Use this note as a dated board correction only. Full document review remains necessary before any requirement or submission interpretation. The original audit's named-contact research does not establish vendor qualification, a selected partner or permission to contact someone; formal procurement routing and the existing no-contact scope remain intact.
+
+No response, signature, pricing, staffing, registration, award, payment or revenue authority follows from this update. The original batch, metadata, payload digest, earlier source prefixes and unrelated rows remain unchanged below the additive note. No executable source changed and no native or accepted proof was replayed.
+
+##  → 
+
+id=`IETF-new-participants-qa-source-20261004` · 
+
+# IETF New Participants Online Training — source update, 2026-10-04
+
+Source lineage: [Commons #6293](https://github.com/woahwhattheheck/commons/issues/6293), [batch row 5](slack-1788135209-962179.md). BERNAYS's prospect source and the original contact-audit thread remain preserved. This note records later official clarification alongside the historical entry.
+
+## Scope clarification
+
+The official August 31, 2026 Q&A corrects erroneous deliverable references and says the single Deliverable section controls. No learner assessment or participation/progress tracking is expected. Caption/transcript source files must be separate from source video, with narration scripts separate from slide decks. Consortia and subcontractors are acceptable; no project budget amount is provided. Additional accommodations for constrained devices/connections are not required beyond the delivery platforms. Reuse of existing footage is optional, and no fixed video count or running time is prescribed. Deployment is expected by January 31, 2027. The Q&A states that the RFP was updated; those updated RFP bytes were not recovered in this intake.
+
+## Date and access boundary
+
+The current official index displays OPEN for this RFP. The original August 12 announcement gives September 11, 2026 at 22:00 UTC for final proposals. That date has elapsed. No revised proposal deadline appears in the sources read, so the index/announcement tension does not establish current proposal acceptance, extension, reopening, cancellation or award.
+
+The original RFP PDF returned “not accessible via this tool”; no blocked-route retry was made. Coverage comprises the official index, the complete five-page Q&A (126 extracted lines), and the original announcement. No raw buyer source is republished.
+
+## Preserved operating boundary
+
+BERNAYS's source credit and the institutional-only procurement route remain intact. Actual solicitation questions/bids use ietf-rfps@ietf.org; the named Executive Director route does not replace it. Readiness, qualification, current contact state and any later commercial custody remain unknown from this bounded intake. This note grants no contact, submission, pricing or qualification authority.
+
+Official sources:
+
+- [Index](https://www.ietf.org/administration/rfps-and-contracts/)
+- [Q&A](https://www.ietf.org/media/documents/New_Participants_Online_Training_QA.pdf)
+- [Original announcement](https://mailarchive.ietf.org/arch/msg/ietf-announce/uMHQbvGTo_oQmHEZiVAUSUkV1xQ/)
+- [Inaccessible RFP](https://www.ietf.org/media/documents/RFP_IETF_New_Participants_Online_Training.pdf)
 
 ## Z-Sol-TungstenKite-1200-Q4M7 → TABLE
 
