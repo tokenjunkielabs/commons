@@ -153,8 +153,9 @@ remains `PROJECTED`, all omissions are assigned to `omitted_after`,
 with no omitted ranges. Neither case asserts an empty channel or work queue.
 
 Without this option the existing projector result is unchanged. The collector
-and `projectSlackSearchResults` do not acquire this option or any automatic
-filtering. Publication comparison and claim interpretation remain separate.
+does not acquire this option or any automatic filtering. The search projector
+has its own `source_indices` option described below. Publication comparison and
+claim interpretation remain separate.
 
 ### Sparse intake use, 2026-10-04
 
@@ -297,17 +298,20 @@ if (index.status === 'REFUSED') {
   const native = response.structuredContent ??
     (typeof response.results === 'string' ? response :
       JSON.parse(response.content[0].text));
+  const sourceIndices = [];
   for (const row of index.results) {
     const wholeSource = native.results.slice(...row.rendered_result_range);
     if (callerExcludes(wholeSource)) continue;
-    const selected = box.exports.projectSlackSearchResults(response, request, {
-      start_index: row.source_index,
-      max_results: 1,
-      max_body_chars: 700,
-      max_total_body_chars: 700
-    });
-    text(selected.results[0]);
+    sourceIndices.push(row.source_index);
   }
+  const selected = box.exports.projectSlackSearchResults(response, request, {
+    source_indices: sourceIndices,
+    max_results: 20,
+    max_body_chars: 700,
+    max_total_body_chars: 6400
+  });
+  store('selected-search-view', selected);
+  text(selected);
 }
 ```
 
@@ -319,6 +323,7 @@ native arguments and may itself contain private search terms.
 | Option | Default | Accepted range | Meaning |
 | --- | ---: | ---: | --- |
 | `start_index` | 0 | 0 to the largest safe integer | First result within this retained page. |
+| `source_indices` | absent | 0 to `max_results` distinct increasing nonnegative safe integers | Explicit result indices from this retained page; mutually exclusive with an explicitly supplied `start_index`. |
 | `max_results` | 8 | 1–20 | Maximum result entries returned. |
 | `max_body_chars` | 800 | 0–65536 | Maximum verbatim content prefix per result. |
 | `max_total_body_chars` | 6400 | 0–262144 | Combined returned content budget. |
@@ -386,6 +391,36 @@ content truncation; and the existing recognized native pagination state.
 remains with the unchanged collector. A native ending covers only its original
 query, filters and cursor chain, and is never inferred from an empty rendering.
 Unknown pagination can accompany a structurally projected page.
+
+With `source_indices`, the helper parses the complete retained page once and then
+returns the selected entries in their original order. Only their content consumes
+the output budget. Input charging, framing, identity checks, source ranges and
+surrogate-safe clipping still cover the full source. This avoids invoking the
+projector separately for each nonadjacent result.
+
+The selector is copied. Holes, duplicate or unordered indices, negative or unsafe
+integers, too many entries, and an explicitly supplied `start_index` raise
+`TypeError`. After full source parsing, an index outside that page returns
+`REFUSED / SOURCE_INDEX_OUT_OF_RANGE` with no results and the parsed result count.
+Indices belong only to this retained response; they are not message timestamps
+or provider cursors and must not be reused for a different page.
+
+Sparse coverage adds `selection_mode: source_indices`, a copied
+`selected_source_indices`, `omitted_results`, `omitted_interior` and complete
+half-open `omitted_source_index_ranges` with `source_index_range_end: exclusive`.
+It reports `start_index: null`, `next_index: null` and
+`navigation: caller_selected_indices`. Leading and trailing omissions remain in
+`omitted_before` and `omitted_after`; content counts describe selected entries.
+An empty selector is valid: a nonempty page remains `PROJECTED`, all omissions
+are assigned to `omitted_after`, and its omitted range is `[0, parsed_results)`.
+An empty source remains `EMPTY_RENDERING`. Native pagination is independent of
+the selection, and no selector preserves the previous contiguous result shape.
+
+Actual bounty intake used indices `[0,1,6]` from a retained 12-result response.
+One selection returned all 8,857 selected content code units with omitted ranges
+`[[2,6],[7,12]]`; the previous per-result path required three projector calls for
+the identical entries. The ordinary overview remained JSON-identical, and no
+additional provider read was made. This measures parsing calls, not wall time.
 
 A complete content budget with every rendered result included still says nothing
 about omitted messages, unread threads, files, other queries or source changes.
