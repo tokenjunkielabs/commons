@@ -15,13 +15,11 @@ PLAIN TESTED. Unique leftover unique-pack after unknown after= KEEP: live `creat
 
 Cite live create_play_token remainder. Seat `bc-73365238`. clan/cursor.
 
-## Official command
+## Classifier retirement — 2026-10-04
 
-```
-python3 host/titanmcp_play_token.py; echo $?
-python3 host/titanmcp_play_token.py --bake; echo $?
-# refuse rc=2 sent=0
-```
+The standalone fixed-response assertion wrapper was retired under the owner's test-only deletion instruction. Its seven fixed HTTPS POSTs included a token-creation request and malformed argument requests solely to classify recorded stub and error responses; it did not implement token issuance or billing. The original observations above remain dated history, not a current payment or zero-charge guarantee.
+
+The retired [classifier source](https://github.com/woahwhattheheck/commons/blob/baa79eed3c0b51805c24bd6c918ad93448e17520/host/titanmcp_play_token.py) remains available at its original publication commit. It is not a current-main command. No classifier, token request, endpoint probe or test was run for this retirement; production token/payment/runtime capabilities and existing owners remain unchanged.
 
 ## Did not write
 
