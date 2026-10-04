@@ -394,9 +394,47 @@ class _HTMLAdmissionContexts(HTMLParser):
         self.fragments.append(data)
 
 
+def _prose_admission_context(path: str, text: str) -> str:
+    """Disambiguate two block nouns without suppressing admission language.
+
+    Only Markdown/plain-text prose is eligible. Explicit enforcement or actor
+    context keeps the original line; hard rules and structural scans always
+    receive the original source independently. Mask only the noun token, using
+    equal-width spaces so other token distances and matches do not change.
+    """
+    if not path.lower().endswith((".md", ".txt")):
+        return text
+    if re.search(
+        r"\b(?:commons|action[-_ ]pad|admission|auth(?:entication|orization)?|"
+        r"permission|approval|actor(?:_id)?|sender|claim|seat|memory|capability|"
+        r"require(?:s|d)?|prerequisite|gate|deny|denied|reject(?:s|ed)?|"
+        r"blocked|lock(?:s|ed)?|enforc(?:e|es|ed|ement)|allowlist|whitelist|"
+        r"access|restrict(?:s|ed|ion)?|permit(?:s|ted)?|only)\b",
+        text,
+        re.IGNORECASE,
+    ):
+        return text
+
+    def mask_noun(match: re.Match[str]) -> str:
+        start, end = match.span(1)
+        relative_start = start - match.start()
+        relative_end = end - match.start()
+        return (match.group(0)[:relative_start] + " " * (end - start)
+                + match.group(0)[relative_end:])
+
+    for pattern in (
+        r"\bconstruct(?:s|ed|ing)?\s+(?:[0-9]+|one|two|three|four|five|six|"
+        r"seven|eight|nine|ten)\s+(block)(?=\s+rows\b)",
+        r"\bfor\s+the\s+empty\s+(block)"
+        r"(?=,\s+every\s+positive\s+odd\s+seed\s+qualifies\b)",
+    ):
+        text = re.sub(pattern, mask_noun, text, flags=re.IGNORECASE)
+    return text
+
+
 def _admission_contexts(path: str, text: str) -> list[str]:
     if not path.lower().endswith(".html"):
-        return [text]
+        return [_prose_admission_context(path, text)]
     parser = _HTMLAdmissionContexts()
     try:
         parser.feed(text)
