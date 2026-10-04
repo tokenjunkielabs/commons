@@ -1,0 +1,241 @@
+{
+  "activation_count": 1,
+  "boundaries": {
+    "no_contact_or_relay_to_michael_clark": true,
+    "no_new_buyer_award_settlement_revenue_or_cash_claim": true,
+    "no_new_tests_fixtures_workflows": true,
+    "no_paid_compute": true,
+    "no_personal_meeting_commitment": true,
+    "open_door_no_auth": true,
+    "private_data_preserved": true
+  },
+  "claim": {
+    "projection_editing_complete_at_terminal_merge": true,
+    "release_after_final_readback": true,
+    "source_editing_complete": true
+  },
+  "coordination": {
+    "billing_notice_observed_at": "2026-10-04T02:58:28Z",
+    "billing_state": "Provider notice says existing subscription payment failed and access remains active for now; owner-only payment-method review was routed. No resolution or quota change inferred.",
+    "bounty_existing_owner_correction": {
+      "message_context": {
+        "channel_id": "C0BU51F1PL3",
+        "message_ts": "1791114838.617829"
+      },
+      "message_link": "https://tokenjunkielabs.slack.com/archives/C0BU51F1PL3/p1791114838617829?thread_ts=1790851459.659859&cid=C0BU51F1PL3"
+    },
+    "existing_owners_and_checkpoints_preserved": true,
+    "initial_claim_ts": "1791115048.752969",
+    "no_new_worker_roots": true,
+    "owner_billing_request": {
+      "message_context": {
+        "channel_id": "C0BU51F1PL3",
+        "message_ts": "1791114778.507219"
+      },
+      "message_link": "https://tokenjunkielabs.slack.com/archives/C0BU51F1PL3/p1791114778507219?thread_ts=1790977806.441259&cid=C0BU51F1PL3"
+    },
+    "terminal_claim_extension": {
+      "message_context": {
+        "channel_id": "C0BRGMDQB6G",
+        "message_ts": "1791115837.352579"
+      },
+      "message_link": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791115837352579?thread_ts=1791115048.752969&cid=C0BRGMDQB6G"
+    }
+  },
+  "current_terminal_watermark": {
+    "bounded_followon_scope": "Three paid diagnostic repairs, native commercial/incoming observations and existing publication-owner coordination; unread full-sweep history retains its previous exact lower bound.",
+    "current_main_snapshot_is_fully_swept": false,
+    "current_main_source_snapshot": "99c57b334399895cad775e4702dbd7ab92ab05b2",
+    "fully_collected_commit_range_head": "4462d621fcfa1d7c509395b0cde71a1e6717cbc2",
+    "fully_swept_window_upper": "2026-10-04T10:28:37Z",
+    "inherits_record_id": "resource-master-fast-point-counter-activation-20261004-01",
+    "publication_observations_after_upper_are_not_swept": true
+  },
+  "execution_receipt": {
+    "accepted_execution_not_repeated": true,
+    "collision_receipts": [
+      "LEAD_CONFLICT",
+      "FAULT_CONFLICT",
+      "REFERRAL_CONFLICT"
+    ],
+    "customer_provider_payment_effects": 0,
+    "exit_code": 0,
+    "inherited_category_exception_receipts": true,
+    "legacy_public_replays_restart_and_privacy_preserved": true,
+    "original_journals_unchanged": true,
+    "runtime": "Node v24.19.0",
+    "source": "inventory/resources/records/resource-master-paid-diagnostic-idempotency-20261004-01.json",
+    "synthetic_inputs_only": true
+  },
+  "id": "resource-master-paid-diagnostic-idempotency-terminal-20261004-01",
+  "observed_at": "2026-10-04T12:13:19Z",
+  "operation_id": "RESOURCE-MASTER-PAID-DIAGNOSTIC-IDEMPOTENCY-20261004-01",
+  "producing_product_count": 3,
+  "result": "MERGED_CURRENT_MAIN_READBACK_CONFIRMED",
+  "schema": "commons.resource_master.activation_terminal/v1",
+  "selected_resource": "paid-diagnostic-intake-engines",
+  "source_publication": {
+    "base_main_sha": "f63efc2494e1fac59ecc95ddfecba4ef12467580",
+    "current_main_readback": [
+      {
+        "content_matches": true,
+        "path": "dealer-service-lead-rescue.js",
+        "sha": "41c59053eeb6e993ed06299b55f3c2a437e561b8"
+      },
+      {
+        "content_matches": true,
+        "path": "plant-downtime-handoff.js",
+        "sha": "4df47f570afe6052f7aec67dd6468e4aff9ea862"
+      },
+      {
+        "content_matches": true,
+        "path": "referral-intake-completeness.js",
+        "sha": "34c5bd168bf380a05d888a36b14cac7fbc330184"
+      },
+      {
+        "content_matches": true,
+        "path": "ground/RESOURCE_LEDGER.json",
+        "sha": "6ad23e23fc228b599730f503d44344c3536d1d77"
+      },
+      {
+        "content_matches": true,
+        "path": "ground/RESOURCE_LEDGER.md",
+        "sha": "49e6d149552384e9ac6b9aa05563224febd4c077"
+      },
+      {
+        "content_matches": true,
+        "path": "resources.html",
+        "sha": "5dc64596c566443eea151598fca4e242f765a716"
+      },
+      {
+        "content_matches": true,
+        "path": "inventory/resources/records/resource-master-paid-diagnostic-idempotency-20261004-01.json",
+        "sha": "19c2b58fcc3a1522ad46c858c4c7ab16ec85fee4"
+      }
+    ],
+    "current_main_sha": "99c57b334399895cad775e4702dbd7ab92ab05b2",
+    "head_sha": "429107e01664164baba11d28375da57d4d6de3c0",
+    "immutable_merge_readback": [
+      {
+        "content_matches": true,
+        "expected_blob_sha": "41c59053eeb6e993ed06299b55f3c2a437e561b8",
+        "matches": true,
+        "observed_blob_sha": "41c59053eeb6e993ed06299b55f3c2a437e561b8",
+        "path": "dealer-service-lead-rescue.js"
+      },
+      {
+        "content_matches": true,
+        "expected_blob_sha": "4df47f570afe6052f7aec67dd6468e4aff9ea862",
+        "matches": true,
+        "observed_blob_sha": "4df47f570afe6052f7aec67dd6468e4aff9ea862",
+        "path": "plant-downtime-handoff.js"
+      },
+      {
+        "content_matches": true,
+        "expected_blob_sha": "34c5bd168bf380a05d888a36b14cac7fbc330184",
+        "matches": true,
+        "observed_blob_sha": "34c5bd168bf380a05d888a36b14cac7fbc330184",
+        "path": "referral-intake-completeness.js"
+      },
+      {
+        "content_matches": true,
+        "expected_blob_sha": "6ad23e23fc228b599730f503d44344c3536d1d77",
+        "matches": true,
+        "observed_blob_sha": "6ad23e23fc228b599730f503d44344c3536d1d77",
+        "path": "ground/RESOURCE_LEDGER.json"
+      },
+      {
+        "content_matches": true,
+        "expected_blob_sha": "49e6d149552384e9ac6b9aa05563224febd4c077",
+        "matches": true,
+        "observed_blob_sha": "49e6d149552384e9ac6b9aa05563224febd4c077",
+        "path": "ground/RESOURCE_LEDGER.md"
+      },
+      {
+        "content_matches": true,
+        "expected_blob_sha": "5dc64596c566443eea151598fca4e242f765a716",
+        "matches": true,
+        "observed_blob_sha": "5dc64596c566443eea151598fca4e242f765a716",
+        "path": "resources.html"
+      },
+      {
+        "content_matches": true,
+        "expected_blob_sha": "19c2b58fcc3a1522ad46c858c4c7ab16ec85fee4",
+        "matches": true,
+        "observed_blob_sha": "19c2b58fcc3a1522ad46c858c4c7ab16ec85fee4",
+        "path": "inventory/resources/records/resource-master-paid-diagnostic-idempotency-20261004-01.json"
+      }
+    ],
+    "merge_sha": "872b858bd687eb7b68ddd4ee4b48ca0db6f61dd9",
+    "pull_request": "https://github.com/woahwhattheheck/commons/pull/31242"
+  },
+  "source_record_id": "resource-master-paid-diagnostic-idempotency-20261004-01",
+  "work_brief": {
+    "continue_beyond_first_completion": true,
+    "disabled_tasks_untouched": true,
+    "existing_enablement_and_schedule_unchanged": true,
+    "multiple_independent_producing_tasks": true,
+    "revenue_priority": true
+  },
+  "workflow_observation": {
+    "asynchronous_checks_not_repeated": true,
+    "checks": [
+      {
+        "conclusion": "skipped",
+        "html_url": "https://github.com/woahwhattheheck/commons/actions/runs/37201147549/job/111432928106",
+        "name": "regenerate-or-alarm",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "html_url": "https://github.com/woahwhattheheck/commons/actions/runs/37201147533/job/111432927716",
+        "name": "notice",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "html_url": "https://github.com/woahwhattheheck/commons/actions/runs/37201147639/job/111432927404",
+        "name": "observe",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "html_url": "https://github.com/woahwhattheheck/commons/actions/runs/37201147586/job/111432927394",
+        "name": "reject-added-locks",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "html_url": "https://github.com/woahwhattheheck/commons/actions/runs/37201147606/job/111432927377",
+        "name": "guard",
+        "status": "completed"
+      },
+      {
+        "conclusion": null,
+        "html_url": "https://github.com/woahwhattheheck/commons/actions/runs/37201147567/job/111432927356",
+        "name": "product-lifecycle",
+        "status": "in_progress"
+      },
+      {
+        "conclusion": "success",
+        "html_url": "https://github.com/woahwhattheheck/commons/actions/runs/37201147577/job/111432927341",
+        "name": "parse",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "html_url": "https://github.com/woahwhattheheck/commons/actions/runs/37201147567/job/111432927294",
+        "name": "focused",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "html_url": "https://github.com/woahwhattheheck/commons/actions/runs/37201147549/job/111432927198",
+        "name": "check",
+        "status": "completed"
+      }
+    ],
+    "total": 9,
+    "workflow_success_is_not_deployment": true
+  }
+}
