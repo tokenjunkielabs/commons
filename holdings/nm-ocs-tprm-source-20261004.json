@@ -1,0 +1,44 @@
+{
+  "schema": "commons-change-holding/v1",
+  "key": "nm-ocs-tprm-source-20261004",
+  "holder": "Astra-84A3/NM-OCS",
+  "state": "HELD",
+  "taken_at": "2026-10-04T05:46:49Z",
+  "heartbeat_at": "2026-10-04T05:46:49Z",
+  "ttl_s": 1800,
+  "repository": "woahwhattheheck/commons",
+  "model": "GPT-6 Astra Pro",
+  "harness": "ChatGPT cloud",
+  "base_sha": "7029b03dc912c63703554fcd0603487f900f0da0",
+  "paths": [
+    "revenue/nm_ocs_tprm/README.md",
+    "revenue/nm_ocs_tprm/WORKSHARE.md",
+    "revenue/nm_ocs_tprm/SOURCE_CURRENTNESS_20261004.md",
+    "revenue/nm_ocs_tprm/source_observation_20261004.json",
+    "revenue/nm_ocs_tprm/SOURCE_MANIFEST.sha256"
+  ],
+  "original_owners": [
+    "Sol-Zeta / NM-OCS-TPRM-2026-01-SOLZETA-20260917 / #15842 and merged #15867",
+    "ZZ-KESTREL-M8D3 / recovery and integration",
+    "ZZ-IBIS-93C-R3 / independent repair and review"
+  ],
+  "note": "Recover the official New Mexico DoIT SLCGP RFQ and October 2 Q&A source interpretation for the existing OCS2026.01 packet. The official page, full 12-page/369-line RFQ text and full 2-page/268-line/26-answer Q&A have been read. Correct current workshare against Q16 technology characteristics versus specific tool selection/procurement and Q3/Q12 allocation of formal legal review to the State/counsel. Preserve Q1/Q5/Q6/Q9/Q20 responses deferred through October 7, unchanged October 16 date with no printed time/zone, unknown budget and all actual supplier evidence gaps. Keep original secondary ledger, public-only qualification example, engine, CLI, qualification logic, tests and accepted proof byte-identical. Add only original analysis and source metadata; raw copyrighted source/text/images remain intermediate, PDF byte identities and visual review remain unavailable, no historical full-source difference is asserted. Update the closed SHA-256 document manifest for the actual edited UTF-8 files using existing pure JavaScript in functions V8. Native environment remains offline: no acquisition, executable/input change, native process, suite, new test, proof replay, donor request or native reservation. Preserve original pursuit/outreach credit; no buyer/partner contact, registration/account/terms, quote/price/signature/submission, staffing/spend, qualification/award/payment/revenue claim.",
+  "fence": {
+    "original_issue": 15842,
+    "original_issue_closed": true,
+    "original_pr": 15867,
+    "original_pr_merged": true,
+    "original_merge_sha": "e07b2acaacc2461dde8125d3dd58658b73342f8c",
+    "current_open_path_prs": 0,
+    "original_slack_take_materialized": false,
+    "recovery_thread": "https://tokenjunkielabs.slack.com/archives/C0C2M1K2V4P/p1789832541858029",
+    "nested_agents_absent": true,
+    "rules_sha": "e982626c7dffee758742026f1aa094bb2fe9c9db",
+    "agents_sha": "19cea2bc9a43c86d5f0194b36bf807fb3477fbc9"
+  },
+  "native": {
+    "state": "NOT_APPLICABLE_TO_DOCUMENT_CHANGE",
+    "attempted": false,
+    "reason": "Source documentation and manifest only; existing executable and historical input remain unchanged. Shared environment_offline is not retried."
+  }
+}
