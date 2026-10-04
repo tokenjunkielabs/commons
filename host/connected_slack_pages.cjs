@@ -929,6 +929,227 @@ function projectSlackSearchResults(response, request, options = {}) {
   }
 }
 
+
+/**
+ * Select one native response from a retained collector, then use an unchanged
+ * single-page projector. Metadata consistency is not authentication.
+ */
+function projectCollectedSlackPage(collection, options, operations, projector) {
+  object(options, 'collected projection options');
+  for (const key of Object.keys(options)) {
+    if (!['page_index', 'projection'].includes(key)) {
+      throw new TypeError('unknown collected projection option: ' + key);
+    }
+  }
+  if (options.page_index !== undefined &&
+      (!Number.isSafeInteger(options.page_index) || options.page_index < 0)) {
+    throw new TypeError('page_index must be a nonnegative safe integer');
+  }
+  const projectionOptions = options.projection === undefined ? {} :
+    object(options.projection, 'collected projection options.projection');
+  const result = {
+    schema: 'commons.connected_slack_collected_projection/v1',
+    status: 'REFUSED',
+    collector: {
+      metadata_binding: 'caller_retained_collector_consistency_only',
+      authentication: 'not_performed', snapshot: false,
+      projection_scope: 'one_retained_native_response',
+    },
+    limits: {max_recorded_pages: 1000, max_retained_responses: 1000,
+      max_metadata_chars: 65536},
+    projection: null, issue: null,
+  };
+  const fail = (code, detail) => { throw {collectedProjection: true, code, detail}; };
+  const record = (value, label) => {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) {
+      fail('INVALID_COLLECTOR', label + ' must be an object.');
+    }
+    return value;
+  };
+  let metadataChars = 0;
+  const textMetadata = (value, label, nullable = false) => {
+    if (nullable && value === null) return null;
+    if (typeof value !== 'string') fail('INVALID_COLLECTOR', label + ' must be a string.');
+    metadataChars += value.length;
+    if (metadataChars > result.limits.max_metadata_chars) {
+      fail('COLLECTOR_METADATA_LIMIT', 'Recorded metadata exceeds max_metadata_chars.');
+    }
+    return value;
+  };
+  const dense = (value, maximum, label) => {
+    if (!Array.isArray(value) || value.length > maximum) {
+      fail('INVALID_COLLECTOR', label + ' must be a bounded array.');
+    }
+    for (let i = 0; i < value.length; i++) {
+      if (!Object.prototype.hasOwnProperty.call(value, i)) {
+        fail('INVALID_COLLECTOR', label + ' must not contain holes.');
+      }
+    }
+  };
+  try {
+    record(collection, 'collector');
+    if (collection.schema !== 'commons.connected_slack_pages/v1') {
+      fail('UNSUPPORTED_COLLECTOR_SCHEMA', 'Expected commons.connected_slack_pages/v1.');
+    }
+    const operation = collection.operation;
+    if (!operations.includes(operation)) {
+      fail('COLLECTOR_OPERATION_MISMATCH', 'Collector operation does not match this projector.');
+    }
+    const spec = OPERATIONS[operation];
+    if (collection.binding !== spec.binding) {
+      fail('COLLECTOR_BINDING_MISMATCH', 'Collector binding does not match its operation.');
+    }
+    const request = record(collection.request, 'collector.request');
+    if (Object.keys(request).some(key =>
+      !['operation', 'args', 'max_pages', 'timeout_ms'].includes(key)) ||
+      request.operation !== operation ||
+      !Number.isSafeInteger(request.max_pages) || request.max_pages < 1 ||
+      !Number.isSafeInteger(request.timeout_ms) || request.timeout_ms < 1) {
+      fail('COLLECTOR_REQUEST_MISMATCH', 'Collector request must retain its normalized operation and budgets.');
+    }
+    const argumentSignature = args => {
+      record(args, 'recorded request arguments');
+      const keys = Object.keys(args).sort();
+      if (keys.length > spec.fields.length || keys.some(key => !spec.fields.includes(key))) {
+        fail('COLLECTOR_REQUEST_MISMATCH', 'Recorded arguments contain an unsupported field.');
+      }
+      if (args.response_format !== 'detailed' || !Number.isSafeInteger(args.limit) ||
+          args.limit < 1 || args.limit > spec.maximumLimit) {
+        fail('COLLECTOR_REQUEST_MISMATCH', 'Recorded arguments must retain normalized format and limit.');
+      }
+      const entries = [];
+      for (const key of keys) {
+        const value = args[key];
+        if (key === 'keywords') {
+          dense(value, 1000, 'recorded keywords');
+          for (const term of value) textMetadata(term, 'recorded keyword');
+        } else if (['include_bots', 'include_context', 'only_my_channels'].includes(key)) {
+          if (typeof value !== 'boolean') fail('COLLECTOR_REQUEST_MISMATCH', 'Recorded flag must be boolean.');
+        } else if (key === 'limit' || key === 'max_context_length') {
+          if (!Number.isSafeInteger(value) || value < (key === 'limit' ? 1 : 0)) {
+            fail('COLLECTOR_REQUEST_MISMATCH', 'Recorded numeric argument is invalid.');
+          }
+        } else {
+          textMetadata(value, 'recorded ' + key);
+        }
+        if (key !== 'cursor') entries.push([key, value]);
+      }
+      if (args.cursor !== undefined && !args.cursor.trim()) {
+        fail('COLLECTOR_REQUEST_MISMATCH', 'Recorded cursor must be nonempty.');
+      }
+      return {base: JSON.stringify(entries), cursor: args.cursor ?? null};
+    };
+    const base = argumentSignature(request.args);
+    dense(collection.pages, result.limits.max_recorded_pages, 'collector.pages');
+    dense(collection.responses, result.limits.max_retained_responses, 'collector.responses');
+    const pages = collection.pages, responses = collection.responses;
+    const summary = record(collection.summary, 'collector.summary');
+    if (pages.length > request.max_pages || summary.calls !== pages.length ||
+        summary.retained_responses !== responses.length ||
+        !Number.isSafeInteger(summary.successful_pages) || summary.successful_pages < 0 ||
+        summary.successful_pages > responses.length || summary.snapshot !== false ||
+        summary.coverage !== 'native_pagination_only' ||
+        typeof summary.provider_end_observed !== 'boolean') {
+      fail('INVALID_COLLECTOR', 'Collector counts or coverage metadata are inconsistent.');
+    }
+    textMetadata(summary.stop_reason, 'collector stop_reason');
+    textMetadata(summary.next_cursor, 'collector next_cursor', true);
+    let responseIndex = 0, cursor = base.cursor;
+    for (let i = 0; i < pages.length; i++) {
+      const page = record(pages[i], 'recorded page');
+      if (page.call !== i + 1) fail('INVALID_COLLECTOR', 'Recorded call order is inconsistent.');
+      const actual = argumentSignature(page.request_args);
+      if (actual.base !== base.base || actual.cursor !== cursor) {
+        fail('COLLECTOR_REQUEST_MISMATCH', 'Recorded page arguments do not match the request cursor chain.');
+      }
+      textMetadata(page.pagination_info, 'page pagination_info', true);
+      textMetadata(page.next_cursor, 'page next_cursor', true);
+      if (typeof page.provider_end_observed !== 'boolean') {
+        fail('INVALID_COLLECTOR', 'Recorded page ending must be boolean.');
+      }
+      if (page.response_index === null) {
+        if (i !== pages.length - 1 || !page.error ||
+            summary.stop_reason !== 'NATIVE_EXCEPTION') {
+          fail('COLLECTOR_RESPONSE_MAPPING', 'Only a final native exception may lack a retained response.');
+        }
+      } else if (page.response_index !== responseIndex++ ||
+          !Number.isSafeInteger(page.response_index) ||
+          page.response_index < 0 || page.response_index >= responses.length) {
+        fail('COLLECTOR_RESPONSE_MAPPING', 'Each retained response must have one ordered page mapping.');
+      }
+      if (i + 1 < pages.length) {
+        if (page.error || page.callback_error || page.provider_end_observed ||
+            typeof page.next_cursor !== 'string' || !page.next_cursor.trim()) {
+          fail('COLLECTOR_REQUEST_MISMATCH', 'A stopped page cannot have a following recorded call.');
+        }
+        cursor = page.next_cursor;
+      }
+    }
+    if (responseIndex !== responses.length) {
+      fail('COLLECTOR_RESPONSE_MAPPING', 'Collector has unmapped retained responses.');
+    }
+    if (summary.successful_pages !== pages.filter(page => !page.error).length ||
+        summary.provider_end_observed !== pages.some(page => !page.error && page.provider_end_observed)) {
+      fail('INVALID_COLLECTOR', 'Collector success or ending summary differs from its recorded pages.');
+    }
+    Object.assign(result.collector, {
+      operation, binding: collection.binding, recorded_pages: pages.length,
+      retained_responses: responses.length, metadata_chars: metadataChars,
+      reported_stop_reason: summary.stop_reason,
+      reported_provider_end_observed: summary.provider_end_observed,
+      reported_next_cursor: summary.next_cursor,
+    });
+    if (!pages.length) fail('NO_RECORDED_PAGE', 'Collector has no recorded page to select.');
+    if (options.page_index === undefined && pages.length !== 1) {
+      fail('PAGE_SELECTION_REQUIRED', 'Supply page_index for a collector with multiple recorded pages.');
+    }
+    const selected = options.page_index ?? 0;
+    if (selected >= pages.length) fail('PAGE_INDEX_OUT_OF_RANGE', 'page_index is outside collector.pages.');
+    const page = pages[selected];
+    Object.assign(result.collector, {
+      selection_mode: options.page_index === undefined ? 'single_page_default' : 'explicit_page_index',
+      page_index: selected, call: page.call, response_index: page.response_index,
+      page_source_path: 'pages[' + selected + ']',
+      response_source_path: page.response_index === null ? null : 'responses[' + page.response_index + ']',
+      omitted_pages: pages.length - 1,
+      omitted_page_index_ranges: [
+        ...(selected ? [[0, selected]] : []),
+        ...(selected + 1 < pages.length ? [[selected + 1, pages.length]] : []),
+      ],
+      page_index_range_end: 'exclusive',
+      unselected_responses: responses.length - (page.response_index === null ? 0 : 1),
+      selected_page_error_recorded: !!page.error,
+      selected_callback_error_recorded: !!page.callback_error,
+    });
+    if (page.response_index === null) {
+      fail('SELECTED_PAGE_HAS_NO_RESPONSE', 'The selected native call has no retained response; inspect its original error.');
+    }
+    // Original response and arguments stay untouched. The page projector keeps
+    // its own payload, request, source-range, refusal and content-budget rules.
+    result.projection = projector(responses[page.response_index],
+      {operation, args: copy(page.request_args)}, projectionOptions);
+    result.status = result.projection.status;
+    result.issue = result.projection.issue;
+    return result;
+  } catch (error) {
+    if (!error?.collectedProjection) throw error;
+    result.collector.metadata_chars = metadataChars;
+    result.issue = {code: error.code, detail: error.detail};
+    return result;
+  }
+}
+
+function projectSlackCollectedMessages(collection, options = {}) {
+  return projectCollectedSlackPage(collection, options,
+    ['read_channel', 'read_thread'], projectSlackMessages);
+}
+
+function projectSlackCollectedSearchResults(collection, options = {}) {
+  return projectCollectedSlackPage(collection, options,
+    ['search', 'search_public'], projectSlackSearchResults);
+}
+
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {collectSlackPages, projectSlackMessages, projectSlackSearchResults, projectSlackReadFailure};
+  module.exports = {collectSlackPages, projectSlackMessages, projectSlackSearchResults, projectSlackReadFailure,
+    projectSlackCollectedMessages, projectSlackCollectedSearchResults};
 }
