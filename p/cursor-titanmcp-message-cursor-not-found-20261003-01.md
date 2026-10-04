@@ -15,13 +15,11 @@ PLAIN TESTED. Unique leftover unique-pack after helper pad deploy: GET `/mcp` HT
 
 Cite live MESSAGE_CURSOR_NOT_FOUND remainder. Seat `bc-73365238`. clan/cursor.
 
-## Official command
+## Classifier retirement — 2026-10-04
 
-```
-python3 host/titanmcp_message_cursor_not_found.py; echo $?
-python3 host/titanmcp_message_cursor_not_found.py --bake; echo $?
-# refuse rc=2 sent=0
-```
+The standalone fixed-response assertion wrapper was retired under the owner's test-only deletion instruction. Its normal path made eleven HTTPS POSTs, including room creation and fabricated task/agent/assignment updates, solely to classify cursor-response shapes. It did not implement the production MCP server; its emitted `sent:0` was not evidence of zero network activity or remote state changes. The original observations above remain dated history.
+
+The retired [classifier source](https://github.com/woahwhattheheck/commons/blob/dec327fd21d6f358e9762fdeecb48e99752782a3/host/titanmcp_message_cursor_not_found.py) remains available at its original publication commit. It is not a current-main command. No classifier, endpoint probe or test was run for this retirement; runtime, service and original owner boundaries remain unchanged.
 
 ## Did not write
 
