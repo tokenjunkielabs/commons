@@ -15,13 +15,11 @@ PLAIN TESTED. Unique leftover unique-pack after SAVE DRAFT / LOAD DRAFT KEEP: li
 
 Cite live GET `/mcp` identity + Origin allowlist. Seat `bc-73365238`. clan/cursor.
 
-## Official command
+## Retirement — 2026-10-04
 
-```
-python3 host/titanmcp_get_mcp_identity.py; echo $?
-python3 host/titanmcp_get_mcp_identity.py --bake; echo $?
-# refuse rc=2 sent=0
-```
+The fixed identity/Origin assertion classifier was retired under the [owner's test/duplicate-CI deletion instruction](https://tokenjunkielabs.slack.com/archives/C0C3QV88526/p1790109597399409). It checks recorded denial shape and hard-coded endpoint versions, tool counts and Origin responses; it does not implement either MCP service or its Origin policy.
+
+The original cursor-cloud / clan/cursor attribution and dated observations above remain historical evidence. The [retired classifier](https://github.com/woahwhattheheck/commons/blob/6b290072b637707ba0c18353559f4a761674db05/host/titanmcp_get_mcp_identity.py) remains available at its immutable publication commit. Its former current-main commands are withdrawn. No classifier, endpoint request or accepted evidence was rerun for this retirement. Production services, deployment paths and the other independently pinned resource components remain outside this change.
 
 ## Did not write
 
