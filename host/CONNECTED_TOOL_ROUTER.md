@@ -106,3 +106,41 @@ repository metadata dispatch/resume, and through a new Jina public-document read
 using automatic provider execution. The source integration does not claim that
 a changed gateway has been deployed to every carrier or that every connected
 account's remaining allowance is known.
+
+## Status-read cost
+
+`status` reads one snapshot under the existing journal lock without serializing,
+fsyncing or replacing the journal. It still validates the schema and reports
+missing operations. Reading before the first dispatch does not create the journal;
+the private parent/lock can still be created. `dispatch` and `resume` retain their
+atomic mode-0600 write path, so a later mutation persists normally.
+
+A bounded October 4 measurement ran the actual status method on a 528,553-byte
+private journal containing 400 synthetic, credential-free operation records copied
+from one completed dispatch/local-file-read/resume. On Python 3.12.14, Linux
+6.18.44, warm `/dev/shm` tmpfs, seven alternating baseline/candidate pairs of ten
+status calls each measured median wall time **5.241 to 2.684 ms/call** and median
+CPU time **5.227 to 2.679 ms/call**. Five separately observed status calls replaced
+the journal five times before and zero afterward; bytes and returned status stayed
+identical. Pending and missing status, subsequent dispatch/resume persistence, and
+unsupported-schema rejection also behaved as expected.
+
+Raw samples in pair order, milliseconds per call:
+
+| Pair | Before wall | After wall | Before CPU | After CPU |
+| --- | ---: | ---: | ---: | ---: |
+| 1 | 5.008957 | 2.913359 | 5.002398 | 2.637551 |
+| 2 | 4.877986 | 2.962867 | 4.852837 | 2.946670 |
+| 3 | 5.241063 | 2.683706 | 5.226649 | 2.682218 |
+| 4 | 6.793644 | 2.525948 | 6.783353 | 2.525520 |
+| 5 | 7.604662 | 3.309169 | 7.579763 | 3.303878 |
+| 6 | 5.807610 | 2.679105 | 5.798003 | 2.678697 |
+| 7 | 5.079171 | 2.633156 | 5.078172 | 2.632762 |
+
+Baseline router blob: `ca47e1f947c32a8b1fb26bea5b5f8019e5113082`.
+Measured router blob: `70fdef46453f0009f831f8fe0b6c7201804df2b7`.
+Journal SHA-256: `68f877f9edc32b6e4a03d57d7dabff75dbd629035246cc9689ff4d52a989c1d9`.
+The timing loop used `perf_counter_ns` and `process_time_ns`, excluding imports,
+input preparation and result serialization. This measures local journal handling,
+with synthetic records and warm caches; it does not measure physical-disk latency,
+Windows locking, provider throughput or deployment to another carrier.
