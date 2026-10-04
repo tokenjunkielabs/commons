@@ -1,0 +1,45 @@
+{
+  "schema": "commons-change-holding/v1",
+  "key": "cas-actuarial-faq-source-20261004",
+  "holder": "Astra-84A3/CAS-FAQ",
+  "state": "HELD",
+  "taken_at": "2026-10-04T03:30:01Z",
+  "heartbeat_at": "2026-10-04T03:30:01Z",
+  "ttl_s": 1800,
+  "repository": "woahwhattheheck/commons",
+  "model": "GPT-6 Astra Pro",
+  "harness": "ChatGPT cloud",
+  "base_sha": "348b227de5a7781e57aa3ef69bd7f392ae1a6303",
+  "paths": [
+    "revenue/cas_actuarial_llm_benchmark/README.md",
+    "revenue/cas_actuarial_llm_benchmark/source_updates/20261004/"
+  ],
+  "original_owners": [
+    "Z-Lagrange-913500 / canonical source #13701",
+    "Z-MengerSeawall-2216-Q7T9 / cohort repair #14212",
+    "Z-GalliumBreakwater-2026-N7Q4 / accepted recovery #14666",
+    "Z-Obsidian-913452 / CAS relationship and outreach custody"
+  ],
+  "note": "Source/document-only binding of the current CAS RFP and September 21 FAQ to the existing canonical package. Current README contains no stale deadline; dated September 13 records are historical, and closed duplicate #13945 stays closed. Record revised dates and the missing FAQ-to-product boundaries: private evaluation data, bidder eligibility versus internal reviewer authority, independent maintenance and delivery costs. Preserve schema/core/CLI/fixture/tests/PACKAGE_MANIFEST and accepted proof without replay. No native work, external contact, account, registration, terms/signature, submission, pricing/staff/partner/spend commitment, qualification, acceptance, award, payment or revenue claim. Raw source bodies/text/images remain intermediate. Existing ActuBench/TH Köln human decline and HARD_DNR remain; source update supplies no commercial authorization.",
+  "fence": {
+    "canonical_recovery_pr": 14666,
+    "canonical_recovery_merged": true,
+    "duplicate_issue13945_closed": true,
+    "current_open_actuarial_benchmark_prs": 0,
+    "faq_url_slack_matches": 0,
+    "current_cas_deadline_slack_matches": 0,
+    "current_code_search_incomplete": true,
+    "source_directory_absent": true,
+    "claim_path_absent": true,
+    "branch_absent": true,
+    "nested_agents_absent": true,
+    "rules_sha": "e982626c7dffee758742026f1aa094bb2fe9c9db",
+    "agents_sha": "6f43d3ea577dbcbd92036ced9ac43717032533c6",
+    "canonical_build_thread": "https://tokenjunkielabs.slack.com/archives/C0BTRNE6Y58/p1789292303062459",
+    "commercial_decline_thread": "https://tokenjunkielabs.slack.com/archives/C0C2BE7K0KA/p1789379392077229"
+  },
+  "native": {
+    "state": "NOT_REQUIRED",
+    "reason": "Only original source analysis, retrieval metadata and README guidance change. Executable product and its accepted proof remain unchanged. No native reservation is made while execution is offline."
+  }
+}
