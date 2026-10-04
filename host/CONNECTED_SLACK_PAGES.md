@@ -6,7 +6,7 @@ Use `projectSlackMessages` below for a bounded view of retained detailed channel
 
 ## Load and use
 
-The module exports `collectSlackPages(tools, request, options?)` and the pure `projectSlackMessages(response, request, options?)`. In a Node environment, load it with `require('./host/connected_slack_pages.cjs')` and supply the native tools object. In a code-mode runtime with connected tools:
+The module exports `collectSlackPages(tools, request, options?)`, `projectSlackMessages(response, request, options?)`, and `projectSlackSearchResults(response, request, options?)`. Both projectors are pure. In a Node environment, load it with `require('./host/connected_slack_pages.cjs')` and supply the native tools object. In a code-mode runtime with connected tools:
 
 ```js
 const source = await tools.mcp__codex_apps__github_fetch_file({
@@ -156,3 +156,169 @@ Every returned prefix matched its recorded source range, and all three original 
 An actual retained channel response containing only its matching header now returns `EMPTY_RENDERING` with zero parsed messages. A nonempty channel page and a four-message thread remain JSON-identical to the preceding projector result. Three separately controlled variations—unframed trailing content, a mismatched requested channel, and a truncated message header—retain their original refusal results.
 
 One fresh channel read through the unchanged collector returned the same empty form and projected successfully. Its provider ending applies only to the captured time window. The original native responses and the collector source remain unchanged; no OS process, suite or fixture was used.
+
+
+## Project a retained search result page
+
+The separate pure export `projectSlackSearchResults(response, request, options?)`
+projects the detailed message-only search format. It consumes an already retained
+response and the exact arguments of the call that produced it. It does not make
+a search, follow a link, parse claims, filter source records or modify either input.
+
+Pass `{operation: 'search', args: actualNativeArguments}`. With the collector,
+use `pages[].request_args` and its corresponding `responses[response_index]`,
+as with the message projector. With a direct native search, retain its actual
+argument object beside the original response. Do not reconstruct arguments from
+the query heading or substitute a narrower query after capture.
+
+The request must explicitly contain `include_context: false`. Its format may be
+`detailed` or omitted when the returned grammar is detailed. If `content_types`
+was supplied, this projector supports only `messages`. Context-enabled, concise
+and file-inclusive requests return `REFUSED / UNSUPPORTED_REQUEST`; the original
+native response remains available for other consumers. An omitted content-types
+option is accepted only when the actual response has the supported messages
+format. Unknown argument fields, invalid argument types and invalid options
+throw `TypeError`.
+
+### Inspect full source blocks before selecting text
+
+Use the complete result block, including its rendered channel header, when the
+caller needs to exclude source records before printing or deeper intake. A short
+content prefix is insufficient for that decision. This example uses a caller-owned
+exclusion function and reuses one retained response throughout:
+
+```js
+const request = {operation: 'search', args: page.request_args};
+const response = collection.responses[page.response_index];
+const index = box.exports.projectSlackSearchResults(response, request, {
+  max_results: 20,
+  max_body_chars: 0,
+  max_total_body_chars: 0
+});
+store('retained-search-index', index);
+
+if (index.status === 'REFUSED') {
+  text(index.issue);
+} else {
+  // The successful projection checked that supplied representations agree.
+  const native = response.structuredContent ??
+    (typeof response.results === 'string' ? response :
+      JSON.parse(response.content[0].text));
+  for (const row of index.results) {
+    const wholeSource = native.results.slice(...row.rendered_result_range);
+    if (callerExcludes(wholeSource)) continue;
+    const selected = box.exports.projectSlackSearchResults(response, request, {
+      start_index: row.source_index,
+      max_results: 1,
+      max_body_chars: 700,
+      max_total_body_chars: 700
+    });
+    text(selected.results[0]);
+  }
+}
+```
+
+`callerExcludes` belongs to the calling application; this helper supplies no
+policy expression or ownership decision. Keep the native response and query
+private. The returned `source.request_args` is an exact JSON copy of the supplied
+native arguments and may itself contain private search terms.
+
+| Option | Default | Accepted range | Meaning |
+| --- | ---: | ---: | --- |
+| `start_index` | 0 | 0 to the largest safe integer | First result within this retained page. |
+| `max_results` | 8 | 1–20 | Maximum result entries returned. |
+| `max_body_chars` | 800 | 0–65536 | Maximum verbatim content prefix per result. |
+| `max_total_body_chars` | 6400 | 0–262144 | Combined returned content budget. |
+| `max_input_chars` | 1048576 | 1–8388608 | Combined processed request and native payload text budget. |
+
+All counts and ranges use UTF-16 code units. Prefix clipping preserves a complete
+surrogate pair. The input budget charges serialized native arguments and then
+each supplied representation: encoded text for native JSON blocks, or both
+decoded payload strings for structured/direct payloads. Multiple representations
+each consume the budget and must agree exactly. The response already exists
+before projection; this option does not bound provider allocation. Metadata is
+additional to the returned content budget.
+
+### Exact ranges and limited identity meaning
+
+Each `results[]` entry supplies:
+
+- `source_index`, the exact rendered `channel_id` and decimal-string
+  `message_ts`, and its verbatim `permalink`.
+- `rendered_result_range`, a half-open range into the decoded native `results`
+  string. It begins at `### Result` and includes the Channel line, remaining
+  header fields and complete result content. It excludes only the recognized
+  fixed trailing result separator.
+- `header_range`, from that same start through the native `Text:` header line,
+  and `rendered_content_range`, from the following content character through
+  the end of the result block.
+- `rendered_content`, the bounded verbatim prefix; `content_chars`,
+  `returned_chars` and `truncated` describe what was returned.
+
+The parser recognizes one detailed `## Messages (N results)` section with
+1–20 numbered result headers and the observed final separator. It checks the
+declared count, numbering and distinct channel/message pairs. Permalink channel
+and timestamp digits must agree with the rendered header. A single optional
+`Participants:` header line is retained as opaque header text, including the
+observed DM form. Author names, participant names, time labels and IDs are never
+used to authenticate a person or infer channel membership, ownership or thread
+custody. No parent timestamp is inferred from a search permalink.
+
+Channel binding is `rendered_result_header`. Request binding is
+`caller_retained_request`: the function records the supplied request-response
+pair but does not independently prove which call returned the response.
+It does not infer a channel restriction from query text. Header and permalink
+agreement describe the captured rendering, not Slack's raw stored text.
+A fully provider-looking record authored inside content can be indistinguishable
+from framing; successful parsing is not an authenticity assertion.
+
+Detected incomplete framing, count or numbering mismatch, repeated identities,
+inconsistent permalinks, conflicting representations, file sections and reserved
+search/context framing lines refuse with an issue code and no result entries.
+The original response is unchanged. A structurally complete rendering does not
+prove that the provider returned the complete authored message body.
+
+### Page coverage and navigation
+
+The statuses are `PROJECTED`, `EMPTY_RENDERING` and `REFUSED`. Only the exact
+observed `No results found.` rendering after the search preamble is accepted
+as an empty page. It describes that retained query and cursor, not a global
+empty work queue or full workspace search.
+
+Coverage reports declared, parsed and returned result counts; omitted results;
+content truncation; and the existing recognized native pagination state.
+`next_index` advances through this retained page only. Provider cursor handling
+remains with the unchanged collector. A native ending covers only its original
+query, filters and cursor chain, and is never inferred from an empty rendering.
+Unknown pagination can accompany a structurally projected page.
+
+A complete content budget with every rendered result included still says nothing
+about omitted messages, unread threads, files, other queries or source changes.
+The existing collector and channel/thread projector keep their previous APIs
+and outputs. Neither acquires automatic search projection or filtering.
+
+### Native search use, 2026-10-04
+
+The new function was loaded directly in V8 and consumed an actual retained
+three-result native search containing 3815 rendered code units. A bounded view
+returned its first result with exactly 80 content code units and two results
+omitted. Its whole-result range included the Channel header, and its prefix
+matched the recorded source offset exactly. Selecting `next_index: 1` returned
+the remaining two complete content ranges without another native call.
+
+An actual exact-name search with the native zero-result rendering returned
+`EMPTY_RENDERING`. A separately retained context-enabled search returned
+`REFUSED / UNSUPPORTED_REQUEST` using its actual request. The DM Participants
+form was observed in a header excerpt supplied by the immediate consumer;
+that excerpt alone is not a complete positive-response observation.
+
+Three separately controlled changes to the retained three-result source were
+also observed: cutting the final separator refused as `UNSUPPORTED_LAYOUT`,
+repeating a result number refused as `RESULT_SEQUENCE_MISMATCH`, and conflicting
+supplied payload mirrors refused as `CONFLICTING_REPRESENTATIONS`. These were
+scratch ambiguity observations, not native responses or a repository suite.
+
+Both existing function bodies remain byte-identical. Actual retained parent-only
+and parent-plus-one-reply responses produced JSON-identical message projections
+before and after the addition. The search response and request remained unchanged.
+No OS process, fixture, test file, dependency or workflow was added.
