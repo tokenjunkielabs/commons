@@ -15,13 +15,11 @@ PLAIN TESTED. Unique leftover unique-pack after create_play_token KEEP: live `at
 
 Cite live attach_connector_to_room remainder. Seat `bc-73365238`. clan/cursor.
 
-## Official command
+## Classifier retirement — 2026-10-04
 
-```
-python3 host/titanmcp_consent_attach.py; echo $?
-python3 host/titanmcp_consent_attach.py --bake; echo $?
-# refuse rc=2 sent=0
-```
+The standalone fixed-response assertion wrapper was retired under the owner's test-only deletion instruction. Its eight fixed HTTPS POSTs included room creation and attachment attempts to classify missing-field and `CONSENT_UI_REQUIRED` responses; it did not implement consent, authentication or attachment. The original observations above remain dated history, not current consent authority.
+
+The retired [classifier source](https://github.com/woahwhattheheck/commons/blob/c45c39430a6074770c245c109c05b6b74adfc8ed/host/titanmcp_consent_attach.py) remains available at its original publication commit. It is not a current-main command. No classifier, endpoint probe or test was run for this retirement; actual consent/auth/session controls, production runtime and existing owners remain unchanged.
 
 ## Did not write
 
