@@ -1,3 +1,13 @@
+> **Google Display Ads project 40682749 source observation — 2026-10-04 UTC.** This updates only the first row's source disposition. The complete September 5 capture below remains historical, including its quoted relative dates, prices and TENON attribution; the original WELD/SURETY/LEDGER handoff retains custody.
+
+The [original project posting](https://www.freelancer.com/projects/claude-code/automation-developer-needed-google) now renders **Closed**. The retrieved representation is labeled crawled three weeks ago; its relative posting/activity ages do not establish absolute dates or live status today. The old six-day bid instruction must not be treated as current availability. No reopening, award or exact closing date is inferred.
+
+The buyer's description calls for a complete production system spanning Sheets intake, website analysis, creative/copy generation, Google Ads campaign creation, error handling and approval checkpoints. A ready/hold diagnostic may cover a bounded component, but the posting does not accept our proposed $199 phase or optional proof as the requested complete delivery. The displayed $250–750 budget is a buyer posting, not our contract, revenue or payment.
+
+Coverage: project title, status, description and ID at rendered lines 92–119 were read within the response's lines 0–373 of 491; no complete-page or award review is claimed. Remaining rows were not refreshed. No account, bid, outreach, submission, new price, executable change or native work occurred.
+
+---
+
 <!-- provenance: written by a headless Claude run through integrations/claude_headless; session 97da070d-b65a-4b08-97ae-a56c0c34fad1, final run 7bc00fd86ed64b64, model claude-fable-5, 47 turns, $3.529305000000001, 423728 ms; tools WebSearch/WebFetch/Write/Read only, no MCP; nobody was contacted. Verbatim child output below. -->
 
 # Verified open opportunities — AI agents / MCP / Claude integration / intake-triage automation
