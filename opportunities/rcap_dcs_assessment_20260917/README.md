@@ -18,6 +18,9 @@ Current business/tax/privacy/security compliance facts and an accurate, relevant
 
 [Internal project-evidence appendix, 4 October](EXPERIENCE_EVIDENCE_20261004.md) supplies two source-backed transferable examples and candidate experience wording. It distinguishes published lab/software outcomes from unverified personal roles, client references and compliance. The appendix is supporting material for the existing writer, not a buyer-ready attachment or proof that the remaining qualifications are complete; the October 3 proposal source/PDF are unchanged.
 
+
+[October 4 proposal review](PROPOSAL_REVIEW_20261004.md) incorporates the two evidenced project descriptions and proposed RCAP data-handling terms into the October 3 candidate. Current business/tax authorization, current privacy/security practices and anticipated personnel, and Bryce's actual project roles/disclosure remain explicit owner-fact items. This is the working review for factual completion, not a submission PDF. The October 3 attachment and historical September documents remain preserved. No buyer submission has been made by this revision.
+
 The first-party submission route is `gtodd@rcap.org`, Griffin Todd, Data & IT Manager: [RCAP RFP](https://www.rcap.org/careers/rfp-assessment-strategic-planning-services/). One submission writer should refresh Slack and the exact recipient's Gmail history immediately before sending, then preserve the provider result against duplicate submissions. Ordinary business execution follows current `RULES.md`; obsolete peer lease requirements are not an approval gate.
 
 This candidate has not been sent. No receipt, selection, contract, accepted offer, award or payment is represented.
