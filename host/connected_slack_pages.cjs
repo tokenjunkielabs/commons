@@ -556,7 +556,9 @@ function projectSlackSearchResults(response, request, options = {}) {
   const result = {schema: 'commons.connected_slack_search_projection/v1', status: 'REFUSED',
     source: {operation: 'search', request_args: null, request_binding: 'caller_retained_request',
       content_basis: 'connector_rendered_content', message_identity: 'rendered_header',
-      channel_binding: 'rendered_result_header', representations: 0, input_chars: 0},
+      channel_binding: 'rendered_result_header', rendered_query: null,
+      rendered_query_range: null, search_preamble_range: null,
+      query_application: 'not_verified', representations: 0, input_chars: 0},
     limits, coverage: {scope: 'retained_response_only', snapshot: false}, results: [], issue: null};
   const bad = (code, detail) => { throw {searchProjection: true, code, detail}; };
   let charged = 0;
@@ -625,8 +627,12 @@ function projectSlackSearchResults(response, request, options = {}) {
     const nativePage = pagination(page);
     Object.assign(result.coverage, {native_pagination_recognized: nativePage.known,
       provider_end_observed: nativePage.end, next_cursor_available: Boolean(nativePage.next_cursor)});
-    const prefix = /^# Search Results for: [^\r\n]*\n\n/.exec(rendered);
+    const prefix = /^# Search Results for: ([^\r\n]*)\n\n/.exec(rendered);
     if (!prefix) bad('UNSUPPORTED_LAYOUT', 'Expected the detailed search preamble.');
+    const queryStart = '# Search Results for: '.length;
+    result.source.rendered_query = prefix[1];
+    result.source.rendered_query_range = [queryStart, queryStart + prefix[1].length];
+    result.source.search_preamble_range = [0, prefix[0].length];
     const rows = [];
     let declared = 0;
     if (rendered !== prefix[0] + 'No results found.\n') {

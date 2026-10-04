@@ -378,6 +378,47 @@ search/context framing lines refuse with an issue code and no result entries.
 The original response is unchanged. A structurally complete rendering does not
 prove that the provider returned the complete authored message body.
 
+### Read the rendered search query separately
+
+The search projection keeps the caller's exact `source.request_args` and
+separately exposes the query text printed in the native search preamble:
+
+| Source field | Meaning |
+| --- | --- |
+| `rendered_query` | Literal text following `# Search Results for: ` on the recognized heading line. An empty heading remains `""`; no requested keyword or filter is substituted. |
+| `rendered_query_range` | Half-open UTF-16 range of that text in the decoded native `results` string. An empty heading has an empty range. |
+| `search_preamble_range` | Half-open range of the complete recognized heading and its fixed two-newline separator. |
+| `query_application` | Always `not_verified`. The projector does not establish which selectors the provider applied. |
+
+The three rendered fields start as `null` and are populated only after a
+consistent native representation and recognized preamble are available. They
+may remain available as source diagnostics if later result framing refuses.
+A null value is not an observed empty heading.
+
+Keep requested selectors and rendered text separate. A heading can be empty
+even when the caller supplied keywords or filters; it can also accompany
+returned messages. Neither an empty heading nor matching text proves that the
+provider ignored or applied the request. Do not rebuild the original request,
+infer a missing search restriction, or declare an ownership search complete
+from this heading. Native pagination and retained-page coverage keep their
+existing, limited meanings.
+
+There is no trimming, decoding, query rewrite or normalization beyond reading
+the already-decoded envelope string. The original native response remains
+unchanged. The preamble is charged by the existing input budget; its returned
+metadata is additional to the body budget and can contain private search terms.
+The collector, result identities, body selection and provider calls are unchanged.
+
+The actual October 4 intake included a retained keyword/filter response with an
+empty heading. Its new metadata was `rendered_query: ""`, query range
+`[22,22]` and preamble range `[0,24]`, alongside the original requested
+arguments. Another already-projected retained response kept every previous
+field JSON-identical after excluding these four added source fields.
+One subsequent, needed public tooling search returned a nonempty heading and
+zero results; the new query and preamble ranges matched its original rendering
+exactly. Both empty-result outcomes remain scoped to those captured responses.
+Inputs were unchanged; no request was replayed, fixture created or OS process run.
+
 ### Page coverage and navigation
 
 The statuses are `PROJECTED`, `EMPTY_RENDERING` and `REFUSED`. Only the exact
