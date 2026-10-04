@@ -3310,7 +3310,7 @@
       "operating_detail": "OPERATIONAL_BUT_UNWIRED",
       "own_activation_this_run": false,
       "rate_plan_boundary": "Catalog rows are discovery metadata, not installed connectors, authenticated sessions, model quota, provider calls, paid capacity, deployable projects or permission. wired_count=0 and session_bound=false are retained as independent operating fields.",
-      "source": "Current-main host/titanmcp_list_research_power.py from source commit 06afdecae22a2656f2df75eabc1cdc4de2c583d5; receipt p/cursor-titanmcp-list-research-power-20261003-01.md; Slack SHIP 1791012595.925449",
+      "source": "Historical catalog observation: host/titanmcp_list_research_power.py at immutable source commit 06afdecae22a2656f2df75eabc1cdc4de2c583d5, blob 97d035b17ce1f8aff0f31774c409089b40bc5395; receipt p/cursor-titanmcp-list-research-power-20261003-01.md; Slack SHIP 1791012595.925449. The standalone assertion classifier was retired on 2026-10-04; it is not a current-main command. The separate public catalog capability, routing owners and dated observations remain unchanged; no fresh service measurement is claimed.",
       "stage": "PRODUCING",
       "stale_after": "next TitanMCP version, catalog source/count, list_research_power schema, session/wiring state, authority, rate-plan or consumer change",
       "value": "Turns the live 500-row research catalog into a bounded, queryable routing input without treating catalog presence as a connected account or live session.",

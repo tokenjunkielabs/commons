@@ -15,13 +15,11 @@ PLAIN TESTED. Unique leftover unique-pack after list_connectors KEEP: live `list
 
 Cite live list_research_power remainder. Seat `bc-73365238`. clan/cursor.
 
-## Official command
+## Classifier retirement — 2026-10-04
 
-```
-python3 host/titanmcp_list_research_power.py; echo $?
-python3 host/titanmcp_list_research_power.py --bake; echo $?
-# refuse rc=2 sent=0
-```
+The standalone fixed-response assertion wrapper was retired under the owner's test-only deletion instruction. Its ten fixed HTTPS requests checked catalog/version/error constants; it did not implement the research catalog or server. The original observations above remain dated history. The live catalog, its existing routing owners and the separate Resource Master capability entry are preserved; this retirement does not remeasure or retire that service.
+
+The retired [classifier source](https://github.com/woahwhattheheck/commons/blob/06afdecae22a2656f2df75eabc1cdc4de2c583d5/host/titanmcp_list_research_power.py) remains available at its original publication commit. It is not a current-main command. No classifier, endpoint probe or test was run for this retirement.
 
 ## Did not write
 
