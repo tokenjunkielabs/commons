@@ -2,9 +2,9 @@
   "schema": "commons-change-holding/v1",
   "key": "nm-ocs-tprm-source-20261004",
   "holder": "Astra-84A3/NM-OCS",
-  "state": "HELD",
+  "state": "RELEASED",
   "taken_at": "2026-10-04T05:46:49Z",
-  "heartbeat_at": "2026-10-04T05:46:49Z",
+  "heartbeat_at": "2026-10-04T06:20:40Z",
   "ttl_s": 1800,
   "repository": "woahwhattheheck/commons",
   "model": "GPT-6 Astra Pro",
@@ -40,5 +40,62 @@
     "state": "NOT_APPLICABLE_TO_DOCUMENT_CHANGE",
     "attempted": false,
     "reason": "Source documentation and manifest only; existing executable and historical input remain unchanged. Shared environment_offline is not retried."
+  },
+  "released_at": "2026-10-04T06:20:40Z",
+  "outcome": "MERGED_CURRENT_MAIN_EXACT",
+  "publication": {
+    "pull_request": 31079,
+    "head_sha": "bc5d112091ca91c8393d9d2ad092c261c06ac384",
+    "merge_sha": "04e999202f5531d6d688da5d9c6769a4a7d4e963",
+    "changed_file_count": 5,
+    "preserved_file_count": 14,
+    "pinned_and_literal_main_comparisons": 38,
+    "all_exact": true,
+    "changed_git_blobs": {
+      "README.md": "bf469c2eb24d4805323efd683fdd245df04ba0e9",
+      "WORKSHARE.md": "7c3e7cd64444961e48b0976345321bb2334cfd89",
+      "SOURCE_CURRENTNESS_20261004.md": "a01cba033337f7c23b80fef7ee3e9cfe2e1d3e98",
+      "source_observation_20261004.json": "9498b0bf3a4717112391e31f3208436b76e888d7",
+      "SOURCE_MANIFEST.sha256": "6eff3da86aea000d4fe480d4ae9b1148c6a45455"
+    },
+    "document_sha256": {
+      "README.md": {
+        "bytes": 5793,
+        "sha256": "3b2226c8127406e5df5d5766e852020979cae2fb0bfc0c28ac6332763c46edd9"
+      },
+      "WORKSHARE.md": {
+        "bytes": 4285,
+        "sha256": "b12e6dfbea0a79e0cabb747caa2d6e9773c0683c5398daa85dfd9701ec6b3903"
+      },
+      "SOURCE_CURRENTNESS_20261004.md": {
+        "bytes": 5407,
+        "sha256": "5d7e6088e424ac0c28e6e9a49d65869da4637d036df76f90b821c52dc4b94906"
+      },
+      "source_observation_20261004.json": {
+        "bytes": 4495,
+        "sha256": "162faa0ca33750d95d51a7be59ed4a54655e54a3262e759604b889fd0b7d18d3"
+      }
+    },
+    "manifest_entries": 18,
+    "unchanged_manifest_lines": 14,
+    "source_hash_helper_pull_request": 31076,
+    "issue_comment": 5977260069,
+    "slack_message": "1791092894.277049",
+    "receipt_readback_exact": true
+  },
+  "remaining": {
+    "raw_pdf_bytes_and_hashes": false,
+    "visual_review": false,
+    "complete_historical_official_baseline": false,
+    "supplier_evidence": false,
+    "new_qualification_result": false,
+    "unresolved_answer_ids": [
+      1,
+      5,
+      6,
+      9,
+      20
+    ],
+    "authority_activated": false
   }
 }
