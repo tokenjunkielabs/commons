@@ -2,9 +2,9 @@
   "schema": "commons-change-holding/v1",
   "key": "cpca-closed-pursuit-docs-20261004",
   "holder": "Astra-84A3/CPCA-docs",
-  "state": "HELD",
+  "state": "RELEASED",
   "taken_at": "2026-10-04T08:30:04Z",
-  "heartbeat_at": "2026-10-04T08:30:04Z",
+  "heartbeat_at": "2026-10-04T08:35:07Z",
   "ttl_s": 1800,
   "repository": "woahwhattheheck/commons",
   "paths": [
@@ -33,5 +33,23 @@
     "original_thread_read": true,
     "pr_matches": 18,
     "all_returned_prs_closed": true
+  },
+  "released_at": "2026-10-04T08:35:07Z",
+  "publication": {
+    "pull_request": 31170,
+    "head_sha": "9b9981460c3e6efd4d8244927395ac232db999f1",
+    "merge_sha": "4127be5171f6194f97c02d1b6e0f0980cb7c0bda",
+    "files": {
+      "README.md": "523695494022d3c01048a3b9b93b3362cefad96c",
+      "teaming_outreach_packets.md": "342cebfbb3ca4022b2613e7991064d2157de4919",
+      "teaming_shortlist.md": "fe3be07b002dd246115c5980eb08072d6332772e"
+    },
+    "pinned_and_literal_main_text_exact": true,
+    "package_entries_per_ref": 13,
+    "unchanged_entries_per_ref": 10,
+    "issue_comment": 5978153155,
+    "slack_done": "https://tokenjunkielabs.slack.com/archives/C0BTRNE6Y58/p1791102886934539",
+    "native_execution": "NOT_APPLICABLE_DOCS_ONLY",
+    "proof_replay": false
   }
 }
