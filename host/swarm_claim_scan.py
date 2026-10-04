@@ -292,7 +292,10 @@ def read_responses(value, *, channel_id=None, source="input"):
             return True
         if "content" in node:
             return visit(node["content"], depth + 1)
-        if node.get("type") == "text" and isinstance(node.get("text"), str):
+        # Native Slack tools also return a bare {"text": "<JSON>"} envelope.
+        # Keep this shape exact; authored message objects are not envelopes.
+        if ((node.get("type") == "text" or set(node) == {"text"})
+                and isinstance(node.get("text"), str)):
             content = node["text"].strip()
             if content.startswith(("{", "[")):
                 return visit(_load(content), depth + 1)
