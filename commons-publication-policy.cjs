@@ -138,6 +138,12 @@
     return rule === "unfavorable_finding" ||
       (rule === "general_disagreement" && ["incorrect", "unsupported"].includes(wording.toLowerCase()));
   }
+  function zeroErrorCount(prefix) {
+    // Match a literal count, not a decimal suffix, bound, or negated count.
+    const count = /(?:^|\s)(?:0|zero|no)\s+(?:scrape\s+)?$/i.exec(prefix);
+    return count !== null &&
+      !/\b(?:not|never|without|isn't|aren't|wasn't|weren't|least|most|than|over|under|above|below)(?:\s+with)?\s*$/i.test(prefix.slice(0, count.index));
+  }
   function checkPublication(body, subject = "") {
     if (typeof body !== "string" || typeof subject !== "string") {
       throw new TypeError("Commons publication body and subject must be strings.");
@@ -165,6 +171,9 @@
             let match;
             while ((match = matcher.exec(sentence)) !== null) {
               if (rule.name === "unfavorable_finding" && /\b(?:no|zero|without|free of)\s+(?:(?:remaining|current|known|observed|active)\s+){0,3}$/i.test(sentence.slice(0, match.index))) continue;
+              if (rule.name === "unfavorable_finding" && softwareReport &&
+                  ["error", "errors"].includes(match[0].toLowerCase()) &&
+                  zeroErrorCount(sentence.slice(0, match.index))) continue;
               if (softwareReportMatch(sentence, context, match[0], rule.name, softwareReport)) continue;
               if (protectedMatch(sentence, match.index)) continue;
               return {allowed: false, code: "commons_publication_terms", message: REWRITE, rule: rule.name};
