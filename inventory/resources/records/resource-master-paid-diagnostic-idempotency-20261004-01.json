@@ -1,0 +1,142 @@
+{
+  "activation_count": 1,
+  "activation_result": {
+    "actual_execution": [
+      {
+        "collision": {
+          "after": "LEAD_CONFLICT",
+          "before": "REPLAY_NOOP",
+          "display_unchanged": true,
+          "displayed_fingerprint": "d064bbec",
+          "original_journal_unchanged": true
+        },
+        "legacy_snapshot_replay": "REPLAY_NOOP",
+        "path": "dealer-service-lead-rescue.js",
+        "privacy_refusal_unchanged": true,
+        "public_first_receipt_unchanged": true,
+        "public_replay_receipt_unchanged": true,
+        "resumed_replay": "REPLAY_NOOP",
+        "resumed_result": "RESCUED",
+        "synthetic": true,
+        "unsupported_category": {
+          "after": "LEAD_EXCEPTION",
+          "before": "TypeError: Cannot read properties of undefined (reading 'map')"
+        },
+        "zero_customer_provider_payment_effects": true
+      },
+      {
+        "collision": {
+          "after": "FAULT_CONFLICT",
+          "before": "REPLAY_NOOP",
+          "display_unchanged": true,
+          "displayed_fingerprint": "e968e764",
+          "original_journal_unchanged": true
+        },
+        "legacy_snapshot_replay": "REPLAY_NOOP",
+        "path": "plant-downtime-handoff.js",
+        "privacy_refusal_unchanged": true,
+        "public_first_receipt_unchanged": true,
+        "public_replay_receipt_unchanged": true,
+        "resumed_replay": "REPLAY_NOOP",
+        "resumed_result": "DISPATCHED",
+        "synthetic": true,
+        "unsupported_category": {
+          "after": "FAULT_EXCEPTION",
+          "before": "TypeError: Cannot read properties of undefined (reading 'map')"
+        },
+        "zero_customer_provider_payment_effects": true
+      },
+      {
+        "collision": {
+          "after": "REFERRAL_CONFLICT",
+          "before": "REPLAY_NOOP",
+          "display_unchanged": true,
+          "displayed_fingerprint": "2caabf70",
+          "original_journal_unchanged": true
+        },
+        "legacy_snapshot_replay": "REPLAY_NOOP",
+        "path": "referral-intake-completeness.js",
+        "privacy_refusal_unchanged": true,
+        "public_first_receipt_unchanged": true,
+        "public_replay_receipt_unchanged": true,
+        "resumed_replay": "REPLAY_NOOP",
+        "resumed_result": "QUEUED_COMPLETE",
+        "synthetic": true,
+        "unsupported_category": {
+          "after": "INTAKE_EXCEPTION",
+          "before": "TypeError: Cannot read properties of undefined (reading 'map')"
+        },
+        "zero_customer_provider_payment_effects": true
+      }
+    ],
+    "changes": [
+      {
+        "path": "dealer-service-lead-rescue.js",
+        "postBlob": "41c59053eeb6e993ed06299b55f3c2a437e561b8",
+        "postBytes": 18114,
+        "preBlob": "1c7a136532297995da0f8f51f3b9582cc1e6c685",
+        "preBytes": 17872
+      },
+      {
+        "path": "plant-downtime-handoff.js",
+        "postBlob": "4df47f570afe6052f7aec67dd6468e4aff9ea862",
+        "postBytes": 18560,
+        "preBlob": "6cf035e32ee771ca89cd1e7ae214c665bd310115",
+        "preBytes": 18317
+      },
+      {
+        "path": "referral-intake-completeness.js",
+        "postBlob": "34c5bd168bf380a05d888a36b14cac7fbc330184",
+        "postBytes": 14632,
+        "preBlob": "8f4eb10d3630fd62a188554e67d15bc3d0fae681",
+        "preBytes": 14504
+      }
+    ],
+    "exit_code": 0,
+    "runtime": "v24.19.0",
+    "state": "SOURCE_EXECUTED_READY_FOR_PUBLICATION"
+  },
+  "canonical_resource_count": 186,
+  "checks": {
+    "accepted_execution_not_repeated": true,
+    "no_customer_private_data": true,
+    "no_new_tests_fixtures_workflows": true,
+    "no_paid_compute": true,
+    "no_real_provider_effect": true,
+    "open_door_no_auth": true,
+    "synthetic_only": true,
+    "zero_fabrication": true
+  },
+  "consumer": "Operators and buyers of the existing $199 dealer lead, plant downtime and referral intake diagnostics",
+  "current_terminal_watermark": {
+    "activation_claim_ts": "1791115048.752969",
+    "bounded_followon_scope": "Paid diagnostic source repair, current product/lead/sales roots, current work owners and native payment/incoming source observations only. Retain prior full sweep lower bound.",
+    "current_main_snapshot_is_fully_swept": false,
+    "current_main_source_snapshot": "bfa2d66f86bcfee5efef0f5f9b96fde7df9cd544",
+    "fully_collected_commit_range_head": "4462d621fcfa1d7c509395b0cde71a1e6717cbc2",
+    "fully_swept_window_upper": "2026-10-04T10:28:37Z",
+    "inherits_record_id": "resource-master-fast-point-counter-activation-20261004-01",
+    "publication_observations_after_upper_are_not_swept": true
+  },
+  "dedupe": {
+    "new_worker_roots": 0,
+    "open_exact_path_work": 0,
+    "peer_source_preserved": true,
+    "prior_operation_released": true,
+    "prior_refusal_operation": "PRODUCT-REFUSAL-BEFORE-REPLAY-20261003-1B6B"
+  },
+  "id": "resource-master-paid-diagnostic-idempotency-20261004-01",
+  "observed_at": "2026-10-04T12:04:34Z",
+  "operation_id": "RESOURCE-MASTER-PAID-DIAGNOSTIC-IDEMPOTENCY-20261004-01",
+  "previous_record_id": "resource-master-fast-point-counter-activation-20261004-01",
+  "producing_product_count": 3,
+  "publication_observations": [],
+  "schema": "commons.resource_master.activation/v1",
+  "selected_resource": "paid-diagnostic-intake-engines",
+  "work_brief": {
+    "continue_beyond_first_completion": true,
+    "existing_schedule_and_enablement_unchanged": true,
+    "multiple_independent_producing_tasks": true,
+    "revenue_priority": true
+  }
+}

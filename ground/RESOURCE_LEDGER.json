@@ -25,6 +25,16 @@
   "priority_queue": [
     {
       "condition": "CONSTRAINED",
+      "consumer": "Operators and buyers of the existing $199 dealer lead, plant downtime and referral intake diagnostics",
+      "evidence_freshness": "EVENT_DRIVEN",
+      "name": "paid-diagnostic-intake-engines",
+      "next_action": "Consume the corrected modules for the existing sellable diagnostic offers; keep real buyer intake and collection under their existing owners.",
+      "priority": 100,
+      "stage": "PRODUCING",
+      "value": "Three real diagnostic modules now reject distinct canonical semantic identities even when their displayed 32-bit fingerprints collide. Unsupported inherited category names return exception receipts. Existing replay, restart, inquiry metadata and privacy refusal behavior remains."
+    },
+    {
+      "condition": "CONSTRAINED",
       "consumer": "The existing Commons marketplace-account lane and two READY/UNSENT Upwork buyer-edge records",
       "evidence_freshness": "EVENT_DRIVEN",
       "name": "upwork-marketplace-account",
@@ -176,6 +186,7 @@
   ],
   "production_write": false,
   "record_sources": [
+    "inventory/resources/records/resource-master-paid-diagnostic-idempotency-20261004-01.json",
     "inventory/resources/records/resource-master-fast-point-counter-activation-20261004-01.json",
     "inventory/resources/records/resource-master-retained-publisher-activation-20261004-01.json",
     "inventory/resources/records/resource-master-tree-preimage-activation-20261004-01.json",
@@ -295,9 +306,9 @@
   "shared_resource_rule": "ALL_CARRIERS_MAY_USE_ALL_SHARED_RESOURCES; CLAUDE_IS_OWNER_HANDLED",
   "slack_ts": "1791096944.440129",
   "snapshot": {
-    "base_main_sha": "b68842bee3cba19a1b9c1e11533887d1de815c2b",
+    "base_main_sha": "bfa2d66f86bcfee5efef0f5f9b96fde7df9cd544",
     "later_publication_observations_are_not_swept": true,
-    "observed_at": "2026-10-04T10:46:44Z",
+    "observed_at": "2026-10-04T12:04:34Z",
     "privacy_rule": "Shared account identities, service roles, aggregate quotas, reset states, and operating state may be published for Commons routing. Never persist passwords, tokens, API credentials, recovery or verification links, payment credentials, personal legal identity, or private mail contents.",
     "scope": "Anything convertible into Commons capability or value, including Bryce, devices, subscriptions, models, agents, tools, repositories, builds, data, attention, and external roads.",
     "source_window_upper": "2026-10-04T10:28:37Z",
@@ -4641,7 +4652,7 @@
       "last_used_at": "2026-10-04T10:40:16Z",
       "name": "a304081-fast-point-counter",
       "next_action": "Existing finite point-atlas owner may consume the new eight results; all source, accepted computation and original research custody remain intact. Do not reopen this completed activation.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "rate_plan_boundary": "Source and bounded software execution do not establish live provider quota, a deployment, a device action, buyer acceptance, payment, payout or cash.",
       "reservation_released": true,
       "source": "PR31212 merge4462d621fcfa1d7c509395b0cde71a1e6717cbc2; counter blob131dd5dfc6a7cad31b906fa2edaddf67ac3f50d1; catalog blob4eb31cfe376c74e9d1e3a56de15dce4e0dbcd362; research/a304081/resource-master-successor-counts-20261004-01.json blobdd53e9faf8eec3421cf7aec3eb35c370455572f3",
@@ -4739,6 +4750,31 @@
       "stage": "PRODUCING",
       "stale_after": "next source, operation, artifact expiration, provider or ownership change",
       "value": "Merged response-ownership repair changes an actual HTTP1.1 one-slot pool from1completed GET then blocked to3completed GETs. This is reusable response-lifecycle source, not provider quota or a fleet latency claim."
+    },
+    {
+      "assigned_backlog": "Current source repair is being landed; no new scout, buyer monitor or publisher worker.",
+      "auth_surface": "Public/no-auth source. The diagnostic modules accept synthetic data only; no customer or patient input was used.",
+      "authority": "Shared public source; owner-only commercial, payment, identity and device actions remain separate.",
+      "capacity": "LIVE",
+      "claim_active": true,
+      "condition": "CONSTRAINED",
+      "consumer": "Operators and buyers of the existing $199 dealer lead, plant downtime and referral intake diagnostics",
+      "evidence_ts": "2026-10-04T12:04:34Z",
+      "exact_safe_probe": "Complete Node24.19 CommonJS modules executed on retained explicitly synthetic collision inputs and existing public examples; exit0. Three original journals remain byte-identical after conflicts; no live provider or customer effect.",
+      "holder": "Resource Master exact source claim; reusable source has no exclusive consumer",
+      "inventory_unit": "synthetic-only diagnostic modules",
+      "inventory_units": 3,
+      "kind": "REUSABLE_PAID_DIAGNOSTIC_SOURCE",
+      "last_receipt": "resource-master-paid-diagnostic-idempotency-20261004-01",
+      "last_used_at": "2026-10-04T12:04:34Z",
+      "name": "paid-diagnostic-intake-engines",
+      "next_action": "Consume the corrected modules for the existing sellable diagnostic offers; keep real buyer intake and collection under their existing owners.",
+      "own_activation_this_run": true,
+      "rate_plan_boundary": "Three reusable software modules are not three buyers or live sessions. Existing $199 offer prices are not orders, awards, deployment, revenue or cash. No quota or paid compute inferred.",
+      "source": "dealer-service-lead-rescue.js blob41c59053eeb6e993ed06299b55f3c2a437e561b8; plant-downtime-handoff.js blob4df47f570afe6052f7aec67dd6468e4aff9ea862; referral-intake-completeness.js blob34c5bd168bf380a05d888a36b14cac7fbc330184",
+      "stage": "PRODUCING",
+      "stale_after": "next source or operating-condition change",
+      "value": "Three real diagnostic modules now reject distinct canonical semantic identities even when their displayed 32-bit fingerprints collide. Unsupported inherited category names return exception receipts. Existing replay, restart, inquiry metadata and privacy refusal behavior remains."
     }
   ],
   "titan": "NOT_WRITTEN"
