@@ -447,6 +447,153 @@ matched. This mixed case made no parent-tree request and no independent Git-mode
 verification claim. These are observed content publications, not evidence of
 mode behavior for every file type.
 
+### Explicit Contents publisher
+
+`publishGitHubContentsChange(tools, change, options?)` automates the native
+Contents route above in this same module. Select this export deliberately for
+prepared UTF-8 content changes. It does not invoke the Git Trees publisher or
+convert a failed tree read into a successful mode check.
+
+```javascript
+const {publishGitHubContentsChange} = module.exports;
+const result = await publishGitHubContentsChange(tools, {
+  repository_full_name: "owner/repository",
+  base_branch: "main",
+  branch_name: "source/prepared-content-change",
+  title: prepared_title,
+  body: prepared_body,
+  commit_message: prepared_commit_message,
+  files: [{
+    path: prepared_path,
+    expected_blob_sha: observed_previous_blob_sha, // null only for an absent path
+    expected_new_blob_sha: prepared_git_blob_sha,  // optional exact source pin
+    content: complete_replacement_utf8,
+    encoding: "utf-8",
+  }],
+  merge: true,
+  merge_method: "merge",
+}, {
+  onProgress: progress => store("contents-publication-progress", progress),
+});
+```
+
+The same `bindings`, `onProgress` and `readback_concurrency` conventions apply.
+Available native bindings are checked before mutation; only the create/update
+operations required by the prepared files are required. Blob recovery is optional.
+Keep the source, prepared change, actual response/progress records and operation
+identity beside the result. Nothing is written to the filesystem by the helper.
+
+This export accepts at most 300 distinct paths, UTF-8 text and no `mode` field.
+It rejects `retained_trees`; that option belongs to the separate Git Trees
+contract. Existing paths require the observed blob SHA and new paths require a
+confirmed absence. An exact complete preimage/content match can be skipped.
+Missing large-file text is not treated as an empty file or a proven no-op.
+
+The observable publication sequence is:
+
+1. Read the base ref and check every prepared preimage at that immutable commit.
+   Create the new branch there and read its ref. Ref names are escaped by path
+   segment in the established `/git/ref/heads/` route, including names with slashes.
+2. Perform each required Contents write serially. Native update responses contain
+   `{commit_sha, content_sha}`; native create responses contain `{commit_sha}`.
+   Record the returned commit before following reads.
+3. Require each commit to have the previously observed head as its sole parent
+   and exactly one expected added or modified path. Match the commit's file blob
+   to the update response when present, read the entire prepared text at that
+   immutable commit, and read the branch head before the next write.
+4. Check the original-base-to-final-head comparison's complete path set, final
+   blobs and native commit counts. The per-commit chain establishes serial
+   lineage; the aggregate comparison separately checks the resulting change.
+   The 300-path input bound matches GitHub's documented
+   [first-page comparison file limit](https://docs.github.com/en/rest/commits/commits#compare-two-commits).
+   It does not mistake the paginated `commits` array length for the total.
+5. Open the PR at the observed final head. Before a requested merge, read the
+   current base ref and require the target preimages/absences still to match.
+   Unrelated base movement is allowed. Then use GitHub's expected-head merge.
+6. Read every prepared file at the immutable head or merge commit and compare
+   its complete text and blob. Retain the task's ordinary literal-current-source
+   and PR metadata readbacks as well.
+
+Each Contents write creates its own commit. The branch-head checks detect
+unexpected movement; the Contents API itself offers a file-blob guard, not an
+atomic expected-parent guard. A concurrent branch edit can therefore be detected
+after a write has happened. Stop and reconcile the retained branch in that case.
+The pre-merge base check is also an observation: GitHub's expected-head merge
+pins the PR head and does not freeze later base movement. Final source readbacks
+remain necessary.
+
+Progress includes `serial_writes`, the current `commit_sha`, per-commit source
+readbacks, `aggregate_paths_verified`, the current-base check, PR/merge identities
+and the final `readback_ref`. `pending_write` is announced before mutation and
+records whether a response was received. Exceptions preserve progress and any
+typed provider error. Callback failures are recorded separately and do not
+repeat a provider action. The helper makes no automatic write retries.
+
+#### Resume a confirmed branch creation before any content write
+
+A narrow recovery option handles an already-confirmed branch creation followed
+by a read failure, when no Contents or PR write has begun:
+
+```javascript
+const result = await publishGitHubContentsChange(tools, prepared_change, {
+  resume_created_branch: retained_branch_only_error.progress,
+  onProgress: progress => store("contents-publication-progress", progress),
+});
+```
+
+The retained progress must identify the same repository/branches and ordered
+preimage/source pins, confirm branch creation, have no pending write, no serial
+file writes or PR, and retain the base as its head. The helper re-reads the
+prepared versions and requires the actual branch ref still to equal that base
+before writing any content. Its new call counts omit `create_branch`, and
+`branch_creation: "retained"` distinguishes reuse from a new provider mutation.
+Keep the earlier attempt separately; this result does not erase its failure or
+claim it created the branch.
+
+This option does not resume partial file publication or an uncertain write.
+For those outcomes, retain the branch and reconcile the actual commit/PR state
+before any deliberate continuation. Likewise, a PR that is open after a refused
+or uncertain merge is an existing publication, not a reason to run this writer
+again. Use the observed PR/head and current target preimages for an explicit
+native merge continuation, or finish readbacks if it is already merged.
+The existing `continueGitHubMerge` export remains specific to its Git Trees
+progress and mode checks; Contents progress is not interchangeable with it.
+
+The result explicitly reports `mode_verification: "not_performed"` and
+`whole_tree_verification: "not_performed"`. It establishes observed content,
+path changes and commit lineage; it does not independently prove entry type,
+Git mode preservation or the complete repository tree. Use the Git Trees
+route when the task requires an independently verified or deliberately changed
+mode. Existing permission and source ownership continue to apply.
+
+#### Actual first consumer
+
+On 2026-10-04, the prepared
+[Redmond historical-row handoff, #31224](https://github.com/woahwhattheheck/commons/pull/31224)
+used this export for one existing Markdown file beneath the large `p/` directory.
+
+The first candidate created its isolated branch at
+`afd01207ceac84d8950e69f1901cccce5f9e5ee1`, then its slash-encoded
+`/branches/` read was rejected with native `INVALID_ARGUMENT` before any file
+write. The corrected implementation used the established Git ref route.
+An actual read confirmed the retained branch still equaled the original base;
+the narrow recovery then performed no second branch creation.
+
+The continuation made one update, one PR creation and one expected-head merge.
+The returned commit `85c18fe7b04705bf969bc8f1e6b8184a080e3392` had the expected
+sole parent and sole changed path. Complete source, update/commit blob,
+aggregate paths and final branch head matched. Main had advanced without
+changing the target; the pre-merge preimage fence passed. Merge
+`bfd2d6154a72a8aad9fadf614af0cc300e3681af` and the literal-current-main file
+both matched prepared blob `c1e7e2385b9e687740c059fd3a628e22cafd391e`.
+The PR title, body, head, merge and one-path `+4/-0` diff also matched.
+
+This observation covers the actual existing-file update and branch-only
+recovery, including unrelated main movement. The earlier Burbank create/update
+case above was a manual native operation, not an execution of this export.
+No parent-tree fetch, native compiler run, tests, fixture or workflow was involved.
+The accepted source documents and earlier consumer publications were not replayed.
+
 ### Recover omitted UTF-8 content by blob identity
 
 For a text row still marked `readback_content_unavailable`, the separate native
