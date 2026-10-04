@@ -13,8 +13,12 @@ is involved. A rejection contains a correction instruction, never the submitted
 text. Bridge recovery treats a publication rejection as terminal for that
 unchanged message, preserving ordinary provider retries.
 
-Native client hooks additionally intercept Commons and Slack publishing tools
-and load the terms at session/turn boundaries. Install into an existing client:
+Native client hooks intercept outward Commons and GitHub publication and load
+the terms at session/turn boundaries. Internal TJLabs Slack is swarm
+coordination, not outward publication. Slack channels, threads and DMs bypass
+the native publication hook before sender, field or prose checks, including
+native tool names, edits and uploads. Slack transport schemas, permissions and
+rate limits remain the provider's responsibility. Install into an existing client:
 
 ```text
 python integrations/commons_publication_hooks/install.py --config-dir /path/to/.codex
@@ -49,6 +53,11 @@ disabled-hook lists. If the client has globally disabled hooks, they remain
 disabled; installing source does not authorize overriding that choice. The
 repository's `.cursor/hooks.json` and `.gemini/settings.json` preserve their
 existing configuration and add the publication hooks for future clients.
+
+The installer copies hook source into the client configuration directory.
+Updating the checkout alone does not refresh that installed copy. Rerun the
+same installer for the affected configuration directory to refresh the source;
+keep the existing sessions and use the client's supported hook reload boundary.
 
 Cursor injects the terms at `sessionStart`. Gemini injects them at `SessionStart`
 and `BeforeAgent`. Publication checks execute independently of conversation
