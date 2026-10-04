@@ -14,6 +14,12 @@ This extends the original DEMON live-compute board from Slack
 `1787637936.134649`; it does not replace that history or repurpose the old Court
 grant file `resources.json`.
 
+## Revenue-priority reconciliation — 2026-10-04
+
+The canonical graph now contains **188 resources**. Two independent resources advanced: Bryce's inclusive **$15** bounty-intake minimum is reconciled with the existing producing intake/dispatch receipts, and the **$24,500 RCAP DCS assessment proposal** has one exact owner-fact request routed for today's literal 11:59 PM EST cutoff. Funding, assignment, submission, acceptance, award, payment, revenue and cash remain separate.
+
+Fresh lifecycle evidence also marks the shared executor storage surface **DEGRADED** at zero observed overlay bytes while native GitHub/Slack remain usable. One expired procurement notice, two unavailable public leads and one newly collided bounty are not live capacity. Stripe produced no new order or money receipt. [Exact bounded receipt](../inventory/resources/records/resource-master-revenue-delta-20261004-0856.json). The prior exhaustive sweep upper bound remains **2026-10-04T10:28:37Z / 4462d621**; later bounded observations do not skip unread history.
+
 ## Current reconciliation — 2026-10-04
 
 The canonical graph now contains **186 resources**. Its new paid-diagnostic source bundle serves the existing **$199 dealer, plant and referral offers**. The real modules now distinguish exact canonical semantic identities when displayed fingerprints collide, and return exception receipts for unsupported inherited categories. Existing valid retries, restart recovery and privacy refusal remain. Complete Node24.19 execution exited0 using explicitly synthetic product inputs; no real customer, provider or payment effect occurred.
