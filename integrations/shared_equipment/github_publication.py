@@ -137,8 +137,11 @@ def _preflight(operation, arguments):
 
 
 def publish(operation, arguments, operation_id, *, runner=None, client=None):
-    if not isinstance(operation_id, str) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.:-]{0,199}", operation_id):
-        raise EquipmentError("operation_id must be a stable publication ID")
+    if not isinstance(operation_id, str) or not re.fullmatch(r"[A-Za-z0-9._:-]{8,128}", operation_id):
+        raise EquipmentError(
+            "operation_id must contain 8 to 128 ASCII letters, digits, dots, underscores, colons, or hyphens",
+            code="invalid_operation_id", delivered=False, uncertain=False,
+        )
     _preflight(operation, arguments)
     client = Path(client) if client is not None else Path.home() / ".commons/tjlabs-publication/publish.py"
     if not client.is_file():
