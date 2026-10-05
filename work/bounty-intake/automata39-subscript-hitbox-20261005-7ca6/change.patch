@@ -1,0 +1,50 @@
+diff --git a/site/js/render.js b/site/js/render.js
+--- a/site/js/render.js
++++ b/site/js/render.js
+@@ -651,6 +651,46 @@
+             return false;
+         }
+ 
++        var deftext = '';
++        var subtext = '';
++        var findsubtext = false;
++        for ( var j = 0; j < text.length; ++j ) {
++            var character = text.charAt( j );
++            if ( character == '_' ) {
++                findsubtext = true;
++            }
++            else if ( findsubtext ) {
++                subtext += character;
++            }
++            else {
++                deftext += character;
++            }
++        }
++
++        if ( subtext != '' ) {
++            ctx.save();
++            try {
++                ctx.font = '12pt Verdana';
++                var defdim = ctx.measureText( deftext );
++                var fontHeight = ctx.measureText( 'o' ).width;
++                ctx.font = '8pt Verdana';
++                var subdim = ctx.measureText( subtext );
++                var subHeight = ctx.measureText( 'o' ).width;
++                var padding = 6;
++                var subBaseline = location.y + fontHeight / 2 + 4;
++                var top = Math.min( location.y - fontHeight / 2, subBaseline - subHeight );
++                var bottom = Math.max( location.y + fontHeight / 2, subBaseline );
++
++                return mouse.x >= location.x - defdim.width / 2 - padding
++                    && mouse.x <= location.x + defdim.width / 2 + 1 + subdim.width + padding
++                    && mouse.y >= top - padding
++                    && mouse.y <= bottom + padding;
++            }
++            finally {
++                ctx.restore();
++            }
++        }
++
+         ctx.save();
+         ctx.font = '12pt Verdana';
+         var dim = ctx.measureText( text );
