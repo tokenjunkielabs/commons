@@ -1,0 +1,111 @@
+{
+  "schema": "commons-resource-activation/v1",
+  "id": "resource-master-post-snapshot-capability-reconcile-20261004-2058",
+  "operation_id": "RESOURCE-MASTER-POST-SNAPSHOT-CAPABILITY-RECONCILE-20261004-2058",
+  "observed_at": "2026-10-05T01:12:00.000Z",
+  "title": "Post-snapshot capability, safety and revenue reconciliation",
+  "consumer": "Commons resource routing, exact finite research consumers, retained publication owners and RCAP proposal owner",
+  "outcome": {
+    "resources": 217,
+    "producing": 159,
+    "evidence_records": 120,
+    "activated": [
+      "tournament-inverse-fiber-index",
+      "mycielski-local-bipartization-index",
+      "werner-fixed-support-certificate",
+      "hard-count-resumable-history-index",
+      "interval-product-cover-family-index",
+      "paley13-seidel-switch-index",
+      "ap-free-family-navigation-index",
+      "lattice-diameter-family-index",
+      "quittance-publication-graphql-fallback",
+      "open-door-mathematical-prose-disambiguation",
+      "krenn-gu-equation-atlas",
+      "thue-morse-mealy-output-atlas"
+    ],
+    "advanced": [
+      "account-transcript-credential-redaction",
+      "swarm-scoped-claim-scanner",
+      "connected-slack-exact-text-publisher",
+      "rcap-dcs-proposal-owner-facts"
+    ],
+    "build_orders": [],
+    "continued_orders": [
+      "OPEN-DOOR-RESEARCH-PROSE-FALSE-POSITIVE-20261004-01",
+      "ACCOUNT-TRANSCRIPT-CREDENTIAL-REDACTION-20261004-01"
+    ],
+    "completed_activation": "Ten exact research indexes/atlases, one executed GraphQL quota fallback and one partially effective open-door semantic repair are canonicalized; transcript redaction and three existing carriers are advanced without overstating runtime proof."
+  },
+  "watermark": {
+    "prior_terminal_slack_ts": "1791152121.090569",
+    "slack_sweep_through": "1791160564.706179",
+    "claim_ts": "1791162338.606209",
+    "prior_main_sha": "47fe6cd81ce13fa6536aebd82621ca0002b5a8e5",
+    "github_source_through": "7ebbdd7f2f7493d9b2e296a2146160152b7cf161",
+    "connector_tool_watermark": 1076,
+    "automations_observed": {
+      "active": 3,
+      "paused": 33,
+      "completed": 3,
+      "changed": false
+    }
+  },
+  "evidence": {
+    "claim": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791162338606209",
+    "continued_open_door": "https://tokenjunkielabs.slack.com/archives/C0BTB4SUCP9/p1791162313490219?thread_ts=1791151541.533119&cid=C0BTB4SUCP9",
+    "redaction_reconciliation": "https://tokenjunkielabs.slack.com/archives/C0BTB4SUCP9/p1791162314043639?thread_ts=1791129667.279309&cid=C0BTB4SUCP9",
+    "account_chad": "https://tokenjunkielabs.slack.com/archives/C0BU51F1PL3/p1791162262855829?thread_ts=1790977806.441259&cid=C0BU51F1PL3",
+    "research_prs": [
+      31447,
+      31448,
+      31452,
+      31454,
+      31457,
+      31463,
+      31465,
+      31467,
+      31468,
+      31469
+    ],
+    "source_prs": [
+      31449,
+      31451,
+      31455,
+      31456,
+      31462,
+      31464,
+      31466
+    ],
+    "open_door_runs": {
+      "repair_success": 37240932319,
+      "new_false_positive": 37244410770
+    },
+    "publication_fallback_run": 37245760231
+  },
+  "revenue": {
+    "rcap": "DRAFT_UNSENT_WITH_ATTACHED_PDF",
+    "rcap_fixed_base_usd": 24500,
+    "rcap_optional_excluded_usd": 7500,
+    "stripe_available_usd": "0.00",
+    "stripe_pending_usd": "0.00",
+    "accepted_work": 0,
+    "payment_receipts": 0,
+    "payout_receipts": 0,
+    "cash_receipts": 0,
+    "microg_3841": "OPEN_UNACCEPTED_OWNER_PHYSICAL_PROOF_PENDING",
+    "microg_3851": "OPEN_UNACCEPTED_OWNER_PHYSICAL_PROOF_PENDING"
+  },
+  "capacity": {
+    "official_or_direct_reset_observed": false,
+    "quota_state": "PRIOR_STATE_RETAINED",
+    "callable_tool_entries": 1076,
+    "tool_identity_delta": "UNATTRIBUTED_COUNT_ONLY_NOT_CANONICALIZED"
+  },
+  "boundaries": [
+    "NO CONTACT OR RELAY TO MICHAEL CLARK",
+    "No live provider upload or actual Account transcript producer proof is claimed",
+    "No proposal submission, buyer acceptance, award, payment, payout, revenue or cash is claimed",
+    "Open-door/no-auth law remains; the new false positive continues under the existing order",
+    "Cursor hold, Claude suspension/no-tester, Titan mutation hold and Grok dry/no-submit remain"
+  ]
+}
