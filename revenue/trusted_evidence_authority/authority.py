@@ -145,6 +145,19 @@ def load_trusted_registry(path: str | Path, *, expected_file_sha256: str) -> Tru
     return TrustedRegistry(raw=raw, canonical_sha256=sha256_text(canonical_json(raw)), pin_sha256=observed)
 
 
+def _snapshot_trusted_registry(registry: TrustedRegistry) -> TrustedRegistry:
+    """Verify the loaded commitment and detach state used by this verification."""
+    try:
+        canonical = canonical_json(registry.raw)
+        observed = sha256_text(canonical)
+        raw = validate_registry(loads_strict(canonical))
+    except (ValueError, TypeError, RecursionError) as exc:
+        raise AuthorityError("trusted registry state is invalid") from exc
+    if observed != registry.canonical_sha256:
+        raise AuthorityError("trusted registry changed after loading")
+    return TrustedRegistry(raw=raw, canonical_sha256=registry.canonical_sha256, pin_sha256=registry.pin_sha256)
+
+
 def registry_from_value_for_tests(value: dict[str, Any]) -> TrustedRegistry:
     """Test/library helper. Production CLI intentionally does not expose this as a trust upgrade."""
     raw = validate_registry(value)
@@ -262,6 +275,7 @@ def _receipt(packet: dict[str, Any], registry: TrustedRegistry, *, level: str, v
 
 def verify_current(packet: dict[str, Any], registry: TrustedRegistry, *, now: datetime | None = None) -> dict[str, Any]:
     packet = validate_packet(packet)
+    registry = _snapshot_trusted_registry(registry)
     if packet["registry_id"] != registry.registry_id:
         raise AuthorityError("packet registry_id mismatch")
     now = datetime.now(UTC) if now is None else now.astimezone(UTC)
@@ -273,6 +287,7 @@ def verify_current(packet: dict[str, Any], registry: TrustedRegistry, *, now: da
 def verify_historical(packet: dict[str, Any], registry: TrustedRegistry, *, as_of: datetime) -> dict[str, Any]:
     """Forensic replay only. Never upgrades historical evidence to current authority."""
     packet = validate_packet(packet)
+    registry = _snapshot_trusted_registry(registry)
     if packet["registry_id"] != registry.registry_id:
         raise AuthorityError("packet registry_id mismatch")
     as_of = as_of.astimezone(UTC)
