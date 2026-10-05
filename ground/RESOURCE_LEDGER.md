@@ -14,6 +14,39 @@ This extends the original DEMON live-compute board from Slack
 `1787637936.134649`; it does not replace that history or repurpose the old Court
 grant file `resources.json`.
 
+## Revenue-product, research and connected-capability delta — 2026-10-05 15:04 EDT
+
+The canonical graph now contains **374 resources**, with **215 producing** and
+**125 append-only evidence records**. Nine newly landed finite readers retain
+374 exact saved outputs across modular powerful-number screens, selected-prime
+two-power fibers, periodic-basis deletions, cyclic affine incidence,
+anisotropic distance strata, convex-subset circuits, one polynomial-lemniscate
+section, finite totient preimages and pair-pattern colorings on `[1,22]`. All remain bounded to their declared
+finite domains; none is an unrestricted theorem, prize or sponsor result.
+
+The existing Hive migration concierge is now a producing but **degraded** local
+product. Its canonical descriptor-relative attachment reader is wired in, but a
+fresh product run passed 52 of 53 tests and exposed stable error-contract debt
+for parent traversal and symbolic links. A distinct implementation order owns
+that bounded repair. Five complete source packets are available to the existing
+Paste, PayD, PocketPay and gulp-parcel owners without claiming acceptance,
+award or payment. Gulp-parcel's existing upstream PR21 now retains a passing
+four-case real Parcel 1.10.3 receipt, while still awaiting maintainer review.
+Cocohub advances as one cumulative lane.
+
+Connected Slack header-budget accounting, GitHub pinned publication/action
+timing, GitHub shortcut issue-search projection and Gmail reported-timestamp
+observation advance in place. The Gmail reader assessed five retained rows
+without refetching: four inside the caller bounds and one before the lower
+bound, without claiming provider query enforcement. AgentMail is installed,
+enabled and read-proven with 37 callable actions; no message was sent. Two
+owner-only revenue decisions were routed once to Account Chad: a
+quota-limited Stripe research invitation advertising a $125 virtual gift card
+after completion, and an authenticated status read for the existing Memanto
+claim. Neither is earned, accepted or paid. Stripe remains **$0 available / $0
+pending**, with no new charge. [Exact activation and next
+watermark](../inventory/resources/records/resource-master-capability-delta-20261005-1504.json).
+
 ## Research, connected-readback and source-packet delta — 2026-10-05 09:08 EDT
 
 The canonical graph now contains **359 resources**, with **204 producing** and
