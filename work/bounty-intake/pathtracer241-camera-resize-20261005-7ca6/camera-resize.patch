@@ -1,0 +1,22 @@
+diff --git a/src/temporal-resolve/TemporalResolve.js b/src/temporal-resolve/TemporalResolve.js
+--- a/src/temporal-resolve/TemporalResolve.js
++++ b/src/temporal-resolve/TemporalResolve.js
+@@ -96,14 +96,16 @@
+ 		this.ptRenderer.stableTiles = false;
+ 
+ 		const { camera } = this.ptRenderer;
+-		if ( camera !== this.activeCamera ) {
++		const cameraChanged = camera !== this.activeCamera;
++		if ( cameraChanged ) {
+ 
+ 			this.initNewCamera( camera );
+ 
+ 		}
+ 
+ 		const { width, height } = this.ptRenderer.target;
+-		if ( width !== this.lastSize.width || height !== this.lastSize.height ) {
++		// A replacement pass needs sizing even when the render target is unchanged.
++		if ( cameraChanged || width !== this.lastSize.width || height !== this.lastSize.height ) {
+ 
+ 			this.initNewSize( width, height );
+ 
