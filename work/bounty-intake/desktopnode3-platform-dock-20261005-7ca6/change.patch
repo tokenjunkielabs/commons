@@ -1,0 +1,36 @@
+diff --git a/src/electron.cjs b/src/electron.cjs
+--- a/src/electron.cjs
++++ b/src/electron.cjs
+@@ -89,6 +89,7 @@
+ 
+ app.once('ready', createMainWindow);
+ 
++// 2026-10-05: skip Dock calls outside macOS.
+ let tray
+ app.whenReady().then(() => {
+     console.log(appBin);
+@@ -97,13 +98,13 @@
+         {
+             label: 'Show', click: function () {
+                 mainWindow.show()
+-                app.dock.show()
++                if (process.platform === 'darwin') app.dock.show()
+             }
+         },
+         {
+             label: 'Hide', click: function () {
+                 mainWindow.hide()
+-                app.dock.hide()
++                if (process.platform === 'darwin') app.dock.hide()
+             }
+         },
+         {
+@@ -130,7 +131,7 @@
+ });
+ 
+ ipcMain.on('hide', () => {
+-    app.dock.hide()
++    if (process.platform === 'darwin') app.dock.hide()
+     mainWindow.hide()
+ })
+ 
