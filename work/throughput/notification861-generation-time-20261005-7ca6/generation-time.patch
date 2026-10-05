@@ -1,0 +1,17 @@
+diff --git a/concierge/github_notification_queue.py b/concierge/github_notification_queue.py
+--- a/concierge/github_notification_queue.py
++++ b/concierge/github_notification_queue.py
+@@ -163,7 +163,12 @@
+         # generation before applying unread filtering; otherwise an older unread
+         # copy could survive after a newer copy has already been marked read.
+         previous = retained.get(row["notification_id"])
+-        if previous is None or row["updated_at"] > previous["updated_at"]:
++        # Compare instants: isoformat() omits zero fractional seconds, so its
++        # variable-precision UTC strings do not always sort chronologically.
++        if previous is None or (
++            datetime.fromisoformat(row["updated_at"].replace("Z", "+00:00"))
++            > datetime.fromisoformat(previous["updated_at"].replace("Z", "+00:00"))
++        ):
+             retained[row["notification_id"]] = row
+ 
+     eligible = []
