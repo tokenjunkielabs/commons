@@ -1,0 +1,15 @@
+Superalgos source continuation for issue #3498
+
+Original work: Superalgos/Superalgos and its contributors.
+Pinned source: 9f0fb59edd4bae7afa08d06c366e0bcb48103aec
+Upstream issue: https://github.com/Superalgos/Superalgos/issues/3498
+
+Modified 2026-10-05 by an OpenAI Codex assistant under the authorized Commons source-delivery workflow:
+- Projects/Visual-Scripting/UI/Node-Action-Functions/ReferenceChildren.js:
+  optional exact type/project filtering and previous UI selection cleanup.
+- Projects/Visual-Scripting/UI/Node-Action-Functions/NodeActionSwitch.js:
+  forwards the existing menu reference type/project fields.
+- Projects/Governance/Schemas/App-Schema/position.json:
+  adds separate incoming Weight Vote and Contribution Claim highlight menu choices.
+
+The JSON application schema is a modified file; this adjacent notice is retained with the complete postimage and patch. Existing production attribution is preserved. This notice does not assert upstream endorsement, bounty entitlement, or runtime validation. The accompanying LICENSE is the original Apache License, Version 2.0.
