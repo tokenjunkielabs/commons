@@ -1,0 +1,34 @@
+diff --git a/packages/flow-runtime-cli/src/findFiles.js b/packages/flow-runtime-cli/src/findFiles.js
+--- a/packages/flow-runtime-cli/src/findFiles.js
++++ b/packages/flow-runtime-cli/src/findFiles.js
+@@ -28,7 +28,7 @@
+   return collected;
+ }
+ 
+-async function addJavaScriptFile (filename: string, collected: string[]) {
++async function addJavaScriptFile (filename: string, collected: string[]): Promise<void> {
+   if (isFlowDefinitionFile(filename)) {
+     const runtimeFile = filename.replace(/\.flow$/, '');
+     const runtimeIndex = collected.indexOf(runtimeFile);
+@@ -43,5 +43,6 @@
+ 
+   if (await hasFlowDefinitionFile(filename)) {
++    await addJavaScriptFile(`${filename}.flow`, collected);
+     return;
+   }
+   else if (collected.indexOf(filename) === -1) {
+@@ -60,8 +61,12 @@
+ async function hasFlowDefinitionFile (filename: string): Promise<boolean> {
++  const definitionFilename = `${filename}.flow`;
++  if (!isFlowDefinitionFile(definitionFilename)) {
++    return false;
++  }
+   try {
+-    await fs.statAsync(`${filename}.flow`);
+-    return true;
++    const stat = await fs.statAsync(definitionFilename);
++    return stat.isFile();
+   }
+   catch (e) {
+     return false;
+   }
