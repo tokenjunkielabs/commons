@@ -225,13 +225,13 @@ and [Slack replies](https://docs.slack.dev/reference/methods/conversations.repli
 Executable contracts (fixture providers, real SQLite store/budget; no network):
 
 ```sh
-python -B -m unittest integrations.command_center.test_slack_threads integrations.command_center.test_collector_response_shapes integrations.command_center.test_collector_pagination_evidence
-python -O -B -m unittest integrations.command_center.test_slack_threads integrations.command_center.test_collector_response_shapes integrations.command_center.test_collector_pagination_evidence
+python -B -m unittest integrations.command_center.test_slack_threads integrations.command_center.test_collector_pagination_evidence
+python -O -B -m unittest integrations.command_center.test_slack_threads integrations.command_center.test_collector_pagination_evidence
 ```
 
-The later-page shape regression intentionally tests a conservative merge of valid
-rows, rather than the previous all-or-nothing loss of newly fetched pages. Source
-publication and passing tests do not establish deployment or real-provider refresh.
+The collector conservatively merges valid rows after a later-page failure,
+preserving previously saved unseen work. Source publication does not establish
+deployment or real-provider refresh.
 
 ## Bounded summary selection
 
