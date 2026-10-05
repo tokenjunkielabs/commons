@@ -1,0 +1,28 @@
+diff --git a/web/lib/HabitatProposalCard.js b/web/lib/HabitatProposalCard.js
+--- a/web/lib/HabitatProposalCard.js
++++ b/web/lib/HabitatProposalCard.js
+@@ -584,8 +584,10 @@
+         }
+         node.dispatchEvent(new Event('change'));
+       }
+-      // new CustomButtonHandler(node.parentElement.querySelector('.right'), (v) => change(this, 1 * v));
+-      // new CustomButtonHandler(node.parentElement.querySelector('.left'), (v) => change(this, -1 * v));
++      if (!isSignalContainer) {
++        new CustomButtonHandler(node.parentElement.querySelector('.right'), (v) => change(this, 1 * v));
++        new CustomButtonHandler(node.parentElement.querySelector('.left'), (v) => change(this, -1 * v));
++      }
+     }
+     for (const node of this.shadowRoot.querySelectorAll('habitat-sentiment-slider')) {
+       node.addEventListener('change', async (evt) => {
+@@ -1101,11 +1103,6 @@
+       for (const node of this.controls.querySelectorAll('button')) {
+         node.classList.remove('bold');
+       }
+-      if (this.userVotedShares > this.lastVotedShares) {
+-        this.shadowRoot.querySelector('#add').classList.add('bold');
+-      } else if (this.userVotedShares < this.lastVotedShares) {
+-        this.shadowRoot.querySelector('#sub').classList.add('bold');
+-      }
+ 
+       const e = this.shadowRoot.querySelector('#infobox .b').children;
+       for (const node of e) {
