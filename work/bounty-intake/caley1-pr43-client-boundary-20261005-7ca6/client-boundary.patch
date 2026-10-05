@@ -1,0 +1,9 @@
+diff --git a/apps/web/providers/WorkspaceProvider.tsx b/apps/web/providers/WorkspaceProvider.tsx
+--- a/apps/web/providers/WorkspaceProvider.tsx
++++ b/apps/web/providers/WorkspaceProvider.tsx
+@@ -1,3 +1,5 @@
++'use client';
++
+ import React, { createContext, useContext, useState, ReactNode } from 'react';
+ 
+ type Account = { id: string; email: string; provider: 'gmail' | 'outlook'; };
