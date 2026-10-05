@@ -370,8 +370,9 @@ result shapes; selected-message binding, framing, ambiguity refusal and the
 single entity pass are unchanged. No provider call, send/edit/read retry or
 claim about raw Slack storage is introduced.
 
-The actual motivating observation is the 2026-10-05 Commons #31608 release.
-Its native rendering retained this complete target:
+The actual motivating observation is the 2026-10-05 Commons #31608 claim
+publication, activity `1791205149.358139`. Its native rendering retained this
+complete target:
 
 ```text
 https://github.com/ThatOpen/web-ifc-viewer/blob/1f5c975ad6d019e7355c8759369f318f9fa3e339/viewer/src/components/ifc/ifc-manager.ts
