@@ -342,4 +342,140 @@ function projectGmailSearchHeaders(collection, options = {}) {
   }
 }
 
-module.exports = { collectGmailSearchPages, projectGmailSearchHeaders };
+
+function inspectGmailSearchEmailTimestamps(response, options = {}) {
+  if (!record(options)) fail('INVALID_INPUT', 'options must be an object');
+  const allowed = new Set(['after', 'before', 'max_records']);
+  for (const key of Object.keys(options)) {
+    if (!allowed.has(key)) fail('INVALID_INPUT', 'Unknown timestamp option: ' + key);
+  }
+  const maxRecords = integer(options.max_records, 20, 100, 'max_records', 0);
+  if (!own(options, 'after') && !own(options, 'before')) {
+    fail('INVALID_INPUT', 'At least one explicit timestamp bound is required');
+  }
+
+  // Deliberately narrower than all ISO 8601 forms. No unit or local-zone inference.
+  function parseInstant(value) {
+    if (value === null) return {reason: 'null'};
+    if (typeof value === 'number') {
+      return {reason: Number.isFinite(value) ? 'numeric_unit_unspecified' : 'non_finite_number'};
+    }
+    if (typeof value !== 'string') return {reason: 'unsupported_type'};
+    if (value.length > 64) return {reason: 'timestamp_text_limit'};
+    const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d{1,3}))?(Z|([+-])(\d{2}):(\d{2}))$/.exec(value);
+    if (!match) return {reason: 'unsupported_format'};
+    const year = Number(match[1]), month = Number(match[2]), day = Number(match[3]);
+    const hour = Number(match[4]), minute = Number(match[5]), second = Number(match[6]);
+    const leap = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+    const days = [31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    if (month < 1 || month > 12 || day < 1 || day > days[month - 1] ||
+        hour > 23 || minute > 59 || second > 59) {
+      return {reason: 'invalid_calendar_or_clock'};
+    }
+    if (match[8] !== 'Z') {
+      if (Number(match[10]) > 23 || Number(match[11]) > 59) {
+        return {reason: 'invalid_utc_offset'};
+      }
+      // The unknown-offset spelling does not establish an instant for this reader.
+      if (match[8] === '-00:00') return {reason: 'unknown_utc_offset'};
+    }
+    // Calendar fields were checked above; avoid Date.UTC's special years 00..99.
+    const milliseconds = Date.parse(value);
+    if (!Number.isFinite(milliseconds)) return {reason: 'unsupported_instant'};
+    return {milliseconds};
+  }
+
+  const bounds = {basis: 'caller_declared', operators: 'exclusive'};
+  const instants = {};
+  for (const name of ['after', 'before']) {
+    if (!own(options, name)) continue;
+    const parsed = parseInstant(options[name]);
+    if (parsed.reason) fail('INVALID_INPUT', name + ' must be a supported explicit-offset timestamp');
+    bounds[name] = options[name];
+    instants[name] = parsed.milliseconds;
+  }
+  if (own(instants, 'after') && own(instants, 'before') && instants.after >= instants.before) {
+    fail('INVALID_INPUT', 'after must precede before');
+  }
+
+  const result = {
+    schema: 'commons.connected_gmail_reported_timestamp_observation/v1',
+    status: 'REFUSED',
+    source: {
+      scope: 'supplied_native_page_only',
+      field: 'structuredContent.emails[i].email_ts',
+      time_basis: 'reported_email_ts',
+      provider_search_date_semantics: 'not_established',
+      query_application: 'not_verified',
+      query_syntax_parsed: false,
+      authentication: 'not_performed',
+      snapshot: false,
+      account_identity: 'not_inferred',
+      row_values_returned: false,
+    },
+    bounds,
+    limits: {max_input_rows: 100, max_timestamp_chars: 64, max_records: maxRecords},
+    stats: null, records: [], all_rows_inspected: false,
+    all_supplied_timestamps_assessed: false, issue: null,
+  };
+  try {
+    const parsed = parsePage(response, result.limits.max_input_rows);
+    const stats = {
+      supplied_rows: parsed.emails.length, inspected_rows: 0, assessed_rows: 0,
+      inside_rows: 0, outside_rows: 0,
+      on_or_before_after_rows: 0, on_or_after_before_rows: 0,
+      unassessed_rows: 0, unassessed_by_reason: {},
+      diagnostic_rows: 0, returned_records: 0, omitted_records: 0,
+    };
+    result.stats = stats;
+    const diagnostic = (index, state, detail) => {
+      stats.diagnostic_rows += 1;
+      if (result.records.length < maxRecords) {
+        result.records.push({
+          source_index: index,
+          source_path: 'structuredContent.emails[' + index + '].email_ts',
+          state, ...detail,
+        });
+      }
+    };
+    for (let i = 0; i < parsed.emails.length; i += 1) {
+      stats.inspected_rows += 1;
+      const row = parsed.emails[i];
+      const instant = own(row, 'email_ts') ? parseInstant(row.email_ts) : {reason: 'missing'};
+      if (instant.reason) {
+        stats.unassessed_rows += 1;
+        stats.unassessed_by_reason[instant.reason] = (stats.unassessed_by_reason[instant.reason] || 0) + 1;
+        diagnostic(i, 'unassessed', {reason: instant.reason});
+        continue;
+      }
+      stats.assessed_rows += 1;
+      if (own(instants, 'after') && instant.milliseconds <= instants.after) {
+        stats.outside_rows += 1;
+        stats.on_or_before_after_rows += 1;
+        diagnostic(i, 'outside_window', {relation: 'on_or_before_after'});
+      } else if (own(instants, 'before') && instant.milliseconds >= instants.before) {
+        stats.outside_rows += 1;
+        stats.on_or_after_before_rows += 1;
+        diagnostic(i, 'outside_window', {relation: 'on_or_after_before'});
+      } else {
+        stats.inside_rows += 1;
+      }
+    }
+    stats.returned_records = result.records.length;
+    stats.omitted_records = stats.diagnostic_rows - stats.returned_records;
+    result.all_rows_inspected = stats.inspected_rows === stats.supplied_rows;
+    result.all_supplied_timestamps_assessed = stats.assessed_rows === stats.supplied_rows;
+    result.status = stats.supplied_rows === 0 ? 'EMPTY_PAGE'
+      : stats.outside_rows > 0 ? 'OUTSIDE_REPORTED_TIMESTAMP_OBSERVED'
+      : stats.unassessed_rows > 0 ? 'INCOMPLETE_TIMESTAMP_ASSESSMENT'
+      : 'NO_OUTSIDE_REPORTED_TIMESTAMP_OBSERVED';
+    return result;
+  } catch (error) {
+    result.stats = null;
+    result.records = [];
+    result.issue = {code: error.code || 'UNSUPPORTED_PAYLOAD', detail: error.message};
+    return result;
+  }
+}
+
+module.exports = { collectGmailSearchPages, projectGmailSearchHeaders, inspectGmailSearchEmailTimestamps };
