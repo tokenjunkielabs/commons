@@ -1,0 +1,19 @@
+diff --git a/packages/babel-plugin-flow-runtime/src/transformVisitors.js b/packages/babel-plugin-flow-runtime/src/transformVisitors.js
+--- a/packages/babel-plugin-flow-runtime/src/transformVisitors.js
++++ b/packages/babel-plugin-flow-runtime/src/transformVisitors.js
+@@ -476,6 +476,15 @@
+                 context.call('return', returnCheck)
+               )
+             ]));
++            if (path.node.async && !path.node.generator && getPromisedType(context, returnType)) {
++              const statements = body.node.body;
++              if (statements && (statements.length === 0
++                || statements[statements.length - 1].type !== 'ReturnStatement')
++              ) {
++                // Reuse the return visitor to check an async fallthrough value.
++                statements.push(t.ReturnStatement());
++              }
++            }
+           }
+         }
+         else {
