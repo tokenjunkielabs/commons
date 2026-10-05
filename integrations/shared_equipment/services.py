@@ -293,9 +293,9 @@ TOOLS = [
     _schema("github_update_issue_comment", "Update an existing issue/PR conversation comment through the account publishing service, preserving the comment ID. Reuse operation_id for retries.", {"repository": "string", "comment_id": "integer", "body": "string", "operation_id": "string"}),
     _schema("github_update_issue", "Update issue title/body through the existing account publishing service. GitHub enforces author/repository permissions. Reuse operation_id for retries.", {"repository": "string", "issue_number": "integer", "operation_id": "string"}, {"title": "string", "body": "string"}),
     _schema("github_update_pull_request", "Update PR title/body through the existing account publishing service. Reads expected_head before publication and returns after-write head readback; it does not lock the branch. Reuse operation_id for retries.", {"repository": "string", "pull_number": "integer", "expected_head": "string", "operation_id": "string"}, {"title": "string", "body": "string"}),
-    _schema("github_create_branch", "Create a branch from base_ref (default main), resolving its commit internally. base_sha remains a compatible override and also accepts a ref. Returns an existing branch only when its head matches the resolved base; never moves an existing branch.", {"repository": "string", "branch": "string"}, {"base_ref": {"type": "string", "default": "main", "description": "Source branch, tag, ref, or commit; resolved internally. Defaults to main."}, "base_sha": {"type": "string", "description": "Compatibility override for base_ref: an existing commit SHA or ref."}}),
-    _schema("github_commit_files", "Commit UTF-8 files to an existing branch, comparing expected_head first. Supply full file contents. Returns commit SHA; never force-updates a ref.", {"repository": "string", "branch": "string", "expected_head": "string", "message": "string"}, {"files": {"type": "array", "items": {"type": "object", "properties": {"path": {"type": "string"}, "content": {"type": "string"}}, "required": ["path", "content"]}}}),
-    _schema("github_create_pull_request", "Open a useful PR for existing task work. Returns an existing open PR for the same head/base on retry.", {"repository": "string", "head": "string", "base": "string", "title": "string", "body": "string"}, {"draft": "boolean"}),
+    _schema("github_create_branch", "Create a branch from base_ref (default main), resolving its commit internally. base_sha remains a compatible override and also accepts a ref. Returns an existing branch only when its head matches the resolved base; never moves an existing branch. Publication runs through the existing account publishing service; reuse operation_id for retries.", {"repository": "string", "branch": "string", "operation_id": "string"}, {"base_ref": {"type": "string", "default": "main", "description": "Source branch, tag, ref, or commit; resolved internally. Defaults to main."}, "base_sha": {"type": "string", "description": "Compatibility override for base_ref: an existing commit SHA or ref."}}),
+    _schema("github_commit_files", "Commit UTF-8 files to an existing branch through the existing account publishing service, comparing expected_head first and again inside the named operation. Supply full file contents. Reuse operation_id for retries.", {"repository": "string", "branch": "string", "expected_head": "string", "message": "string", "operation_id": "string"}, {"files": {"type": "array", "items": {"type": "object", "properties": {"path": {"type": "string"}, "content": {"type": "string"}}, "required": ["path", "content"]}}}),
+    _schema("github_create_pull_request", "Open a useful PR for existing task work through the existing account publishing service. Returns an existing open PR for the same head/base on retry. Reuse operation_id for retries; head_repo, maintainer_can_modify and transport ('graphql') pass through to the named operation.", {"repository": "string", "head": "string", "base": "string", "title": "string", "body": "string", "operation_id": "string"}, {"draft": "boolean", "head_repo": "string", "maintainer_can_modify": "boolean", "transport": "string"}),
     _schema("github_merge_pull_request", "Merge an authorized reviewed PR with expected head SHA. GitHub enforces branch rules. Returns provider result, not an assumed success.", {"repository": "string", "pull_number": "integer", "expected_head": "string"}, {"merge_method": "string"}),
     _schema("cua_s1_form", "Score a form in one already-open Chrome tab with the official CUA-S1-FORMS checkpoint. Defaults to a dry run; execute and submit are separate explicit booleans. Reports observed actions and failures, and never opens a tab.",
             {"url": "string", "form_title": "string", "entities": {"type": "array", "items": {"type": "object", "properties": {"label": {"type": "string"}, "value": {"type": "string"}}, "required": ["label", "value"]}}},
@@ -644,7 +644,11 @@ class ServiceEquipment(GitHubSlackEquipment):
                 if found["object"]["sha"] != sha:
                     raise EquipmentError("existing branch has a different head")
                 return {"created": False, **found}
-            return self.github(root + "/git/refs", method="POST", payload={"ref": "refs/heads/" + branch, "sha": sha})
+            from .github_publication import publish
+            owner, repository_name = repo.split("/")
+            return publish("branch.create",
+                           {"owner": owner, "repo": repository_name, "branch": branch, "sha": sha},
+                           _string(a, "operation_id"), actor=owner)
         if name == "github_commit_files":
             branch, expected = _string(a, "branch"), _string(a, "expected_head")
             message = _string(a, "message")
@@ -653,11 +657,20 @@ class ServiceEquipment(GitHubSlackEquipment):
             ref = self.github(root + "/git/ref/heads/" + _quote(branch))
             if ref["object"]["sha"] != expected:
                 raise EquipmentError("branch head changed; read current head and reconcile files")
-            parent = self.github(root + "/git/commits/" + _quote(expected))
-            made_tree = self.github(root + "/git/trees", method="POST", payload={"base_tree": parent["tree"]["sha"], "tree": tree})
-            commit = self.github(root + "/git/commits", method="POST", payload={"message": message, "tree": made_tree["sha"], "parents": [expected]})
-            updated = self.github(root + "/git/refs/heads/" + _quote(branch), method="PATCH", payload={"sha": commit["sha"], "force": False})
-            return {"commit_sha": commit["sha"], "branch": branch, "ref": updated, "url": commit.get("html_url")}
+            additions = [{"path": entry["path"],
+                          "contents": base64.b64encode(entry["content"].encode("utf-8")).decode("ascii")}
+                         for entry in tree]
+            headline, _, message_body = message.partition("\n")
+            outgoing_message = {"headline": headline}
+            if message_body.strip():
+                outgoing_message["body"] = message_body.lstrip("\n")
+            from .github_publication import publish
+            owner, repository_name = repo.split("/")
+            return publish("commit.create",
+                           {"owner": owner, "repo": repository_name, "branch": branch,
+                            "expectedHeadOid": expected, "message": outgoing_message,
+                            "fileChanges": {"additions": additions}},
+                           _string(a, "operation_id"), actor=owner)
         if name == "github_create_pull_request":
             owner = repo.split("/")[0]
             head, base = _string(a, "head"), _string(a, "base")
@@ -672,13 +685,17 @@ class ServiceEquipment(GitHubSlackEquipment):
             existing = self.github(root + "/pulls?" + query)
             if existing:
                 return {"created": False, "pull_request": existing[0]}
-            return self.github(root + "/pulls", method="POST", payload={
-                "head": head,
-                "base": base,
-                "title": title,
-                "body": body,
-                "draft": bool(a.get("draft", False)),
-            })
+            outgoing = {"owner": owner, "repo": repo.split("/")[1], "head": head, "base": base,
+                        "title": title, "body": body, "draft": bool(a.get("draft", False))}
+            if "head_repo" in a:
+                outgoing["head_repo"] = _string(a, "head_repo")
+            if "maintainer_can_modify" in a:
+                outgoing["maintainer_can_modify"] = bool(a["maintainer_can_modify"])
+            if "transport" in a:
+                outgoing["transport"] = _string(a, "transport")
+            from .github_publication import publish
+            head_owner = head.split(":", 1)[0] if ":" in head else owner
+            return publish("pull.create", outgoing, _string(a, "operation_id"), actor=head_owner)
         if name == "github_merge_pull_request":
             number = a.get("pull_number")
             if isinstance(number, bool) or not isinstance(number, int) or number < 1:

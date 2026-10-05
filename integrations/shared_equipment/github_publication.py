@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import subprocess
 import sys
@@ -136,7 +137,45 @@ def _preflight(operation, arguments):
             )
 
 
-def publish(operation, arguments, operation_id, *, runner=None, client=None):
+GH = Path.home() / "AppData/Local/Programs/GitHub CLI/gh.exe"
+
+
+def _named_actor_token(actor: str) -> str:
+    """Select an existing shared GitHub credential by login name.
+
+    A direct gh keyring read scoped to this call: the global active account
+    is never switched, and the token exists only in memory and the scoped
+    child-process environment. Any named login resolves or fails generically.
+    """
+    if not isinstance(actor, str) or not re.fullmatch(r"[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?", actor):
+        raise EquipmentError("actor must be a GitHub login name")
+    completed = subprocess.run(
+        [str(GH), "auth", "token", "--hostname", "github.com", "--user", actor],
+        capture_output=True, text=True, encoding="utf-8", timeout=30,
+        creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+    if completed.returncode or not completed.stdout.strip():
+        raise EquipmentError("named shared GitHub credential unavailable for actor " + actor)
+    return completed.stdout.strip()
+
+
+def _actor_readback(token: str) -> dict:
+    env = {**os.environ, "GH_TOKEN": token}
+    completed = subprocess.run(
+        [str(GH), "api", "graphql", "-f", "query=query { viewer { login databaseId } }"],
+        capture_output=True, text=True, encoding="utf-8", timeout=30, env=env,
+        creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+    if completed.returncode:
+        raise EquipmentError("actor readback unavailable for the named credential")
+    try:
+        viewer = json.loads(completed.stdout)["data"]["viewer"]
+    except (ValueError, KeyError, TypeError):
+        raise EquipmentError("actor readback response invalid") from None
+    if not isinstance(viewer.get("login"), str) or not isinstance(viewer.get("databaseId"), int):
+        raise EquipmentError("actor readback response invalid")
+    return {"login": viewer["login"], "id": viewer["databaseId"]}
+
+
+def publish(operation, arguments, operation_id, *, runner=None, client=None, actor=None):
     if not isinstance(operation_id, str) or not re.fullmatch(r"[A-Za-z0-9._:-]{8,128}", operation_id):
         raise EquipmentError(
             "operation_id must contain 8 to 128 ASCII letters, digits, dots, underscores, colons, or hyphens",
@@ -147,11 +186,19 @@ def publish(operation, arguments, operation_id, *, runner=None, client=None):
     if not client.is_file():
         raise EquipmentError("existing account publishing client is unavailable; restore its shared installation")
     envelope = {"operation_id": operation_id, "operation": operation, "args": arguments}
+    env = None
+    resolved_actor = None
+    if actor is not None:
+        token = _named_actor_token(actor)
+        resolved_actor = _actor_readback(token)
+        if resolved_actor["login"].lower() != actor.lower():
+            raise EquipmentError("named credential resolved to a different actor")
+        env = {**os.environ, "GH_TOKEN": token}
     try:
         result = (runner or subprocess.run)(
             [sys.executable, str(client), "publish"],
             input=json.dumps(envelope, ensure_ascii=False), text=True, encoding="utf-8",
-            capture_output=True, timeout=150,
+            capture_output=True, timeout=150, env=env,
             creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
         )
     except (OSError, subprocess.TimeoutExpired):
@@ -170,4 +217,4 @@ def publish(operation, arguments, operation_id, *, runner=None, client=None):
         "GITHUB_DELIVERY_UNCERTAIN", "OPERATION_IN_PROGRESS_OR_REQUIRES_RECONCILIATION",
     } or receipt.get("state") in {"DISPATCHING", "DELIVERY_UNCERTAIN"}
     return {"ok": ok, "operation_id": operation_id, "uncertain": uncertain,
-            "publication": redacted(receipt)}
+            "actor": resolved_actor, "publication": redacted(receipt)}
