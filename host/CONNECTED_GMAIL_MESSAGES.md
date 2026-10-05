@@ -29,10 +29,57 @@ const view = box.exports.projectGmailMessages(retained, {
   maxTotalBodyChars: 18000
 });
 store("mail-body-view", view);
-text(view);
+
+// Display selected plain text and metadata for selected HTML.
+// The complete native response and complete projection remain retained.
+const display = {
+  display_format: "gmail-plain-body-display-v1",
+  message_count: view.message_count,
+  omitted_messages: view.omitted.messages,
+  messages: view.messages.map(message => ({
+    id: message.id,
+    thread_id: message.thread_id,
+    source_index: message.source_index,
+    source_path: message.source_path,
+    subject: message.subject,
+    from: message.from,
+    date: message.date,
+    projection_omitted_header_chars: message.omitted.header_chars,
+    projection_omitted_body_chars: message.omitted.body_chars,
+    projection_omitted_body_parts: message.omitted.body_parts,
+    bodies: message.bodies.map(body => ({
+      mime_type: body.mime_type,
+      source_path: body.source_path,
+      original_chars: body.original_chars,
+      projected_chars: body.text.length,
+      projection_omitted_chars: body.omitted_chars,
+      projection_truncated: body.truncated,
+      display_status: body.mime_type === "text/plain" ? "included" : "withheld_html",
+      display_omitted_chars: body.mime_type === "text/plain" ? 0 : body.text.length,
+      text: body.mime_type === "text/plain" ? body.text : undefined
+    })),
+    unavailable_bodies: message.unavailable_bodies.map(body => ({
+      mime_type: body.mime_type,
+      source_path: body.source_path,
+      reason: body.reason
+    }))
+  }))
+};
+store("mail-body-display", display);
+text(display);
 ```
 
-Save a native read result with `store("mail-full-response", response)` before emitting a projection. The module accepts these actual native full-MIME shapes:
+Save a native read result with `store("mail-full-response", response)` before emitting a projection.
+
+The example keeps the complete projection under `mail-body-view` and stores a separate reading display under `mail-body-display`. Only selected `text/plain` bodies are displayed as text. For selected `text/html`, the display includes its MIME type, exact source path and character counts with `display_status: "withheld_html"`; the HTML string, including its tag attributes, is not emitted. No HTML rendering, tag stripping, entity decoding or conversion is performed. An available HTML-only body is therefore explicitly withheld in this display, not represented as an empty or unavailable body.
+
+`original_chars`, `projection_omitted_chars` and `projection_truncated` describe the existing projector's source and clipping. `projected_chars` is the selected string's returned length; `display_omitted_chars` counts only that returned string withheld by this additional display step. These counts remain separate, so projector clipping is not reported as display coverage. The helper's complete MIME omission counts, limits and selection record remain in `mail-body-view`. Sparse source indices and body paths retain their original positions; the display does not inspect an omitted message or an unused HTML alternative. Explicit output fields also keep transport headers and unrelated envelope fields out of this reading display.
+
+MIME selection is not redaction or sender authentication. Apply the recipe only to the messages already selected for the current task. Plain text can itself contain sensitive values; this recipe only controls which selected representation is displayed. If HTML content is needed for the task, use the retained source path deliberately rather than silently substituting a different body representation.
+
+The observed-consumption measurements below describe the existing projector. They are not measurements of this added display recipe; the new example has been reviewed against the current projector's fields without executing another mailbox-body projection.
+
+The module accepts these actual native full-MIME shapes:
 
 | Reader | Required response shape |
 | --- | --- |
