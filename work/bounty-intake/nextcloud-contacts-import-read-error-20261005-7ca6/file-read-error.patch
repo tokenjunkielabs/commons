@@ -1,0 +1,18 @@
+diff --git a/src/components/AppNavigation/Settings/SettingsImportContacts.vue b/src/components/AppNavigation/Settings/SettingsImportContacts.vue
+--- a/src/components/AppNavigation/Settings/SettingsImportContacts.vue
++++ b/src/components/AppNavigation/Settings/SettingsImportContacts.vue
+@@ -198,7 +198,13 @@
+ 			let addedFiles = false
+ 
+ 			for (const file of event.target.files) {
+-				const contents = await readFileAsText(file)
++				let contents
++				try {
++					contents = await readFileAsText(file)
++				} catch {
++					showError(t('contacts', '{filename} could not be read', { filename: file.name }))
++					continue
++				}
+ 				if (this.queueFile(file.name, contents, {
+ 					lastModified: file.lastModified,
+ 					size: file.size,
