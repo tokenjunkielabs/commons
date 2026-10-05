@@ -1,0 +1,20 @@
+diff --git a/src/components/ContactForm.tsx b/src/components/ContactForm.tsx
+--- a/src/components/ContactForm.tsx
++++ b/src/components/ContactForm.tsx
+@@ -3,6 +3,7 @@
+ import { Input } from '@/components/Input';
+ import { Button } from '@/components/Button';
+ import { useContactStore } from '@/features/contacts/contactStore';
++import { validateAddress } from '@/utils/validation';
+ import { X, Edit2, Trash2, Plus } from 'lucide-react-native';
+ 
+ interface ContactFormProps {
+@@ -41,7 +42,7 @@
+     if (!trimmed.startsWith('G')) return false;
+     if (trimmed.length !== 56) return false;
+     if (!/^[A-Z2-7]+$/.test(trimmed)) return false;
+-    return true;
++    return validateAddress(trimmed) === null;
+   };
+ 
+   const validate = (): boolean => {
