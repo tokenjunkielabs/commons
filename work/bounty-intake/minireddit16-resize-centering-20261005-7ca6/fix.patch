@@ -1,0 +1,18 @@
+diff --git a/js/ui.js b/js/ui.js
+--- a/js/ui.js
++++ b/js/ui.js
+@@ -67,6 +67,14 @@
+ 
+ $('#img').click(next);
+ 
++$(window).on('resize', function() {
++    var viewportWidth = $(window).width();
++    $('#img, #oldimg').each(function() {
++        var $image = $(this);
++        $image.css('left', Math.floor(viewportWidth / 2 - $image.width() / 2) + 'px');
++    });
++});
++
+ if (localStorage.instructions == 'read') {
+     $('.instructions').hide();
+ }
