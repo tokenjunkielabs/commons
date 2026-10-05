@@ -320,22 +320,23 @@
     "inventory/resources/records/resource-master-capability-delta-20261005-0317.json",
     "inventory/resources/records/resource-master-capability-delta-20261005-0555.json",
     "inventory/resources/records/resource-master-capability-delta-20261005-0908.json",
-    "inventory/resources/records/resource-master-capability-delta-20261005-1504.json"
+    "inventory/resources/records/resource-master-capability-delta-20261005-1504.json",
+    "inventory/resources/records/resource-master-capability-delta-20261005-1803.json"
   ],
   "schema": "commons-resource-ledger/v2",
   "secrets": false,
   "shared_resource_rule": "ALL_CARRIERS_MAY_USE_ALL_SHARED_RESOURCES; CLAUDE_IS_OWNER_HANDLED",
-  "slack_ts": "1791227824.704119",
+  "slack_ts": "1791238167.675429",
   "snapshot": {
-    "base_main_sha": "5cbdd3d5ad9dfd974385ce27bae64fb7484a1bbb",
-    "observed_at": "2026-10-05T19:24:10.000Z",
-    "source_window_upper": "2026-10-05T19:24:10.000Z",
+    "base_main_sha": "74cefdf02b03f3d23dcfd3dbfd19a55336460a4b",
+    "observed_at": "2026-10-05T22:24:02Z",
+    "source_window_upper": "2026-10-05T22:24:02Z",
     "later_publication_observations_are_not_swept": false,
     "privacy_rule": "Shared account identities, service roles, aggregate quotas, reset states, and operating state may be published for Commons routing. Never persist passwords, tokens, API credentials, recovery or verification links, payment credentials, personal legal identity, or private mail contents.",
     "scope": "Anything convertible into Commons capability or value, including Bryce, devices, subscriptions, models, agents, tools, repositories, builds, data, attention, and external roads.",
     "truth_rule": "Capacity, authority, lifecycle stage, and condition are independent. Declared or cached is not live; reset is not permission; activity is not value."
   },
-  "source_id": "resource-master-capability-delta-20261005-1504",
+  "source_id": "resource-master-capability-delta-20261005-1803",
   "stage_order": [
     "DECLARED",
     "AVAILABLE",
@@ -344,8 +345,9 @@
     "EXERCISED",
     "PRODUCING"
   ],
-  "subject": "MASTER RESOURCE LEDGER — revenue-priority product, research and connected-capability activation",
+  "subject": "MASTER RESOURCE LEDGER — revenue-source, finite-research and announced runtime-capacity activation",
   "supersedes_source_ids": [
+    "resource-master-capability-delta-20261005-1504",
     "resource-master-capability-delta-20261005-0908",
     "resource-master-post-snapshot-capability-reconcile-20261004-2058",
     "resource-master-authority-and-research-delta-20261004-1755",
@@ -3494,7 +3496,7 @@
       "name": "connected-slack-exact-text-publisher",
       "next_action": "Adopt the new mode only for a literal full-target Slack label omission and record an actual comparison receipt before calling that sub-capability exercised.",
       "operating_detail": "OPERATIONAL",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "rate_plan_boundary": "The connected provider accepted one send and one edit. This does not expose plan limits, guarantee future quota, prove independent rendered-body readback inside the helper, authorize new recipients, or establish deployment, buyer action, payment, revenue or cash.",
       "source": "Existing producing source plus PR31532 merge fff331d289b01cd537d9555c504fd8d9fc2858da.",
       "stage": "PRODUCING",
@@ -3537,21 +3539,21 @@
       "condition": "LIVE",
       "confidence": "HIGH_FOR_PINNED_SOURCE_AND_THIS_EXACT_NATIVE_PAGE_CHAIN; NATIVE_PAGINATION_IS_NOT_A_WORKSPACE_SNAPSHOT",
       "consumer": "Resource Master and Commons operators that need exact cursor, provider-end, and continuation evidence for bounded Slack delta sweeps",
-      "evidence_ts": "2026-10-05T19:12:50.000Z",
+      "evidence_ts": "2026-10-05T22:10:13Z",
       "exact_safe_probe": "Current-main guidance was read and the seven required Slack channels were exhaustively swept through the prior terminal lower bound; no private body or credential was persisted.",
       "holder": "Commons / connected Slack app; Resource Master activation claim releases after landed projection readback",
       "kind": "CONNECTED_SLACK_NATIVE_CURSOR_PAGE_READER",
-      "last_receipt": "resource-master-capability-delta-20261005-1504",
+      "last_receipt": "resource-master-capability-delta-20261005-1803",
       "last_result": "Exact merged helper completed a one-call post-watermark #commons page chain with explicit provider end, six distinct message timestamps, and no mutation.",
-      "last_used_at": "2026-10-05T19:12:50.000Z",
+      "last_used_at": "2026-10-05T22:10:13Z",
       "name": "connected-slack-native-page-collector",
       "next_action": "Use the retained projection for exact Slack delta sweeps; keep message identity, page boundaries, source timestamps and thread ownership explicit.",
       "own_activation_this_run": true,
       "rate_plan_boundary": "Read semantics and a repeat diagnostic do not grant send/delete authority, suppress messages, or prove delivery-layer cause.",
-      "source": "Existing producing source plus PR31658 merge 380ae50afb17bbd6592fc08ba3ee0a025e8bb615; host/CONNECTED_SLACK_PAGES.md",
+      "source": "Existing producing source plus PR31718 merge f10506b4cbf8cde39910d8a8ab39792be0d2813a; host/CONNECTED_SLACK_PAGES.md",
       "stage": "PRODUCING",
       "stale_after": "next helper blob, native Slack response contract, connected-app authority, rate-plan, channel policy, selected lower bound, or consumer change",
-      "value": "The producing collector now records requested item and character budgets beside returned rows so history receipts distinguish caller limits from provider output.",
+      "value": "The producing collector now reports retained collection handoffs without merging unrelated cursor chains or leaking bodies.",
       "verification": "Pinned helper blob, live native read, exact provider-end and timestamp accounting, focused fake-binding paths, ledger schema, resource projection, open-door/no-auth, zero-fabrication, secret, privacy, and diff checks.",
       "evidence_freshness": "EVENT_DRIVEN"
     },
@@ -3573,7 +3575,7 @@
       "last_used_at": "2026-10-05T19:12:50.000Z",
       "name": "connected-github-native-issue-pr-search",
       "next_action": "Refresh exact merged source for a concrete existing consumer; preserve original work IDs and owners.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "rate_plan_boundary": "Two native indexed-search calls succeeded. This does not expose or refresh plan limits, make an immutable repository snapshot, bypass the provider's 1,000-result search ceiling, authorize writes, or establish deployment, buyer acceptance, payment, revenue, cash, live session, or device action.",
       "source": "Existing producing source plus PR31691 merge 174a2c78560f425124cc1f54d68015a02bdedcd9; host/CONNECTED_GITHUB_ISSUE_SEARCH.md and host/connected_github_issue_search.cjs",
       "stage": "PRODUCING",
@@ -3644,21 +3646,21 @@
       "condition": "LIVE",
       "confidence": "HIGH_FOR_ALL_FOUR_SOURCE_PINS_NATIVE_PUBLICATION_AND_EXACT_MERGED_READBACK; CONSTRAINED_FOR_HELPER_PARENT-TREE TRANSPORT UNDER OVERSIZED DIRECTORIES",
       "consumer": "Resource Master four-file canonical ledger, receipt, page, and projection publication",
-      "evidence_ts": "2026-10-05T19:12:50.000Z",
+      "evidence_ts": "2026-10-05T22:10:13Z",
       "exact_safe_probe": "Inline pinned publication and action timing have actual bounded consumers; journal locator guidance is documentation-only. Open-door failed on negative admission prose in PR31670 and PR31684 and remains under the existing repair order.",
       "holder": "Commons / connected GitHub app; Resource Master claim releases after current-main readback",
       "kind": "CONNECTED_GITHUB_NATIVE_SOURCE_PINNED_PUBLICATION",
-      "last_receipt": "resource-master-capability-delta-20261005-1504",
+      "last_receipt": "resource-master-capability-delta-20261005-1803",
       "last_result": "Selected exactly once and produced merged four-file publication PR31018. The oversized-directory precheck gap is delegated separately; no other resource is activated this run.",
-      "last_used_at": "2026-10-05T19:12:50.000Z",
+      "last_used_at": "2026-10-05T22:10:13Z",
       "name": "connected-github-source-pinned-publisher",
       "next_action": "Use only for authorized exact-path source changes with unique non-force branches, preserved preimages, PR, expected-head merge and immutable readback.",
       "own_activation_this_run": true,
       "rate_plan_boundary": "Envelope admission and free-provider forwarding are not global quota, permission, deployment, or guaranteed availability; deletion remains guarded and task-specific.",
-      "source": "Existing producing source plus PR31661 merge 3be3eeeef34546a746371b1b79ac9a3c1604996f, PR31663 abbb6c679f6ae65d96da001de6a85c36fd4d210e, PR31665 11b56d3797a4e24f5e5822be273174cbf5606cc3, PR31670 6e7da8e6958fa0581e49956f88a094f7b5e73d65 and PR31684 8c2b2fa9b383f8e36e5aad9443150d8eb69fd363.",
+      "source": "Existing producing source plus PR31729 merge f729a30a4f1c49952cd54881cc24b68fe57a07b6; host/CONNECTED_GITHUB_PUBLISH.md",
       "stage": "PRODUCING",
       "stale_after": "next helper blob, native GitHub tool contract, repository authority, rate-plan, branch policy, source pins, or consumer change",
-      "value": "The producing publisher now supports opt-in inline pinned UTF-8 publication with native tree verification, records action timing without changing defaults, and documents private journal directory locators.",
+      "value": "The producing publisher now documents reuse of verified merge readbacks only when a fresh observation proves the identical immutable main ref.",
       "verification": "Pinned helper source, independent local Git-blob computation, native provider publication, exact readback, focused tests, open-door/no-auth, zero-fabrication, secret, privacy and diff checks.",
       "evidence_freshness": "EVENT_DRIVEN"
     },
@@ -3798,7 +3800,7 @@
       "last_used_at": "2026-10-05T01:05:38.606Z",
       "name": "swarm-scoped-claim-scanner",
       "next_action": "Use the exact published source for the named consumer; preserve existing owners and receipts.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "rate_plan_boundary": "Captured slice only; scanner completeness=false. Missing paths or repetitions are advice, never an auth/admission gate or proof of live worker ownership.",
       "source": "PR31088/31086/31096; host/swarm_claim_scan.py blob6532d318f01fd82217389a78c8f41278ef3b6bed; PR31451 merge b0b9596bfc9bb782fd4cc1343d53e3f0dbef473d",
       "stage": "PRODUCING",
@@ -4242,7 +4244,7 @@
       "last_used_at": "2026-10-05T19:12:50.000Z",
       "name": "agentmail-recovery-draft-road",
       "next_action": "Consume the existing source and operation under its current owner; advance only the remaining concrete dependency.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "rate_plan_boundary": "Remaining send allowance unknown; preserve existing inbox/draft and operation. No account creation, message resend, external contact or identity action from this role.",
       "source": "Connected plugin identity app-6a4ea51b44c48191b49f0b14c7c83897; read-only list_organizations and list_inboxes proof on 2026-10-05.",
       "stage": "EXERCISED",
@@ -4664,7 +4666,7 @@
       "last_used_at": "2026-10-05T19:12:50.000Z",
       "name": "homeops-finished-demo-video",
       "next_action": "Consume the existing finished source for a concrete task; preserve original IDs and current owners.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "rate_plan_boundary": "Merged source and recorded execution establish this bounded capability only; provider quota, deployments, live sessions, buyer acceptance, payment and cash require separate matching receipts.",
       "source": "Existing HomeOps demo source plus https://github.com/woahwhattheheck/homeops-mcp/pull/20 merge 86f0f0aa873d2fa45e06295f0c53328fb4291430.",
       "stage": "PRODUCING",
@@ -4831,7 +4833,7 @@
       "next_action": "Await the buyer's reply under the existing owner; do not resend. Bryce retains facts, negotiation, signing and follow-up authority.",
       "rate_plan_boundary": "A sent proposal is exercised business-development work, not buyer acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner-fact lane retained; one new attachment/send follow-up delivered under the same Account Chad coordination root. No second draft or resend.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "exact_safe_probe": "Provider receipt shows one sent message with the final PDF attached; no buyer reply, acceptance, award, payment, payout, revenue or cash receipt followed."
     },
     {
@@ -4916,7 +4918,7 @@
       "next_action": "Bind and exercise the actual private producer only when its runtime is reachable; keep public results sanitized and preserve BODYHOLD.",
       "rate_plan_boundary": "Redaction must not break sign-in, create an auth gate, rotate credentials, replay private output, or claim a public leak.",
       "assigned_backlog": "Source claims released; continue only under the existing root when the producer/runtime is reachable; no duplicate order.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "exact_safe_probe": "All PR31473 workflows passed and current-main bytes match. The change was static/readback only: no sanitizer invocation, actual transcript producer, live upload or runtime proof occurred."
     },
     {
@@ -4994,7 +4996,7 @@
       "last_receipt": "resource-master-authority-and-research-delta-20261004-1755",
       "last_used_at": "2026-10-04T22:06:55.149Z",
       "evidence_ts": "2026-10-04T22:06:55.149Z",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "assigned_backlog": "Completed merged source is available to its existing consumers; no duplicate worker or implementation order.",
       "name": "kimberling-greedy-difference-continuation-index",
       "kind": "FINITE_SEQUENCE_CONTINUATION_INDEX",
@@ -5016,7 +5018,7 @@
       "last_receipt": "resource-master-authority-and-research-delta-20261004-1755",
       "last_used_at": "2026-10-04T22:06:55.149Z",
       "evidence_ts": "2026-10-04T22:06:55.149Z",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "assigned_backlog": "Completed merged source is available to its existing consumers; no duplicate worker or implementation order.",
       "name": "cyclic-turan-n2197-index",
       "kind": "FINITE_HYPERGRAPH_INDEX",
@@ -5038,7 +5040,7 @@
       "last_receipt": "resource-master-authority-and-research-delta-20261004-1755",
       "last_used_at": "2026-10-04T22:06:55.149Z",
       "evidence_ts": "2026-10-04T22:06:55.149Z",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "assigned_backlog": "Completed merged source is available to its existing consumers; no duplicate worker or implementation order.",
       "name": "smooth-sum-clique-index",
       "kind": "FINITE_GRAPH_MAXIMUM_CLIQUE_CERTIFICATE",
@@ -5060,7 +5062,7 @@
       "last_receipt": "resource-master-authority-and-research-delta-20261004-1755",
       "last_used_at": "2026-10-04T22:06:55.149Z",
       "evidence_ts": "2026-10-04T22:06:55.149Z",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "assigned_backlog": "Completed merged source is available to its existing consumers; no duplicate worker or implementation order.",
       "name": "factorial89-unitary-divisor-index",
       "kind": "FINITE_ARITHMETIC_RANK_SELECT_INDEX",
@@ -5082,7 +5084,7 @@
       "last_receipt": "resource-master-authority-and-research-delta-20261004-1755",
       "last_used_at": "2026-10-04T22:06:55.149Z",
       "evidence_ts": "2026-10-04T22:06:55.149Z",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "assigned_backlog": "Completed merged source is available to its existing consumers; no duplicate worker or implementation order.",
       "name": "rectangular-line-navigation-index",
       "kind": "FINITE_GEOMETRIC_INCIDENCE_INDEX",
@@ -5104,7 +5106,7 @@
       "last_receipt": "resource-master-authority-and-research-delta-20261004-1755",
       "last_used_at": "2026-10-04T22:06:55.149Z",
       "evidence_ts": "2026-10-04T22:06:55.149Z",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "assigned_backlog": "Completed merged source is available to its existing consumers; no duplicate worker or implementation order.",
       "name": "boolean-substring-chart-index",
       "kind": "FINITE_BOOLEAN_GRAMMAR_CHART",
@@ -5126,7 +5128,7 @@
       "last_receipt": "resource-master-authority-and-research-delta-20261004-1755",
       "last_used_at": "2026-10-04T22:06:55.149Z",
       "evidence_ts": "2026-10-04T22:06:55.149Z",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "assigned_backlog": "Completed merged source is available to its existing consumers; no duplicate worker or implementation order.",
       "name": "q4-square-cover-optimizer",
       "kind": "FINITE_EXACT_GRAPH_OPTIMIZER",
@@ -5148,7 +5150,7 @@
       "last_receipt": "resource-master-authority-and-research-delta-20261004-1755",
       "last_used_at": "2026-10-04T22:06:55.149Z",
       "evidence_ts": "2026-10-04T22:06:55.149Z",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "assigned_backlog": "Completed merged source is available to its existing consumers; no duplicate worker or implementation order.",
       "name": "primitive-weird-k12-catalog",
       "kind": "FINITE_NUMBER_THEORY_CERTIFICATE_CATALOG",
@@ -5170,7 +5172,7 @@
       "last_receipt": "resource-master-authority-and-research-delta-20261004-1755",
       "last_used_at": "2026-10-04T22:06:55.149Z",
       "evidence_ts": "2026-10-04T22:06:55.149Z",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "assigned_backlog": "Completed merged source is available to its existing consumers; no duplicate worker or implementation order.",
       "name": "odd-orbit-affine-index",
       "kind": "FINITE_DYNAMICAL_ORBIT_INDEX",
@@ -5192,7 +5194,7 @@
       "last_receipt": "resource-master-authority-and-research-delta-20261004-1755",
       "last_used_at": "2026-10-04T22:06:55.149Z",
       "evidence_ts": "2026-10-04T22:06:55.149Z",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "assigned_backlog": "Completed merged source is available to its existing consumers; no duplicate worker or implementation order.",
       "name": "spherical-curve-mean-certificate",
       "kind": "FINITE_CERTIFIED_GEOMETRIC_INTEGRAL_INDEX",
@@ -5224,7 +5226,7 @@
       "next_action": "Apply a hard no-reply/no-representation boundary in Scottcjn repositories; classify any future RTC receipt as RTC only unless a new authoritative redemption/off-ramp receipt exists.",
       "rate_plan_boundary": "Advertised RTC and internal dollar sizing are not assignment, award, acceptance, settlement, payout, recognized revenue, cash, or permission to act.",
       "assigned_backlog": "No implementation or outreach lane created. Existing owners retain work; another impersonating or auto-reply incident may pause claims.",
-      "own_activation_this_run": true
+      "own_activation_this_run": false
     },
     {
       "evidence_freshness": "EVENT_DRIVEN",
@@ -5236,7 +5238,7 @@
       "last_receipt": "resource-master-post-snapshot-capability-reconcile-20261004-2058",
       "last_used_at": "2026-10-05T01:05:38.606Z",
       "evidence_ts": "2026-10-05T01:05:38.606Z",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "assigned_backlog": "Completed merged source is available to its existing consumers; no duplicate worker or implementation order.",
       "name": "tournament-inverse-fiber-index",
       "kind": "FINITE_TOURNAMENT_INVERSE_INDEX",
@@ -5258,7 +5260,7 @@
       "last_receipt": "resource-master-post-snapshot-capability-reconcile-20261004-2058",
       "last_used_at": "2026-10-05T01:05:38.606Z",
       "evidence_ts": "2026-10-05T01:05:38.606Z",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "assigned_backlog": "Completed merged source is available to its existing consumers; no duplicate worker or implementation order.",
       "name": "mycielski-local-bipartization-index",
       "kind": "FINITE_LOCAL_BIPARTIZATION_INDEX",
@@ -5280,7 +5282,7 @@
       "last_receipt": "resource-master-post-snapshot-capability-reconcile-20261004-2058",
       "last_used_at": "2026-10-05T01:05:38.606Z",
       "evidence_ts": "2026-10-05T01:05:38.606Z",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "assigned_backlog": "Completed merged source is available to its existing consumers; no duplicate worker or implementation order.",
       "name": "werner-fixed-support-certificate",
       "kind": "EXACT_RESTRICTED_QUADRATIC_FORM_CERTIFICATE",
@@ -5302,7 +5304,7 @@
       "last_receipt": "resource-master-post-snapshot-capability-reconcile-20261004-2058",
       "last_used_at": "2026-10-05T01:05:38.606Z",
       "evidence_ts": "2026-10-05T01:05:38.606Z",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "assigned_backlog": "Completed merged source is available to its existing consumers; no duplicate worker or implementation order.",
       "name": "hard-count-resumable-history-index",
       "kind": "FINITE_RESUMABLE_SEQUENCE_HISTORY_INDEX",
@@ -5324,7 +5326,7 @@
       "last_receipt": "resource-master-post-snapshot-capability-reconcile-20261004-2058",
       "last_used_at": "2026-10-05T01:05:38.606Z",
       "evidence_ts": "2026-10-05T01:05:38.606Z",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "assigned_backlog": "Completed merged source is available to its existing consumers; no duplicate worker or implementation order.",
       "name": "interval-product-cover-family-index",
       "kind": "FINITE_EXACT_PRODUCT_COVER_INDEX",
@@ -5346,7 +5348,7 @@
       "last_receipt": "resource-master-post-snapshot-capability-reconcile-20261004-2058",
       "last_used_at": "2026-10-05T01:05:38.606Z",
       "evidence_ts": "2026-10-05T01:05:38.606Z",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "assigned_backlog": "Completed merged source is available to its existing consumers; no duplicate worker or implementation order.",
       "name": "paley13-seidel-switch-index",
       "kind": "FINITE_SEIDEL_SWITCH_FAMILY_CLASSIFICATION",
@@ -5368,7 +5370,7 @@
       "last_receipt": "resource-master-post-snapshot-capability-reconcile-20261004-2058",
       "last_used_at": "2026-10-05T01:05:38.606Z",
       "evidence_ts": "2026-10-05T01:05:38.606Z",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "assigned_backlog": "Completed merged source is available to its existing consumers; no duplicate worker or implementation order.",
       "name": "ap-free-family-navigation-index",
       "kind": "FINITE_PERSISTENT_AP_FREE_FAMILY_INDEX",
@@ -5390,7 +5392,7 @@
       "last_receipt": "resource-master-post-snapshot-capability-reconcile-20261004-2058",
       "last_used_at": "2026-10-05T01:05:38.606Z",
       "evidence_ts": "2026-10-05T01:05:38.606Z",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "assigned_backlog": "Completed merged source is available to its existing consumers; no duplicate worker or implementation order.",
       "name": "lattice-diameter-family-index",
       "kind": "FINITE_EXACT_LATTICE_PACKING_INDEX",
@@ -5412,7 +5414,7 @@
       "last_receipt": "resource-master-post-snapshot-capability-reconcile-20261004-2058",
       "last_used_at": "2026-10-05T01:05:38.606Z",
       "evidence_ts": "2026-10-05T01:05:38.606Z",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "assigned_backlog": "Completed merged source is available to its existing consumers; no duplicate worker or implementation order.",
       "name": "quittance-publication-graphql-fallback",
       "kind": "AUTHENTICATED_PUBLICATION_READ_AND_DEDUPE_FALLBACK",
@@ -5434,7 +5436,7 @@
       "last_receipt": "resource-master-post-snapshot-capability-reconcile-20261004-2058",
       "last_used_at": "2026-10-05T01:05:38.606Z",
       "evidence_ts": "2026-10-05T01:05:38.606Z",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "assigned_backlog": "Existing order continued at Slack reply 1791162313.490219; no active holder.",
       "name": "open-door-mathematical-prose-disambiguation",
       "kind": "OPEN_DOOR_SEMANTIC_PROSE_GUARD_REFINEMENT",
@@ -5456,7 +5458,7 @@
       "last_receipt": "resource-master-post-snapshot-capability-reconcile-20261004-2058",
       "last_used_at": "2026-10-05T01:12:00.000Z",
       "evidence_ts": "2026-10-05T01:12:00.000Z",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "assigned_backlog": "Completed merged source is available to its existing consumers; no duplicate worker or implementation order.",
       "name": "krenn-gu-equation-atlas",
       "kind": "FINITE_FORMAL_AMPLITUDE_EQUATION_ATLAS",
@@ -5478,7 +5480,7 @@
       "last_receipt": "resource-master-post-snapshot-capability-reconcile-20261004-2058",
       "last_used_at": "2026-10-05T01:12:00.000Z",
       "evidence_ts": "2026-10-05T01:12:00.000Z",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "assigned_backlog": "Completed merged source is available to its existing consumers; no duplicate worker or implementation order.",
       "name": "thue-morse-mealy-output-atlas",
       "kind": "FINITE_MACHINE_INFINITE_OUTPUT_CLASSIFICATION",
@@ -5510,7 +5512,7 @@
       "next_action": "Use before branch binding to prevent stale closed ordinary issues from entering active custody.",
       "rate_plan_boundary": "A preclaim gate does not establish issue funding, assignment, acceptance, permission to contact, payment, revenue or cash.",
       "assigned_backlog": "Completed merged source is available to swarm coordinators; no duplicate worker.",
-      "own_activation_this_run": true
+      "own_activation_this_run": false
     },
     {
       "evidence_freshness": "EVENT_DRIVEN",
@@ -5518,7 +5520,7 @@
       "last_receipt": "resource-master-revenue-capability-delta-20261004-2356",
       "evidence_ts": "2026-10-05T03:56:00.000Z",
       "last_used_at": "2026-10-05T03:56:00.000Z",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "name": "singer-plane-difference-set-index",
       "kind": "FINITE_SINGER_DIFFERENCE_SET_AND_PROJECTIVE_PLANE_INDEX",
       "capacity": "183_TRACE_CLASSES_182_NONZERO_ORDERED_DIFFERENCES_183_POINTS_183_LINES",
@@ -5540,7 +5542,7 @@
       "last_receipt": "resource-master-revenue-capability-delta-20261004-2356",
       "evidence_ts": "2026-10-05T03:56:00.000Z",
       "last_used_at": "2026-10-05T03:56:00.000Z",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "name": "caprine-pr2384-resume-source-packet",
       "kind": "UPSTREAM_DESKTOP_RESUME_RECOVERY_PATCH_PACKET",
       "capacity": "ONE_COMPLETE_SOURCE_CANDIDATE_PLUS_MINIMAL_TWO_STAGE_PATCH",
@@ -5562,7 +5564,7 @@
       "last_receipt": "resource-master-revenue-capability-delta-20261004-2356",
       "evidence_ts": "2026-10-05T03:56:00.000Z",
       "last_used_at": "2026-10-05T03:56:00.000Z",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "name": "razer452-passive-kvm-source-packet",
       "kind": "FUNDED_UPSTREAM_PASSIVE_KVM_RECONNECT_PATCH_PACKET",
       "capacity": "SEVENTEEN_FILE_48_HUNK_PATCH_PLUS_THIRTEEN_COMPLETE_POSTIMAGES",
@@ -5584,7 +5586,7 @@
       "last_receipt": "resource-master-revenue-capability-delta-20261004-2356",
       "evidence_ts": "2026-10-05T03:56:00.000Z",
       "last_used_at": "2026-10-05T03:56:00.000Z",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "name": "gemini-slack-receipt-journal-lock-backoff",
       "kind": "PEER_GATEWAY_RECEIPT_JOURNAL_CONTENTION_CONTROL",
       "capacity": "SQLITE_BUSY_TIMEOUT_AND_CANCELLATION_AWARE_TRANSACTION_RETRY",
@@ -5620,7 +5622,7 @@
       "next_action": "Existing owner may reconcile the pinned source against the live upstream target, run the required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "Dependency-free saved-reader use within the stated finite domain does not establish broader mathematical truth, live compute quota, sponsor acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -5643,7 +5645,7 @@
       "next_action": "Consume saved finite data through the documented reader inside the exact retained domain; preserve attribution and the stated theorem/novelty boundary.",
       "rate_plan_boundary": "Dependency-free saved-reader use within the stated finite domain does not establish broader mathematical truth, live compute quota, sponsor acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -5666,7 +5668,7 @@
       "next_action": "Consume saved finite data through the documented reader inside the exact retained domain; preserve attribution and the stated theorem/novelty boundary.",
       "rate_plan_boundary": "Dependency-free saved-reader use within the stated finite domain does not establish broader mathematical truth, live compute quota, sponsor acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -5689,7 +5691,7 @@
       "next_action": "Consume saved finite data through the documented reader inside the exact retained domain; preserve attribution and the stated theorem/novelty boundary.",
       "rate_plan_boundary": "Dependency-free saved-reader use within the stated finite domain does not establish broader mathematical truth, live compute quota, sponsor acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -5712,7 +5714,7 @@
       "next_action": "Consume saved finite data through the documented reader inside the exact retained domain; preserve attribution and the stated theorem/novelty boundary.",
       "rate_plan_boundary": "Dependency-free saved-reader use within the stated finite domain does not establish broader mathematical truth, live compute quota, sponsor acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -5735,7 +5737,7 @@
       "next_action": "Consume saved finite data through the documented reader inside the exact retained domain; preserve attribution and the stated theorem/novelty boundary.",
       "rate_plan_boundary": "Dependency-free saved-reader use within the stated finite domain does not establish broader mathematical truth, live compute quota, sponsor acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -5758,7 +5760,7 @@
       "next_action": "Consume saved finite data through the documented reader inside the exact retained domain; preserve attribution and the stated theorem/novelty boundary.",
       "rate_plan_boundary": "Dependency-free saved-reader use within the stated finite domain does not establish broader mathematical truth, live compute quota, sponsor acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -5781,7 +5783,7 @@
       "next_action": "Consume saved finite data through the documented reader inside the exact retained domain; preserve attribution and the stated theorem/novelty boundary.",
       "rate_plan_boundary": "Dependency-free saved-reader use within the stated finite domain does not establish broader mathematical truth, live compute quota, sponsor acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -5804,7 +5806,7 @@
       "next_action": "Consume saved finite data through the documented reader inside the exact retained domain; preserve attribution and the stated theorem/novelty boundary.",
       "rate_plan_boundary": "Dependency-free saved-reader use within the stated finite domain does not establish broader mathematical truth, live compute quota, sponsor acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -5827,7 +5829,7 @@
       "next_action": "Consume saved finite data through the documented reader inside the exact retained domain; preserve attribution and the stated theorem/novelty boundary.",
       "rate_plan_boundary": "Dependency-free saved-reader use within the stated finite domain does not establish broader mathematical truth, live compute quota, sponsor acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -5850,7 +5852,7 @@
       "next_action": "Consume saved finite data through the documented reader inside the exact retained domain; preserve attribution and the stated theorem/novelty boundary.",
       "rate_plan_boundary": "Dependency-free saved-reader use within the stated finite domain does not establish broader mathematical truth, live compute quota, sponsor acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -5873,7 +5875,7 @@
       "next_action": "Existing owner may reconcile the pinned source against the live upstream target, run the required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or advertised bounty text is not current assignment, eligibility, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -5896,7 +5898,7 @@
       "next_action": "Existing owner may reconcile the pinned source against the live upstream target, run the required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or advertised bounty text is not current assignment, eligibility, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -5919,7 +5921,7 @@
       "next_action": "Existing owner may reconcile the pinned source against the live upstream target, run the required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or advertised bounty text is not current assignment, eligibility, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -5942,7 +5944,7 @@
       "next_action": "Existing owner may reconcile the pinned source against the live upstream target, run the required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or advertised bounty text is not current assignment, eligibility, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -5965,7 +5967,7 @@
       "next_action": "Existing owner may reconcile the pinned source against the live upstream target, run the required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or advertised bounty text is not current assignment, eligibility, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -5988,7 +5990,7 @@
       "next_action": "Existing owner may reconcile the pinned source against the live upstream target, run the required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or advertised bounty text is not current assignment, eligibility, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -6011,7 +6013,7 @@
       "next_action": "Existing owner may reconcile the pinned source against the live upstream target, run the required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or advertised bounty text is not current assignment, eligibility, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -6034,7 +6036,7 @@
       "next_action": "Existing owner may reconcile the pinned source against the live upstream target, run the required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or advertised bounty text is not current assignment, eligibility, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -6057,7 +6059,7 @@
       "next_action": "Existing owner may reconcile the pinned source against the live upstream target, run the required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or advertised bounty text is not current assignment, eligibility, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -6080,7 +6082,7 @@
       "next_action": "Existing owner may reconcile the pinned source against the live upstream target, run the required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or advertised bounty text is not current assignment, eligibility, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -6103,7 +6105,7 @@
       "next_action": "Existing owner may reconcile the pinned source against the live upstream target, run the required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or advertised bounty text is not current assignment, eligibility, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -6126,7 +6128,7 @@
       "next_action": "Existing owner may reconcile the pinned source against the live upstream target, run the required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or advertised bounty text is not current assignment, eligibility, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -6149,7 +6151,7 @@
       "next_action": "Existing owner may reconcile the pinned source against the live upstream target, run the required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or advertised bounty text is not current assignment, eligibility, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -6172,7 +6174,7 @@
       "next_action": "Existing owner may reconcile the pinned source against the live upstream target, run the required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or advertised bounty text is not current assignment, eligibility, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -6195,7 +6197,7 @@
       "next_action": "Existing owner may reconcile the pinned source against the live upstream target, run the required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or advertised bounty text is not current assignment, eligibility, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -6218,7 +6220,7 @@
       "next_action": "Existing owner may reconcile the pinned source against the live upstream target, run the required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or advertised bounty text is not current assignment, eligibility, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -6241,7 +6243,7 @@
       "next_action": "Existing owner may reconcile the pinned source against the live upstream target, run the required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or advertised bounty text is not current assignment, eligibility, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -6264,7 +6266,7 @@
       "next_action": "Existing owner may reconcile the pinned source against the live upstream target, run the required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or advertised bounty text is not current assignment, eligibility, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -6287,7 +6289,7 @@
       "next_action": "Existing owner may reconcile the pinned source against the live upstream target, run the required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or advertised bounty text is not current assignment, eligibility, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -6310,7 +6312,7 @@
       "next_action": "Existing owner may reconcile the pinned source against the live upstream target, run the required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or advertised bounty text is not current assignment, eligibility, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -6333,7 +6335,7 @@
       "next_action": "Existing owner may reconcile the pinned source against the live upstream target, run the required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or advertised bounty text is not current assignment, eligibility, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -6356,7 +6358,7 @@
       "next_action": "Existing owner may reconcile the pinned source against the live upstream target, run the required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or advertised bounty text is not current assignment, eligibility, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -6379,7 +6381,7 @@
       "next_action": "Existing owner may reconcile the pinned source against the live upstream target, run the required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or advertised bounty text is not current assignment, eligibility, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -6402,7 +6404,7 @@
       "next_action": "Existing owner may reconcile the pinned source against the live upstream target, run the required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or advertised bounty text is not current assignment, eligibility, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -6425,7 +6427,7 @@
       "next_action": "Existing owner may reconcile the pinned source against the live upstream target, run the required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or advertised bounty text is not current assignment, eligibility, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -6448,7 +6450,7 @@
       "next_action": "Existing owner may reconcile the pinned source against the live upstream target, run the required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or advertised bounty text is not current assignment, eligibility, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -6471,7 +6473,7 @@
       "next_action": "Existing owner may reconcile the pinned source against the live upstream target, run the required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or advertised bounty text is not current assignment, eligibility, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -6494,7 +6496,7 @@
       "next_action": "Existing owner may reconcile the pinned source against the live upstream target, run the required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or advertised bounty text is not current assignment, eligibility, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -6517,7 +6519,7 @@
       "next_action": "Existing owner may reconcile the pinned source against the live upstream target, run the required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or advertised bounty text is not current assignment, eligibility, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -6540,7 +6542,7 @@
       "next_action": "Existing owner may reconcile the pinned source against the live upstream target, run the required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or advertised bounty text is not current assignment, eligibility, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -6563,7 +6565,7 @@
       "next_action": "Existing owner may reconcile the pinned source against the live upstream target, run the required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or advertised bounty text is not current assignment, eligibility, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -6586,7 +6588,7 @@
       "next_action": "Existing owner may reconcile the pinned source against the live upstream target, run the required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or advertised bounty text is not current assignment, eligibility, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -6609,7 +6611,7 @@
       "next_action": "Existing owner may reconcile the pinned source against the live upstream target, run the required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or advertised bounty text is not current assignment, eligibility, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -6632,7 +6634,7 @@
       "next_action": "Existing owner may reconcile the pinned source against the live upstream target, run the required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or advertised bounty text is not current assignment, eligibility, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -6655,7 +6657,7 @@
       "next_action": "Existing owner may reconcile the pinned source against the live upstream target, run the required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or advertised bounty text is not current assignment, eligibility, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -6678,7 +6680,7 @@
       "next_action": "Existing owner may reconcile the pinned source against the live upstream target, run the required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or advertised bounty text is not current assignment, eligibility, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -6701,7 +6703,7 @@
       "next_action": "Existing owner may reconcile the pinned source against the live upstream target, run the required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or advertised bounty text is not current assignment, eligibility, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -6724,7 +6726,7 @@
       "next_action": "Existing owner may reconcile the pinned source against the live upstream target, run the required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or advertised bounty text is not current assignment, eligibility, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -6747,7 +6749,7 @@
       "next_action": "Existing owner may reconcile the pinned source against the live upstream target, run the required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or advertised bounty text is not current assignment, eligibility, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -6770,7 +6772,7 @@
       "next_action": "Existing owner may reconcile the pinned source against the live upstream target, run the required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "Merged source repair is not a live deployment, active buyer, accepted delivery, payment, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -6793,7 +6795,7 @@
       "next_action": "Consume the saved finite data through the documented reader inside the exact retained domain; preserve attribution and the stated global-theorem boundary.",
       "rate_plan_boundary": "Dependency-free saved-reader use within the stated finite domain does not establish broader mathematical truth, live quota, sponsor acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -6816,7 +6818,7 @@
       "next_action": "Existing owner may reconcile the pinned source against the live upstream target, run required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or advertised bounty text is not current assignment, eligibility, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -6839,7 +6841,7 @@
       "next_action": "Existing owner may reconcile the pinned source against the live upstream target, run required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or advertised bounty text is not current assignment, eligibility, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -6862,7 +6864,7 @@
       "next_action": "Consume the saved finite data through the documented reader inside the exact retained domain; preserve attribution and the stated global-theorem boundary.",
       "rate_plan_boundary": "Dependency-free saved-reader use within the stated finite domain does not establish broader mathematical truth, live quota, sponsor acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -6885,7 +6887,7 @@
       "next_action": "Consume the saved finite data through the documented reader inside the exact retained domain; preserve attribution and the stated global-theorem boundary.",
       "rate_plan_boundary": "Dependency-free saved-reader use within the stated finite domain does not establish broader mathematical truth, live quota, sponsor acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_SAVED_DATA_ALREADY_LANDED"
     },
     {
@@ -6908,7 +6910,7 @@
       "next_action": "Consume the retained capability inside its documented boundary; preserve attribution and do not infer deployment, buyer acceptance, payment or broader proof.",
       "rate_plan_boundary": "Saved-reader or local execution within the stated domain does not establish broader truth, deployment, sponsor acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner and public integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_CAPABILITY_ALREADY_LANDED"
     },
     {
@@ -6931,7 +6933,7 @@
       "next_action": "Consume the retained capability inside its documented boundary; preserve attribution and do not infer deployment, buyer acceptance, payment or broader proof.",
       "rate_plan_boundary": "Saved-reader or local execution within the stated domain does not establish broader truth, deployment, sponsor acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner and public integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_CAPABILITY_ALREADY_LANDED"
     },
     {
@@ -6954,7 +6956,7 @@
       "next_action": "Consume the retained capability inside its documented boundary; preserve attribution and do not infer deployment, buyer acceptance, payment or broader proof.",
       "rate_plan_boundary": "Saved-reader or local execution within the stated domain does not establish broader truth, deployment, sponsor acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner and public integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_CAPABILITY_ALREADY_LANDED"
     },
     {
@@ -6977,7 +6979,7 @@
       "next_action": "Consume the retained capability inside its documented boundary; preserve attribution and do not infer deployment, buyer acceptance, payment or broader proof.",
       "rate_plan_boundary": "Saved-reader or local execution within the stated domain does not establish broader truth, deployment, sponsor acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner and public integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_CAPABILITY_ALREADY_LANDED"
     },
     {
@@ -7000,7 +7002,7 @@
       "next_action": "Consume the retained capability inside its documented boundary; preserve attribution and do not infer deployment, buyer acceptance, payment or broader proof.",
       "rate_plan_boundary": "Saved-reader or local execution within the stated domain does not establish broader truth, deployment, sponsor acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner and public integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_CAPABILITY_ALREADY_LANDED"
     },
     {
@@ -7023,7 +7025,7 @@
       "next_action": "Consume the retained capability inside its documented boundary; preserve attribution and do not infer deployment, buyer acceptance, payment or broader proof.",
       "rate_plan_boundary": "Saved-reader or local execution within the stated domain does not establish broader truth, deployment, sponsor acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner and public integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_CAPABILITY_ALREADY_LANDED"
     },
     {
@@ -7046,7 +7048,7 @@
       "next_action": "Consume the retained capability inside its documented finite boundary; preserve attribution and do not infer deployment, buyer acceptance, payment or broader proof.",
       "rate_plan_boundary": "Saved-reader use within the stated finite domain does not establish broader truth, novelty, deployment, sponsor acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner and public integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_CAPABILITY_ALREADY_LANDED"
     },
     {
@@ -7069,7 +7071,7 @@
       "next_action": "Consume the retained language and saved coefficients within their exact documented boundary; preserve attribution and do not infer deployment, buyer acceptance, payment or a general prime result.",
       "rate_plan_boundary": "Saved-reader use and the factor-specific argument do not establish general DFA prime decidability, broader novelty, deployment, sponsor acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner and public integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_CAPABILITY_ALREADY_LANDED"
     },
     {
@@ -7092,7 +7094,7 @@
       "next_action": "Consume the retained classification and frequency certificate inside the documented finite graph boundary; preserve attribution and do not infer a Kolakoski solution, deployment, buyer acceptance or payment.",
       "rate_plan_boundary": "Saved-reader use within the stated finite domain does not establish broader truth, novelty, deployment, sponsor acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner and public integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_CAPABILITY_ALREADY_LANDED"
     },
     {
@@ -7115,7 +7117,7 @@
       "next_action": "Use the tested reporting build for the existing product delivery path; a deployment or customer-data run requires its existing owner and separate receipt.",
       "rate_plan_boundary": "Local tests and demo establish executable source behavior only. They are not deployment, buyer acceptance, checkout, payment, revenue or cash.",
       "assigned_backlog": "Existing owner and public integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_CAPABILITY_ALREADY_LANDED"
     },
     {
@@ -7138,7 +7140,7 @@
       "next_action": "Use header-first navigation for bounded private intake, then project only selected bodies from the same retained page; keep raw collector output private.",
       "rate_plan_boundary": "Provider read quota and private-data boundaries remain. Header display is not redaction and does not authorize contact or publication.",
       "assigned_backlog": "Existing owner and public integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_CAPABILITY_ALREADY_LANDED"
     },
     {
@@ -7161,7 +7163,7 @@
       "next_action": "Use the projector only on complete retained native errors, retain original request custody separately, and honor evidence without replaying uncertain writes or inventing delay/reset state.",
       "rate_plan_boundary": "Explicit secondary-limit evidence is not available quota, a reset clock, permission, global recovery or authorization to retry. Provider request limits remain separate.",
       "assigned_backlog": "Existing GitHub publisher and coordination consumers retain ownership. No duplicate worker, retry loop, provider write or build order is created.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_AND_ACTUAL_PROJECTION_ALREADY_LANDED"
     },
     {
@@ -7184,7 +7186,7 @@
       "next_action": "Existing owner may reconcile the pinned source against live upstream, run required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or proposed bounty text is not current assignment, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_CAPABILITY_ALREADY_LANDED"
     },
     {
@@ -7207,7 +7209,7 @@
       "next_action": "Existing owner may reconcile the pinned source against live upstream, run required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or proposed bounty text is not current assignment, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_CAPABILITY_ALREADY_LANDED"
     },
     {
@@ -7230,7 +7232,7 @@
       "next_action": "Existing owner may reconcile the pinned source against live upstream, run required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or proposed bounty text is not current assignment, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_OR_CAPABILITY_ALREADY_LANDED"
     },
     {
@@ -7253,7 +7255,7 @@
       "next_action": "Existing owner may reconcile the pinned source against live upstream, run required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or proposed bounty text is not current assignment, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -7276,7 +7278,7 @@
       "next_action": "Existing owner may reconcile the pinned source against live upstream, run required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or proposed bounty text is not current assignment, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -7299,7 +7301,7 @@
       "next_action": "Existing owner may reconcile the pinned source against live upstream, run required project/runtime checks, and use the authorized upstream route; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical or proposed bounty text is not current assignment, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -7322,7 +7324,7 @@
       "next_action": "Existing owner may compose the membership reset into an authorized legacy integration and exercise replacement/append/removal paths; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Deprecated-library context and historical issue text are not current funding, assignment, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner, contributor and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -7345,7 +7347,7 @@
       "next_action": "Existing owner may compose the cursor fix into the credited PR28 lane and run authorized end-of-pagination acceptance; do not duplicate or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. Historical offer text is not current assignment, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner, contributor and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -7368,7 +7370,7 @@
       "next_action": "Existing owner may compose the exit-status correction into the credited external branch and exercise authorized hook integration; do not duplicate, claim or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. External issue or sponsor context is not current assignment, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner, contributor and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -7391,7 +7393,7 @@
       "next_action": "Existing owner may compose the Git-failure propagation into the credited external branch and run authorized failure-path acceptance; do not duplicate, claim or submit from this activation.",
       "rate_plan_boundary": "A complete patch/postimage is source capacity only. External issue or sponsor context is not current assignment, acceptance, award, payment, payout, revenue or cash.",
       "assigned_backlog": "Existing owner, contributor and public upstream integration route retained. No duplicate worker, contact, submission, deployment, award, payment, revenue or cash claim.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -7414,7 +7416,7 @@
       "next_action": "Consume the retained reader inside its Z/13Z and declared periodic-lift boundary; preserve attribution and do not infer deployment, sponsor acceptance, payment or a general theorem.",
       "rate_plan_boundary": "Saved-reader execution establishes only the stated finite domain and does not establish deployment, sponsor acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner and public research integration route retained; no duplicate worker or build order.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
     },
     {
@@ -7437,7 +7439,7 @@
       "next_action": "Use saved prefix and condition navigation under the exact finite bound; do not remint the earlier AP-family compiler or infer sponsor acceptance or payment.",
       "rate_plan_boundary": "Finite exact optimization is not an unrestricted theorem, deployment, accepted sponsor result, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner and public research integration route retained; no duplicate worker or build order.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
     },
     {
@@ -7460,7 +7462,7 @@
       "next_action": "Consume exact gap/rank/select/decomposition queries inside the declared dictionary; do not infer the general complexity result was reproved.",
       "rate_plan_boundary": "A saved finite unary index is not a broader theorem, deployment, sponsor acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner and public research integration route retained; no duplicate worker or build order.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
     },
     {
@@ -7483,7 +7485,7 @@
       "next_action": "Use exact address, orientation, vertex and point-location queries under the declared template; do not infer general dissection classification.",
       "rate_plan_boundary": "Finite hierarchy navigation is not deployment, a general classification, sponsor acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner and public research integration route retained; no duplicate worker or build order.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
     },
     {
@@ -7506,7 +7508,7 @@
       "next_action": "Use finite transcript/trial/run navigation for the declared instance; do not represent this as cryptographic deployment or a new zero-knowledge theorem.",
       "rate_plan_boundary": "Finite simulator equality is not production cryptography, a general protocol result, sponsor acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner and public research integration route retained; no duplicate worker or build order.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
     },
     {
@@ -7529,7 +7531,7 @@
       "next_action": "Consume exact finite family and condition queries; preserve the general Turán boundary and prior construction attribution.",
       "rate_plan_boundary": "A complete six-vertex census is not a general Turán solution, deployment, sponsor acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner and public research integration route retained; no duplicate worker or build order.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
     },
     {
@@ -7552,7 +7554,7 @@
       "next_action": "Use exact count/rank/select/residue queries inside the supplied divisor set and bound; do not infer primality or a general sieve result.",
       "rate_plan_boundary": "Divisor avoidance is not primality, deployment, sponsor acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner and public research integration route retained; no duplicate worker or build order.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
     },
     {
@@ -7575,7 +7577,7 @@
       "next_action": "Existing owner may reconcile live PR15 and run authorized native integration acceptance.",
       "rate_plan_boundary": "Source completeness and syntax are not assignment, upstream acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner retained; no duplicate worker, contact or submission.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -7598,7 +7600,7 @@
       "next_action": "Existing owner may compose the correction with live PR7 and exercise multi-backup startup.",
       "rate_plan_boundary": "A source correction is not a live faucet, current funding, acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner retained; no duplicate worker, contact or submission.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -7621,7 +7623,7 @@
       "next_action": "Existing owner may reconcile PR4712 and run authorized Git-history fixtures.",
       "rate_plan_boundary": "Compilation and source completeness are not sponsor assignment, acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner retained; no duplicate worker, contact or submission.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -7644,7 +7646,7 @@
       "next_action": "Existing owner may compose against live PR60 and exercise click geometry in the authorized browser harness.",
       "rate_plan_boundary": "Syntax and source evidence are not upstream acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner retained; no duplicate worker, contact or submission.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -7667,7 +7669,7 @@
       "next_action": "Existing upstream owner may run the authorized route middleware/side-effect acceptance suite.",
       "rate_plan_boundary": "Source policy composition is not deployment, upstream acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner retained; no duplicate worker, contact or submission.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -7690,7 +7692,7 @@
       "next_action": "Existing owner may reconcile the live source and exercise documented Slack error shapes with synthetic data.",
       "rate_plan_boundary": "Source fallback capacity is not a live signup, deployment, upstream acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner retained; no duplicate worker, contact or submission.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -7713,7 +7715,7 @@
       "next_action": "Existing owner may compose with live PR8 and exercise first mount, refresh and reopen behavior.",
       "rate_plan_boundary": "Source completeness is not current funding, upstream acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner retained; no duplicate worker, contact or submission.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -7736,7 +7738,7 @@
       "next_action": "Existing owner may run synthetic empty-to-nonempty provider acceptance under the authorized upstream lane.",
       "rate_plan_boundary": "A polling source repair is not network viability, bounty acceptance, payment, revenue or cash.",
       "assigned_backlog": "Existing owner retained; no duplicate worker, contact or submission.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -7759,7 +7761,7 @@
       "next_action": "Existing owner may compose with PR30 and exercise responsive current/outgoing image transitions.",
       "rate_plan_boundary": "Source syntax is not upstream acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner retained; no duplicate worker, contact or submission.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -7782,7 +7784,7 @@
       "next_action": "Existing owner may reconcile PR956 and run forum Markdown cases under the authorized project harness.",
       "rate_plan_boundary": "Source evidence is not completion of the wider issue, acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner retained; no duplicate worker, contact or submission.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -7805,7 +7807,7 @@
       "next_action": "Existing owner may reconcile current Contacts source and run authorized merge-title/UI acceptance.",
       "rate_plan_boundary": "A UI source correction is not deployment, upstream acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner retained; no duplicate worker, contact or submission.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -7828,7 +7830,7 @@
       "next_action": "Existing owner may compose with current forum source and exercise paginated reply behavior.",
       "rate_plan_boundary": "Source and syntax are not upstream acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner retained; no duplicate worker, contact or submission.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -7851,7 +7853,7 @@
       "next_action": "Existing owner may exercise rejected main/side requests and subsequent dismissal/reopen behavior.",
       "rate_plan_boundary": "A loader source repair is not completion of issue72, deployment, acceptance, payment, revenue or cash.",
       "assigned_backlog": "Existing owner retained; no duplicate worker, contact or submission.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -7874,7 +7876,7 @@
       "next_action": "Existing owner may exercise synthetic failed/successful mixed file selection in the authorized Nextcloud harness.",
       "rate_plan_boundary": "Source recovery logic is not live import, deployment, upstream acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner retained; no duplicate worker, contact or submission.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -7897,7 +7899,7 @@
       "next_action": "Existing owner may reconcile current utility source and run localized integer-format cases.",
       "rate_plan_boundary": "Historical issue amount and source correction are not current assignment, acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner retained; no duplicate worker, contact or submission.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -7920,7 +7922,7 @@
       "next_action": "Existing owner may exercise sync progress, stall and reset paths in the authorized desktop-node harness.",
       "rate_plan_boundary": "Source completeness is not live node operation, deployment, current bounty funding, acceptance, payment, revenue or cash.",
       "assigned_backlog": "Existing owner retained; no duplicate worker, contact or submission.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -7943,7 +7945,7 @@
       "next_action": "Existing owner may compose onto live PR639 and run the project watcher test suite.",
       "rate_plan_boundary": "Test source and patch completeness are not upstream acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner retained; no duplicate worker, contact or submission.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -7966,7 +7968,7 @@
       "next_action": "Existing owner may reconcile PR3936 and exercise intercepted initial-autoplay behavior.",
       "rate_plan_boundary": "Source syntax is not browser deployment, completion of the larger issue, acceptance, payment, revenue or cash.",
       "assigned_backlog": "Existing owner retained; no duplicate worker, contact or submission.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -7989,7 +7991,7 @@
       "next_action": "Existing owner may exercise BOM/whitespace JSON and binary IFC blob cases with synthetic fixtures.",
       "rate_plan_boundary": "Source diagnostics are not loader deployment, upstream acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner retained; no duplicate worker, contact or submission.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -8012,7 +8014,7 @@
       "next_action": "Existing owner may exercise typed/all incoming-reference toggles in the authorized UI harness.",
       "rate_plan_boundary": "UI source and syntax are not governance acceptance, token value, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner retained; no duplicate worker, contact or submission.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -8035,7 +8037,7 @@
       "next_action": "Existing owner may exercise success, null-on-error and rejection settlement with object-URL revocation spies.",
       "rate_plan_boundary": "Source lifetime handling is not deployed memory proof, upstream acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner retained; no duplicate worker, contact or submission.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -8058,7 +8060,7 @@
       "next_action": "Existing owner may exercise same-model restore, cross-model entry and model-zero cases.",
       "rate_plan_boundary": "Source correction is not deployed viewer proof, upstream acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner retained; no duplicate worker, contact or submission.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -8081,7 +8083,7 @@
       "next_action": "Existing owner may run authorized child close/error, stop and restart integration acceptance.",
       "rate_plan_boundary": "Source and syntax are not live node shutdown, device action, upstream acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner retained; no duplicate worker, contact or submission.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -8104,7 +8106,7 @@
       "next_action": "Existing owner may exercise typed success/error reply dispatch across the authorized worker harness.",
       "rate_plan_boundary": "Source protocol repair is not worker deployment, upstream acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner retained; no duplicate worker, contact or submission.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -8127,7 +8129,7 @@
       "next_action": "Existing owner may run positive/zero/negative configured-percentage display cases while verifying allocation invariance.",
       "rate_plan_boundary": "Display source and syntax are not governance acceptance, token value, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner retained; no duplicate worker, contact or submission.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -8150,7 +8152,7 @@
       "next_action": "Existing owner may run macOS and non-macOS startup plus native draggable-region pointer acceptance in the authorized project harness.",
       "rate_plan_boundary": "Historical 5,000 XKR text is not current funding, acceptance, award, payout, revenue or cash; source syntax is not deployment.",
       "assigned_backlog": "Existing owner retained; no duplicate worker, contact or submission.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -8173,7 +8175,7 @@
       "next_action": "Consume the retained reader inside its declared finite code and fixed-center boundary; preserve source attribution and do not infer deployment, submission, acceptance or payment.",
       "rate_plan_boundary": "Saved-reader execution establishes only the stated finite code and does not establish deployment, sponsor acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner and public research integration route retained; no duplicate worker or build order.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
     },
     {
@@ -8196,7 +8198,7 @@
       "next_action": "Consume the sequential product and inverse-fiber reader only for the retained matrix; preserve the explicit preprocessing and conjecture boundaries.",
       "rate_plan_boundary": "Saved-reader execution establishes only the stated finite matrix and does not establish deployment, complexity progress, sponsor acceptance, payment, revenue or cash.",
       "assigned_backlog": "Existing owner and public research integration route retained; no duplicate worker or build order.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
     },
     {
@@ -8219,7 +8221,7 @@
       "next_action": "Use only on a future necessary retained Slack readback with an immutable 40-lowercase-hex GitHub blob target and exact documented label form.",
       "rate_plan_boundary": "Source presence and syntax are not execution, provider acceptance, deployment, quota, payment, revenue or cash.",
       "assigned_backlog": "Existing publisher owner retained; no verifier-only job or duplicate build order.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -8242,7 +8244,7 @@
       "next_action": "Existing owner may run authorized connect/disconnect integration acceptance against the live faucet harness.",
       "rate_plan_boundary": "Source repair is not live network operation, upstream acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner retained; no duplicate worker, contact or submission.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -8265,7 +8267,7 @@
       "next_action": "Existing owner may exercise dismiss, batch-empty and later-batch visibility in the authorized UI harness.",
       "rate_plan_boundary": "UI source is not wallet operation, upstream acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner retained; no duplicate worker, contact or submission.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -8288,7 +8290,7 @@
       "next_action": "Existing owner may run explorer-only startup and deferred wallet-flow acceptance in the authorized project harness.",
       "rate_plan_boundary": "Source import behavior is not wallet operation, upstream acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner retained; no duplicate worker, contact or submission.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -8311,7 +8313,7 @@
       "next_action": "Existing owner may exercise success, synchronous failure and asynchronous fallback cleanup in the authorized UI harness.",
       "rate_plan_boundary": "Source cleanup is not browser deployment, upstream acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner retained; no duplicate worker, contact or submission.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -8334,7 +8336,7 @@
       "next_action": "Consume the retained reader only inside its declared finite staged instance and preserve the exponential-preprocessing and conjecture boundaries.",
       "rate_plan_boundary": "Saved-reader execution establishes only the stated finite instance and does not establish deployment, complexity progress, sponsor acceptance, payment, revenue or cash.",
       "assigned_backlog": "Existing owner and public research integration route retained; no duplicate worker or build order.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
     },
     {
@@ -8357,7 +8359,7 @@
       "next_action": "Existing contributor may reconcile the current PR66 head and run binary/signal control acceptance in the authorized browser harness.",
       "rate_plan_boundary": "Source correction is not wallet operation, governance acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing contributor and owner retained; no duplicate worker, contact or submission.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -8380,7 +8382,7 @@
       "next_action": "Use the saved reader for exact finite subset-size/edge and conditioned rank/select queries within the declared C5 blow-up.",
       "rate_plan_boundary": "Finite labelled enumeration is not a solution of the general sparse-half conjecture, novelty, acceptance, payment, revenue or cash.",
       "assigned_backlog": "Existing research consumer retained; no duplicate build order.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
     },
     {
@@ -8403,7 +8405,7 @@
       "next_action": "Use the retained atlas for exact finite overlap profiles and conditional rank/select without quotienting labelled counts.",
       "rate_plan_boundary": "The finite n=9 result is not a new asymptotic bound, general solution, award, payment, revenue or cash.",
       "assigned_backlog": "Existing research consumer retained; no duplicate build order.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
     },
     {
@@ -8426,7 +8428,7 @@
       "next_action": "Use only for exact finite labelled embedding queries under the heap13/C5 size-six construction.",
       "rate_plan_boundary": "Finite map counts are not a general theorem review, novelty, award, payment, revenue or cash.",
       "assigned_backlog": "Existing research consumer retained; no duplicate build order.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
     },
     {
@@ -8449,7 +8451,7 @@
       "next_action": "Use for exact shift and rank/select queries only inside the retained finite prime-exponent box.",
       "rate_plan_boundary": "Unbounded shift parameters over a fixed finite n set do not prove infinitely many n for each fixed shift or establish award, payment, revenue or cash.",
       "assigned_backlog": "Existing research consumer retained; no duplicate build order.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
     },
     {
@@ -8472,7 +8474,7 @@
       "next_action": "Use for exact membership, derivation, prefix and rank/select queries under the first-block length-seven restriction.",
       "rate_plan_boundary": "The regular restriction is not a general Greibach-normal-form result, prize, payment, revenue or cash.",
       "assigned_backlog": "Existing research consumer retained; no duplicate build order.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
     },
     {
@@ -8495,7 +8497,7 @@
       "next_action": "Use only for a newly authorized exact Gmail query with bounded page/time/response budgets and preserve raw custody before projection.",
       "rate_plan_boundary": "One exercised query is not a mailbox census, buyer acceptance, authorization expansion, payment, revenue or cash.",
       "assigned_backlog": "Existing Gmail intake owner retained; no duplicate worker or build order.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
     },
     {
@@ -8518,7 +8520,7 @@
       "next_action": "Existing contributor composes the listener hunk on the live carrier and runs authorized nested-icon deletion acceptance.",
       "rate_plan_boundary": "Source availability is not maintainer selection, merge, award, payment, revenue or cash.",
       "assigned_backlog": "Original carrier owner retained; no duplicate contact, claim or submission.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -8541,7 +8543,7 @@
       "next_action": "Existing contributor composes this independent hunk with the intended carrier and runs authorized rename-path integration acceptance.",
       "rate_plan_boundary": "Source availability is not maintainer selection, merge, award, payment, revenue or cash.",
       "assigned_backlog": "Original carrier owner retained; no duplicate contact, claim or submission.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -8564,7 +8566,7 @@
       "next_action": "Existing owner composes the four-line hunk on the authorized source and runs repeated-load serialization/editing acceptance.",
       "rate_plan_boundary": "Historical bounty display and source presence are not current funding, assignment, acceptance, payment, revenue or cash.",
       "assigned_backlog": "Existing owner retained; no duplicate worker, contact or submission.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -8587,7 +8589,7 @@
       "next_action": "Existing contributor composes the cumulative correction on PR241 and runs authorized rendering, replacement and disposal acceptance.",
       "rate_plan_boundary": "Source reasoning is not image-quality, memory, browser, maintainer acceptance, award, payment, revenue or cash evidence.",
       "assigned_backlog": "Original carrier owner retained; no duplicate worker, contact or submission.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -8610,7 +8612,7 @@
       "next_action": "Existing owner composes the hunk on the pinned legacy server and runs authorized multi-track capacity acceptance.",
       "rate_plan_boundary": "Historical badge and source correction are not current funding, assignment, issue completion, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner retained; no duplicate worker, contact or submission.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -8633,7 +8635,7 @@
       "next_action": "Use for exact finite-prefix LCM-threshold, length-profile and rank/select queries without recomputing prime or totient facts.",
       "rate_plan_boundary": "Finite-prefix window counts do not resolve the infinite-sequence question or establish prize, payment, revenue or cash.",
       "assigned_backlog": "Existing research consumer retained; no duplicate build order.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
     },
     {
@@ -8656,7 +8658,7 @@
       "next_action": "Existing rail owners integrate only with an independently pinned registry SHA and run the published current/forensic acceptance before promotion.",
       "rate_plan_boundary": "Cryptographic consistency does not authenticate a provider, authorize an action, establish decision correctness, acceptance, payment, revenue or cash.",
       "assigned_backlog": "Existing evidence-kernel owner retained; no duplicate verifier-only order.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_EXISTING_CAPABILITY_ADVANCED"
     },
     {
@@ -8679,7 +8681,7 @@
       "next_action": "Use for exact finite coloring/deletion incidence and conditioned navigation on the retained eleven-vertex graph only.",
       "rate_plan_boundary": "Finite incidences are not distinct deletion-set counts, an all-r solution, a robust graph, prize, payment, revenue or cash.",
       "assigned_backlog": "Existing research consumer retained; no duplicate build order.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
     },
     {
@@ -8702,7 +8704,7 @@
       "next_action": "Existing contributor composes the three-line correction on PR122 and runs authorized reschedule/conflict acceptance without overwriting the separate carrier.",
       "rate_plan_boundary": "Source availability is not maintainer assignment, whole-issue completion, acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Original carrier owner retained; no duplicate contact, claim or submission.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -8725,7 +8727,7 @@
       "next_action": "Existing owner may run feed/post ordering, centering, accessibility and responsive acceptance in the authorized project harness.",
       "rate_plan_boundary": "Source layout is not whole-issue completion, browser deployment, upstream acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owner retained; no duplicate worker, contact or submission.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -8748,7 +8750,7 @@
       "next_action": "Existing owner may run wait examples, invalid/rejected quote fallback, unmount and late-user-selection acceptance in the authorized UI harness.",
       "rate_plan_boundary": "Historical compensation comments are not current funding, award, payment, revenue or cash; source custody is not wallet execution or deployment.",
       "assigned_backlog": "Existing author and owner retained; no duplicate worker, contact or submission.",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
     },
     {
@@ -8757,7 +8759,7 @@
       "last_receipt": "resource-master-capability-delta-20261005-1504",
       "last_used_at": "2026-10-05T19:12:50.000Z",
       "evidence_ts": "2026-10-05T19:12:50.000Z",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "name": "erdos936-powerful-number-local-screen-index",
       "kind": "FINITE_RESEARCH_INDEX",
       "capacity": "ONE COMPLETE 4,084,080-PHASE SELECTED-PRIME SCREEN INDEX AND 43 SAVED OUTPUTS",
@@ -8780,7 +8782,7 @@
       "last_receipt": "resource-master-capability-delta-20261005-1504",
       "last_used_at": "2026-10-05T19:12:50.000Z",
       "evidence_ts": "2026-10-05T19:12:50.000Z",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "name": "erdos9-selected-prime-two-power-index",
       "kind": "FINITE_RESEARCH_INDEX",
       "capacity": "ONE COMPLETE 4,064-STRATUM INDEX AND 42 SAVED OUTPUTS",
@@ -8803,7 +8805,7 @@
       "last_receipt": "resource-master-capability-delta-20261005-1504",
       "last_used_at": "2026-10-05T19:12:50.000Z",
       "evidence_ts": "2026-10-05T19:12:50.000Z",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "name": "erdos330-finite-periodic-deletion-index",
       "kind": "FINITE_RESEARCH_INDEX",
       "capacity": "ONE COMPLETE 363-INTERVAL PERIODIC DELETION INDEX AND 46 SAVED OUTPUTS",
@@ -8826,7 +8828,7 @@
       "last_receipt": "resource-master-capability-delta-20261005-1504",
       "last_used_at": "2026-10-05T19:12:50.000Z",
       "evidence_ts": "2026-10-05T19:12:50.000Z",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "name": "erdos723-cyclic-affine-incidence-index",
       "kind": "FINITE_RESEARCH_INDEX",
       "capacity": "ONE COMPLETE 549-MAP AFFINE CYCLIC INDEX AND 53 SAVED OUTPUTS",
@@ -8849,7 +8851,7 @@
       "last_receipt": "resource-master-capability-delta-20261005-1504",
       "last_used_at": "2026-10-05T19:12:50.000Z",
       "evidence_ts": "2026-10-05T19:12:50.000Z",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "name": "erdos97-anisotropic-distance-arrangement-index",
       "kind": "FINITE_RESEARCH_INDEX",
       "capacity": "ONE COMPLETE 107-EVENT, 215-STRATUM ARRANGEMENT AND 44 SAVED OUTPUTS",
@@ -8872,7 +8874,7 @@
       "last_receipt": "resource-master-capability-delta-20261005-1504",
       "last_used_at": "2026-10-05T19:12:50.000Z",
       "evidence_ts": "2026-10-05T19:12:50.000Z",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "name": "erdos107-convex-subset-circuit-index",
       "kind": "FINITE_RESEARCH_INDEX",
       "capacity": "ONE COMPLETE 32,768-SUBSET CLASSIFICATION AND 41 SAVED OUTPUTS",
@@ -8895,7 +8897,7 @@
       "last_receipt": "resource-master-capability-delta-20261005-1504",
       "last_used_at": "2026-10-05T19:12:50.000Z",
       "evidence_ts": "2026-10-05T19:12:50.000Z",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "name": "polynomial-lemniscate-horizontal-section-index",
       "kind": "FINITE_RESEARCH_INDEX",
       "capacity": "ONE COMPLETE SIX-ROOT HORIZONTAL-SECTION CERTIFICATE AND 31 SAVED OUTPUTS",
@@ -8918,7 +8920,7 @@
       "last_receipt": "resource-master-capability-delta-20261005-1504",
       "last_used_at": "2026-10-05T19:12:50.000Z",
       "evidence_ts": "2026-10-05T19:12:50.000Z",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "name": "erdos51-finite-totient-preimage-index",
       "kind": "FINITE_RESEARCH_INDEX",
       "capacity": "ONE COMPLETE 45-TARGET TOTIENT-PREIMAGE INDEX AND 37 SAVED OUTPUTS",
@@ -8941,7 +8943,7 @@
       "last_receipt": "resource-master-capability-delta-20261005-1504",
       "last_used_at": "2026-10-05T19:12:50.000Z",
       "evidence_ts": "2026-10-05T19:12:50.000Z",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "name": "hive-migration-concierge-workspace",
       "kind": "REVENUE_FACING_LOCAL_MIGRATION_PRODUCT",
       "capacity": "ONE RUNNABLE LOCAL CSV CUSTOMER/TASK/ATTACHMENT MIGRATION DESK WITH CANONICAL ATTACHMENT READER",
@@ -8964,7 +8966,7 @@
       "last_receipt": "resource-master-capability-delta-20261005-1504",
       "last_used_at": "2026-10-05T19:12:50.000Z",
       "evidence_ts": "2026-10-05T19:12:50.000Z",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "name": "paste11-restored-form-events-source-packet",
       "kind": "PINNED_UPSTREAM_SOURCE_REPAIR_PACKET",
       "capacity": "ONE COMPLETE TWO-BINDING PASTE COUCHAPP SOURCE PACKET",
@@ -8987,7 +8989,7 @@
       "last_receipt": "resource-master-capability-delta-20261005-1504",
       "last_used_at": "2026-10-05T19:12:50.000Z",
       "evidence_ts": "2026-10-05T19:12:50.000Z",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "name": "payd505-smtp-aggregate-health-source-packet",
       "kind": "PINNED_UPSTREAM_SOURCE_REPAIR_PACKET",
       "capacity": "ONE COMPLETE ONE-CONDITION SMTP AGGREGATE-HEALTH PATCH",
@@ -9010,7 +9012,7 @@
       "last_receipt": "resource-master-capability-delta-20261005-1504",
       "last_used_at": "2026-10-05T19:18:30.000Z",
       "evidence_ts": "2026-10-05T19:18:30.000Z",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "name": "gulp-parcel12-parcel-1103-compat-source-packet",
       "kind": "PINNED_UPSTREAM_SOURCE_REPAIR_PACKET",
       "capacity": "ONE COMPLETE PARCEL 1.10.3 BUILD-COMPLETION REPAIR PACKET",
@@ -9033,7 +9035,7 @@
       "last_receipt": "resource-master-capability-delta-20261005-1504",
       "last_used_at": "2026-10-05T19:18:30.000Z",
       "evidence_ts": "2026-10-05T19:18:30.000Z",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "name": "erdos172-finite-pair-coloring-index",
       "kind": "FINITE_RESEARCH_INDEX",
       "capacity": "ONE COMPLETE 1,002-NODE PAIR-COLORING DAG AND 37 SAVED OUTPUTS",
@@ -9056,7 +9058,7 @@
       "last_receipt": "resource-master-capability-delta-20261005-1504",
       "last_used_at": "2026-10-05T19:18:30.000Z",
       "evidence_ts": "2026-10-05T19:18:30.000Z",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "name": "payd696-fx-calendar-date-source-packet",
       "kind": "PINNED_UPSTREAM_SOURCE_REPAIR_PACKET",
       "capacity": "ONE COMPLETE TWO-LINE FX CALENDAR-DATE PATCH",
@@ -9079,7 +9081,7 @@
       "last_receipt": "resource-master-capability-delta-20261005-1504",
       "last_used_at": "2026-10-05T19:18:30.000Z",
       "evidence_ts": "2026-10-05T19:18:30.000Z",
-      "own_activation_this_run": true,
+      "own_activation_this_run": false,
       "name": "pocketpay521-import-cancellation-source-packet",
       "kind": "PINNED_UPSTREAM_SOURCE_REPAIR_PACKET",
       "capacity": "ONE COMPLETE IMPORT-CANCELLATION UI SOURCE PACKET",
@@ -9095,6 +9097,880 @@
       "rate_plan_boundary": "Source-only cancellation behavior is not whole-issue completion, upstream acceptance, award, payment, revenue or cash.",
       "assigned_backlog": "Existing owners and separate contribution retained; no duplicate worker, contact, claim or submission.",
       "build_order": "NONE_COMPLETE_SOURCE_ALREADY_LANDED"
+    },
+    {
+      "evidence_freshness": "EVENT_DRIVEN",
+      "claim_active": false,
+      "last_receipt": "resource-master-capability-delta-20261005-1803",
+      "last_used_at": "2026-10-05T22:10:13Z",
+      "evidence_ts": "2026-10-05T22:10:13Z",
+      "own_activation_this_run": true,
+      "name": "erdos-k35-cycle-edge-partition-index",
+      "kind": "FINITE_RESEARCH_INDEX",
+      "capacity": "ONE COMPLETE FINITE K3,5 CYCLE AND EDGE-PARTITION INDEX",
+      "stage": "PRODUCING",
+      "condition": "CONSTRAINED",
+      "authority": "PUBLIC CURRENT-MAIN READ AND COMPUTE INSIDE THE DECLARED FINITE OR CONDITIONAL DOMAIN; NO UNRESTRICTED THEOREM, NOVELTY, PRIZE, SPONSOR, SUBMISSION, PAYMENT, REVENUE OR CASH AUTHORITY",
+      "holder": "Commons public current-main corpus; existing upstream owners retained",
+      "consumer": "Finite graph-partition readers",
+      "value": "Exact saved navigation of the declared K3,5 cycle and edge partitions.",
+      "source": "PR31702 merge 774a20e408aeba3ab645328721d125bd8c1e4d41",
+      "exact_safe_probe": "Merged source, retained evidence and bounded semantics were reconciled; no external account, provider, buyer, device or financial mutation was performed.",
+      "next_action": "Use the landed capability under its existing owner and preserve the stated evidence boundary.",
+      "rate_plan_boundary": "Finite saved computation or conditional analysis is not an unrestricted theorem, prize, sponsor result, payment, revenue or cash.",
+      "assigned_backlog": "Existing consumer and owner retained; no duplicate worker, claim, contact or submission.",
+      "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
+    },
+    {
+      "evidence_freshness": "EVENT_DRIVEN",
+      "claim_active": false,
+      "last_receipt": "resource-master-capability-delta-20261005-1803",
+      "last_used_at": "2026-10-05T22:10:13Z",
+      "evidence_ts": "2026-10-05T22:10:13Z",
+      "own_activation_this_run": true,
+      "name": "erdos212-rational-circle-polygon-index",
+      "kind": "FINITE_RESEARCH_INDEX",
+      "capacity": "ONE COMPLETE 64-POINT RATIONAL-CIRCLE CHORD AND ANCHORED-POLYGON INDEX",
+      "stage": "PRODUCING",
+      "condition": "CONSTRAINED",
+      "authority": "PUBLIC CURRENT-MAIN READ AND COMPUTE INSIDE THE DECLARED FINITE OR CONDITIONAL DOMAIN; NO UNRESTRICTED THEOREM, NOVELTY, PRIZE, SPONSOR, SUBMISSION, PAYMENT, REVENUE OR CASH AUTHORITY",
+      "holder": "Commons public current-main corpus; existing upstream owners retained",
+      "consumer": "Finite rational-circle geometry readers",
+      "value": "Exact chord classes and anchored eight-vertex optimization over the declared denominator-10 family.",
+      "source": "PR31706 merge e6199b8c226d938f56568887bf3ad03fd34acb5b",
+      "exact_safe_probe": "Merged source, retained evidence and bounded semantics were reconciled; no external account, provider, buyer, device or financial mutation was performed.",
+      "next_action": "Use the landed capability under its existing owner and preserve the stated evidence boundary.",
+      "rate_plan_boundary": "Finite saved computation or conditional analysis is not an unrestricted theorem, prize, sponsor result, payment, revenue or cash.",
+      "assigned_backlog": "Existing consumer and owner retained; no duplicate worker, claim, contact or submission.",
+      "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
+    },
+    {
+      "evidence_freshness": "EVENT_DRIVEN",
+      "claim_active": false,
+      "last_receipt": "resource-master-capability-delta-20261005-1803",
+      "last_used_at": "2026-10-05T22:10:13Z",
+      "evidence_ts": "2026-10-05T22:10:13Z",
+      "own_activation_this_run": true,
+      "name": "erdos82-regular-induced-universe-index",
+      "kind": "FINITE_RESEARCH_INDEX",
+      "capacity": "ONE COMPLETE SIX-VERTEX REGULAR-INDUCED-SUBGRAPH INDEX",
+      "stage": "PRODUCING",
+      "condition": "CONSTRAINED",
+      "authority": "PUBLIC CURRENT-MAIN READ AND COMPUTE INSIDE THE DECLARED FINITE OR CONDITIONAL DOMAIN; NO UNRESTRICTED THEOREM, NOVELTY, PRIZE, SPONSOR, SUBMISSION, PAYMENT, REVENUE OR CASH AUTHORITY",
+      "holder": "Commons public current-main corpus; existing upstream owners retained",
+      "consumer": "Finite labelled-graph readers",
+      "value": "Exact regular induced-subset classification for all 32,768 labelled six-vertex graphs.",
+      "source": "PR31710 merge b31ce2319839cfcebae956e9e63757b355ee9fb1",
+      "exact_safe_probe": "Merged source, retained evidence and bounded semantics were reconciled; no external account, provider, buyer, device or financial mutation was performed.",
+      "next_action": "Use the landed capability under its existing owner and preserve the stated evidence boundary.",
+      "rate_plan_boundary": "Finite saved computation or conditional analysis is not an unrestricted theorem, prize, sponsor result, payment, revenue or cash.",
+      "assigned_backlog": "Existing consumer and owner retained; no duplicate worker, claim, contact or submission.",
+      "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
+    },
+    {
+      "evidence_freshness": "EVENT_DRIVEN",
+      "claim_active": false,
+      "last_receipt": "resource-master-capability-delta-20261005-1803",
+      "last_used_at": "2026-10-05T22:10:13Z",
+      "evidence_ts": "2026-10-05T22:10:13Z",
+      "own_activation_this_run": true,
+      "name": "erdos23-saved-cut-repair-index",
+      "kind": "FINITE_RESEARCH_INDEX",
+      "capacity": "ONE COMPLETE CANONICAL CUT AND MINIMUM-DELETION INDEX",
+      "stage": "PRODUCING",
+      "condition": "CONSTRAINED",
+      "authority": "PUBLIC CURRENT-MAIN READ AND COMPUTE INSIDE THE DECLARED FINITE OR CONDITIONAL DOMAIN; NO UNRESTRICTED THEOREM, NOVELTY, PRIZE, SPONSOR, SUBMISSION, PAYMENT, REVENUE OR CASH AUTHORITY",
+      "holder": "Commons public current-main corpus; existing upstream owners retained",
+      "consumer": "Finite occupancy-cut readers",
+      "value": "Exact saved navigation over all declared canonical cuts without replaying the accepted base construction.",
+      "source": "PR31713 merge 67fe788a451fecb6ae560fdf28b475da8e607964",
+      "exact_safe_probe": "Merged source, retained evidence and bounded semantics were reconciled; no external account, provider, buyer, device or financial mutation was performed.",
+      "next_action": "Use the landed capability under its existing owner and preserve the stated evidence boundary.",
+      "rate_plan_boundary": "Finite saved computation or conditional analysis is not an unrestricted theorem, prize, sponsor result, payment, revenue or cash.",
+      "assigned_backlog": "Existing consumer and owner retained; no duplicate worker, claim, contact or submission.",
+      "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
+    },
+    {
+      "evidence_freshness": "EVENT_DRIVEN",
+      "claim_active": false,
+      "last_receipt": "resource-master-capability-delta-20261005-1803",
+      "last_used_at": "2026-10-05T22:10:13Z",
+      "evidence_ts": "2026-10-05T22:10:13Z",
+      "own_activation_this_run": true,
+      "name": "erdos313-reciprocal-subset-index",
+      "kind": "FINITE_RESEARCH_INDEX",
+      "capacity": "ONE COMPLETE 24-PRIME RECIPROCAL-SUBSET INDEX",
+      "stage": "PRODUCING",
+      "condition": "CONSTRAINED",
+      "authority": "PUBLIC CURRENT-MAIN READ AND COMPUTE INSIDE THE DECLARED FINITE OR CONDITIONAL DOMAIN; NO UNRESTRICTED THEOREM, NOVELTY, PRIZE, SPONSOR, SUBMISSION, PAYMENT, REVENUE OR CASH AUTHORITY",
+      "holder": "Commons public current-main corpus; existing upstream owners retained",
+      "consumer": "Finite reciprocal-sum readers",
+      "value": "Exact intervals, rank/select and prime-presence filters over 16,777,216 declared subsets.",
+      "source": "PR31716 merge 3bd074eda1c03badcff6dff96317fb920745f999",
+      "exact_safe_probe": "Merged source, retained evidence and bounded semantics were reconciled; no external account, provider, buyer, device or financial mutation was performed.",
+      "next_action": "Use the landed capability under its existing owner and preserve the stated evidence boundary.",
+      "rate_plan_boundary": "Finite saved computation or conditional analysis is not an unrestricted theorem, prize, sponsor result, payment, revenue or cash.",
+      "assigned_backlog": "Existing consumer and owner retained; no duplicate worker, claim, contact or submission.",
+      "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
+    },
+    {
+      "evidence_freshness": "EVENT_DRIVEN",
+      "claim_active": false,
+      "last_receipt": "resource-master-capability-delta-20261005-1803",
+      "last_used_at": "2026-10-05T22:10:13Z",
+      "evidence_ts": "2026-10-05T22:10:13Z",
+      "own_activation_this_run": true,
+      "name": "ridgway-pressure-free-curved-hole-bound-index",
+      "kind": "FINITE_RESEARCH_INDEX",
+      "capacity": "ONE CONDITIONAL CURVED-HOLE LOWER-BOUND AND HCT EXTENSION",
+      "stage": "PRODUCING",
+      "condition": "CONSTRAINED",
+      "authority": "PUBLIC CURRENT-MAIN READ AND COMPUTE INSIDE THE DECLARED FINITE OR CONDITIONAL DOMAIN; NO UNRESTRICTED THEOREM, NOVELTY, PRIZE, SPONSOR, SUBMISSION, PAYMENT, REVENUE OR CASH AUTHORITY",
+      "holder": "Commons public current-main corpus; existing upstream owners retained",
+      "consumer": "Pressure-free Nitsche research consumers",
+      "value": "A bounded analytic lower-bound note and its HCT quadratic-curl extension under the stated mesh and degree hypotheses.",
+      "source": "PR31719 merge cd0840433ad799dd12767c99bbeaeb04e879ad6a; PR31722 merge b16ff698ec1bda3e0f0a12b7ae8c0b63a88ad9f0",
+      "exact_safe_probe": "Merged source, retained evidence and bounded semantics were reconciled; no external account, provider, buyer, device or financial mutation was performed.",
+      "next_action": "Use the landed capability under its existing owner and preserve the stated evidence boundary.",
+      "rate_plan_boundary": "Finite saved computation or conditional analysis is not an unrestricted theorem, prize, sponsor result, payment, revenue or cash.",
+      "assigned_backlog": "Existing consumer and owner retained; no duplicate worker, claim, contact or submission.",
+      "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
+    },
+    {
+      "evidence_freshness": "EVENT_DRIVEN",
+      "claim_active": false,
+      "last_receipt": "resource-master-capability-delta-20261005-1803",
+      "last_used_at": "2026-10-05T22:10:13Z",
+      "evidence_ts": "2026-10-05T22:10:13Z",
+      "own_activation_this_run": true,
+      "name": "erdos11-squarefree-representation-index",
+      "kind": "FINITE_RESEARCH_INDEX",
+      "capacity": "ONE COMPLETE 4,096-ODD-INTEGER REPRESENTATION INDEX",
+      "stage": "PRODUCING",
+      "condition": "CONSTRAINED",
+      "authority": "PUBLIC CURRENT-MAIN READ AND COMPUTE INSIDE THE DECLARED FINITE OR CONDITIONAL DOMAIN; NO UNRESTRICTED THEOREM, NOVELTY, PRIZE, SPONSOR, SUBMISSION, PAYMENT, REVENUE OR CASH AUTHORITY",
+      "holder": "Commons public current-main corpus; existing upstream owners retained",
+      "consumer": "Finite squarefree-plus-power readers",
+      "value": "Exact representation and rejection navigation for the declared interval above 2^27.",
+      "source": "PR31720 merge 7b791784d799dc14bad84a71d7477e11f6c83e6b",
+      "exact_safe_probe": "Merged source, retained evidence and bounded semantics were reconciled; no external account, provider, buyer, device or financial mutation was performed.",
+      "next_action": "Use the landed capability under its existing owner and preserve the stated evidence boundary.",
+      "rate_plan_boundary": "Finite saved computation or conditional analysis is not an unrestricted theorem, prize, sponsor result, payment, revenue or cash.",
+      "assigned_backlog": "Existing consumer and owner retained; no duplicate worker, claim, contact or submission.",
+      "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
+    },
+    {
+      "evidence_freshness": "EVENT_DRIVEN",
+      "claim_active": false,
+      "last_receipt": "resource-master-capability-delta-20261005-1803",
+      "last_used_at": "2026-10-05T22:10:13Z",
+      "evidence_ts": "2026-10-05T22:10:13Z",
+      "own_activation_this_run": true,
+      "name": "erdos234-normalized-prime-gap-index",
+      "kind": "FINITE_RESEARCH_INDEX",
+      "capacity": "ONE COMPLETE 1,897-RECORD NORMALIZED PRIME-GAP ORDER",
+      "stage": "PRODUCING",
+      "condition": "CONSTRAINED",
+      "authority": "PUBLIC CURRENT-MAIN READ AND COMPUTE INSIDE THE DECLARED FINITE OR CONDITIONAL DOMAIN; NO UNRESTRICTED THEOREM, NOVELTY, PRIZE, SPONSOR, SUBMISSION, PAYMENT, REVENUE OR CASH AUTHORITY",
+      "holder": "Commons public current-main corpus; existing upstream owners retained",
+      "consumer": "Finite prime-gap readers",
+      "value": "Exact order, ties, thresholds and witnesses on indices 2 through 1898.",
+      "source": "PR31723 merge 4075f2038f03597748a03150eb2a906379417759",
+      "exact_safe_probe": "Merged source, retained evidence and bounded semantics were reconciled; no external account, provider, buyer, device or financial mutation was performed.",
+      "next_action": "Use the landed capability under its existing owner and preserve the stated evidence boundary.",
+      "rate_plan_boundary": "Finite saved computation or conditional analysis is not an unrestricted theorem, prize, sponsor result, payment, revenue or cash.",
+      "assigned_backlog": "Existing consumer and owner retained; no duplicate worker, claim, contact or submission.",
+      "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
+    },
+    {
+      "evidence_freshness": "EVENT_DRIVEN",
+      "claim_active": false,
+      "last_receipt": "resource-master-capability-delta-20261005-1803",
+      "last_used_at": "2026-10-05T22:10:13Z",
+      "evidence_ts": "2026-10-05T22:10:13Z",
+      "own_activation_this_run": true,
+      "name": "erdos238-consecutive-prime-block-index",
+      "kind": "FINITE_RESEARCH_INDEX",
+      "capacity": "ONE COMPLETE CONSECUTIVE-PRIME BLOCK AND AP-OBSTRUCTION INDEX",
+      "stage": "PRODUCING",
+      "condition": "CONSTRAINED",
+      "authority": "PUBLIC CURRENT-MAIN READ AND COMPUTE INSIDE THE DECLARED FINITE OR CONDITIONAL DOMAIN; NO UNRESTRICTED THEOREM, NOVELTY, PRIZE, SPONSOR, SUBMISSION, PAYMENT, REVENUE OR CASH AUTHORITY",
+      "holder": "Commons public current-main corpus; existing upstream owners retained",
+      "consumer": "Finite prime-block readers",
+      "value": "Exact raw-gap threshold phases plus saved AP and obstruction navigation over the declared 1,900-prime prefix.",
+      "source": "PR31726 merge e04374c3650c68ff5ed22c8997f6805eb5b31c85; PR31731 merge 3b146aeafdd85d59f7a04e59a6635b8867f1cfb4",
+      "exact_safe_probe": "Merged source, retained evidence and bounded semantics were reconciled; no external account, provider, buyer, device or financial mutation was performed.",
+      "next_action": "Use the landed capability under its existing owner and preserve the stated evidence boundary.",
+      "rate_plan_boundary": "Finite saved computation or conditional analysis is not an unrestricted theorem, prize, sponsor result, payment, revenue or cash.",
+      "assigned_backlog": "Existing consumer and owner retained; no duplicate worker, claim, contact or submission.",
+      "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
+    },
+    {
+      "evidence_freshness": "EVENT_DRIVEN",
+      "claim_active": false,
+      "last_receipt": "resource-master-capability-delta-20261005-1803",
+      "last_used_at": "2026-10-05T22:10:13Z",
+      "evidence_ts": "2026-10-05T22:10:13Z",
+      "own_activation_this_run": true,
+      "name": "erdos168-dilated-triple-family-index",
+      "kind": "FINITE_RESEARCH_INDEX",
+      "capacity": "ONE COMPLETE INTERVAL-96 FAMILY INDEX PLUS FINITE-PREFIX DENSITY ENCLOSURE",
+      "stage": "PRODUCING",
+      "condition": "CONSTRAINED",
+      "authority": "PUBLIC CURRENT-MAIN READ AND COMPUTE INSIDE THE DECLARED FINITE OR CONDITIONAL DOMAIN; NO UNRESTRICTED THEOREM, NOVELTY, PRIZE, SPONSOR, SUBMISSION, PAYMENT, REVENUE OR CASH AUTHORITY",
+      "holder": "Commons public current-main corpus; existing upstream owners retained",
+      "consumer": "Finite dilated-triple family readers",
+      "value": "Exact conditional families and the bounded enclosure 451/576 <= lambda <= 197/243 under the stated bridge.",
+      "source": "PR31736 merge 481dabd36b226b472dc107f5fd0d8f8872fe1075; PR31743 merge 9fc2c1b9c94e94d2163cc5f3a7f950bf50062844",
+      "exact_safe_probe": "Merged source, retained evidence and bounded semantics were reconciled; no external account, provider, buyer, device or financial mutation was performed.",
+      "next_action": "Use the landed capability under its existing owner and preserve the stated evidence boundary.",
+      "rate_plan_boundary": "Finite saved computation or conditional analysis is not an unrestricted theorem, prize, sponsor result, payment, revenue or cash.",
+      "assigned_backlog": "Existing consumer and owner retained; no duplicate worker, claim, contact or submission.",
+      "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
+    },
+    {
+      "evidence_freshness": "EVENT_DRIVEN",
+      "claim_active": false,
+      "last_receipt": "resource-master-capability-delta-20261005-1803",
+      "last_used_at": "2026-10-05T22:10:13Z",
+      "evidence_ts": "2026-10-05T22:10:13Z",
+      "own_activation_this_run": true,
+      "name": "divisor-factorial-series-enclosure-index",
+      "kind": "FINITE_RESEARCH_INDEX",
+      "capacity": "ONE EXACT SIGMA5-OVER-FACTORIAL ENCLOSURE AND RADIX NAVIGATOR",
+      "stage": "PRODUCING",
+      "condition": "CONSTRAINED",
+      "authority": "PUBLIC CURRENT-MAIN READ AND COMPUTE INSIDE THE DECLARED FINITE OR CONDITIONAL DOMAIN; NO UNRESTRICTED THEOREM, NOVELTY, PRIZE, SPONSOR, SUBMISSION, PAYMENT, REVENUE OR CASH AUTHORITY",
+      "holder": "Commons public current-main corpus; existing upstream owners retained",
+      "consumer": "Finite series and radix readers",
+      "value": "Exact rational enclosure through cutoff 128 with saved divisor fibers, tails and radix prefixes.",
+      "source": "PR31740 merge fe60096bb154e555893d6c89e166363dbd492fd9",
+      "exact_safe_probe": "Merged source, retained evidence and bounded semantics were reconciled; no external account, provider, buyer, device or financial mutation was performed.",
+      "next_action": "Use the landed capability under its existing owner and preserve the stated evidence boundary.",
+      "rate_plan_boundary": "Finite saved computation or conditional analysis is not an unrestricted theorem, prize, sponsor result, payment, revenue or cash.",
+      "assigned_backlog": "Existing consumer and owner retained; no duplicate worker, claim, contact or submission.",
+      "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
+    },
+    {
+      "evidence_freshness": "EVENT_DRIVEN",
+      "claim_active": false,
+      "last_receipt": "resource-master-capability-delta-20261005-1803",
+      "last_used_at": "2026-10-05T22:10:13Z",
+      "evidence_ts": "2026-10-05T22:10:13Z",
+      "own_activation_this_run": true,
+      "name": "erdos158-b2-two-family-index",
+      "kind": "FINITE_RESEARCH_INDEX",
+      "capacity": "ONE COMPLETE [1,19] B2[2] FAMILY AND COLLISION INDEX",
+      "stage": "PRODUCING",
+      "condition": "CONSTRAINED",
+      "authority": "PUBLIC CURRENT-MAIN READ AND COMPUTE INSIDE THE DECLARED FINITE OR CONDITIONAL DOMAIN; NO UNRESTRICTED THEOREM, NOVELTY, PRIZE, SPONSOR, SUBMISSION, PAYMENT, REVENUE OR CASH AUTHORITY",
+      "holder": "Commons public current-main corpus; existing upstream owners retained",
+      "consumer": "Finite additive-family readers",
+      "value": "Exact classification of 78,736 subsets, 224 maximum-size witnesses and explicit extension collisions.",
+      "source": "PR31744 merge 9112c0a9d8fd664a61791c750d5992912f4a4b4b",
+      "exact_safe_probe": "Merged source, retained evidence and bounded semantics were reconciled; no external account, provider, buyer, device or financial mutation was performed.",
+      "next_action": "Use the landed capability under its existing owner and preserve the stated evidence boundary.",
+      "rate_plan_boundary": "Finite saved computation or conditional analysis is not an unrestricted theorem, prize, sponsor result, payment, revenue or cash.",
+      "assigned_backlog": "Existing consumer and owner retained; no duplicate worker, claim, contact or submission.",
+      "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
+    },
+    {
+      "evidence_freshness": "EVENT_DRIVEN",
+      "claim_active": false,
+      "last_receipt": "resource-master-capability-delta-20261005-1803",
+      "last_used_at": "2026-10-05T22:10:13Z",
+      "evidence_ts": "2026-10-05T22:10:13Z",
+      "own_activation_this_run": true,
+      "name": "wavelum67-accessibility-source-packet",
+      "kind": "PINNED_UPSTREAM_SOURCE_OR_ACCEPTANCE_PACKET",
+      "capacity": "TWO COMPLETE LOCALE-LABEL AND MAIN-LANDMARK PATCHES",
+      "stage": "AVAILABLE",
+      "condition": "CONSTRAINED",
+      "authority": "PUBLIC CURRENT-MAIN READ AND ADAPT INSIDE THE DECLARED SCOPE; NO CONTACT, CLAIM, SUBMISSION, ACCEPTANCE, AWARD, PAYMENT, DEPLOYMENT, REVENUE OR CASH AUTHORITY",
+      "holder": "Commons public current-main corpus; existing upstream owners retained",
+      "consumer": "Existing Wavelum issue67 contributor",
+      "value": "Repairs unique locale-control labels and aligns the skip target with the main landmark.",
+      "source": "PR31701 merge 1d23a252b5e0edeef465387b84c17c5993dcabd7; PR31703 merge 611ef0fb869dac4723986d6f3731de217c5c7397",
+      "exact_safe_probe": "Merged source, retained evidence and bounded semantics were reconciled; no external account, provider, buyer, device or financial mutation was performed.",
+      "next_action": "Use the landed capability under its existing owner and preserve the stated evidence boundary.",
+      "rate_plan_boundary": "Landed source or finite evidence is not deployment, upstream acceptance, award, payment, revenue or cash.",
+      "assigned_backlog": "Existing consumer and owner retained; no duplicate worker, claim, contact or submission.",
+      "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
+    },
+    {
+      "evidence_freshness": "EVENT_DRIVEN",
+      "claim_active": false,
+      "last_receipt": "resource-master-capability-delta-20261005-1803",
+      "last_used_at": "2026-10-05T22:10:13Z",
+      "evidence_ts": "2026-10-05T22:10:13Z",
+      "own_activation_this_run": true,
+      "name": "caley1-owner-role-boundary-review-packet",
+      "kind": "PINNED_UPSTREAM_SOURCE_OR_ACCEPTANCE_PACKET",
+      "capacity": "ONE SOURCE-PINNED OWNER-ROLE ACCEPTANCE REVIEW",
+      "stage": "AVAILABLE",
+      "condition": "CONSTRAINED",
+      "authority": "PUBLIC CURRENT-MAIN READ AND ADAPT INSIDE THE DECLARED SCOPE; NO CONTACT, CLAIM, SUBMISSION, ACCEPTANCE, AWARD, PAYMENT, DEPLOYMENT, REVENUE OR CASH AUTHORITY",
+      "holder": "Commons public current-main corpus; existing upstream owners retained",
+      "consumer": "Existing Caley issue1 / PR30 owner",
+      "value": "Records the ADMIN-to-OWNER role-boundary defect without duplicating the contributor claim.",
+      "source": "PR31704 merge b2c269ece608c9eed0c7d7f6100b8eae46495e76",
+      "exact_safe_probe": "Merged source, retained evidence and bounded semantics were reconciled; no external account, provider, buyer, device or financial mutation was performed.",
+      "next_action": "Use the landed capability under its existing owner and preserve the stated evidence boundary.",
+      "rate_plan_boundary": "Landed source or finite evidence is not deployment, upstream acceptance, award, payment, revenue or cash.",
+      "assigned_backlog": "Existing consumer and owner retained; no duplicate worker, claim, contact or submission.",
+      "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
+    },
+    {
+      "evidence_freshness": "EVENT_DRIVEN",
+      "claim_active": false,
+      "last_receipt": "resource-master-capability-delta-20261005-1803",
+      "last_used_at": "2026-10-05T22:10:13Z",
+      "evidence_ts": "2026-10-05T22:10:13Z",
+      "own_activation_this_run": true,
+      "name": "notification861-generation-time-source-packet",
+      "kind": "PINNED_UPSTREAM_SOURCE_OR_ACCEPTANCE_PACKET",
+      "capacity": "ONE CHRONOLOGICAL DUPLICATE-GENERATION PATCH",
+      "stage": "AVAILABLE",
+      "condition": "CONSTRAINED",
+      "authority": "PUBLIC CURRENT-MAIN READ AND ADAPT INSIDE THE DECLARED SCOPE; NO CONTACT, CLAIM, SUBMISSION, ACCEPTANCE, AWARD, PAYMENT, DEPLOYMENT, REVENUE OR CASH AUTHORITY",
+      "holder": "Commons public current-main corpus; existing upstream owners retained",
+      "consumer": "Existing notification queue owner",
+      "value": "Orders variable-precision generation timestamps by chronology rather than lexical UTC text.",
+      "source": "PR31711 merge 4de82f087b1ceaeca1b112795fe6b8d7e5d4ca8c",
+      "exact_safe_probe": "Merged source, retained evidence and bounded semantics were reconciled; no external account, provider, buyer, device or financial mutation was performed.",
+      "next_action": "Use the landed capability under its existing owner and preserve the stated evidence boundary.",
+      "rate_plan_boundary": "Landed source or finite evidence is not deployment, upstream acceptance, award, payment, revenue or cash.",
+      "assigned_backlog": "Existing consumer and owner retained; no duplicate worker, claim, contact or submission.",
+      "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
+    },
+    {
+      "evidence_freshness": "EVENT_DRIVEN",
+      "claim_active": false,
+      "last_receipt": "resource-master-capability-delta-20261005-1803",
+      "last_used_at": "2026-10-05T22:10:13Z",
+      "evidence_ts": "2026-10-05T22:10:13Z",
+      "own_activation_this_run": true,
+      "name": "audit863-primary-reset-source-packet",
+      "kind": "PINNED_UPSTREAM_SOURCE_OR_ACCEPTANCE_PACKET",
+      "capacity": "ONE PRIMARY-RESET DEADLINE PATCH",
+      "stage": "AVAILABLE",
+      "condition": "CONSTRAINED",
+      "authority": "PUBLIC CURRENT-MAIN READ AND ADAPT INSIDE THE DECLARED SCOPE; NO CONTACT, CLAIM, SUBMISSION, ACCEPTANCE, AWARD, PAYMENT, DEPLOYMENT, REVENUE OR CASH AUTHORITY",
+      "holder": "Commons public current-main corpus; existing upstream owners retained",
+      "consumer": "Existing bounty-audit owner",
+      "value": "Uses the primary reset deadline only when the primary quota is actually exhausted.",
+      "source": "PR31712 merge 854d724fb78921f975f4256bbc8d1d961c0190e1",
+      "exact_safe_probe": "Merged source, retained evidence and bounded semantics were reconciled; no external account, provider, buyer, device or financial mutation was performed.",
+      "next_action": "Use the landed capability under its existing owner and preserve the stated evidence boundary.",
+      "rate_plan_boundary": "Landed source or finite evidence is not deployment, upstream acceptance, award, payment, revenue or cash.",
+      "assigned_backlog": "Existing consumer and owner retained; no duplicate worker, claim, contact or submission.",
+      "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
+    },
+    {
+      "evidence_freshness": "EVENT_DRIVEN",
+      "claim_active": false,
+      "last_receipt": "resource-master-capability-delta-20261005-1803",
+      "last_used_at": "2026-10-05T22:10:13Z",
+      "evidence_ts": "2026-10-05T22:10:13Z",
+      "own_activation_this_run": true,
+      "name": "drizzle1083-relational-acceptance-review-packet",
+      "kind": "PINNED_UPSTREAM_SOURCE_OR_ACCEPTANCE_PACKET",
+      "capacity": "ONE SOURCE-PINNED RELATIONAL-QUERY ACCEPTANCE REVIEW",
+      "stage": "AVAILABLE",
+      "condition": "CONSTRAINED",
+      "authority": "PUBLIC CURRENT-MAIN READ AND ADAPT INSIDE THE DECLARED SCOPE; NO CONTACT, CLAIM, SUBMISSION, ACCEPTANCE, AWARD, PAYMENT, DEPLOYMENT, REVENUE OR CASH AUTHORITY",
+      "holder": "Commons public current-main corpus; existing upstream owners retained",
+      "consumer": "Existing Drizzle issue1083 / PR6425 owner",
+      "value": "Isolates the SQLite nested relational serialization gap without duplicating implementation or submission.",
+      "source": "PR31717 merge b6db32eb864a139bc892b202f2f6b4abe7361559",
+      "exact_safe_probe": "Merged source, retained evidence and bounded semantics were reconciled; no external account, provider, buyer, device or financial mutation was performed.",
+      "next_action": "Use the landed capability under its existing owner and preserve the stated evidence boundary.",
+      "rate_plan_boundary": "Landed source or finite evidence is not deployment, upstream acceptance, award, payment, revenue or cash.",
+      "assigned_backlog": "Existing consumer and owner retained; no duplicate worker, claim, contact or submission.",
+      "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
+    },
+    {
+      "evidence_freshness": "EVENT_DRIVEN",
+      "claim_active": false,
+      "last_receipt": "resource-master-capability-delta-20261005-1803",
+      "last_used_at": "2026-10-05T22:10:13Z",
+      "evidence_ts": "2026-10-05T22:10:13Z",
+      "own_activation_this_run": true,
+      "name": "payd660-sort-updater-purity-source-packet",
+      "kind": "PINNED_UPSTREAM_SOURCE_OR_ACCEPTANCE_PACKET",
+      "capacity": "ONE PURE REACT SORT-UPDATER PATCH",
+      "stage": "AVAILABLE",
+      "condition": "CONSTRAINED",
+      "authority": "PUBLIC CURRENT-MAIN READ AND ADAPT INSIDE THE DECLARED SCOPE; NO CONTACT, CLAIM, SUBMISSION, ACCEPTANCE, AWARD, PAYMENT, DEPLOYMENT, REVENUE OR CASH AUTHORITY",
+      "holder": "Commons public current-main corpus; existing upstream owners retained",
+      "consumer": "Existing PayD PR660 owner",
+      "value": "Moves direction scheduling out of the field updater required to stay pure under StrictMode.",
+      "source": "PR31721 merge 92dbd0a9c00312a8650a3160106dc883541e5338",
+      "exact_safe_probe": "Merged source, retained evidence and bounded semantics were reconciled; no external account, provider, buyer, device or financial mutation was performed.",
+      "next_action": "Use the landed capability under its existing owner and preserve the stated evidence boundary.",
+      "rate_plan_boundary": "Landed source or finite evidence is not deployment, upstream acceptance, award, payment, revenue or cash.",
+      "assigned_backlog": "Existing consumer and owner retained; no duplicate worker, claim, contact or submission.",
+      "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
+    },
+    {
+      "evidence_freshness": "EVENT_DRIVEN",
+      "claim_active": false,
+      "last_receipt": "resource-master-capability-delta-20261005-1803",
+      "last_used_at": "2026-10-05T22:10:13Z",
+      "evidence_ts": "2026-10-05T22:10:13Z",
+      "own_activation_this_run": true,
+      "name": "payd668-sensitive-limiter-source-packet",
+      "kind": "PINNED_UPSTREAM_SOURCE_OR_ACCEPTANCE_PACKET",
+      "capacity": "ONE DUPLICATE RATE-LIMITER REGISTRATION PATCH",
+      "stage": "AVAILABLE",
+      "condition": "CONSTRAINED",
+      "authority": "PUBLIC CURRENT-MAIN READ AND ADAPT INSIDE THE DECLARED SCOPE; NO CONTACT, CLAIM, SUBMISSION, ACCEPTANCE, AWARD, PAYMENT, DEPLOYMENT, REVENUE OR CASH AUTHORITY",
+      "holder": "Commons public current-main corpus; existing upstream owners retained",
+      "consumer": "Existing PayD PR668 owner",
+      "value": "Prevents one payment request from being counted twice by the same sensitive limiter.",
+      "source": "PR31724 merge bf3aecbbd40be246d722e34b03c0dd0cdefd816b",
+      "exact_safe_probe": "Merged source, retained evidence and bounded semantics were reconciled; no external account, provider, buyer, device or financial mutation was performed.",
+      "next_action": "Use the landed capability under its existing owner and preserve the stated evidence boundary.",
+      "rate_plan_boundary": "Landed source or finite evidence is not deployment, upstream acceptance, award, payment, revenue or cash.",
+      "assigned_backlog": "Existing consumer and owner retained; no duplicate worker, claim, contact or submission.",
+      "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
+    },
+    {
+      "evidence_freshness": "EVENT_DRIVEN",
+      "claim_active": false,
+      "last_receipt": "resource-master-capability-delta-20261005-1803",
+      "last_used_at": "2026-10-05T22:10:13Z",
+      "evidence_ts": "2026-10-05T22:10:13Z",
+      "own_activation_this_run": true,
+      "name": "ifc-viewer-fast-bool-source-packet",
+      "kind": "PINNED_UPSTREAM_SOURCE_OR_ACCEPTANCE_PACKET",
+      "capacity": "ONE EXPLICIT-FALSE CONFIGURATION PATCH",
+      "stage": "AVAILABLE",
+      "condition": "CONSTRAINED",
+      "authority": "PUBLIC CURRENT-MAIN READ AND ADAPT INSIDE THE DECLARED SCOPE; NO CONTACT, CLAIM, SUBMISSION, ACCEPTANCE, AWARD, PAYMENT, DEPLOYMENT, REVENUE OR CASH AUTHORITY",
+      "holder": "Commons public current-main corpus; existing upstream owners retained",
+      "consumer": "Existing IFC viewer issue owner",
+      "value": "Preserves USE_FAST_BOOLS=false while retaining the default for missing values.",
+      "source": "PR31725 merge 471073eb4c5587c722cebc963721c4fc510881f2",
+      "exact_safe_probe": "Merged source, retained evidence and bounded semantics were reconciled; no external account, provider, buyer, device or financial mutation was performed.",
+      "next_action": "Use the landed capability under its existing owner and preserve the stated evidence boundary.",
+      "rate_plan_boundary": "Landed source or finite evidence is not deployment, upstream acceptance, award, payment, revenue or cash.",
+      "assigned_backlog": "Existing consumer and owner retained; no duplicate worker, claim, contact or submission.",
+      "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
+    },
+    {
+      "evidence_freshness": "EVENT_DRIVEN",
+      "claim_active": false,
+      "last_receipt": "resource-master-capability-delta-20261005-1803",
+      "last_used_at": "2026-10-05T22:10:13Z",
+      "evidence_ts": "2026-10-05T22:10:13Z",
+      "own_activation_this_run": true,
+      "name": "sun-a303656-zero-factorization-source-packet",
+      "kind": "PINNED_UPSTREAM_SOURCE_OR_ACCEPTANCE_PACKET",
+      "capacity": "ONE ZERO-INPUT FACTORIZATION-API REJECTION PATCH",
+      "stage": "AVAILABLE",
+      "condition": "CONSTRAINED",
+      "authority": "PUBLIC CURRENT-MAIN READ AND ADAPT INSIDE THE DECLARED SCOPE; NO CONTACT, CLAIM, SUBMISSION, ACCEPTANCE, AWARD, PAYMENT, DEPLOYMENT, REVENUE OR CASH AUTHORITY",
+      "holder": "Commons public current-main corpus; existing upstream owners retained",
+      "consumer": "Existing Sun A303656 exact-arithmetic owner",
+      "value": "Rejects zero rather than returning the same empty factorization as one.",
+      "source": "PR31727 merge 0bb677eb5608af6ba1f388fdbd43ef20bcf060be",
+      "exact_safe_probe": "Merged source, retained evidence and bounded semantics were reconciled; no external account, provider, buyer, device or financial mutation was performed.",
+      "next_action": "Use the landed capability under its existing owner and preserve the stated evidence boundary.",
+      "rate_plan_boundary": "Landed source or finite evidence is not deployment, upstream acceptance, award, payment, revenue or cash.",
+      "assigned_backlog": "Existing consumer and owner retained; no duplicate worker, claim, contact or submission.",
+      "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
+    },
+    {
+      "evidence_freshness": "EVENT_DRIVEN",
+      "claim_active": false,
+      "last_receipt": "resource-master-capability-delta-20261005-1803",
+      "last_used_at": "2026-10-05T22:10:13Z",
+      "evidence_ts": "2026-10-05T22:10:13Z",
+      "own_activation_this_run": true,
+      "name": "stellargrid8-reconciliation-cron-source-packet",
+      "kind": "PINNED_UPSTREAM_SOURCE_OR_ACCEPTANCE_PACKET",
+      "capacity": "ONE SOURCE-COMPLETE RECONCILIATION CRON HANDOFF",
+      "stage": "AVAILABLE",
+      "condition": "CONSTRAINED",
+      "authority": "PUBLIC CURRENT-MAIN READ AND ADAPT INSIDE THE DECLARED SCOPE; NO CONTACT, CLAIM, SUBMISSION, ACCEPTANCE, AWARD, PAYMENT, DEPLOYMENT, REVENUE OR CASH AUTHORITY",
+      "holder": "Commons public current-main corpus; existing upstream owners retained",
+      "consumer": "Existing StellarGrid issue8 owner",
+      "value": "Provides exact additive route, reconciliation helper, schedule and handoff notes.",
+      "source": "PR31728 merge bfcbe7d2e97706f98ccdd212ca248de3d883de83",
+      "exact_safe_probe": "Merged source, retained evidence and bounded semantics were reconciled; no external account, provider, buyer, device or financial mutation was performed.",
+      "next_action": "Use the landed capability under its existing owner and preserve the stated evidence boundary.",
+      "rate_plan_boundary": "Landed source or finite evidence is not deployment, upstream acceptance, award, payment, revenue or cash.",
+      "assigned_backlog": "Existing consumer and owner retained; no duplicate worker, claim, contact or submission.",
+      "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
+    },
+    {
+      "evidence_freshness": "EVENT_DRIVEN",
+      "claim_active": false,
+      "last_receipt": "resource-master-capability-delta-20261005-1803",
+      "last_used_at": "2026-10-05T22:10:13Z",
+      "evidence_ts": "2026-10-05T22:10:13Z",
+      "own_activation_this_run": true,
+      "name": "payd667-dashboard-state-source-packet",
+      "kind": "PINNED_UPSTREAM_SOURCE_OR_ACCEPTANCE_PACKET",
+      "capacity": "ONE CONTEXT-DRIVEN REMOVABLE DASHBOARD PATCH",
+      "stage": "AVAILABLE",
+      "condition": "CONSTRAINED",
+      "authority": "PUBLIC CURRENT-MAIN READ AND ADAPT INSIDE THE DECLARED SCOPE; NO CONTACT, CLAIM, SUBMISSION, ACCEPTANCE, AWARD, PAYMENT, DEPLOYMENT, REVENUE OR CASH AUTHORITY",
+      "holder": "Commons public current-main corpus; existing upstream owners retained",
+      "consumer": "Existing PayD PR667 owner",
+      "value": "Renders dashboard cards from context state so removal mutates the visible result.",
+      "source": "PR31730 merge db6be6c32f4bf8b3f85deaeaf8e2f64e6172d0a6",
+      "exact_safe_probe": "Merged source, retained evidence and bounded semantics were reconciled; no external account, provider, buyer, device or financial mutation was performed.",
+      "next_action": "Use the landed capability under its existing owner and preserve the stated evidence boundary.",
+      "rate_plan_boundary": "Landed source or finite evidence is not deployment, upstream acceptance, award, payment, revenue or cash.",
+      "assigned_backlog": "Existing consumer and owner retained; no duplicate worker, claim, contact or submission.",
+      "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
+    },
+    {
+      "evidence_freshness": "EVENT_DRIVEN",
+      "claim_active": false,
+      "last_receipt": "resource-master-capability-delta-20261005-1803",
+      "last_used_at": "2026-10-05T22:10:13Z",
+      "evidence_ts": "2026-10-05T22:10:13Z",
+      "own_activation_this_run": true,
+      "name": "microg-wear3852-physical-pairing-acceptance-packet",
+      "kind": "PINNED_UPSTREAM_SOURCE_OR_ACCEPTANCE_PACKET",
+      "capacity": "ONE SOURCE-PINNED PHYSICAL PAIRING CAPTURE PLAN",
+      "stage": "AVAILABLE",
+      "condition": "CONSTRAINED",
+      "authority": "PUBLIC CURRENT-MAIN READ AND ADAPT INSIDE THE DECLARED SCOPE; NO CONTACT, CLAIM, SUBMISSION, ACCEPTANCE, AWARD, PAYMENT, DEPLOYMENT, REVENUE OR CASH AUTHORITY",
+      "holder": "Commons public current-main corpus; existing upstream owners retained",
+      "consumer": "Existing microG Wear PR3852 owner and device operator",
+      "value": "Makes the maintainer-requested physical pairing evidence reproducible while preserving the owner-only device gate.",
+      "source": "PR31732 merge 532cc14d2d2334afd606153c57034bb33754d421",
+      "exact_safe_probe": "Merged source, retained evidence and bounded semantics were reconciled; no external account, provider, buyer, device or financial mutation was performed.",
+      "next_action": "Use the landed capability under its existing owner and preserve the stated evidence boundary.",
+      "rate_plan_boundary": "Landed source or finite evidence is not deployment, upstream acceptance, award, payment, revenue or cash.",
+      "assigned_backlog": "Existing consumer and owner retained; no duplicate worker, claim, contact or submission.",
+      "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
+    },
+    {
+      "evidence_freshness": "EVENT_DRIVEN",
+      "claim_active": false,
+      "last_receipt": "resource-master-capability-delta-20261005-1803",
+      "last_used_at": "2026-10-05T22:10:13Z",
+      "evidence_ts": "2026-10-05T22:10:13Z",
+      "own_activation_this_run": true,
+      "name": "starbasedb71-payable-gate-review-packet",
+      "kind": "PINNED_UPSTREAM_SOURCE_OR_ACCEPTANCE_PACKET",
+      "capacity": "ONE FRESH $250 PAYABLE-GATE REVIEW",
+      "stage": "AVAILABLE",
+      "condition": "CONSTRAINED",
+      "authority": "PUBLIC CURRENT-MAIN READ AND ADAPT INSIDE THE DECLARED SCOPE; NO CONTACT, CLAIM, SUBMISSION, ACCEPTANCE, AWARD, PAYMENT, DEPLOYMENT, REVENUE OR CASH AUTHORITY",
+      "holder": "Commons public current-main corpus; existing upstream owners retained",
+      "consumer": "Existing StarbaseDB PR204 claimant and maintainer",
+      "value": "Confirms the existing claim already meets the configured threshold and avoids duplicate work until a distinct paid residual is identified.",
+      "source": "PR31733 merge 364a49847b4d0cc310c450515bd1a8bb3c06184a",
+      "exact_safe_probe": "Merged source, retained evidence and bounded semantics were reconciled; no external account, provider, buyer, device or financial mutation was performed.",
+      "next_action": "Use the landed capability under its existing owner and preserve the stated evidence boundary.",
+      "rate_plan_boundary": "Landed source or finite evidence is not deployment, upstream acceptance, award, payment, revenue or cash.",
+      "assigned_backlog": "Existing consumer and owner retained; no duplicate worker, claim, contact or submission.",
+      "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
+    },
+    {
+      "evidence_freshness": "EVENT_DRIVEN",
+      "claim_active": false,
+      "last_receipt": "resource-master-capability-delta-20261005-1803",
+      "last_used_at": "2026-10-05T22:10:13Z",
+      "evidence_ts": "2026-10-05T22:10:13Z",
+      "own_activation_this_run": true,
+      "name": "payd664-audit-failure-boundary-source-packet",
+      "kind": "PINNED_UPSTREAM_SOURCE_OR_ACCEPTANCE_PACKET",
+      "capacity": "ONE AUDIT-SETUP RESPONSE-DISPATCH PATCH",
+      "stage": "AVAILABLE",
+      "condition": "CONSTRAINED",
+      "authority": "PUBLIC CURRENT-MAIN READ AND ADAPT INSIDE THE DECLARED SCOPE; NO CONTACT, CLAIM, SUBMISSION, ACCEPTANCE, AWARD, PAYMENT, DEPLOYMENT, REVENUE OR CASH AUTHORITY",
+      "holder": "Commons public current-main corpus; existing upstream owners retained",
+      "consumer": "Existing PayD PR664 owner",
+      "value": "Keeps audit setup failure from blocking the original response dispatch.",
+      "source": "PR31734 merge 534a8d816fc185537bbdf9d571e7e60ab3fd6f54",
+      "exact_safe_probe": "Merged source, retained evidence and bounded semantics were reconciled; no external account, provider, buyer, device or financial mutation was performed.",
+      "next_action": "Use the landed capability under its existing owner and preserve the stated evidence boundary.",
+      "rate_plan_boundary": "Landed source or finite evidence is not deployment, upstream acceptance, award, payment, revenue or cash.",
+      "assigned_backlog": "Existing consumer and owner retained; no duplicate worker, claim, contact or submission.",
+      "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
+    },
+    {
+      "evidence_freshness": "EVENT_DRIVEN",
+      "claim_active": false,
+      "last_receipt": "resource-master-capability-delta-20261005-1803",
+      "last_used_at": "2026-10-05T22:10:13Z",
+      "evidence_ts": "2026-10-05T22:10:13Z",
+      "own_activation_this_run": true,
+      "name": "pocketpay544-refresh-error-source-packet",
+      "kind": "PINNED_UPSTREAM_SOURCE_OR_ACCEPTANCE_PACKET",
+      "capacity": "ONE CACHED-REFRESH ERROR AND STYLE PATCH",
+      "stage": "AVAILABLE",
+      "condition": "CONSTRAINED",
+      "authority": "PUBLIC CURRENT-MAIN READ AND ADAPT INSIDE THE DECLARED SCOPE; NO CONTACT, CLAIM, SUBMISSION, ACCEPTANCE, AWARD, PAYMENT, DEPLOYMENT, REVENUE OR CASH AUTHORITY",
+      "holder": "Commons public current-main corpus; existing upstream owners retained",
+      "consumer": "Existing PocketPay PR544 owner",
+      "value": "Consumes the correct refreshError field and repairs the retained screen styles.",
+      "source": "PR31735 merge 2f839614a2b5c0186281cdc103d39a6f435d5e46",
+      "exact_safe_probe": "Merged source, retained evidence and bounded semantics were reconciled; no external account, provider, buyer, device or financial mutation was performed.",
+      "next_action": "Use the landed capability under its existing owner and preserve the stated evidence boundary.",
+      "rate_plan_boundary": "Landed source or finite evidence is not deployment, upstream acceptance, award, payment, revenue or cash.",
+      "assigned_backlog": "Existing consumer and owner retained; no duplicate worker, claim, contact or submission.",
+      "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
+    },
+    {
+      "evidence_freshness": "EVENT_DRIVEN",
+      "claim_active": false,
+      "last_receipt": "resource-master-capability-delta-20261005-1803",
+      "last_used_at": "2026-10-05T22:10:13Z",
+      "evidence_ts": "2026-10-05T22:10:13Z",
+      "own_activation_this_run": true,
+      "name": "pocketpay546-button-callback-source-packet",
+      "kind": "PINNED_UPSTREAM_SOURCE_OR_ACCEPTANCE_PACKET",
+      "capacity": "ONE SHARED-BUTTON CALLBACK PATCH",
+      "stage": "AVAILABLE",
+      "condition": "CONSTRAINED",
+      "authority": "PUBLIC CURRENT-MAIN READ AND ADAPT INSIDE THE DECLARED SCOPE; NO CONTACT, CLAIM, SUBMISSION, ACCEPTANCE, AWARD, PAYMENT, DEPLOYMENT, REVENUE OR CASH AUTHORITY",
+      "holder": "Commons public current-main corpus; existing upstream owners retained",
+      "consumer": "Existing PocketPay PR546 owner",
+      "value": "Restores optional callback invocation for real retry and back actions.",
+      "source": "PR31738 merge 0ee0643d092cc80923d62378f6bd4bfe297d0e45",
+      "exact_safe_probe": "Merged source, retained evidence and bounded semantics were reconciled; no external account, provider, buyer, device or financial mutation was performed.",
+      "next_action": "Use the landed capability under its existing owner and preserve the stated evidence boundary.",
+      "rate_plan_boundary": "Landed source or finite evidence is not deployment, upstream acceptance, award, payment, revenue or cash.",
+      "assigned_backlog": "Existing consumer and owner retained; no duplicate worker, claim, contact or submission.",
+      "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
+    },
+    {
+      "evidence_freshness": "EVENT_DRIVEN",
+      "claim_active": false,
+      "last_receipt": "resource-master-capability-delta-20261005-1803",
+      "last_used_at": "2026-10-05T22:10:13Z",
+      "evidence_ts": "2026-10-05T22:10:13Z",
+      "own_activation_this_run": true,
+      "name": "pocketpay545-activity-skeleton-source-packet",
+      "kind": "PINNED_UPSTREAM_SOURCE_OR_ACCEPTANCE_PACKET",
+      "capacity": "ONE REUSABLE ACTIVITY-SKELETON WIRING PATCH",
+      "stage": "AVAILABLE",
+      "condition": "CONSTRAINED",
+      "authority": "PUBLIC CURRENT-MAIN READ AND ADAPT INSIDE THE DECLARED SCOPE; NO CONTACT, CLAIM, SUBMISSION, ACCEPTANCE, AWARD, PAYMENT, DEPLOYMENT, REVENUE OR CASH AUTHORITY",
+      "holder": "Commons public current-main corpus; existing upstream owners retained",
+      "consumer": "Existing PocketPay PR545 owner",
+      "value": "Connects the alias/barrel to the real six-row skeleton implementation.",
+      "source": "PR31739 merge 1e2e6b3738c74e70d5b0e6bb0fb0584ed7602145",
+      "exact_safe_probe": "Merged source, retained evidence and bounded semantics were reconciled; no external account, provider, buyer, device or financial mutation was performed.",
+      "next_action": "Use the landed capability under its existing owner and preserve the stated evidence boundary.",
+      "rate_plan_boundary": "Landed source or finite evidence is not deployment, upstream acceptance, award, payment, revenue or cash.",
+      "assigned_backlog": "Existing consumer and owner retained; no duplicate worker, claim, contact or submission.",
+      "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
+    },
+    {
+      "evidence_freshness": "EVENT_DRIVEN",
+      "claim_active": false,
+      "last_receipt": "resource-master-capability-delta-20261005-1803",
+      "last_used_at": "2026-10-05T22:10:13Z",
+      "evidence_ts": "2026-10-05T22:10:13Z",
+      "own_activation_this_run": true,
+      "name": "payd661-responsive-import-source-packet",
+      "kind": "PINNED_UPSTREAM_SOURCE_OR_ACCEPTANCE_PACKET",
+      "capacity": "ONE DEFAULT-EXPORT RESPONSIVE-HOOK IMPORT PATCH",
+      "stage": "AVAILABLE",
+      "condition": "CONSTRAINED",
+      "authority": "PUBLIC CURRENT-MAIN READ AND ADAPT INSIDE THE DECLARED SCOPE; NO CONTACT, CLAIM, SUBMISSION, ACCEPTANCE, AWARD, PAYMENT, DEPLOYMENT, REVENUE OR CASH AUTHORITY",
+      "holder": "Commons public current-main corpus; existing upstream owners retained",
+      "consumer": "Existing PayD PR661 owner",
+      "value": "Matches the Layout consumer to the hook module default export.",
+      "source": "PR31741 merge fa9303a414a5239207672076af4842cc911e4e70",
+      "exact_safe_probe": "Merged source, retained evidence and bounded semantics were reconciled; no external account, provider, buyer, device or financial mutation was performed.",
+      "next_action": "Use the landed capability under its existing owner and preserve the stated evidence boundary.",
+      "rate_plan_boundary": "Landed source or finite evidence is not deployment, upstream acceptance, award, payment, revenue or cash.",
+      "assigned_backlog": "Existing consumer and owner retained; no duplicate worker, claim, contact or submission.",
+      "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
+    },
+    {
+      "evidence_freshness": "EVENT_DRIVEN",
+      "claim_active": false,
+      "last_receipt": "resource-master-capability-delta-20261005-1803",
+      "last_used_at": "2026-10-05T22:10:13Z",
+      "evidence_ts": "2026-10-05T22:10:13Z",
+      "own_activation_this_run": true,
+      "name": "pocketpay546-testnet-explorer-source-packet",
+      "kind": "PINNED_UPSTREAM_SOURCE_OR_ACCEPTANCE_PACKET",
+      "capacity": "ONE CONFIGURED-NETWORK EXPLORER-ACTION PATCH",
+      "stage": "AVAILABLE",
+      "condition": "CONSTRAINED",
+      "authority": "PUBLIC CURRENT-MAIN READ AND ADAPT INSIDE THE DECLARED SCOPE; NO CONTACT, CLAIM, SUBMISSION, ACCEPTANCE, AWARD, PAYMENT, DEPLOYMENT, REVENUE OR CASH AUTHORITY",
+      "holder": "Commons public current-main corpus; existing upstream owners retained",
+      "consumer": "Existing PocketPay PR546 owner",
+      "value": "Shows the Testnet-labelled action only when the returned configured-network URL is actually Testnet.",
+      "source": "PR31742 merge cc90d63ddb5265f43ce83d65aa191439f23ee3a5",
+      "exact_safe_probe": "Merged source, retained evidence and bounded semantics were reconciled; no external account, provider, buyer, device or financial mutation was performed.",
+      "next_action": "Use the landed capability under its existing owner and preserve the stated evidence boundary.",
+      "rate_plan_boundary": "Landed source or finite evidence is not deployment, upstream acceptance, award, payment, revenue or cash.",
+      "assigned_backlog": "Existing consumer and owner retained; no duplicate worker, claim, contact or submission.",
+      "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
+    },
+    {
+      "evidence_freshness": "EVENT_DRIVEN",
+      "claim_active": false,
+      "last_receipt": "resource-master-capability-delta-20261005-1803",
+      "last_used_at": "2026-10-05T22:10:13Z",
+      "evidence_ts": "2026-10-05T22:10:13Z",
+      "own_activation_this_run": true,
+      "name": "connected-github-retained-comment-header-projector",
+      "kind": "CONNECTED_GITHUB_COMMENT_HEADER_PROJECTOR",
+      "capacity": "BOUNDED RETAINED COMMENT HEADERS WITH BODIES WITHHELD",
+      "stage": "PRODUCING",
+      "condition": "CONSTRAINED",
+      "authority": "SHARED CONNECTED GITHUB READ ONLY; BODY WITHHELD; NO COMMENT, REVIEW, CONTACT, MERGE OR REPOSITORY MUTATION AUTHORITY",
+      "holder": "Commons public current-main corpus; existing upstream owners retained",
+      "consumer": "Resource Master collision and provenance readers",
+      "value": "Projects comment identity and metadata without transferring, decoding or republishing held bodies.",
+      "source": "PR31737 merge d294c415b0db86f8cee519277fe191db569eb63f; host/connected_github_comments.cjs",
+      "exact_safe_probe": "Merged source, retained evidence and bounded semantics were reconciled; no external account, provider, buyer, device or financial mutation was performed.",
+      "next_action": "Use the landed capability under its existing owner and preserve the stated evidence boundary.",
+      "rate_plan_boundary": "Landed source or finite evidence is not deployment, upstream acceptance, award, payment, revenue or cash.",
+      "assigned_backlog": "Existing consumer and owner retained; no duplicate worker, claim, contact or submission.",
+      "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
+    },
+    {
+      "evidence_freshness": "EVENT_DRIVEN",
+      "claim_active": false,
+      "last_receipt": "resource-master-capability-delta-20261005-1803",
+      "last_used_at": "2026-10-05T22:10:13Z",
+      "evidence_ts": "2026-10-05T22:10:13Z",
+      "own_activation_this_run": true,
+      "name": "connected-github-native-actions-artifact-download",
+      "kind": "CONNECTED_GITHUB_ACTIONS_ARTIFACT_DOWNLOAD_ROAD",
+      "capacity": "NATIVE UTF-8 ACTIONS ARTIFACT RETRIEVAL WITH SOURCE-BOUND DIGEST",
+      "stage": "PRODUCING",
+      "condition": "CONSTRAINED",
+      "authority": "SHARED CONNECTED GITHUB READ AND AUTHORIZED ARTIFACT DOWNLOAD ONLY; NO WORKFLOW RERUN, SECRET, DEPLOYMENT OR REPOSITORY MUTATION AUTHORITY",
+      "holder": "Commons public current-main corpus; existing upstream owners retained",
+      "consumer": "Cloud workers consuming already-authorized workflow artifacts",
+      "value": "Documents the already exercised download route, cooldown and text/binary boundary.",
+      "source": "PR31705 merge eb968aac4e15fad78dfa21f2063219b7ea955465; ground/knowledge/native-github-artifact-download.md",
+      "exact_safe_probe": "Merged source, retained evidence and bounded semantics were reconciled; no external account, provider, buyer, device or financial mutation was performed.",
+      "next_action": "Use the landed capability under its existing owner and preserve the stated evidence boundary.",
+      "rate_plan_boundary": "Landed source or finite evidence is not deployment, upstream acceptance, award, payment, revenue or cash.",
+      "assigned_backlog": "Existing consumer and owner retained; no duplicate worker, claim, contact or submission.",
+      "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
+    },
+    {
+      "evidence_freshness": "EVENT_DRIVEN",
+      "claim_active": false,
+      "last_receipt": "resource-master-capability-delta-20261005-1803",
+      "last_used_at": "2026-10-05T22:10:13Z",
+      "evidence_ts": "2026-10-05T22:10:13Z",
+      "own_activation_this_run": true,
+      "name": "cross-harness-shared-credentials-catalog",
+      "kind": "CROSS_HARNESS_CAPABILITY_CATALOG_ENTRY",
+      "capacity": "ONE SHARED-CREDENTIALS DISCOVERY CARD WITH METADATA-ONLY REFERENCES",
+      "stage": "PRODUCING",
+      "condition": "CONSTRAINED",
+      "authority": "METADATA-ONLY DISCOVERY; NO SECRET VALUE, DECRYPTION, ACCOUNT MUTATION, CONTACT, PAYMENT OR DEPLOYMENT AUTHORITY",
+      "holder": "Commons public current-main corpus; existing upstream owners retained",
+      "consumer": "Authorized harness capability discovery",
+      "value": "Exposes the shared-credentials capability contract and metadata-only reference boundary across harnesses.",
+      "source": "PR31707 merge 0eb2ad40ec57e1d2da38ec05e8a8913708bd8ab2; harnesses/catalog.json",
+      "exact_safe_probe": "Merged source, retained evidence and bounded semantics were reconciled; no external account, provider, buyer, device or financial mutation was performed.",
+      "next_action": "Use the landed capability under its existing owner and preserve the stated evidence boundary.",
+      "rate_plan_boundary": "Landed source or finite evidence is not deployment, upstream acceptance, award, payment, revenue or cash.",
+      "assigned_backlog": "Existing consumer and owner retained; no duplicate worker, claim, contact or submission.",
+      "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
+    },
+    {
+      "evidence_freshness": "EVENT_DRIVEN",
+      "claim_active": false,
+      "last_receipt": "resource-master-capability-delta-20261005-1803",
+      "last_used_at": "2026-10-05T22:10:13Z",
+      "evidence_ts": "2026-10-05T22:10:13Z",
+      "own_activation_this_run": true,
+      "name": "openai-subscription-default-speed-improvement-20261005",
+      "kind": "ANNOUNCED_MODEL_RUNTIME_CAPACITY",
+      "capacity": "ANNOUNCED APPROXIMATELY 50 PERCENT DEFAULT SPEED IMPROVEMENT FOR GPT-6 ASTRA AND GPT-6.1 SOL THROUGH SUBSCRIPTION SURFACES",
+      "stage": "AVAILABLE",
+      "condition": "ANNOUNCED",
+      "authority": "EXISTING SUBSCRIPTION USE ONLY; NO QUOTA RESET, BANKED RESET ACTIVATION, PURCHASE, PLAN CHANGE OR GUARANTEED THROUGHPUT AUTHORITY",
+      "holder": "Commons public current-main corpus; existing upstream owners retained",
+      "consumer": "GPT-unique connected-app, coordination, judgment and merge work",
+      "value": "Official Thibault Sottiaux announcement makes more useful work per elapsed subscription minute plausible without spending a reset.",
+      "source": "https://x.com/thsottiaux/status/2107158998495748264; announcement transcribed at https://community.openai.com/t/day-1-28-days-of-quality-of-life-improvements-or-a-full-reset/1403525",
+      "exact_safe_probe": "Announcement observed once this wake; no usage-meter change or local benchmark was observed, so the speed improvement remains announced rather than measured.",
+      "next_action": "Prefer GPT-unique coordination, connected-app judgment and merge work while preserving a small emergency reserve; measure only through useful work.",
+      "rate_plan_boundary": "Day 1 is a performance improvement, not a hard/global reset. Prior quota state remains; no banked or purchased reset was touched.",
+      "assigned_backlog": "Existing consumer and owner retained; no duplicate worker, claim, contact or submission.",
+      "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
+    },
+    {
+      "evidence_freshness": "EVENT_DRIVEN",
+      "claim_active": false,
+      "last_receipt": "resource-master-capability-delta-20261005-1803",
+      "last_used_at": "2026-10-05T22:24:02Z",
+      "evidence_ts": "2026-10-05T22:24:02Z",
+      "own_activation_this_run": true,
+      "name": "erdos264-factorial-shift-prefix-index",
+      "kind": "FINITE_RESEARCH_INDEX",
+      "capacity": "ONE 8,388,608-MEMBER FACTORIAL-SHIFT PREFIX AND EXACT TAIL-ENCLOSURE INDEX",
+      "stage": "PRODUCING",
+      "condition": "CONSTRAINED",
+      "authority": "PUBLIC CURRENT-MAIN READ AND COMPUTE INSIDE THE DECLARED FINITE OR CONDITIONAL DOMAIN; NO UNRESTRICTED THEOREM, NOVELTY, PRIZE, SPONSOR, SUBMISSION, PAYMENT, REVENUE OR CASH AUTHORITY",
+      "holder": "Commons public current-main corpus; existing upstream owners retained",
+      "consumer": "Finite factorial-shift readers",
+      "value": "Exact rank, gap, threshold, window and certified-or-undecided radix-prefix queries over the declared finite family.",
+      "source": "PR31747 merge 74cefdf02b03f3d23dcfd3dbfd19a55336460a4b",
+      "exact_safe_probe": "Merged source, retained evidence and bounded semantics were reconciled; no external account, provider, buyer, device or financial mutation was performed.",
+      "next_action": "Use the landed capability under its existing owner and preserve the stated evidence boundary.",
+      "rate_plan_boundary": "Finite saved computation or conditional analysis is not an unrestricted theorem, prize, sponsor result, payment, revenue or cash.",
+      "assigned_backlog": "Existing consumer and owner retained; no duplicate worker, claim, contact or submission.",
+      "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
+    },
+    {
+      "evidence_freshness": "EVENT_DRIVEN",
+      "claim_active": false,
+      "last_receipt": "resource-master-capability-delta-20261005-1803",
+      "last_used_at": "2026-10-05T22:24:02Z",
+      "evidence_ts": "2026-10-05T22:24:02Z",
+      "own_activation_this_run": true,
+      "name": "payd661-dropdown-navigation-source-packet",
+      "kind": "PINNED_UPSTREAM_SOURCE_OR_ACCEPTANCE_PACKET",
+      "capacity": "ONE VISIBLE-PAGE DROPDOWN SELECTION AND PAGINATION PATCH",
+      "stage": "AVAILABLE",
+      "condition": "CONSTRAINED",
+      "authority": "PUBLIC CURRENT-MAIN READ AND ADAPT INSIDE THE DECLARED SCOPE; NO CONTACT, CLAIM, SUBMISSION, ACCEPTANCE, AWARD, PAYMENT, DEPLOYMENT, REVENUE OR CASH AUTHORITY",
+      "holder": "Commons public current-main corpus; existing upstream owners retained",
+      "consumer": "Existing PayD PR661 owner",
+      "value": "Separates committed selection from focus and prevents hidden or out-of-page Enter selection.",
+      "source": "PR31746 merge c3d31003cab3fc326fbafc7ab73c83084ebe4a64",
+      "exact_safe_probe": "Merged source, retained evidence and bounded semantics were reconciled; no external account, provider, buyer, device or financial mutation was performed.",
+      "next_action": "Use the landed capability under its existing owner and preserve the stated evidence boundary.",
+      "rate_plan_boundary": "Landed source or finite evidence is not deployment, upstream acceptance, award, payment, revenue or cash.",
+      "assigned_backlog": "Existing consumer and owner retained; no duplicate worker, claim, contact or submission.",
+      "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
+    },
+    {
+      "evidence_freshness": "EVENT_DRIVEN",
+      "claim_active": false,
+      "last_receipt": "resource-master-capability-delta-20261005-1803",
+      "last_used_at": "2026-10-05T22:24:02Z",
+      "evidence_ts": "2026-10-05T22:24:02Z",
+      "own_activation_this_run": true,
+      "name": "pocketpay544-asset-format-source-packet",
+      "kind": "PINNED_UPSTREAM_SOURCE_OR_ACCEPTANCE_PACKET",
+      "capacity": "ONE EXPORTED AMOUNT-HELPER ASSET-INTERPOLATION PATCH",
+      "stage": "AVAILABLE",
+      "condition": "CONSTRAINED",
+      "authority": "PUBLIC CURRENT-MAIN READ AND ADAPT INSIDE THE DECLARED SCOPE; NO CONTACT, CLAIM, SUBMISSION, ACCEPTANCE, AWARD, PAYMENT, DEPLOYMENT, REVENUE OR CASH AUTHORITY",
+      "holder": "Commons public current-main corpus; existing upstream owners retained",
+      "consumer": "Existing PocketPay PR544 owner",
+      "value": "Restores the computed asset or XLM fallback in the exported amount string.",
+      "source": "PR31745 merge c78ee1dc663dc7460d79d3e1ca6928d869790dc5",
+      "exact_safe_probe": "Merged source, retained evidence and bounded semantics were reconciled; no external account, provider, buyer, device or financial mutation was performed.",
+      "next_action": "Use the landed capability under its existing owner and preserve the stated evidence boundary.",
+      "rate_plan_boundary": "Landed source or finite evidence is not deployment, upstream acceptance, award, payment, revenue or cash.",
+      "assigned_backlog": "Existing consumer and owner retained; no duplicate worker, claim, contact or submission.",
+      "build_order": "NONE_COMPLETE_CAPABILITY_ALREADY_LANDED"
     }
   ],
   "titan": "NOT_WRITTEN"
