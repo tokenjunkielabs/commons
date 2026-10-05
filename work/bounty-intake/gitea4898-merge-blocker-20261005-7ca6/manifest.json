@@ -66,5 +66,43 @@
     },
     "runtime_execution": false,
     "inspected_on": "2026-10-05"
-  }
+  },
+  "related_carriers": [
+    {
+      "repo": "go-gitea/gitea",
+      "pr": 39280,
+      "url": "https://github.com/go-gitea/gitea/pull/39280",
+      "author": "realuca660-pixel",
+      "state": "open",
+      "draft": false,
+      "merged": false,
+      "head": "e2efbaf09c93257f18ef74f154fffea05a733595",
+      "base": "92f2f6161b4c4e5c91c38a3615ce8e5711f9457b",
+      "branch": "feat/commit-inline-comments-v2",
+      "commits": 8,
+      "changed_files": 25,
+      "mergeable": false,
+      "mergeable_state": "dirty",
+      "labels": [
+        "type/feature",
+        "lgtm/need 2"
+      ],
+      "migration": {
+        "id": 353,
+        "path": "modelmigration/v28/v353.go",
+        "blob": "2e69d0fe7f07127688786d875b40cc3f3f76b690",
+        "registry_blob": "2ae3126f47b4df602fe5325250b61a4d358bc7c2"
+      },
+      "supersession": "author_statement_only_not_maintainer_selection",
+      "issue_comments": 0,
+      "automated_commented_reviews": 1,
+      "automated_inline_comments": [
+        3963734736,
+        3963734745
+      ],
+      "reviewed_commit_abbreviation": "93de4c1518",
+      "observed_on": "2026-10-05"
+    }
+  ],
+  "carrier_scope": "36862_specific_handoff_not_exclusive_issue_implementation"
 }
