@@ -450,7 +450,8 @@ Contents batch operation. The observed connector accepts `tree_elements`
 objects; GitHub's [primary tree documentation](https://docs.github.com/en/rest/git/trees#create-a-tree)
 defines inline `content` and its mutual exclusion with `sha`.
 
-After the native tree write, the publisher enters `check_inline_source_pins`.
+Unless the optional local tree-identity mode described below is selected,
+after the native tree write the publisher enters `check_inline_source_pins`.
 Starting from that returned tree SHA, it reads complete, nonrecursive native
 trees along the selected paths, sharing each successfully read tree within this
 traversal. Every selected inline-pinned leaf must exist, be a blob, retain the
@@ -1815,3 +1816,163 @@ one PR, one merge and five complete merge-file reads. The base did not change.
 Nine separate main/PR/path reads were outside that count. This is an observed
 different packet, not a replay, like-for-like benchmark or execution of the
 changed-base preimage branch.
+
+## Predict the exact inline tree from complete base trees
+
+A caller preparing a genuinely new Git-data publication may opt into local
+created-tree identity verification:
+
+~~~javascript
+const result = await publishGitHubChange(journaledTools, preparedChange, {
+  inline_pinned_utf8: true,
+  inline_tree_identity: true,
+  onProgress: retainProgress,
+});
+~~~
+
+This option belongs only to `publishGitHubChange`. It must be boolean and requires
+`inline_pinned_utf8: true`, UTF-8 content and an independently established
+`expected_new_blob_sha` on every selected file. The existing regular-file mode,
+path, preimage and file/ancestor collision checks remain in force. Mixed,
+unpinned or base64 inputs do not satisfy this particular format contract;
+they retain the existing publication routes when this option is not selected.
+This mode does not install a caller permission or ownership gate.
+
+Omitting `inline_tree_identity` or setting it to false retains the existing
+created-tree GET verification path for pinned inline text. Selecting it is a
+deliberate pre-publication choice. An unavailable input, mismatched identity,
+unsupported entry or budget failure stops the selected operation; the helper
+does not switch routes, repeat a write, fetch a substitute postimage or retry.
+
+### Complete preimages and local postimages
+
+The ordinary precheck already observes the named base commit and root tree and
+follows complete, nonrecursive tree entries along every changed file path.
+In the new mode, those successful whole-directory observations are copied into
+a private path-bound map, including SHA-cache hits at another directory path.
+An explicitly supplied `retained_trees` object remains eligible only under its
+existing full-byte hashing and native-parent binding rules. Neither original
+native arrays nor the shared SHA-keyed reader cache is mutated.
+
+Every captured directory is serialized and passed through the existing strict
+retained-tree parser, which hashes its complete bytes and requires equality
+with the observed parent-bound tree SHA. This both checks the serialization
+premises and retains exact modes and object IDs for unrelated entries. Separate
+directory paths receive independent mutable copies even when their original
+tree SHA is identical.
+
+An existing directory without a complete entry set cannot participate.
+The initial precheck therefore disables its per-file preimage fallback in this
+mode: a truncated/unavailable tree stops before that narrower read, because it
+could not supply the missing directory. The default path keeps its existing
+fallback behavior. A genuinely absent child directory is different: absence
+must be demonstrated by its complete, SHA-verified parent's entry set, after
+which the local postimage creates that directory from an empty entry set.
+
+The publisher applies the selected regular-file modes and pinned new blob IDs
+to these copied entries. It then computes changed directory identities from
+the deepest directory up to the root. Untouched children keep their original
+object IDs and modes; their contents need not be acquired. New descendant
+directories are included in that same bottom-up calculation. A changed file
+cannot also be an ancestor of another changed path.
+
+This produces one expected created-tree SHA before the native tree write.
+The actual `create_tree` request remains the existing inline-content request
+against the observed base tree. Its native acknowledgement supplies the
+created SHA; echoed request fields or an assumed response entry list are not
+used as evidence. A differing SHA stops before commit, branch or PR creation.
+The tree object itself may already exist, and the original response/progress
+must remain retained. Only an equal SHA qualifies all prepared leaf paths,
+types, modes and pins and permits the existing commit/branch/PR steps.
+
+### Exact byte premises and bounds
+
+This is Git's SHA-1 object format, matching the publisher's existing lowercase
+40-hex object-ID contract. It does not support a SHA-256 repository format.
+
+- Each immediate entry uses canonical mode text, one ASCII space, its strict
+  UTF-8 name bytes, NUL, then the 20 binary bytes of its object SHA.
+- A native directory mode `040000` is serialized as Git's `40000`. Supported
+  untouched modes/types are tree `40000`, regular blobs `100644`/`100755`,
+  symlink blob `120000` and gitlink commit `160000`. Existing symlinks, gitlinks
+  and directories still cannot be replaced as regular-file source changes.
+- Names are nonempty immediate components, not `.` or `..`, with no slash or
+  NUL. Unpaired Unicode surrogates, invalid UTF-8 reconstruction, duplicate
+  names, inconsistent type/mode pairs and unknown modes stop the operation.
+  No case folding or Unicode normalization is performed.
+- Git order compares bytes through the common prefix, then uses NUL for a
+  non-tree or `/` for a tree at end-of-name. JavaScript string ordering and
+  locale collation are not used.
+- The object SHA hashes `tree`, an ASCII space, the decimal body byte length,
+  NUL and the body. It is not a hash of JSON metadata or a blob-framed hash.
+  The existing `retainedTreeSHA` implementation and strict parser are reused;
+  no additional cryptographic implementation or external callback is added.
+
+The fixed local bounds are 256 touched directory paths, 200,000 immediate
+entries per directory, 16 MiB per encoded tree body, and 64 MiB of encoded tree
+bodies in total across base verification and computed postimages. A name must
+fit 4,096 UTF-8 bytes; its UTF-16 input length is also bounded before encoding.
+Limits are checked before admitting the corresponding local object/body.
+These are local representation limits, not cancellation or transfer limits
+on an already in-flight provider response.
+
+The primary references are Git's
+[object framing and tree explanation](https://git-scm.com/book/en/v2/Git-Internals-Git-Objects),
+the [git-mktree manual](https://git-scm.com/docs/git-mktree), and the byte comparator
+in [Git tree.c at babb4e5d7107ba730beff8d224e4bcf065533e0b](https://code.googlesource.com/git/+/babb4e5d7107ba730beff8d224e4bcf065533e0b/tree.c).
+The separately failed sibling mktree.c acquisition is not evidence for this
+implementation and was not retried.
+
+### Receipt and unchanged downstream checks
+
+Progress records `inline_tree_identity: true` and uses these additional
+`inline_tree_verification` fields:
+
+- `method: 'local_git_tree_identity'`;
+- the observed `base_commit_sha` and `base_tree_sha`;
+- `expected_tree_sha`, the native `tree_sha`, and `tree_identity_matches`;
+- `base_trees` summaries with directory path, SHA, byte/entry counts and
+  successful object-hash verification;
+- `computed_trees` summaries with directory path, previous SHA or null for a
+  new directory, computed SHA and byte/entry counts;
+- `body_bytes_encoded`, the cumulative local serialized-body bytes, and
+  explicit fixed `limits`;
+- `fetch_calls: 0`, referring only to additional created-tree verification
+  GETs, not the publication's ordinary preimage reads;
+- `checked_paths` and `complete`, filled only after the native root SHA matches.
+
+Progress contains no whole entry arrays, unrelated leaf names or source bodies.
+Local failures retain the existing partial progress and cause through
+`GitHubPublishError`; uncertain native outcomes retain the original writer
+semantics. There is no automatic recovery or fallback after a failed dispatch.
+
+The expected SHA applies to the created branch tree. It is not an equality
+claim about a later merge tree after another change advances the base.
+Current-base/preimage checks before merge, expected-head merge protection and
+the existing merge-continuation contract remain unchanged. All complete
+immutable source-content readbacks still run and compare the prepared bytes
+and native blob pins. Independent caller hashing and separate current-main
+observation/readback remain their existing responsibilities.
+
+### Observed opportunity and first-use scope
+
+The completed E366 publication required four created-tree verification GETs
+for its fourteen pinned inline entries within twenty-nine publisher calls.
+Its create-tree acknowledgement supplied only a SHA. That completed operation
+was not reconstructed or replayed to develop this change.
+
+For a future eligible operation, the existing traversal would require T
+created-tree GETs for its actual selected paths; this mode replaces those
+additional reads with local encoding and hashing. It does not remove ordinary
+base-tree reads, source banking or immutable content readbacks. T is a modeled
+avoided-call count unless the genuinely new operation's retained receipt
+supports that comparison. Local CPU/memory cost is real; no elapsed-time,
+wire-byte or general speedup claim follows from removing calls.
+
+At source authoring, the new path had no executed consumer, synthetic fixture,
+test suite, old-tree replay or accepted-publication replay. Its intended first
+consumer is the genuinely new publication of this source and guide, using
+the source banked before that operation and retaining all native envelopes.
+The publication receipt and release carry any actual first-use outcome.
+Unsupported-name/mode/limit, mismatch, missing-tree and error branches remain
+unexecuted unless separately identified by a genuine future observation.
