@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import csv
+import errno
 import hashlib
 import io
 import json
@@ -71,6 +72,31 @@ def read_source(root: Path, relative: str) -> bytes:
         raise MigrationError(f"Cannot read source {relative}: {exc}") from exc
 
 
+def _attachment_error_detail(root: Path, relative: str, exc: AttachmentError) -> str:
+    """Translate known safe-reader rejections into stable operator guidance."""
+    detail = str(exc)
+    if any(marker in detail for marker in (
+        "must be nonempty text",
+        "use a relative POSIX path",
+        "empty, dot or parent component",
+    )):
+        return "attachment path must be an ordinary relative path"
+    cause = exc.__cause__
+    if isinstance(cause, OSError) and cause.errno == errno.ELOOP:
+        return "symbolic link is not allowed"
+    try:
+        current = Path(root)
+        if current.is_symlink():
+            return "symbolic link is not allowed"
+        for part in Path(relative).parts:
+            current /= part
+            if current.is_symlink():
+                return "symbolic link is not allowed"
+    except OSError:
+        pass
+    return detail
+
+
 def read_attachment_source(root: Path, relative: str) -> bytes:
     """Use the bounded descriptor reader when its required APIs are available."""
     descriptor_reads = (
@@ -84,7 +110,8 @@ def read_attachment_source(root: Path, relative: str) -> bytes:
         return read_attachment(root, relative, max_bytes=MAX_FILE_BYTES)["data"]
     except AttachmentError as exc:
         # A rejected descriptor read must not retry through the portable reader.
-        raise MigrationError(f"Cannot read attachment {relative}: {exc}") from exc
+        detail = _attachment_error_detail(root, relative, exc)
+        raise MigrationError(f"Cannot read attachment {relative}: {detail}") from exc
 
 
 def validate_data(kind: str, data: dict[str, Any]) -> None:
