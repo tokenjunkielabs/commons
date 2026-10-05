@@ -1,0 +1,12 @@
+diff --git a/interactive.js b/interactive.js
+--- a/interactive.js
++++ b/interactive.js
+@@ -254,7 +254,7 @@
+ const listProcesses = async (processes, flags) => {
+ 	const memoryThreshold = flags.verbose ? 0 : 1;
+ 	const cpuThreshold = flags.verbose ? 0 : 3;
+-	const searcher = new FuzzySearch(processes, ['name'], {caseSensitive: false});
++	const searcher = new FuzzySearch(processes.filter(process_ => !isHelperProcess(process_)), ['name'], {caseSensitive: false});
+ 
+ 	const selectedPid = await search({
+ 		message: 'Running processes:',
