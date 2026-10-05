@@ -1,0 +1,12 @@
+diff --git a/src/components/Button.tsx b/src/components/Button.tsx
+--- a/src/components/Button.tsx
++++ b/src/components/Button.tsx
+@@ -70,7 +70,7 @@
+       });
+     } else {
+       if (disabled || isLoading) return;
+-      onPress?.event);
++      onPress?.(event);
+     }
+   };
+ 
