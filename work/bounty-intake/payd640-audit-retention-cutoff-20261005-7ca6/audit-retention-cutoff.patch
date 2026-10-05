@@ -1,0 +1,21 @@
+diff --git a/src/services/audit.service.ts b/src/services/audit.service.ts
+--- a/src/services/audit.service.ts
++++ b/src/services/audit.service.ts
+@@ -143,9 +143,14 @@
+     do {
+       const [newCursor, keys] = await redis.scan(cursor, 'MATCH', pattern, 'COUNT', 100);
+       cursor = newCursor;
+-      if (keys.length > 0) {
+-        await redis.del(...keys);
+-        deleted += keys.length;
++      for (const key of keys) {
++        const timestamp = await redis.hget(key, 'timestamp');
++        if (timestamp === null) continue;
++
++        const timestampMs = Date.parse(timestamp);
++        if (Number.isFinite(timestampMs) && timestampMs < cutoff.getTime()) {
++          deleted += await redis.del(key);
++        }
+       }
+     } while (cursor !== '0');
+ 
