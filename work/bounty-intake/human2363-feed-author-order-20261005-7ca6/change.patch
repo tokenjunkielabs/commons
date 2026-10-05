@@ -21,3 +21,58 @@ diff --git a/webapp/components/PostTeaser/PostTeaser.vue b/webapp/components/Pos
      </base-card>
      <hc-ribbon
        :class="{ '--pinned': isPinned }"
+diff --git a/webapp/pages/post/_id/_slug/index.vue b/webapp/pages/post/_id/_slug/index.vue
+--- a/webapp/pages/post/_id/_slug/index.vue
++++ b/webapp/pages/post/_id/_slug/index.vue
+@@ -22,25 +22,6 @@
+           />
+         </aside>
+       </template>
+-      <section class="menu">
+-        <user-teaser :user="post.author" :date-time="post.createdAt">
+-          <template #dateTime>
+-            <ds-text v-if="post.createdAt !== post.updatedAt">({{ $t('post.edited') }})</ds-text>
+-          </template>
+-        </user-teaser>
+-        <client-only>
+-          <content-menu
+-            placement="bottom-end"
+-            resource-type="contribution"
+-            :resource="post"
+-            :modalsData="menuModalsData"
+-            :is-owner="isAuthor"
+-            @pinPost="pinPost"
+-            @unpinPost="unpinPost"
+-          />
+-        </client-only>
+-      </section>
+-      <ds-space margin-bottom="small" />
+       <h2 class="title hyphenate-text">{{ post.title }}</h2>
+       <ds-space margin-bottom="small" />
+       <content-viewer class="content hyphenate-text" :content="post.content" />
+@@ -87,6 +68,25 @@
+           </ds-flex-item>
+         </ds-flex>
+       </ds-space>
++      <section class="menu">
++        <user-teaser :user="post.author" :date-time="post.createdAt">
++          <template #dateTime>
++            <ds-text v-if="post.createdAt !== post.updatedAt">({{ $t('post.edited') }})</ds-text>
++          </template>
++        </user-teaser>
++        <client-only>
++          <content-menu
++            placement="bottom-end"
++            resource-type="contribution"
++            :resource="post"
++            :modalsData="menuModalsData"
++            :is-owner="isAuthor"
++            @pinPost="pinPost"
++            @unpinPost="unpinPost"
++          />
++        </client-only>
++      </section>
++      <ds-space margin-bottom="small" />
+       <!-- Comments -->
+       <ds-section>
+         <comment-list :post="post" @toggleNewCommentForm="toggleNewCommentForm" @reply="reply" />
