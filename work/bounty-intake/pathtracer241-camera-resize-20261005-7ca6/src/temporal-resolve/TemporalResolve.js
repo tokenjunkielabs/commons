@@ -64,15 +64,19 @@ export class TemporalResolve {
 
 	initNewCamera( camera ) {
 
-		this.activeCamera = camera;
-
-		this.temporalResolvePass = new TemporalResolvePass(
+		const temporalResolvePass = new TemporalResolvePass(
 			this.ptRenderer,
 			this.scene,
 			camera
 		);
-		this.temporalResolvePass.fullscreenMaterial.samplesTexture = this.ptRenderer.target.texture;
-		this.fullscreenMaterial.temporalResolveTexture = this.temporalResolvePass.renderTarget.texture;
+		temporalResolvePass.fullscreenMaterial.samplesTexture = this.ptRenderer.target.texture;
+
+		const previousPass = this.temporalResolvePass;
+		this.temporalResolvePass = temporalResolvePass;
+		this.activeCamera = camera;
+		this.fullscreenMaterial.temporalResolveTexture = temporalResolvePass.renderTarget.texture;
+
+		if ( previousPass ) previousPass.dispose();
 
 	}
 
