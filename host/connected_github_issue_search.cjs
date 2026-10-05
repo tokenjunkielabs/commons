@@ -26,6 +26,7 @@ function configFor(input) {
   if (!object(input)) throw new TypeError("input must be an object");
   const keys = new Set([
     "query", "sort", "order", "per_page", "start_page", "max_pages", "timeout_ms",
+    "updated_at_lte",
   ]);
   for (const key of Object.keys(input)) {
     if (!keys.has(key)) throw new TypeError("unknown input field: " + key);
@@ -47,7 +48,14 @@ function configFor(input) {
   if (typeof timeout !== "number" || !Number.isFinite(timeout) || timeout < 0) {
     throw new TypeError("timeout_ms must be a finite nonnegative number");
   }
-  return { query: input.query, sort, order, perPage, startPage, maxPages, timeout };
+  const hasBound = Object.prototype.hasOwnProperty.call(input, "updated_at_lte");
+  if (hasBound && canonicalUtcInstant(input.updated_at_lte) === null) {
+    throw new TypeError("updated_at_lte must be a valid UTC timestamp with seconds or three fractional digits");
+  }
+  return {
+    query: input.query, sort, order, perPage, startPage, maxPages, timeout,
+    updatedAtLte: hasBound ? input.updated_at_lte : null,
+  };
 }
 
 function decode(response) {
@@ -123,6 +131,7 @@ async function searchGitHubIssues(tools, input, options = {}) {
     schema: "commons.connected_github_issue_search/v1",
     status: "INCONCLUSIVE",
     query: config.query,
+    query_application: "not_verified",
     sort: config.sort,
     order: config.order,
     items: [],
@@ -159,6 +168,9 @@ async function searchGitHubIssues(tools, input, options = {}) {
     result.stop = { code, ...detail };
     result.finished_at = new Date().toISOString();
     result.elapsed_ms = Date.now() - started;
+    if (config.updatedAtLte !== null) {
+      result.updated_at_bound = inspectGitHubIssueUpdatedAtBound(result.items, config.updatedAtLte);
+    }
     result.status = result.items.length > 0 ? "FOUND"
       : result.coverage.complete ? "NOT_FOUND_IN_QUERY" : "INCONCLUSIVE";
     return result;
@@ -266,6 +278,87 @@ async function searchGitHubIssues(tools, input, options = {}) {
     page += 1;
   }
   return finish("PAGE_BUDGET");
+}
+
+function canonicalUtcInstant(value) {
+  if (typeof value !== "string" ||
+      !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/.test(value)) return null;
+  const milliseconds = Date.parse(value);
+  if (!Number.isFinite(milliseconds)) return null;
+  const canonical = value.length === 20 ? value.slice(0, -1) + ".000Z" : value;
+  return new Date(milliseconds).toISOString() === canonical ? milliseconds : null;
+}
+
+/**
+ * Observe one caller-declared updated_at upper bound on retained native items.
+ * This does not parse the query, filter rows, or establish query fidelity.
+ */
+function inspectGitHubIssueUpdatedAtBound(items, updatedAtLte, options = {}) {
+  if (!Array.isArray(items) || items.length > SEARCH_LIMIT) {
+    throw new TypeError("items must be an array containing at most 1000 entries");
+  }
+  const bound = canonicalUtcInstant(updatedAtLte);
+  if (bound === null) {
+    throw new TypeError("updated_at_lte must be a valid UTC timestamp with seconds or three fractional digits");
+  }
+  if (!object(options) || Object.keys(options).some(key => key !== "max_records")) {
+    throw new TypeError("bound options supports only max_records");
+  }
+  const maxRecords = options.max_records === undefined ? 20 : options.max_records;
+  if (!Number.isSafeInteger(maxRecords) || maxRecords < 0 || maxRecords > 100) {
+    throw new RangeError("max_records must be an integer from 0 through 100");
+  }
+  const stats = {
+    supplied_items: items.length, evaluated_items: 0, within_bound: 0,
+    mismatches: 0, missing_updated_at: 0, invalid_updated_at: 0,
+  };
+  const records = [];
+  let diagnosticCount = 0;
+  for (let sourceIndex = 0; sourceIndex < items.length; sourceIndex += 1) {
+    const row = items[sourceIndex];
+    itemIdentity(row);
+    const present = Object.prototype.hasOwnProperty.call(row, "updated_at");
+    const observed = present ? canonicalUtcInstant(row.updated_at) : null;
+    let observation = null;
+    if (!present) {
+      stats.missing_updated_at += 1;
+      observation = "missing";
+    } else if (observed === null) {
+      stats.invalid_updated_at += 1;
+      observation = "invalid";
+    } else {
+      stats.evaluated_items += 1;
+      if (observed > bound) {
+        stats.mismatches += 1;
+        observation = "mismatch";
+      } else stats.within_bound += 1;
+    }
+    if (observation !== null) {
+      diagnosticCount += 1;
+      if (records.length < maxRecords) {
+        records.push({
+          source_index: sourceIndex, id: row.id, number: row.number,
+          kind: row.pull_request == null ? "issue" : "pull_request",
+          observation, updated_at: observed === null ? null : row.updated_at,
+        });
+      }
+    }
+  }
+  return {
+    schema: "commons.connected_github_issue_updated_at_bound/v1",
+    status: stats.mismatches > 0 ? "mismatch"
+      : items.length > 0 && stats.evaluated_items === items.length
+        ? "no_mismatch_observed" : "unevaluated",
+    query_application: "not_verified",
+    scope: "supplied_items_only",
+    query_syntax_parsed: false,
+    bound: { field: "updated_at", operator: "<=", value: updatedAtLte, basis: "caller_declared" },
+    limits: { max_input_items: SEARCH_LIMIT, max_records: maxRecords },
+    stats, records,
+    diagnostic_records: diagnosticCount,
+    omitted_diagnostic_records: diagnosticCount - records.length,
+    all_supplied_timestamps_evaluated: stats.evaluated_items === items.length,
+  };
 }
 
 
@@ -433,4 +526,4 @@ function projectGitHubIssueItems(items, options = {}) {
   };
 }
 
-module.exports = { searchGitHubIssues, projectGitHubIssueItems };
+module.exports = { searchGitHubIssues, projectGitHubIssueItems, inspectGitHubIssueUpdatedAtBound };

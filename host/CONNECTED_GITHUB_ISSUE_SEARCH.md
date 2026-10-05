@@ -90,6 +90,7 @@ query strings were retained; no adapter change or repeat query was needed.
 | `start_page` | Default 1. Starting later remains explicitly partial. |
 | `max_pages` | Maximum native request attempts; default 4. |
 | `timeout_ms` | Cooperative budget checked before each request; default 30,000 ms. Zero returns before a request. |
+| `updated_at_lte` | Optional caller-declared inclusive update-time ceiling; observes retained metadata without changing the query or filtering rows. See the bound observation below. |
 | `options.onResponse` | Optional awaited callback receiving `{page, url, response}` for each original native result, including native errors. |
 
 ~~~javascript
@@ -320,3 +321,115 @@ covers these actual issue-body selections and their omission accounting.
 PR-marker, null/missing body, surrogate-boundary and error handling are
 implemented as described, without an induced provider failure, generated
 fixture or synthetic check run.
+
+
+## Observe an explicit update-time ceiling without interpreting the query
+
+Successful traversal does not establish that every requested qualifier was
+applied to the returned metadata. The collector always reports
+`query_application: "not_verified"`. Its existing `status`,
+`coverage.complete`, stop reasons, pagination and retained rows keep their
+previous meanings. They do not become an eligibility decision or a verified
+query result.
+
+For a query whose intended source window has an inclusive update-time ceiling,
+declare that ceiling separately:
+
+~~~javascript
+const result = await box.exports.searchGitHubIssues(tools, {
+  query: exactPreparedQuery,
+  updated_at_lte: "2026-10-04T23:23:40Z",
+  per_page: 20,
+  max_pages: 1
+});
+text({
+  query: result.query,
+  query_application: result.query_application,
+  coverage: result.coverage,
+  updated_at_bound: result.updated_at_bound
+});
+~~~
+
+The helper does not parse, add, replace or validate the meaning of an
+`updated:` query token. In particular, it does not interpret quoted text,
+OR expressions, ranges, exclusion clauses or GitHub date-only syntax.
+The bound is explicitly `caller_declared`; recording it does not prove that
+it appears in, or is logically implied by, the opaque query. Keep the actual
+query and original native request/response with the observation.
+
+Omitting `updated_at_lte` omits `result.updated_at_bound`. Supplying it adds
+one metadata scan when the collector finishes, including when only partial
+items were retained before a provider error or page limit. It adds no provider
+call, retry or filtering, and a mismatch does not change `FOUND`,
+`NOT_FOUND_IN_QUERY`, `INCONCLUSIVE` or pagination coverage.
+
+### Inspect retained items directly
+
+The same module exports a pure companion for an already-captured native item
+array:
+
+~~~javascript
+const audit = box.exports.inspectGitHubIssueUpdatedAtBound(
+  retainedNativePayload.items,
+  "2026-10-04T23:23:40Z",
+  {max_records: 20}
+);
+text(audit);
+~~~
+
+No query is replayed. The input array and its items are not changed, sorted or
+deduplicated. Pass `result.items` to inspect the collector's first retained
+observation of each unique ID. That does not inspect duplicate occurrences
+discarded by the collector; use each original `onResponse` capture when those
+occurrences are the intended source. The companion's scope is only the supplied
+items, and `query_application` remains `not_verified`.
+
+The bound and evaluable metadata use the strict UTC form
+`YYYY-MM-DDTHH:mm:ssZ` or `YYYY-MM-DDTHH:mm:ss.sssZ`.
+The date must round-trip to the same calendar instant; invalid dates, leap-second
+strings, offsets, date-only values and other fractional precision are not
+silently coerced. Equal timestamps are within the inclusive ceiling. An invalid
+caller bound throws before a collector request. A missing `updated_at` field
+is counted as missing; present null, non-string, unsupported or invalid date
+values are counted as invalid and unevaluated. Their full original fields
+remain in the input.
+
+| Observation status | Meaning |
+| --- | --- |
+| `mismatch` | At least one evaluable supplied timestamp is later than the caller's ceiling. Other timestamps may remain unevaluated. |
+| `no_mismatch_observed` | The nonempty supplied array has evaluable timestamps throughout, and none exceeds the ceiling. This does not verify any query qualifier. |
+| `unevaluated` | No mismatch was found, but the array is empty or at least one supplied timestamp could not be evaluated. |
+
+The report counts supplied items, evaluable dates, dates within the bound,
+mismatches, missing fields and invalid dates. Metadata-only `records` retain
+original zero-based source indices, native IDs and issue numbers, issue/PR kind,
+and an observation of `mismatch`, `missing` or `invalid`. Only a valid
+mismatching timestamp is copied; an unevaluated value is represented as null.
+No issue title, body, author, URL or arbitrary invalid value is copied.
+
+Records preserve input order. `max_records` defaults to 20 and accepts integers
+from 0 through 100; all supplied items are still counted when record output is
+limited. `diagnostic_records` and `omitted_diagnostic_records` expose the
+difference. The collector uses the default 20-record bound. The companion accepts
+at most 1,000 items and validates every row with the existing native identity
+contract, including rows with omitted diagnostics. Unknown options and malformed
+identity envelopes throw. `all_supplied_timestamps_evaluated` is vacuously true
+for an empty array, whose status remains `unevaluated`; it does not certify a
+provider-level absence.
+
+### Observed motivation and execution boundary
+
+An actual successful native query on October 5, 2026 included
+`is:pr is:open author:woahwhattheheck archived:false updated:<=2026-10-04T23:23:40Z`.
+Its retained 20-item page included RemitFlow/RemitFlow-Backend #143 with
+`updated_at: 2026-10-05T00:33:02Z`. The returned metadata is outside the requested
+ceiling. This observation does not determine why the search and row metadata
+differed; live updates and search-index behavior remain distinct from transport
+success. Do not silently drop the contradictory row or infer a new request,
+permission or work gate.
+
+The first use of this new companion is reserved for that complete retained item
+array, once, without a new provider search. At this source publication the new
+bound-observation branches were inspected as source only; no generated inputs,
+fixtures, tests, product replay or execution of this new API is claimed. The
+existing collector and body projector's accepted uses remain unchanged.
