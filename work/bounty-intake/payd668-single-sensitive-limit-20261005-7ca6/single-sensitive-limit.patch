@@ -1,0 +1,14 @@
+diff --git a/src/routes/payments.js b/src/routes/payments.js
+--- a/src/routes/payments.js
++++ b/src/routes/payments.js
+@@ -1,10 +1,6 @@
+ const express = require('express');
+ const router = express.Router();
+-const { sensitiveLimiter } = require('../middleware/rateLimit');
+ 
+-// Aplicar rate limiting sensível a rotas de pagamentos
+-router.use(sensitiveLimiter);
+-
+ // Rota de criar pagamento
+ router.post('/', async (req, res, next) => {
+   try {
