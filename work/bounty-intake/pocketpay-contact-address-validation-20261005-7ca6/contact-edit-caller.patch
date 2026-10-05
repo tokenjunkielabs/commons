@@ -1,0 +1,77 @@
+diff --git a/app/send.tsx b/app/send.tsx
+--- a/app/send.tsx
++++ b/app/send.tsx
+@@ -20,7 +20,7 @@
+ import { sendXlmTransaction } from "../src/services/stellar";
+ import { useWalletStore } from "../src/store/walletStore";
+ import { useAppStore } from "../src/store/appStore";
+-import { useContactStore } from "../src/features/contacts/contactStore";
++import { Contact, useContactStore } from "../src/features/contacts/contactStore";
+ import {
+   validateAddress,
+   validateAmount,
+@@ -73,6 +73,7 @@
+   const [isScanning, setIsScanning] = useState(false);
+   const [showContactPicker, setShowContactPicker] = useState(false);
+   const [showContactForm, setShowContactForm] = useState(false);
++  const [editingContact, setEditingContact] = useState<Contact | null>(null);
+   const [lastSendDestination, setLastSendDestination] = useState("");
+ 
+   const destinationContact =
+@@ -118,13 +119,26 @@
+   };
+ 
+   const handleAddNewContact = () => {
++    setEditingContact(null);
+     setShowContactPicker(false);
+     setShowContactForm(true);
+   };
+ 
++  const handleEditContact = (contact: Contact) => {
++    setEditingContact(contact);
++    setShowContactPicker(false);
++    setShowContactForm(true);
++  };
++
+   const handleSaveContact = (name: string, address: string) => {
+-    useContactStore.getState().addContact(name, address);
++    const contactStore = useContactStore.getState();
++    if (editingContact) {
++      contactStore.updateContact(editingContact.id, name, address);
++    } else {
++      contactStore.addContact(name, address);
++    }
+     setShowContactForm(false);
++    setEditingContact(null);
+   };
+ 
+   const handleScanSuccess = (address: string) => {
+@@ -321,13 +335,15 @@
+         onCancel={() => setShowContactPicker(false)}
+         onSelect={handleSelectContact}
+         onAddNew={handleAddNewContact}
++        onEdit={handleEditContact}
+       />
+ 
+       <ContactForm
+         visible={showContactForm}
+-        contact={lastSendDestination ? { id: '', name: '', address: lastSendDestination } : null}
++        contact={editingContact ?? (lastSendDestination ? { id: '', name: '', address: lastSendDestination } : null)}
+         onCancel={() => {
+           setShowContactForm(false);
++          setEditingContact(null);
+           setLastSendDestination("");
+         }}
+         onSave={handleSaveContact}
+diff --git a/src/components/ContactPicker.tsx b/src/components/ContactPicker.tsx
+--- a/src/components/ContactPicker.tsx
++++ b/src/components/ContactPicker.tsx
+@@ -41,7 +41,7 @@
+           return { address: addr, name: contact?.name };
+         })
+         .slice(0, 5);
+-  }, [recentRecipients, getContactByAddress]);
++  }, [recentRecipients, contacts, getContactByAddress]);
+ 
+   const handleDelete = async (contact: Contact) => {
+     // Truncate address for readability if name is not available

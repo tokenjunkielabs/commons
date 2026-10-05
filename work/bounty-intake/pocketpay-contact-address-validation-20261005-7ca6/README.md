@@ -1,4 +1,4 @@
-# PocketPay contact form address validation
+# PocketPay contact form validation and editor integration
 
 The mounted send-screen contact form accepts a G-prefixed, 56-character base32 string after shape checks alone. This patch makes that existing form also use the app's shared `validateAddress` result before its unchanged duplicate lookup and save callback. The shape checks, inline error text, trimming, name limits, selected-contact ID exclusion, and caller callbacks remain unchanged. Production delta: +2/-1 in one file.
 
@@ -40,8 +40,29 @@ The form retains its existing G-prefix, 56-character and alphabet checks, then r
 
 Apply `contact-address-validation.patch` to the documented source preimage. The expected resulting `src/components/ContactForm.tsx` blob is `4dcb85c2e8a1e839be026d66fd04151fe127f19d`. Compose by hunk against a newer source; do not overwrite another contributor's module.
 
-Only the two-line production correction and this guide are published. No license file was present in the complete 374-entry sponsor tree, so the packet does not republish its full source module.
+Only narrow production patches and this guide are published. No license file was present in the complete 374-entry sponsor tree, so the packet does not republish full source modules.
 
 The separate `app/contacts.tsx`/appStore persistence work in existing PR549 is untouched. ContactManagement's parent mounting, broad edit-address confirmation, store unification, persistence failures, concurrent mutation and acceptance of every possible address kind remain outside this patch. This does not establish account existence, funding, network eligibility or payment safety; it only aligns the mounted contact form with the app's existing local address parser.
 
 Validation was static source/caller/primary-contract inspection plus exact artifact and source-postimage hashing. No Expo, TypeScript, Jest, lint, device, accessibility, storage, network, wallet or chain operation ran. Contributor requirements for tests, typecheck, lint, self-assessment and device review remain unfulfilled external acceptance steps. No upstream branch change, submission, reward eligibility, issue acceptance or payment is asserted.
+
+## Contact editor caller continuation
+
+The same current main contains a second, independent integration defect: `ContactPickerProps.onEdit` is required and every saved-contact pencil invokes it, but the mounted `app/send.tsx` supplies no `onEdit`. Its form save callback also always adds a contact. The existing form and store already support an edited contact's ID and an update action.
+
+`contact-edit-caller.patch` wires that actual callback to selected-contact state in the send screen. Selecting Edit closes the picker and opens the existing form with that contact; Save calls `updateContact` with the captured ID, while Add still calls `addContact`. Add, Cancel and successful synchronous callback completion clear edit identity. Opening/canceling the editor does not mutate the store or destination. The payment destination, validation, amount, routing and signing paths are unchanged.
+
+The picker also recomputes its recent-recipient labels when its contacts array changes. Previously its memo depended only on the recent-address list and stable lookup function, so renaming a saved contact could leave the recent section showing the old name even though the saved-contact list had updated. [React's official useMemo contract](https://react.dev/reference/react/useMemo) explains that unchanged dependencies may reuse the previous result; the contacts dependency now records the data read by the stable store lookup.
+
+| Changed source | Before | After |
+| --- | --- | --- |
+| `app/send.tsx` | `8c1a38fda246c7421acf23612a7be24649b7b8e4` | `739545125800d863b2c0cd63b67ced5080bf7771` |
+| `src/components/ContactPicker.tsx` | `fcff58527685bea2469b55ae98f3e9cfc6cda30d` | `148ff15e4b2c1d443d906f0efd0410633da3338b` |
+
+This second patch is +20/-4 and composes with the first patch because it changes different files. Apply both at the documented main preimages; later source requires hunk-level composition. The original address-validation patch is unchanged.
+
+The complete current picker, form, synchronous store action and mounted send caller establish this correction. The repo-local recent-recipient query returned the already-merged PR379; issue85's three returned comments preserve its Primex-hub assignment. The recent-recipient producer is not repaired by this patch: the retained send/review flow does not call its imported `addRecentRecipient`. No all-recent-recipients feature completion is asserted.
+
+The existing edit form validates before invoking Save and excludes the selected ID from duplicate-address lookup. Issue86's suggested extra confirmation before changing an address is not implemented here. Existing local store persistence semantics, concurrent deletion/update, storage-error reporting, two-store unification, and broad editing acceptance remain outside this callback correction. The destination is deliberately left unchanged by editing a saved record; the user selects a recipient through the existing picker action.
+
+No runtime, tests, synthetic inputs, native modal interaction, storage operation, payment or upstream submission was performed. The static call-chain and postimage checks do not establish device behavior, persistence reliability or issue acceptance. Original contributor credit, assignments and external acceptance requirements remain as stated above.
