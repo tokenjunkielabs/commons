@@ -1,0 +1,12 @@
+diff --git a/viewer/src/components/ifc/ifc-manager.ts b/viewer/src/components/ifc/ifc-manager.ts
+--- a/viewer/src/components/ifc/ifc-manager.ts
++++ b/viewer/src/components/ifc/ifc-manager.ts
+@@ -70,7 +70,7 @@
+       const firstModel = Boolean(this.context.items.ifcModels.length === 0);
+ 
+       const settings = this.loader.ifcManager.state.webIfcSettings;
+-      const fastBools = settings?.USE_FAST_BOOLS || true;
++      const fastBools = settings?.USE_FAST_BOOLS ?? true;
+       const coordsToOrigin = settings?.COORDINATE_TO_ORIGIN || false;
+ 
+       await this.loader.ifcManager.applyWebIfcConfig({
