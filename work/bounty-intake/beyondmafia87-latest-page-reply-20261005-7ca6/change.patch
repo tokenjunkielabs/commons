@@ -1,0 +1,46 @@
+diff --git a/routes/forums.js b/routes/forums.js
+--- a/routes/forums.js
++++ b/routes/forums.js
+@@ -1,3 +1,5 @@
++// Modified 2026-10-05: default unselected threads to their latest page.
++// BeyondMafia contributors; CC BY-NC-SA 4.0, see LICENSE.
+ const axios = require("axios")
+ const express = require("express");
+ const shortid = require("shortid");
+@@ -256,6 +258,10 @@
+             return;
+         }
+ 
++        // Missing selectors open the latest page; explicit page/reply links keep their meaning.
++        if (req.query.page == null && !req.query.reply)
++            page = Math.ceil(thread.replyCount / constants.repliesPerPage) || 1;
++
+         var vote;
+ 
+         if (userId) {
+diff --git a/react_main/src/pages/Community/Forums/Thread.jsx b/react_main/src/pages/Community/Forums/Thread.jsx
+--- a/react_main/src/pages/Community/Forums/Thread.jsx
++++ b/react_main/src/pages/Community/Forums/Thread.jsx
+@@ -1,3 +1,5 @@
++// Modified 2026-10-05: add a permission-aware reply control after thread pages.
++// BeyondMafia contributors; CC BY-NC-SA 4.0, see LICENSE.
+ import React, { useState, useEffect, useRef, useContext } from "react";
+ import axios from "axios";
+ import { Redirect, Link, useParams, useLocation } from "react-router-dom";
+@@ -251,6 +253,16 @@
+ 					page={page}
+ 					maxPage={threadInfo.pageCount}
+ 					onNav={onThreadPageNav} />
++				{!threadInfo.deleted && user.perms.postReply && (!threadInfo.locked || user.perms.postInLocked) &&
++					<div className="post-btn-wrapper">
++						<button
++							type="button"
++							className="reply-btn btn btn-theme"
++							onClick={() => onReplyClick()}>
++							Reply
++						</button>
++					</div>
++				}
+ 			</div>
+ 		</div>
+ 	);
