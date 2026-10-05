@@ -1,0 +1,12 @@
+diff --git a/web-ifc-three/src/IFC/web-workers/workers/WebIfcWorker.ts b/web-ifc-three/src/IFC/web-workers/workers/WebIfcWorker.ts
+--- a/web-ifc-three/src/IFC/web-workers/workers/WebIfcWorker.ts
++++ b/web-ifc-three/src/IFC/web-workers/workers/WebIfcWorker.ts
+@@ -177,7 +177,7 @@
+     }
+ 
+     GetNameFromTypeCode(data: IfcEventData) {
+-        data.result=this.webIFC.GetNameFromTypeCode(data.args.modelID);
++        data.result=this.webIFC.GetNameFromTypeCode(data.args.type);
+         this.worker.post(data);
+     }
+ 
