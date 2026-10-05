@@ -70,6 +70,20 @@ pull-request evidence. This applies to explicit issue URLs as well as shorthand
 fallback. Ordinary issue fallback remains supported. Exact target matching now
 requires repository/number boundaries: `upstream/repo#8420` is not `#842`.
 
+## Canonical issue state gate
+
+Ordinary issue targets must report canonical GitHub state `open` before the fence
+can return `SAFE_TO_BIND_BRANCH`. A closed issue, or an issue response with a
+missing/unknown state, fails closed as `NEEDS_MANUAL_DIFF` / exit 22 even when
+Slack and owner-PR evidence are otherwise empty. This prevents stale marketplace
+cards from becoming source-binding authority after the canonical issue has closed
+or disappeared from an upstream work queue.
+
+This gate is deliberately issue-only. Pull-request targets keep their existing
+donor/absorption semantics so a closed donor PR can still be compared against the
+owner tree during recovery or successor work. Human-readable output includes the
+canonical upstream state beside the target snapshot.
+
 ## Verification
 
 From repository root, in a cloud working tree:
