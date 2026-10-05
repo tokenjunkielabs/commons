@@ -1,0 +1,15 @@
+diff --git a/packages/babel-plugin-flow-runtime/src/transformVisitors.js b/packages/babel-plugin-flow-runtime/src/transformVisitors.js
+--- a/packages/babel-plugin-flow-runtime/src/transformVisitors.js
++++ b/packages/babel-plugin-flow-runtime/src/transformVisitors.js
+@@ -180,6 +180,11 @@
+         return;
+       }
+ 
++      if (!shouldCheck) {
++        context.replacePath(path, expression.node);
++        return;
++      }
++
+       let valueUid = path.scope.getData(`valueUid:${name}`);
+       if (!valueUid) {
+         valueUid = path.scope.generateUidIdentifier(`${name}Type`);
