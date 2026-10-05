@@ -690,6 +690,30 @@ async function publishGitHubChange(tools, change, options = {}) {
     progress.publication_status = 'pull_request_open';
     await announce();
     if (spec.merge) {
+      progress.stage = 'check_current_base';
+      const currentBase = await fetchJSON(`${api}/branches/${encodeURIComponent(spec.base_branch)}`);
+      progress.current_base_commit_sha = sha(currentBase.commit?.sha, 'Current pre-merge base');
+      progress.current_base_tree_sha = sha(currentBase.commit?.commit?.tree?.sha, 'Current pre-merge tree');
+      if (progress.current_base_commit_sha !== progress.base_commit_sha) {
+        // Reuse verified bytes only after binding them to this current native parent.
+        const currentRetainedTrees = new Map(Array.from(retainedTrees, ([path, tree]) =>
+          [path, {...tree, consumed: false}]));
+        const currentFile = baseFileReader({api, repository_full_name,
+          commitSha: progress.current_base_commit_sha, treeSha: progress.current_base_tree_sha,
+          fetchJSON, readPreimage, progress, treeLabel: 'current base',
+          retainedTrees: currentRetainedTrees});
+        for (const file of progress.files) {
+          const existing = await currentFile(file.path, file.previous_blob_sha);
+          if ((existing?.sha ?? null) !== file.previous_blob_sha
+              || (existing?.mode ?? null) !== file.previous_mode
+              || (existing && existing.type !== 'blob')) {
+            throw new Error(`Base file changed: ${file.path}; read the current source and compose deliberately`);
+          }
+        }
+        requireRetainedTreesConsumed(currentRetainedTrees);
+      }
+      progress.current_preimages_verified = true;
+      await announce();
       progress.stage = 'merge_pull_request';
       const merged = await call('merge_pull_request', {repository_full_name, pr_number: pr.number,
         expected_head_sha: progress.commit_sha, merge_method: spec.merge_method});

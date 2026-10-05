@@ -185,6 +185,58 @@ snapshot. It does not claim that a later current-main tip is
 unchanged, that a running service reloaded it, or that it is deployed. Source
 execution and product acceptance remain the caller's work.
 
+### Batch regular-file publication and check the current merge base
+
+`publishGitHubChange` is the existing Git Trees route for a prepared regular-file
+batch. It creates one tree and one commit, then a new branch and PR. Unpinned
+UTF-8 entries share one inline `create_tree` request. Pinned UTF-8 and base64
+still use one `create_blob` per distinct encoding/content pair before that tree;
+do not drop an independently observed new-source pin just to save calls.
+There is no separate native Contents batch operation in the exposed bindings.
+
+With `merge: true`, the direct Git Trees publisher now reads the current base
+immediately before merging. If that commit still equals its initial immutable
+base, the already-checked preimages remain applicable. If it moved, the publisher
+uses the same current-base traversal and previous-blob/mode/type comparisons as
+`continueGitHubMerge`. Any changed target stops before the merge call while
+retaining the existing branch and PR. Unrelated base movement may proceed when
+every target still matches. The result records `current_base_commit_sha`,
+`current_base_tree_sha` and `current_preimages_verified`.
+
+Retained complete trees remain bound to the freshly observed native parent SHA.
+A changed retained-tree parent stops rather than treating old bytes as current;
+the initial and current traversals have separate consumed markers. The new-leaf
+absence fallback and regular-file mode checks keep their existing contracts.
+This is a pre-merge observation, not a lock on the base branch. The unchanged
+merge call supplies `expected_head_sha` for the PR head; later base movement
+and provider refusals remain possible. Errors stop without an automatic retry.
+Use the existing explicit merge continuation only after reconciling retained
+provider state. The direct publisher's stage/call/partial-result error record
+remains its uncertainty record; it does not gain the Contents export's separate
+`pending_write` record.
+
+The retained 17-new-file Razer packet in [Commons #31476](https://github.com/woahwhattheheck/commons/pull/31476)
+used Contents publication for 110 provider calls: 39 `fetch`, 51 `fetch_file`, one branch creation, 17 file creations,
+one PR creation and one merge. Its 21 later full-main reads were separate.
+Those are observed counts, not an execution of the Git Trees route.
+
+For a successful 17-file batch with distinct pinned UTF-8 contents, no omitted
+text, no fallback calls and all files changed, the updated Git Trees source
+models **41 + T0 + T1** calls: 17 blob writes, five other writes
+(tree, commit, branch, PR, merge), 17 full-file readbacks, two base reads,
+and the tree reads. `T0` is the initial native tree-read count; `T1` is zero
+when the base did not move, otherwise the current-base tree-read count. With
+unpinned UTF-8 the corresponding source model is **24 + T0 + T1**.
+Neither count is a measured speedup, and separate task-required current-main
+or PR metadata reads are excluded. Pinned batching removes per-file commits
+and their commit/ref/readback sequence; it does not eliminate its 17 blob writes.
+
+Both routes still compare complete published UTF-8 content at an immutable
+head or merge. That readback does not establish a later main tip or a running
+deployment. Keep required current-source evidence separate. An unreadable
+existing parent tree can still require the explicitly documented Contents
+route; do not guess a mode or manufacture a retained-tree packet.
+
 ### Reuse complete tree bytes for a large directory
 
 `publishGitHubChange` and `continueGitHubMerge` accept optional
