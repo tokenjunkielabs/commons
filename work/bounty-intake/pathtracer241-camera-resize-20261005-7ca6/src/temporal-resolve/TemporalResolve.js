@@ -97,62 +97,67 @@ export class TemporalResolve {
 		// save original values
 		const origRenderTarget = renderer.getRenderTarget();
 
-		this.ptRenderer.stableTiles = false;
+		try {
 
-		const { camera } = this.ptRenderer;
-		const cameraChanged = camera !== this.activeCamera;
-		if ( cameraChanged ) {
+			this.ptRenderer.stableTiles = false;
 
-			const weightTransform = this.weightTransform;
-			this.initNewCamera( camera );
-			this.weightTransform = weightTransform;
+			const { camera } = this.ptRenderer;
+			const cameraChanged = camera !== this.activeCamera;
+			if ( cameraChanged ) {
+
+				const weightTransform = this.weightTransform;
+				this.initNewCamera( camera );
+				this.weightTransform = weightTransform;
+
+			}
+
+			const { width, height } = this.ptRenderer.target;
+			// A replacement pass needs sizing even when the render target is unchanged.
+			if ( cameraChanged || width !== this.lastSize.width || height !== this.lastSize.height ) {
+
+				this.initNewSize( width, height );
+
+			}
+
+			// ensure that the scene's objects' matrices are updated for the VelocityPass
+			this.scene.updateMatrixWorld();
+
+			this.scene.traverse( ( c ) => {
+
+				// update the modelViewMatrix which is used by the VelocityPass
+				c.modelViewMatrix.multiplyMatrices(
+					this.activeCamera.matrixWorldInverse,
+					c.matrixWorld
+				);
+
+			} );
+
+			// keep uniforms updated
+			this.temporalResolvePass.fullscreenMaterial.samples =
+				this.ptRenderer.samples;
+
+			this.temporalResolvePass.fullscreenMaterial.temporalResolveMix =
+				this.temporalResolveMix;
+
+			this.temporalResolvePass.fullscreenMaterial.clampRadius =
+				parseInt( this.clampRadius );
+
+			this.temporalResolvePass.fullscreenMaterial.newSamplesSmoothing =
+				this.newSamplesSmoothing;
+
+			this.temporalResolvePass.fullscreenMaterial.newSamplesCorrection =
+				this.newSamplesCorrection;
+
+			this.temporalResolvePass.render( renderer );
+
+			renderer.setRenderTarget( this.renderTarget );
+			this.fsQuad.render( renderer );
+
+		} finally {
+
+			renderer.setRenderTarget( origRenderTarget );
 
 		}
-
-		const { width, height } = this.ptRenderer.target;
-		// A replacement pass needs sizing even when the render target is unchanged.
-		if ( cameraChanged || width !== this.lastSize.width || height !== this.lastSize.height ) {
-
-			this.initNewSize( width, height );
-
-		}
-
-		// ensure that the scene's objects' matrices are updated for the VelocityPass
-		this.scene.updateMatrixWorld();
-
-		this.scene.traverse( ( c ) => {
-
-			// update the modelViewMatrix which is used by the VelocityPass
-			c.modelViewMatrix.multiplyMatrices(
-				this.activeCamera.matrixWorldInverse,
-				c.matrixWorld
-			);
-
-		} );
-
-		// keep uniforms updated
-		this.temporalResolvePass.fullscreenMaterial.samples =
-			this.ptRenderer.samples;
-
-		this.temporalResolvePass.fullscreenMaterial.temporalResolveMix =
-			this.temporalResolveMix;
-
-		this.temporalResolvePass.fullscreenMaterial.clampRadius =
-			parseInt( this.clampRadius );
-
-		this.temporalResolvePass.fullscreenMaterial.newSamplesSmoothing =
-			this.newSamplesSmoothing;
-
-		this.temporalResolvePass.fullscreenMaterial.newSamplesCorrection =
-			this.newSamplesCorrection;
-
-		this.temporalResolvePass.render( renderer );
-
-		renderer.setRenderTarget( this.renderTarget );
-		this.fsQuad.render( renderer );
-
-		// restore original values
-		renderer.setRenderTarget( origRenderTarget );
 
 	}
 
