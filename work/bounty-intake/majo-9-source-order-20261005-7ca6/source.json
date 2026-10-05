@@ -1,0 +1,48 @@
+{
+  "schema": "source-packet/v1",
+  "operation": "ISSUEHUNT-MAJO9-SOURCE-ORDER-7CA6-20261005",
+  "canonical_issue": "https://github.com/egoist/majo/issues/9",
+  "canonical_pull_request": "https://github.com/egoist/majo/pull/15",
+  "upstream_repository": "egoist/majo",
+  "source_repository": "janat08/majo",
+  "source_branch": "doubleSource",
+  "source_commit": "9253f596b9353e49e9f68a08bc6ff2f6b48639c8",
+  "original_contribution_author": "janat08",
+  "original_copyright": "egoist",
+  "file": {
+    "path": "src/index.js",
+    "before_blob_sha": "fd98a1058893ec28b02b93b41ad402557f0670da",
+    "after_blob_sha": "940e60f60e212ac269e010a20cd1cfb866900a1c",
+    "after_utf8_bytes": 5897
+  },
+  "patch": {
+    "path": "source-order.patch",
+    "blob_sha": "7c20d9fdd14052aae2e2b72139eed2d3251c901d"
+  },
+  "reference_api_doc": {
+    "path": "docs/api.md",
+    "blob_sha": "651d079f49648fb5ed2a16383d6a441a1d5bce32",
+    "modified": false
+  },
+  "license": {
+    "path": "LICENSE.upstream",
+    "blob_sha": "4dbe6ac96648a01b0f5df9cceb676c479dc85b86"
+  },
+  "evidence": {
+    "source_reasoning": "Complete pinned production source, API documentation, issue eight comments, PR five discussion comments and zero review comments inspected. Concurrent writes resolve duplicate keys by I/O completion; candidate commits ordered Promise.all records after all reads succeed.",
+    "source_preservation": "One exact production-block replacement; inverse replacement equals the complete original source.",
+    "runtime": "not_performed",
+    "tests": "not_performed",
+    "upstream_write": "not_performed",
+    "platform_claim": "not_performed",
+    "sponsor_acceptance": "not_established",
+    "payout": "not_established"
+  },
+  "limits": [
+    "This is a follow-up against historical PR15, not a port to current TypeScript master or competing source proposals.",
+    "When any read rejects, candidate leaves the reset files map empty and does not run middleware; original could expose partial asynchronous writes.",
+    "Existing rename, source accumulation, glob ordering, other errors and prototype-key behavior remain outside scope.",
+    "Maintainer's historical use-case/merge condition and original author's contribution remain unchanged.",
+    "Shared-fork branches 404 is retained and was not retried; no external publication access inferred."
+  ]
+}
