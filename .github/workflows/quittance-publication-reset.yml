@@ -79,10 +79,62 @@ jobs:
           const credential = process.env.PUBLISHING_OPERATION_TOKEN;
           const safeCode = value => typeof value === 'string' && /^[a-zA-Z0-9_:-]{1,100}$/.test(value) ? value : null;
           const headers = { Authorization: 'Bearer ' + credential, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version':'2022-11-28', 'User-Agent':'Commons-Shipping-Enforcer/1.0' };
-          async function read(path) {
-            const response = await fetch('https://api.github.com' + path,{headers,redirect:'error',signal:AbortSignal.timeout(15000)});
-            if (!response.ok) { await response.body?.cancel(); throw new Error('github_read_' + response.status); }
-            return response.json();
+          const numericHeader=(response,name)=>{const v=response.headers.get(name);return v&&/^\d+$/.test(v)&&Number.isSafeInteger(Number(v))?Number(v):null;};
+          const githubError=(response,result={})=>{
+            const message=typeof result.message==='string'?result.message:'';
+            const code=/API rate limit exceeded/i.test(message)?'api_rate_limit_exceeded':/Resource not accessible by integration/i.test(message)?'integration_access_denied':/Bad credentials/i.test(message)?'bad_credentials':'github_read_failed';
+            const error=new Error('github_read_'+response.status);
+            error.details={status:response.status,code,rate_resource:safeCode(response.headers.get('x-ratelimit-resource')),rate_remaining:numericHeader(response,'x-ratelimit-remaining'),rate_reset:numericHeader(response,'x-ratelimit-reset'),retry_after_seconds:numericHeader(response,'retry-after')};
+            error.coreExhausted=[403,429].includes(response.status)&&error.details.rate_resource==='core'&&error.details.rate_remaining===0&&!response.headers.get('retry-after');
+            return error;
+          };
+          let coreExhausted=false,authTransport='rest';
+          async function graphql(query,variables={}){
+            const response=await fetch('https://api.github.com/graphql',{method:'POST',headers:{...headers,'Content-Type':'application/json'},body:JSON.stringify({query,variables}),redirect:'error',signal:AbortSignal.timeout(15000)});
+            const result=await response.json().catch(()=>({}));
+            if(!response.ok)throw githubError(response,result);
+            if(!result.data||result.errors?.length){const error=new Error('github_graphql_read_failed');error.details={status:response.status,code:result.errors?.some(e=>e?.type==='RATE_LIMITED')?'graphql_rate_limited':'graphql_read_failed'};throw error;}
+            return result.data;
+          }
+          const pullFields='number url title body state isDraft baseRefName headRefName headRefOid headRepository{owner{login}} author{login ... on User{databaseId}}';
+          const pullShape=p=>{
+            if(!p?.headRepository?.owner?.login)throw new Error('github_duplicate_identity_missing');
+            return{number:p.number,html_url:p.url,title:p.title,body:p.body,state:p.state==='OPEN'?'open':'closed',draft:p.isDraft,user:{login:p.author?.login,id:p.author?.databaseId},head:{label:p.headRepository.owner.login+':'+p.headRefName,sha:p.headRefOid},base:{ref:p.baseRefName}};
+          };
+          async function quotaRead(path){
+            if(path==='/user'){const d=await graphql('query{viewer{login databaseId}}');authTransport='graphql_core_quota';return{id:d.viewer?.databaseId,login:d.viewer?.login};}
+            const url=new URL('https://api.github.com'+path),p=url.pathname.split('/').filter(Boolean);
+            if(p[0]!=='repos'||p.length<4)throw new Error('github_quota_path_unsupported');
+            const v={owner:p[1],repo:p[2]};
+            if(p[3]==='issues'&&p.length===5&&/^\d+$/.test(p[4])){
+              v.number=Number(p[4]);const d=await graphql('query($owner:String!,$repo:String!,$number:Int!){repository(owner:$owner,name:$repo){issue(number:$number){number state updatedAt comments{totalCount} assignees(first:100){pageInfo{hasNextPage} nodes{login}}}}}',v),i=d.repository?.issue;
+              if(!i||i.assignees.pageInfo.hasNextPage)throw new Error('github_issue_read_incomplete');
+              return{number:i.number,state:i.state.toLowerCase(),updated_at:i.updatedAt,comments:i.comments.totalCount,assignees:i.assignees.nodes};
+            }
+            if(p[3]==='git'&&p[4]==='ref'&&p[5]==='heads'&&p.length>6){
+              v.ref='refs/heads/'+p.slice(6).join('/');const d=await graphql('query($owner:String!,$repo:String!,$ref:String!){repository(owner:$owner,name:$repo){ref(qualifiedName:$ref){target{... on Commit{oid}}}}}',v),oid=d.repository?.ref?.target?.oid;
+              if(!oid)throw new Error('github_head_read_missing');return{object:{sha:oid}};
+            }
+            if(p[3]==='pulls'&&p.length===4&&url.searchParams.get('state')==='all'){
+              const label=url.searchParams.get('head');if(!label?.includes(':'))throw new Error('github_duplicate_filter_missing');
+              v.head=label.slice(label.indexOf(':')+1);const d=await graphql('query($owner:String!,$repo:String!,$head:String!){repository(owner:$owner,name:$repo){pullRequests(headRefName:$head,states:[OPEN,CLOSED,MERGED],first:100){pageInfo{hasNextPage} nodes{'+pullFields+'}}}}',v),c=d.repository?.pullRequests;
+              if(!c||c.pageInfo.hasNextPage)throw new Error('github_duplicate_read_incomplete');return c.nodes.map(pullShape);
+            }
+            if(p[3]==='pulls'&&p.length===5&&/^\d+$/.test(p[4])){
+              v.number=Number(p[4]);const d=await graphql('query($owner:String!,$repo:String!,$number:Int!){repository(owner:$owner,name:$repo){pullRequest(number:$number){'+pullFields+'}}}',v);
+              if(!d.repository?.pullRequest)throw new Error('github_pull_read_missing');return pullShape(d.repository.pullRequest);
+            }
+            throw new Error('github_quota_path_unsupported');
+          }
+          async function read(path){
+            if(coreExhausted)return quotaRead(path);
+            const response=await fetch('https://api.github.com'+path,{headers,redirect:'error',signal:AbortSignal.timeout(15000)});
+            if(response.ok)return response.json();
+            const error=githubError(response,await response.json().catch(()=>({})));
+            if(!error.coreExhausted)throw error;
+            coreExhausted=true;
+            console.log(JSON.stringify({schema:'author-github-quota-observation/v1',...error.details,fallback:'authenticated_graphql_reads'}));
+            return quotaRead(path);
           }
           const emit = observation => console.log(JSON.stringify(observation));
           if (!credential) { emit({outcome:'binding_absent'}); process.exitCode=1; }
@@ -92,7 +144,7 @@ jobs:
               if (actor.id !== 293286387 || actor.login !== 'woahwhattheheck') { emit({outcome:'different_account_observed',actor_id:actor.id}); process.exitCode=1; }
               else {
                 for (const input of queue) {
-                  const observation={schema:'author-publication-observation/v1',operation_id:input.operation_id,actor_id:actor.id,publication_attempted:false};
+                  const observation={schema:'author-publication-observation/v1',operation_id:input.operation_id,actor_id:actor.id,auth_transport:authTransport,publication_attempted:false};
                   try {
                     const repoPath='/repos/'+input.args.owner+'/'+input.args.repo;
                     const headBranch=input.args.head.split(':').slice(1).join(':');
@@ -146,10 +198,10 @@ jobs:
                     observation.outcome=found && found.head?.sha===input.expected_head_sha && observation.body_matches && observation.title_matches && observation.author_matches ? 'published_readback_confirmed':'desired_pr_not_observed';
                     emit(observation);
                     if (observation.outcome!=='published_readback_confirmed') break;
-                  } catch(error) {observation.outcome=observation.publication_attempted?'readback_unresolved':'read_failed';observation.read_error=safeCode(error.message);emit(observation);process.exitCode=1;break;}
+                  } catch(error) {observation.outcome=observation.publication_attempted?'readback_unresolved':'read_failed';observation.read_error=safeCode(error.message);observation.read_error_details=error.details||null;emit(observation);process.exitCode=1;break;}
                 }
               }
-            } catch(error) {emit({outcome:'read_failed',read_error:safeCode(error.message)});process.exitCode=1;}
+            } catch(error) {emit({outcome:'read_failed',read_error:safeCode(error.message),read_error_details:error.details||null});process.exitCode=1;}
           }
           
           JS
