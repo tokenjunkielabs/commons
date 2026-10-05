@@ -114,9 +114,11 @@ def _pollard_brent(n: int) -> int:
 
 @lru_cache(maxsize=32768)
 def factor_u64(n: int) -> tuple[tuple[int, int], ...]:
-    """Return the exact prime factorization of an unsigned 64-bit integer."""
+    """Return the exact prime factorization of an integer 1 <= n < 2^64."""
     _require_u64(n)
-    if n in (0, 1):
+    if n == 0:
+        raise ValueError("zero has no prime factorization")
+    if n == 1:
         return ()
     factors: list[int] = []
     stack = [n]
