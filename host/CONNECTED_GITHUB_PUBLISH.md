@@ -323,6 +323,40 @@ branch `work/connected-github-inline-pins-20261005-7ca6` was recorded before the
 source publication. That publication uses the existing default route; it does
 not exercise the new option.
 
+#### First real inline-pinned publication
+
+The first opt-in consumer was the new five-file E9 packet in
+[Commons #31662](https://github.com/woahwhattheheck/commons/pull/31662), using
+publisher blob `89f013ff9d9d4d64cf52daf2cf48a1c18709160b`. Its head was
+`f28b2c29db8254e20a509806130d59365029813c`, merged as
+`af1c5fed32b93005dda93aa782ed21869ef014a0`.
+
+The actual publisher made **17 calls**: seven `fetch`, one each
+`create_tree`, `create_commit`, `create_branch`, `create_pull_request` and
+`merge_pull_request`, and five `fetch_file`. It made **zero `create_blob`
+calls**. Of the seven fetches, three were the additional created-tree traversal.
+That traversal checked all five pinned paths, types and modes in
+`7a277cba744a19aae373f6f7b8f8e19881735690` and reported complete before
+commit creation. All five complete immutable contents and native source pins
+matched. Nine additional final reads, outside the 17-call helper total,
+confirmed the observed main tip at that merge, all five full main texts and
+provider/independent identities, plus PR, diff and directory metadata. The
+original release was read back exactly after one ordinary URL wrapper. All
+native requests and responses were retained by the consumer; no calls were retried.
+
+For this same prepared packet, the source-modeled default would add five
+distinct blob writes and omit the three created-tree reads: **19 modeled
+default calls versus 17 observed opt-in calls**. The default was not run on
+this packet; this is not a replay, latency benchmark, quota guarantee or claim
+that every packet benefits.
+
+The publication-time unexecuted statement above records the earlier source
+delivery accurately. This subsequent observation covers the successful five-file
+UTF-8 route only. Mixed base64, unchanged-tree returns, invalid option values,
+pin/type/mode mismatches and unavailable/truncated created-tree outcomes remain
+source-inspected and were not exercised by this consumer. Original errors and
+holds, including the separate earlier failed tree request, remain preserved.
+
 ### Reuse complete tree bytes for a large directory
 
 `publishGitHubChange` and `continueGitHubMerge` accept optional
