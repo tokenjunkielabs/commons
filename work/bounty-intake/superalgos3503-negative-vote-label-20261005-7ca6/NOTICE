@@ -1,0 +1,11 @@
+Superalgos source continuation for issue #3503
+
+Original work: Superalgos/Superalgos and its contributors.
+Pinned source: 9f0fb59edd4bae7afa08d06c366e0bcb48103aec
+Canonical issue: https://github.com/Superalgos/Superalgos/issues/3503
+
+Modified 2026-10-05 by an OpenAI Codex assistant under the authorized Commons source-delivery workflow:
+- Projects/Governance/UI/Function-Libraries/VotingProgram.js passes the configured outgoing-negative display flag at its existing percentage-label call.
+- Projects/Governance/UI/Utilities/NodeCalculations.js optionally prefixes the formatted percentage text without changing its numeric input.
+
+All allocation, transfer, validation, bonus and distribution source is preserved. Existing upstream attribution is retained. This notice does not assert upstream endorsement, token-bounty entitlement, live voting acceptance or runtime validation. The accompanying LICENSE is the original Apache License, Version 2.0.
