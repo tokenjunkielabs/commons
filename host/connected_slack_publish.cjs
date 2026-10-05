@@ -418,7 +418,133 @@ function compareSlackFencedPayload(published, expectedPayload) {
     : {...result, status: 'mismatch', matches: false, reason: 'different_fenced_payload'};
 }
 
+
+/** Select only the narrow native send acknowledgement used for parent routing. */
+function routingSendAcknowledgement(response) {
+  object(response, 'retained native send response');
+  if (response.isError === true) throw new TypeError('Native send response is an error');
+  const candidates = [];
+  if (response.message_context !== undefined || response.message_link !== undefined) {
+    candidates.push({value: response, source: 'native_payload'});
+  } else {
+    if (response.structuredContent !== undefined) {
+      candidates.push({value: response.structuredContent, source: 'structuredContent'});
+    }
+    if (response.content !== undefined) {
+      if (!Array.isArray(response.content) || response.content.length > 8) {
+        throw new TypeError('Unsupported native send content blocks');
+      }
+      for (let i = 0; i < response.content.length; i++) {
+        const block = response.content[i];
+        if (block?.type !== 'text' || typeof block.text !== 'string' || block.text.length > 4096) {
+          throw new TypeError('Unsupported native send content block');
+        }
+        candidates.push({value: JSON.parse(block.text), source: 'content[' + i + '].text'});
+      }
+    }
+  }
+  if (!candidates.length) throw new TypeError('Missing native send acknowledgement');
+  for (const candidate of candidates) {
+    const value = object(candidate.value, 'native send acknowledgement');
+    const context = object(value.message_context, 'native send message_context');
+    if (Object.keys(value).some(key => !['message_link', 'message_context'].includes(key))
+        || Object.keys(context).some(key => !['message_ts', 'channel_id'].includes(key))
+        || typeof value.message_link !== 'string' || value.message_link.length > 2048
+        || typeof context.channel_id !== 'string' || !/^[CDG][A-Z0-9]+$/.test(context.channel_id)
+        || context.channel_id.length > 80
+        || typeof context.message_ts !== 'string' || !/^[1-9][0-9]{0,15}\.[0-9]{6}$/.test(context.message_ts)) {
+      throw new TypeError('Unsupported native send acknowledgement shape');
+    }
+    candidate.identity = JSON.stringify([value.message_link, context.channel_id, context.message_ts]);
+  }
+  if (new Set(candidates.map(candidate => candidate.identity)).size !== 1) {
+    throw new TypeError('Conflicting native send acknowledgements');
+  }
+  return {value: candidates[0].value, sources: candidates.map(candidate => candidate.source)};
+}
+
+/** One explicitly selected native-parent read; existing publication inputs stay intact. */
+async function readSlackPublicationAtNativeParent(tools, published, retainedSendResponse, options = {}) {
+  object(published, 'published progress');
+  object(options, 'native-parent read options');
+  for (const key of Object.keys(options)) {
+    if (!['bindings', 'onProgress', 'readback_thread_ts'].includes(key)) {
+      throw new TypeError('Unsupported native-parent read option: ' + key);
+    }
+  }
+  if (published.message_state !== 'edit_confirmed') {
+    throw new TypeError('Native-parent readback requires a confirmed edit');
+  }
+  if (options.onProgress !== undefined && typeof options.onProgress !== 'function') {
+    throw new TypeError('onProgress must be a function');
+  }
+  const ack = routingSendAcknowledgement(retainedSendResponse);
+  const context = ack.value.message_context;
+  const link = ack.value.message_link;
+  if (context.channel_id !== published.channel_id || context.message_ts !== published.message_id
+      || link !== published.message_link) {
+    throw new TypeError('Native send acknowledgement differs from the retained publication');
+  }
+  const match = /^https:\/\/([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.slack\.com)\/archives\/([CDG][A-Z0-9]+)\/p([0-9]+)\?([^#]+)$/.exec(link);
+  if (!match || match[2] !== context.channel_id
+      || match[3] !== context.message_ts.replace('.', '')) {
+    throw new TypeError('Native message link does not bind the selected channel and message');
+  }
+  const query = {};
+  const pairs = match[4].split('&');
+  if (pairs.length !== 2) throw new TypeError('Native message link needs exactly thread_ts and cid');
+  for (const pair of pairs) {
+    const parts = pair.split('=');
+    if (parts.length !== 2 || !['thread_ts', 'cid'].includes(parts[0])
+        || Object.prototype.hasOwnProperty.call(query, parts[0])) {
+      throw new TypeError('Ambiguous or unsupported native message link query');
+    }
+    query[parts[0]] = parts[1];
+  }
+  if (query.cid !== context.channel_id || !/^[1-9][0-9]{0,15}\.[0-9]{6}$/.test(query.thread_ts ?? '')
+      || BigInt(query.thread_ts.replace('.', '')) > BigInt(context.message_ts.replace('.', ''))) {
+    throw new TypeError('Native message link has an invalid parent or channel query');
+  }
+  if (options.readback_thread_ts !== undefined
+      && timestamp(options.readback_thread_ts, 'readback_thread_ts') !== query.thread_ts) {
+    throw new TypeError('Explicit readback_thread_ts conflicts with the native parent');
+  }
+  const requested = published.thread_ts === undefined ? null : timestamp(published.thread_ts, 'retained thread_ts');
+  const prior = published.readback_thread_ts === undefined ? null
+    : timestamp(published.readback_thread_ts, 'retained readback_thread_ts');
+  const routing = {
+    source: 'caller_retained_native_send_acknowledgement',
+    authority: 'reported_routing_metadata', authentication: 'not_performed',
+    acknowledgement_sources: ack.sources, native_message_link: link,
+    channel_id: context.channel_id, message_id: context.message_ts,
+    requested_thread_ts: requested, prior_readback_thread_ts: prior,
+    native_parent_thread_ts: query.thread_ts,
+  };
+  const copyRouting = () => JSON.parse(JSON.stringify(routing));
+  const selected = {};
+  for (const key of ['status', 'stage', 'message_state', 'progress_callback_errors',
+    'channel_id', 'message_id', 'message_link', 'calls']) {
+    if (published[key] !== undefined) selected[key] = published[key];
+  }
+  selected.thread_ts = query.thread_ts;
+  selected.readback_thread_ts = query.thread_ts;
+  const readOptions = {...options, readback_thread_ts: query.thread_ts};
+  if (options.onProgress) {
+    readOptions.onProgress = progress => options.onProgress({
+      routing: copyRouting(), observation: progress,
+    });
+  }
+  try {
+    const observation = await readSlackPublication(tools, selected, readOptions);
+    return {schema: 'commons.connected_slack_native_parent_readback/v1',
+      routing: copyRouting(), observation};
+  } catch (error) {
+    if (error instanceof SlackPublishError) error.routing = copyRouting();
+    throw error;
+  }
+}
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {SlackPublishError, publishSlackMessage, readSlackPublication,
-    compareSlackPublication, compareSlackFencedPayload};
+    compareSlackPublication, compareSlackFencedPayload, readSlackPublicationAtNativeParent};
 }
