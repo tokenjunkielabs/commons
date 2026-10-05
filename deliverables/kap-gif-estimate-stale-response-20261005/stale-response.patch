@@ -1,0 +1,29 @@
+diff --git a/renderer/hooks/editor/use-gif-size-estimate.tsx b/renderer/hooks/editor/use-gif-size-estimate.tsx
+--- a/renderer/hooks/editor/use-gif-size-estimate.tsx
++++ b/renderer/hooks/editor/use-gif-size-estimate.tsx
+@@ -37,6 +37,9 @@
+       return;
+     }
+ 
++    // Hide the previous settings' estimate while the new request is debounced.
++    setResult({isEstimating: false});
++
+     // Clear any pending estimation timeout
+     if (timeoutRef.current) {
+       clearTimeout(timeoutRef.current);
+@@ -101,9 +104,12 @@
+         clearTimeout(timeoutRef.current);
+       }
+ 
+-      // Cancel estimation on cleanup
+-      if (estimationIdRef.current) {
+-        ipcRenderer.callMain('cancel-gif-size-estimation', estimationIdRef.current);
++      // Invalidate responses before requesting asynchronous cancellation.
++      const estimationId = estimationIdRef.current;
++      estimationIdRef.current = undefined;
++
++      if (estimationId) {
++        ipcRenderer.callMain('cancel-gif-size-estimation', estimationId);
+       }
+     };
+   }, [
