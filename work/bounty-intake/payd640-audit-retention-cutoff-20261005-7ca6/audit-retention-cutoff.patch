@@ -1,6 +1,19 @@
 diff --git a/src/services/audit.service.ts b/src/services/audit.service.ts
 --- a/src/services/audit.service.ts
 +++ b/src/services/audit.service.ts
+@@ -121,10 +121,10 @@
+     ]);
+ 
+     const keys = (scanCursor[1] as string[]).slice(0, options.limit ?? 20);
+-    const logs = keys.length > 0 ? await redis.mget(...keys) : [];
++    const logs = await Promise.all(keys.map((key) => redis.hgetall(key)));
+ 
+     return {
+-      logs: logs.map((log) => (typeof log === 'string' ? JSON.parse(log) : log)) as AuditLogEntry[],
++      logs: logs.filter((log) => Object.keys(log).length > 0) as unknown as AuditLogEntry[],
+       total: Number(count),
+     };
+   }
 @@ -143,9 +143,14 @@
      do {
        const [newCursor, keys] = await redis.scan(cursor, 'MATCH', pattern, 'COUNT', 100);
