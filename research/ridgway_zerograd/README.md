@@ -51,3 +51,9 @@ A publishable proof still needs all of the following, with no silent substitutio
 - publication satisfying the sponsor's published-proof condition.
 
 Until those are complete, the strongest truthful state is **partial rigorous reduction plus penalty evidence**, not `PROOF_COMPLETE`, `PRIZE_EARNED`, `RECEIVABLE`, or cash.
+
+## Analytic continuation: pressure-free curved-hole lower bound
+
+[pressure_trace_curved_lower_bound.md](pressure_trace_curved_lower_bound.md) adds a new analytic result over the retained formulation and prior pressure-trace witness. For a strongly constrained outer square, a regularly inscribed circular hole, the full weak-boundary velocity space with fixed degree k>=8, and fixed penalty, any solution of the explicitly pressure-free kernel equation has velocity-gradient error at least c h for the smooth no-flow datum u=0, p=x. Thus that particular method cannot have the proposed h^(3/2)+h_Omega^k rate when h_Omega^k=o(h).
+
+The proof gives the uniform forcing and radial trace bounds explicitly; it performs no PDE run or accepted-certificate replay. It does not apply automatically to the constant-pressure manufactured problem, lower degrees, a growing penalty, or a stress-consistent/multiplier-repaired method. The full sponsor problem, corrected-method convergence and publication/prize conditions remain open.
