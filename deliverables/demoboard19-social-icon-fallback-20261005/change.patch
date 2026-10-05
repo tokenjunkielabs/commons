@@ -1,0 +1,14 @@
+diff --git a/src/SocialLinks.js b/src/SocialLinks.js
+--- a/src/SocialLinks.js
++++ b/src/SocialLinks.js
+@@ -44,7 +44,9 @@
+   return (
+     <div css={styles.links}>
+       {normalizedLinks.map((link, index) => {
+-        const type = link.type || 'link'
++        const type = Object.prototype.hasOwnProperty.call(icons, link.type)
++          ? link.type
++          : 'link'
+         const label = link.label || labels[type] || labels.link
+         return (
+           <a
