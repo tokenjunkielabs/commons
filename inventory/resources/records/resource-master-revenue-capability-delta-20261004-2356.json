@@ -1,0 +1,96 @@
+{
+  "schema": "commons-resource-activation/v1",
+  "id": "resource-master-revenue-capability-delta-20261004-2356",
+  "operation_id": "RESOURCE-MASTER-REVENUE-CAPABILITY-DELTA-20261004-2356",
+  "observed_at": "2026-10-05T03:56:00.000Z",
+  "title": "Revenue-bearing proposal send and post-watermark capability reconciliation",
+  "consumer": "Commons revenue routing, exact finite research consumers, existing funded bounty owners, desktop recovery owners and retained publication owners",
+  "outcome": {
+    "resources": 222,
+    "producing": 161,
+    "evidence_records": 121,
+    "activated": [
+      "singer-plane-difference-set-index",
+      "caprine-pr2384-resume-source-packet",
+      "razer452-passive-kvm-source-packet",
+      "gemini-slack-receipt-journal-lock-backoff"
+    ],
+    "advanced": [
+      "rcap-dcs-proposal-owner-facts",
+      "account-transcript-credential-redaction",
+      "connected-github-source-pinned-publisher"
+    ],
+    "build_orders": [],
+    "continued_orders": [
+      "OPEN-DOOR-RESEARCH-PROSE-FALSE-POSITIVE-20261004-01",
+      "ACCOUNT-TRANSCRIPT-CREDENTIAL-REDACTION-20261004-01"
+    ],
+    "completed_activation": "The sent RCAP proposal state and four new source-bound capabilities are canonicalized; existing redaction and publication lanes advance without duplicating their orders or overstating runtime proof."
+  },
+  "watermark": {
+    "prior_terminal_slack_ts": "1791163224.185869",
+    "slack_sweep_through": "1791166502.773229",
+    "claim_ts": "1791172938.933559",
+    "prior_main_sha": "54fba8cc0ef52b00f754b7d88127a92335da16d4",
+    "github_source_through": "db9aefb7eb210ca3f98a264d5e383ad75bf965a8",
+    "connector_tool_watermark": 1076,
+    "automations_observed": {
+      "active": 3,
+      "paused": 33,
+      "completed": 3,
+      "changed": false
+    }
+  },
+  "evidence": {
+    "claim": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791172938933559",
+    "rcap_provider_receipt_at": "2026-10-05T01:18:51.000Z",
+    "redaction_completion": "https://tokenjunkielabs.slack.com/archives/C0BTB4SUCP9/p1791163234046639?thread_ts=1791129667.279309&cid=C0BTB4SUCP9",
+    "razer_source_completion": "https://tokenjunkielabs.slack.com/archives/C0BU51F1PL3/p1791163612417709?thread_ts=1790851459.659859&cid=C0BU51F1PL3",
+    "dynamic_automotive_hold": "https://tokenjunkielabs.slack.com/archives/C0BTA20SU95/p1791166419017729?thread_ts=1789289079.274249&cid=C0BTA20SU95",
+    "source_prs": [
+      31473,
+      31474,
+      31475,
+      31476,
+      31477,
+      31478
+    ],
+    "direct_source_commit": "6504c5c00c6b00b79df37f8ed544fbe57a4f0b2b"
+  },
+  "revenue": {
+    "rcap": "PROPOSAL_SENT_AWAITING_REPLY",
+    "rcap_fixed_base_usd": 24500,
+    "rcap_optional_excluded_usd": 7500,
+    "stripe_available_usd": "0.00",
+    "stripe_pending_usd": "0.00",
+    "accepted_work": 0,
+    "payment_receipts": 0,
+    "payout_receipts": 0,
+    "cash_receipts": 0,
+    "razer_452": "FUNDED_25_SOURCE_PACKET_LANDED_NOT_SUBMITTED_NOT_ACCEPTED_NOT_PAID",
+    "microg_3841": "OPEN_UNACCEPTED_OWNER_PHYSICAL_PROOF_PENDING",
+    "microg_3851": "OPEN_UNACCEPTED_OWNER_PHYSICAL_PROOF_PENDING"
+  },
+  "capacity": {
+    "official_or_direct_reset_observed": false,
+    "quota_state": "PRIOR_STATE_RETAINED",
+    "callable_tool_entries": 1076,
+    "plugin_namespaces": 35,
+    "automation_state": "UNCHANGED"
+  },
+  "excluded_as_non_resource": [
+    "Generated Slack mirror issues 31479-31481",
+    "Paused-hold custody renewals ef3e5394 and d9318f59",
+    "Residual merged feature branches",
+    "Dynamic Automotive missing source path",
+    "IssueHunt 508 collided work"
+  ],
+  "boundaries": [
+    "NO CONTACT OR RELAY TO MICHAEL CLARK",
+    "The RCAP provider send is not buyer acceptance, award, revenue or cash",
+    "The Razer and Caprine source packets are not upstream submissions, accepted fixes, deployments or payouts",
+    "The Gemini journal change is source-only and unexercised",
+    "No live provider upload or actual Account transcript producer proof is claimed",
+    "Cursor hold, Claude suspension/no-tester, Titan mutation hold and Grok dry/no-submit remain"
+  ]
+}
