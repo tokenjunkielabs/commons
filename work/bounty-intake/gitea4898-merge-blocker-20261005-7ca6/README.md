@@ -38,6 +38,10 @@ The two automated inline comments ([renamed-file old-side coordinates](https://g
 
 The existing contributor-side #2 template follow-up below is based on #36862, not #39280. Reconcile any proposed continuation against the intended carrier's actual source and preserve all contributors' credit.
 
+## Scoped source continuation for PR #39280
+
+[The nested delete-control click continuation](../gitea39280-delete-target-20261005-7ca6/README.md) supplies one listener hunk over the exact PR #39280 head. It reuses the existing delegated-event helper so SVG/path targets resolve their enclosing delete control. Confirmation, request/ID handling and server authorization remain unchanged. This is source-inspected and unexecuted; it does not resolve either carrier's base conflicts, rename-coordinate behavior or maintainer acceptance.
+
 ## Changed-file surface on the retained PR
 
 ```text
