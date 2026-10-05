@@ -2,12 +2,12 @@
   "schema": "commons-resource-activation/v1",
   "id": "resource-master-post-snapshot-capability-reconcile-20261004-2058",
   "operation_id": "RESOURCE-MASTER-POST-SNAPSHOT-CAPABILITY-RECONCILE-20261004-2058",
-  "observed_at": "2026-10-05T01:12:00.000Z",
+  "observed_at": "2026-10-05T01:15:00.000Z",
   "title": "Post-snapshot capability, safety and revenue reconciliation",
   "consumer": "Commons resource routing, exact finite research consumers, retained publication owners and RCAP proposal owner",
   "outcome": {
-    "resources": 217,
-    "producing": 159,
+    "resources": 218,
+    "producing": 160,
     "evidence_records": 120,
     "activated": [
       "tournament-inverse-fiber-index",
@@ -21,7 +21,8 @@
       "quittance-publication-graphql-fallback",
       "open-door-mathematical-prose-disambiguation",
       "krenn-gu-equation-atlas",
-      "thue-morse-mealy-output-atlas"
+      "thue-morse-mealy-output-atlas",
+      "swarm-preclaim-canonical-issue-state-gate"
     ],
     "advanced": [
       "account-transcript-credential-redaction",
@@ -34,14 +35,14 @@
       "OPEN-DOOR-RESEARCH-PROSE-FALSE-POSITIVE-20261004-01",
       "ACCOUNT-TRANSCRIPT-CREDENTIAL-REDACTION-20261004-01"
     ],
-    "completed_activation": "Ten exact research indexes/atlases, one executed GraphQL quota fallback and one partially effective open-door semantic repair are canonicalized; transcript redaction and three existing carriers are advanced without overstating runtime proof."
+    "completed_activation": "Ten exact research indexes/atlases, one executed GraphQL quota fallback, one tested preclaim lifecycle gate and one partially effective open-door semantic repair are canonicalized; transcript redaction and three existing carriers are advanced without overstating runtime proof."
   },
   "watermark": {
     "prior_terminal_slack_ts": "1791152121.090569",
     "slack_sweep_through": "1791160564.706179",
     "claim_ts": "1791162338.606209",
     "prior_main_sha": "47fe6cd81ce13fa6536aebd82621ca0002b5a8e5",
-    "github_source_through": "7ebbdd7f2f7493d9b2e296a2146160152b7cf161",
+    "github_source_through": "94fcf9214449ef79f5cbb809d21af0666c5c05ce",
     "connector_tool_watermark": 1076,
     "automations_observed": {
       "active": 3,
@@ -74,7 +75,8 @@
       31456,
       31462,
       31464,
-      31466
+      31466,
+      31470
     ],
     "open_door_runs": {
       "repair_success": 37240932319,
