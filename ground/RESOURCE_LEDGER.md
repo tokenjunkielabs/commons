@@ -14,6 +14,51 @@ This extends the original DEMON live-compute board from Slack
 `1787637936.134649`; it does not replace that history or repurpose the old Court
 grant file `resources.json`.
 
+## PayD/PocketPay source and finite-research delta — 2026-10-05 18:44 EDT
+
+The canonical graph now contains **421 resources**, with **235 producing** and
+**127 append-only evidence records**. The newly landed PayD672 packet preserves
+one attributed two-hunk source correction for Redis command adaptation and
+separate standard/strict limiter prefixes under the existing PR672 owner. The
+Erdos291 finite index adds 1,589 exact intervals and 58 masks over positive `n`
+through `10^80` for selected odd-prime cancellation witnesses at 3, 5, 7, 11,
+13, 17 and 19, with 45 retained reader responses. The PayD643 packet preserves
+one attributed theme-persistence correction under the existing PR643 owner: a
+storage failure no longer invalidates the mounted theme choice, and browser
+color-scheme follows the selected light/dark class.
+
+Two later research merges add independent producing roads. Erdos366 retains a
+complete four-shard search over `10^12 < m <= 2*10^12`: 11,077 fresh 3-full
+candidates, complete predecessor certificates and zero 2-full-predecessor
+witnesses in that exact interval. Erdos304 retains a complete 125-node DAG for
+distinct-unit-fraction representations of `7/19` using one through four terms,
+with exact family counts 0, 0, 5 and 202 and 36 saved reader responses.
+
+The later PocketPay394 packet preserves one independent wallet-store patch for
+current-state pagination: older-page completions append and deduplicate against
+the state visible after the await, while visibly stale wallet, cursor or loading
+responses do not write. It remains separate from PR547's detail/status work and
+does not establish general race freedom, full issue394 completion, runtime,
+device/UI acceptance or payment.
+
+PayD642 adds one further bounded source packet under its existing owner. The
+four-hunk patch exposes the already-native mobile navigation branch through
+`aria-expanded` and an optional `aria-controls` relationship. It does not prove
+which duplicate App source is mounted, breakpoint equivalence, responsive
+rendering, screen-reader behavior, accessibility conformance, issue287
+completion or acceptance.
+
+Package selection, compatible dependency installation, application mounting,
+rollout, counter migration and broader tenant/audit behavior remain
+unestablished; they were not converted into speculative work. Two newer commits
+only renewed existing BPHC and Redmond custody heartbeats and therefore did not
+mint resources. No new build order was posted because the PayD and PocketPay
+lanes already retain owners or complete landed packets. Neither PayD packet proves package/entrypoint
+integration, browser/Redis runtime, deployment or acceptance. Mask zero in the
+research index means unresolved outside the seven-prime palette; it is not full
+coprimality, a density or infinitude theorem, or prize/sponsor evidence. [Exact
+activation and next watermark](../inventory/resources/records/resource-master-payd672-source-delta-20261005-1844.json).
+
 ## Revenue-source, finite-research and runtime-capacity delta — 2026-10-05 18:03 EDT
 
 The canonical graph now contains **414 resources**, with **232 producing** and
