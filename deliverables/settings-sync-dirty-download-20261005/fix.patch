@@ -1,0 +1,58 @@
+diff --git a/src/service/file.service.ts b/src/service/file.service.ts
+--- a/src/service/file.service.ts
++++ b/src/service/file.service.ts
+@@ -96,23 +96,37 @@
+     }
+   }
+ 
+-  public static async CloseOpenFile(filePath: string): Promise<void> {
+-    const matchingEditors = vscode.window.visibleTextEditors.filter(editor => {
+-      return FileService.IsSamePath(editor.document.uri.fsPath, filePath);
+-    });
+-
+-    for (const editor of matchingEditors) {
+-      await vscode.window.showTextDocument(
+-        editor.document,
+-        editor.viewColumn,
+-        false
+-      );
+-      await vscode.commands.executeCommand(
+-        "workbench.action.closeActiveEditor"
+-      );
+-    }
+-  }
+-
++  public static async CloseOpenFile(filePath: string): Promise<void> {
++    const matchingEditors = vscode.window.visibleTextEditors.filter(editor => {
++      return FileService.IsSamePath(editor.document.uri.fsPath, filePath);
++    });
++
++    for (const editor of matchingEditors) {
++      await vscode.window.showTextDocument(
++        editor.document,
++        editor.viewColumn,
++        false
++      );
++      await vscode.commands.executeCommand(
++        "workbench.action.closeActiveEditor"
++      );
++    }
++
++    const hasUnsavedChanges = vscode.workspace.textDocuments.some(document => {
++      return (
++        document.uri.scheme === "file" &&
++        !document.isClosed &&
++        document.isDirty &&
++        FileService.IsSamePath(document.uri.fsPath, filePath)
++      );
++    });
++    if (hasUnsavedChanges) {
++      throw new Error(
++        "Save or discard unsaved changes before downloading: " + filePath
++      );
++    }
++  }
++
+   public static async ListFiles(
+     directory: string,
+     customSettings: CustomConfig
