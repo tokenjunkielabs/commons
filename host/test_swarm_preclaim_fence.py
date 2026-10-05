@@ -24,7 +24,7 @@ SPEC.loader.exec_module(fence)
 
 def report(*, stable=None, exact=None, paths=None, comparisons=None, kind="pull",
            errors=None, census=None, stable_id="OP-1", candidate_paths=None,
-           semantic_tokens=None):
+           semantic_tokens=None, upstream_state="open"):
     return {
         "input": {
             "stable_id": stable_id,
@@ -42,6 +42,7 @@ def report(*, stable=None, exact=None, paths=None, comparisons=None, kind="pull"
         },
         "upstream": {
             "kind": kind, "repo": "upstream/repo", "number": 842,
+            "state": upstream_state,
             "head_sha": "donor", "changed_files": [],
         },
         "owner_pr_census": census if census is not None else {
@@ -100,6 +101,37 @@ class DecisionFixtures(unittest.TestCase):
         self.assertEqual(out["decision"], fence.SAFE_TO_BIND_BRANCH)
         self.assertTrue(out["branch_write_allowed"])
         self.assertEqual(out["exit_code"], 0)
+
+    def test_closed_issue_never_becomes_safe_to_bind(self):
+        out = fence.finalize(report(
+            kind="issue", stable_id="ISSUE-OP", upstream_state="closed"
+        ))
+        self.assertEqual(out["decision"], fence.NEEDS_MANUAL_DIFF)
+        self.assertFalse(out["branch_write_allowed"])
+        self.assertEqual(out["exit_code"], 22)
+
+    def test_issue_with_missing_canonical_state_fails_closed(self):
+        out = fence.finalize(report(
+            kind="issue", stable_id="ISSUE-OP", upstream_state=None
+        ))
+        self.assertEqual(out["decision"], fence.NEEDS_MANUAL_DIFF)
+        self.assertFalse(out["branch_write_allowed"])
+
+    def test_closed_pull_keeps_existing_donor_absorption_semantics(self):
+        out = fence.finalize(report(
+            kind="pull",
+            upstream_state="closed",
+            comparisons=[{
+                "path": "x.py",
+                "upstream_blob_oid": "abc",
+                "owner_blob_oid": "abc",
+                "upstream_status": "modified",
+                "comparable": True,
+                "match": True,
+            }],
+        ))
+        self.assertEqual(out["decision"], fence.ALREADY_ABSORBED)
+        self.assertFalse(out["branch_write_allowed"])
 
     def test_issue_without_any_identity_key_fails_closed(self):
         out = fence.finalize(report(

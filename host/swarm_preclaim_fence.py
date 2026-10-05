@@ -128,6 +128,11 @@ def decide(report):
     if hits:
         return MANUAL
 
+    if upstream.get("kind") == "issue":
+        state = str(upstream.get("state") or "").strip().lower()
+        if state != "open":
+            return MANUAL
+
     if upstream.get("kind") != "pull":
         inp = report.get("input") if isinstance(report.get("input"), dict) else {}
         if not (
@@ -783,7 +788,8 @@ def render_text(report):
     )
     lines.append(
         f"Upstream snapshot: {upstream.get('kind')} {upstream.get('repo')}#"
-        f"{upstream.get('number')} head={upstream.get('head_sha')} "
+        f"{upstream.get('number')} state={upstream.get('state')} "
+        f"head={upstream.get('head_sha')} "
         f"changed={len(upstream.get('changed_files') or [])}"
     )
     lines.append("Blob comparisons:")
