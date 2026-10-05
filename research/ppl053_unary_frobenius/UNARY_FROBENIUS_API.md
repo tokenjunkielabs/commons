@@ -8,11 +8,11 @@ the complement of L* contains exactly 343 words. Its longest word has length 651
 
 ## Source correction and established complexity
 
-The PPL053 catalogue wording loses a complement bar: it asks whether L* itself is infinite. Shallit's original bc4 presentation, printed slide 44, visually asks whether the **complement of L*** is infinite. The slide was inspected as an image because its text extraction also loses the bar. Literal infinitude of L* for an explicitly finite dictionary is elementary: one nonempty word yields arbitrarily long repetitions; if no such word exists, L*={epsilon}. It is not the intended historical question.
+The PPL053 catalogue asks whether L* itself is infinite. The accessible text extraction of Shallit's bc4 printed slide 44 also renders L* without a complement bar. The screenshot response contained only an ImageDisplayed text placeholder, so no visual inspection of a bar was obtained. Mika and Szykuła's independent historical discussion (Section 1.1, printed page 2) explicitly identifies the question on Shallit's list as co-finiteness. This API addresses that independently documented Frobenius monoid question. A missing complement bar is a plausible explanation of the transcription discrepancy, not a visually verified fact. Literal infinitude of L* for an explicitly finite dictionary is elementary: one nonempty word yields arbitrarily long repetitions; if no such word exists, L*={epsilon}. It is not the intended historical question.
 
 Source: https://cs.uwaterloo.ca/~shallit/Talks/bc4.pdf (slide 44).
 Catalogue observed: https://prizeproblems.org/problems/053/ .
-This package records the correction and does not claim to have edited the external catalogue.
+This package records the discrepancy and independent primary-source identification; it does not claim to have edited the external catalogue. The first publication incorrectly said that the slide had been visually inspected. This documentation correction withdraws that observation claim; it changes no executed source, data or reader result.
 
 Mika and Szykuła, *The Frobenius and factor universality problems of the Kleene star of a finite set of words*, JACM 68(3), Article 18 (2021), define co-finiteness by finiteness of the complement and prove the decision PSPACE-complete even for a binary alphabet and an explicit word list. Infinitude of that complement is the opposite decision and has the same classification by closure of deterministic PSPACE under complement; this last statement is the standard complexity inference. Their unary specialization uses nonnegative combinations of positive lengths, with co-finiteness equivalent to gcd one.
 
