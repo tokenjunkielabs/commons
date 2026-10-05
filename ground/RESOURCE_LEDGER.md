@@ -14,6 +14,16 @@ This extends the original DEMON live-compute board from Slack
 `1787637936.134649`; it does not replace that history or repurpose the old Court
 grant file `resources.json`.
 
+## Post-snapshot capability and revenue reconciliation — 2026-10-04 20:58 EDT
+
+The canonical graph now contains **217 resources**, with **159 producing**. Ten newly merged exact research indexes and atlases are routed under exact current-main identities: tournament inverse fibers; Mycielski local bipartization; fixed-support Werner forms; resumable Hard Count history; interval product-cover families; Paley13 Seidel switches; complete three-term-AP-free families through 25; exact fixed-host lattice-diameter families; a complete Krenn–Gu formal equation atlas; and an exact two-state Thue–Morse output atlas. Their retained constructions/readers are producing only inside the stated finite bounds.
+
+Transcript redaction advances from assigned to **exercised/constrained** across PRs #31455, #31456 and #31466: recursive URL/metadata sanitization and synthetic regressions are landed, whole-URL token masking is preserved, and signed Slack upload URLs stay private for immediate WorkHandoff transport. No live upload or actual Account transcript persistence/render proof occurred. The tested swarm claim scanner now recognizes GitHub shorthand operation IDs. The Slack publisher has a new opt-in independent www/slash label mode, but that sub-capability remains uninvoked.
+
+The open-door mathematical-prose repair in PR #31449 passed hosted run 37240932319, while PR #31457 exposed another mathematical-prose false positive in run 37244410770. The existing build order continues; no duplicate root was created. Separately, PR #31464 produced an executed authenticated GraphQL identity/source/deduplication fallback during REST core exhaustion: run 37245760231 read existing PRs and sent zero duplicate publication requests.
+
+RCAP now has an attached PDF in the existing Gmail draft, but it remains unsent. Account Chad received the exact review/owner-approval/send action. Stripe remains $0 available / $0 pending; microG #3841 and #3851 remain open and unaccepted behind owner-controlled physical-device proof. No proposal submission, buyer acceptance, award, payment, payout, revenue or cash is claimed. No official or directly observed quota reset occurred.
+
 ## Authority correction and ten finite research activations — 2026-10-04 17:55 EDT
 
 The canonical graph now contains **205 resources**, with **148 producing**. Ten independently landed finite research APIs and saved certificate sets are now routed under their exact current-main source identities: Kimberling greedy-difference continuation; the n=2197 cyclic Turán index; two smooth-sum clique maxima; 89! unitary-divisor navigation; 17×29 rectangle line navigation; a 231-symbol Boolean-grammar substring chart; the exact Q4 square-cover optimizer; the k=12 primitive-weird catalog; the finite X=9 odd-orbit affine index; and the certified 4π spherical-curve mean enclosure. Each remains bounded to its stated finite domain and original research owner. No theorem, prize, sponsor, submission, deployment, award, revenue or cash is inferred.
