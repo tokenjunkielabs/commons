@@ -1,0 +1,49 @@
+{
+  "captured_at": "2026-10-05T14:35:00Z",
+  "platform": "Algora",
+  "advertised_usd": 300,
+  "funded_usd_claimed": 0,
+  "awarded_usd": 0,
+  "invoiced_usd": 0,
+  "received_usd": 0,
+  "issue": {
+    "repo": "go-gitea/gitea",
+    "number": 4898,
+    "url": "https://github.com/go-gitea/gitea/issues/4898",
+    "state": "open",
+    "assignees": []
+  },
+  "carrier": {
+    "repo": "go-gitea/gitea",
+    "pr": 36862,
+    "url": "https://github.com/go-gitea/gitea/pull/36862",
+    "owner": "yuvrajangadsingh",
+    "state": "open",
+    "draft": false,
+    "head": "b46f3c2d0d93e66ed03b63b0e9677d4c24ca3e99",
+    "base": "a52e5f53c096961b61e4016a35b693aa72b51339",
+    "mergeable": false,
+    "rebaseable": false,
+    "mergeable_state": "dirty",
+    "commits": 31,
+    "changed_files": 29,
+    "additions": 1183,
+    "deletions": 30
+  },
+  "status": {
+    "state": "pending",
+    "context": "giteabot/lgtm",
+    "description": "Needs two more approvals",
+    "observed_at": "2026-10-05T10:33:19Z"
+  },
+  "followup": {
+    "repo": "yuvrajangadsingh/gitea",
+    "pr": 2,
+    "commit": "3f288d7879089416d7a4ed258eb2b9b69c33f106",
+    "purpose": "explicit named template data; reconcile against current head"
+  },
+  "operation": "ALG-GITEA4898-MERGE-BLOCKER-PACKET-7CA6-20261005",
+  "source_mutation": false,
+  "upstream_message": false,
+  "preserves_original_owner": true
+}
