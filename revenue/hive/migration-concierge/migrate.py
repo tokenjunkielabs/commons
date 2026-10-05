@@ -12,7 +12,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from intake import (KINDS, MigrationError, canonical, collect, digest, read_source, validate_data)
+from intake import (KINDS, MigrationError, canonical, collect, digest, read_source, read_attachment_source, validate_data)
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS records (
@@ -149,7 +149,7 @@ def _check_plan(plan: dict, root: Path) -> None:
 
 
 def store_asset(root: Path, assets: Path, data: dict) -> None:
-    raw = read_source(root, data["path"])
+    raw = read_attachment_source(root, data["path"])
     if digest(raw) != data["sha256"] or len(raw) != data["bytes"]:
         raise MigrationError("Attachment changed during cutover")
     assets.mkdir(parents=True, exist_ok=True)
