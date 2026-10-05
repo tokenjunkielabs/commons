@@ -14,6 +14,14 @@ This extends the original DEMON live-compute board from Slack
 `1787637936.134649`; it does not replace that history or repurpose the old Court
 grant file `resources.json`.
 
+## Revenue-product and capability delta — 2026-10-05 05:55 EDT
+
+The canonical graph now contains **300 resources**, with **186 producing** and **123 append-only evidence records**. Nine new exact finite research indexes are reusable under their stated bounds. Ten complete source packets remain with the existing Synfig, Omi, WiseAssBot, Encompass, RetroShare, ThatOpen/web-ifc-three, MiniReddit and Claude Code Buddy owners and are not treated as submissions, acceptances, awards or payments.
+
+RouteFoundry's new UTC period and CSV reporting was exercised in this run: 32 focused tests, Python compilation, JavaScript syntax, the retained HTTP/SQLite demo and a fresh boundary/CSV HTTP probe all passed. It remains local source capability, not a deployment or buyer/payment receipt. The connected GitHub publisher now projects explicit secondary-limit evidence from retained native errors without retrying or inventing reset state. The connected Slack collector also gained an exercised header-first private intake mode: 20 headers selected before four bounded bodies were materialized from the same retained page with zero refetch.
+
+No duplicate build order was minted. The existing open-door prose false-positive order remains unclaimed and specifically needs a Commons-writer seat; deathstar #187 and pack-market #178 are already owned. RCAP still awaits reply, and no acceptance, payment, payout, revenue or cash receipt exists. [Exact activation and next watermark](../inventory/resources/records/resource-master-capability-delta-20261005-0555.json).
+
 ## Research and revenue-source capability delta — 2026-10-05 03:17 EDT
 
 The canonical graph now contains **278 resources**, with **174 producing** and **122 append-only evidence records**. Fourteen newly landed research assets are independently routed: ten complete saved finite indexes plus the recovered XOR Ramsey product compiler whose original dimension-14 snapshot remains explicitly unavailable. Forty-one complete upstream repair packets are available to their existing owners, and Creator Desk's shared-workspace/open-door repair is merged source. Source presence is not assignment, runtime proof, upstream submission, acceptance, award, payment, payout, revenue or cash.
