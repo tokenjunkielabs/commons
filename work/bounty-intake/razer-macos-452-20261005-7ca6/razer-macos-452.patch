@@ -1,0 +1,1403 @@
+diff --git a/src/main/razerapplication.js b/src/main/razerapplication.js
+index 0608348596a048e5cd95d568201f19dda9f2b020..73ac6d7c020c605d6a5dc9074899823ae901b2ee 100644
+--- a/src/main/razerapplication.js
++++ b/src/main/razerapplication.js
+@@ -3,38 +3,152 @@
+ import { RazerAnimationCycleSpectrum } from './animation/animationcyclespectrum';
+ import { RazerAnimationCycleCustom } from './animation/animationcyclecustom';
+ import { StateManager } from './statemanager';
++import { RazerDeviceMonitor } from './razerdevicemonitor';
+ 
+ /**
+- * Main application
+- * DeviceManager: Queries all the devices and sets up their features
+- * SettingsManager: Used to save settings for the application / devices
+- *
+- * Animations: Animations which are run on all devices in parallel are held here as well.
+- * @constructor
++ * Owns one device generation at a time. Automatic refresh restores live lighting;
++ * existing startup and power-event callers retain their explicit state choices.
+  */
+ export class RazerApplication {
+-  constructor() {
++  constructor(onRefresh = () => {}) {
+     this.settingsManager = new SettingsManager();
+     this.stateManager = new StateManager(this.settingsManager);
+     this.deviceManager = new RazerDeviceManager(this.settingsManager, this.stateManager);
+-    this.spectrumAnimation = null;
+-    this.cycleAnimation = null;
++    this.spectrumAnimation = new RazerAnimationCycleSpectrum(this);
++    this.cycleAnimation = new RazerAnimationCycleCustom(this);
++    this.deviceMonitor = new RazerDeviceMonitor(this);
++    this.animationsInitialized = false;
++    this.pendingAnimationRestore = null;
++    this.refreshQueue = Promise.resolve();
++    this.refreshRequests = new Map();
++    this.isRefreshing = false;
++    this.destroyed = false;
++    this.onRefresh = onRefresh;
+   }
+ 
+-  async refresh(withOnStartState = true) {
+-    return this.deviceManager.refreshRazerDevices().then(() => {
+-      const spectrumPromise = new RazerAnimationCycleSpectrum(this).init().then(animation => {
+-        this.spectrumAnimation = animation;
+-      });
+-      const cyclePromise = new RazerAnimationCycleCustom(this).init().then(animation => {
+-        this.cycleAnimation = animation;
+-      });
+-      const resetAll = this.stateManager.init(this.deviceManager.activeRazerDevices, withOnStartState);
+-      return Promise.all([spectrumPromise, cyclePromise, resetAll]).then(() => true);
+-    });
++  refresh(withOnStartState = true, restoreCurrentState = false) {
++    if (this.destroyed) {
++      return Promise.reject(new Error('The Razer application has been closed.'));
++    }
++    const key = String(withOnStartState) + ':' + String(restoreCurrentState);
++    if (this.refreshRequests.has(key)) {
++      return this.refreshRequests.get(key);
++    }
++    const operation = this.refreshQueue.then(() =>
++      this.refreshDevices(withOnStartState, restoreCurrentState));
++    // A failed transaction must not poison subsequent legitimate refreshes.
++    this.refreshQueue = operation.then(() => undefined, () => undefined);
++    this.refreshRequests.set(key, operation);
++    const release = () => {
++      if (this.refreshRequests.get(key) === operation) {
++        this.refreshRequests.delete(key);
++      }
++    };
++    operation.then(release, release);
++    return operation;
+   }
+ 
++  notifyRefresh(refreshing) {
++    try {
++      this.onRefresh(refreshing);
++    } catch (error) {
++      console.warn('Device-list view update failed:', error.message);
++    }
++  }
++
++  requireOpen() {
++    if (this.destroyed) {
++      throw new Error('The Razer application has been closed.');
++    }
++  }
++
++  async refreshDevices(withOnStartState, restoreCurrentState) {
++    this.requireOpen();
++    this.isRefreshing = true;
++    this.notifyRefresh(true);
++    const running = {
++      spectrum: this.spectrumAnimation.cycleColorsInterval !== null,
++      custom: this.cycleAnimation.cycleColorsInterval !== null,
++    };
++    if (!restoreCurrentState) {
++      this.pendingAnimationRestore = null;
++    } else if (running.spectrum || running.custom) {
++      this.pendingAnimationRestore = running;
++    }
++
++    try {
++      this.deviceManager.rememberDeviceStates();
++      this.stopAnimations();
++      this.stateManager.devices = [];
++      if (!this.animationsInitialized) {
++        await Promise.all([this.spectrumAnimation.init(), this.cycleAnimation.init()]);
++        this.requireOpen();
++        this.animationsInitialized = true;
++      }
++
++      let topology = null;
++      if (typeof this.deviceManager.addon.getDeviceTopology === 'function') {
++        try {
++          topology = this.deviceManager.readTopology();
++        } catch (error) {
++          if (restoreCurrentState) {
++            throw error;
++          }
++          // A topology-observation failure does not disable manual refresh.
++          console.warn('Device topology is temporarily unavailable:', error.message);
++        }
++      }
++
++      await this.deviceManager.refreshRazerDevices();
++      this.requireOpen();
++      if (topology !== null && !this.deviceManager.matchesTopology(topology)) {
++        throw new Error('Some connected Razer devices are not ready to open.');
++      }
++      await this.stateManager.init(this.deviceManager.activeRazerDevices, withOnStartState);
++      this.requireOpen();
++
++      if (restoreCurrentState) {
++        this.deviceManager.restoreDeviceStates();
++      }
++      if (restoreCurrentState && this.pendingAnimationRestore !== null) {
++        if (this.pendingAnimationRestore.spectrum) {
++          this.spectrumAnimation.start(false);
++        }
++        if (this.pendingAnimationRestore.custom) {
++          this.cycleAnimation.start(false);
++        }
++      }
++      this.deviceMonitor.accept(topology);
++      this.pendingAnimationRestore = null;
++      return true;
++    } catch (error) {
++      this.stopAnimations();
++      this.stateManager.devices = [];
++      // Never let defaults from a failed generation replace the last good cache.
++      try {
++        this.deviceManager.closeDevices();
++      } catch (cleanupError) {
++        console.warn('Failed device generation cleanup:', cleanupError.message);
++      }
++      this.deviceMonitor.invalidate();
++      throw error;
++    } finally {
++      this.isRefreshing = false;
++      if (!this.destroyed) {
++        this.notifyRefresh(false);
++        this.deviceMonitor.start();
++      }
++    }
++  }
++
+   destroy() {
++    if (this.destroyed) {
++      return;
++    }
++    this.destroyed = true;
++    this.deviceMonitor.stop();
++    this.stopAnimations();
++    this.stateManager.devices = [];
+     this.deviceManager.destroy();
+   }
+ 
+@@ -42,4 +156,4 @@
+     this.cycleAnimation.stop();
+     this.spectrumAnimation.stop();
+   }
+-}
+\ No newline at end of file
++}
+diff --git a/src/main/razerdevicemonitor.js b/src/main/razerdevicemonitor.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..ef589ad4ec5b72aeec1d8ec4ffd8292eba526d47
+--- /dev/null
++++ b/src/main/razerdevicemonitor.js
+@@ -0,0 +1,101 @@
++/**
++ * Watch passive registry snapshots. Opening USB handles belongs to the
++ * application's serialized refresh transaction, never to this polling loop.
++ */
++export class RazerDeviceMonitor {
++  constructor(application) {
++    this.application = application;
++    this.running = false;
++    this.timer = null;
++    this.lastTopology = null;
++    this.pendingTopology = null;
++    this.pollMs = 1000;
++    this.settleMs = 300;
++    this.retryMs = this.pollMs;
++    this.lastError = null;
++  }
++
++  start() {
++    if (this.running || this.application.destroyed) {
++      return;
++    }
++    const addon = this.application.deviceManager.addon;
++    if (!addon || typeof addon.getDeviceTopology !== 'function') {
++      console.warn('Automatic reconnect requires the rebuilt device topology addon.');
++      return;
++    }
++    this.running = true;
++    this.schedule(this.pollMs);
++  }
++
++  stop() {
++    this.running = false;
++    clearTimeout(this.timer);
++    this.timer = null;
++    this.pendingTopology = null;
++  }
++
++  accept(topology) {
++    if (topology == null) {
++      return;
++    }
++    this.lastTopology = topology.fingerprint;
++    this.pendingTopology = null;
++    this.retryMs = this.pollMs;
++    this.lastError = null;
++  }
++
++  invalidate() {
++    // A failed manual refresh also needs another attempt if USB is unchanged.
++    this.lastTopology = null;
++    this.pendingTopology = null;
++  }
++
++  schedule(delay) {
++    clearTimeout(this.timer);
++    this.timer = setTimeout(() => this.poll(), delay);
++    if (this.timer && typeof this.timer.unref === 'function') {
++      this.timer.unref();
++    }
++  }
++
++  async poll() {
++    this.timer = null;
++    if (!this.running) {
++      return;
++    }
++    let delay = this.pollMs;
++    try {
++      const topology = this.application.deviceManager.readTopology();
++      if (topology.fingerprint === this.lastTopology) {
++        this.pendingTopology = null;
++        this.retryMs = this.pollMs;
++        this.lastError = null;
++      } else if (topology.fingerprint !== this.pendingTopology) {
++        // Require two equal observations separated by the settle interval.
++        this.pendingTopology = topology.fingerprint;
++        delay = this.settleMs;
++      } else {
++        await this.application.refresh(false, true);
++        // refresh accepts only the topology observed by that transaction.
++        // A connection change during opening is detected by the next poll.
++      }
++    } catch (error) {
++      if (!this.running) {
++        return;
++      }
++      this.pendingTopology = null;
++      delay = this.retryMs;
++      this.retryMs = Math.min(10000, this.retryMs * 2);
++      const message = error && error.message ? error.message : String(error);
++      if (message !== this.lastError) {
++        console.warn('Automatic device refresh deferred:', message);
++        this.lastError = message;
++      }
++    } finally {
++      if (this.running) {
++        this.schedule(delay);
++      }
++    }
++  }
++}
+diff --git a/src/main/razerdevicemanager.js b/src/main/razerdevicemanager.js
+index 361bfb1c3f3ddce2c05be827825726af59058fc5..66e75bba97e17e3c14a702847f7f360b8753e890 100644
+--- a/src/main/razerdevicemanager.js
++++ b/src/main/razerdevicemanager.js
+@@ -20,43 +20,158 @@
+     this.settingsManager = settingsManager;
+     this.stateManager = stateManager;
+     this.razerConfigDevices = this.getAllRazerDeviceConfigurations();
+-    this.activeRazerDevices = null;
++    this.activeRazerDevices = [];
++    this.pendingDevices = [];
++    this.generation = 0;
++    this.destroyed = false;
++    this.nativeDevicesOpen = false;
++    this.retainedDeviceStates = new Map();
+   }
+ 
+   async refreshRazerDevices() {
+-    if(new Date().getTime() < this.lastRefresh + 2000) {
+-      /// Refresh is called too fast. Wait a bit...
+-      return;
++    if (this.destroyed) {
++      throw new Error('The device manager has been closed.');
+     }
+-    this.lastRefresh = new Date().getTime();
+     this.closeDevices();
++    const generation = this.generation;
++    const driver = {};
++    // Old menu/animation objects must never call into a replacement handle table.
++    Object.keys(this.addon).forEach(name => {
++      const method = this.addon[name];
++      if (typeof method === 'function') {
++        driver[name] = (...args) => {
++          if (!this.destroyed && generation === this.generation) {
++            return method.apply(this.addon, args);
++          }
++          return undefined;
++        };
++      }
++    });
++    this.currentDriver = driver;
+ 
+-    const devicePromises = this.addon.getAllDevices().map(async foundDevice => {
+-      const configurationDevice = this.razerConfigDevices.find(d => d.productId === foundDevice.productId);
+-      if (configurationDevice === undefined) {
+-        return null;
++    try {
++      this.nativeDevicesOpen = true;
++      const foundDevices = this.addon.getAllDevices();
++      const devicePromises = foundDevices.map(async foundDevice => {
++        const configurationDevice = this.razerConfigDevices.find(d => d.productId === foundDevice.productId);
++        if (configurationDevice === undefined) {
++          return null;
++        }
++        const razerProperties = {
++          name: configurationDevice.name,
++          productId: foundDevice.productId,
++          internalId: foundDevice.internalDeviceId,
++          mainType: configurationDevice.mainType,
++          image: configurationDevice.image,
++          features: configurationDevice.features,
++          featuresMissing: configurationDevice.featuresMissing,
++          featuresConfig: configurationDevice.featuresConfig,
++        };
++        const device = this.createRazerDeviceFrom(razerProperties);
++        this.pendingDevices.push(device);
++        return device.init();
++      });
++      // Wait for every initializer before releasing their shared native table.
++      const results = await Promise.allSettled(devicePromises);
++      if (this.destroyed || generation !== this.generation) {
++        throw new Error('Device refresh was canceled.');
+       }
+-      const razerProperties = {
+-        name: configurationDevice.name,
+-        productId: foundDevice.productId,
+-        internalId: foundDevice.internalDeviceId,
+-        mainType: configurationDevice.mainType,
+-        image: configurationDevice.image,
+-        features: configurationDevice.features,
+-        featuresMissing: configurationDevice.featuresMissing,
+-        featuresConfig: configurationDevice.featuresConfig,
+-      };
+-      const razerDevice = this.createRazerDeviceFrom(razerProperties);
+-      return razerDevice.init();
++      const failure = results.find(result => result.status === 'rejected');
++      if (failure) {
++        throw failure.reason;
++      }
++      this.activeRazerDevices = this.sortDevices(
++        results.map(result => result.value).filter(device => device !== null));
++      this.pendingDevices = [];
++    } catch (error) {
++      if (generation === this.generation) {
++        this.closeDevices();
++      }
++      throw error;
++    }
++  }
++
++  readTopology() {
++    if (this.destroyed || !this.addon || typeof this.addon.getDeviceTopology !== 'function') {
++      throw new Error('Passive device topology is unavailable.');
++    }
++    const observed = this.addon.getDeviceTopology();
++    if (!Array.isArray(observed)) {
++      throw new Error('Invalid device topology snapshot.');
++    }
++    const configured = new Set(this.razerConfigDevices.map(device => device.productId));
++    const seen = new Set();
++    const supported = [];
++    observed.forEach(entry => {
++      if (!entry || typeof entry.registryId !== 'string' ||
++          !/^[0-9]+$/.test(entry.registryId) ||
++          !Number.isInteger(entry.productId) || entry.productId < 0 || entry.productId > 0xffff ||
++          seen.has(entry.registryId)) {
++        throw new Error('Invalid device topology entry.');
++      }
++      seen.add(entry.registryId);
++      if (configured.has(entry.productId)) {
++        supported.push(entry);
++      }
+     });
++    return {
++      fingerprint: supported.map(entry => entry.productId + ':' + entry.registryId).sort().join('|'),
++      products: supported.map(entry => entry.productId).sort((a, b) => a - b),
++    };
++  }
+ 
+-    return Promise.all(devicePromises).then(devices => {
+-      return devices.filter(device => device !== null);
+-    }).then((devices) => {
+-      this.activeRazerDevices = this.sortDevices(devices);
++  matchesTopology(topology) {
++    const opened = this.activeRazerDevices.map(device => device.productId).sort((a, b) => a - b);
++    return opened.length === topology.products.length &&
++      opened.every((productId, index) => productId === topology.products[index]);
++  }
++
++  deviceStateKey(device) {
++    return device.mainType + ':' + device.productId;
++  }
++
++  countDeviceKeys() {
++    const counts = new Map();
++    this.activeRazerDevices.forEach(device => {
++      const key = this.deviceStateKey(device);
++      counts.set(key, (counts.get(key) || 0) + 1);
+     });
++    return counts;
+   }
+ 
++  rememberDeviceStates() {
++    const counts = this.countDeviceKeys();
++    this.activeRazerDevices.forEach(device => {
++      const key = this.deviceStateKey(device);
++      if (counts.get(key) !== 1) {
++        // The existing driver has no physical serial identity. Do not guess
++        // which of two identical products should receive a retained state.
++        this.retainedDeviceStates.delete(key);
++        return;
++      }
++      const state = device.getState();
++      if (state && state.mode != null && !device.destroyed) {
++        this.retainedDeviceStates.set(key, JSON.parse(JSON.stringify(state)));
++      }
++    });
++    // Disconnected devices intentionally retain their last meaningful state.
++  }
++
++  restoreDeviceStates() {
++    const counts = this.countDeviceKeys();
++    this.activeRazerDevices.forEach(device => {
++      const key = this.deviceStateKey(device);
++      if (counts.get(key) !== 1) {
++        this.retainedDeviceStates.delete(key);
++        return;
++      }
++      const state = this.retainedDeviceStates.get(key);
++      if (state && state.mode != null) {
++        device.resetToState(JSON.parse(JSON.stringify(state)));
++      }
++    });
++  }
++
+   sortDevices(devices) {
+     const deviceOrder = [
+       RazerDeviceType.KEYBOARD,
+@@ -117,6 +232,7 @@
+       name: razerProperties.name,
+       productId: razerProperties.productId,
+       internalId: razerProperties.internalId,
++      generation: this.generation,
+       mainType: razerProperties.mainType,
+       image: razerProperties.image,
+       features: null,
+@@ -147,7 +263,7 @@
+       });
+     }
+ 
+-    return new device(this.addon, this.settingsManager, this.stateManager, razerDeviceProperties);
++    return new device(this.currentDriver, this.settingsManager, this.stateManager, razerDeviceProperties);
+   }
+ 
+   getAllRazerDeviceConfigurations() {
+@@ -166,26 +282,42 @@
+     });
+   }
+ 
+-  getByInternalId(internalId) {
+-    return this.activeRazerDevices.find(device => device.internalId === internalId);
++  getByInternalId(internalId, generation) {
++    return this.activeRazerDevices.find(device =>
++      device.internalId === internalId &&
++      (generation === undefined || device.generation === generation));
+   }
+ 
+   closeDevices() {
+-    if (this.activeRazerDevices !== null) {
+-      this.addon.closeAllDevices();
+-      this.activeRazerDevices = null;
++    const retired = Array.from(new Set(this.activeRazerDevices.concat(this.pendingDevices)));
++    // Invalidate callbacks before destroying effects or closing native handles.
++    this.generation++;
++    this.activeRazerDevices = [];
++    this.pendingDevices = [];
++    this.currentDriver = null;
++    retired.forEach(device => {
++      try {
++        device.destroy();
++      } catch (error) {
++        console.warn('Device effect cleanup failed:', error.message);
++      }
++    });
++    if (this.addon && this.nativeDevicesOpen) {
++      try {
++        this.addon.closeAllDevices();
++      } finally {
++        this.nativeDevicesOpen = false;
++      }
+     }
+   }
+ 
+   destroy() {
+-    if(this.activeRazerDevices != null) {
+-      this.activeRazerDevices.forEach(device => {
+-        if (device !== null) {
+-          device.destroy();
+-        }
+-      });
++    if (this.destroyed) {
++      return;
+     }
++    this.destroyed = true;
+     this.closeDevices();
++    this.retainedDeviceStates.clear();
+     this.addon = null;
+   }
+-}
+\ No newline at end of file
++}
+diff --git a/src/main/device/razerdevice.js b/src/main/device/razerdevice.js
+index 0adf2b32c9d51291e9c0db799646fb83cae7aeb0..105756e9ed6340f99dba3ee13fc3ccf492c53947 100644
+--- a/src/main/device/razerdevice.js
++++ b/src/main/device/razerdevice.js
+@@ -7,6 +7,8 @@
+     this.name = razerDeviceProperties.name;
+     this.productId = razerDeviceProperties.productId;
+     this.internalId = razerDeviceProperties.internalId;
++    this.generation = razerDeviceProperties.generation;
++    this.destroyed = false;
+     this.mainType = razerDeviceProperties.mainType;
+     this.image = razerDeviceProperties.image;
+     this.features = razerDeviceProperties.features;
+@@ -42,7 +44,9 @@
+   }
+ 
+   destroy() {
+-    this.addon = null;
++    // Keep the generation-bound driver: a stale UI callback becomes a no-op,
++    // rather than accessing a new device through a recycled native index.
++    this.destroyed = true;
+   }
+ 
+   async setSettings(settings) {
+diff --git a/src/main/animation/animationcycle.js b/src/main/animation/animationcycle.js
+index c6fcbd94f803cfc2b97ea0df875d00896171a7a0..b7afbb90d75bd4e3fd4838b793d2e73afac82911 100644
+--- a/src/main/animation/animationcycle.js
++++ b/src/main/animation/animationcycle.js
+@@ -12,6 +12,10 @@
+   }
+ 
+   setDevicesCycleColors() {
++    if (this.cycleColors.length === 0) {
++      return;
++    }
++    this.cycleColorsIndex %= this.cycleColors.length;
+     this.razerApp.deviceManager.activeRazerDevices.forEach(device => {
+       device.setModeStaticNoStore([
+         this.cycleColors[this.cycleColorsIndex].r,
+@@ -26,14 +30,20 @@
+     }
+   }
+ 
+-  start() {
+-    clearInterval(this.cycleColorsInterval);
+-    this.cycleColorsIndex = 0;
+-    this.setDevicesCycleColors(this.cycleColors);
++  start(resetIndex = true) {
++    this.stop();
++    if (resetIndex) {
++      this.cycleColorsIndex = 0;
++    }
++    if (this.cycleColors.length === 0) {
++      return;
++    }
++    this.setDevicesCycleColors();
+     this.cycleColorsInterval = setInterval(() => this.setDevicesCycleColors(), this.colorChangeMs);
+   }
+ 
+   stop() {
+     clearInterval(this.cycleColorsInterval);
++    this.cycleColorsInterval = null;
+   }
+ }
+\ No newline at end of file
+diff --git a/src/main/animation/animationripple.js b/src/main/animation/animationripple.js
+index 06f2b0eb246b19f602c5543154843178f73d22f2..6fb1281d2b7629ac495896ee42cbbcbbeb5f8ee4 100644
+--- a/src/main/animation/animationripple.js
++++ b/src/main/animation/animationripple.js
+@@ -1,5 +1,12 @@
+ import { RazerDeviceAnimation } from './animation';
+ 
++// One shared hook listener per process; stopped effects leave no event closures.
++const activeRippleListeners = new Map();
++let sharedHook = null;
++const dispatchKeydown = event => {
++  activeRippleListeners.forEach(listener => listener(event));
++};
++
+ export class RazerAnimationRipple extends RazerDeviceAnimation {
+ 
+ constructor(device, featureConfiguration, color, backgroundColor = [0, 0, 0]) {
+@@ -124,7 +131,7 @@
+   }
+ 
+   start() {
+-    this.ioHook.start();
++    this.stop();
+ 
+     const refreshRate = 0.05; // in seconds
+     const eventDuration = 1; // in seconds
+@@ -143,7 +150,7 @@
+     let keyEvents = [];
+ 
+     // keyboard listener
+-    this.ioHook.on('keydown', (event) => {
++    const listener = (event) => {
+       if (!(event.keycode in this.KEY_MAPPING)) return;
+       const rowIdx = this.KEY_MAPPING[event.keycode][0];
+       const colIdx = this.KEY_MAPPING[event.keycode][1];
+@@ -153,7 +160,15 @@
+         colIdx,
+         startTime: Date.now() / 1000,
+       });
+-    });
++    };
++    if (sharedHook === null) {
++      sharedHook = this.ioHook;
++      sharedHook.on('keydown', dispatchKeydown);
++    }
++    activeRippleListeners.set(this, listener);
++    if (activeRippleListeners.size === 1) {
++      this.ioHook.start();
++    }
+ 
+     this.rippleEffectInterval = setInterval(() => {
+       keyEvents = keyEvents.filter((event) => event.startTime + eventDuration > Date.now() / 1000);
+@@ -185,16 +200,20 @@
+         this.device.setCustomFrame(new Uint8Array(row));
+       }
+       this.device.setModeCustom();
+-    }, refreshRate);
++    }, refreshRate * 1000);
+   }
+ 
+   stop() {
+-    clearTimeout(this.rippleEffectInterval);
+-    this.ioHook.stop();
++    clearInterval(this.rippleEffectInterval);
++    this.rippleEffectInterval = null;
++    const wasActive = activeRippleListeners.delete(this);
++    if (wasActive && activeRippleListeners.size === 0) {
++      this.ioHook.stop();
++    }
+   }
+ 
+   destroy() {
++    // Refresh reuses the process-wide hook. Unloading it would break new effects.
+     this.stop();
+-    this.ioHook.unload();
+   }
+ }
+\ No newline at end of file
+diff --git a/src/main/animation/animationwheel.js b/src/main/animation/animationwheel.js
+index b8312bdf804e0d1eda8486593ad88fa7c3c37256..02397c192a854a56883dc42e870d8e3004337233 100644
+--- a/src/main/animation/animationwheel.js
++++ b/src/main/animation/animationwheel.js
+@@ -15,6 +15,7 @@
+   }
+ 
+   start() {
++    this.stop();
+     const refreshRate = 0.05; // in seconds
+ 
+     // initialization
+@@ -46,11 +47,12 @@
+         this.device.setCustomFrame(new Uint8Array(row))
+       }
+       this.device.setModeCustom();
+-    }, refreshRate);
++    }, refreshRate * 1000);
+   }
+ 
+   stop() {
+-    clearTimeout(this.wheelEffectInterval);
++    clearInterval(this.wheelEffectInterval);
++    this.wheelEffectInterval = null;
+   }
+ 
+   destroy() {
+diff --git a/src/main/application.js b/src/main/application.js
+index cab3e2a8c13621882187341909cc9d9d90a9f1df..049b06a400a573a7145facf6d38a7cfed9bce1c5 100644
+--- a/src/main/application.js
++++ b/src/main/application.js
+@@ -17,6 +17,7 @@
+     this.forceQuit = false;
+     this.tray = null;
+     this.browserWindow = null;
++    this.currentView = null;
+     this.app = app;
+     this.dialog = dialog;
+     this.APP_VERSION = version;
+@@ -24,7 +25,7 @@
+     this.initListeners();
+ 
+     // Init the main application
+-    this.razerApplication = new RazerApplication();
++    this.razerApplication = new RazerApplication(refreshing => this.updateDeviceViews(refreshing));
+   }
+ 
+   initListeners() {
+@@ -47,6 +48,8 @@
+       }
+       this.razerApplication.refresh(false).then(() => {
+         return this.razerApplication.stateManager.suspend();
++      }).then(() => this.updateDeviceViews(false)).catch(error => {
++        console.warn('Power-event device refresh failed:', error.message);
+       });
+     });
+     powerMonitor.on('resume', () => {
+@@ -55,6 +58,8 @@
+       }
+       this.razerApplication.refresh(false).then(() => {
+         return this.razerApplication.stateManager.resume();
++      }).then(() => this.updateDeviceViews(false)).catch(error => {
++        console.warn('Power-event device refresh failed:', error.message);
+       });
+     });
+     powerMonitor.on('on-ac', () => {
+@@ -63,6 +68,8 @@
+       }
+       this.razerApplication.refresh(false).then(() => {
+         return this.razerApplication.stateManager.onAc();
++      }).then(() => this.updateDeviceViews(false)).catch(error => {
++        console.warn('Power-event device refresh failed:', error.message);
+       });
+     });
+     powerMonitor.on('on-battery', () => {
+@@ -71,6 +78,8 @@
+       }
+       this.razerApplication.refresh(false).then(() => {
+         return this.razerApplication.stateManager.onBattery();
++      }).then(() => this.updateDeviceViews(false)).catch(error => {
++        console.warn('Power-event device refresh failed:', error.message);
+       });
+     });
+     powerMonitor.on('shutdown', () => {
+@@ -79,6 +88,8 @@
+       }
+       this.razerApplication.refresh(false).then(() => {
+         return this.razerApplication.stateManager.shutdown();
++      }).then(() => this.updateDeviceViews(false)).catch(error => {
++        console.warn('Power-event device refresh failed:', error.message);
+       });
+     });
+     powerMonitor.on('lock-screen', () => {
+@@ -87,6 +98,8 @@
+       }
+       this.razerApplication.refresh(false).then(() => {
+         return this.razerApplication.stateManager.lockScreen();
++      }).then(() => this.updateDeviceViews(false)).catch(error => {
++        console.warn('Power-event device refresh failed:', error.message);
+       });
+     });
+     powerMonitor.on('unlock-screen', () => {
+@@ -95,6 +108,8 @@
+       }
+       this.razerApplication.refresh(false).then(() => {
+         return this.razerApplication.stateManager.unlockScreen();
++      }).then(() => this.updateDeviceViews(false)).catch(error => {
++        console.warn('Power-event device refresh failed:', error.message);
+       });
+     });
+     powerMonitor.on('user-did-become-active', () => {
+@@ -103,6 +118,8 @@
+       }
+       this.razerApplication.refresh(false).then(() => {
+         return this.razerApplication.stateManager.userDidBecomeActive();
++      }).then(() => this.updateDeviceViews(false)).catch(error => {
++        console.warn('Power-event device refresh failed:', error.message);
+       });
+     });
+     powerMonitor.on('user-did-resign-active', () => {
+@@ -111,13 +128,18 @@
+       }
+       this.razerApplication.refresh(false).then(() => {
+         return this.razerApplication.stateManager.userDidResignActive();
++      }).then(() => this.updateDeviceViews(false)).catch(error => {
++        console.warn('Power-event device refresh failed:', error.message);
+       });
+     });
+ 
+     // mouse dpi rpc listener
+     ipcMain.on('request-set-dpi', (_, arg) => {
+       const { device, dpi } = arg;
+-      const currentDevice = this.razerApplication.deviceManager.getByInternalId(device.internalId);
++      const currentDevice = this.getCurrentDevice(device);
++      if (!currentDevice) {
++        return;
++      }
+       currentDevice.setDPI(dpi);
+       this.refreshTray();
+     });
+@@ -125,7 +147,10 @@
+     // keyboard brightness rpc listener
+     ipcMain.on('update-brightness', (_, arg) => {
+       const { device, brightness } = arg;
+-      const currentDevice = this.razerApplication.deviceManager.getByInternalId(device.internalId);
++      const currentDevice = this.getCurrentDevice(device);
++      if (!currentDevice) {
++        return;
++      }
+       currentDevice.setBrightness(brightness);
+       this.refreshTray();
+     });
+@@ -133,13 +158,19 @@
+     // custom color rpc listener
+     ipcMain.on('request-set-custom-color', (_, arg) => {
+       const { device } = arg;
+-      const currentDevice = this.razerApplication.deviceManager.getByInternalId(device.internalId);
++      const currentDevice = this.getCurrentDevice(device);
++      if (!currentDevice) {
++        return;
++      }
+       currentDevice.setSettings(device.settings);
+       this.refreshTray();
+     });
+ 
+     // custom cycle color rpc listener
+     ipcMain.on('request-cycle-color', (_, arg) => {
++      if (this.razerApplication.isRefreshing || this.razerApplication.destroyed) {
++        return;
++      }
+       const { index, color } = arg;
+       this.razerApplication.cycleAnimation.updateColor(index, color.rgb);
+       this.refreshTray();
+@@ -149,7 +180,10 @@
+     ['Matrix','Logo', 'Scroll', 'Left', 'Right'].forEach(brightnessMouseIdentifier => {
+       ipcMain.on('update-mouse-' + brightnessMouseIdentifier.toLowerCase() + '-brightness', (_, arg) => {
+         const { device, brightness } = arg;
+-        const currentDevice = this.razerApplication.deviceManager.getByInternalId(device.internalId);
++        const currentDevice = this.getCurrentDevice(device);
++        if (!currentDevice) {
++          return;
++        }
+         currentDevice['setBrightness' + brightnessMouseIdentifier](brightness);
+         this.refreshTray();
+       });
+@@ -158,58 +192,101 @@
+     // poll rate
+     ipcMain.on('update-mouse-pollrate', (_, arg) => {
+       const { device, pollRate } = arg;
+-      const currentDevice = this.razerApplication.deviceManager.getByInternalId(device.internalId);
++      const currentDevice = this.getCurrentDevice(device);
++      if (!currentDevice) {
++        return;
++      }
+       currentDevice.setPollRate(pollRate);
+     });
+ 
+     //state manager
+     ipcMain.on('state-settings-add', async (event, stateName) => {
++      if (this.razerApplication.isRefreshing || this.razerApplication.destroyed) {
++        event.returnValue = null;
++        return;
++      }
+       event.returnValue = await this.razerApplication.stateManager.addState(stateName);
+     });
+     ipcMain.on('state-settings-remove', (event, stateName) => {
++      if (this.razerApplication.isRefreshing || this.razerApplication.destroyed) {
++        return;
++      }
+       this.razerApplication.stateManager.removeState(stateName);
+     });
+     ipcMain.on('state-settings-activate', (event, stateName) => {
++      if (this.razerApplication.isRefreshing || this.razerApplication.destroyed) {
++        return;
++      }
+       this.razerApplication.stateManager.activateState(stateName);
+     });
+ 
+     ipcMain.on('state-settings-start', (event, stateValue) => {
++      if (this.razerApplication.isRefreshing || this.razerApplication.destroyed) {
++        return;
++      }
+       this.razerApplication.stateManager.stateOnStart = stateValue;
+       this.razerApplication.stateManager.save();
+     });
+     ipcMain.on('state-settings-suspend', (event, stateValue) => {
++      if (this.razerApplication.isRefreshing || this.razerApplication.destroyed) {
++        return;
++      }
+       this.razerApplication.stateManager.stateOnSuspend = stateValue;
+       this.razerApplication.stateManager.save();
+     });
+     ipcMain.on('state-settings-resume', (event, stateValue) => {
++      if (this.razerApplication.isRefreshing || this.razerApplication.destroyed) {
++        return;
++      }
+       this.razerApplication.stateManager.stateOnResume = stateValue;
+       this.razerApplication.stateManager.save();
+     });
+     ipcMain.on('state-settings-ac', (event, stateValue) => {
++      if (this.razerApplication.isRefreshing || this.razerApplication.destroyed) {
++        return;
++      }
+       this.razerApplication.stateManager.stateOnAc = stateValue;
+       this.razerApplication.stateManager.save();
+     });
+     ipcMain.on('state-settings-battery', (event, stateValue) => {
++      if (this.razerApplication.isRefreshing || this.razerApplication.destroyed) {
++        return;
++      }
+       this.razerApplication.stateManager.stateOnBattery = stateValue;
+       this.razerApplication.stateManager.save();
+     });
+     ipcMain.on('state-settings-shutdown', (event, stateValue) => {
++      if (this.razerApplication.isRefreshing || this.razerApplication.destroyed) {
++        return;
++      }
+       this.razerApplication.stateManager.stateOnShutdown = stateValue;
+       this.razerApplication.stateManager.save();
+     });
+     ipcMain.on('state-settings-lockscreen', (event, stateValue) => {
++      if (this.razerApplication.isRefreshing || this.razerApplication.destroyed) {
++        return;
++      }
+       this.razerApplication.stateManager.stateOnLockScreen = stateValue;
+       this.razerApplication.stateManager.save();
+     });
+     ipcMain.on('state-settings-unlockscreen', (event, stateValue) => {
++      if (this.razerApplication.isRefreshing || this.razerApplication.destroyed) {
++        return;
++      }
+       this.razerApplication.stateManager.stateOnUnlockScreen = stateValue;
+       this.razerApplication.stateManager.save();
+     });
+     ipcMain.on('state-settings-userdidbecomeactive', (event, stateValue) => {
++      if (this.razerApplication.isRefreshing || this.razerApplication.destroyed) {
++        return;
++      }
+       this.razerApplication.stateManager.stateOnUserDidBecomeActive = stateValue;
+       this.razerApplication.stateManager.save();
+     });
+     ipcMain.on('state-settings-userdidresignactive', (event, stateValue) => {
++      if (this.razerApplication.isRefreshing || this.razerApplication.destroyed) {
++        return;
++      }
+       this.razerApplication.stateManager.stateOnUserDidResignActive = stateValue;
+       this.razerApplication.stateManager.save();
+     });
+@@ -232,6 +309,9 @@
+       // Don't show the window until it's ready, this prevents any white flickering
+       show: false,
+     });
++    this.browserWindow.webContents.on('did-finish-load', () => {
++      this.updateDeviceViews(this.razerApplication.isRefreshing);
++    });
+     if (this.isDevelopment) {
+       this.browserWindow.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`);
+       this.browserWindow.resizable = true;
+@@ -292,6 +372,9 @@
+     this.tray = new Tray(path.join(__static, '/assets/iconTemplate.png'));
+     this.tray.setToolTip('Razer macOS menu');
+     this.tray.on('click', () => {
++      if (this.razerApplication.isRefreshing || this.razerApplication.destroyed) {
++        return;
++      }
+       if(this.razerApplication.deviceManager.activeRazerDevices != null) {
+         this.razerApplication.deviceManager.activeRazerDevices.forEach(device => {
+           if (device !== null) {
+@@ -305,14 +388,81 @@
+     this.refreshTray(true);
+   }
+ 
+-  refreshTray(withDeviceRefresh) {
++  refreshTray(withDeviceRefresh = false) {
+     const refresh = withDeviceRefresh ? this.razerApplication.refresh() : Promise.resolve(true);
+-    refresh.then(() => {
+-      const contextMenu = Menu.buildFromTemplate(getMenuFor(this));
+-      this.tray.setContextMenu(contextMenu);
++    return refresh.then(() => {
++      if (!this.tray || this.tray.isDestroyed() ||
++          this.razerApplication.isRefreshing || this.razerApplication.destroyed) {
++        return;
++      }
++      this.tray.setContextMenu(Menu.buildFromTemplate(getMenuFor(this)));
++    }).catch(error => {
++      console.warn('Device refresh failed:', error.message);
+     });
+   }
+ 
++  getCurrentDevice(serialized) {
++    if (!serialized || this.razerApplication.isRefreshing || this.razerApplication.destroyed ||
++        !Number.isInteger(serialized.generation)) {
++      return undefined;
++    }
++    const device = this.razerApplication.deviceManager.getByInternalId(
++      serialized.internalId, serialized.generation);
++    return device && device.productId === serialized.productId &&
++      device.mainType === serialized.mainType ? device : undefined;
++  }
++
++  updateDeviceViews(refreshing) {
++    refreshing = refreshing || this.razerApplication.isRefreshing;
++    if (this.razerApplication.destroyed) {
++      return;
++    }
++    if (refreshing && this.tray && !this.tray.isDestroyed()) {
++      this.tray.setContextMenu(Menu.buildFromTemplate([
++        { label: 'Refreshing devices…', enabled: false },
++        { type: 'separator' },
++        { label: 'Quit', accelerator: 'Command+Q', click: () => this.quit() },
++      ]));
++    } else if (!refreshing) {
++      this.refreshTray();
++    }
++    if (!this.browserWindow || this.browserWindow.isDestroyed() ||
++        this.browserWindow.webContents.isDestroyed()) {
++      return;
++    }
++    if (refreshing) {
++      this.browserWindow.webContents.send('device-refreshing', true);
++      return;
++    }
++
++    let view = this.currentView;
++    if (view && view.mode === 'device') {
++      const devices = this.razerApplication.deviceManager.activeRazerDevices.filter(device =>
++        device.productId === view.device.productId && device.mainType === view.device.mainType);
++      if (devices.length === 1) {
++        view = { ...view, device: devices[0].serialize() };
++        this.currentView = view;
++      } else {
++        view = {
++          mode: 'device-unavailable',
++          message: devices.length === 0
++            ? 'Device disconnected. Reconnect it to restore its controls.'
++            : 'More than one matching device is connected. Select a device from the menu.',
++        };
++      }
++    } else if (view && view.mode === 'state') {
++      view = { ...view, state: this.razerApplication.stateManager.serialize() };
++      this.currentView = view;
++    } else if (view && view.mode === 'color') {
++      const color = this.razerApplication.cycleAnimation.getColor(view.index);
++      view = color ? { ...view, color } : { mode: 'device-unavailable', message: 'This color was removed.' };
++    }
++    if (view) {
++      this.browserWindow.webContents.send('render-view', view);
++    }
++    this.browserWindow.webContents.send('device-refreshing', false);
++  }
++
+   showConfirm(message) {
+     this.app.focus();
+     return this.dialog.showMessageBox({
+@@ -321,6 +471,7 @@
+   }
+ 
+   showView(args) {
++    this.currentView = args;
+     this.browserWindow.webContents.send('render-view', args);
+     this.browserWindow.show();
+   }
+diff --git a/src/main/menu/menubuilder.js b/src/main/menu/menubuilder.js
+index ea1e4343661cd4edfda108ba92c1a86498c668b4..2cfaca879bad108edcea68c1cf9d9790862a7b68 100644
+--- a/src/main/menu/menubuilder.js
++++ b/src/main/menu/menubuilder.js
+@@ -14,7 +14,12 @@
+   deviceMenu.forEach(menuItem => {
+     if (menuItem.hasOwnProperty('click')) {
+       const originalClick = menuItem['click'];
++      const generation = application.razerApplication.deviceManager.generation;
+       menuItem['click'] = (ev) => {
++        if (application.razerApplication.isRefreshing || application.razerApplication.destroyed ||
++            generation !== application.razerApplication.deviceManager.generation) {
++          return;
++        }
+         application.razerApplication.stopAnimations();
+         originalClick(ev);
+       };
+diff --git a/src/main/statemanager.js b/src/main/statemanager.js
+index d683801e4a6676400b79222f19d77737c20625fc..cc19346a96c72ca008e2f235257998e52f98680e 100644
+--- a/src/main/statemanager.js
++++ b/src/main/statemanager.js
+@@ -184,6 +184,9 @@
+       case 'breathe':
+         device.setBreathe(state.args);
+         break;
++      case 'ledEffect':
++        device.setLogoLEDEffect(state.args);
++        break;
+       case 'waveSimple':
+         device.setWaveSimple(state.args);
+         break;
+diff --git a/src/renderer/App.jsx b/src/renderer/App.jsx
+index e7ff0990bceb1e9e78d23dc5b083333431265c8b..5d37001fa2f9aa066c38d862e3f9dbd3b879975d 100644
+--- a/src/renderer/App.jsx
++++ b/src/renderer/App.jsx
+@@ -1,4 +1,4 @@
+-import React, { useState, useEffect } from 'react';
++import React from 'react';
+ import './react-tabs.css';
+ import { ipcRenderer } from 'electron';
+ import { ViewDeviceSettings } from './views/viewdevicesettings';
+@@ -11,29 +11,44 @@
+ export class App extends React.Component {
+   constructor(props) {
+     super(props);
+-
+-    this.state = {
+-      mode: 'device',
+-      message: null
++    this.state = { mode: null, message: null, refreshing: false, revision: 0 };
++    this.renderView = (event, message) => {
++      this.setState(previous => ({
++        mode: message.mode,
++        message,
++        revision: previous.revision + 1,
++      }));
+     };
++    this.refreshDevices = (event, refreshing) => this.setState({ refreshing });
++  }
+ 
+-    ipcRenderer.on('render-view', (event, message) => {
+-      const {mode} = message;
+-      this.setState({mode: null, message: null});
+-      this.setState({mode: mode, message: message});
+-    })
++  componentDidMount() {
++    ipcRenderer.on('render-view', this.renderView);
++    ipcRenderer.on('device-refreshing', this.refreshDevices);
+   }
+ 
++  componentWillUnmount() {
++    ipcRenderer.removeListener('render-view', this.renderView);
++    ipcRenderer.removeListener('device-refreshing', this.refreshDevices);
++  }
++
+   render() {
+-    if(this.state.mode === 'device') {
+-      return <ViewDeviceSettings config={this.state.message}></ViewDeviceSettings>;
+-    } else if(this.state.mode == 'color') {
+-      return <ViewColorSettings config={this.state.message}></ViewColorSettings>;
+-    } else if(this.state.mode == 'state') {
+-      return <ViewStateSettings config={this.state.message}></ViewStateSettings>;
++    const { mode, message, refreshing, revision } = this.state;
++    if (refreshing) {
++      return <div role="status">Refreshing devices…</div>;
+     }
+-    return <div></div>;
++    if (mode === 'device-unavailable') {
++      return <div role="status">{message.message}</div>;
++    }
++    if (mode === 'device') {
++      return <ViewDeviceSettings key={revision} config={message} />;
++    }
++    if (mode === 'color') {
++      return <ViewColorSettings key={revision} config={message} />;
++    }
++    if (mode === 'state') {
++      return <ViewStateSettings key={revision} config={message} />;
++    }
++    return <div />;
+   }
+-
+-
+ }
+diff --git a/src/renderer/views/viewstatesettings.jsx b/src/renderer/views/viewstatesettings.jsx
+index d3715a76226d3d1372b936003f4d7f3d32206e05..c577fa0b643bc1eb81443484d7aca082b49f100e 100644
+--- a/src/renderer/views/viewstatesettings.jsx
++++ b/src/renderer/views/viewstatesettings.jsx
+@@ -74,6 +74,10 @@
+     this.setState({ isLoading: true });
+ 
+     const additionalState = ipcRenderer.sendSync('state-settings-add', itemName);
++    if (!additionalState) {
++      this.setState({ isLoading: false });
++      return;
++    }
+     this.stateManager.savedStates.push(additionalState);
+ 
+     const devicesWithUndefinedState = additionalState.states.filter(stateObj => !stateObj.state.mode).map(stateObj => {
+@@ -107,6 +111,11 @@
+     }
+     return stateToRender.states.map(stateObj => {
+       const device = this.stateManager.devices.find(device => device.productId == stateObj.deviceId);
++      if (!device) {
++        return <div key={stateObj.deviceId} className='state-device'>
++          Device {stateObj.deviceId} is disconnected.
++        </div>;
++      }
+       return this.getDeviceStateFor(device, stateObj.state);
+     });
+   }
+@@ -258,7 +267,7 @@
+           </div>
+           <div className={'state-selectors'}>
+ 
+-            <p>This state will be activated whenever Razer macOS starts or refreshes its devices.</p>
++            <p>This state is activated when Razer macOS starts or you refresh the device list manually. Automatic reconnect restores the last active lighting.</p>
+             <div className={'state-selector'}>
+               <div>On application start</div>
+               <div><Select value={this.state.selectionStart} options={this.state.optionsWithNull} onChange={(item) => this.selectionChangeStart(item)} styles={customStyles} /></div>
+diff --git a/src/driver/addon.cc b/src/driver/addon.cc
+index 62f70e23cfa761fd4a419b643bcf5bfbdb4385e8..8a5bcd2967461b2e62493bd8a6939e17781093eb 100644
+--- a/src/driver/addon.cc
++++ b/src/driver/addon.cc
+@@ -1,6 +1,13 @@
+ #include <napi.h>
+ #include <iostream>
+ #include <iomanip>
++#include <algorithm>
++#include <cstdint>
++#include <string>
++#include <vector>
++#include <CoreFoundation/CoreFoundation.h>
++#include <IOKit/IOKitLib.h>
++#include <IOKit/usb/USBSpec.h>
+ 
+ extern "C"
+ {
+@@ -873,7 +880,126 @@
+     return Napi::Number::New(env, brightness);
+ }
+ 
++namespace {
++class TopologyIOObject {
++public:
++    explicit TopologyIOObject(io_object_t value) : value_(value) {}
++    ~TopologyIOObject() {
++        if (value_ != IO_OBJECT_NULL) {
++            IOObjectRelease(value_);
++        }
++    }
++    TopologyIOObject(const TopologyIOObject &) = delete;
++    TopologyIOObject &operator=(const TopologyIOObject &) = delete;
++
++private:
++    io_object_t value_;
++};
++
++struct DeviceTopologyEntry {
++    uint64_t registryId;
++    int32_t productId;
++};
++
++Napi::Value TopologyError(Napi::Env env, const std::string &message) {
++    Napi::Error::New(env, message).ThrowAsJavaScriptException();
++    return env.Undefined();
++}
++} // namespace
++
+ /**
++ * Observe Razer USB registry entries without opening devices or replacing the
++ * live handle table. The caller may filter productId against its configurations.
++ * A failed or invalidated observation throws instead of reporting an empty set.
++ */
++Napi::Value GetDeviceTopology(const Napi::CallbackInfo &info) {
++    Napi::Env env = info.Env();
++    CFMutableDictionaryRef matching = IOServiceMatching(kIOUSBDeviceClassName);
++    if (matching == nullptr) {
++        return TopologyError(env, "Unable to create USB topology matching dictionary");
++    }
++
++    int32_t vendorId = USB_VENDOR_ID_RAZER;
++    CFNumberRef vendor = CFNumberCreate(
++            kCFAllocatorDefault, kCFNumberSInt32Type, &vendorId);
++    if (vendor == nullptr) {
++        CFRelease(matching);
++        return TopologyError(env, "Unable to create Razer vendor match");
++    }
++    CFDictionarySetValue(matching, CFSTR(kUSBVendorID), vendor);
++    CFRelease(vendor);
++
++    io_iterator_t iterator = IO_OBJECT_NULL;
++    // IOServiceGetMatchingServices consumes matching on success and failure.
++    kern_return_t result = IOServiceGetMatchingServices(
++            MACH_PORT_NULL, matching, &iterator);
++    TopologyIOObject iteratorOwner(iterator);
++    if (result != kIOReturnSuccess || iterator == IO_OBJECT_NULL) {
++        return TopologyError(env, "Unable to enumerate USB topology: " +
++                std::to_string(result));
++    }
++
++    std::vector<DeviceTopologyEntry> entries;
++    while (io_service_t service = IOIteratorNext(iterator)) {
++        TopologyIOObject serviceOwner(service);
++        CFMutableDictionaryRef properties = nullptr;
++        result = IORegistryEntryCreateCFProperties(
++                service, &properties, kCFAllocatorDefault, 0);
++        if (result != kIOReturnSuccess || properties == nullptr) {
++            if (properties != nullptr) {
++                CFRelease(properties);
++            }
++            return TopologyError(env, "Unable to read USB topology properties: " +
++                    std::to_string(result));
++        }
++
++        CFTypeRef product = CFDictionaryGetValue(properties, CFSTR(kUSBProductID));
++        int32_t productId = 0;
++        bool validProduct = product != nullptr &&
++                CFGetTypeID(product) == CFNumberGetTypeID() &&
++                !CFNumberIsFloatType(static_cast<CFNumberRef>(product)) &&
++                CFNumberGetValue(static_cast<CFNumberRef>(product),
++                        kCFNumberSInt32Type, &productId) &&
++                productId >= 0 && productId <= 0xffff;
++        CFRelease(properties);
++        if (!validProduct) {
++            return TopologyError(env, "USB topology contains an invalid product ID");
++        }
++
++        uint64_t registryId = 0;
++        result = IORegistryEntryGetRegistryEntryID(service, &registryId);
++        if (result != kIOReturnSuccess) {
++            return TopologyError(env, "Unable to read USB registry identity: " +
++                    std::to_string(result));
++        }
++        entries.push_back({registryId, productId});
++    }
++
++    if (!IOIteratorIsValid(iterator)) {
++        return TopologyError(env, "USB topology changed during enumeration");
++    }
++
++    std::sort(entries.begin(), entries.end(),
++            [](const DeviceTopologyEntry &left, const DeviceTopologyEntry &right) {
++                if (left.registryId != right.registryId) {
++                    return left.registryId < right.registryId;
++                }
++                return left.productId < right.productId;
++            });
++
++    Napi::Array topology = Napi::Array::New(env, entries.size());
++    for (size_t index = 0; index < entries.size(); ++index) {
++        Napi::Object entry = Napi::Object::New(env);
++        // Registry IDs are uint64_t and must not pass through a JS Number.
++        entry.Set("registryId", Napi::String::New(
++                env, std::to_string(entries[index].registryId)));
++        entry.Set("productId", Napi::Number::New(env, entries[index].productId));
++        topology[index] = entry;
++    }
++    return topology;
++}
++
++/**
+ * Get all razer devices
+ */
+ Napi::Array GetAllDevices(const Napi::CallbackInfo &info) {
+@@ -893,7 +1019,11 @@
+ }
+ 
+ void CloseAllDevices(const Napi::CallbackInfo &info) {
+-    closeAllRazerDevices(devices);
++    if (devices.devices != nullptr) {
++        closeAllRazerDevices(devices);
++    }
++    // The library accepts RazerDevices by value; clear the addon's owning copy.
++    devices = {nullptr, 0};
+ }
+ 
+ Napi::Object Init(Napi::Env env, Napi::Object exports) {
+@@ -983,6 +1113,7 @@
+     exports.Set("accessorySetBrightness", Napi::Function::New(env, AccessorySetBrightness));
+ 
+     // All devices
++    exports.Set("getDeviceTopology", Napi::Function::New(env, GetDeviceTopology));
+     exports.Set("getAllDevices", Napi::Function::New(env, GetAllDevices));
+     exports.Set("closeAllDevices", Napi::Function::New(env, CloseAllDevices));
+ 
