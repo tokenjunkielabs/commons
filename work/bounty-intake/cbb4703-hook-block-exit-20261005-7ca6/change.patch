@@ -1,0 +1,12 @@
+diff --git a/pre-tool-use.py b/pre-tool-use.py
+--- a/pre-tool-use.py
++++ b/pre-tool-use.py
+@@ -137,7 +137,7 @@
+             f"  Logged to:    ~/.claude/hooks/blocked.log\n\n"
+             f"Action Required: If this operation is intentional, please execute it manually outside Claude Code.\n\n"
+         )
+-        sys.exit(1)
++        sys.exit(2)
+ 
+     sys.exit(0)
+ 
