@@ -1,0 +1,25 @@
+diff --git a/app/review-transaction.tsx b/app/review-transaction.tsx
+--- a/app/review-transaction.tsx
++++ b/app/review-transaction.tsx
+@@ -15,6 +15,7 @@
+ import { resolveAddressLabel } from '../src/utils/contacts';
+ import { WALLET_SECRET_ACCESS_MESSAGE } from '../src/utils/walletStorageErrors';
+ import { useAppStore } from '../src/store/appStore';
++import { useContactStore } from '../src/features/contacts/contactStore';
+ import {
+   ArrowRight,
+   Smartphone,
+@@ -118,6 +119,13 @@
+   // Handle success - navigate away
+   useEffect(() => {
+     if (phase === 'completed' && store.lastResult) {
++      try {
++        useContactStore.getState().addRecentRecipient(
++          store.lastResult.review.destinationPublicKey,
++        );
++      } catch {
++        // An optional shortcut must not interrupt the completed payment flow.
++      }
+       refreshWalletData();
+       const timer = setTimeout(() => {
+         store.reset();
