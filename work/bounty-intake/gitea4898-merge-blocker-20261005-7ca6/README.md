@@ -42,6 +42,8 @@ The existing contributor-side #2 template follow-up below is based on #36862, no
 
 [The nested delete-control click continuation](../gitea39280-delete-target-20261005-7ca6/README.md) supplies one listener hunk over the exact PR #39280 head. It reuses the existing delegated-event helper so SVG/path targets resolve their enclosing delete control. Confirmation, request/ID handling and server authorization remain unchanged. This is source-inspected and unexecuted; it does not resolve either carrier's base conflicts, rename-coordinate behavior or maintainer acceptance.
 
+[The old-side rename-path continuation](../gitea39280-rename-side-20261005-7ca6/README.md) separately derives the parent filename from existing server-side rename metadata while keeping the displayed new filename as the stored comment key. It uses the existing parent-context generator for confirmed renames. It is source-inspected and unexecuted, and does not change request validation, permissions or the separate deletion fix.
+
 ## Changed-file surface on the retained PR
 
 ```text
