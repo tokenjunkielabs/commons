@@ -1,113 +1,50 @@
-"""Capability boundary for Creator Desk operator-only HTTP surfaces.
+"""Compatibility names for Creator Desk's retired operator-key interface.
 
-The plaintext operator key is never stored in SQLite or emitted by the server.
-Initialize or rotate it explicitly with this module's local CLI. The workspace
-keeps only a SHA-256 digest; there is no remote reset route.
+Creator Desk is a shared workspace. These legacy entry points perform no
+credential checks, create no keys, and do not read or alter a workspace database.
+The application and multisite runtime no longer depend on this module.
 """
 from __future__ import annotations
 
 import argparse
-import hashlib
-import hmac
-import secrets
-import sqlite3
-from contextlib import closing
+import json
 from pathlib import Path
-
-KEY_BYTES = 32
-MAX_KEY_CHARS = 256
-AUTH_SCHEME = "Bearer "
 
 
 class OperatorSetupRequired(RuntimeError):
-    pass
-
-
-def _digest(value: str) -> str:
-    return hashlib.sha256(value.encode("utf-8", errors="surrogatepass")).hexdigest()
+    """Legacy exception name retained for imports; no setup is required."""
 
 
 class OperatorAuth:
-    """Verify one per-workspace operator capability without retaining plaintext."""
+    """Compatibility object with no access decision or database side effects."""
 
     def __init__(self, database: str | Path):
         self.database = str(database)
-        Path(self.database).parent.mkdir(parents=True, exist_ok=True)
-        with closing(self._connect()) as db, db:
-            db.execute("""CREATE TABLE IF NOT EXISTS creator_security(
-                name TEXT PRIMARY KEY,
-                value TEXT NOT NULL
-            )""")
-            row = db.execute("SELECT value FROM creator_security WHERE name='operator_sha256'").fetchone()
-        if row is None:
-            raise OperatorSetupRequired(
-                "Operator capability is not initialized. Run operator_auth.py --db <workspace> init before serving it."
-            )
 
     @classmethod
     def initialize(cls, database: str | Path) -> str:
-        """Create the capability once and return plaintext only to this caller."""
-        database = str(database)
-        Path(database).parent.mkdir(parents=True, exist_ok=True)
-        key = secrets.token_urlsafe(KEY_BYTES)
-        with closing(sqlite3.connect(database, timeout=15)) as db, db:
-            db.execute("BEGIN IMMEDIATE")
-            db.execute("""CREATE TABLE IF NOT EXISTS creator_security(
-                name TEXT PRIMARY KEY,
-                value TEXT NOT NULL
-            )""")
-            row = db.execute("SELECT value FROM creator_security WHERE name='operator_sha256'").fetchone()
-            if row is not None:
-                raise RuntimeError("Creator Desk operator capability is already initialized; use rotate to replace it")
-            db.execute("INSERT INTO creator_security(name,value) VALUES('operator_sha256',?)", (_digest(key),))
-            db.commit()
-        return key
-
-    def _connect(self):
-        return sqlite3.connect(self.database, timeout=15)
-
-    def _expected(self) -> str:
-        with closing(self._connect()) as db:
-            row = db.execute("SELECT value FROM creator_security WHERE name='operator_sha256'").fetchone()
-        if row is None:
-            raise OperatorSetupRequired("Creator Desk operator capability is not initialized")
-        return row[0]
+        """Retain the old return type without creating a credential."""
+        return ""
 
     def verify(self, candidate) -> bool:
-        value = candidate if isinstance(candidate, str) else ""
-        if len(value) > MAX_KEY_CHARS:
-            value = ""
-        return hmac.compare_digest(self._expected(), _digest(value))
+        return True
 
     def verify_header(self, authorization) -> bool:
-        value = authorization if isinstance(authorization, str) else ""
-        if not value.startswith(AUTH_SCHEME):
-            return False
-        return self.verify(value[len(AUTH_SCHEME):])
+        return True
 
     def rotate(self) -> str:
-        """Invalidate the prior key and return one replacement to this caller."""
-        key = secrets.token_urlsafe(KEY_BYTES)
-        with closing(self._connect()) as db, db:
-            db.execute("BEGIN IMMEDIATE")
-            cursor = db.execute("UPDATE creator_security SET value=? WHERE name='operator_sha256'", (_digest(key),))
-            if cursor.rowcount != 1:
-                raise OperatorSetupRequired("Creator Desk operator capability is not initialized")
-            db.commit()
-        return key
+        """Retain the old return type without rotating or reading credentials."""
+        return ""
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--db", required=True, help="Creator Desk SQLite workspace")
+    parser.add_argument("--db", required=True, help="Legacy workspace argument; no database is opened")
     sub = parser.add_subparsers(dest="command", required=True)
-    sub.add_parser("init", help="Initialize auth and print the one-time operator key")
-    sub.add_parser("rotate", help="Invalidate the old operator key and print one replacement")
-    args = parser.parse_args()
-    if args.command == "init":
-        print(OperatorAuth.initialize(args.db))
-    else:
-        print(OperatorAuth(args.db).rotate())
+    sub.add_parser("init", help="Report the shared-workspace mode; no setup is performed")
+    sub.add_parser("rotate", help="Report the shared-workspace mode; no rotation is performed")
+    parser.parse_args()
+    print(json.dumps({"shared_workspace": True, "operator_setup_required": False}, sort_keys=True))
 
 
 if __name__ == "__main__":
