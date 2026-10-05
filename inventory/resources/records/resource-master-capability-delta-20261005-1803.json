@@ -2,14 +2,14 @@
   "schema": "commons-resource-activation-receipt/v2",
   "id": "resource-master-capability-delta-20261005-1803",
   "operation_id": "RESOURCE-MASTER-CAPABILITY-DELTA-20261005-1803",
-  "observed_at": "2026-10-05T22:24:02Z",
+  "observed_at": "2026-10-05T22:39:02Z",
   "title": "Revenue-source, finite-research and announced runtime-capacity activation",
   "consumer": "Commons resource graph, existing paid-work owners and GPT-unique coordination consumers",
   "outcome": {
-    "resource_count": 412,
-    "producing_count": 231,
+    "resource_count": 414,
+    "producing_count": 232,
     "evidence_record_count": 126,
-    "new_resource_count": 38,
+    "new_resource_count": 40,
     "advanced_existing_count": 2,
     "new_build_orders": 0
   },
@@ -17,12 +17,12 @@
     "prior_terminal_ts": "1791228796.793789",
     "claim_ts": "1791238167.675429",
     "prior_main_sha": "e6b689697c8d52ea7d0ca2471871a7b45dbff0f8",
-    "observed_main_sha": "74cefdf02b03f3d23dcfd3dbfd19a55336460a4b",
-    "reachable_commit_count": 90,
-    "first_parent_commit_count": 62,
-    "material_changed_path_count": 358,
-    "merged_pr_range": "31701-31747 except open claimed PR31709",
-    "branch_inventory_count": 5504,
+    "observed_main_sha": "07662575018ecd10f1fbb14a99a593e20567171c",
+    "reachable_commit_count": 94,
+    "first_parent_commit_count": 65,
+    "material_changed_path_count": 368,
+    "merged_pr_range": "31701-31750 except open claimed PR31709",
+    "branch_inventory_count": 5505,
     "branch_pages": 56,
     "slack_upper_bound": "1791238167.675429",
     "required_channels": "#commons,#delegations,#todo,#shipped-builds,#products,#leads,#sales"
@@ -45,7 +45,8 @@
       31740,
       31743,
       31744,
-      31747
+      31747,
+      31750
     ],
     "revenue_and_source_prs": [
       31701,
@@ -68,7 +69,8 @@
       31741,
       31742,
       31745,
-      31746
+      31746,
+      31749
     ],
     "connected_capability_prs": [
       31705,
@@ -114,14 +116,18 @@
       "prs": [
         31745,
         31746,
-        31747
+        31747,
+        31749,
+        31750
       ],
       "resources": [
         "erdos264-factorial-shift-prefix-index",
         "payd661-dropdown-navigation-source-packet",
-        "pocketpay544-asset-format-source-packet"
+        "pocketpay544-asset-format-source-packet",
+        "pocketpay544-network-banner-variant-source-packet",
+        "erdos44-sidon-extension-refinement-index"
       ],
-      "workflow_boundary": "PR31745 and PR31746 heads had all three displayed checks green; PR31747 had path-manifest and muhlnickel success plus open-door failure. The failure remains exact and was not reclassified green merely because the PR merged."
+      "workflow_boundary": "PR31745 and PR31746 heads had all three displayed checks green; PR31747 had path-manifest and muhlnickel success plus open-door failure. The failure remains exact and was not reclassified green merely because the PR merged. PR31749 merged as a source-only continuation before terminal publication; it is not runtime, upstream acceptance or payment evidence."
     }
   },
   "revenue": {
@@ -143,7 +149,7 @@
       "host/resources_tab.py --self-test",
       "host/resources_tab.py --regenerate then --check",
       "JSON parsing for ledger and receipt",
-      "412-resource / 231-producing / 126-record-source structure assertions",
+      "414-resource / 232-producing / 126-record-source structure assertions",
       "open_door_guard.py against the exact four-path diff",
       "git diff --check",
       "zero-fabrication, secret and privacy boundary scans"
