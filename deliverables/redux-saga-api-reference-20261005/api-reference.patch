@@ -1,0 +1,202 @@
+diff --git a/docs/api-reference.md b/docs/api-reference.md
+--- a/docs/api-reference.md
++++ b/docs/api-reference.md
+@@ -1,7 +1,7 @@
+ # API Reference
+ 
+-This page documents the complete public API of `redux-saga-test-plan`. The
+-package exports three things from its entry point:
++This page describes the public builders, matchers, and providers of
++`redux-saga-test-plan`. The package has four named exports at its entry point:
+ 
+ ```js
+ import { expectSaga, testSaga, matchers, providers } from 'redux-saga-test-plan';
+@@ -25,7 +25,6 @@
+ * [testSaga](#testsaga)
+   * [Stepping through the saga](#stepping-through-the-saga)
+   * [Effect assertions](#testsaga-effect-assertions)
+-  * [Time travel](#time-travel)
+ * [matchers](#matchers)
+ * [providers](#providers)
+ 
+@@ -56,46 +55,48 @@
+ 
+ | method | description |
+ | ------ | ----------- |
+-| `withState(state)` | Replace the reducer with a default reducer seeded with `state`. Equivalent to asserting a single final state. |
++| `withState(state)` | Set the current store state used by `select`. This does not replace a configured reducer or assert the final state. |
+ | `withReducer(reducer, initialState?)` | Run the saga against a real reducer, optionally with an initial state. |
+ | `provide(staticProviders)` | Provide matches for effects so they resolve to static values instead of running. Accepts an array of `[matcher, value]` tuples. |
+-| `provide(dynamicProviders)` | Same, but with a function `(callEffect, effects) => value` for dynamic behavior. |
++| `provide(dynamicProviders)` | Provide an object of effect handlers, such as `{ call(effect, next) { ... } }`. Return a value to handle an effect, or return `next()` to delegate it. |
+ | `dispatch(action)` | Dispatch raw actions into the saga's store. Matches `take` effects by pattern. |
+ | `not` | A getter that flips the next effect assertion into a negation, e.g. `.not.call(fn)`. |
+ | `returns(value)` | Assert the saga's final return value. |
+-| `throws(error)` | Assert the saga throws the given `error`. |
++| `throws(errorOrConstructor)` | Assert the top-level saga throws an equal error object or an instance of the given error constructor. |
+ | `hasFinalState(expectedState)` | Assert the final state of the store equals `expectedState`. |
+-| `delay(ms)` | Aliases `call(delay, ms)`; assert the saga delays. |
+-| `run(timeout?)` | Start the saga and resolve (or reject) with a [result](#the-result) `Promise`. `timeout` defaults to 250ms. |
+-| `silentRun(timeout?)` | Like `run`, but rejects with a plain, less noisy error on assertion failure. |
++| `delay(ms)` | Delay the next `.dispatch(action)` by `ms`. This is dispatch configuration, not an assertion on a yielded delay effect. |
++| `run(timeoutOrConfig?)` | Start the saga and return a `Promise` for the [result](#the-result). Accept a timeout in milliseconds, `false` to disable it, or `{ timeout, silenceTimeout }`. The default is `expectSaga.DEFAULT_TIMEOUT` (250ms). |
++| `silentRun(timeout?)` | Like `run`, with timeout warnings suppressed. Assertion failures still reject the returned `Promise`. |
+ 
+ ### Effect assertions
+ 
+-These assertion methods are chainable and settle as the saga runs. Each one
+-accepts the same arguments as the corresponding effect creator.
++These methods register expectations checked when the run finishes or is
++cancelled at its timeout. Each accepts the same arguments as its corresponding
++effect creator.
+ 
+ `put`, `putResolve`, `call`, `apply`, `cps`, `fork`, `spawn`, `select`,
+ `take`, `takeMaybe`, `actionChannel`, `race`, `getContext`, `setContext`
+ 
+-Because effects use argument identity (a bare `call(fn)` only matches
+-`call(fn)` at the same position), there are also fuzzy sub-match helpers below.
++Exact effect assertions use deep equality and do not require effects to occur
++in the order of the assertions. Each positive assertion consumes one matching
++effect from its effect store. Use partial matching to specify only selected
++fields of an effect descriptor.
+ 
+ ### Sub-match helpers
+ 
+-Each effect assertion exposes a `like` variant that does partial matching:
++The following effect assertions expose helpers for partial matching:
+ 
+ | helper | matches by |
+ | ------ | ---------- |
+ | `call.like({ fn, args })` | a `call` to `fn` (and optionally `args`) |
+ | `call.fn(fn)` | a `call` to `fn`, any args |
+-| `apply.fn(fn)` | an `apply` with bound `fn` |
++| `apply.fn(fn)` | an `apply` with function `fn`, regardless of context or args |
+ | `cps.fn(fn)` | a `cps` call to `fn` |
+ | `fork.fn(fn)` | a `fork` of `fn` |
+ | `spawn.fn(fn)` | a `spawn` of `fn` |
+ | `put.like({ action })` / `put.actionType(type)` | a `put` of any action with `type` (`putResolve` too) |
+ | `select.like({ selector })` / `select.selector(fn)` | a `select` with the given selector |
+-| `actionChannel.pattern(pattern)` | an `actionChannel` for `pattern` |
+-| `take.like({ pattern })` / `take.pattern(pattern)` | a `take` for `pattern` (`takeMaybe` too) |
++| `actionChannel.like({ pattern })` / `actionChannel.pattern(pattern)` | an `actionChannel` for `pattern` |
+ 
+ ### The result
+ 
+@@ -103,14 +104,15 @@
+ 
+ | key | description |
+ | --- | ----------- |
+-| `effects` | An object of `{ name: [...effects] }` for every effect the saga yielded, running a default reducer. |
++| `effects` | Remaining captured effects grouped by supported effect type, after effect assertions consume matches; empty groups are omitted. |
+ | `storeState` | The final state of the store (from the result object's `storeState` property). |
+ | `returnValue` | The saga's return value. |
+-| `invokeError` | An error thrown during long-running saga invocation, if any. |
+-| `warnings` | Array of warnings, e.g. for unhandled `take` effects that never got an action. |
++| `allEffects` | Captured effects in encounter order, without removing asserted matches. Only effect types tracked by `expectSaga` are captured. |
++| `toJSON()` | Return a JSON-friendly representation of the grouped `effects`. |
+ 
+-It also exposes `.toPromise()`. Note: `expectSaga` assertions only pass the
+-exact effects that are declared; unlisted effects are not asserted.
++`run()` itself returns the `Promise`; the result object has no `toPromise()`,
++`invokeError`, or `warnings` property. Effects that have no corresponding
++assertion are allowed.
+ 
+ ## testSaga
+ 
+@@ -131,18 +133,19 @@
+ 
+ | method | description |
+ | ------ | ----------- |
+-| `next(...args)` | Advance the generator one step; arguments become the yielded value from `redux-saga`. Returns the assertion chain. |
+-| `finish()` | Advance the generator until it returns, verifying it completes. |
++| `next(value?)` | Call `iterator.next(value)` once and expose assertions for the resulting value and completion state. |
++| `finish(value?)` | Call `iterator.return(value)` once and expose assertions for that result. A `finally` block can still yield; use `isDone()` to assert completion. |
+ | `restart(...sagaArgs?)` | Restart the saga from the top, optionally with new arguments. |
+ | `throw(error)` | Throw `error` into the generator (as if a yielded promise rejected). |
+-| `back(label?)` | Move history back (optionally to a saved point). |
++| `back(n = 1)` | Remove `n` recorded steps, recreate the generator, and replay the remaining history. Use `restore(label)` for a named save point. |
+ | `save(label)` | Save the current position under `label`. |
+ | `restore(label)` | Restore to the position saved under `label`. |
+ 
+ ### testSaga effect assertions
+ 
+-Available after `.next(...)`, accepting the same arguments as the effect
+-creators (strict equality):
++Available after `.next(...)`, `.throw(...)`, or `.finish(...)`, accepting the
++same arguments as the effect creators and comparing effect descriptors by deep
++equality:
+ 
+ `apply`, `call`, `cps`, `delay`, `fork`, `spawn`, `cancel`, `cancelled`,
+ `put`, `putResolve`, `race`, `select`, `take`, `takeMaybe`, `actionChannel`,
+@@ -156,16 +159,21 @@
+ | method | description |
+ | ------ | ----------- |
+ | `isDone()` | Assert the saga has finished (no more steps). |
+-| `is(value)` | Assert the saga's final return value is `value`. |
+-| `returns(value, done?)` | Assert the saga returns `value` (optionally waiting extra turns). |
+-| `inspect()` | Inspect the current yielded value and position. |
++| `is(value)` | Assert the current iterator result's value deeply equals `value`, without asserting completion. |
++| `returns(value)` | Assert the current iterator result is done and its value deeply equals `value`. This does not advance the generator. |
++| `inspect(fn)` | Call `fn` with the current iterator result's value for a custom assertion. |
+ 
+ ## matchers
+ 
+-`matchers` mirrors every effect creator but generates *partial* matchers used
+-with `provide()`. Each matcher also exposes type-specific helpers like
+-`fn`, `like`, `actionType`, `pattern`, `selector`.
++Calling a base matcher delegates to the corresponding Redux Saga effect
++creator, producing an exact effect descriptor for `provide()`. The exported
++base matchers are `actionChannel`, `apply`, `call`, `cancel`, `cancelled`, `cps`,
++`flush`, `fork`, `getContext`, `join`, `put`, `putResolve`, `race`, `select`,
++`setContext`, `spawn`, `take`, and `takeMaybe`.
+ 
++Only the helpers listed below create partial matchers; there is no blanket
++`.like(...)` helper on every base matcher.
++
+ ```js
+ import { call, put, take } from 'redux-saga-test-plan/matchers';
+ 
+@@ -185,14 +193,12 @@
+ | `fork.fn(fn)` / `fork.like(...)` | a `fork` of `fn` |
+ | `spawn.fn(fn)` / `spawn.like(...)` | a `spawn` of `fn` |
+ | `put.actionType(type)` / `put.like({ action })` | a `put` of an action with `type` |
++| `putResolve.actionType(type)` / `putResolve.like({ action })` | a resolving `put` with the selected action fields |
+ | `select.selector(fn)` / `select.like({ selector })` | a `select` with selector `fn` |
+-| `take.pattern(pattern)` / `take.like({ pattern })` | a `take` for `pattern` |
+-| `takeMaybe.pattern(pattern)` / `takeMaybe.like({ pattern })` | a `takeMaybe` for `pattern` |
+-| `actionChannel.pattern(pattern)` | an `actionChannel` for `pattern` |
++| `actionChannel.pattern(pattern)` / `actionChannel.like({ pattern })` | an `actionChannel` for `pattern` |
+ 
+-Every other effect also has a matcher (`cancel`, `cancelled`, `flush`,
+-`join`, `race`, `actionChannel`, `getContext`, `setContext`) with its
+-`like(...)` sub-matcher.
++Use the base `take(pattern)` and `takeMaybe(pattern)` matchers for exact take
++effects. These two matchers do not have `.pattern(...)` or `.like(...)` helpers.
+ 
+ ## providers
+ 
+@@ -200,12 +206,13 @@
+ 
+ | helper | description |
+ | ------ | ----------- |
+-| `dynamic(fn)` | `fn(callEffect, effects)` returns the provided value for an effect, letting you inspect the actual effect and other effects. |
+-| `throwError(error)` | Throws `error` for a matched effect. |
+-| `composeProviders(...providers)` | Combine multiple static/dynamic providers into one array for `provide()`. |
++| `dynamic(fn)` | Wrap a static provider value so `fn(effect, next)` computes the value when its matcher matches. Return `next()` to delegate. |
++| `throwError(error)` | Wrap a value that throws `error` when its static provider matches. |
++| `composeProviders(...handlers)` | Return a handler that tries the supplied `(effect, next)` handlers in order and uses the first result that does not delegate with `next()`. It returns a function, not an array. |
+ 
+ ```js
+-import { provide, throwError } from 'redux-saga-test-plan';
++import { expectSaga } from 'redux-saga-test-plan';
++import { throwError } from 'redux-saga-test-plan/providers';
+ import * as matchers from 'redux-saga-test-plan/matchers';
+ 
+ expectSaga(saga)
+@@ -213,4 +220,4 @@
+     [matchers.call.fn(api.get), throwError(new Error('boom'))],
+   ])
+   .run();
+-```
+\ No newline at end of file
++```
