@@ -408,6 +408,154 @@ function parseRetainedTree(raw, expectedSHA) {
   return entries;
 }
 
+
+// Local postimage prediction uses only whole, native-bound preimage trees.
+// Existing parser/framer supplies SHA-1 identity; no provider reads happen here.
+const MAX_LOCAL_TREE_OBJECTS = 256;
+const MAX_LOCAL_TREE_TOTAL_BYTES = 64 * 1024 * 1024;
+
+function encodeTreeName(name) {
+  if (typeof name !== 'string' || !name || name === '.' || name === '..'
+      || name.includes('/') || name.includes('\0') || name.length > 4096) {
+    throw new Error('Local tree identity requires bounded immediate entry names');
+  }
+  // encodeURIComponent rejects unpaired surrogates and emits strict UTF-8.
+  const encoded = encodeURIComponent(name), bytes = [];
+  for (let at = 0; at < encoded.length; at++) {
+    if (encoded[at] === '%') {
+      bytes.push(parseInt(encoded.slice(at + 1, at + 3), 16)); at += 2;
+    } else bytes.push(encoded.charCodeAt(at));
+  }
+  if (bytes.length > 4096) throw new Error('Local tree name exceeds 4096 UTF-8 bytes');
+  return Uint8Array.from(bytes);
+}
+
+function serializeTreeEntries(entries, budget) {
+  if (!Array.isArray(entries) || entries.length > MAX_RETAINED_TREE_ENTRIES) {
+    throw new Error('Local tree entry bound exceeded');
+  }
+  const types = {'40000': 'tree', '100644': 'blob', '100755': 'blob',
+    '120000': 'blob', '160000': 'commit'};
+  const names = new Set(), prepared = [];
+  let length = 0;
+  for (const entry of entries) {
+    object(entry, 'Local tree entry');
+    const mode = entry.mode === '040000' ? '40000' : entry.mode;
+    if (typeof mode !== 'string' || !Object.prototype.hasOwnProperty.call(types, mode)
+        || entry.type !== types[mode]) {
+      throw new Error('Unsupported local tree entry mode/type');
+    }
+    const name = encodeTreeName(entry.path);
+    if (names.has(entry.path)) throw new Error('Duplicate local tree entry name');
+    names.add(entry.path);
+    const objectSHA = sha(entry.sha, 'Local tree entry');
+    length += mode.length + 1 + name.length + 1 + 20;
+    if (length > MAX_RETAINED_TREE_BYTES) throw new Error('Local tree body exceeds 16 MiB');
+    prepared.push({mode, name, objectSHA, directory: mode === '40000'});
+  }
+  if (length > MAX_LOCAL_TREE_TOTAL_BYTES - budget.body_bytes) {
+    throw new Error('Local tree aggregate body bound exceeded');
+  }
+  budget.body_bytes += length;
+  // Git compares name bytes, using '/' for a tree and NUL for a non-tree
+  // at the end of a name. JavaScript string/locale sorting is not equivalent.
+  prepared.sort((left, right) => {
+    const common = Math.min(left.name.length, right.name.length);
+    for (let i = 0; i < common; i++) {
+      if (left.name[i] !== right.name[i]) return left.name[i] - right.name[i];
+    }
+    const a = common < left.name.length ? left.name[common] : left.directory ? 47 : 0;
+    const b = common < right.name.length ? right.name[common] : right.directory ? 47 : 0;
+    return a - b;
+  });
+  const raw = new Uint8Array(length);
+  let at = 0;
+  for (const entry of prepared) {
+    for (let i = 0; i < entry.mode.length; i++) raw[at++] = entry.mode.charCodeAt(i);
+    raw[at++] = 32;
+    raw.set(entry.name, at); at += entry.name.length;
+    raw[at++] = 0;
+    for (let i = 0; i < 40; i += 2) raw[at++] = parseInt(entry.objectSHA.slice(i, i + 2), 16);
+  }
+  return raw;
+}
+
+function prepareInlineTreeIdentity(snapshots, baseTreeSHA, files, verification) {
+  if (!(snapshots instanceof Map) || !snapshots.has('')) {
+    throw new Error('Local tree identity needs the complete native-bound base root');
+  }
+  const budget = {body_bytes: 0}, nodes = new Map();
+  const addNode = (path, node) => {
+    if (nodes.size >= MAX_LOCAL_TREE_OBJECTS) throw new Error('Local tree directory bound exceeded');
+    nodes.set(path, node);
+  };
+  // Parse creates independent entry objects per path even when two base
+  // directories share the same tree SHA. Cached native arrays are never edited.
+  for (const [path, snapshot] of snapshots) {
+    const raw = serializeTreeEntries(snapshot.tree, budget);
+    verification.body_bytes_encoded = budget.body_bytes;
+    const entries = parseRetainedTree(raw, sha(snapshot.tree_sha, 'Base tree snapshot'));
+    addNode(path, {original_sha: snapshot.tree_sha,
+      entries: new Map(entries.map(entry => [entry.path, {...entry}]))});
+    verification.base_trees.push({path, tree_sha: snapshot.tree_sha,
+      bytes: raw.length, entries: entries.length, git_object_sha_verified: true});
+  }
+  if (nodes.get('').original_sha !== baseTreeSHA) throw new Error('Local base root identity differs');
+  for (const [path, node] of nodes) {
+    if (!path) continue;
+    const slash = path.lastIndexOf('/');
+    const parent = slash < 0 ? '' : path.slice(0, slash);
+    const name = path.slice(slash + 1), entry = nodes.get(parent)?.entries.get(name);
+    if (!entry || entry.type !== 'tree' || entry.sha !== node.original_sha) {
+      throw new Error('Local base tree is not bound through its complete parent: ' + path);
+    }
+  }
+  for (const file of files) {
+    const parts = file.path.split('/');
+    let parentPath = '';
+    for (let i = 0; i < parts.length - 1; i++) {
+      const name = parts[i], parent = nodes.get(parentPath);
+      if (!parent) throw new Error('Complete local parent tree is unavailable: ' + parentPath);
+      const path = parentPath ? parentPath + '/' + name : name;
+      const entry = parent.entries.get(name);
+      if (entry) {
+        if (entry.type !== 'tree' || !nodes.has(path)) {
+          throw new Error('Local directory is not completely observed: ' + path);
+        }
+      } else {
+        // Absence is established by this whole parent's verified entry set.
+        addNode(path, {original_sha: null, entries: new Map()});
+        parent.entries.set(name, {path: name, mode: '040000', type: 'tree', sha: null});
+      }
+      parentPath = path;
+    }
+    const parent = nodes.get(parentPath), name = parts[parts.length - 1];
+    const existing = parent.entries.get(name);
+    if (existing && (existing.type !== 'blob' || !['100644', '100755'].includes(existing.mode))) {
+      throw new Error('Local changed leaf is not a regular file: ' + file.path);
+    }
+    parent.entries.set(name, {path: name, mode: file.mode, type: 'blob',
+      sha: sha(file.expected_new_blob_sha, 'Pinned inline source')});
+  }
+  const paths = [...nodes.keys()].sort((left, right) =>
+    (right ? right.split('/').length : 0) - (left ? left.split('/').length : 0));
+  for (const path of paths) {
+    const node = nodes.get(path);
+    const raw = serializeTreeEntries([...node.entries.values()], budget);
+    verification.body_bytes_encoded = budget.body_bytes;
+    const treeSHA = retainedTreeSHA(raw);
+    verification.computed_trees.push({path, previous_tree_sha: node.original_sha,
+      tree_sha: treeSHA, bytes: raw.length, entries: node.entries.size});
+    if (path) {
+      const slash = path.lastIndexOf('/');
+      const parent = slash < 0 ? '' : path.slice(0, slash);
+      const name = path.slice(slash + 1);
+      nodes.get(parent).entries.set(name, {path: name, mode: '040000', type: 'tree', sha: treeSHA});
+    } else verification.expected_tree_sha = treeSHA;
+  }
+  return sha(verification.expected_tree_sha, 'Predicted created tree');
+}
+
 function validateRetainedTrees(input, files) {
   const trees = new Map();
   if (input === undefined) return trees;
@@ -442,9 +590,24 @@ function requireRetainedTreesConsumed(trees) {
 
 /** Resolve exact entries from native trees or independently verified whole bytes. */
 function baseFileReader({api, repository_full_name, commitSha, treeSha,
-  fetchJSON, readPreimage, progress, treeLabel, retainedTrees = new Map()}) {
+  fetchJSON, readPreimage, progress, treeLabel, retainedTrees = new Map(), treeSnapshots}) {
   const trees = new Map();
   const unavailable = new Map();
+  const remember = (path, current, entries) => {
+    if (treeSnapshots) {
+      if (entries.length > MAX_RETAINED_TREE_ENTRIES) throw new Error('Local tree entry bound exceeded');
+      const saved = treeSnapshots.get(path);
+      if (saved) {
+        if (saved.tree_sha !== current) throw new Error('Local tree snapshot identity changed');
+        return entries;
+      }
+      if (treeSnapshots.size >= MAX_LOCAL_TREE_OBJECTS) {
+        throw new Error('Local tree directory bound exceeded');
+      }
+      treeSnapshots.set(path, {tree_sha: current, tree: entries.map(entry => ({...entry}))});
+    }
+    return entries;
+  };
   const tree = async (current, parentPath) => {
     const retained = retainedTrees.get(parentPath);
     if (retained) {
@@ -457,7 +620,7 @@ function baseFileReader({api, repository_full_name, commitSha, treeSha,
           base_commit_sha: commitSha, parent_tree_sha: current, bytes: retained.bytes,
           entries: retained.tree.length, git_object_sha_verified: true});
       }
-      return retained.tree;
+      return remember(parentPath, current, retained.tree);
     }
     if (unavailable.has(current)) throw unavailable.get(current);
     if (!trees.has(current)) {
@@ -478,7 +641,7 @@ function baseFileReader({api, repository_full_name, commitSha, treeSha,
       }
       trees.set(current, data.tree);
     }
-    return trees.get(current);
+    return remember(parentPath, current, trees.get(current));
   };
   return async (path, expectedBlob) => {
     let current = treeSha;
@@ -659,6 +822,16 @@ async function publishGitHubChange(tools, change, options = {}) {
       ? spec.files.filter(file => file.encoding === 'utf-8'
         && file.expected_new_blob_sha !== undefined).map(file => file.path) : []);
     if (options.inline_pinned_utf8 === true) progress.inline_pinned_utf8 = true;
+    if (options.inline_tree_identity !== undefined && typeof options.inline_tree_identity !== 'boolean') {
+      throw new TypeError('inline_tree_identity must be boolean');
+    }
+    const localTreeIdentity = options.inline_tree_identity === true;
+    if (localTreeIdentity && (options.inline_pinned_utf8 !== true
+        || inlinePinnedPaths.size !== spec.files.length)) {
+      throw new TypeError('inline_tree_identity requires inline_pinned_utf8 and a new blob pin on every UTF-8 file');
+    }
+    const treeSnapshots = localTreeIdentity ? new Map() : undefined;
+    if (localTreeIdentity) progress.inline_tree_identity = true;
     const readbackConcurrency = readbackLimit(options);
     const retainedTrees = validateRetainedTrees(options.retained_trees, spec.files);
     progress.readback_concurrency = readbackConcurrency;
@@ -709,7 +882,8 @@ async function publishGitHubChange(tools, change, options = {}) {
     progress.base_tree_sha = sha(base.commit?.commit?.tree?.sha, 'Base tree');
     const existingFile = baseFileReader({api, repository_full_name,
       commitSha: progress.base_commit_sha, treeSha: progress.base_tree_sha,
-      fetchJSON, readPreimage, progress, treeLabel: 'base', retainedTrees});
+      fetchJSON, readPreimage: localTreeIdentity ? undefined : readPreimage,
+      progress, treeLabel: 'base', retainedTrees, treeSnapshots});
     progress.stage = 'check_file_versions';
     for (const file of spec.files) {
       const existing = await existingFile(file.path, file.expected_blob_sha);
@@ -749,6 +923,19 @@ async function publishGitHubChange(tools, change, options = {}) {
       progress.status = 'no_source_changes'; progress.stage = 'complete';
       await announce(); return progress;
     }
+    if (localTreeIdentity) {
+      progress.stage = 'prepare_inline_tree_identity';
+      const verification = {method: 'local_git_tree_identity',
+        base_commit_sha: progress.base_commit_sha, base_tree_sha: progress.base_tree_sha,
+        expected_tree_sha: null, tree_sha: null, tree_identity_matches: null,
+        fetch_calls: 0, base_trees: [], computed_trees: [], body_bytes_encoded: 0,
+        limits: {directories: MAX_LOCAL_TREE_OBJECTS, entries_per_tree: MAX_RETAINED_TREE_ENTRIES,
+          bytes_per_tree: MAX_RETAINED_TREE_BYTES, total_body_bytes: MAX_LOCAL_TREE_TOTAL_BYTES,
+          name_utf8_bytes: 4096}, checked_paths: [], complete: false};
+      progress.inline_tree_verification = verification;
+      prepareInlineTreeIdentity(treeSnapshots, progress.base_tree_sha, candidates, verification);
+      await announce();
+    }
     progress.stage = 'create_tree';
     const createdTree = await call('create_tree', {repository_full_name, base_tree_sha: progress.base_tree_sha,
       tree_elements: candidates.map(file => {
@@ -758,7 +945,22 @@ async function publishGitHubChange(tools, change, options = {}) {
       })});
     progress.tree_sha = sha(createdTree.sha, 'Created tree');
     await announce();
-    if (inlinePinnedPaths.size) {
+    if (localTreeIdentity) {
+      progress.stage = 'check_inline_tree_identity';
+      const verification = progress.inline_tree_verification;
+      verification.tree_sha = progress.tree_sha;
+      verification.tree_identity_matches = progress.tree_sha === verification.expected_tree_sha;
+      if (!verification.tree_identity_matches) {
+        throw new Error('Created tree SHA differs from the exact local pinned postimage');
+      }
+      for (const file of progress.files) {
+        file.blob_sha = file.expected_new_blob_sha;
+        checkNewBlobPin(file, sourceByPath.get(file.path));
+        verification.checked_paths.push(file.path);
+      }
+      verification.complete = true;
+      await announce();
+    } else if (inlinePinnedPaths.size) {
       progress.stage = 'check_inline_source_pins';
       const verification = {tree_sha: progress.tree_sha, fetch_calls: 0,
         checked_paths: [], complete: false};
