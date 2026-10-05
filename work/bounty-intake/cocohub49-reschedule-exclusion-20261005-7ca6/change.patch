@@ -379,7 +379,7 @@ diff --git a/src/screens/AppointmentScreen.tsx b/src/screens/AppointmentScreen.t
          setConflictResult(result);
          setRescheduleVisible(false);
          setConflictModalVisible(true);
-@@ -435,28 +499,42 @@
+@@ -435,28 +499,46 @@
      }
    };
  
@@ -397,7 +397,12 @@ diff --git a/src/screens/AppointmentScreen.tsx b/src/screens/AppointmentScreen.t
 +    await cancelAllAppointmentReminders(sourceAppointment.id).catch(() => {});
 +    await removeAppointmentFromCalendar(sourceAppointment.id).catch(() => {});
  
-     const date = dateObj.toISOString().slice(0, 10);
+-    const date = dateObj.toISOString().slice(0, 10);
++    const date = [
++      String(dateObj.getFullYear()).padStart(4, '0'),
++      String(dateObj.getMonth() + 1).padStart(2, '0'),
++      String(dateObj.getDate()).padStart(2, '0'),
++    ].join('-');
      const time = dateObj.toTimeString().slice(0, 5);
  
 -    const updated = await rescheduleAppointment(detailAppt.id, date, time).catch(async () => {
@@ -410,8 +415,9 @@ diff --git a/src/screens/AppointmentScreen.tsx b/src/screens/AppointmentScreen.t
        // Offline fallback
        const fallback: Appointment = {
 -        ...detailAppt,
+-        date: dateObj.toISOString(),
 +        ...sourceAppointment,
-         date: dateObj.toISOString(),
++        date,
          time,
          status: AppointmentStatus.RESCHEDULED,
          notificationId: undefined,
@@ -429,7 +435,7 @@ diff --git a/src/screens/AppointmentScreen.tsx b/src/screens/AppointmentScreen.t
      // Schedule new reminders and sync calendar
      await scheduleAppointmentReminders(updated).catch(() => {});
      await syncAppointmentToCalendar(updated).catch(() => {});
-@@ -464,6 +542,7 @@
+@@ -464,6 +546,7 @@
      setRescheduleVisible(false);
      setConflictModalVisible(false);
      setPendingAppointment(null);
@@ -437,7 +443,7 @@ diff --git a/src/screens/AppointmentScreen.tsx b/src/screens/AppointmentScreen.t
      setConflictResult(null);
      setDetailAppt(updated);
      await load();
-@@ -517,6 +596,26 @@
+@@ -517,6 +600,26 @@
      [renderItem, archivedIds],
    );
  
@@ -464,7 +470,7 @@ diff --git a/src/screens/AppointmentScreen.tsx b/src/screens/AppointmentScreen.t
    // ─── Render ──────────────────────────────────────────────────────────────────
  
    return (
-@@ -687,6 +786,7 @@
+@@ -687,6 +790,7 @@
                    placeholderTextColor="#9CA3AF"
                    accessibilityLabel="Date and time"
                  />
@@ -472,7 +478,7 @@ diff --git a/src/screens/AppointmentScreen.tsx b/src/screens/AppointmentScreen.t
                </View>
              )}
              {bookingStep === 2 && (
-@@ -787,11 +887,18 @@
+@@ -787,11 +891,18 @@
              {/* Icon + title */}
              <View style={styles.conflictHeader}>
                <Text style={styles.conflictIcon}>⚠️</Text>
@@ -493,7 +499,7 @@ diff --git a/src/screens/AppointmentScreen.tsx b/src/screens/AppointmentScreen.t
              </Text>
  
              {/* Conflict list */}
-@@ -807,9 +914,9 @@
+@@ -807,9 +918,9 @@
              </ScrollView>
  
              {/* Suggested time */}
@@ -505,7 +511,7 @@ diff --git a/src/screens/AppointmentScreen.tsx b/src/screens/AppointmentScreen.t
                  <Text style={styles.suggestionTime}>
                    {conflictResult.suggestedTime.toLocaleString([], {
                      weekday: 'short',
-@@ -823,7 +930,7 @@
+@@ -823,7 +934,7 @@
              )}
  
              {/* Actions */}
@@ -514,7 +520,7 @@ diff --git a/src/screens/AppointmentScreen.tsx b/src/screens/AppointmentScreen.t
                <TouchableOpacity
                  style={styles.primaryBtn}
                  onPress={() => void handleUseSuggestedTime()}
-@@ -901,6 +1008,7 @@
+@@ -901,6 +1012,7 @@
                    placeholder="2026-06-01T10:00"
                    placeholderTextColor="#9CA3AF"
                  />

@@ -59,7 +59,15 @@ The preimage's warning-modal actions always called the generic appointment saver
 
 The modal now records whether its pending operation is a booking or reschedule. **Proceed Anyway** and **Use Suggested Time** dispatch accordingly. Booking keeps its existing saver. A reschedule passes the actual pending record and chosen date to the existing reschedule path, so the selected appointment ID and duration remain explicit even if detail state changes. The provisional record carries the proposed time and `RESCHEDULED` status. Completing or dismissing the modal clears its pending action.
 
-`doReschedule` forwards the existing duration (or the model's 30-minute default) to the service's already-supported fourth argument. It retains the existing reminder/calendar cleanup and recreation, service fallback, date/time conversion and detail refresh. For a warning choice, the returned rescheduled record goes through the existing note-aware `saveAppointment` once to retain the user's explanation; the outer fallback no longer appends that note itself. This can add an update request after the reschedule request. It is not an atomic operation or a server-side reservation, and it does not change the existing best-effort reminder/calendar error handling. No reschedule endpoint, request field, permission or recurrence rule is invented.
+`doReschedule` forwards the existing duration (or the model's 30-minute default) to the service's already-supported fourth argument. It retains the existing reminder/calendar cleanup and recreation, service fallback and detail refresh. For a warning choice, the returned rescheduled record goes through the existing note-aware `saveAppointment` once to retain the user's explanation; the outer fallback no longer appends that note itself. This can add an update request after the reschedule request. It is not an atomic operation or a server-side reservation, and it does not change the existing best-effort reminder/calendar error handling. No reschedule endpoint, request field, permission or recurrence rule is invented.
+
+## Consistent local date and time for rescheduling
+
+The dedicated reschedule endpoint receives separate `date` and `time` fields. The retained `Appointment` model defines them as `YYYY-MM-DD` and `HH:MM`, and the service's local fallback stores that pair unchanged. Conflict evaluation reconstructs a date-only record as local date plus local clock.
+
+The screen previously took the calendar day from `toISOString()` (UTC) and the clock from `toTimeString()` (local). Those components can describe a different day than the user's selected `Date` near a local/UTC day boundary. It now derives the year, month and day with local getters and keeps the existing local-clock extraction. The screen's outer reschedule fallback saves the same separate pair, rather than reverting to a full ISO datetime. Normal reschedules and both warning-modal choices share this conversion.
+
+The adjacent booking, provisional and suggested-choice records still carry their existing full ISO instant until their established persistence route is chosen; the immediate checks and pending reschedule routing parse that instant. This narrow correction does not change those representations, general list/display interpretation, input parsing, timezone selection, daylight-saving ambiguity policy, stored-record migration or server behavior. IDs, duration, conflict calculations, explicit save choices and reschedule lifecycle remain as documented above. No server, simulator, timezone experiment or native scheduling operation was executed.
 
 ## Source and attribution
 
@@ -81,7 +89,7 @@ An older coordination handoff named ZZ-Sol-Peregrine-913's intended tokenjunkiel
 
 ## Integration and remaining scope
 
-Apply `change.patch` once to the pinned PR122 source. The adjacent complete service, caller and local database modules are the resulting source. This cumulative patch composes the exclusion correction from Commons31652, snapshot reuse from31660, configurable buffer from31664, duration propagation from31669, the incomplete-read warning flow from Commons31683 and the warning-modal reschedule routing. With newer source, compose these hunks instead of replacing entire modules.
+Apply `change.patch` once to the pinned PR122 source. The adjacent complete service, caller and local database modules are the resulting source. This cumulative patch composes the exclusion correction from Commons31652, snapshot reuse from31660, configurable buffer from31664, duration propagation from31669, the incomplete-read warning flow from Commons31683, the warning-modal reschedule routing from Commons31687 and consistent local reschedule date/time fields. With newer source, compose these hunks instead of replacing entire modules.
 
 The inspected appointment model has no recurrence frequency, series identifier, exceptions or rule contract. The current user/settings schema likewise has no persistent appointment-buffer preference. Recurrence and any persistent setting require a separate concrete model; this continuation invents neither.
 
