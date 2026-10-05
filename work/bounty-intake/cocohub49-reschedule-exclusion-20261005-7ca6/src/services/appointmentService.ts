@@ -74,6 +74,7 @@ export async function detectConflicts(
   excludeId?: string,
   includeSuggestedTime = true,
   appointmentBufferMinutes = DEFAULT_APPOINTMENT_BUFFER_MINUTES,
+  proposedDurationMinutes = 30,
 ): Promise<ConflictDetectionResult> {
   const appointmentBufferMs = getAppointmentBufferMs(appointmentBufferMinutes);
   const lookupBufferMs = Math.max(CONFLICT_BUFFER_MS, appointmentBufferMs);
@@ -89,6 +90,7 @@ export async function detectConflicts(
     appointmentCandidates,
     excludeId,
     appointmentBufferMs,
+    proposedDurationMinutes,
   );
   const suggestedTime =
     result.hasConflicts && includeSuggestedTime
@@ -98,6 +100,7 @@ export async function detectConflicts(
           medications,
           excludeId,
           appointmentBufferMinutes,
+          proposedDurationMinutes,
         )
       : undefined;
   return { ...result, suggestedTime };
@@ -109,11 +112,12 @@ function detectConflictsInAppointments(
   appointmentCandidates: Appointment[],
   excludeId: string | undefined,
   appointmentBufferMs: number,
+  proposedDurationMinutes: number,
 ): ConflictDetectionResult {
   const conflicts: AppointmentConflict[] = [];
   const proposedInterval = {
     startMs: proposedTime.getTime(),
-    endMs: proposedTime.getTime() + 30 * 60_000,
+    endMs: proposedTime.getTime() + proposedDurationMinutes * 60_000,
   };
 
   for (const appt of appointmentCandidates) {
@@ -170,6 +174,7 @@ export async function findNextAvailableSlot(
   medications: Medication[] = [],
   excludeId?: string,
   appointmentBufferMinutes = DEFAULT_APPOINTMENT_BUFFER_MINUTES,
+  proposedDurationMinutes = 30,
 ): Promise<Date | undefined> {
   const appointmentBufferMs = getAppointmentBufferMs(appointmentBufferMinutes);
   const lookupBufferMs = Math.max(CONFLICT_BUFFER_MS, appointmentBufferMs);
@@ -195,6 +200,7 @@ export async function findNextAvailableSlot(
           appointmentCandidates,
           excludeId,
           appointmentBufferMs,
+          proposedDurationMinutes,
         )
       : await detectConflicts(
           petId,
@@ -203,6 +209,7 @@ export async function findNextAvailableSlot(
           excludeId,
           false,
           appointmentBufferMinutes,
+          proposedDurationMinutes,
         );
     if (!result.hasConflicts) return candidate;
     candidate = new Date(candidate.getTime() + CONFLICT_BUFFER_MS);
