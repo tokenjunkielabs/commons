@@ -1,0 +1,38 @@
+diff --git a/src/App.jsx b/src/App.jsx
+--- a/src/App.jsx
++++ b/src/App.jsx
+@@ -1,4 +1,4 @@
+-import React from 'react';
++import React, { useId } from 'react';
+ import ResponsiveCard from './components/ResponsiveCard.jsx';
+ import { useIsMobile } from './hooks/useIsMobile.js';
+ import { useUIStore } from './store/uiStore.js';
+@@ -6,6 +6,8 @@
+ function App() {
+   const isMobile = useIsMobile();
+   const { mobileMenuOpen, toggleMobileMenu, theme } = useUIStore();
++  const mobileMenuId = useId();
++  const mobileMenuVisible = mobileMenuOpen && isMobile;
+ 
+   return (
+     <div className={`min-h-screen bg-gray-50 text-gray-900 ${theme === 'dark' ? 'dark bg-gray-900 text-gray-100' : ''}`}>
+@@ -16,6 +18,8 @@
+             onClick={toggleMobileMenu}
+             className="sm:hidden p-2 rounded-lg border"
+             aria-label="Toggle menu"
++            aria-expanded={mobileMenuVisible}
++            aria-controls={mobileMenuVisible ? mobileMenuId : undefined}
+           >
+             ☰
+           </button>
+@@ -25,8 +29,8 @@
+             <a href="#">Settings</a>
+           </nav>
+         </div>
+-        {mobileMenuOpen && isMobile && (
+-          <div className="sm:hidden border-t bg-white px-4 py-3 space-y-2">
++        {mobileMenuVisible && (
++          <div id={mobileMenuId} className="sm:hidden border-t bg-white px-4 py-3 space-y-2">
+             <a className="block" href="#">Home</a>
+             <a className="block" href="#">Payments</a>
+             <a className="block" href="#">Settings</a>
