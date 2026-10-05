@@ -1,0 +1,273 @@
+diff --git a/src/electron.cjs b/src/electron.cjs
+--- a/src/electron.cjs
++++ b/src/electron.cjs
+@@ -108,7 +108,6 @@
+         },
+         {
+             label: 'Quit', click: function () {
+-                stopNode()
+                 app.quit()
+             }
+         },
+@@ -143,47 +142,103 @@
+     return mainWindow.webContents.send('from-main', `next count is ${count + 1}`);
+ })
+ 
+-let kryptokrona
+-let running = false
++// 2026-10-05: acknowledge this tracked child's close before stop/restart completes.
++let kryptokrona = null
++let nodeCommand = 0
++let quitRequested = false
++let quitReady = false
+ 
+ ipcMain.on('startNode', () => {
+-    startNode()
++    commandNode('start').catch(error => console.error('Could not start node', error))
+ })
+ 
+-ipcMain.on('stopNode', () => {
+-    stopNode()
+-})
++ipcMain.handle('stopNode', () => commandNode('stop'))
++ipcMain.handle('restartNode', () => commandNode('restart'))
+ 
+-ipcMain.on('restartNode', () => {
+-    restartNode()
++app.on('before-quit', event => {
++    if (quitReady) return
++    event.preventDefault()
++    if (quitRequested) return
++    quitRequested = true
++    ++nodeCommand
++    stopNode().then(() => {
++        quitReady = true
++        app.quit()
++    }).catch(error => {
++        quitRequested = false
++        console.error('Could not stop node before quitting', error)
++    })
+ })
+ 
+ const startNode = () => {
+-    if(running === false) {
+-        kryptokrona = spawn(appBin + 'kryptokrona --enable-cors=* --enable-blockexplorer --rpc-bind-ip=0.0.0.0 --rpc-bind-port=11898', {
+-            shell: true,
+-            detached: true
++    if (kryptokrona) return kryptokrona.ready
++
++    const child = spawn(path.join(appBin, 'kryptokrona'), [
++        '--enable-cors=*',
++        '--enable-blockexplorer',
++        '--rpc-bind-ip=0.0.0.0',
++        '--rpc-bind-port=11898'
++    ], {detached: true})
++    const record = {child, didClose: false, stopping: null}
++    record.closed = new Promise(resolve => {
++        child.once('close', (code, signal) => {
++            record.didClose = true
++            if (kryptokrona === record) kryptokrona = null
++            resolve({code, signal})
+         })
+-    }
+-    console.log('Starting node')
+-    running = true
++    })
++    record.ready = new Promise((resolve, reject) => {
++        child.once('spawn', () => resolve())
++        child.on('error', reject)
++    })
++    kryptokrona = record
++    return record.ready
+ }
+ 
+-const stopNode = () => {
+-    console.log('Stopping node')
+-    if(running === true) {
+-        process.kill(-kryptokrona.pid, 'SIGINT')
+-        running = false
++const stopNode = async () => {
++    const record = kryptokrona
++    if (!record) return
++    if (record.stopping) return record.stopping
++
++    const stopping = (async () => {
++        try {
++            await record.ready
++        } catch (error) {
++            // A failed spawn still has a child lifecycle to finish.
++            await record.closed
++            return
++        }
++        if (!record.didClose) {
++            try {
++                process.kill(-record.child.pid, 'SIGINT')
++            } catch (error) {
++                // ESRCH alone is not a close acknowledgement.
++                if (error.code !== 'ESRCH') throw error
++            }
++        }
++        await record.closed
++    })()
++    record.stopping = stopping
++    try {
++        await stopping
++    } finally {
++        if (record.stopping === stopping) record.stopping = null
+     }
+ }
+ 
+-const restartNode = () => {
+-    console.log('Restarting node');
+-    stopNode()
+-    setTimeout(() => {
+-        startNode()
+-    }, 15000)
++const commandNode = async action => {
++    if (quitRequested) throw new Error('Application is quitting')
++    const command = ++nodeCommand
++    if (action !== 'start' || (kryptokrona && kryptokrona.stopping)) {
++        await stopNode()
++    }
++    if (command !== nodeCommand || quitRequested) {
++        throw new Error('Node command was superseded')
++    }
++    if (action === 'stop') return {status: 'closed'}
++    await startNode()
++    if (command !== nodeCommand || quitRequested) {
++        throw new Error('Node command was superseded')
++    }
++    return {status: 'spawned'}
+ }
+-
+-
+-
+diff --git a/src/preload.cjs b/src/preload.cjs
+--- a/src/preload.cjs
++++ b/src/preload.cjs
+@@ -16,11 +16,12 @@
+     startNode: () => {
+       ipcRenderer.send("startNode");
+     },
++    // 2026-10-05: expose completion promises for node lifecycle commands.
+     stopNode: () => {
+-      ipcRenderer.send("stopNode");
++      return ipcRenderer.invoke("stopNode");
+     },
+     restartNode: () => {
+-      ipcRenderer.send("restartNode");
++      return ipcRenderer.invoke("restartNode");
+     }
+   }
+ );
+\ No newline at end of file
+diff --git a/src/lib/store.js b/src/lib/store.js
+--- a/src/lib/store.js
++++ b/src/lib/store.js
+@@ -6,7 +6,7 @@
+     nodeLoaded: false,
+ })
+ 
+-export const node = writable({
++const initialNode = {
+     alt_blocks_count: null,
+     difficulty: null,
+     grey_peerlist_size: null,
+@@ -28,8 +28,10 @@
+     upgrade_heights: null,
+     version: null,
+     white_peerlist_size: null,
+-})
++}
+ 
++export const node = writable({...initialNode})
++
+ export const supply = writable({
+     current: null,
+     max: null
+@@ -43,6 +45,14 @@
+ let infoRequest = 0
+ let settledInfoRequest = 0
+ 
++// 2026-10-05: retire pending observations before clearing state after an acknowledged command.
++export function resetStore() {
++    settledInfoRequest = ++infoRequest
++    syncSample = null
++    syncRemainingMinutes.set(null)
++    node.set({...initialNode})
++}
++
+ function recordSyncSample(info, receivedAt) {
+     let remainingMinutes = null
+     const valid = info && info.synced === false &&
+diff --git a/src/routes/dashboard.svelte b/src/routes/dashboard.svelte
+--- a/src/routes/dashboard.svelte
++++ b/src/routes/dashboard.svelte
+@@ -4,19 +4,36 @@
+   import { fade } from "svelte/transition";
+   import { Moon } from "svelte-loading-spinners";
+ 
+-  const stopNode = () => {
+-    window.api.stopNode();
+-    goto("/");
+-    $appState.nodeRunning = false;
+-    resetStore()
+-  };
++  // 2026-10-05: keep lifecycle controls pending until IPC completion.
++  let pendingNodeAction = null;
++  let nodeActionError = '';
+ 
+-  const restartNode = () => {
+-    window.api.restartNode();
+-    resetStore()
++  const runNodeAction = async action => {
++    if (pendingNodeAction !== null) return;
++    pendingNodeAction = action;
++    nodeActionError = '';
++    try {
++      if (action === 'stop') {
++        await window.api.stopNode();
++      } else {
++        await window.api.restartNode();
++      }
++      resetStore();
++      if (action === 'stop') {
++        $appState.nodeRunning = false;
++        await goto("/");
++      }
++    } catch (error) {
++      nodeActionError = error instanceof Error ? error.message : String(error);
++    } finally {
++      pendingNodeAction = null;
++    }
+   };
+ 
++  const stopNode = () => runNodeAction('stop');
++  const restartNode = () => runNodeAction('restart');
+ 
++
+   // 2026-10-05: display the poller's estimate without treating it as a deadline.
+   let syncPercentage;
+   let syncTimeRemaining;
+@@ -86,10 +103,19 @@
+           </div>
+         </div>
+       {/if}
+-      <button class="red" on:click={stopNode}>
++      {#if pendingNodeAction !== null}
++        <div class="row" role="status" aria-live="polite">
++          <Moon color="var(--title-color)" size="24" unit="px" />
++          <p>{pendingNodeAction === 'stop' ? 'Stopping node...' : 'Restarting node...'}</p>
++        </div>
++      {/if}
++      {#if nodeActionError}
++        <p class="row" role="alert">{nodeActionError}</p>
++      {/if}
++      <button class="red" on:click={stopNode} disabled={pendingNodeAction !== null}>
+         <h3>Stop</h3>
+       </button>
+-      <button class="grey" on:click={restartNode}>
++      <button class="grey" on:click={restartNode} disabled={pendingNodeAction !== null}>
+         <h3>Restart</h3>
+       </button>
+     </div>
