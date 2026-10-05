@@ -26,9 +26,10 @@ What one build computes, per open pull request:
 * verdicts. Review and comment bodies parsed into separate fields — source,
   composition, current_main, hosted, economics — each PASS / HOLD / FAIL /
   PENDING, newest first, with supersession and retraction noted.
-* hosted. Every check on the head reduced to one enum per check —
+* hosted. Each returned check on the head reduced to one enum per check —
   NOT_EXECUTED_QUEUED, RUNNING, APPROVAL_GATED, CANCELLED_NOT_RUN, FAILED,
-  SUCCESS — and a rollup that never collapses queued into failed or passed.
+  SUCCESS — alongside GitHub's combined state and explicit context coverage.
+  A partial page never establishes a complete successful detailed rollup.
 
 Across pull requests:
 
@@ -253,7 +254,8 @@ query($owner:String!, $name:String!, $after:String, $page:Int!) {
         reviews(last: 20) { nodes { databaseId state submittedAt url body commit { oid } } }
         comments(last: 20) { nodes { databaseId createdAt url body } }
         commits(last: 1) { nodes { commit { oid statusCheckRollup { state
-          contexts(first: 80) { nodes { __typename
+          contexts(first: 80) { totalCount pageInfo { hasNextPage }
+            nodes { __typename
             ... on CheckRun { name status conclusion startedAt completedAt detailsUrl }
             ... on StatusContext { context state createdAt targetUrl } } } } } } }
       }
@@ -729,19 +731,46 @@ _ROLLUP_ORDER = ("FAILED", "RUNNING", "NOT_EXECUTED_QUEUED", "APPROVAL_GATED",
 
 
 def hosted_state(pull):
-    nodes = []
-    for commit in ((pull.get("commits") or {}).get("nodes") or []):
-        rollup = ((commit.get("commit") or {}).get("statusCheckRollup")) or {}
-        nodes.extend((rollup.get("contexts") or {}).get("nodes") or [])
+    """Keep GitHub's aggregate separate from the bounded context detail."""
+    commits = ((pull.get("commits") or {}).get("nodes") or [])
+    # OPEN_PULLS_QUERY requests exactly the last commit, not several rollups.
+    commit = ((commits[0].get("commit") or {})
+              if len(commits) == 1 and isinstance(commits[0], dict) else {})
+    reported = commit.get("statusCheckRollup") or {}
+    contexts = reported.get("contexts") or {}
+    raw_nodes = contexts.get("nodes")
+    nodes = ([node for node in raw_nodes if isinstance(node, dict)]
+             if isinstance(raw_nodes, list) else [])
+    github_state = reported.get("state")
+    if github_state not in ("ERROR", "EXPECTED", "FAILURE", "PENDING", "SUCCESS"):
+        github_state = UNKNOWN
+    total = contexts.get("totalCount")
+    if type(total) is not int or total < 0:
+        total = UNKNOWN
+    more = (contexts.get("pageInfo") or {}).get("hasNextPage")
+    if type(more) is not bool:
+        more = UNKNOWN
+    complete = (isinstance(raw_nodes, list) and len(nodes) == len(raw_nodes)
+                and total == len(nodes) and more is False)
     counts, checks = {}, []
     for node in nodes:
         state = check_enum(node)
         counts[state] = counts.get(state, 0) + 1
         checks.append({"name": node.get("name") or node.get("context") or "", "state": state})
-    if not nodes:
-        return {"rollup": "NONE", "counts": {}, "checks": []}
-    rollup = next(s for s in _ROLLUP_ORDER if counts.get(s))
-    return {"rollup": rollup, "counts": dict(sorted(counts.items())),
+    if counts.get("FAILED") or github_state in ("FAILURE", "ERROR"):
+        rollup = "FAILED"
+    elif not complete:
+        rollup = UNKNOWN
+    elif not nodes:
+        rollup = "NONE" if github_state == "SUCCESS" else UNKNOWN
+    else:
+        rollup = next(s for s in _ROLLUP_ORDER if counts.get(s))
+        if rollup == "SUCCESS" and github_state != "SUCCESS":
+            rollup = UNKNOWN
+    return {"rollup": rollup, "github_state": github_state,
+            "contexts_read": len(nodes), "contexts_total": total,
+            "contexts_has_next_page": more, "contexts_complete": complete,
+            "counts": dict(sorted(counts.items())),
             "checks": sorted(checks, key=lambda c: c["name"])[:40]}
 
 
@@ -869,6 +898,11 @@ def _slim_drift(drift):
 def _slim_hosted(hosted):
     others = [c for c in hosted.get("checks", []) if c["state"] != "SUCCESS"]
     return {"rollup": hosted.get("rollup"), "counts": hosted.get("counts", {}),
+            "github_state": hosted.get("github_state", UNKNOWN),
+            "contexts_read": hosted.get("contexts_read", UNKNOWN),
+            "contexts_total": hosted.get("contexts_total", UNKNOWN),
+            "contexts_has_next_page": hosted.get("contexts_has_next_page", UNKNOWN),
+            "contexts_complete": hosted.get("contexts_complete", False),
             "not_success": others[:ROW_CHECKS]}
 
 
@@ -1039,6 +1073,8 @@ def build(git, github, now=None, closed_hours=36, closed_limit=400, open_limit=1
         drift["base_ref"] = pull.get("baseRefName") or "main"
         drift_counts[drift["status"]] = drift_counts.get(drift["status"], 0) + 1
         hosted = hosted_state(pull)
+        if not hosted["contexts_complete"]:
+            degraded.append("hosted-contexts-incomplete")
         hosted_counts[hosted["rollup"]] = hosted_counts.get(hosted["rollup"], 0) + 1
         verdicts = pull_verdicts(pull, head)
         row = _pull_row(pull, "OPEN", drift, hosted, verdicts)

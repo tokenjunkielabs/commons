@@ -31,13 +31,74 @@ Read the head first, and the rows only when the head says something moved. Each 
   - Superseded and retracted reviews are skipped.
   - Only reviews bound to the current head count.
   - The parser is a first-draft regex over the verdict paragraph, and it reports what reviewers wrote.
-- **`hosted`** reduces every check to one enum: `NOT_EXECUTED_QUEUED`, `RUNNING`, `APPROVAL_GATED`, `CANCELLED_NOT_RUN`, `FAILED` or `SUCCESS`. The rollup never collapses queued into failed or passed.
+- **`hosted`** classifies the returned check detail and separately reports GitHub's combined state and context coverage. Detailed states remain `NOT_EXECUTED_QUEUED`, `RUNNING`, `APPROVAL_GATED`, `CANCELLED_NOT_RUN`, `FAILED`, `SUCCESS` or `UNKNOWN`; `NONE` requires an observed complete empty context list with a successful reported aggregate. A partial page cannot establish a complete successful detailed rollup.
 - **`links`** are supersession references found in the title, body and comments: `[SUPERSEDED BY #N]`, "superseded by #N", "successor #N", "canonical … #N".
 
 Across pull requests:
 
 - **`lanes`** join PRs, open and recently closed, by shared `content_key` and by those links. One change reads as one row with its `chain`, its `open` members and the newest open member.
 - **`queue`** gives Actions queued and running counts and the age of the oldest queued run seen. Past 1,000 queued runs, that age is a lower bound.
+
+## Hosted checks and coverage
+
+The open-PR query still requests only `contexts(first: 80)` for the last commit.
+It now also requests `totalCount` and `pageInfo.hasNextPage` in that same query;
+it makes no extra context-page request. The already requested
+`statusCheckRollup.state` is retained as `hosted.github_state`.
+
+[GitHub's schema](https://docs.github.com/en/graphql/reference/commits#statuscheckrollup)
+defines the rollup across check runs and commit statuses, while `first`
+bounds the returned connection detail. Its
+[connection fields](https://docs.github.com/en/graphql/reference/commits#statuscheckrollupcontextconnection)
+supply the total count and pagination metadata. The
+[pagination contract](https://docs.github.com/en/graphql/guides/using-pagination-in-the-graphql-api)
+makes a returned page distinct from a completed connection. GitHub's aggregate
+is retained as reported; this producer does not substitute the separate REST
+commit-status aggregation algorithm for mixed checks and statuses.
+
+Both full and published slim PR rows retain these fields:
+
+| Field | Meaning |
+|---|---|
+| `github_state` | Reported `ERROR`, `EXPECTED`, `FAILURE`, `PENDING` or `SUCCESS`; otherwise `UNKNOWN`. |
+| `contexts_read` | Number of returned context objects classified by the producer. |
+| `contexts_total` | Reported nonnegative integer total, or `UNKNOWN` when absent or invalid. |
+| `contexts_has_next_page` | Reported boolean, or `UNKNOWN` when absent or invalid. |
+| `contexts_complete` | True only when a context list was returned without null/non-object entries, the reported total equals the number classified, and `hasNextPage` is explicitly false. |
+| `counts` | Counts of classified, returned contexts. These are partial counts when `contexts_complete` is false. |
+
+The detailed `rollup` follows this precedence:
+
+- An observed failed context or reported aggregate `FAILURE`/`ERROR` yields
+  `FAILED`. An aggregate failure does not create an invented failed entry in
+  the observed `counts`.
+- Otherwise, incomplete or missing context detail yields `UNKNOWN`, even
+  when the returned prefix and reported aggregate are successful.
+- A complete nonempty detail list keeps the existing per-check precedence,
+  including queued, running, approval-gated and cancelled/not-run states.
+  Its `SUCCESS` result additionally requires reported aggregate `SUCCESS`.
+  A complete empty list yields `NONE` only with aggregate `SUCCESS`;
+  otherwise it yields `UNKNOWN`.
+
+This deliberately preserves the distinction between the provider's coarse
+aggregate and the producer's richer detail taxonomy. It does not infer the
+state of an omitted check. Missing/null rollups and missing coverage metadata
+cannot establish an empty or complete successful check set.
+
+`hosted-contexts-incomplete` is added to `degraded` when any open row lacks
+complete detail, so the head tier also exposes that limitation. Head
+`counts.hosted` counts PRs by this qualified detailed rollup. The full
+`checks` list remains capped at 40 names; the published `not_success`
+list keeps up to four of those retained names. Neither display cap changes
+the observed counts or connection-completeness calculation.
+
+This is a source-derived correction of the bounded-query/reducer contract.
+No over-80 response or incorrectly published historical row was acquired to
+establish an observed incident. The change was inspected as source and exact
+text diffs; no producer, Python classifier, synthetic response, test suite,
+workflow, or state-branch publication was run for this change. Previously
+published state remains tied to its own observation time until a real
+refresh runs.
 
 ## Refresh it (any seat with a clone and a GitHub token)
 
