@@ -1,0 +1,55 @@
+diff --git a/app/contacts.tsx b/app/contacts.tsx
+--- a/app/contacts.tsx
++++ b/app/contacts.tsx
+@@ -47,7 +47,17 @@
+   const [nameWarning, setNameWarning] = useState<string | undefined>();
+   const [keyError, setKeyError] = useState<string | undefined>();
+   const [foundDuplicate, setFoundDuplicate] = useState<Contact | null>(null);
+   const [isSaving, setIsSaving] = useState(false);
++  const [search, setSearch] = useState("");
++  const searchQuery = search.trim().toLowerCase();
++  const filteredContacts = useMemo(() => {
++    if (!searchQuery) return contacts;
++    return contacts.filter(
++      (contact) =>
++        contact.name.toLowerCase().includes(searchQuery) ||
++        contact.publicKey.toLowerCase().includes(searchQuery),
++    );
++  }, [contacts, searchQuery]);
+ 
+   // ── Helpers ─────────────────────────────────────────────────────────────────
+ 
+@@ -341,16 +351,30 @@
+                 />
+               </View>
+ 
++              <Input
++                  label="Search contacts"
++                  placeholder="Name or public key"
++                  value={search}
++                  onChangeText={setSearch}
++                  autoCapitalize="none"
++                  autoCorrect={false}
++                  returnKeyType="search"
++                  accessible={true}
++                  accessibilityLabel="Search contacts by name or public key"
++              />
++
+               {/* ── Contact list ─────────────────────────────────────────────────── */}
+               <FlatList
+-                  data={contacts}
++                  data={filteredContacts}
+                   keyExtractor={(item) => item.id}
+                   contentContainerStyle={styles.listContent}
+                   ListEmptyComponent={
+                     <EmptyState
+                         icon={<User color={colors.textMuted} size={48} />}
+-                        title="No contacts yet"
+-                        message="Add a contact manually or scan a QR code."
++                        title={contacts.length ? "No contacts found" : "No contacts yet"}
++                        message={contacts.length
++                          ? "Try another name or public key, or clear the search."
++                          : "Add a contact manually or scan a QR code."}
+                     />
+                   }
+                   renderItem={({ item }) => (
