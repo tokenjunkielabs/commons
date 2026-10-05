@@ -22,8 +22,11 @@ export { AppointmentStatus } from '../models/Appointment';
 
 const BASE_URL = '/appointments';
 
-/** Buffer window (ms) around each appointment that counts as a conflict */
+/** Existing medication proximity window and suggested-slot step (ms). */
 export const CONFLICT_BUFFER_MS = 60 * 60 * 1000; // 1 hour
+
+/** Default free gap between appointment intervals, as requested in issue #49. */
+export const DEFAULT_APPOINTMENT_BUFFER_MINUTES = 30;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -70,9 +73,12 @@ export async function detectConflicts(
   medications: Medication[] = [],
   excludeId?: string,
   includeSuggestedTime = true,
+  appointmentBufferMinutes = DEFAULT_APPOINTMENT_BUFFER_MINUTES,
 ): Promise<ConflictDetectionResult> {
-  const windowStart = new Date(proposedTime.getTime() - CONFLICT_BUFFER_MS).toISOString();
-  const windowEnd = new Date(proposedTime.getTime() + CONFLICT_BUFFER_MS).toISOString();
+  const appointmentBufferMs = getAppointmentBufferMs(appointmentBufferMinutes);
+  const lookupBufferMs = Math.max(CONFLICT_BUFFER_MS, appointmentBufferMs);
+  const windowStart = new Date(proposedTime.getTime() - lookupBufferMs).toISOString();
+  const windowEnd = new Date(proposedTime.getTime() + lookupBufferMs).toISOString();
 
   const nearby = await getAppointmentsInWindow<Appointment>(petId, windowStart, windowEnd);
   const allLocalAppointments = await getAllAppointmentsByPetId<Appointment>(petId).catch(() => []);
@@ -82,10 +88,17 @@ export async function detectConflicts(
     medications,
     appointmentCandidates,
     excludeId,
+    appointmentBufferMs,
   );
   const suggestedTime =
     result.hasConflicts && includeSuggestedTime
-      ? await findNextAvailableSlot(petId, proposedTime, medications, excludeId)
+      ? await findNextAvailableSlot(
+          petId,
+          proposedTime,
+          medications,
+          excludeId,
+          appointmentBufferMinutes,
+        )
       : undefined;
   return { ...result, suggestedTime };
 }
@@ -94,7 +107,8 @@ function detectConflictsInAppointments(
   proposedTime: Date,
   medications: Medication[],
   appointmentCandidates: Appointment[],
-  excludeId?: string,
+  excludeId: string | undefined,
+  appointmentBufferMs: number,
 ): ConflictDetectionResult {
   const conflicts: AppointmentConflict[] = [];
   const proposedInterval = {
@@ -108,7 +122,7 @@ function detectConflictsInAppointments(
 
     const apptInterval = getAppointmentInterval(appt);
     const gapMs = getIntervalGapMs(apptInterval, proposedInterval);
-    if (gapMs <= CONFLICT_BUFFER_MS) {
+    if (gapMs <= appointmentBufferMs) {
       conflicts.push({
         type: 'appointment',
         description: `"${appt.title ?? 'Appointment'}" is scheduled ${_formatTimeDiff(gapMs)} from the proposed time.`,
@@ -155,15 +169,18 @@ export async function findNextAvailableSlot(
   from: Date,
   medications: Medication[] = [],
   excludeId?: string,
+  appointmentBufferMinutes = DEFAULT_APPOINTMENT_BUFFER_MINUTES,
 ): Promise<Date | undefined> {
+  const appointmentBufferMs = getAppointmentBufferMs(appointmentBufferMinutes);
+  const lookupBufferMs = Math.max(CONFLICT_BUFFER_MS, appointmentBufferMs);
   const MAX_ITERATIONS = 14 * 24;
   let candidate = new Date(from.getTime() + CONFLICT_BUFFER_MS);
   let appointmentCandidates: Appointment[] | undefined;
 
   for (let i = 0; i < MAX_ITERATIONS; i++) {
     // Keep the detector's invalid/out-of-range time rejection before any database read.
-    new Date(candidate.getTime() - CONFLICT_BUFFER_MS).toISOString();
-    new Date(candidate.getTime() + CONFLICT_BUFFER_MS).toISOString();
+    new Date(candidate.getTime() - lookupBufferMs).toISOString();
+    new Date(candidate.getTime() + lookupBufferMs).toISOString();
     if (i === 0) {
       // One local snapshot belongs only to this search; later calls read again.
       const appointments = await getAllAppointmentsByPetId<Appointment>(petId).catch(
@@ -172,8 +189,21 @@ export async function findNextAvailableSlot(
       if (appointments) appointmentCandidates = mergeAppointmentsById([], appointments);
     }
     const result = appointmentCandidates
-      ? detectConflictsInAppointments(candidate, medications, appointmentCandidates, excludeId)
-      : await detectConflicts(petId, candidate, medications, excludeId, false);
+      ? detectConflictsInAppointments(
+          candidate,
+          medications,
+          appointmentCandidates,
+          excludeId,
+          appointmentBufferMs,
+        )
+      : await detectConflicts(
+          petId,
+          candidate,
+          medications,
+          excludeId,
+          false,
+          appointmentBufferMinutes,
+        );
     if (!result.hasConflicts) return candidate;
     candidate = new Date(candidate.getTime() + CONFLICT_BUFFER_MS);
   }
@@ -401,6 +431,14 @@ export async function cancelAllAppointmentReminders(appointmentId: string): Prom
 }
 
 // ─── Private helpers ──────────────────────────────────────────────────────────
+
+function getAppointmentBufferMs(bufferMinutes: number): number {
+  const bufferMs = bufferMinutes * 60_000;
+  if (!Number.isFinite(bufferMinutes) || bufferMinutes < 0 || !Number.isFinite(bufferMs)) {
+    throw new RangeError('Appointment buffer must be a finite nonnegative number of minutes.');
+  }
+  return bufferMs;
+}
 
 function _formatTimeDiff(ms: number): string {
   const mins = Math.round(ms / 60_000);
