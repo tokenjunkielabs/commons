@@ -1,0 +1,227 @@
+{
+  "schema": "razer-macos-production-patch/v1",
+  "operation_id": "RAZER452-PASSIVE-KVM-RESTORE-20261005-7CA6",
+  "created_utc": "2026-10-05",
+  "issue": "https://github.com/1kc/razer-macos/issues/452",
+  "upstream": {
+    "repository": "1kc/razer-macos",
+    "branch": "master",
+    "commit": "27f8a770611c4d68d0387a980e55b79711a343f3",
+    "package_blob": "cee0b365c0cbc3a5876e0d4d7fabbfd5eda8ac86",
+    "binding_blob": "c541b3d75c79a865aedd36c3cb6a2d4c4c92f1c9",
+    "license_blob": "d159169d1050894d3ea3b98e1c965c4058208fe1",
+    "package_license": "GPL-2.0-only",
+    "submodules": {
+      "librazermacos": "325c96a62afd87debbaf4f51d8c9f569e45657bb",
+      "iohook": "3b9ea1aed8344be077577be50e79423d22a9df8f"
+    }
+  },
+  "delivery": {
+    "type": "production_source_patch",
+    "upstream_pr_created": false,
+    "upstream_write_attempted": false,
+    "fork_created": false,
+    "bounty_submitted": false,
+    "acceptance_claimed": false,
+    "payment_claimed": false
+  },
+  "files": [
+    {
+      "path": "src/main/razerapplication.js",
+      "artifact": "source/src/main/razerapplication.js",
+      "upstream_blob": "0608348596a048e5cd95d568201f19dda9f2b020",
+      "upstream_bytes": 1671,
+      "result_blob": "73ac6d7c020c605d6a5dc9074899823ae901b2ee",
+      "result_bytes": 5467,
+      "change": "modified",
+      "additions": 135,
+      "deletions": 21,
+      "hunks": 2
+    },
+    {
+      "path": "src/main/razerdevicemonitor.js",
+      "artifact": "source/src/main/razerdevicemonitor.js",
+      "upstream_blob": null,
+      "upstream_bytes": null,
+      "result_blob": "ef589ad4ec5b72aeec1d8ec4ffd8292eba526d47",
+      "result_bytes": 2889,
+      "change": "added",
+      "additions": 101,
+      "deletions": 0,
+      "hunks": 1
+    },
+    {
+      "path": "src/main/razerdevicemanager.js",
+      "artifact": "source/src/main/razerdevicemanager.js",
+      "upstream_blob": "361bfb1c3f3ddce2c05be827825726af59058fc5",
+      "upstream_bytes": 6601,
+      "result_blob": "66e75bba97e17e3c14a702847f7f360b8753e890",
+      "result_bytes": 11346,
+      "change": "modified",
+      "additions": 170,
+      "deletions": 38,
+      "hunks": 4
+    },
+    {
+      "path": "src/main/device/razerdevice.js",
+      "artifact": "source/src/main/device/razerdevice.js",
+      "upstream_blob": "0adf2b32c9d51291e9c0db799646fb83cae7aeb0",
+      "upstream_bytes": 2567,
+      "result_blob": "105756e9ed6340f99dba3ee13fc3ccf492c53947",
+      "result_bytes": 2808,
+      "change": "modified",
+      "additions": 5,
+      "deletions": 1,
+      "hunks": 2
+    },
+    {
+      "path": "src/main/animation/animationcycle.js",
+      "artifact": "source/src/main/animation/animationcycle.js",
+      "upstream_blob": "c6fcbd94f803cfc2b97ea0df875d00896171a7a0",
+      "upstream_bytes": 1062,
+      "result_blob": "b7afbb90d75bd4e3fd4838b793d2e73afac82911",
+      "result_bytes": 1278,
+      "change": "modified",
+      "additions": 14,
+      "deletions": 4,
+      "hunks": 2
+    },
+    {
+      "path": "src/main/animation/animationripple.js",
+      "artifact": "source/src/main/animation/animationripple.js",
+      "upstream_blob": "06f2b0eb246b19f602c5543154843178f73d22f2",
+      "upstream_bytes": 4683,
+      "result_blob": "6fb1281d2b7629ac495896ee42cbbcbbeb5f8ee4",
+      "result_bytes": 5380,
+      "change": "modified",
+      "additions": 26,
+      "deletions": 7,
+      "hunks": 5
+    },
+    {
+      "path": "src/main/animation/animationwheel.js",
+      "artifact": "source/src/main/animation/animationwheel.js",
+      "upstream_blob": "b8312bdf804e0d1eda8486593ad88fa7c3c37256",
+      "upstream_bytes": 1633,
+      "result_blob": "02397c192a854a56883dc42e870d8e3004337233",
+      "result_bytes": 1695,
+      "change": "modified",
+      "additions": 4,
+      "deletions": 2,
+      "hunks": 2
+    },
+    {
+      "path": "src/main/application.js",
+      "artifact": "source/src/main/application.js",
+      "upstream_blob": "cab3e2a8c13621882187341909cc9d9d90a9f1df",
+      "upstream_bytes": 11292,
+      "result_blob": "049b06a400a573a7145facf6d38a7cfed9bce1c5",
+      "result_bytes": 17252,
+      "change": "modified",
+      "additions": 161,
+      "deletions": 10,
+      "hunks": 19
+    },
+    {
+      "path": "src/main/menu/menubuilder.js",
+      "artifact": "source/src/main/menu/menubuilder.js",
+      "upstream_blob": "ea1e4343661cd4edfda108ba92c1a86498c668b4",
+      "upstream_bytes": 5332,
+      "result_blob": "2cfaca879bad108edcea68c1cf9d9790862a7b68",
+      "result_bytes": 5623,
+      "change": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "hunks": 1
+    },
+    {
+      "path": "src/main/statemanager.js",
+      "artifact": "source/src/main/statemanager.js",
+      "upstream_blob": "d683801e4a6676400b79222f19d77737c20625fc",
+      "upstream_bytes": 6767,
+      "result_blob": "cc19346a96c72ca008e2f235257998e52f98680e",
+      "result_bytes": 6851,
+      "change": "modified",
+      "additions": 3,
+      "deletions": 0,
+      "hunks": 1
+    },
+    {
+      "path": "src/renderer/App.jsx",
+      "artifact": "source/src/renderer/App.jsx",
+      "upstream_blob": "e7ff0990bceb1e9e78d23dc5b083333431265c8b",
+      "upstream_bytes": 1122,
+      "result_blob": "5d37001fa2f9aa066c38d862e3f9dbd3b879975d",
+      "result_bytes": 1665,
+      "change": "modified",
+      "additions": 34,
+      "deletions": 19,
+      "hunks": 2
+    },
+    {
+      "path": "src/renderer/views/viewstatesettings.jsx",
+      "artifact": "source/src/renderer/views/viewstatesettings.jsx",
+      "upstream_blob": "d3715a76226d3d1372b936003f4d7f3d32206e05",
+      "upstream_bytes": 14285,
+      "result_blob": "c577fa0b643bc1eb81443484d7aca082b49f100e",
+      "result_bytes": 14606,
+      "change": "modified",
+      "additions": 10,
+      "deletions": 1,
+      "hunks": 3
+    },
+    {
+      "path": "src/driver/addon.cc",
+      "artifact": "source/src/driver/addon.cc",
+      "upstream_blob": "62f70e23cfa761fd4a419b643bcf5bfbdb4385e8",
+      "upstream_bytes": 40208,
+      "result_blob": "8a5bcd2967461b2e62493bd8a6939e17781093eb",
+      "result_bytes": 45278,
+      "change": "modified",
+      "additions": 132,
+      "deletions": 1,
+      "hunks": 4
+    }
+  ],
+  "verification": {
+    "upstream_preimage_full_text_blob_identity": true,
+    "main_js_body_syntax_parse": {
+      "files": 10,
+      "method": "V8 parse after removing import/export declarations; function bodies not invoked",
+      "module_resolution_verified": false
+    },
+    "serialized_unified_patch_roundtrip": {
+      "files": 13,
+      "hunks": 48,
+      "complete_postimage_equality": true,
+      "git_executable_used": false
+    },
+    "static_review": [
+      "native IOKit ownership and failure behavior",
+      "refresh shutdown/generation handling",
+      "partial-open cache poisoning",
+      "all seven derived device initializers",
+      "renderer stale-device and disconnected-state handling"
+    ],
+    "unperformed": [
+      "Native compilation",
+      "Electron/N-API loading",
+      "Renderer JSX bundling",
+      "Dependency installation",
+      "Tests or fixtures",
+      "Workflow dispatch",
+      "macOS permission prompts",
+      "USB open or lighting commands",
+      "Physical KVM reconnect"
+    ]
+  },
+  "limits": [
+    "In-memory last application-known state; no restoration across process restart beyond existing startup-state settings",
+    "Existing driver has no physical serial identity; restoration is by unique mainType/productId and skipped for duplicates",
+    "Registry ID is an observation identity, not a device serial",
+    "Unknown configurations are excluded from topology comparison; known but unopenable products stay pending with backoff",
+    "Global color sequence resumes at its next index; elapsed timer phase and ripple events are not retained",
+    "Monitor requires rebuilt native addon; missing export leaves manual refresh usable",
+    "Hardware success and maintainer acceptance are not established"
+  ]
+}
