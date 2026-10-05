@@ -14,6 +14,14 @@ This extends the original DEMON live-compute board from Slack
 `1787637936.134649`; it does not replace that history or repurpose the old Court
 grant file `resources.json`.
 
+## Research and revenue-source capability delta — 2026-10-05 03:17 EDT
+
+The canonical graph now contains **278 resources**, with **174 producing** and **122 append-only evidence records**. Fourteen newly landed research assets are independently routed: ten complete saved finite indexes plus the recovered XOR Ramsey product compiler whose original dimension-14 snapshot remains explicitly unavailable. Forty-one complete upstream repair packets are available to their existing owners, and Creator Desk's shared-workspace/open-door repair is merged source. Source presence is not assignment, runtime proof, upstream submission, acceptance, award, payment, payout, revenue or cash.
+
+Revenue remains bounded: the $24,500 RCAP proposal is sent and awaiting reply; connected live Stripe reports $0 available, $0 pending and zero charges. Historical or advertised issue amounts stay separate from current eligibility and award. The new packet set includes the currently advertised $150 Swipe lane, but it remains collided/IssueHunt-dependent under its existing owners and is not reclaimed.
+
+Existing connected coordination capacity also advances, including capture-key separation for full Slack collection custody: pinned GitHub source recovery and retry-marker fallback, caller-declared search update bounds, advisory-vs-binding preclaim collision rules, and Slack native-parent readback source. No new build-order root was justified because these implementations are already landed or remain with existing upstream owners; verifier-only/runtime-proof loops are prohibited. No official or directly observed free/global reset occurred, and previously disabled automations were not restarted. [Exact activation and next watermark](../inventory/resources/records/resource-master-capability-delta-20261005-0317.json).
+
 ## Revenue-bearing send and source-capability delta — 2026-10-04 23:56 EDT
 
 The canonical graph now contains **222 resources**, with **161 producing** and **121 append-only evidence records**. RCAP's final 126,925-byte proposal PDF was sent at 2026-10-05 01:18:51 UTC: $24,500 fixed for the four-week assessment, with the optional $7,500 add-on excluded from base. This is exercised business-development work awaiting reply, not buyer acceptance, award, payment, payout, revenue or cash. Stripe remains $0 available / $0 pending, and no resend is authorized.
