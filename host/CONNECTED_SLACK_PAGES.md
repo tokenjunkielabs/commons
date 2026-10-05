@@ -304,6 +304,9 @@ For a direct native read, retain its original response and pass its actual argum
 | `max_body_chars` | 800 | 0–65536 | Maximum returned rendered-content prefix per entry. |
 | `max_total_body_chars` | 6400 | 0–262144 | Combined returned content budget. |
 | `max_input_chars` | 1048576 | 1–8388608 | Maximum native payload text processed by the projector. |
+| `header_only` | false | boolean | Return bounded rendered headers and withhold all selected bodies; applies to channel/thread projectors. |
+| `max_header_chars` | 800 | 0–65536 | Header prefix per entry; accepted only with `header_only: true`. |
+| `max_total_header_chars` | 6400 | 0–262144 | Combined header prefix budget; accepted only with `header_only: true`. |
 
 Character counts and ranges use JavaScript UTF-16 code units. A prefix stops one code unit early when necessary to preserve a surrogate pair. For a native JSON text block, the input budget charges the encoded block; for a structured payload, it charges its two decoded strings. Multiple supplied representations each consume that budget. The input was already captured before projection; this limit does not bound a provider's response allocation. Returned metadata is additional to the content budget.
 
@@ -370,6 +373,81 @@ This addresses an actual four-page intake display that excluded
 printing explicit metadata fields and short previews from the saved views, with
 zero refetch. The reader's API, parsing and source-selection behavior were
 unchanged.
+
+### Navigate headers before selecting bodies
+
+Set `header_only: true` when the next intake step needs message identities,
+rendered author/time headers and body sizes without body excerpts. Existing zero
+body budgets remain available for identity-only navigation. The header view adds
+bounded literal headers and distinguishes intentional withholding from a
+truncated body.
+
+```js
+const headers = box.exports.projectSlackCollectedMessages(savedCollection, {
+  projection: {
+    header_only: true,
+    max_messages: 20,
+    max_header_chars: 180,
+    max_total_header_chars: 3200
+  }
+});
+store("selected-page-headers", headers);
+text({
+  status: headers.status,
+  coverage: headers.projection?.coverage,
+  messages: headers.projection?.messages
+});
+```
+
+The same option works with `projectSlackMessages(response, actualRequest, options)`
+and with existing contiguous or `source_indices` selection. It does not apply to
+the separate search projector. Each selected message retains its identity and
+source ranges and adds `rendered_header`, `header_chars`,
+`returned_header_chars` and `header_truncated`. Header prefixes use their own
+per-entry and combined UTF-16 budgets and never split a surrogate pair.
+`rendered_content` is empty, `returned_chars` is zero,
+`body_withheld` is true and `truncated` is false. The original
+`content_chars` still reports the complete retained body range size.
+
+Coverage records `body_mode: "withheld_by_caller"`, `withheld_bodies`,
+`selected_header_chars`, `returned_header_chars` and `truncated_headers`.
+`all_rendered_headers_included` requires every parsed identity to be selected
+and every header to be complete. `all_rendered_messages_included` remains false
+whenever a selected body is withheld. A complete header view therefore does not
+claim that message bodies or complete channel history were read.
+
+Choose message indices from that retained page and make the ordinary body
+projection when its content is needed:
+
+```js
+const selected = box.exports.projectSlackCollectedMessages(savedCollection, {
+  projection: {
+    source_indices: selectedSourceIndices,
+    max_messages: 8,
+    max_body_chars: 2000,
+    max_total_body_chars: 8000
+  }
+});
+store("selected-page-bodies", selected);
+```
+
+This second projection makes no provider call. Keep capture, collector, header
+view and selected-body view under distinct keys. The full native response still
+contains the original bodies; do not print or publish the collector as a header
+view. Headers can themselves contain personal information. This is a caller
+display choice, not redaction, a content classifier, an access change or reduced
+source retention. The complete selected native envelope still undergoes the
+existing input/framing checks. Omitted or false `header_only` preserves the
+ordinary projection shape, budgets and body behavior.
+
+The first use consumed one new native continuation page during actual work
+intake: 20 complete headers, 2,620 returned header code units and 20 withheld
+bodies containing 20,100 code units. Header slices matched the retained source
+ranges, body output stayed empty and the collection remained unchanged. Four
+selected messages were then read in full from that same collection, returning
+3,854 code units with zero refetch. The provider continuation remained explicit.
+This observed channel path used no fixture, test suite or replay of prior
+acceptance; raw messages remain private caller custody.
 
 ### Inspect a retained request's time window
 
@@ -468,7 +546,8 @@ and metadata remains additional to the body budget.
 
 `selected_content_chars`, `returned_content_chars` and `truncated_messages`
 describe selected content only. `all_rendered_messages_included` is true only
-when every parsed entry is selected and none is truncated. Native pagination
+when every parsed entry is selected, none is truncated, and no body is withheld.
+Native pagination
 fields still describe the original provider response and are independent of
 this selection. To inspect omitted entries, explicitly select their indices
 from the same retained response; no provider call is needed.
