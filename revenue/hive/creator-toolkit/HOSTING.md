@@ -1,10 +1,11 @@
 # Creator Desk multi-community hosting boundary
 
 `multisite.py` turns the existing single-workspace Creator Desk into a **local,
-fail-closed multi-community runtime**. It leaves `Store`, `OperatorAuth`, and
-`app.make_server` single-tenant: every community receives an independent SQLite
-generation, operator capability root, and loopback Creator Desk server. The
-outer router selects exactly one tenant from an explicit HTTP `Host` registry.
+fail-closed multi-community runtime**. Each community receives an independent
+SQLite generation, `Store`, and loopback Creator Desk server. The outer router
+selects exactly one workspace from an explicit HTTP `Host` registry. Within
+that workspace, member records and creator controls follow the shared trusted
+operating model in [README.md](README.md); there is no operator-key setup.
 
 This is a commercialization control plane, not a deployment promise. It does
 **not** buy domains, create DNS, terminate TLS, configure an IdP, send email,
@@ -29,7 +30,7 @@ unverified ancestor chain.
 Existing Creator Desk layers receive a database path such as
 `/proc/self/fd/17`, which resolves to the retained database generation. A
 rename, symlink replacement, sibling-directory swap, or database hardlink swap
-after validation therefore cannot redirect the later `Store`/`OperatorAuth`
+after validation therefore cannot redirect the later `Store`
 SQLite open to another tenant. The registry also rechecks on startup and every
 Host resolution that each logical community name and database filename still
 maps to its retained `(st_dev, st_ino)` identity. Drift fails closed. Duplicate
@@ -90,17 +91,12 @@ Those names are only registry identities. During the operation, the actual
 SQLite authority is the retained file generation reached through
 `/proc/self/fd`.
 
-For each previously uninitialized community, stdout contains a
-`one_time_operator_keys` entry. **Capture each key as an owner secret and do not
-redirect that output to a shared log or commit it.** Only the SHA-256 verifier
-is stored by `OperatorAuth`; plaintext capabilities are never written to the
-registry or control-plane state. Running `provision` again does not disclose or
-rotate existing keys.
-
-If a key must change, use the existing per-workspace `operator_auth.py rotate`
-flow against that community's exact database while the service is stopped and
-the workspace is under the same trusted local filesystem custody. Rotation is
-intentionally not a cross-tenant multisite action.
+Provisioning initializes each workspace's application tables without creating
+operator keys. The existing JSON output retains `one_time_operator_keys: {}`
+for compatibility; it is always empty. The Python `provision()` function still
+returns `(registry, {})`. Existing credential rows, if any, are left untouched
+and are not consulted by the runtime. Repeated provisioning preserves existing
+workspace data.
 
 ## Validate before serving
 
@@ -111,10 +107,9 @@ python multisite.py \
   validate
 ```
 
-Validation requires every derived workspace database and operator capability
-root to already exist. It does not create a missing workspace root, tenant, or
-capability. It reasserts retained generation identity around the existing
-`Store` and `OperatorAuth` opens.
+Validation requires each derived workspace database to exist. It does not
+create a missing workspace root or tenant. It reasserts retained generation
+identity around the existing `Store` opens; no operator-key record is needed.
 
 ## Run the loopback router
 
@@ -138,10 +133,9 @@ the HTTP/1.1 connection after its response. It returns only the selected
 `X-Creator-Community` response header. It exposes no operator capability or
 member data.
 
-The existing operator `/workspace.sqlite3` download is intercepted by the outer
-router in multisite mode. After operator-capability verification, it opens the
-retained `/proc/self/fd` database generation directly, uses SQLite online backup
-plus the existing Creator Desk snapshot integrity checks, reasserts generation
+The existing `/workspace.sqlite3` download is intercepted by the outer router
+in multisite mode. It opens the retained `/proc/self/fd` database generation
+directly, uses SQLite online backup plus the existing Creator Desk snapshot integrity checks, reasserts generation
 identity, and only then returns bytes. It never calls the single-tenant copy
 helper's pathname `resolve()` step, which would throw away descriptor custody.
 The multisite download inherits the outer 12 MiB response bound.
@@ -152,8 +146,7 @@ The host layer keeps these hard boundaries:
 
 - one registry ID -> one canonical Host -> one retained workspace/database
   generation;
-- distinct `Store` and `OperatorAuth` instances for every community;
-- a bearer key from community A is rejected by community B;
+- distinct `Store` instances and database generations for every community;
 - identical member emails or operation IDs in two communities remain separate;
 - directory/database generation replacement is detected before routing and
   around lower-layer startup/provision opens;
@@ -171,30 +164,10 @@ The host layer keeps these hard boundaries:
 - tenant access logs stay silent so capabilities/member references are not
   copied into host logs.
 
-The router does not add authorization to member-public routes or remove the
-existing operator authorization from privileged routes. It reuses the existing
-single-tenant boundary rather than inventing a second policy engine.
+Host selection keeps one community's data and operations separate from another
+community's database. It does not authenticate a user or limit which registered
+workspace a connected client may select. Each selected workspace exposes its
+member records, creator operations, drafts and backups to its users. External
+service credentials and deployment responsibilities remain outside this local
+application.
 
-## Tests
-
-From `revenue/hive/creator-toolkit` on Linux:
-
-```bash
-python -m unittest -v test_multisite test_multisite_security test_toolkit test_operator_auth test_workspace_copy
-python -O -m unittest -v test_multisite test_multisite_security test_toolkit test_operator_auth test_workspace_copy
-```
-
-`test_multisite.py` covers duplicate/case-equivalent hosts, malformed
-registries, unsafe/relative roots, path/symlink escapes, one-time secret
-persistence, wrong-tenant bearer rejection, same-email isolation, operator
-mutation isolation, explicit port routing, unknown/missing/duplicate Host,
-concurrent traffic, restart persistence, loopback-only binding, and thread
-cleanup. It also performs deterministic hostile swaps of a community directory
-and database **between the pre-open identity check and the lower-layer
-`Store` open**, proving the retained file generation is used and the subsequent
-identity assertion stops startup/provision instead of exposing a sibling
-community.
-
-Raw-socket hostiles cover health-route `Transfer-Encoding`, duplicate and
-oversized `Content-Length`, and a body containing a second pipelined request;
-none may produce a second routed response.
