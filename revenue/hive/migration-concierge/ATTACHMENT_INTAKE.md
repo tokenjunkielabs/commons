@@ -45,6 +45,14 @@ Rollback remains the workspace's responsibility: preserve later edits rather
 than silently erasing them. This component neither changes rollback semantics
 nor claims the complete customer migration is finished.
 
+## Canonical workspace consumer
+
+The canonical `intake.py` and `migrate.py` now call this component's `read_attachment` through `intake.read_attachment_source` for attachment bytes during trial collection and cutover. The caller passes its existing 64 MiB per-file limit, keeps its own digest/size comparison and content-addressed asset storage, and translates `AttachmentError` to `MigrationError`. It does not adopt `prepare_attachments` or alter canonical duplicate, relationship, journal or rollback rules.
+
+The wrapper selects this adapter only when its required POSIX flags and descriptor-relative open/stat APIs are available. Unsupported platforms retain the canonical portable reader and its narrower guarantees. An error from this adapter never falls through to that reader. Mapping and CSV source reads remain unchanged.
+
+LINDEN's original module remains byte-identical (`c1c393c462ca1d4608a2a91ba1541564a653e8b6`); RELAY's workspace ownership and prior validation remain credited. The new consumer wiring has source/text checks only, with no runtime, test, SQLite transfer, backup/restore or browser replay. The standalone BLOB example above remains an adapter interface example, not a change to the canonical workspace's existing asset-file design.
+
 ## Source and runtime boundaries
 
 Run in the existing cloud POSIX environment, Python 3.10 or later, with
