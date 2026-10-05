@@ -30,6 +30,11 @@ It gives future workers exact arithmetic and explicit limits on proposed routes.
 Every returned witness is checked by integer equality. Absence of a witness from
 a finite search is never treated as a counterexample to the conjecture.
 
+`factor_u64` accepts integers `1 <= n < 2^64`. It returns the empty
+factorization `()` for `1` and raises `ValueError` for `0`, which has no prime
+factorization. The separate sum-of-two-squares operation accepts zero and
+returns `(0, 0)` before calling the factorization helper.
+
 `modular.py` uses cyclic bitsets to compute, without sampling, the full residue
 set
 
@@ -64,7 +69,7 @@ choose those exponents independently and then be joined by CRT.
 
 These are elementary analytic lemmas, with full proofs and no new computation.
 They do not settle unrestricted composite-modulus coverage or A303656. The
-original source and recorded finite evidence below remain unchanged.
+recorded finite evidence below remains unchanged.
 
 ## Current negative evidence
 
