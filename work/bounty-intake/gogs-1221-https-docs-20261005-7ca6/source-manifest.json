@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "operation_id": "GOGS1221-SAML-PUBLIC-HTTPS-DOCS-20261005-7CA6",
+  "original_order": {
+    "channel_id": "C0BU51F1PL3",
+    "message_ts": "1791168585.249299",
+    "batch": "BATCH25-05",
+    "row": 9
+  },
+  "issue": "https://github.com/gogs/gogs/issues/1221",
+  "existing_contribution": {
+    "url": "https://github.com/gogs/gogs/pull/8394",
+    "author": "jamilahmadzai",
+    "repository_full_name": "jamilahmadzai/gogs",
+    "branch": "codex/saml-auth",
+    "head_sha": "4bab57f108dfb662a35d9662dae4f032ec65dc87"
+  },
+  "change": {
+    "path": "docs/advancing/authentication.mdx",
+    "previous_blob_sha": "44ee034ca39c0cdd4ece59e953b304a7450111d9",
+    "postimage_blob_sha": "33c2453e88645dfdf1b3231b4487d0e2fc75f6e0",
+    "postimage_utf8_bytes": 16809,
+    "scope": "One SAML prerequisites paragraph; all existing documentation preserved."
+  },
+  "source_bindings": [
+    {
+      "path": "internal/auth/saml/provider.go",
+      "blob_sha": "55e044f366c51e08329ae606a6eb35d27566d865",
+      "basis": "Complete added-file PR diff"
+    },
+    {
+      "path": "cmd/gogs/internal/web/web_saml.go",
+      "blob_sha": "8193385ea8951e49e713d30129834e691431d46f",
+      "basis": "Complete immutable file"
+    },
+    {
+      "path": "internal/auth/saml/config.go",
+      "blob_sha": "fd98ed6dd8f42de323d999e63d92ce0915750a7a",
+      "basis": "Complete immutable file"
+    },
+    {
+      "repository_full_name": "crewjam/saml",
+      "ref": "v0.5.1",
+      "path": "samlsp/new.go",
+      "blob_sha": "45123537b4049360c869ab0c59a37299aea562ba"
+    },
+    {
+      "repository_full_name": "crewjam/saml",
+      "ref": "v0.5.1",
+      "path": "samlsp/request_tracker_cookie.go",
+      "blob_sha": "156ee157b5cf1ee599a6892b93e21bcbb9560a6c"
+    }
+  ],
+  "cookie_reference": {
+    "url": "https://httpwg.org/http-extensions/draft-ietf-httpbis-rfc6265bis.html",
+    "status": "Internet-Draft, work in progress, published2026-09-30",
+    "sections": [
+      "5.6.7.1",
+      "5.6.7.2",
+      "5.7"
+    ]
+  },
+  "license": {
+    "path": "LICENSE",
+    "blob_sha": "0640c41d4b3b4633682d839f980bcc33fca6e970",
+    "unchanged": true
+  },
+  "validation": {
+    "source_and_patch": "exact_text_comparison",
+    "browser": "not_performed",
+    "runtime": "not_performed",
+    "tests": "not_created_or_run",
+    "idp_or_account_actions": "none",
+    "upstream_mutation": "none"
+  }
+}
