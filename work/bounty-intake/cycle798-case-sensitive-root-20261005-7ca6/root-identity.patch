@@ -1,0 +1,16 @@
+diff --git a/dom/src/VNodeWrapper.ts b/dom/src/VNodeWrapper.ts
+--- a/dom/src/VNodeWrapper.ts
++++ b/dom/src/VNodeWrapper.ts
+@@ -20,10 +20,9 @@
+ 
+     const isVNodeAndRootElementIdentical =
+       typeof vNodeId === 'string' &&
+-      vNodeId.toUpperCase() === this.rootElement.id.toUpperCase() &&
++      vNodeId === this.rootElement.id &&
+       selTagName.toUpperCase() === this.rootElement.tagName.toUpperCase() &&
+-      vNodeClassName.toUpperCase() ===
+-        this.rootElement.className.toUpperCase() &&
++      vNodeClassName === this.rootElement.className &&
+       !this.isRootInDocumentFragment();
+ 
+     if (isVNodeAndRootElementIdentical) {
