@@ -56,6 +56,8 @@ class GasPrice extends React.Component {
   constructor(props) {
     super(props);
 
+    this.isMountedForQuotes = false;
+    this.hasUserSelection = false;
     this.state = {
       gasOption: '',
       showAdvanced: false,
@@ -64,11 +66,17 @@ class GasPrice extends React.Component {
   }
 
   componentDidMount() {
+    this.isMountedForQuotes = true;
     fetch(ETH_GAS_STATION_API)
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) {
+          throw new Error('Gas price quote request failed');
+        }
+        return res.json();
+      })
       .then(
         result => {
-          const gasData = _.pick(result, [
+          const fields = [
             AVERAGE,
             'avgWait',
             FAST,
@@ -77,31 +85,54 @@ class GasPrice extends React.Component {
             'fastestWait',
             SAFE_LOW,
             'safeLowWait',
-          ]);
-          const value = gasData[FAST] / 10;
-          this.setState(
-            {
-              gasOption: FAST,
-              showAdvanced: true,
-              value,
-              ...gasData,
-            },
-            () => {
-              this.props.onGasPriceChange(value);
-            }
-          );
+          ];
+          const gasData = _.pick(result, fields);
+          const valid = fields.every(key => Number.isFinite(gasData[key]) && gasData[key] >= 0);
+          this._applyQuote(valid ? gasData : null);
         },
         error => {
           console.log(error);
+          this._applyQuote(null);
         }
       );
   }
 
+  componentWillUnmount() {
+    this.isMountedForQuotes = false;
+  }
+
+  _applyQuote = gasData => {
+    if (!this.isMountedForQuotes || this.hasUserSelection) {
+      return;
+    }
+    const value = gasData ? gasData[FAST] / 10 : 10;
+    this.setState(
+      () => {
+        if (!this.isMountedForQuotes || this.hasUserSelection) {
+          return null;
+        }
+        return {
+          gasOption: gasData ? FAST : '',
+          showAdvanced: Boolean(gasData),
+          value,
+          ...(gasData || {}),
+        };
+      },
+      () => {
+        if (this.isMountedForQuotes && !this.hasUserSelection) {
+          this.props.onGasPriceChange(value);
+        }
+      }
+    );
+  };
+
   _onSliderChange = value => {
+    this.hasUserSelection = true;
     this.setState({ gasOption: '', value }, () => this.props.onGasPriceChange(value));
   };
 
   _onSelectOption = gasOption => {
+    this.hasUserSelection = true;
     const value = this.state[gasOption] / 10;
     this.setState({ gasOption, value }, () => this.props.onGasPriceChange(value));
   };
