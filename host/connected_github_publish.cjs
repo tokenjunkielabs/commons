@@ -490,7 +490,8 @@ function baseFileReader({api, repository_full_name, commitSha, treeSha,
       catch (error) {
         if (retainedTrees.has(parentPath)) throw error;
         // The successful prefix reads must already establish the immediate parent.
-        if (index === 0 || index !== parts.length - 1 || !unavailable.has(current)) throw error;
+        if (index === 0 || index !== parts.length - 1 || !unavailable.has(current)
+            || typeof readPreimage !== 'function') throw error;
         const request = {repository_full_name, path, ref: commitSha, encoding: 'utf-8',
           start_line: 1, end_line: 1};
         const record = {path, base_commit_sha: commitSha, parent_tree_sha: current,
@@ -603,6 +604,13 @@ async function publishGitHubChange(tools, change, options = {}) {
   let announce = async () => {};
   try {
     const spec = validate(change);
+    if (options.inline_pinned_utf8 !== undefined && typeof options.inline_pinned_utf8 !== 'boolean') {
+      throw new TypeError('inline_pinned_utf8 must be boolean');
+    }
+    const inlinePinnedPaths = new Set(options.inline_pinned_utf8 === true
+      ? spec.files.filter(file => file.encoding === 'utf-8'
+        && file.expected_new_blob_sha !== undefined).map(file => file.path) : []);
+    if (options.inline_pinned_utf8 === true) progress.inline_pinned_utf8 = true;
     const readbackConcurrency = readbackLimit(options);
     const retainedTrees = validateRetainedTrees(options.retained_trees, spec.files);
     progress.readback_concurrency = readbackConcurrency;
@@ -614,7 +622,8 @@ async function publishGitHubChange(tools, change, options = {}) {
     const required = ACTIONS.filter(action => action !== 'fetch_blob'
       && (action !== 'merge_pull_request' || spec.merge)
       && (action !== 'create_blob' || spec.files.some(file =>
-        file.encoding === 'base64' || file.expected_new_blob_sha !== undefined)));
+        file.encoding === 'base64'
+          || (file.expected_new_blob_sha !== undefined && !inlinePinnedPaths.has(file.path)))));
     for (const action of required) {
       if (typeof tools?.[bindings[action]] !== 'function') {
         throw new Error(`Binding not present: ${bindings[action]}. Repeat discovery alongside independent work.`);
@@ -670,7 +679,8 @@ async function publishGitHubChange(tools, change, options = {}) {
     const createdBlobs = {'utf-8': new Map(), base64: new Map()};
     for (let index = 0; index < spec.files.length; index++) {
       const file = spec.files[index];
-      if (file.encoding === 'utf-8' && file.expected_new_blob_sha === undefined) continue;
+      if (file.encoding === 'utf-8'
+          && (file.expected_new_blob_sha === undefined || inlinePinnedPaths.has(file.path))) continue;
       const blobs = createdBlobs[file.encoding];
       let blobSha = blobs.get(file.content);
       if (blobSha === undefined) {
@@ -697,6 +707,31 @@ async function publishGitHubChange(tools, change, options = {}) {
       })});
     progress.tree_sha = sha(createdTree.sha, 'Created tree');
     await announce();
+    if (inlinePinnedPaths.size) {
+      progress.stage = 'check_inline_source_pins';
+      const verification = {tree_sha: progress.tree_sha, fetch_calls: 0,
+        checked_paths: [], complete: false};
+      progress.inline_tree_verification = verification;
+      // Read only the newly created tree. No commit or file fallback exists yet.
+      const inlineFile = baseFileReader({api, repository_full_name,
+        commitSha: null, treeSha: progress.tree_sha, progress, treeLabel: 'created',
+        fetchJSON: async url => {
+          verification.fetch_calls++;
+          return fetchJSON(url);
+        }});
+      for (const file of progress.files) {
+        if (!inlinePinnedPaths.has(file.path)) continue;
+        const existing = await inlineFile(file.path, file.expected_new_blob_sha);
+        if (!existing || existing.type !== 'blob' || existing.mode !== file.mode) {
+          throw new Error(`Created tree path/type/mode mismatch: ${file.path}`);
+        }
+        file.blob_sha = sha(existing.sha, 'Created inline text blob');
+        checkNewBlobPin(file, sourceByPath.get(file.path));
+        verification.checked_paths.push(file.path);
+      }
+      verification.complete = true;
+      await announce();
+    }
     if (progress.tree_sha === progress.base_tree_sha) {
       for (const file of progress.files) file.blob_sha = file.previous_blob_sha;
       progress.status = 'no_source_changes'; progress.stage = 'complete';

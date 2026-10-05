@@ -20,8 +20,10 @@ worker's patch, delete branches, run tests, or deploy anything. The separate
 Read the current native tool definitions before first use. The shipped adapter
 uses the installed `mcp__codex_apps__github_*` schemas for `fetch`, `fetch_file`,
 `create_blob`, `create_tree`, `create_commit`, `create_branch`,
-`create_pull_request`, and optionally `merge_pull_request` and `fetch_blob`. `create_blob` is
+`create_pull_request`, and optionally `merge_pull_request` and `fetch_blob`. By default, `create_blob` is
 required when the change contains base64 input or an `expected_new_blob_sha` pin.
+The explicit `publishGitHubChange` option described below can inline pinned UTF-8
+and verify its native created-tree identity before committing; base64 still needs `create_blob`.
 Unpinned UTF-8 files use the native tree writer's inline `content` field together
 in one request. A caller may supply
 `options.bindings` to map these action names to equivalent observed bindings;
@@ -67,7 +69,8 @@ Pass actual prepared source, not excerpts. The expected SHA identifies the
 **previous** file. For UTF-8 files the helper confirms the complete published
 content, then records the native SHA returned by readback. With a new-source pin,
 UTF-8 also requires that returned SHA to match the pin. The native blob writer
-supplies new SHAs before tree creation for base64 and pinned UTF-8 files. Base64 input
+supplies new SHAs before tree creation for base64 and, by default, pinned UTF-8 files.
+The opt-in inline-pinned route instead checks the native tree's leaf SHAs before commit creation. Base64 input
 must use ordinary padded encoding without line breaks. UTF-8 input rejects
 unpaired surrogate characters instead of silently changing them.
 
@@ -79,7 +82,7 @@ identify different versions. A producer-reported hash alone does not establish
 independent source identity.
 
 The optional new-source pin must be a lowercase 40-character Git SHA and is
-accepted with UTF-8 or base64 input. Pinned UTF-8 and base64 use one native
+accepted with UTF-8 or base64 input. By default, pinned UTF-8 and base64 use one native
 `create_blob` call per distinct encoding/content pair within a publication,
 then place the confirmed blob SHA in each file's tree entry. Identical entries
 reuse only a successful native blob result from that invocation. Each file's
@@ -169,8 +172,9 @@ contribution operation below provides a nonforce continuation on the original PR
 separate blob call per text file. Identical source/mode changes return
 `status: no_source_changes` without a commit, branch, or PR. An unchanged UTF-8
 batch with unpinned text is recognized by the returned tree SHA matching the
-observed base tree; an unchanged batch containing only base64 or pinned UTF-8
-files also skips the tree request after its blob checks.
+observed base tree; by default, an unchanged batch containing only base64 or pinned UTF-8
+files also skips the tree request after its blob checks. The opt-in inline-pinned
+route creates and verifies the tree before returning an unchanged result.
 
 Readback compares every submitted UTF-8 file's complete source with the returned
 UTF-8 content at the merge commit, or at the published commit when the PR stays
@@ -189,7 +193,7 @@ execution and product acceptance remain the caller's work.
 
 `publishGitHubChange` is the existing Git Trees route for a prepared regular-file
 batch. It creates one tree and one commit, then a new branch and PR. Unpinned
-UTF-8 entries share one inline `create_tree` request. Pinned UTF-8 and base64
+UTF-8 entries share one inline `create_tree` request. By default, pinned UTF-8 and base64
 still use one `create_blob` per distinct encoding/content pair before that tree;
 do not drop an independently observed new-source pin just to save calls.
 There is no separate native Contents batch operation in the exposed bindings.
@@ -220,7 +224,7 @@ used Contents publication for 110 provider calls: 39 `fetch`, 51 `fetch_file`, o
 one PR creation and one merge. Its 21 later full-main reads were separate.
 Those are observed counts, not an execution of the Git Trees route.
 
-For a successful 17-file batch with distinct pinned UTF-8 contents, no omitted
+For the default route's successful 17-file batch with distinct pinned UTF-8 contents, no omitted
 text, no fallback calls and all files changed, the updated Git Trees source
 models **41 + T0 + T1** calls: 17 blob writes, five other writes
 (tree, commit, branch, PR, merge), 17 full-file readbacks, two base reads,
@@ -228,14 +232,96 @@ and the tree reads. `T0` is the initial native tree-read count; `T1` is zero
 when the base did not move, otherwise the current-base tree-read count. With
 unpinned UTF-8 the corresponding source model is **24 + T0 + T1**.
 Neither count is a measured speedup, and separate task-required current-main
-or PR metadata reads are excluded. Pinned batching removes per-file commits
+or PR metadata reads are excluded. Default pinned batching removes per-file commits
 and their commit/ref/readback sequence; it does not eliminate its 17 blob writes.
+The opt-in route below has a separate created-tree verification cost.
 
 Both routes still compare complete published UTF-8 content at an immutable
 head or merge. That readback does not establish a later main tip or a running
 deployment. Keep required current-source evidence separate. An unreadable
 existing parent tree can still require the explicitly documented Contents
 route; do not guess a mode or manufacture a retained-tree packet.
+
+### Inline pinned UTF-8 and verify the created tree
+
+For a new, already-authorized atomic publication, `publishGitHubChange` accepts
+`options.inline_pinned_utf8: true`. Omitting it or passing `false` preserves
+the default blob-writing path. A supplied value must be boolean. This option
+belongs only to `publishGitHubChange`; it does not change Contents publication,
+contribution advancement, merge continuation, or recovery.
+
+```javascript
+const result = await publishGitHubChange(tools, preparedChange, {
+  inline_pinned_utf8: true,
+  onProgress: state => retainOperationProgress(state),
+});
+```
+
+Keep each independently established `expected_new_blob_sha` in `preparedChange`.
+Pinned UTF-8 files join the existing inline `content` tree entries instead of
+each requiring a separate `create_blob`. Base64 retains its native blob path;
+unselected/default behavior and source-content deduplication there are unchanged.
+Every tree entry uses either `content` or `sha`, never both. This is the native
+Git Trees capability already used for unpinned UTF-8, not a new transport or
+Contents batch operation. The observed connector accepts `tree_elements`
+objects; GitHub's [primary tree documentation](https://docs.github.com/en/rest/git/trees#create-a-tree)
+defines inline `content` and its mutual exclusion with `sha`.
+
+After the native tree write, the publisher enters `check_inline_source_pins`.
+Starting from that returned tree SHA, it reads complete, nonrecursive native
+trees along the selected paths, sharing each successfully read tree within this
+traversal. Every selected inline-pinned leaf must exist, be a blob, retain the
+prepared regular-file mode, and match its exact expected new blob SHA. Only
+then may the publisher create a commit, branch or PR. These checks also run
+when the new tree equals the base tree, before an unchanged result is returned.
+
+The additional progress record is:
+
+- `inline_pinned_utf8: true`;
+- `inline_tree_verification.tree_sha`: the actual created tree;
+- `inline_tree_verification.fetch_calls`: additional native tree GETs, also
+  included in the normal `calls.fetch` total;
+- `inline_tree_verification.checked_paths`: paths whose type, mode and pin matched;
+- `inline_tree_verification.complete`: true only after all selected paths pass.
+
+The existing per-file `source_pin_matches` and `blob_sha` fields retain their
+meaning. A pin mismatch records false and stops. A missing path, wrong type or
+mode, malformed/incomplete tree, or native read failure stops before commit
+creation; already-created blob/tree objects may exist. The original native
+error and partial progress remain available. There is no retry, recursive-tree
+substitute, file-reader fallback, guessed mode or caller-supplied tree metadata
+in this postimage check. Existing `retained_trees` still apply to the separate
+preimage checks under their original contract, not to this new tree traversal.
+
+All other publication boundaries remain: exact current preimages, canonical
+distinct paths and file/directory collision refusal, preserved modes, current
+base comparison before merge, expected PR-head merge protection, and complete
+immutable content readback with native new-source pins. Required literal-main
+or metadata reads remain separate caller work. Tree identity is not a claim
+that later main, deployment or runtime state is unchanged.
+
+Cost depends on the actual paths. If the default would create **B** distinct
+pinned UTF-8 blobs and the new traversal makes **T** extra tree GETs, the modeled
+call difference is **T - B**. A small or deeply nested packet can save zero calls
+or cost more. Binary blob calls, base/preimage reads, tree/commit/branch/PR/merge
+writes, full immutable readbacks and separate current-main audits are not
+eliminated. No provider payload, latency, quota or successful-tree-read guarantee
+is implied.
+
+The motivating completed Math publication receipts reported 77 helper calls for
+34 files in [#31656](https://github.com/woahwhattheheck/commons/pull/31656) and 19
+for five files in [#31659](https://github.com/woahwhattheheck/commons/pull/31659).
+Those are historical default-route observations, not optimized benchmarks;
+neither packet is republished or recomputed for this change. At source
+publication the new option's branches are source-inspected, not executed. A
+future genuine publication can record its actual extra tree GETs and full
+outcome without inventing fixtures or replaying an accepted publication.
+
+Operation `CONNECTED-GITHUB-INLINE-PINS-20261005-7CA6` records source custody at
+https://tokenjunkielabs.slack.com/archives/C0BS7AZ4BSL/p1791220353850219 . The stable
+branch `work/connected-github-inline-pins-20261005-7ca6` was recorded before the
+source publication. That publication uses the existing default route; it does
+not exercise the new option.
 
 ### Reuse complete tree bytes for a large directory
 
