@@ -242,9 +242,15 @@ button{cursor:pointer}
       var ht = el("td");
       var h = p.hosted || {};
       ht.appendChild(badge(h.rollup || "NONE", hostedKind(h.rollup)));
+      ht.appendChild(el("div", "muted", "GitHub reported state: " + (typeof h.github_state === "string" && h.github_state ? h.github_state : "unknown")));
+      var contextsRead = Number.isInteger(h.contexts_read) && h.contexts_read >= 0 ? h.contexts_read : "unknown";
+      var contextsTotal = Number.isInteger(h.contexts_total) && h.contexts_total >= 0 ? h.contexts_total : "unknown";
+      var coverage = h.contexts_complete === true ? "complete" : h.contexts_complete === false ? "incomplete" : "unknown";
+      var moreContexts = h.contexts_has_next_page === true ? "yes" : h.contexts_has_next_page === false ? "no" : "unknown";
+      ht.appendChild(el("div", "muted", "Context coverage: " + contextsRead + " / " + contextsTotal + " read; " + coverage + "; more pages: " + moreContexts));
       var counts = h.counts || {};
       var parts = Object.keys(counts).map(function (k) { return counts[k] + " " + k.toLowerCase().replace(/_/g, " "); });
-      if (parts.length) ht.appendChild(el("div", "muted", parts.join(", ")));
+      if (parts.length) ht.appendChild(el("div", "muted", "Observed contexts: " + parts.join(", ")));
       tr.appendChild(ht);
       var lane = laneOf(p.number);
       var lt = el("td", "muted");
