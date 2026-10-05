@@ -14,6 +14,21 @@ This extends the original DEMON live-compute board from Slack
 `1787637936.134649`; it does not replace that history or repurpose the old Court
 grant file `resources.json`.
 
+## Revenue-bearing send and source-capability delta — 2026-10-04 23:56 EDT
+
+The canonical graph now contains **222 resources**, with **161 producing** and **121 append-only evidence records**. RCAP's final 126,925-byte proposal PDF was sent at 2026-10-05 01:18:51 UTC: $24,500 fixed for the four-week assessment, with the optional $7,500 add-on excluded from base. This is exercised business-development work awaiting reply, not buyer acceptance, award, payment, payout, revenue or cash. Stripe remains $0 available / $0 pending, and no resend is authorized.
+
+Four new exact source resources are routed without taking custody from their existing owners:
+
+- `singer-plane-difference-set-index` is **PRODUCING / CONSTRAINED** from PR #31474: 183 trace classes, every nonzero ordered difference, a 183-point/line projective plane, and an executed 16-query saved reader inside the stated finite domain.
+- `razer452-passive-kvm-source-packet` is **AVAILABLE / CONSTRAINED** from PR #31476 for the existing $25 funded IssueHunt lane. The 17-file patch and 13 postimages are complete, but native/Electron/renderer/physical-KVM proof, upstream submission, acceptance and payment do not exist.
+- `caprine-pr2384-resume-source-packet` is **AVAILABLE / CONSTRAINED** from PRs #31475 and #31477. It serializes noninteractive resume checks and catches recovery failures; no project build, Electron/session proof or upstream publication is claimed.
+- `gemini-slack-receipt-journal-lock-backoff` is **AVAILABLE / UNMEASURED** from direct commit `6504c5c0`. It adds SQLite busy timeout and cancellation-aware journal retry without rerunning the external runner; no focused test, workflow, live contention run or deployment receipt exists.
+
+The existing account-transcript redaction lane advances through PR #31473: ordinary non-secret URLs remain byte-identical when no detector changes them, while secret masking and the private signed-upload boundary remain. The actual Account producer/runtime is still unbound, so the existing build order continues. The established connected-GitHub publisher advances through PR #31478 with current-target preimage rereads before direct Git Trees merge; that safeguard is static-only and not an atomic base compare-and-swap.
+
+No new build-order root was minted: the only unexercised work is already owned, depends on owner-controlled upstream/device/runtime action, or would create a prohibited verifier-only loop. Dynamic Automotive remains held because its recorded source path is absent. No official or directly observed quota reset occurred; automations remain 3 enabled / 33 paused / 3 completed. [Exact bounded receipt](../inventory/resources/records/resource-master-revenue-capability-delta-20261004-2356.json).
+
 ## Post-snapshot capability and revenue reconciliation — 2026-10-04 20:58 EDT
 
 The canonical graph now contains **218 resources**, with **160 producing**. Ten newly merged exact research indexes and atlases are routed under exact current-main identities: tournament inverse fibers; Mycielski local bipartization; fixed-support Werner forms; resumable Hard Count history; interval product-cover families; Paley13 Seidel switches; complete three-term-AP-free families through 25; exact fixed-host lattice-diameter families; a complete Krenn–Gu formal equation atlas; and an exact two-state Thue–Morse output atlas. Their retained constructions/readers are producing only inside the stated finite bounds.
