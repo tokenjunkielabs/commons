@@ -1,7 +1,33 @@
 diff --git a/src/temporal-resolve/TemporalResolve.js b/src/temporal-resolve/TemporalResolve.js
 --- a/src/temporal-resolve/TemporalResolve.js
 +++ b/src/temporal-resolve/TemporalResolve.js
-@@ -96,14 +96,18 @@
+@@ -64,16 +64,20 @@
+ 
+ 	initNewCamera( camera ) {
+ 
+-		this.activeCamera = camera;
+-
+-		this.temporalResolvePass = new TemporalResolvePass(
++		const temporalResolvePass = new TemporalResolvePass(
+ 			this.ptRenderer,
+ 			this.scene,
+ 			camera
+ 		);
+-		this.temporalResolvePass.fullscreenMaterial.samplesTexture = this.ptRenderer.target.texture;
+-		this.fullscreenMaterial.temporalResolveTexture = this.temporalResolvePass.renderTarget.texture;
++		temporalResolvePass.fullscreenMaterial.samplesTexture = this.ptRenderer.target.texture;
+ 
++		const previousPass = this.temporalResolvePass;
++		this.temporalResolvePass = temporalResolvePass;
++		this.activeCamera = camera;
++		this.fullscreenMaterial.temporalResolveTexture = temporalResolvePass.renderTarget.texture;
++
++		if ( previousPass ) previousPass.dispose();
++
+ 	}
+ 
+ 	initNewSize( width, height ) {
+@@ -96,14 +100,18 @@
  		this.ptRenderer.stableTiles = false;
  
  		const { camera } = this.ptRenderer;
@@ -21,4 +47,78 @@ diff --git a/src/temporal-resolve/TemporalResolve.js b/src/temporal-resolve/Temp
 +		if ( cameraChanged || width !== this.lastSize.width || height !== this.lastSize.height ) {
  
  			this.initNewSize( width, height );
+ 
+diff --git a/src/temporal-resolve/passes/TemporalResolvePass.js b/src/temporal-resolve/passes/TemporalResolvePass.js
+--- a/src/temporal-resolve/passes/TemporalResolvePass.js
++++ b/src/temporal-resolve/passes/TemporalResolvePass.js
+@@ -56,6 +56,8 @@
+ 	dispose() {
+ 
+ 		this.renderTarget.dispose();
++		this.depthRenderTarget.dispose();
++		this.velocityPass.dispose();
+ 		this.accumulatedSamplesTexture.dispose();
+ 		this.lastDepthTexture.dispose();
+ 		this.fullscreenMaterial.dispose();
+diff --git a/src/temporal-resolve/passes/VelocityPass.js b/src/temporal-resolve/passes/VelocityPass.js
+--- a/src/temporal-resolve/passes/VelocityPass.js
++++ b/src/temporal-resolve/passes/VelocityPass.js
+@@ -14,6 +14,14 @@
+ const backgroundColor = new Color( 0 );
+ const updateProperties = [ 'visible', 'wireframe', 'side' ];
+ 
++function disposeVelocityMaterial( material ) {
++
++	const boneTexture = material.uniforms.prevBoneTexture.value;
++	if ( boneTexture ) boneTexture.dispose();
++	material.dispose();
++
++}
++
+ export class VelocityPass {
+ 
+ 	constructor( scene, camera ) {
+@@ -22,6 +30,7 @@
+ 		this.camera = camera;
+ 
+ 		this.cachedMaterials = new WeakMap();
++		this.velocityMaterials = new Set();
+ 
+ 		this.renderTarget = new WebGLRenderTarget(
+ 			typeof window !== 'undefined' ? window.innerWidth : 2000,
+@@ -48,12 +57,21 @@
+ 
+ 				if ( originalMaterial !== cachedOriginalMaterial ) {
+ 
++					const previousVelocityMaterial = velocityMaterial;
+ 					velocityMaterial = new ShaderMaterial( {
+ 						uniforms: UniformsUtils.clone( VelocityShader.uniforms ),
+ 						vertexShader: VelocityShader.vertexShader,
+ 						fragmentShader: VelocityShader.fragmentShader
+ 					} );
++					this.velocityMaterials.add( velocityMaterial );
+ 
++					if ( previousVelocityMaterial ) {
++
++						disposeVelocityMaterial( previousVelocityMaterial );
++						this.velocityMaterials.delete( previousVelocityMaterial );
++
++					}
++
+ 					c.material = velocityMaterial;
+ 
+ 					if ( c.skeleton && c.skeleton.boneTexture ) this.saveBoneTexture( c );
+@@ -134,6 +152,13 @@
+ 	dispose() {
+ 
+ 		this.renderTarget.dispose();
++		for ( const material of this.velocityMaterials ) {
++
++			disposeVelocityMaterial( material );
++
++		}
++		this.velocityMaterials.clear();
++		this.cachedMaterials = new WeakMap();
+ 
+ 	}
  
