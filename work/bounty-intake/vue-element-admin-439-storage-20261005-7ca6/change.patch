@@ -1,0 +1,92 @@
+diff --git a/src/router/chunk-load-error.js b/src/router/chunk-load-error.js
+index 062743a3933fcc323d1c40b2f292cd504b129353..d6e8dba469a2f6fb0640d7b564e899e7d7752687
+--- a/src/router/chunk-load-error.js
++++ b/src/router/chunk-load-error.js
+@@ -16,41 +16,52 @@
+ 
+ export function shouldReloadForChunkLoadError({
+   href = window.location.href,
+-  storage = window.sessionStorage,
+-  now = Date.now()
+-} = {}) {
+-  if (!storage) {
+-    return true
+-  }
+-
+-  let previousReload
+-
+-  try {
+-    previousReload = JSON.parse(storage.getItem(chunkLoadErrorReloadKey) || 'null')
+-  } catch (error) {
+-    previousReload = null
+-  }
+-
+-  if (
+-    previousReload &&
+-    previousReload.href === href &&
+-    now - previousReload.time < chunkLoadErrorRetryWindow
+-  ) {
+-    return false
+-  }
+-
+-  try {
+-    storage.setItem(chunkLoadErrorReloadKey, JSON.stringify({ href, time: now }))
+-  } catch (error) {
+-    // Ignore storage failures; a single reload is still the best recovery path.
+-  }
+-
+-  return true
+-}
+-
+-export function handleChunkLoadError(error, {
+-  href = window.location.href,
+-  storage = window.sessionStorage,
++  storage,
++  now = Date.now()
++} = {}) {
++  let storedReload
++
++  try {
++    if (typeof storage === 'undefined') {
++      storage = window.sessionStorage
++    }
++    if (!storage) {
++      return false
++    }
++    storedReload = storage.getItem(chunkLoadErrorReloadKey)
++  } catch (error) {
++    return false
++  }
++
++  let previousReload
++
++  try {
++    previousReload = JSON.parse(storedReload || 'null')
++  } catch (error) {
++    previousReload = null
++  }
++
++  if (
++    previousReload &&
++    previousReload.href === href &&
++    now - previousReload.time < chunkLoadErrorRetryWindow
++  ) {
++    return false
++  }
++
++  try {
++    const marker = JSON.stringify({ href, time: now })
++    storage.setItem(chunkLoadErrorReloadKey, marker)
++    return storage.getItem(chunkLoadErrorReloadKey) === marker
++  } catch (error) {
++    // Without a retained marker, automatic reloads could repeat indefinitely.
++    return false
++  }
++}
++
++export function handleChunkLoadError(error, {
++  href = window.location.href,
++  storage,
+   reload = window.location.replace.bind(window.location),
+   now = Date.now()
+ } = {}) {

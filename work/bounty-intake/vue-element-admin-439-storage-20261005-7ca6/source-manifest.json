@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "operation_id": "VUE439-CHUNK-RELOAD-STORAGE-20261005-7CA6",
+  "original_order": {
+    "channel_id": "C0BU51F1PL3",
+    "message_ts": "1791168585.249299",
+    "batch": "BATCH25-05",
+    "row": 10
+  },
+  "issue": "https://github.com/PanJiaChen/vue-element-admin/issues/439",
+  "existing_contribution": {
+    "url": "https://github.com/PanJiaChen/vue-element-admin/pull/4353",
+    "author": "cerredz",
+    "repository_full_name": "cerredz/vue-element-admin",
+    "branch": "issuehunt-439-chunk-load-retry",
+    "head_sha": "9444f9db28198900db0d03544200b2e683593c6c",
+    "base_sha": "6858a9ad67483025f6a9432a926beb9327037be3"
+  },
+  "files": [
+    {
+      "path": "src/router/chunk-load-error.js",
+      "expected_blob_sha": "062743a3933fcc323d1c40b2f292cd504b129353",
+      "postimage_blob_sha": "d6e8dba469a2f6fb0640d7b564e899e7d7752687",
+      "postimage_utf8_bytes": 1721,
+      "packet_path": "src/router/chunk-load-error.js"
+    }
+  ],
+  "license": {
+    "path": "LICENSE",
+    "blob_sha": "61515750df8d215937d8a5c58202d649dcdff957",
+    "unchanged": true
+  },
+  "validation": {
+    "complete_source_read": true,
+    "exact_patch_postimage_comparison": true,
+    "execution": "not_performed",
+    "browser": "not_performed",
+    "tests": "not_created_or_run",
+    "upstream_publication": "not_performed"
+  },
+  "scope": "Only storage failure handling in the existing recovery helper. Existing router registration, detector, current URL, 10-second policy and external contribution remain."
+}
