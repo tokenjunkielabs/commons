@@ -3,10 +3,37 @@
 from __future__ import annotations
 
 from contextlib import closing
+import csv
+from datetime import date
+import io
 import json
 from typing import Any
 
-from route_validation import short_url, utc_now, validate_public_base_url, validate_slug
+from route_validation import ValidationError, short_url, utc_now, validate_public_base_url, validate_slug
+
+
+def report_day(value: str | None, field: str) -> str | None:
+    """Accept one canonical UTC calendar date; blank means unbounded."""
+    if value is None or value == "":
+        return None
+    if not isinstance(value, str):
+        raise ValidationError(f"{field} must be a YYYY-MM-DD date")
+    try:
+        parsed = date.fromisoformat(value)
+    except ValueError as exc:
+        raise ValidationError(f"{field} must be a YYYY-MM-DD date") from exc
+    if parsed.isoformat() != value:
+        raise ValidationError(f"{field} must be a YYYY-MM-DD date")
+    return value
+
+
+def csv_cell(value: Any) -> Any:
+    """Keep operator text literal when a CSV is opened in a spreadsheet."""
+    if isinstance(value, str) and value.lstrip().startswith(("=", "+", "-", "@")):
+        return "'" + value
+    if isinstance(value, str) and value.startswith(("\t", "\r", "\n")):
+        return "'" + value
+    return value
 
 
 class StoreReadMixin:
@@ -50,26 +77,62 @@ class StoreReadMixin:
             link["qr_url"] = f"{base}/q/{link['slug']}.svg"
         return {"products": products, "offers": offers, "presets": presets, "links": links, "recent_events": recent}
 
-    def report(self) -> dict[str, Any]:
+    def report(self, start: str | None = None, end: str | None = None) -> dict[str, Any]:
+        start, end = report_day(start, "start"), report_day(end, "end")
+        if start is not None and end is not None and start > end:
+            raise ValidationError("start must be on or before end")
+        clauses, parameters = [], []
+        if start is not None:
+            clauses.append("e.occurred_at >= ?")
+            parameters.append(start + "T00:00:00.000Z")
+        if end is not None:
+            clauses.append("e.occurred_at <= ?")
+            parameters.append(end + "T23:59:59.999Z")
+        event_where = " WHERE " + " AND ".join(clauses) if clauses else ""
+        event_join = " AND " + " AND ".join(clauses) if clauses else ""
         with closing(self.connect()) as conn:
+            # Both report views describe one read snapshot, even during ingestion.
+            conn.execute("BEGIN")
             campaign_rows = [dict(row) for row in conn.execute(
                 "SELECT e.utm_campaign, e.utm_source, e.utm_medium, "
                 "SUM(CASE WHEN e.event_type='click' THEN 1 ELSE 0 END) AS clicks, "
                 "SUM(CASE WHEN e.event_type='conversion' THEN 1 ELSE 0 END) AS conversions, "
                 "COUNT(DISTINCT l.slug) AS links "
-                "FROM events e JOIN links l ON l.id=e.link_id "
-                "GROUP BY e.utm_campaign, e.utm_source, e.utm_medium "
-                "ORDER BY conversions DESC, clicks DESC, e.utm_campaign"
+                "FROM events e JOIN links l ON l.id=e.link_id" + event_where +
+                " GROUP BY e.utm_campaign, e.utm_source, e.utm_medium "
+                "ORDER BY conversions DESC, clicks DESC, e.utm_campaign, e.utm_source, e.utm_medium",
+                parameters,
             )]
             link_rows = [dict(row) for row in conn.execute(
                 "SELECT l.slug, p.name AS product, u.name AS preset, u.utm_campaign, "
                 "SUM(CASE WHEN e.event_type='click' THEN 1 ELSE 0 END) AS clicks, "
                 "SUM(CASE WHEN e.event_type='conversion' THEN 1 ELSE 0 END) AS conversions "
                 "FROM links l JOIN products p ON p.id=l.product_id "
-                "LEFT JOIN presets u ON u.id=l.preset_id LEFT JOIN events e ON e.link_id=l.id "
-                "GROUP BY l.id ORDER BY conversions DESC, clicks DESC, l.slug"
+                "LEFT JOIN presets u ON u.id=l.preset_id LEFT JOIN events e ON e.link_id=l.id" + event_join +
+                " GROUP BY l.id ORDER BY conversions DESC, clicks DESC, l.slug",
+                parameters,
             )]
-        return {"generated_at": utc_now(), "campaigns": campaign_rows, "links": link_rows}
+        return {
+            "generated_at": utc_now(),
+            "date_range": {"start": start, "end": end, "timezone": "UTC"},
+            "campaigns": campaign_rows,
+            "links": link_rows,
+        }
+
+    def report_csv(self, view: str, start: str | None = None, end: str | None = None) -> str:
+        columns = {
+            "campaigns": ("utm_campaign", "utm_source", "utm_medium", "links", "clicks", "conversions"),
+            "links": ("slug", "product", "preset", "utm_campaign", "clicks", "conversions"),
+        }
+        if view not in columns:
+            raise ValidationError("view must be campaigns or links")
+        report = self.report(start, end)
+        output = io.StringIO(newline="")
+        writer = csv.writer(output)
+        writer.writerow(columns[view])
+        for row in report[view]:
+            writer.writerow(csv_cell(row[key]) for key in columns[view])
+        return output.getvalue()
 
     def export_json(self) -> str:
         with closing(self.connect()) as conn:

@@ -100,6 +100,20 @@
     <section class="panel report-grid">
       <div>
         <div class="panel-heading compact"><div><p class="eyebrow">Attribution</p><h2>Campaign report</h2></div></div>
+        <form id="report-filters" class="card-form" aria-label="Report dates in UTC">
+          <label>First UTC date (optional)<input name="start" type="date" max="9999-12-31"></label>
+          <label>Last UTC date (optional)<input name="end" type="date" max="9999-12-31"></label>
+          <div class="header-actions">
+            <button class="primary-button" type="submit">Apply dates</button>
+            <button class="secondary-button" type="button" id="report-all-time">All time</button>
+          </div>
+        </form>
+        <p id="report-status" class="muted" role="status" aria-live="polite">Loading report…</p>
+        <div class="header-actions">
+          <a class="secondary-button" data-report-csv="campaigns" aria-disabled="true">Download campaign CSV</a>
+          <a class="secondary-button" data-report-csv="links" aria-disabled="true">Download link CSV</a>
+        </div>
+        <p class="muted">Dates filter report events only. Workspace totals and the recent event trail remain all-time. Link CSV includes zero-event links and their current preset labels.</p>
         <div class="table-wrap">
           <table>
             <thead><tr><th>Campaign</th><th>Source</th><th>Medium</th><th>Links</th><th>Clicks</th><th>Conversions</th></tr></thead>

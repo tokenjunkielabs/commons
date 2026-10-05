@@ -151,6 +151,60 @@ This version counts explicit events; it does not use fingerprinting, cookies,
 cross-site pixels, purchased data, or third-party analytics. It is therefore a
 transparent first-party campaign workflow, not a general web-attribution claim.
 
+## UTC report periods and CSV
+
+The campaign report accepts optional **first and last UTC calendar dates** in
+the existing dashboard. Both dates are inclusive. Blank bounds mean the
+beginning or present; **All time** clears both. Applying or refreshing keeps
+the report and its two download links on the same selected period. Editing the
+date fields clears the displayed report and download links until another
+successful load; an older request cannot replace a newer selection.
+
+- `GET /api/report?start=2026-09-01&end=2026-09-30` returns the existing
+  campaign and link views plus `date_range: {start, end, timezone: "UTC"}`.
+- `GET /api/report.csv?view=campaigns&start=2026-09-01&end=2026-09-30`
+  downloads campaign/source/medium counts.
+- `GET /api/report.csv?view=links&start=2026-09-01&end=2026-09-30`
+  downloads per-link counts. Omitting `view` selects campaigns.
+
+Dates must be canonical `YYYY-MM-DD`, form real calendar dates, and satisfy
+`start <= end`. Repeated start/end/view query values and an unknown CSV view
+return the existing HTTP 400 validation response. A blank date is unbounded.
+The store also validates dates when called directly.
+
+Filtering uses the server-recorded UTC millisecond `events.occurred_at`,
+from midnight on the first date through 23:59:59.999 on the last. This is
+event-time attribution: a conversion is counted on its own event date even
+when its parent click falls outside the period. Campaign grouping uses the
+UTM values saved with each event, so later link-preset changes do not rewrite
+that grouping. Campaign rows contain only groups with events in the period;
+their `links` count is the number of distinct links in that group and period.
+
+The link view keeps **every current link**, including links with zero matching
+events. Its product/preset/campaign labels are current metadata, not historical
+attribution labels; counts use the selected event period. Filters are placed
+inside the event LEFT JOIN so an empty period does not remove link rows.
+Both views in one report use the same SQLite read transaction. A CSV download
+runs a fresh report for the selected period, so new events between display and
+download may change counts; it is not a frozen copy of the prior JSON response.
+Workspace cards, link-card counts, and the recent event trail stay all-time.
+
+CSV uses UTF-8, a header row, standard quoting, and CRLF record endings.
+Formula-leading operator text is prefixed with an apostrophe for spreadsheet
+import; this presentation escaping does not modify stored values or JSON.
+Counts remain numeric. The full-workspace JSON export and public-only process
+behavior are unchanged.
+
+This extends the reporting follow-through in the
+[original internal work thread](https://tokenjunkielabs.slack.com/archives/C0C09QN8MQR/p1788849488961789).
+The original RouteFoundry implementation and its retained acceptance records
+remain credited to PORT. The subsequent date-range/CSV claims supplied the
+requested scope; this change uses the current source and does not reconstruct
+an unavailable earlier patch. Validation for this addition is static source and
+publication comparison only. Python/SQLite/HTTP/browser execution, tests,
+deployment, live customer data, and payment acceptance were not performed.
+The earlier product's execution records do not validate this addition.
+
 ## Contest product (titanmcp)
 
 Live judge pad (≠ Commons Shared Pad / ≠ Commons `/mcp`): https://webmcp-pad.vercel.app/ — **titanmcp 1.4.5**, 24 tools, Agent Resources, `syncConsents`. Board: [titanmcp.html](../../titanmcp.html). Cite Latch Pad KEEP.
