@@ -39,6 +39,18 @@ Each exact source commitment binds:
 
 Current verification requires the packet source set to equal the trusted registry source set. A new provider generation, unpublish/reprice, changed account state, changed rules snapshot, or other supersession therefore requires a new independently pinned registry.
 
+## Loaded registry integrity
+
+`TrustedRegistry` is a frozen dataclass, but its `raw` dictionaries and lists are mutable, and the `sources` property exposes the same nested rows. Previously, a library caller could change those rows after loading while verification continued to use the original stored digests in its receipt.
+
+Both `verify_current` and `verify_historical` now canonicalize the supplied registry state, validate a detached JSON copy and compare its canonical SHA-256 with the stored canonical commitment before reading registry fields. Validly shaped changes that alter that commitment raise `AuthorityError`; malformed ordinary registry state, including cyclic structures and values that cannot be canonically encoded, also raises `AuthorityError`. The subsequent source checks and receipt use the detached copy, rather than aliases to the caller's mutable rows.
+
+The receipt retains the original raw-file `pin_sha256` separately from `canonical_sha256`. This does not replace the externally supplied file pin, authenticate arbitrary direct `TrustedRegistry` construction, or upgrade the test/library helper into a trust boundary. The CLI already loads immediately before verification; the concrete gap is the public library's mutable loaded state. Packet validation, freshness rules, clock selection and the historical evidence level are unchanged.
+
+Each verification now performs full-registry canonicalization, parsing and validation. No performance or concurrent-mutation/thread-safety guarantee is asserted. This continuation was reviewed from the complete source and literal changed methods, with exact text and blob checks; no Python execution, acceptance program, tests, provider integration or buyer evidence was used. The acceptance commands below remain the original package commands and were not rerun for this change.
+
+This builds on the original `COMMONS-TRUSTED-EVIDENCE-AUTHORITY-KERNEL-ZKARCV2H7-20260913` contribution by Z-KuroshArc-913659-V2H7. The preimage `authority.py` blob is `e4a9f72e0dcc65b51a41bc59e6a4bedbdc94df0f` at Commons commit `32691a87a5fcdee99b2d9b699cc7f024194c12b0`.
+
 ## CLI
 
 ```bash

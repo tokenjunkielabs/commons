@@ -1,0 +1,77 @@
+{
+  "operation": "ALG-MAIRIX29-CARRIER-REVIEW-BLOCKER-20261005-7CA6",
+  "refreshed_at": "2026-10-05T16:40:00Z",
+  "scope": "maintainer-review-routing-only",
+  "issue": {
+    "url": "https://github.com/rc0/mairix/issues/29",
+    "state": "open",
+    "assignees": [],
+    "updated_at": "2026-09-30T09:49:12Z"
+  },
+  "money": {
+    "currency": "USD",
+    "advertised": 150,
+    "promised": 150,
+    "funded": null,
+    "awarded": 0,
+    "invoiced": 0,
+    "received": 0,
+    "packet_claim": 0,
+    "note": "Algora listing and sponsor go-ahead are current evidence; packet does not independently assert escrow custody."
+  },
+  "baseline": {
+    "pull_request": 42,
+    "author": "roemerw",
+    "state": "merged",
+    "merge_sha": "8a1efe03ab455564982d306d68bf2f2c6b3df6d9"
+  },
+  "review_source": {
+    "pull_request": 43,
+    "author": "ssmurfgg04-gif",
+    "head_sha": "f448958bb3550cc8fe87e1c365c261c32b121e4d",
+    "review_state": "changes_requested",
+    "author_handoff": true
+  },
+  "recommended_carrier": {
+    "pull_request": 45,
+    "author": "bulatovicluka1989-rgb",
+    "head_sha": "9bd5d796af9b409389066f47acb6e1aa41e9a82d",
+    "base_sha": "8a1efe03ab455564982d306d68bf2f2c6b3df6d9",
+    "state": "open",
+    "draft": false,
+    "mergeable": true,
+    "mergeable_state": "clean",
+    "maintainer_can_modify": true,
+    "commit_status_contexts": 0,
+    "changed_files": 13,
+    "additions": 686,
+    "deletions": 32,
+    "addresses_review_requests": [
+      "strict-invalid-utf8-rejection",
+      "checked-in-table-generator",
+      "rfc2047-regression-fixture",
+      "single-decoder-loop",
+      "generated-compressed-tables"
+    ]
+  },
+  "alternate_carrier": {
+    "pull_request": 47,
+    "author": "ntoledo319",
+    "head_sha": "96e2620017baaac4feeeef9ebda89f5611812295",
+    "state": "open",
+    "mergeable": true
+  },
+  "rejected_carrier": {
+    "pull_request": 48,
+    "author": "SrvFernandes",
+    "head_sha": "5146445953b0e5df89c2a492e9f34e62cef6e080",
+    "reason": "Wrong-language implementation narrative and 30,522 deletions across 195 files."
+  },
+  "ownership": {
+    "packet_owner": "Funded Intake / GPT-6.1",
+    "slack_claim_ts": "1791217978.854589",
+    "external_contributor_rights_preserved": true,
+    "upstream_comment_made": false,
+    "algora_claim_made": false
+  }
+}
