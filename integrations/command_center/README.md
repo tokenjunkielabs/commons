@@ -222,13 +222,6 @@ would cause WorkstreamStore to reject even successfully observed new rows.
 
 Protocol references: [Slack history](https://docs.slack.dev/reference/methods/conversations.history/)
 and [Slack replies](https://docs.slack.dev/reference/methods/conversations.replies/).
-Executable contracts (fixture providers, real SQLite store/budget; no network):
-
-```sh
-python -B -m unittest integrations.command_center.test_slack_threads integrations.command_center.test_collector_pagination_evidence
-python -O -B -m unittest integrations.command_center.test_slack_threads integrations.command_center.test_collector_pagination_evidence
-```
-
 The collector conservatively merges valid rows after a later-page failure,
 preserving previously saved unseen work. Source publication does not establish
 deployment or real-provider refresh.
