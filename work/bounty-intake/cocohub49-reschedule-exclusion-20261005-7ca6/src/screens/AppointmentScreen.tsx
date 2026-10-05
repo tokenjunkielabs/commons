@@ -366,7 +366,7 @@ const AppointmentScreen: React.FC = () => {
         appt.durationMinutes ?? 30,
       );
 
-      if (result.hasConflicts) {
+      if (result.hasConflicts || !result.appointmentReadComplete) {
         setPendingAppointment(appt);
         setConflictResult(result);
         setConflictModalVisible(true);
@@ -385,13 +385,21 @@ const AppointmentScreen: React.FC = () => {
     if (!pendingAppointment) return;
     await persistAppointment(
       pendingAppointment,
-      'User chose to proceed despite scheduling conflicts.',
+      conflictResult?.appointmentReadComplete === false
+        ? 'User chose to proceed despite an incomplete local appointment check and any listed conflicts.'
+        : 'User chose to proceed despite scheduling conflicts.',
     );
   };
 
-  /** User accepts the suggested conflict-free slot */
+  /** User accepts the time suggested by the local conflict check. */
   const handleUseSuggestedTime = async () => {
-    if (!pendingAppointment || !conflictResult?.suggestedTime) return;
+    if (
+      !pendingAppointment ||
+      !conflictResult?.appointmentReadComplete ||
+      !conflictResult.suggestedTime
+    ) {
+      return;
+    }
     const suggested = conflictResult.suggestedTime;
     const updated: Appointment = {
       ...pendingAppointment,
@@ -400,7 +408,7 @@ const AppointmentScreen: React.FC = () => {
     };
     await persistAppointment(
       updated,
-      `Rescheduled to conflict-free slot: ${suggested.toLocaleString()}.`,
+      `Selected time from local conflict check: ${suggested.toLocaleString()}.`,
     );
   };
 
@@ -457,7 +465,7 @@ const AppointmentScreen: React.FC = () => {
         detailAppt.durationMinutes ?? 30,
       );
 
-      if (result.hasConflicts) {
+      if (result.hasConflicts || !result.appointmentReadComplete) {
         // Build a provisional updated appointment and show conflict modal
         const provisional: Appointment = {
           ...detailAppt,
@@ -850,11 +858,18 @@ const AppointmentScreen: React.FC = () => {
             {/* Icon + title */}
             <View style={styles.conflictHeader}>
               <Text style={styles.conflictIcon}>⚠️</Text>
-              <Text style={styles.conflictTitle}>Scheduling Conflict</Text>
+              <Text style={styles.conflictTitle}>
+                {conflictResult?.appointmentReadComplete ? 'Scheduling Conflict' : 'Incomplete Check'}
+              </Text>
             </View>
 
+            {conflictResult?.checkWarning && (
+              <Text style={styles.conflictSubtitle}>{conflictResult.checkWarning}</Text>
+            )}
             <Text style={styles.conflictSubtitle}>
-              The selected time conflicts with the following:
+              {conflictResult?.hasConflicts
+                ? 'Known scheduling conflicts:'
+                : 'No conflicts were found in the available data. This check is incomplete.'}
             </Text>
 
             {/* Conflict list */}
@@ -870,9 +885,9 @@ const AppointmentScreen: React.FC = () => {
             </ScrollView>
 
             {/* Suggested time */}
-            {conflictResult?.suggestedTime && (
+            {conflictResult?.appointmentReadComplete && conflictResult.suggestedTime && (
               <View style={styles.suggestionBox}>
-                <Text style={styles.suggestionLabel}>💡 Next available slot:</Text>
+                <Text style={styles.suggestionLabel}>💡 Suggested time from local check:</Text>
                 <Text style={styles.suggestionTime}>
                   {conflictResult.suggestedTime.toLocaleString([], {
                     weekday: 'short',
@@ -886,7 +901,7 @@ const AppointmentScreen: React.FC = () => {
             )}
 
             {/* Actions */}
-            {conflictResult?.suggestedTime && (
+            {conflictResult?.appointmentReadComplete && conflictResult.suggestedTime && (
               <TouchableOpacity
                 style={styles.primaryBtn}
                 onPress={() => void handleUseSuggestedTime()}

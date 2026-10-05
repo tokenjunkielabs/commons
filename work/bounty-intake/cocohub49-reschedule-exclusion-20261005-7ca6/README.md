@@ -1,66 +1,82 @@
-# Configure appointment spacing and preserve suggested-slot search behavior
+# Cocohub appointment conflict checks
 
-This source continuation keeps the appointment being rescheduled out of every candidate check in the suggested-slot search. The inspected screen already passes `detailAppt.id` to `detectConflicts`; in the PR122 preimage, that function excludes the appointment from the initial check, but drops its ID when calling `findNextAvailableSlot`. The preimage helper then passes `undefined` back to the detector. Consequently, the existing appointment can reject a suggested replacement time even though the caller is moving that same appointment.
+This attributed continuation extends es3298's PR122 in place. Its cumulative patch preserves the rescheduled appointment's excluded ID, reuses one complete local snapshot for a suggested-slot search, supplies the requested configurable 30-minute appointment buffer, carries the actual proposed duration, and makes incomplete local reads visible before saving.
 
-The cumulative patch forwards `excludeId` into the helper as an optional fourth argument and preserves it in every candidate evaluation. Existing calls without that argument remain supported. It also removes repeated local database reads from a successful suggested-slot search by evaluating one full-pet appointment snapshot. The current continuation additionally implements issue49's explicit default-30-minute, configurable appointment buffer in the service and its booking/rescheduling caller. It also carries the actual proposed appointment duration from the caller through the initial check and every suggestion. The 336-candidate bound, hourly stepping, medication checks, conflict-warning flow and persistence remain unchanged.
+The adjacent complete modules and `change.patch` are source artifacts for integration into the pinned contribution. No upstream branch was changed. This is not whole-issue acceptance or a bounty claim.
+
+## Local data completeness and explicit save
+
+In the preimage, a rejected full-pet read became an empty array. The detector then evaluated only its narrower window and could report no conflicts; both booking and rescheduling would save automatically on that result. The slot helper could likewise fall back to that partial detector and return an apparent available time. The actual local database helper also falls back to raw text after decryption and JSON parsing fail, while array readers suppress exceptions. Such unusable records must not be mistaken for an empty or fully checked set.
+
+The additive `getAppointmentSnapshotByPetId<T>` reader now returns `{ appointments, unreadableRows }`. It uses the same SQL, ordering and legacy-compatible decryption helper as the original full-pet reader, but validates the record fields actually used by conflict evaluation: string ID/date, a usable start time under the existing date/time interpretation, and finite nonnegative duration with the existing 30-minute fallback. Raw fallback text, non-record values, invalid intervals and thrown decoding errors count as unreadable. Valid legacy JSON records remain usable. The same predicate filters the bounded fallback's candidates so its raw-text fallback cannot reach the interval evaluator. Readable appointments are retained without exposing ciphertext, row contents or provider exceptions. Query failures still reject. The existing `getAllAppointmentsByPetId<T>` and other legacy readers remain byte-for-byte unchanged; their current consumers do not adopt this conflict-specific validation.
+
+`ConflictDetectionResult` adds `appointmentReadComplete` and optional `checkWarning`. `hasConflicts` still describes known conflicts, independently of whether appointment coverage was complete.
+
+| Actual source outcome | Conflict result and suggestion behavior |
+| --- | --- |
+| Full-pet query succeeds and every row is usable by the conflict evaluator | The local appointment read is complete, including a successful empty set. |
+| Full-pet query fails | Keep conflicts identifiable from the bounded read and supplied medication list; mark incomplete and omit a suggestion. |
+| Full-pet query returns some undecodable or unusable rows | Keep its decoded appointments, merge other readable candidates, mark incomplete and omit a suggestion. |
+| Bounded query fails but the full-pet snapshot succeeds without unreadable rows | Use the complete full-pet coverage; the narrower failure does not discard it. |
+| Initial check finds conflicts, but the subsequent suggested-time search fails | Retain those known conflicts, return an explicit search warning and no suggested time. |
+
+Both screen call paths open the existing warning modal when known conflicts exist **or** `appointmentReadComplete` is false. The modal distinguishes an incomplete check from known conflicts, displays the safe warning, and does not treat an empty partial result as an all-clear. The existing **Proceed Anyway** action remains available and records that the user chose to proceed despite incomplete local checking. **Pick a Different Time** remains available. This does not add an account, permission or save-authorization gate.
+
+The direct `findNextAvailableSlot` helper now rejects with an explicit incomplete-check error if its full snapshot query fails or contains unreadable rows. It does not return a date from a partial fallback. Its normal `undefined` result still means that the bounded search found no candidate in the data it successfully checked. The detector catches a failed suggestion search and carries the warning to the existing caller.
+
+Completeness here is specifically the local appointment read used by this calculation. It does not establish that local storage is synchronized with every server record, that the caller's supplied medication list is current or complete, or that data cannot change after the read. Validation of fields unused by the conflict evaluator, medication-source loading and server synchronization remain outside this change. No slot is reserved and no atomic check-and-save guarantee is added.
 
 ## One snapshot per suggested-slot search
 
-In PR122, `findNextAvailableSlot` calls `detectConflicts` once per candidate. Each detector call runs a moving-window query and then the identical full-pet query. The exact `src/services/localDB.ts` implementation (blob `2703bfd3c021534522b3b44fec12701ab4ebd7c1`) shows that both read the same SQLite `appointments` table and decrypt returned rows. The full-pet query already includes the narrower window's rows, as well as long or overnight appointments that the window may omit.
+The original helper called the detector for every candidate, running both a moving-window query and the identical full-pet query each time. The inspected `localDB.ts` (preimage blob `2703bfd3c021534522b3b44fec12701ab4ebd7c1`) shows that both query the same SQLite appointments table and decrypt rows. The full-pet read includes appointments omitted by the narrower start-time window, including long and overnight intervals.
 
-The helper now loads and deduplicates that full-pet set once per invocation, then calls the extracted interval/medication evaluator for each candidate. The current buffer continuation supplies the appointment-gap threshold to that evaluator while preserving its medication calculation. A successful empty array is a valid snapshot. The excluded appointment ID and cancelled-status filter still apply. The extracted evaluator cannot start another suggested-slot search; the fallback detector still receives `includeSuggestedTime=false`. Existing invalid/out-of-range window dates still throw before a candidate database read.
+The search now reads and deduplicates one complete full-pet snapshot and evaluates every candidate against it. A successful empty snapshot is valid. It is kept only within that invocation; a later invocation reads again. A failed or partially decoded snapshot rejects instead of becoming empty data or starting repeated fallback checks.
 
-For a successful snapshot and K examined candidates (1 <= K <= 336), the direct slot helper performs one local query/decryption pass instead of 2K queries, including K full-pet decryption passes. Candidate-by-appointment comparisons remain O(KA); no constant-time search or measured latency improvement is claimed. Standalone `detectConflicts` keeps its original window-plus-full-pet read path. If the optional snapshot read rejects, the helper makes one extra failed preload attempt and retains the prior per-candidate detector path, including its bounded-window error behavior and full-pet fallback.
+For K examined candidates, with 1 <= K <= 336, a successful direct slot-helper call performs one local query/decryption pass instead of 2K queries, including K full-pet decryption passes. Candidate-by-appointment comparisons remain O(KA). No measured latency or constant-time-search claim is made. The initial standalone detector still attempts a bounded read and the full-pet snapshot. Existing invalid/out-of-range candidate-window checks run before a candidate database read. The search remains nonrecursive, advances hourly and examines at most 336 candidates.
 
-This is a local snapshot for one suggestion calculation. No data is retained across calls, no invalidation protocol is introduced, and concurrent changes after that read are not reflected in the suggestion. A new invocation reads again. The existing screen already waits for the calculation and then separately offers a suggestion before persistence; neither this change nor the prior implementation reserves a slot or provides atomic check-and-save. Local data completeness and server-side booking authority remain outside this module.
+## Configurable spacing and actual duration
 
-## Configurable appointment spacing
+Issue49 explicitly requires a configurable appointment buffer with a 30-minute default. `DEFAULT_APPOINTMENT_BUFFER_MINUTES` supplies that value. The booking and rescheduling forms expose **Appointment gap warning (minutes)** and pass it before saving. The value is local to this screen, starts at 30 and is not persisted or attached to the appointment.
 
-Issue49 explicitly asks for a configurable buffer with a 30-minute default. `DEFAULT_APPOINTMENT_BUFFER_MINUTES` now supplies that default. `detectConflicts` accepts it as an optional sixth argument, after the existing suggestion flag; `findNextAvailableSlot` accepts it as an optional fifth argument, after the excluded appointment ID. Existing positional callers remain valid and now use the requested 30-minute appointment default. Each call captures its own numeric value and forwards it to every suggested candidate, including the database fallback.
+Blank, negative, nondecimal, nonfinite and unrepresentable date-window inputs show an alert before the conflict check. Zero and decimal minutes are supported. The service independently rejects nonfinite or negative buffer minutes, including conversion to nonfinite milliseconds, before reading the database.
 
-The actual `AppointmentScreen` booking and rescheduling forms now expose “Appointment gap warning (minutes)”. Both call paths pass the selected value before saving; the current rescheduled ID remains excluded. This screen-local value starts at 30 and is not persisted or attached to an appointment. Its label states that it applies to checks and suggestions on the screen and is not saved. Blank, negative, nondecimal, nonfinite or unrepresentable date-window inputs show an alert before the conflict check. Zero is valid; decimal minutes are supported. The service independently rejects nonfinite or negative minutes, or a conversion to nonfinite milliseconds, before reading the database.
+The threshold is compared once with the existing free gap between appointment intervals; it is not added to both appointments. The existing inclusive boundary remains: a gap equal to the threshold is warned about. Overlapping or touching intervals have zero gap and remain conflicts with a zero buffer.
 
-The buffer is compared once with the existing free gap between the two appointment intervals; it is not added to both appointments. The existing inclusive boundary remains: gaps equal to the selected value are warned about. Overlapping or touching intervals have a zero gap, so they remain conflicts even with a zero buffer. Existing appointment intervals retain their stored durations. The proposed interval now uses the caller's existing appointment duration, falling back to the model's 30 minutes when absent.
+The caller also passes its existing `Appointment.durationMinutes`, falling back to the model's 30 minutes. The same value reaches the initial evaluator and every suggested candidate. This corrects the preimage's fixed 30-minute proposed interval, which could be shorter than the appointment that rescheduling would save. No duration setting or new duration policy is introduced.
 
-The original one-hour `CONFLICT_BUFFER_MS` remains the medication proximity window and hourly suggestion step. The configurable value changes appointment spacing only; it does not alter medication scheduling, supervision classification, or clinical advice. The bounded appointment query uses the larger of the original lookup window and the configured buffer. This expands that lookup for larger configured gaps; it does not claim to repair the pre-existing incomplete-data fallback when the full-pet read fails. The successful per-invocation full-pet snapshot still performs one query.
+| Function | Appended optional arguments |
+| --- | --- |
+| `detectConflicts` | Sixth: appointment buffer minutes, default 30. Seventh: proposed duration minutes, default 30. |
+| `findNextAvailableSlot` | Fourth: excluded appointment ID. Fifth: appointment buffer minutes, default 30. Sixth: proposed duration minutes, default 30. |
 
-The inspected `Appointment` model contains no recurrence rule, frequency, exception or series identifier. The current `User` model and `SettingsScreen` expose no persistent appointment-buffer preference either. This change therefore supplies a usable per-calculation control without inventing either storage contract. Recurrence remains a separate requirement requiring an actual agreed model and caller.
+Existing positional callers remain valid. The current rescheduling caller forwards `detailAppt.id` through every suggested candidate, preserving self-exclusion. The one-hour `CONFLICT_BUFFER_MS` remains the medication proximity window and hourly search step. Buffer configuration does not change medication scheduling or supervision classification.
 
-## Preserve the proposed appointment duration
-
-The existing rescheduling caller copies `detailAppt` into the pending appointment, retaining its `durationMinutes`, and accepting a suggestion spreads that pending object before changing date/time. However, the preimage service evaluates every proposed interval as 30 minutes. A longer appointment can therefore be offered a slot using a shorter interval than the appointment that will actually be saved.
-
-The detector now accepts `proposedDurationMinutes` as an optional seventh argument, after the buffer; the slot helper accepts it as an optional sixth argument. Both retain 30 minutes for existing callers. Booking supplies `appt.durationMinutes ?? 30`; rescheduling supplies `detailAppt.durationMinutes ?? 30`. The service forwards that same value to the initial evaluator, snapshot candidates, and fallback detector. It changes only the proposed interval's end. The original interval-gap calculation, stored appointment durations, chosen buffer, excluded ID, medication window and search cadence remain unchanged.
-
-This uses the existing model's duration field; it creates no duration setting, recurrence rule, clinical policy or persistent schema. Input validation beyond the existing typed model and buffer checks remains outside this narrow continuation. The pre-existing incomplete-data fallback is still documented above; no complete conflict guarantee is made when the full-pet read fails.
-
-The computed suggestion already has a consumer. The retained screen renders its formatted time and exposes “Use Suggested Time”; that button explicitly calls the existing save path with the updated date/time and preserved pending appointment fields. The issue asks for a conflict warning before saving and does not specify an additional suggestion UI. No duplicate suggestion control or automatic save was added.
+The computed suggestion already has a consumer: the screen displays it and **Use Suggested Time** explicitly saves the changed date/time while preserving other pending appointment fields. That action is offered only for a complete result with a suggestion. No automatic acceptance or duplicate suggestion control was added.
 
 ## Source and attribution
 
 - Original issue: https://github.com/cocohub-mobileapp/cocohub-main/issues/49
 - Existing contribution: https://github.com/cocohub-mobileapp/cocohub-main/pull/122 by **es3298**.
-- Inspected contribution head: `3f9f6894dfb651aaab3b2b85a90b3b3c2f0fa941`; OPEN and unmerged when refreshed on 2026-10-05.
+- Immutable contribution head: `3f9f6894dfb651aaab3b2b85a90b3b3c2f0fa941`; OPEN and unmerged when refreshed on 2026-10-05.
 - Contribution base: `d33dd0c6ee1e0b3fb967c1929c7556b4bb152df2`.
-- Production preimage: `src/services/appointmentService.ts`, blob `ef9f8c873d85aff8824f5a1110d46b48078ff8df`.
-- Actual caller: `src/screens/AppointmentScreen.tsx`, blob `dc60c11007086f15b4aeb11a515cb65e579b0d9e`; `handleReschedule` passes the current appointment ID with its explicit “exclude self” comment.
-- Model: `src/models/Appointment.ts`, blob `3108dd028d1585345afca973c9a5a455439cd9e4`.
-- Settings source inspected at the same immutable contribution head: `src/screens/SettingsScreen.tsx`, blob `df7f2585b237a5acb1cda51bd919252178968180`; `src/models/User.ts`, blob `b4e2a00a3f7c9d7861094d8ce117225ac3382ffa`. These sources remain unchanged.
-- Root contribution instructions: blob `e54062fc177bebd5da71ec227366e3f6734015b0`.
-- Original MIT license: blob `6896ef04cbbb9416187df44463695959cbdf629d`, included unchanged. Copyright remains PetChain, Inc.; es3298's existing interval and recursion corrections are preserved.
+- `src/services/appointmentService.ts`: `ef9f8c873d85aff8824f5a1110d46b48078ff8df`.
+- `src/screens/AppointmentScreen.tsx`: `dc60c11007086f15b4aeb11a515cb65e579b0d9e`.
+- `src/services/localDB.ts`: `2703bfd3c021534522b3b44fec12701ab4ebd7c1`.
+- `src/models/Appointment.ts`: `3108dd028d1585345afca973c9a5a455439cd9e4`.
+- Settings/schema inspected, unchanged: `src/screens/SettingsScreen.tsx`, `df7f2585b237a5acb1cda51bd919252178968180`; `src/models/User.ts`, `b4e2a00a3f7c9d7861094d8ce117225ac3382ffa`.
+- Root contribution instructions: `e54062fc177bebd5da71ec227366e3f6734015b0`.
+- Included unchanged MIT license: `6896ef04cbbb9416187df44463695959cbdf629d`. Copyright remains PetChain, Inc.; es3298's existing interval and recursion corrections are preserved.
 
-Issue comment 4878529319 separately links niteshcongreja321's `fix/issue-49-appointment-conflicts` branch. Its current service blob `03ed1d62745643a3a30751f00bdf19ac3dfae8d2` also drops the exclusion, but uses a different options argument. This patch is specifically for PR122; do not overwrite that broader contribution or apply this positional signature blindly to it.
+Issue comment4878529319 separately links niteshcongreja321's `fix/issue-49-appointment-conflicts` branch. Its inspected service `03ed1d62745643a3a30751f00bdf19ac3dfae8d2` uses a different options signature. This patch targets PR122; do not overwrite that broader contribution or apply these positional arguments blindly to it.
 
-A historical coordination handoff also named ZZ-Sol-Peregrine-913's intended tokenjunkielabs branch. The exact branch request was rejected with INVALID_ARGUMENT before a source body was acquired. No historical payload was reconstructed and no completion, content identity, or ownership transfer is inferred for that branch.
+An older coordination handoff named ZZ-Sol-Peregrine-913's intended tokenjunkielabs branch. Its exact request was rejected with INVALID_ARGUMENT before source acquisition. No historical payload was reconstructed, and no content identity, completion or ownership transfer is inferred for it.
 
-## Integration
+## Integration and remaining scope
 
-`change.patch` applies to the pinned PR122 source above. The adjacent `src/services/appointmentService.ts` and `src/screens/AppointmentScreen.tsx` are the complete resulting modules. This cumulative patch includes the self-exclusion correction originally published in Commons #31652, the per-invocation snapshot correction in #31660, the configurable appointment-buffer feature in #31664, and propagation of the proposed duration. Apply it once to the documented PR122 preimage; compose its changed hunks with newer source rather than replacing a newer module wholesale.
+Apply `change.patch` once to the pinned PR122 source. The adjacent complete service, caller and local database modules are the resulting source. This cumulative patch composes the exclusion correction from Commons31652, snapshot reuse from31660, configurable buffer from31664, duration propagation from31669 and the incomplete-read warning flow. With newer source, compose these hunks instead of replacing entire modules.
 
-This is an attributed Commons continuation, not an upstream submission or a new bounty claim. The original contribution remains with its author. Cocohub's contribution instructions require maintainer assignment for bounty intake; no assignment, upstream PR, award, or payment was requested or inferred here.
+The inspected appointment model has no recurrence frequency, series identifier, exceptions or rule contract. The current user/settings schema likewise has no persistent appointment-buffer preference. Recurrence and any persistent setting require a separate concrete model; this continuation invents neither.
 
-## Validation and remaining scope
+Validation is source inspection of the retained production paths and their actual data contracts, changed-source reasoning and exact Git readback. No application, TypeScript compiler, formatter, linter, tests, simulator, backend, wallet or booking operation was run. Historical reported checks are not rerun or adopted. Native UI and maintainer acceptance remain outstanding.
 
-Validation is source inspection of the complete service and model, the concrete screen call paths and controls, the actual settings/profile schema and local database implementation, the changed production patch, and exact Git readback. No application, TypeScript compiler, formatter, linter, tests, simulator, backend, wallet, or transaction was executed. The historical PR's reported checks are not rerun or adopted as validation of this continuation.
-
-The configurable/default appointment-buffer feature is source-complete in this continuation. This does not complete issue49's recurrence handling, unit-test acceptance, or native UI acceptance. The proposed interval uses the existing appointment duration with a 30-minute fallback; the medication window remains one hour. Local data coverage, timezone handling, broader input validation, the legacy database-failure fallback policy, and changes between checking and saving remain outside this patch. No runtime outcome or current funding assurance is claimed.
+Cocohub's contribution instructions require maintainer assignment for bounty intake. The original contributors retain their work and claims. No assignment, upstream submission, award or payment was requested or inferred.
