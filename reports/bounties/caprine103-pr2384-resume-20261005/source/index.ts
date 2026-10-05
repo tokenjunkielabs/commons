@@ -476,6 +476,9 @@ function createMainWindow(): BrowserWindow {
 					webContents.reload();
 				}
 			}
+		} catch {
+			// A failed Electron operation ends this attempt; manual reload remains available.
+			cancelResumeRecovery();
 		} finally {
 			connectivityCheckRunning = false;
 			if (resumePending && canRecoverResume() && resumeRetry === undefined) {
