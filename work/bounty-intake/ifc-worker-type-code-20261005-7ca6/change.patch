@@ -1,7 +1,19 @@
 diff --git a/web-ifc-three/src/IFC/web-workers/workers/WebIfcWorker.ts b/web-ifc-three/src/IFC/web-workers/workers/WebIfcWorker.ts
 --- a/web-ifc-three/src/IFC/web-workers/workers/WebIfcWorker.ts
 +++ b/web-ifc-three/src/IFC/web-workers/workers/WebIfcWorker.ts
-@@ -177,7 +177,7 @@
+@@ -78,6 +78,11 @@
+         this.worker.post(data);
+     }
+ 
++    getHeaderLine(data: IfcEventData) {
++        data.result = this.webIFC.GetHeaderLine(data.args.modelID, data.args.headerType);
++        this.worker.post(data);
++    }
++
+     GetIndexArray(data: IfcEventData) {
+         data.result = this.webIFC.GetIndexArray(data.args.ptr, data.args.size);
+         this.worker.post(data);
+@@ -177,7 +182,7 @@
      }
  
      GetNameFromTypeCode(data: IfcEventData) {
@@ -10,3 +22,14 @@ diff --git a/web-ifc-three/src/IFC/web-workers/workers/WebIfcWorker.ts b/web-ifc
          this.worker.post(data);
      }
  
+diff --git a/web-ifc-three/src/IFC/web-workers/BaseDefinitions.ts b/web-ifc-three/src/IFC/web-workers/BaseDefinitions.ts
+--- a/web-ifc-three/src/IFC/web-workers/BaseDefinitions.ts
++++ b/web-ifc-three/src/IFC/web-workers/BaseDefinitions.ts
+@@ -116,6 +116,7 @@
+ }
+ 
+ export interface WebIfcWorkerAPI extends BaseWorkerAPI {
++    [WorkerActions.getHeaderLine]: IfcWorkerEventHandler;
+     [WorkerActions.Init]: IfcWorkerEventHandler;
+     [WorkerActions.Close]: IfcWorkerEventHandler;
+     [WorkerActions.DisposeWebIfc]: IfcWorkerEventHandler;
