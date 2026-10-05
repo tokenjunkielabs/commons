@@ -335,6 +335,58 @@ mismatches and completed manual dispositions remain preserved. The new mode
 was source-inspected only at publication; those accepted bodies were not
 retrieved or compared again, and no fixture or execution result is claimed.
 
+### Optional immutable GitHub blob-label normalization
+
+`slack_bare_urls_entities_github_blob_labels` is a separate opt-in mode for
+one observed native display form. It includes the base URL/entity transformations
+and additionally recognizes an HTTPS target on literal `github.com` with
+`/<owner>/<repo>/blob/<commit>/<path>/<filename>`, where the commit is exactly
+40 lowercase hexadecimal characters. The path may have zero or more directory
+segments. Owner, repository, directory segments and filename must each be
+nonempty and contain only ASCII letters, digits, underscore, dot or hyphen.
+The label must equal `github.com/<owner>/<repo>/blob/…/<filename>` exactly,
+with the same owner, repository and final filename and one U+2026 ellipsis.
+
+```javascript
+const comparison = compareSlackPublication(nextPublishedResult, nextPreparedMessage, {
+  normalization: 'slack_bare_urls_entities_github_blob_labels',
+});
+```
+
+Recognition replaces the wrapper with the unchanged complete target, including
+the original commit and every omitted directory segment. A different target or
+any difference in the remaining body still mismatches the separately prepared
+message. This mode adds only `normalizations_applied.github_blob_labels` to
+the base counters; each recognized blob label also counts once in
+`bare_url_wrappers`. A literal match leaves all counters zero.
+
+This mode does not accept shortened owner/repository/filename labels, ref
+aliases, other hosts, HTTP blob targets, percent-encoded path segments,
+query/fragment suffixes, ASCII `...`, other ellipsis positions or arbitrary
+labels. It does not combine the fragment-label or www/slash omission modes.
+There is no URL decoding, path resolution, case folding, general label stripping
+or whitespace normalization. Existing modes retain their earlier behavior and
+result shapes; selected-message binding, framing, ambiguity refusal and the
+single entity pass are unchanged. No provider call, send/edit/read retry or
+claim about raw Slack storage is introduced.
+
+The actual motivating observation is the 2026-10-05 Commons #31608 release.
+Its native rendering retained this complete target:
+
+```text
+https://github.com/ThatOpen/web-ifc-viewer/blob/1f5c975ad6d019e7355c8759369f318f9fa3e339/viewer/src/components/ifc/ifc-manager.ts
+```
+
+The displayed label was
+`github.com/ThatOpen/web-ifc-viewer/blob/…/ifc-manager.ts`.
+The original helper mismatch and the caller's completed exact retained-byte
+disposition remain preserved. This new mode was source-inspected only at
+publication: that accepted message was not fetched or compared again, no
+copied fixture was created, and no executable acceptance is claimed. First
+use is reserved for a future necessary comparison. The separate Desktop #31610
+release used an ordinary complete scheme-less label already supported by the
+base mode; it does not supply evidence for this new label form.
+
 ## Compare one exact fenced payload
 
 `compareSlackFencedPayload(result, expectedPayload)` selects the same bounded

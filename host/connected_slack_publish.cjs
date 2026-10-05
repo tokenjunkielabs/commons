@@ -315,17 +315,20 @@ function compareSlackPublication(published, expectedMessage, options = {}) {
   if (!['none', 'slack_bare_urls_entities',
     'slack_bare_urls_entities_fragment_labels',
     'slack_bare_urls_entities_www_slash_labels',
-    'slack_bare_urls_entities_www_or_slash_labels'].includes(normalization)) {
+    'slack_bare_urls_entities_www_or_slash_labels',
+    'slack_bare_urls_entities_github_blob_labels'].includes(normalization)) {
     throw new TypeError('normalization must be none, slack_bare_urls_entities, '
       + 'slack_bare_urls_entities_fragment_labels, slack_bare_urls_entities_www_slash_labels, '
-      + 'or slack_bare_urls_entities_www_or_slash_labels');
+      + 'slack_bare_urls_entities_www_or_slash_labels, or slack_bare_urls_entities_github_blob_labels');
   }
   const allowFragmentLabels = normalization === 'slack_bare_urls_entities_fragment_labels';
   const allowWwwSlashLabels = normalization === 'slack_bare_urls_entities_www_slash_labels';
   const allowIndependentLabels = normalization === 'slack_bare_urls_entities_www_or_slash_labels';
+  const allowGitHubBlobLabels = normalization === 'slack_bare_urls_entities_github_blob_labels';
   const result = {status: 'uncomparable', matches: null, literal_match: null,
     body_source: 'native_read_thread_rendering', channel_binding: 'retained_readback_request',
     normalization, normalizations_applied: {bare_url_wrappers: 0, entities: 0}};
+  if (allowGitHubBlobLabels) result.normalizations_applied.github_blob_labels = 0;
   if (allowFragmentLabels) result.normalizations_applied.fragment_labels = 0;
   if (allowWwwSlashLabels) result.normalizations_applied.www_slash_labels = 0;
   if (allowIndependentLabels) {
@@ -359,11 +362,17 @@ function compareSlackPublication(published, expectedMessage, options = {}) {
         && label === withoutScheme.slice(0, -1);
       const independentBothLabel = independentTarget && withoutScheme.startsWith('www.')
         && withoutScheme.endsWith('/') && label === withoutScheme.slice(4, -1);
+      // One observed immutable GitHub blob display form; never shorten the target.
+      const githubBlobTarget = allowGitHubBlobLabels
+        && /^https:\/\/github\.com\/([A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+\/blob)\/[0-9a-f]{40}\/(?:[A-Za-z0-9_.-]+\/)*([A-Za-z0-9_.-]+)$/.exec(target);
+      const githubBlobLabel = githubBlobTarget
+        && label === 'github.com/' + githubBlobTarget[1] + '/\u2026/' + githubBlobTarget[2];
       if (label !== undefined && label !== target && label !== withoutScheme
         && !fragmentLabel && !wwwSlashLabel
-        && !wwwOnlyLabel && !slashOnlyLabel && !independentBothLabel) {
+        && !wwwOnlyLabel && !slashOnlyLabel && !independentBothLabel && !githubBlobLabel) {
         return whole;
       }
+      if (githubBlobLabel) result.normalizations_applied.github_blob_labels += 1;
       if (fragmentLabel) result.normalizations_applied.fragment_labels += 1;
       if (wwwSlashLabel) result.normalizations_applied.www_slash_labels += 1;
       if (wwwOnlyLabel || independentBothLabel) result.normalizations_applied.www_prefix_omissions += 1;
