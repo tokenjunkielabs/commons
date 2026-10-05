@@ -1,0 +1,219 @@
+{
+  "schema": "commons-resource-activation/v1",
+  "id": "resource-master-capability-delta-20261005-1504",
+  "operation_id": "RESOURCE-MASTER-CAPABILITY-DELTA-20261005-1504",
+  "observed_at": "2026-10-05T19:24:10.000Z",
+  "title": "Revenue-priority product, research and connected-capability activation",
+  "consumer": "Commons revenue routing, migration-concierge operators, bounded research consumers, existing upstream integration owners and connected coordination workers",
+  "outcome": {
+    "resources": 374,
+    "producing": 215,
+    "evidence_records": 125,
+    "activated_count": 15,
+    "activated": [
+      "erdos936-powerful-number-local-screen-index",
+      "erdos9-selected-prime-two-power-index",
+      "erdos330-finite-periodic-deletion-index",
+      "erdos723-cyclic-affine-incidence-index",
+      "erdos97-anisotropic-distance-arrangement-index",
+      "erdos107-convex-subset-circuit-index",
+      "polynomial-lemniscate-horizontal-section-index",
+      "erdos51-finite-totient-preimage-index",
+      "hive-migration-concierge-workspace",
+      "paste11-restored-form-events-source-packet",
+      "payd505-smtp-aggregate-health-source-packet",
+      "gulp-parcel12-parcel-1103-compat-source-packet",
+      "erdos172-finite-pair-coloring-index",
+      "payd696-fx-calendar-date-source-packet",
+      "pocketpay521-import-cancellation-source-packet"
+    ],
+    "advanced_in_place": [
+      "connected-slack-native-page-collector",
+      "connected-github-source-pinned-publisher",
+      "connected-github-native-issue-pr-search",
+      "cocohub49-reschedule-self-exclusion-source-packet",
+      "agentmail-recovery-draft-road",
+      "homeops-finished-demo-video",
+      "connected-gmail-bounded-search-header-collector"
+    ],
+    "build_orders": [
+      {
+        "id": "HIVE-MIGRATION-ATTACHMENT-ERROR-CONTRACT-20261005-01",
+        "url": "https://tokenjunkielabs.slack.com/archives/C0BTB4SUCP9/p1791227636881249",
+        "state": "POSTED_UNCLAIMED_AT_CUTOFF"
+      }
+    ],
+    "continued_orders": [
+      "OPEN-DOOR-RESEARCH-PROSE-FALSE-POSITIVE-20261004-01"
+    ],
+    "completed_activation": "Nine exact finite research indexes, one runnable revenue-facing migration workspace and five complete upstream repair packets are canonicalized. Gulp-parcel advanced further to a producing four-case integration receipt on its existing upstream PR21; six other connected/product/source resources advance in place. Two new owner-only revenue decisions are routed once to Account Chad, and the migration workspace error-contract defect is delegated with deterministic acceptance."
+  },
+  "watermark": {
+    "prior_terminal_slack_ts": "1791218949.325719",
+    "slack_sweep_through": "1791227824.704119",
+    "claim_ts": "1791227181.984629",
+    "build_order_ts": "1791227636.881249",
+    "prior_main_sha": "85ceb42ead5cc3514b7b86c8edc389e7ab748899",
+    "github_source_through": "5cbdd3d5ad9dfd974385ce27bae64fb7484a1bbb",
+    "github_delta": {
+      "reachable_commits": 71,
+      "first_parent_changes": 46,
+      "merged_pr_lanes": 31,
+      "generated_custody_renewals_excluded": 14,
+      "material_changed_paths": 91,
+      "branch_pages": 56,
+      "branches_observed": 5449,
+      "new_closed_unmerged_prs": 0,
+      "new_closed_issues": 0
+    },
+    "automations_observed": {
+      "listed": 25,
+      "paused_count": 33,
+      "completed_count": 3,
+      "resource_master_enabled": true,
+      "previously_disabled_restarted": false
+    },
+    "connected_apps": {
+      "github_write_surface": "CALLABLE_FOR_AUTHORIZED_PUBLICATION",
+      "slack_write_surface": "CALLABLE_AND_USED_FOR_CLAIM_BUILD_ORDER_AND_OWNER_ROUTING",
+      "gmail_delta": "NO_NEW_BUYER_SPONSOR_MAINTAINER_OR_RCAP_REPLY",
+      "agentmail": {
+        "status": "INSTALLED_ENABLED_AND_READ_PROVEN",
+        "callable_actions": 37,
+        "organizations_returned": 1,
+        "inboxes_returned": 1,
+        "third_party_app_accounts_observed": 0
+      },
+      "stripe_live_balance_observed_at": "2026-10-05T19:06:13.576Z",
+      "stripe_live_available": "$0.00 USD",
+      "stripe_live_pending": "$0.00 USD",
+      "stripe_charges_after_prior_watermark": 0,
+      "tool_identity": {
+        "count": 1104,
+        "prior_count": 1076,
+        "net_delta": 28,
+        "sorted_name_sha256": "337d14811d28d4e14216ec40ecabe8408b3352e1139ed3dab1d42af99a005c7a",
+        "sentinel_a": "86fe43f666b30c9b",
+        "sentinel_b": "f9aa8a18ec5d262a"
+      },
+      "skill_identity": {
+        "executor_count": 195,
+        "cloud_count": 0,
+        "sorted_name_sha256": "0a7cae74440818cfcd745b5fb9f2aa02350c0668565fda94eb5a4f3cb75ecae3",
+        "entry_sha256": "a656171d24f4c5b2a23d828e32bc0726d47ad9d8372e96b9027578199c6839b4"
+      }
+    }
+  },
+  "evidence": {
+    "claim": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791227181984629",
+    "build_order": "https://tokenjunkielabs.slack.com/archives/C0BTB4SUCP9/p1791227636881249",
+    "owner_actions": "https://tokenjunkielabs.slack.com/archives/C0BU51F1PL3/p1791227415843779?thread_ts=1790977806.441259&cid=C0BU51F1PL3",
+    "revenue_collection": "https://tokenjunkielabs.slack.com/archives/C0BU51F1PL3/p1791227053646479",
+    "memanto_eligibility": "https://tokenjunkielabs.slack.com/archives/C0BU51F1PL3/p1791224639136169?thread_ts=1790851459.659859&cid=C0BU51F1PL3",
+    "research_prs": [
+      31659,
+      31662,
+      31668,
+      31682,
+      31686,
+      31690,
+      31693,
+      31695,
+      31696
+    ],
+    "connected_capability_prs": [
+      31658,
+      31661,
+      31663,
+      31665,
+      31670,
+      31684,
+      31691,
+      31699
+    ],
+    "source_and_product_prs": [
+      31660,
+      31664,
+      31667,
+      31669,
+      31683,
+      31685,
+      31687,
+      31688,
+      31689,
+      31692,
+      31694,
+      31697,
+      31698
+    ],
+    "homeops_merge": "86f0f0aa873d2fa45e06295f0c53328fb4291430",
+    "validation": {
+      "research_saved_reader_outputs": 374,
+      "node_syntax": "PASS_13_OF_13",
+      "research_json_parse": "PASS_29_OF_29",
+      "hive_migration_suite": "FAIL_52_OF_53_PASS_ONE_PARENT_PATH_ERROR_CONTRACT_FAILURE_AND_ONE_LATENT_SYMLINK_ERROR_CONTRACT_FAILURE",
+      "workflow_runs": "92_SUCCESS_AND_2_OPEN_DOOR_FAILURES_COMPLETED_ACROSS_96_SCHEDULED; PAYD31697_ONE_QUEUED_AND_POCKETPAY31698_ONE_IN_PROGRESS_AT_CUTOFF",
+      "current_main_open_door": "PASS_RUN_37360181033",
+      "moving_head_checks": "ERDOS172_NODE_SYNTAX_AND_TWO_JSON_PARSE_PASS; PAYD696_PATCH_NUMSTAT_2_2; POCKETPAY521_PATCH_NUMSTAT_50_6",
+      "gmail_reported_timestamp_observation": "PASS_FIVE_ROWS_ASSESSED_FOUR_INSIDE_ONE_BEFORE_LOWER_BOUND_ONE_SOURCE_PATH_DIAGNOSTIC_ZERO_REFETCH_ZERO_INPUT_MUTATION"
+    },
+    "existing_order_receipt": "https://tokenjunkielabs.slack.com/archives/C0BTB4SUCP9/p1791151541533119",
+    "external_gulp_parcel": {
+      "upstream_pr": 21,
+      "state": "OPEN_UNMERGED_UNACCEPTED",
+      "head": "71a8e8310cacb4143efb1b322b6394c2655c4873",
+      "receipt_blob": "91aabb2ba2ebc42a3ab23c9f733925b4222f3132",
+      "result": "PASS_FOUR_REAL_PARCEL_1_10_3_CASES_THREE_OUTPUTS_ONE_ERROR_CALLBACK_ONCE_ZERO_LISTENER_DELTA_NO_UNHANDLED_REJECTIONS"
+    }
+  },
+  "revenue": {
+    "rcap": "PROPOSAL_SENT_AWAITING_REPLY",
+    "rcap_fixed_base_usd": 24500,
+    "stripe_available_usd": "0.00",
+    "stripe_pending_usd": "0.00",
+    "accepted_work": 0,
+    "payment_receipts": 0,
+    "payout_receipts": 0,
+    "cash_receipts": 0,
+    "collection_followups": "SENT_UNDER_EXISTING_OWNERS_WITH_NO_ACCEPTANCE_OR_PAYMENT_REPLY",
+    "stripe_research_invitation": {
+      "advertised_virtual_gift_card_usd": 125,
+      "state": "OWNER_CONSENT_AND_COMPLETION_NOT_YET_PERFORMED",
+      "available_through": "2026-10-10_OR_UNTIL_QUOTA",
+      "operation_id": "STRIPE-RESEARCH-STUDY-20261005-01"
+    },
+    "memanto": {
+      "advertised_usd": 100,
+      "state": "PUBLIC_LISTING_AND_EXISTING_PR_LINK_VISIBLE_INTERNAL_CLAIM_STATUS_UNVERIFIED",
+      "owner_deadline": "2026-10-05T23:59:00.000Z",
+      "operation_id": "MEMANTO-CLAIM-STATUS-20261005-01"
+    },
+    "source_packets": "AVAILABLE_NOT_SUBMITTED_NOT_ACCEPTED_NOT_PAID"
+  },
+  "capacity": {
+    "official_or_direct_reset_observed": false,
+    "quota_state": "PRIOR_STATE_RETAINED",
+    "official_reset_check": "One bounded once-per-wake check found no post-watermark official OpenAI or Thibault Sottiaux hard/global reset and no directly observed meter change.",
+    "automation_state": "CURRENT RESOURCE MASTER ENABLED; PREVIOUSLY DISABLED AUTOMATIONS NOT RESTARTED"
+  },
+  "excluded_as_non_resource": [
+    "Fourteen repeated generated paused-custody renewals across two holdings files",
+    "Daytona17 source-route blocker without implementation or live sponsor road",
+    "Six Cocohub merges treated as one cumulative lane and PayD review plus patch treated as one packet",
+    "Publisher and issue-search refinements advanced existing resources instead of reminting seven products",
+    "Issue31681 and issue31453 generated indexes and terminal loops over already-landed work",
+    "Unchanged draft PR31346 and PR31035 and duplicate external PR31560/31561",
+    "Open-door negative-prose failures remain one existing build-order root",
+    "Git checkout, account connection, source presence and cached declarations without matching authority or runtime receipts",
+    "Gulp-parcel direct handoff commit is a continuation of the same PR31694 packet and existing upstream PR21, not a second resource"
+  ],
+  "boundaries": [
+    "NO CONTACT OR RELAY TO MICHAEL CLARK",
+    "No invitation, listing, collection follow-up or source packet is buyer acceptance, award, payment, payout, revenue or cash",
+    "No finite research row establishes an unrestricted theorem, global novelty, prize or sponsor result",
+    "AgentMail read proof does not authorize or establish message send, reply, forwarding, deletion or third-party account connection",
+    "No private customer body, account identifier, credential, payment data or private filename is persisted",
+    "Cursor hold, Claude suspension/no-tester, Titan mutation hold and Grok dry/no-submit remain",
+    "Owner-only identity, consent, payment, policy, call, signing, submission and physical-device actions remain with Bryce"
+  ]
+}
