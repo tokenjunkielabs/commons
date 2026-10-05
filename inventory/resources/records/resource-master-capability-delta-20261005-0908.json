@@ -2,14 +2,14 @@
   "schema": "commons-resource-activation/v1",
   "id": "resource-master-capability-delta-20261005-0908",
   "operation_id": "RESOURCE-MASTER-CAPABILITY-DELTA-20261005-0908",
-  "observed_at": "2026-10-05T16:27:14.000Z",
+  "observed_at": "2026-10-05T16:37:23.000Z",
   "title": "Revenue-priority research, source-packet and connected-capability activation",
   "consumer": "Commons revenue routing, exact finite research consumers, existing upstream integration owners and connected Slack publication workers",
   "outcome": {
-    "resources": 357,
-    "producing": 203,
+    "resources": 359,
+    "producing": 204,
     "evidence_records": 124,
-    "activated_count": 57,
+    "activated_count": 59,
     "activated": [
       "cyclic13-two-sum-periodic-lift-index",
       "reciprocal-weight-ap-free-family-index",
@@ -67,26 +67,28 @@
       "pathtracer241-temporal-resolve-lifecycle-source-packet",
       "soundbounce82-per-item-batch-cap-source-packet",
       "erdos944-coloring-deletion-index",
-      "cocohub49-reschedule-self-exclusion-source-packet"
+      "cocohub49-reschedule-self-exclusion-source-packet",
+      "erdos873-contiguous-lcm-window-index",
+      "trusted-evidence-authority-loaded-registry-integrity"
     ],
     "build_orders": [],
     "continued_orders": [
       "OPEN-DOOR-RESEARCH-PROSE-FALSE-POSITIVE-20261004-01"
     ],
-    "completed_activation": "Sixteen exact finite research readers, two narrowly bounded connected readback modes and thirty-nine complete upstream source packets are canonicalized under their existing consumers and owners. The desktop-node, Human Connection and Digix governance packets advance in place; Gitea collision records and generated projection churn are not reminted as resources."
+    "completed_activation": "Seventeen exact finite research readers, two narrowly bounded connected readback modes, one revenue-readiness evidence boundary and thirty-nine complete upstream source packets are canonicalized under their existing consumers and owners. The desktop-node, Human Connection and Digix governance packets advance in place; collision records and generated projection churn are not reminted as resources."
   },
   "watermark": {
     "prior_terminal_slack_ts": "1791199361.889959",
     "slack_sweep_through": "1791206033.261729",
     "claim_ts": "1791206033.261729",
     "prior_main_sha": "d50a4e33677d275b85ca7c8818759d9012ca9a47",
-    "github_source_through": "4f4d7fe42602267eb0b4e971f64b10c8b0b3d173",
+    "github_source_through": "8719865bd98d47ad36638bc0c07d6311fbf4074b",
     "github_delta": {
-      "commits_observed": 280,
-      "first_parent_changes": 103,
+      "commits_observed": 285,
+      "first_parent_changes": 106,
       "generated_custody_renewals_excluded": 26,
-      "merged_pr_lanes": 70,
-      "changed_paths": 1110
+      "merged_pr_lanes": 73,
+      "changed_paths": 1148
     },
     "automations_observed": {
       "listed": 25,
@@ -117,12 +119,13 @@
   },
   "evidence": {
     "claim": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791206033261729",
-    "research_prs": [31581, 31584, 31589, 31593, 31597, 31602, 31607, 31614, 31617, 31621, 31627, 31631, 31636, 31640, 31643, 31649, 31651],
+    "research_prs": [31581, 31584, 31589, 31593, 31597, 31602, 31607, 31614, 31617, 31621, 31627, 31631, 31636, 31640, 31643, 31649, 31651, 31656],
     "source_packet_prs": [31582, 31583, 31585, 31586, 31587, 31588, 31590, 31591, 31592, 31594, 31595, 31596, 31598, 31599, 31600, 31601, 31603, 31604, 31605, 31606, 31608, 31609, 31610, 31611, 31612, 31613, 31615, 31616, 31619, 31622, 31623, 31624, 31625, 31626, 31628, 31629, 31630, 31632, 31633, 31635, 31637, 31638, 31639, 31641, 31642, 31646, 31647, 31648, 31650, 31652],
     "connected_capability_commits": [
       "9dc9e11218eb91e8054422cda07806b31d3aa508",
       "0826adf3aebd16d1ab7feb3b8517787e7df0f306",
-      "b30050b4f45ed09d7f614216fe01fddddcca5f59"
+      "b30050b4f45ed09d7f614216fe01fddddcca5f59",
+      "23cd7a0738877b2a470e6f0c373172a4f89ddecc"
     ],
     "reader_execution": {
       "cyclic_two_sum": "PASS_FOUR_EXACT_2048_ROW_SHARDS_AND_SUMMARY",
@@ -141,7 +144,8 @@
       "erdos828_totient_shifts": "PASS_COMPLETE_16384_N_ROWS_AND_16375_KERNEL_CLASSES_RETAINED",
       "ppl105_first_block_grammar": "PASS_COMPLETE_53_STATE_DFA_150_RULE_GRAMMAR_AND_SAVED_READER_RETAINED",
       "connected_gmail_search": "PASS_ONE_AUTHORIZED_PAGE_TWO_ROWS_EXPLICIT_PROVIDER_END_AND_HEADER_ONLY_PROJECTION",
-      "erdos944_coloring_deletions": "PASS_COMPLETE_29525_PARTITIONS_23114_DELETION_MASKS_AND_33_SAVED_RESPONSES_RETAINED"
+      "erdos944_coloring_deletions": "PASS_COMPLETE_29525_PARTITIONS_23114_DELETION_MASKS_AND_33_SAVED_RESPONSES_RETAINED",
+      "erdos873_lcm_windows": "PASS_COMPLETE_134225920_WINDOWS_100848_ENDPOINT_RUNS_AND_34_SAVED_RESPONSES_RETAINED"
     },
     "source_syntax": "PASS_EXISTING_20_JAVASCRIPT_OR_COMMONJS_AND_ONE_PYTHON_SOURCE_FILES_PLUS_CONNECTED_SLACK; PASS_FIVE_NEW_RESEARCH_COMMONJS_CONNECTED_GMAIL_COMMONJS_AND_PARSEABLE_NEW_JAVASCRIPT; COFFEESCRIPT_GO_TYPESCRIPT_AND_VUE_POSTIMAGES_SOURCE_INSPECTED_ONLY",
     "existing_order_receipt": "https://tokenjunkielabs.slack.com/archives/C0BTB4SUCP9/p1791151541533119"
@@ -167,6 +171,7 @@
     "Twenty-six generated paused-custody renewals",
     "Seventeen post-3b38 first-parent generated projection, board and lease changes",
     "Gitea4898 and Gitea1872 collision/blocker records without new unheld implementation capacity",
+    "Mairix29 maintainer-review blocker record without new unheld implementation capacity",
     "Repeated Slack messages and the prior terminal receipt",
     "Duplicate open PR31560 and PR31561 at the same head and active draft custody",
     "Already-landed RouteFoundry, Slack header-first intake and GitHub secondary-limit projection",

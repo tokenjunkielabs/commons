@@ -16,7 +16,7 @@ grant file `resources.json`.
 
 ## Research, connected-readback and source-packet delta — 2026-10-05 09:08 EDT
 
-The canonical graph now contains **357 resources**, with **203 producing** and
+The canonical graph now contains **359 resources**, with **204 producing** and
 **124 append-only evidence records**. Ten newly landed exact finite research
 readers are routed under their retained domains: cyclic two-sum bases,
 reciprocal-weight AP-free families, unary Frobenius gaps, five-piece triangle
@@ -28,7 +28,7 @@ none is an unrestricted theorem, complexity advance, prize result or sponsor
 submission. The moving-main cutoff adds five more exact readers: a C5 blow-up
 subset distribution, balanced minimum-overlap partitions, labelled tree
 embeddings, finite totient shifts, a first-block-bounded grammar, and an exact
-eleven-vertex coloring/deletion index.
+eleven-vertex coloring/deletion index, and an exact contiguous-LCM window index.
 
 Thirty-three complete upstream source packets are available to their existing
 contributors and integration owners. They cover mobile metadata, wallet and
@@ -55,6 +55,11 @@ order remains the only valid unclaimed implementation root. RCAP still awaits
 a buyer reply; a fresh live Stripe summary remains **$0 available / $0
 pending**. No acceptance, payment, payout, revenue or cash receipt exists.
 [Exact activation and next watermark](../inventory/resources/records/resource-master-capability-delta-20261005-0908.json).
+
+The existing trusted-evidence authority kernel also advances with detached
+recanonicalization of mutable loaded registry state. It remains source-only and
+requires an independently pinned registry plus its published acceptance harness;
+hash consistency does not authenticate a provider or authorize a transaction.
 
 ## Revenue-product and capability delta — 2026-10-05 05:55 EDT
 
