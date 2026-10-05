@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
-"""Read-only multi-key custody fence used before a swarm source branch is bound.
+"""Read-only source and PR coordination check before a swarm branch is bound.
 
 The fence composes with ``coordination_state.py`` and never writes GitHub or
-Slack. SAFE requires complete Slack, owner-PR-census, owner-default, and
+Slack. Internal TAKE/CLAIM labels and exact-target mentions remain advisory
+coordination evidence, not exclusive authority or permission to bind a branch.
+SAFE requires complete Slack, owner-PR-census, owner-default, and
 upstream evidence; any incomplete absence proof fails closed. For ordinary
 issues, a closed state or live upstream assignment still blocks branch binding.
 Open cross-referenced PRs are retained as coordination context; their existence
@@ -109,8 +111,8 @@ def _owner_census(report):
 def decide(report):
     if report.get("errors"):
         return MANUAL
-    if ownership_evidence(report):
-        return OWNED
+    # Slack activity stays in ownership_evidence for coordination; it does not
+    # grant or restrict source-writing authority. Current own-PR checks follow.
 
     census = _owner_census(report)
     if census.get("complete") is not True:
