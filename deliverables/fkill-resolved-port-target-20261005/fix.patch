@@ -1,0 +1,12 @@
+diff --git a/index.js b/index.js
+--- a/index.js
++++ b/index.js
+@@ -270,7 +270,7 @@
+ 		const parsedInput = parsedInputsMap.get(input);
+ 
+ 		try {
+-			await killWithLimits(input, options);
++			await killWithLimits(parsedInput, options);
+ 		} catch (error) {
+ 			if (!exists.get(parsedInput)) {
+ 				errors.push(`Killing process ${input} failed: Process doesn't exist`);
