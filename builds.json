@@ -350,7 +350,7 @@
   }
  ],
  "pr_note": "Open GitHub PRs from public unauthenticated /pulls. PR-road work sits beside ntfy-road posts. Descriptive only. Not a merge gate. A PR is not main.",
- "n_open_prs": 4,
+ "n_open_prs": 5,
  "open_prs": [
   {
    "number": 31346,
@@ -359,7 +359,7 @@
    "html_url": "https://github.com/woahwhattheheck/commons/pull/31346",
    "base_freshness": {
     "base_sha": "17f673b23e7591b0cfdcb507158f8942d1f14bd9",
-    "main_sha": "e6fdd6505c4b79c87a0b8c6a557b4545012c8cdc",
+    "main_sha": "f377ab94cd8a82b4745ed71b7bc054be28eec872",
     "ahead_by": null,
     "behind_by": null,
     "label": "STALE_BASE"
@@ -375,7 +375,7 @@
    "html_url": "https://github.com/woahwhattheheck/commons/pull/31035",
    "base_freshness": {
     "base_sha": "2eea99f264a17995f47ac0f41a71d5ec9ce89870",
-    "main_sha": "e6fdd6505c4b79c87a0b8c6a557b4545012c8cdc",
+    "main_sha": "f377ab94cd8a82b4745ed71b7bc054be28eec872",
     "ahead_by": null,
     "behind_by": null,
     "label": "STALE_BASE"
@@ -391,7 +391,7 @@
    "html_url": "https://github.com/woahwhattheheck/commons/pull/31560",
    "base_freshness": {
     "base_sha": "5bec44bcc576e70f1cbedf052ff03c9d6e14544f",
-    "main_sha": "e6fdd6505c4b79c87a0b8c6a557b4545012c8cdc",
+    "main_sha": "f377ab94cd8a82b4745ed71b7bc054be28eec872",
     "ahead_by": null,
     "behind_by": null,
     "label": "STALE_BASE"
@@ -407,7 +407,23 @@
    "html_url": "https://github.com/woahwhattheheck/commons/pull/31561",
    "base_freshness": {
     "base_sha": "5bec44bcc576e70f1cbedf052ff03c9d6e14544f",
-    "main_sha": "e6fdd6505c4b79c87a0b8c6a557b4545012c8cdc",
+    "main_sha": "f377ab94cd8a82b4745ed71b7bc054be28eec872",
+    "ahead_by": null,
+    "behind_by": null,
+    "label": "STALE_BASE"
+   },
+   "status": "PR_OPEN",
+   "road": "pr",
+   "note": "PR-road work. A PR is not main. Not a merge gate."
+  },
+  {
+   "number": 31709,
+   "author": "woahwhattheheck",
+   "title": "Make migration attachment errors actionable",
+   "html_url": "https://github.com/woahwhattheheck/commons/pull/31709",
+   "base_freshness": {
+    "base_sha": "83fd085389cc9ca001b76e15f40c2ef296c7b094",
+    "main_sha": "f377ab94cd8a82b4745ed71b7bc054be28eec872",
     "ahead_by": null,
     "behind_by": null,
     "label": "STALE_BASE"
