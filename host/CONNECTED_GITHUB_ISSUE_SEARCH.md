@@ -428,8 +428,28 @@ differed; live updates and search-index behavior remain distinct from transport
 success. Do not silently drop the contradictory row or infer a new request,
 permission or work gate.
 
-The first use of this new companion is reserved for that complete retained item
-array, once, without a new provider search. At this source publication the new
-bound-observation branches were inspected as source only; no generated inputs,
-fixtures, tests, product replay or execution of this new API is claimed. The
-existing collector and body projector's accepted uses remain unchanged.
+[Source publication #31520](https://github.com/woahwhattheheck/commons/pull/31520)
+merged at `c90586a0723d2bb08762ede8a38490bded2c8043` with module blob
+`db1723a94fc513fab131ffc73bca79ce4b6d0d98`. At that publication the new
+bound-observation branches had been inspected as source only.
+
+After publication, the first actual consumer called
+`inspectGitHubIssueUpdatedAtBound` exactly once on the complete retained native
+20-item page, using ceiling `2026-10-04T23:23:40Z` and `max_records: 20`.
+It returned `status: "mismatch"`: 20 supplied and evaluated items, 19 within the
+bound, one mismatch, no missing dates and no invalid dates. The sole diagnostic
+retained source index 12, native ID 5575324851, pull-request number 143 and
+`updated_at: 2026-10-05T00:33:02Z`, corresponding to
+[RemitFlow/RemitFlow-Backend #143](https://github.com/RemitFlow/RemitFlow-Backend/pull/143).
+There was one diagnostic record and zero omitted records;
+`all_supplied_timestamps_evaluated` was true. Both
+`query_application: "not_verified"` and `query_syntax_parsed: false` remained
+explicit.
+
+The complete input JSON was unchanged and the audit made zero provider calls.
+This was a new metadata audit of retained observations, not a repeated search
+or a replay of a previous computation. No issue bodies were copied into this
+guide. The collector-integrated audit, empty input, missing/invalid date,
+diagnostic-limit and invalid-input branches remain source-inspected only.
+No generated inputs, fixtures, tests or native process were used. The existing
+collector and body projector's accepted uses remain unchanged.
