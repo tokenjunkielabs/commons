@@ -1,4 +1,4 @@
-# PocketPay activity refresh error continuation
+# PocketPay activity refresh error and asset-format continuations
 
 This patch repairs the history-screen integration of Binali223's existing [PocketPay mobile PR544](https://github.com/Stellar-PocketPay/pocketpay-mobile/pull/544), which implements [issue100](https://github.com/Stellar-PocketPay/pocketpay-mobile/issues/100). Issue100 remains assigned to Binali223. This is an attributed Commons source continuation, not a competing upstream submission, assignment, acceptance or reward claim.
 
@@ -14,7 +14,7 @@ This patch repairs the history-screen integration of Binali223's existing [Pocke
 | Source Git blob before | `4b96e0a777f14b843cb76bbf8827d309ae616b66` |
 | Source Git blob after | `588a009a0379f5992877a2eab2cb15649e4d880b` |
 
-Apply `activity-refresh-error.patch` to the pinned contributor input, or port its small hunks to a newer carrier after reconciling that carrier's actual source. Do not replace a newer screen with the old donor. The production delta is +11/-4 in this one screen. The complete donor tree had 374 entries, was not truncated, and contained no license file; this packet therefore publishes only the narrow patch and this integration guide, not the complete sponsor module.
+Apply `activity-refresh-error.patch` and the separate `asset-format.patch` to the pinned contributor input, or port their small hunks to a newer carrier after reconciling that carrier's actual source. Do not replace a newer screen with the old donor. The original screen delta remains +11/-4; the separate formatting-helper delta is +1/-1. The complete donor tree had 374 entries, was not truncated, and contained no license file; this packet therefore publishes only the narrow patch and this integration guide, not the complete sponsor module.
 
 ## Concrete correction
 
@@ -43,8 +43,26 @@ The Activity state catalogue requires keeping loaded data usable after a failed 
 This correction is established by reading the actual store, caller and style definitions, with exact source/preimage accounting. It is not a successful build or a whole-PR readiness statement. Other observed donor issues are outside this one-screen delta:
 
 - `NetworkStateBanner.tsx` passes `variant` although the imported `NetworkStatusBanner` props do not define it.
-- `src/features/transactions/helpers.ts` renders literal `{asset}` in `formatTransactionAmount`; this packet does not change that separate helper or claim its consumer coverage.
+- The separately exported amount helper's literal-asset regression is corrected by the additional patch below; this does not imply every screen uses that helper.
 - The history screen's preexisting missing-wallet early return precedes later hooks. No wallet-transition or general hook-order repair is claimed.
 - Store balance semantics, concurrent refresh behavior, global accessibility compliance and the other changed PR files have not been corrected here.
 
 No upstream branch, issue or PR was mutated. Binali223's contributor and assignment credit, maintainer review, GrantFox evaluation and any award/payment conditions remain distinct. No transaction, wallet, account, payment or chain action was performed.
+
+## Exported amount helper correction
+
+The donor changed `formatTransactionAmount` to return the literal `{asset}` even though it still computes `asset = tx.asset || 'XLM'`. The separate `asset-format.patch` restores interpolation of that existing value.
+
+| Source | Identity |
+| --- | --- |
+| Path at the same contributor head | `src/features/transactions/helpers.ts` |
+| Preimage Git blob | `06c573f77796c4ada746dcbc6d56eecdb9b03f3c` |
+| Postimage Git blob | `9b0c9af8fd16768da8bc0b0a8edac2f1256894a0` |
+| Actual feature export | `src/features/transactions/index.ts`, blob `5c545a176172ec3d8554abe435e842268061f31a` |
+| Documented feature contract | `src/features/transactions/README.md`, blob `ee07e0da6e05053f624f5b76eaa2747248e28685` |
+
+The index exports the helpers and the feature guide explicitly documents amount strings carrying the currency symbol. The correction preserves the function signature, the existing direction calculation, `formatAmount` call, missing-amount behavior and existing `XLM` fallback. It performs no currency conversion, rounding change, asset-identity validation or network action.
+
+This is an exported-helper contract repair, with bounded consumer evidence. The retained `TransactionListItem` formats its amount/asset separately, and `receipt.ts` (`f25482663a91b19ffb2a2eacc51d58d5b959dcf6`) likewise uses its own receipt formatter. This packet does not claim those screens' displayed output changed or that all callers were enumerated.
+
+The original `activity-refresh-error.patch` remains exactly `2af7ba7ee37bc4df889947418c32dfeb2f9ddcaa`; the helper patch composes with it on a different file. The fresh donor metadata retained the same external head and author conditions, with no new review feedback. No source function, numeric example, test, application or device was executed for this correction.

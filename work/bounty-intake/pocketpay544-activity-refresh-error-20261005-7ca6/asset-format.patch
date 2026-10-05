@@ -1,0 +1,12 @@
+diff --git a/src/features/transactions/helpers.ts b/src/features/transactions/helpers.ts
+--- a/src/features/transactions/helpers.ts
++++ b/src/features/transactions/helpers.ts
+@@ -51,7 +51,7 @@
+   const prefix = isSent ? '-' : '+';
+   const asset = tx.asset || 'XLM';
+   
+-  return `${prefix}${amount} {asset}`;
++  return `${prefix}${amount} ${asset}`;
+ }
+ 
+ /**
