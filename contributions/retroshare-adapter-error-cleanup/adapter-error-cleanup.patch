@@ -1,0 +1,11 @@
+diff --git a/src/pqi/pqinetwork.cc b/src/pqi/pqinetwork.cc
+--- a/src/pqi/pqinetwork.cc
++++ b/src/pqi/pqinetwork.cc
+@@ -301,6 +301,7 @@ bool getLocalAddresses(std::vector<sockaddr_storage>& addrs)
+ 									   &bf_size);
+ 	if (error != ERROR_SUCCESS)
+ 	{
++	   free(adapter_addresses); // Failure-path cleanup added 2026-10-05.
+ 	   std::cerr << "FATAL ERROR: getLocalAddresses failed!" << std::endl;
+ 	   return false ;
+ 	}
