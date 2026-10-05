@@ -1,0 +1,12 @@
+diff --git a/backend/utils/other/hume.py b/backend/utils/other/hume.py
+--- a/backend/utils/other/hume.py
++++ b/backend/utils/other/hume.py
+@@ -91,6 +91,8 @@
+             cast(List[Dict[str, Any]], raw_emotions) if isinstance(raw_emotions, list) else []
+         )
+         for emotion in emotions_list:
++            if not isinstance(emotion, dict):
++                continue
+             emo = HumePredictionEmotionResponseModel.from_dict(emotion)
+             model.emotions.append(emo)
+ 
