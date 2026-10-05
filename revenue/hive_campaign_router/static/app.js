@@ -4,6 +4,7 @@
 const state = {products: [], offers: [], presets: [], links: [], recent_events: [], report: {campaigns: []}};
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
+let loadRevision = 0;
 
 function text(value) {
   return String(value ?? "");
@@ -130,11 +131,50 @@ function render() {
   }
 }
 
+function reportPending(message) {
+  $("#report-status").textContent = message;
+  $("#campaign-report").replaceChildren();
+  $$("[data-report-csv]").forEach((link) => {
+    link.removeAttribute("href");
+    link.setAttribute("aria-disabled", "true");
+  });
+}
+
 async function load() {
-  const [workspace, report] = await Promise.all([request("/api/state"), request("/api/report")]);
-  Object.assign(state, workspace, {report});
-  render();
-  notice("Workspace is current.");
+  const revision = ++loadRevision;
+  const query = new URLSearchParams();
+  for (const key of ["start", "end"]) {
+    const value = $(`[name=${key}]`, $("#report-filters")).value;
+    if (value) query.set(key, value);
+  }
+  reportPending("Loading the selected UTC period…");
+  $("#report-filters").setAttribute("aria-busy", "true");
+  try {
+    const [workspace, report] = await Promise.all([
+      request("/api/state"),
+      request(`/api/report?${query}`),
+    ]);
+    if (revision !== loadRevision) return;
+    Object.assign(state, workspace, {report});
+    render();
+    const range = report.date_range;
+    $("#report-status").textContent = range.start || range.end
+      ? `UTC dates: ${range.start || "beginning"} through ${range.end || "present"} (inclusive).`
+      : "All time. Report dates use UTC.";
+    $$("[data-report-csv]").forEach((link) => {
+      const csvQuery = new URLSearchParams(query);
+      csvQuery.set("view", link.dataset.reportCsv);
+      link.href = `/api/report.csv?${csvQuery}`;
+      link.removeAttribute("aria-disabled");
+    });
+    notice("Workspace is current.");
+  } catch (error) {
+    if (revision !== loadRevision) return;
+    reportPending(`Report unavailable: ${error.message}`);
+    throw error;
+  } finally {
+    if (revision === loadRevision) $("#report-filters").setAttribute("aria-busy", "false");
+  }
 }
 
 function formPayload(form) {
@@ -207,5 +247,18 @@ $("#links-list").addEventListener("click", async (event) => {
   }
 });
 
+$("#report-filters").addEventListener("submit", (event) => {
+  event.preventDefault();
+  load().catch((error) => notice(error.message, "error"));
+});
+$("#report-filters").addEventListener("input", () => {
+  ++loadRevision;
+  $("#report-filters").setAttribute("aria-busy", "false");
+  reportPending("Filters changed. Apply them to load the selected UTC dates.");
+});
+$("#report-all-time").addEventListener("click", () => {
+  $("#report-filters").reset();
+  load().catch((error) => notice(error.message, "error"));
+});
 $("#refresh-button").addEventListener("click", () => load().catch((error) => notice(error.message, "error")));
 load().catch((error) => notice(error.message, "error"));

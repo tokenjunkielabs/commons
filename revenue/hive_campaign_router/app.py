@@ -214,8 +214,24 @@ class RouterHandler(BaseHTTPRequestHandler):
             return self._json({"ok": True, "service": "routefoundry"})
         if path == "/api/state":
             return self._json(self.settings.store.list_state(self.settings.public_base_url))
-        if path == "/api/report":
-            return self._json(self.settings.store.report())
+        if path in {"/api/report", "/api/report.csv"}:
+            for key in ("start", "end", "view"):
+                if len(query.get(key, [])) > 1:
+                    raise ValidationError(f"{key} must be supplied at most once")
+            start = query.get("start", [None])[0]
+            end = query.get("end", [None])[0]
+            if path == "/api/report":
+                return self._json(self.settings.store.report(start, end))
+            view = query.get("view", ["campaigns"])[0]
+            body = self.settings.store.report_csv(view, start, end).encode("utf-8")
+            return self._send(
+                body,
+                "text/csv; charset=utf-8",
+                extra={
+                    "Content-Disposition": f"attachment; filename=routefoundry-{view}.csv",
+                    "Cache-Control": "no-store",
+                },
+            )
         if path == "/api/export":
             body = self.settings.store.export_json().encode("utf-8")
             return self._send(
