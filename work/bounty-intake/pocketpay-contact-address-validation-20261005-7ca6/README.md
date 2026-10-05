@@ -1,4 +1,4 @@
-# PocketPay contact form validation and editor integration
+# PocketPay contact validation, editing and recent recipients
 
 The mounted send-screen contact form accepts a G-prefixed, 56-character base32 string after shape checks alone. This patch makes that existing form also use the app's shared `validateAddress` result before its unchanged duplicate lookup and save callback. The shape checks, inline error text, trimming, name limits, selected-contact ID exclusion, and caller callbacks remain unchanged. Production delta: +2/-1 in one file.
 
@@ -61,8 +61,36 @@ The picker also recomputes its recent-recipient labels when its contacts array c
 
 This second patch is +20/-4 and composes with the first patch because it changes different files. Apply both at the documented main preimages; later source requires hunk-level composition. The original address-validation patch is unchanged.
 
-The complete current picker, form, synchronous store action and mounted send caller establish this correction. The repo-local recent-recipient query returned the already-merged PR379; issue85's three returned comments preserve its Primex-hub assignment. The recent-recipient producer is not repaired by this patch: the retained send/review flow does not call its imported `addRecentRecipient`. No all-recent-recipients feature completion is asserted.
+The complete current picker, form, synchronous store action and mounted send caller establish this correction. The repo-local recent-recipient query returned the already-merged PR379; issue85's three returned comments preserve its Primex-hub assignment. The editor patch does not repair the recent-recipient producer: the retained send/review flow does not call its imported `addRecentRecipient`. The separate recording continuation below addresses that missing successful-result consumer; broad issue acceptance remains unclaimed.
 
 The existing edit form validates before invoking Save and excludes the selected ID from duplicate-address lookup. Issue86's suggested extra confirmation before changing an address is not implemented here. Existing local store persistence semantics, concurrent deletion/update, storage-error reporting, two-store unification, and broad editing acceptance remain outside this callback correction. The destination is deliberately left unchanged by editing a saved record; the user selects a recipient through the existing picker action.
 
 No runtime, tests, synthetic inputs, native modal interaction, storage operation, payment or upstream submission was performed. The static call-chain and postimage checks do not establish device behavior, persistence reliability or issue acceptance. Original contributor credit, assignments and external acceptance requirements remain as stated above.
+
+## Completed-result recent-recipient recording
+
+The current send → signing confirmation → review path reaches `store.completeSigning(signingResult)` after the existing send call resolves. The review screen already reacts to `phase === 'completed'` plus a non-null `lastResult` to refresh and navigate. None of these inspected caller files invokes the contact store's existing `addRecentRecipient`; the send screen only imports/destructures it without using it. The picker reads `recentRecipients`, resolves saved names and calls its ordinary destination-selection callback.
+
+`recent-recipient-recording.patch` adds the existing store action inside that completed-result effect. It records `store.lastResult.review.destinationPublicKey`, so the shortcut comes from the completed result's review rather than independently rereading route parameters. The surrounding success condition, refresh, 1.5-second navigation timer and cleanup remain exact. Review, failed, cancelled, submitting and confirming phases do not run the added action.
+
+The action already moves a matching address to the front, removes its previous occurrence, and keeps five entries. Calling it again for the same completed result therefore does not append a duplicate. Its existing persisted state contains addresses, not signing secrets. The correction does not introduce a new storage key, history format, wallet/network partition, account lookup, transaction call, signature or payment action.
+
+A synchronous exception from this optional shortcut update is contained locally so that it does not prevent the already-completed flow's existing success handling. No caught exception or address is logged. This is a best-effort use of the existing synchronous-typed action: its internal AsyncStorage persistence is not awaited, and this patch does not add asynchronous persistence-error reporting, storage transactions or durability guarantees.
+
+| Source input | Git blob |
+| --- | --- |
+| `app/review-transaction.tsx` before | `2ae491e16b271a0564576d615cf765188678335b` |
+| `app/review-transaction.tsx` after | `d363eb677c1fe4fbd8978096212e0512a305c927` |
+| `src/store/signerStore.ts` | `33e68f81887d5cd89e448689ee490fa77493f77a` |
+| `src/types/signer.ts` | `6ec62299bd9ca5630738b8121de3c4bea7886a3c` |
+| `app/sign-confirmation.tsx` | `4ff8ba59f6d9d59c90177216abb7e87313108bac` |
+| `app/send.tsx` current main | `8c1a38fda246c7421acf23612a7be24649b7b8e4` |
+| `src/features/contacts/contactStore.ts` | `fa7d2a5c221462be743c28134e9db2d6e4e64c65` |
+
+Production delta: +8/-0 in the review screen. Apply the new patch at its exact source preimage; it composes with the preceding two patches on distinct files. No previous patch is overwritten or replaced.
+
+[Issue85](https://github.com/Stellar-PocketPay/pocketpay-mobile/issues/85) explicitly proposes deriving shortcuts from previous payments or successful send actions. It remains OPEN and assigned to Primex-hub. All three returned comments were read; they include the campaign assignment and contributor requests, not maintainer acceptance of this continuation. The bounded repo-local recent-recipient PR search returned Carlys17's already-merged PR379; its credit and prior evidence remain preserved. Exact public searches for the current issue/action produced no matching later source completion; those bounded results are not global absence claims.
+
+This correction records an existing application-level completed result. It does not independently establish network finality, fix current signer/result lifecycle races, backfill historical recipients, handle an unmounted screen, isolate recents by wallet/network, or claim every issue85 criterion and device interaction is accepted. Signing/submission/error-classification code, SDK442 work and the separate contact appStore/persistence carrier remain untouched.
+
+No generated transaction, fixture, test, application execution, runtime/device, storage, payment, chain or upstream action was performed. Static source/caller inspection and exact publication readbacks are the only validation for this continuation. External contributor evaluation, current funding and payment remain unclaimed.
