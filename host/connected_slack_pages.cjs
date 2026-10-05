@@ -372,16 +372,23 @@ function projectSlackMessages(response, request, options = {}) {
       invalidBounds.push(field);
     }
   }
+  const headerOnly = Object.prototype.hasOwnProperty.call(options, 'header_only')
+    ? options.header_only : false;
+  if (typeof headerOnly !== 'boolean') throw new TypeError('header_only must be boolean');
   const defaults = {start_index: 0, max_messages: 8, max_body_chars: 800,
-    max_total_body_chars: 6400, max_input_chars: 1048576};
+    max_total_body_chars: 6400, max_input_chars: 1048576,
+    ...(headerOnly ? {max_header_chars: 800, max_total_header_chars: 6400} : {})};
   const ceilings = {start_index: Number.MAX_SAFE_INTEGER, max_messages: 1000,
-    max_body_chars: 65536, max_total_body_chars: 262144, max_input_chars: 8388608};
+    max_body_chars: 65536, max_total_body_chars: 262144, max_input_chars: 8388608,
+    max_header_chars: 65536, max_total_header_chars: 262144};
   for (const key of Object.keys(options)) {
-    if (key !== 'source_indices' && !Object.prototype.hasOwnProperty.call(defaults, key)) {
+    if (key !== 'source_indices' && key !== 'header_only' &&
+        !Object.prototype.hasOwnProperty.call(defaults, key)) {
       throw new TypeError('unknown projection option: ' + key);
     }
   }
   const limits = {...defaults, ...options};
+  delete limits.header_only;
   for (const [key, value] of Object.entries(limits)) {
     if (key === 'source_indices') continue;
     if (!Number.isSafeInteger(value) || value < (['max_messages', 'max_input_chars'].includes(key) ? 1 : 0) ||
@@ -592,8 +599,32 @@ function projectSlackMessages(response, request, options = {}) {
     let used = 0;
     let full = 0;
     let truncated = 0;
+    let headerUsed = 0;
+    let headerFull = 0;
+    let headerTruncated = 0;
     for (const row of selected) {
       const [start, end] = row.rendered_content_range;
+      if (headerOnly) {
+        const [headerStart, headerEnd] = row.header_range;
+        let length = Math.min(headerEnd - headerStart, limits.max_header_chars,
+          limits.max_total_header_chars - headerUsed);
+        if (length > 0 && length < headerEnd - headerStart &&
+            rendered.charCodeAt(headerStart + length - 1) >= 0xd800 &&
+            rendered.charCodeAt(headerStart + length - 1) <= 0xdbff &&
+            rendered.charCodeAt(headerStart + length) >= 0xdc00 &&
+            rendered.charCodeAt(headerStart + length) <= 0xdfff) length--;
+        const clipped = length < headerEnd - headerStart;
+        result.messages.push({...row,
+          rendered_header: rendered.slice(headerStart, headerStart + length),
+          header_chars: headerEnd - headerStart, returned_header_chars: length,
+          header_truncated: clipped, rendered_content: '', content_chars: end - start,
+          returned_chars: 0, body_withheld: true, truncated: false});
+        full += end - start;
+        headerFull += headerEnd - headerStart;
+        headerUsed += length;
+        headerTruncated += clipped ? 1 : 0;
+        continue;
+      }
       let length = Math.min(end - start, limits.max_body_chars, limits.max_total_body_chars - used);
       if (length > 0 && length < end - start &&
           rendered.charCodeAt(start + length - 1) >= 0xd800 && rendered.charCodeAt(start + length - 1) <= 0xdbff &&
@@ -608,7 +639,8 @@ function projectSlackMessages(response, request, options = {}) {
         returned_messages: result.messages.length, omitted_before: from, omitted_after: rows.length - until,
         next_index: until < rows.length ? until : null, selected_content_chars: full,
         returned_content_chars: used, truncated_messages: truncated,
-        all_rendered_messages_included: from === 0 && until === rows.length && truncated === 0});
+        all_rendered_messages_included: from === 0 && until === rows.length &&
+          truncated === 0 && (!headerOnly || selected.length === 0)});
     } else {
       const omittedRanges = [];
       let cursor = 0;
@@ -627,7 +659,14 @@ function projectSlackMessages(response, request, options = {}) {
         omitted_after: last === null ? rows.length : rows.length - last - 1,
         omitted_source_index_ranges: omittedRanges, source_index_range_end: 'exclusive',
         selected_content_chars: full, returned_content_chars: used, truncated_messages: truncated,
-        all_rendered_messages_included: selected.length === rows.length && truncated === 0});
+        all_rendered_messages_included: selected.length === rows.length &&
+          truncated === 0 && (!headerOnly || selected.length === 0)});
+    }
+    if (headerOnly) {
+      Object.assign(result.coverage, {body_mode: 'withheld_by_caller',
+        withheld_bodies: selected.length, selected_header_chars: headerFull,
+        returned_header_chars: headerUsed, truncated_headers: headerTruncated,
+        all_rendered_headers_included: selected.length === rows.length && headerTruncated === 0});
     }
     result.status = rows.length ? 'PROJECTED' : 'EMPTY_RENDERING';
     return result;
