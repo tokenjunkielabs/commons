@@ -1,0 +1,62 @@
+diff --git a/http/src/http-driver.ts b/http/src/http-driver.ts
+--- a/http/src/http-driver.ts
++++ b/http/src/http-driver.ts
+@@ -22,22 +22,41 @@
+ }
+ 
+-function isBrowserFileAttachment(attachment: Attachment): attachment is File {
+-  return (
+-    typeof window !== 'undefined' &&
+-    typeof File !== 'undefined' &&
+-    attachment instanceof File
+-  );
+-}
+-
+-function isBrowserBlobAttachment(
+-  attachment: Attachment
+-): attachment is AttachmentOptions & {file: Blob} {
+-  return (
+-    typeof window !== 'undefined' &&
+-    typeof Blob !== 'undefined' &&
+-    (attachment as AttachmentOptions).file instanceof Blob
+-  );
+-}
++function hasNativeBrand(
++  value: unknown,
++  prototype: object,
++  property: string
++): boolean {
++  const descriptor = Object.getOwnPropertyDescriptor(prototype, property);
++  if (!descriptor || !descriptor.get) {
++    return false;
++  }
++  try {
++    // Platform getters accept their interface across window realms.
++    descriptor.get.call(value);
++    return true;
++  } catch (_) {
++    return false;
++  }
++}
++
++function isBrowserFileAttachment(attachment: Attachment): attachment is File {
++  return (
++    typeof window !== 'undefined' &&
++    typeof File !== 'undefined' &&
++    (attachment instanceof File ||
++      hasNativeBrand(attachment, File.prototype, 'name'))
++  );
++}
++
++function isBrowserBlobAttachment(
++  attachment: Attachment
++): attachment is AttachmentOptions & {file: Blob} {
++  if (typeof window === 'undefined' || typeof Blob === 'undefined') {
++    return false;
++  }
++  const file = (attachment as AttachmentOptions).file;
++  return file instanceof Blob || hasNativeBrand(file, Blob.prototype, 'size');
++}
+ 
+ export function optionsToSuperagent(rawReqOptions: RequestOptions) {
+   const reqOptions = preprocessReqOptions(rawReqOptions);
