@@ -1,0 +1,136 @@
+diff --git a/src/components/AdvancedDropdown.jsx b/src/components/AdvancedDropdown.jsx
+--- a/src/components/AdvancedDropdown.jsx
++++ b/src/components/AdvancedDropdown.jsx
+@@ -5,6 +5,7 @@
+   const [searchTerm, setSearchTerm] = useState('');
+   const [currentPage, setCurrentPage] = useState(1);
+   const [focusedOption, setFocusedOption] = useState(null);
++  const [selectedOption, setSelectedOption] = useState(null);
+   const dropdownRef = useRef(null);
+ 
+   // Filter options based on search term
+@@ -13,11 +14,23 @@
+   );
+ 
+   // Pagination logic
+-  const indexOfLastItem = currentPage * pageSize;
++  const totalPages = Math.max(1, Math.ceil(filteredOptions.length / pageSize));
++  const displayedPage = Math.min(currentPage, totalPages);
++  const indexOfLastItem = displayedPage * pageSize;
+   const indexOfFirstItem = indexOfLastItem - pageSize;
+   const currentOptions = paginated ? filteredOptions.slice(indexOfFirstItem, indexOfLastItem) : filteredOptions;
+-  const totalPages = Math.ceil(filteredOptions.length / pageSize);
+ 
++  useEffect(() => {
++    setCurrentPage(page => Math.min(page, totalPages));
++  }, [totalPages]);
++
++  const selectOption = (option) => {
++    onChange(option);
++    setSelectedOption(option);
++    setFocusedOption(option);
++    setIsOpen(false);
++  };
++
+   // Close dropdown when clicking outside
+   useEffect(() => {
+     const handleClickOutside = (event) => {
+@@ -33,26 +46,35 @@
+   const handleKeyDown = (event) => {
+     if (!isOpen) {
+       if (event.key === 'Enter' || event.key === ' ') {
++        event.preventDefault();
+         setIsOpen(true);
+       }
+       return;
+     }
+ 
++    if (event.key === 'Enter' && event.target.closest('button')) {
++      return;
++    }
++
+     const focusedIndex = currentOptions.findIndex(opt => opt === focusedOption);
+     switch (event.key) {
+       case 'ArrowDown':
+         event.preventDefault();
+-        setFocusedOption(currentOptions[(focusedIndex + 1) % currentOptions.length]);
++        if (currentOptions.length > 0) {
++          setFocusedOption(currentOptions[(focusedIndex + 1) % currentOptions.length]);
++        }
+         break;
+       case 'ArrowUp':
+         event.preventDefault();
+-        setFocusedOption(currentOptions[(focusedIndex - 1 + currentOptions.length) % currentOptions.length]);
++        if (currentOptions.length > 0) {
++          const previousIndex = focusedIndex <= 0 ? currentOptions.length - 1 : focusedIndex - 1;
++          setFocusedOption(currentOptions[previousIndex]);
++        }
+         break;
+       case 'Enter':
+         event.preventDefault();
+-        if (focusedOption) {
+-          onChange(focusedOption);
+-          setIsOpen(false);
++        if (focusedIndex >= 0) {
++          selectOption(currentOptions[focusedIndex]);
+         }
+         break;
+       case 'Escape':
+@@ -69,7 +91,7 @@
+         className="dropdown-header"
+         onClick={() => setIsOpen(!isOpen)}
+       >
+-        <span>{focusedOption ? focusedOption.label : placeholder}</span>
++        <span>{selectedOption ? selectedOption.label : placeholder}</span>
+         <span className="arrow">{isOpen ? '▲' : '▼'}</span>
+       </div>
+       {isOpen && (
+@@ -82,6 +104,7 @@
+               onChange={(e) => {
+                 setSearchTerm(e.target.value);
+                 setCurrentPage(1);
++                setFocusedOption(null);
+               }}
+             />
+           )}
+@@ -91,10 +114,7 @@
+                 key={option.value}
+                 className={`option ${focusedOption === option ? 'focused' : ''}`}
+                 onMouseEnter={() => setFocusedOption(option)}
+-                onClick={() => {
+-                  onChange(option);
+-                  setIsOpen(false);
+-                }}
++                onClick={() => selectOption(option)}
+               >
+                 {option.label}
+               </li>
+@@ -103,15 +123,23 @@
+           {paginated && (
+             <div className="pagination">
+               <button 
+-                disabled={currentPage === 1}
+-                onClick={() => setCurrentPage(currentPage - 1)}
++                type="button"
++                disabled={displayedPage <= 1}
++                onClick={() => {
++                  setCurrentPage(displayedPage - 1);
++                  setFocusedOption(null);
++                }}
+               >
+                 Previous
+               </button>
+-              <span>Page {currentPage} of {totalPages}</span>
++              <span>Page {displayedPage} of {totalPages}</span>
+               <button 
+-                disabled={currentPage === totalPages}
+-                onClick={() => setCurrentPage(currentPage + 1)}
++                type="button"
++                disabled={displayedPage >= totalPages}
++                onClick={() => {
++                  setCurrentPage(displayedPage + 1);
++                  setFocusedOption(null);
++                }}
+               >
+                 Next
+               </button>
