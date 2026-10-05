@@ -1,0 +1,55 @@
+diff --git a/src/components/QrScanner.tsx b/src/components/QrScanner.tsx
+--- a/src/components/QrScanner.tsx
++++ b/src/components/QrScanner.tsx
+@@ -2,7 +2,7 @@
+  * QrScanner
+  *
+  * A reusable camera overlay that:
+- *  - Requests camera permission on mount
++ *  - Explains camera access before the user requests permission
+  *  - Scans QR codes and validates the result as a Stellar public key
+  *  - Calls onScan with the valid address, or onError with a descriptive message
+  *  - Exposes a close button that calls onClose
+@@ -10,7 +10,7 @@
+  * Accessibility: all interactive elements carry accessibilityLabel / accessibilityRole.
+  */
+ 
+-import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
++import React, { useMemo, useRef, useState, useCallback } from 'react';
+ import {
+   View,
+   Text,
+@@ -43,13 +43,6 @@
+   const lastScanTime = useRef<number>(0);
+   const [hasScanned, setHasScanned] = useState(false);
+ 
+-  // Request permission automatically on mount if not yet determined.
+-  useEffect(() => {
+-    if (permission && !permission.granted && permission.canAskAgain) {
+-      requestPermission();
+-    }
+-  }, [permission, requestPermission]);
+-
+   const handleBarCodeScanned = useCallback(
+     ({ data }: BarcodeScanningResult) => {
+       const now = Date.now();
+@@ -82,12 +75,17 @@
+     );
+   }
+ 
+-  // ── Permission: denied ─────────────────────────────────────────────────────
++  // ── Permission: not granted ─────────────────────────────────────────────────────
+   if (!permission.granted) {
+     return (
+       <View style={styles.centred}>
+         <ScanLine color={colors.textMuted} size={48} style={{ marginBottom: SIZES.md }} />
+-        <Text style={styles.statusText}>Camera access is required to scan QR codes.</Text>
++        <Text style={styles.statusText}>
++          Allow camera access to scan a Stellar wallet address QR code.
++        </Text>
++        <Text style={styles.subText}>
++          You can cancel and enter the recipient address manually instead.
++        </Text>
+         {permission.canAskAgain ? (
+           <TouchableOpacity
+             style={styles.permissionButton}
