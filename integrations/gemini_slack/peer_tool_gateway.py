@@ -306,9 +306,10 @@ class ToolCallStore:
         path.parent.mkdir(parents=True, exist_ok=True)
         self.path = path
         self._lock = threading.RLock()
-        self._db = sqlite3.connect(path, check_same_thread=False)
+        self._db = sqlite3.connect(path, check_same_thread=False, timeout=1.0)
         self._db.row_factory = sqlite3.Row
         with self._db:
+            self._db.execute("PRAGMA busy_timeout=1000")
             self._db.execute(
                 """
                 CREATE TABLE IF NOT EXISTS tool_calls(
@@ -328,6 +329,47 @@ class ToolCallStore:
         with self._lock:
             self._db.close()
 
+    @staticmethod
+    def _is_database_busy(exc: sqlite3.OperationalError) -> bool:
+        code = getattr(exc, "sqlite_errorcode", None)
+        if isinstance(code, int) and code & 0xff in (sqlite3.SQLITE_BUSY, sqlite3.SQLITE_LOCKED):
+            return True
+        message = str(exc).lower()
+        return "database is locked" in message or "database is busy" in message
+
+    def _transaction(self, operation, *, cancelled=None):
+        """Retry only journal SQL on transient locks; never rerun its caller's effect."""
+        delay = 0.05
+        while True:
+            if cancelled is not None and cancelled():
+                raise InterruptedError("request cancelled while waiting for a journal reservation")
+            with self._lock:
+                if cancelled is not None and cancelled():
+                    raise InterruptedError("request cancelled while waiting for a journal reservation")
+                try:
+                    self._db.execute("BEGIN IMMEDIATE")
+                    value = operation()
+                    self._db.commit()
+                    return value
+                except sqlite3.OperationalError as exc:
+                    # A rollback-journal reader can block COMMIT after the SQL
+                    # succeeded. Release both the writer transaction and our
+                    # connection lock before retrying only this SQL closure.
+                    # The external runner is outside _transaction and is never
+                    # repeated; record_result retains its exact result bytes.
+                    if self._db.in_transaction:
+                        self._db.rollback()
+                    if not self._is_database_busy(exc):
+                        raise
+                except BaseException:
+                    if self._db.in_transaction:
+                        self._db.rollback()
+                    raise
+            if cancelled is not None and cancelled():
+                raise InterruptedError("request cancelled while waiting for a journal reservation")
+            time.sleep(delay)
+            delay = min(delay * 2, 0.5)
+
     def execute_journaled(
         self,
         request_id: str,
@@ -335,6 +377,7 @@ class ToolCallStore:
         name: str,
         arguments: dict[str, Any],
         runner: Callable[[str, dict[str, Any]], dict[str, Any]],
+        cancelled: Callable[[], bool] | None = None,
         *,
         source_context: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
@@ -346,34 +389,43 @@ class ToolCallStore:
             identity, sort_keys=True, separators=(",", ":"), ensure_ascii=False
         ).encode("utf-8")
         digest = hashlib.sha256(arg_bytes).hexdigest()
-        with self._lock, self._db:
+        def reserve():
             row = self._db.execute(
                 "SELECT * FROM tool_calls WHERE request_id=? AND call_id=?",
                 (request_id, call_id),
             ).fetchone()
             if row:
                 if row["tool_name"] != name or row["arguments_sha256"] != digest:
-                    return {"isError": True, "uncertain": False, "error": "call_id_reused_with_different_arguments"}
+                    return ("result", {"isError": True, "uncertain": False, "error": "call_id_reused_with_different_arguments"})
                 if row["result_json"]:
                     previous = json.loads(row["result_json"])
                     if row["state"] == "error" and not tool_failed(previous):
                         previous.setdefault("isError", True)
                     if row["state"] == "started" and not effect_uncertain(previous):
                         previous.update(isError=True, uncertain=True)
-                    return previous
-                return {
+                    return ("result", previous)
+                return ("result", {
                     "isError": True,
                     "uncertain": True,
                     "error": "tool_effect_unknown_after_interruption",
                     "call_id": call_id,
                     "reconciliation": "inspect Commons before deciding whether to issue a new call",
-                }
+                })
             self._db.execute(
                 "INSERT INTO tool_calls VALUES(?,?,?,?,?,?,?)",
                 (request_id, call_id, name, digest, "started", None, time.time()),
             )
+            return ("execute", None)
+
+        action, reservation = self._transaction(reserve, cancelled=cancelled)
+        if action == "result":
+            return reservation
         try:
-            result = runner(name, arguments)
+            if cancelled is not None and cancelled():
+                result = {"isError": True, "uncertain": False,
+                          "error": "tool_call_cancelled_before_execution"}
+            else:
+                result = runner(name, arguments)
             if not isinstance(result, dict):
                 result = {"result": result}
             state = "started" if effect_uncertain(result) else "error" if tool_failed(result) else "completed"
@@ -385,12 +437,15 @@ class ToolCallStore:
                 result["result"] = exc.native_result
             state = "started" if result["uncertain"] else "error"
         encoded = json.dumps(result, ensure_ascii=False, separators=(",", ":"))
-        with self._lock, self._db:
+        recorded_at = time.time()
+
+        def record_result():
             self._db.execute(
                 "UPDATE tool_calls SET state=?, result_json=?, updated_at=? "
                 "WHERE request_id=? AND call_id=?",
-                (state, encoded, time.time(), request_id, call_id),
+                (state, encoded, recorded_at, request_id, call_id),
             )
+        self._transaction(record_result)
         return result
 
 
