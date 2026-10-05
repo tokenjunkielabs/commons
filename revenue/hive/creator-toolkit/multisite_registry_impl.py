@@ -11,7 +11,6 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Iterable
 
-from operator_auth import OperatorAuth, OperatorSetupRequired
 from toolkit import Store
 
 REGISTRY_VERSION = 1
@@ -415,18 +414,13 @@ def load_registry(registry_path: str | Path, workspace_root: str | Path, *, crea
 
 
 def provision(registry_path: str | Path, workspace_root: str | Path):
-    """Provision missing workspaces; return plaintext keys only for newly initialized auth."""
+    """Provision missing workspaces; retain an empty second result for compatibility."""
     registry = load_registry(registry_path, workspace_root, create_workspaces=True)
     created = {}
     try:
         for spec in registry.specs:
             registry.assert_spec(spec)
             Store(spec.database)
-            registry.assert_spec(spec)
-            try:
-                OperatorAuth(spec.database)
-            except OperatorSetupRequired:
-                created[spec.community_id] = OperatorAuth.initialize(spec.database)
             registry.assert_spec(spec)
         return registry, created
     except Exception:

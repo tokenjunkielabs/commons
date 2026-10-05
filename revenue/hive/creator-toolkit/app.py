@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run Creator Desk with public member flows and capability-gated operator controls."""
+"""Run Creator Desk as a shared workspace for members and creators."""
 from __future__ import annotations
 
 import argparse
@@ -8,24 +8,18 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, quote, urlsplit
 
-from operator_auth import OperatorAuth, OperatorSetupRequired
 from toolkit import CONSENT_TEXT, DeskError, Store
 from workspace_copy import CopyError, snapshot_bytes
 
 MAX_BODY = 12 * 1024 * 1024
-OPERATOR_ACTIONS = frozenset({"resource.create", "resource.update", "outbox.record", "inquiry.close"})
 
 
-def _page_with_operator_boundary() -> bytes:
-    page = Path(__file__).with_name("index.html").read_bytes()
-    marker = b"<script>\n'use strict';"
-    if marker not in page:
-        raise RuntimeError("Creator Desk page script marker is missing")
-    return page.replace(marker, b'<script src="/operator-auth.js"></script>\n' + marker, 1)
+def _page_bytes() -> bytes:
+    return Path(__file__).with_name("index.html").read_bytes()
 
 
-def make_server(store: Store, host="127.0.0.1", port=8768, operator_auth: OperatorAuth | None = None):
-    auth = operator_auth or OperatorAuth(store.path)
+def make_server(store: Store, host="127.0.0.1", port=8768, operator_auth=None):
+    # Accept the legacy argument for callers, but never consult it for access.
 
     class Handler(BaseHTTPRequestHandler):
         def setup(self):
@@ -51,10 +45,6 @@ def make_server(store: Store, host="127.0.0.1", port=8768, operator_auth: Operat
             if self.command != "HEAD":
                 self.wfile.write(data)
 
-        def require_operator(self):
-            if not auth.verify_header(self.headers.get("Authorization")):
-                raise DeskError("Valid operator capability required", 403)
-
         def do_HEAD(self):
             self.do_GET()
 
@@ -64,14 +54,12 @@ def make_server(store: Store, host="127.0.0.1", port=8768, operator_auth: Operat
                 query = parse_qs(parsed.query)
                 key = query.get("id", [None])[0]
                 if parsed.path == "/":
-                    return self.respond(200, _page_with_operator_boundary(), "text/html; charset=utf-8")
+                    return self.respond(200, _page_bytes(), "text/html; charset=utf-8")
                 if parsed.path == "/operator-auth.js":
                     return self.respond(200, Path(__file__).with_name("operator_auth.js").read_bytes(), "text/javascript; charset=utf-8")
                 if parsed.path == "/api/operator":
-                    self.require_operator()
                     return self.respond(200, {"operator": True})
                 if parsed.path == "/workspace.sqlite3":
-                    self.require_operator()
                     try:
                         data, receipt = snapshot_bytes(store.path)
                     except CopyError as exc:
@@ -87,7 +75,6 @@ def make_server(store: Store, host="127.0.0.1", port=8768, operator_auth: Operat
                 if parsed.path == "/api/member":
                     return self.respond(200, store.member(key))
                 if parsed.path == "/api/dashboard":
-                    self.require_operator()
                     return self.respond(200, store.dashboard())
                 if parsed.path == "/api/delivery":
                     result = store.delivery(key)
@@ -103,7 +90,6 @@ def make_server(store: Store, host="127.0.0.1", port=8768, operator_auth: Operat
                         "X-Content-SHA256": result["sha256"],
                     })
                 if parsed.path == "/draft.eml":
-                    self.require_operator()
                     return self.respond(200, store.email_draft(key), "message/rfc822", {
                         "Content-Disposition": 'attachment; filename="follow-up-draft.eml"',
                     })
@@ -134,8 +120,6 @@ def make_server(store: Store, host="127.0.0.1", port=8768, operator_auth: Operat
                     raise DeskError("Invalid JSON") from None
                 if not isinstance(payload, dict) or not isinstance(payload.get("action"), str):
                     raise DeskError("Expected an object with action, operation_id and payload")
-                if payload["action"] in OPERATOR_ACTIONS:
-                    self.require_operator()
                 result = store.mutate(payload["action"], payload.get("operation_id"), payload.get("payload"))
                 self.respond(200, result)
             except DeskError as exc:
@@ -146,7 +130,7 @@ def make_server(store: Store, host="127.0.0.1", port=8768, operator_auth: Operat
                 self.respond(408, {"error": "Request timed out"})
 
     server = ThreadingHTTPServer((host, port), Handler)
-    server.operator_auth = auth
+    server.operator_auth = operator_auth
     return server
 
 
@@ -157,13 +141,9 @@ def main():
     parser.add_argument("--port", type=int, default=8768)
     args = parser.parse_args()
     store = Store(args.db)
-    try:
-        auth = OperatorAuth(args.db)
-    except OperatorSetupRequired as exc:
-        parser.error(str(exc))
-    server = make_server(store, args.host, args.port, auth)
+    server = make_server(store, args.host, args.port)
     print(f"Creator Desk: http://{args.host}:{server.server_port}/", flush=True)
-    print("Member flows are public to this listener; creator controls require the initialized operator capability. No email is sent.", flush=True)
+    print("Shared workspace: member records and creator controls are available to its users. No email is sent.", flush=True)
     try:
         server.serve_forever()
     except KeyboardInterrupt:

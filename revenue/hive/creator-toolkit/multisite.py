@@ -11,7 +11,6 @@ from __future__ import annotations
 import argparse
 import json
 
-from operator_auth import OperatorAuth
 from toolkit import Store
 from multisite_registry import (
     MAX_PROXY_BODY, CommunitySpec, Registry, RegistryError,
@@ -36,7 +35,7 @@ def main():
     parser.add_argument("--workspace-root", required=True, help="Dedicated workspace root directory")
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("validate", help="Validate registry and already-provisioned workspaces")
-    sub.add_parser("provision", help="Provision workspaces; print any one-time operator keys once")
+    sub.add_parser("provision", help="Provision shared community workspaces")
     serve = sub.add_parser("serve", help="Run loopback multi-community Host router")
     serve.add_argument("--host", default="127.0.0.1")
     serve.add_argument("--port", type=int, default=8768)
@@ -45,7 +44,7 @@ def main():
     if args.command == "provision":
         registry, created = provision(args.registry, args.workspace_root)
         try:
-            # Only plaintext capability egress: caller stdout. Never persisted here.
+            # The legacy keys field stays empty for output-shape compatibility.
             print(json.dumps({"communities": _registry_summary(registry), "one_time_operator_keys": created}, sort_keys=True))
         finally:
             registry.close()
@@ -57,8 +56,6 @@ def main():
             for spec in registry.specs:
                 registry.assert_spec(spec)
                 Store(spec.database)
-                registry.assert_spec(spec)
-                OperatorAuth(spec.database)
                 registry.assert_spec(spec)
             print(json.dumps({"communities": _registry_summary(registry), "valid": True}, sort_keys=True))
             return

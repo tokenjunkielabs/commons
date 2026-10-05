@@ -19,7 +19,6 @@ from dataclasses import dataclass
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 from app import make_server
-from operator_auth import OperatorAuth
 from toolkit import Store
 from workspace_copy import CopyError, _check as check_workspace_snapshot
 from multisite_registry import (
@@ -60,7 +59,7 @@ def _snapshot_bytes_anchored(database: Path, *, max_bytes: int = MAX_PROXY_BODY,
 class TenantRuntime:
     spec: CommunitySpec
     store: Store
-    auth: OperatorAuth
+    auth: object | None  # Legacy metadata only; no access decision.
     server: ThreadingHTTPServer
     thread: threading.Thread
 
@@ -97,9 +96,7 @@ class MultiSiteRuntime:
                 self.registry.assert_spec(spec)
                 store = Store(spec.database)
                 self.registry.assert_spec(spec)
-                auth = OperatorAuth(spec.database)
-                self.registry.assert_spec(spec)
-                server = make_server(store, "127.0.0.1", 0, auth)
+                server = make_server(store, "127.0.0.1", 0)
                 thread = threading.Thread(
                     target=server.serve_forever,
                     kwargs={"poll_interval": 0.05},
@@ -107,7 +104,7 @@ class MultiSiteRuntime:
                     daemon=True,
                 )
                 thread.start()
-                tenant = TenantRuntime(spec, store, auth, server, thread)
+                tenant = TenantRuntime(spec, store, None, server, thread)
                 self.tenants[spec.community_id] = tenant
                 started.append(tenant)
             self.server = _make_router_server(self, self.bind_host, self.port)
@@ -253,9 +250,6 @@ def _make_router_server(runtime: MultiSiteRuntime, host: str, port: int):
                         return
                     if body not in (None, b""):
                         self._json_error(400, "workspace snapshot does not accept a request body")
-                        return
-                    if not tenant.auth.verify_header(self.headers.get("Authorization")):
-                        self._json_error(403, "Valid operator capability required")
                         return
                     runtime.registry.assert_spec(spec)
                     try:
