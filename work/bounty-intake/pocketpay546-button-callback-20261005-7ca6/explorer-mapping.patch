@@ -1,0 +1,39 @@
+diff --git a/app/transaction/[id].tsx b/app/transaction/[id].tsx
+--- a/app/transaction/[id].tsx
++++ b/app/transaction/[id].tsx
+@@ -185,10 +185,9 @@
+   const senderLabel = resolveAddressLabel(senderAddress, contacts);
+   const recipientLabel = resolveAddressLabel(recipientAddress, contacts);
+ 
+-  // Explorer link
+-  const isTxHashValid = !!txHash && !validateTransactionId(txHash);
+-  const explorerUrl = isTxHashValid ? getExplorerTxUrl(txHash, 'testnet') : '';
+-  const explorerDisabled = !explorerUrl;
++  // This action is specifically labelled Testnet; the shared helper uses the configured network.
++  const explorerUrl = getExplorerTxUrl(txHash);
++  const explorerDisabled = !explorerUrl?.startsWith('https://stellar.expert/explorer/testnet/tx/');
+ 
+   const handleCopy = async (text: string, fieldName: string) => {
+     if (!text) return;
+@@ -199,7 +198,7 @@
+   };
+ 
+   const handleOpenExplorer = async () => {
+-    if (explorerDisabled) return;
++    if (!explorerUrl || explorerDisabled) return;
+     try {
+       const canOpen = await Linking.canOpenURL(explorerUrl);
+       if (canOpen) {
+@@ -426,7 +425,11 @@
+           </Text>
+         </TouchableOpacity>
+         <Text style={styles.explorerHint}>
+-          {txHash ? 'Opens in the Stellar Testnet explorer' : 'No transaction hash available'}
++          {!txHash
++            ? 'No transaction hash available'
++            : explorerDisabled
++              ? 'Testnet explorer unavailable for this transaction'
++              : 'Opens in the Stellar Testnet explorer'}
+         </Text>
+       </View>
+     </ScrollView>
