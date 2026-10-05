@@ -216,6 +216,18 @@ class GitHubSlackEquipment:
 
 
     def slack(self, method: str, payload: dict) -> dict:
+        return redacted(self._slack_request(method, payload))
+
+    def _slack_upload_url(self, filename: str, length: int) -> dict:
+        """Keep the successful upload URL transient for WorkHandoff transport."""
+        result = self._slack_request("files.getUploadURLExternal",
+                                     {"filename": filename, "length": length})
+        sanitized = redacted(result)
+        if result.get("ok") is True and isinstance(result.get("upload_url"), str):
+            sanitized["upload_url"] = result["upload_url"]
+        return sanitized
+
+    def _slack_request(self, method: str, payload: dict) -> dict:
         read_method = method in {
             "conversations.history",
             "conversations.replies",
@@ -287,7 +299,7 @@ class GitHubSlackEquipment:
         # Slack documents these errors as possibly occurring after an effect.
         if not read_method and result.get("error") in ("internal_error", "fatal_error"):
             result["uncertain"] = True
-        return redacted(result)
+        return result
 
     def slack_upload_bytes(self, upload_url: str, body: bytes) -> dict:
         """POST exact patch bytes to Slack's single-use signed upload URL."""

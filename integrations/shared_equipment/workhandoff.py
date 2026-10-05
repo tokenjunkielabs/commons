@@ -410,7 +410,7 @@ class WorkHandoff:
             return {"ok": False, "state": "DENIED", "operation_id": item["operation_id"], "code": "handoff_comment_too_long"}
         phase, file_id = "upload_url", None
         try:
-            upload = self.equipment.slack("files.getUploadURLExternal", {"filename": filename, "length": len(patch_bytes)})
+            upload = self.equipment._slack_upload_url(filename, len(patch_bytes))
             if upload.get("ok") is not True:
                 return self._transfer_failure(upload, item, digest, metadata, phase=phase)
             file_id = upload.get("file_id")
