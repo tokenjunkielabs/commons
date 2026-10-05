@@ -1,0 +1,16 @@
+diff --git a/better_exceptions/__init__.py b/better_exceptions/__init__.py
+index 83ffd559073996db116d3f2f1a0422521b8f4192..5e532988c1c3cb4c204cd989cc3659139a435350 100644
+--- a/better_exceptions/__init__.py
++++ b/better_exceptions/__init__.py
+@@ -37,8 +37,10 @@
+         stream.write(data)
+ 
+ 
+-def format_exception(exc, value, tb, colored=SUPPORTS_COLOR):
++def format_exception(exc, value, tb, colored=None):
+     # Rebuild each time to take into account any changes made by the user to the global parameters
++    if colored is None:
++        colored = SUPPORTS_COLOR
+     formatter = ExceptionFormatter(colored=colored, theme=THEME, max_length=MAX_LENGTH,
+                                    pipe_char=PIPE_CHAR, cap_char=CAP_CHAR)
+     return list(formatter.format_exception(exc, value, tb))
