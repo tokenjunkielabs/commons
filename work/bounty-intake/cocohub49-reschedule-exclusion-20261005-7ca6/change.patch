@@ -15,11 +15,12 @@ diff --git a/src/services/appointmentService.ts b/src/services/appointmentServic
  // ─── Types ────────────────────────────────────────────────────────────────────
  
  export interface AppointmentConflict {
-@@ -70,15 +73,44 @@
+@@ -70,18 +73,51 @@
    medications: Medication[] = [],
    excludeId?: string,
    includeSuggestedTime = true,
 +  appointmentBufferMinutes = DEFAULT_APPOINTMENT_BUFFER_MINUTES,
++  proposedDurationMinutes = 30,
  ): Promise<ConflictDetectionResult> {
 -  const conflicts: AppointmentConflict[] = [];
 -
@@ -39,6 +40,7 @@ diff --git a/src/services/appointmentService.ts b/src/services/appointmentServic
 +    appointmentCandidates,
 +    excludeId,
 +    appointmentBufferMs,
++    proposedDurationMinutes,
 +  );
 +  const suggestedTime =
 +    result.hasConflicts && includeSuggestedTime
@@ -48,6 +50,7 @@ diff --git a/src/services/appointmentService.ts b/src/services/appointmentServic
 +          medications,
 +          excludeId,
 +          appointmentBufferMinutes,
++          proposedDurationMinutes,
 +        )
 +      : undefined;
 +  return { ...result, suggestedTime };
@@ -59,12 +62,17 @@ diff --git a/src/services/appointmentService.ts b/src/services/appointmentServic
 +  appointmentCandidates: Appointment[],
 +  excludeId: string | undefined,
 +  appointmentBufferMs: number,
++  proposedDurationMinutes: number,
 +): ConflictDetectionResult {
 +  const conflicts: AppointmentConflict[] = [];
    const proposedInterval = {
      startMs: proposedTime.getTime(),
-     endMs: proposedTime.getTime() + 30 * 60_000,
-@@ -90,7 +122,7 @@
+-    endMs: proposedTime.getTime() + 30 * 60_000,
++    endMs: proposedTime.getTime() + proposedDurationMinutes * 60_000,
+   };
+ 
+   for (const appt of appointmentCandidates) {
+@@ -90,7 +126,7 @@
  
      const apptInterval = getAppointmentInterval(appt);
      const gapMs = getIntervalGapMs(apptInterval, proposedInterval);
@@ -73,7 +81,7 @@ diff --git a/src/services/appointmentService.ts b/src/services/appointmentServic
        conflicts.push({
          type: 'appointment',
          description: `"${appt.title ?? 'Appointment'}" is scheduled ${_formatTimeDiff(gapMs)} from the proposed time.`,
-@@ -118,13 +150,7 @@
+@@ -118,13 +154,7 @@
      }
    }
  
@@ -88,12 +96,13 @@ diff --git a/src/services/appointmentService.ts b/src/services/appointmentServic
  }
  
  export function isVetSupervised(med: Medication): boolean {
-@@ -142,12 +168,42 @@
+@@ -142,12 +172,45 @@
    petId: string,
    from: Date,
    medications: Medication[] = [],
 +  excludeId?: string,
 +  appointmentBufferMinutes = DEFAULT_APPOINTMENT_BUFFER_MINUTES,
++  proposedDurationMinutes = 30,
  ): Promise<Date | undefined> {
 +  const appointmentBufferMs = getAppointmentBufferMs(appointmentBufferMinutes);
 +  const lookupBufferMs = Math.max(CONFLICT_BUFFER_MS, appointmentBufferMs);
@@ -120,6 +129,7 @@ diff --git a/src/services/appointmentService.ts b/src/services/appointmentServic
 +          appointmentCandidates,
 +          excludeId,
 +          appointmentBufferMs,
++          proposedDurationMinutes,
 +        )
 +      : await detectConflicts(
 +          petId,
@@ -128,11 +138,12 @@ diff --git a/src/services/appointmentService.ts b/src/services/appointmentServic
 +          excludeId,
 +          false,
 +          appointmentBufferMinutes,
++          proposedDurationMinutes,
 +        );
      if (!result.hasConflicts) return candidate;
      candidate = new Date(candidate.getTime() + CONFLICT_BUFFER_MS);
    }
-@@ -376,6 +432,14 @@
+@@ -376,6 +439,14 @@
  
  // ─── Private helpers ──────────────────────────────────────────────────────────
  
@@ -169,7 +180,7 @@ diff --git a/src/screens/AppointmentScreen.tsx b/src/screens/AppointmentScreen.t
    const [bookingLoading, setBookingLoading] = useState(false);
    const [conflictState, setConflictState] = useState<ConflictCheckResponse | null>(null);
    const [archivedIds, setArchivedIds] = useState<Set<string>>(new Set());
-@@ -318,16 +323,47 @@
+@@ -318,16 +323,48 @@
      await load();
    };
  
@@ -214,11 +225,12 @@ diff --git a/src/screens/AppointmentScreen.tsx b/src/screens/AppointmentScreen.t
 +        undefined,
 +        true,
 +        appointmentBufferMinutes,
++        appt.durationMinutes ?? 30,
 +      );
  
        if (result.hasConflicts) {
          setPendingAppointment(appt);
-@@ -404,6 +440,8 @@
+@@ -404,6 +441,8 @@
        Alert.alert('Invalid date', 'Use format YYYY-MM-DDTHH:MM');
        return;
      }
@@ -227,16 +239,17 @@ diff --git a/src/screens/AppointmentScreen.tsx b/src/screens/AppointmentScreen.t
  
      setIsCheckingConflicts(true);
      try {
-@@ -413,6 +451,8 @@
+@@ -413,6 +452,9 @@
          dateObj,
          petMeds,
          detailAppt.id, // exclude self
 +        true,
 +        appointmentBufferMinutes,
++        detailAppt.durationMinutes ?? 30,
        );
  
        if (result.hasConflicts) {
-@@ -517,6 +557,26 @@
+@@ -517,6 +559,26 @@
      [renderItem, archivedIds],
    );
  
@@ -263,7 +276,7 @@ diff --git a/src/screens/AppointmentScreen.tsx b/src/screens/AppointmentScreen.t
    // ─── Render ──────────────────────────────────────────────────────────────────
  
    return (
-@@ -687,6 +747,7 @@
+@@ -687,6 +749,7 @@
                    placeholderTextColor="#9CA3AF"
                    accessibilityLabel="Date and time"
                  />
@@ -271,7 +284,7 @@ diff --git a/src/screens/AppointmentScreen.tsx b/src/screens/AppointmentScreen.t
                </View>
              )}
              {bookingStep === 2 && (
-@@ -901,6 +962,7 @@
+@@ -901,6 +964,7 @@
                    placeholder="2026-06-01T10:00"
                    placeholderTextColor="#9CA3AF"
                  />
