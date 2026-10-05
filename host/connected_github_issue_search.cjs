@@ -526,4 +526,187 @@ function projectGitHubIssueItems(items, options = {}) {
   };
 }
 
-module.exports = { searchGitHubIssues, projectGitHubIssueItems, inspectGitHubIssueUpdatedAtBound };
+
+/**
+ * Project headers from a retained github_search_issues shortcut envelope.
+ * The shortcut's nullable fields and absent paging evidence stay distinct
+ * from the REST reader's native item and traversal contract.
+ */
+function projectGitHubConnectorIssueHeaders(response, options = {}) {
+  if (!object(response)) throw new TypeError("response must be an MCP envelope object");
+  if (response.isError === true) {
+    throw new TypeError("native connector search returned isError: true");
+  }
+  if (response.isError !== undefined && typeof response.isError !== "boolean") {
+    throw new TypeError("response.isError must be boolean when present");
+  }
+  if (!object(response.structuredContent) ||
+      !Array.isArray(response.structuredContent.issues)) {
+    throw new TypeError("response needs structuredContent.issues");
+  }
+  const items = response.structuredContent.issues;
+  if (items.length > SEARCH_LIMIT) {
+    throw new RangeError("structuredContent.issues exceeds 1000 entries");
+  }
+  if (!object(options)) throw new TypeError("header options must be an object");
+  const allowed = new Set([
+    "start_index", "source_indices", "max_items",
+    "max_metadata_chars", "max_total_metadata_chars",
+  ]);
+  for (const key of Object.keys(options)) {
+    if (!allowed.has(key)) throw new TypeError("unknown header option: " + key);
+  }
+  const own = (value, key) => Object.prototype.hasOwnProperty.call(value, key);
+  function bounded(name, fallback, maximum) {
+    const value = own(options, name) ? options[name] : fallback;
+    if (!Number.isSafeInteger(value) || value < 0 || value > maximum) {
+      throw new RangeError(name + " must be an integer from 0 through " + maximum);
+    }
+    return value;
+  }
+  const maxItems = bounded("max_items", 20, 100);
+  const maxMetadata = bounded("max_metadata_chars", 4096, 65536);
+  const totalMetadata = bounded("max_total_metadata_chars", 8000, 1000000);
+  const sparse = own(options, "source_indices");
+  let start = null;
+  let requested;
+  if (sparse) {
+    if (own(options, "start_index")) {
+      throw new TypeError("source_indices and start_index are mutually exclusive");
+    }
+    if (!Array.isArray(options.source_indices) ||
+        options.source_indices.length > maxItems) {
+      throw new TypeError("source_indices must be an array within max_items");
+    }
+    requested = options.source_indices.slice();
+    let previous = -1;
+    for (const index of requested) {
+      if (!Number.isSafeInteger(index) || index <= previous || index >= items.length) {
+        throw new RangeError("source_indices must be increasing distinct in-range indices");
+      }
+      previous = index;
+    }
+  } else {
+    start = bounded("start_index", 0, items.length);
+    requested = Array.from(
+      {length: Math.min(maxItems, items.length - start)}, (_, i) => start + i
+    );
+  }
+
+  const nullableFields = [
+    "state", "state_reason", "comments", "created_at", "updated_at", "closed_at",
+  ];
+  const sourceBodies = {text: 0, null: 0, missing: 0};
+  let suppliedBodyChars = 0;
+  const rows = Array.from(items, (row, sourceIndex) => {
+    if (!object(row)) throw new TypeError("connector item " + sourceIndex + " must be an object");
+    positiveInteger(row.issue_number, "connector item " + sourceIndex + ".issue_number");
+    if (typeof row.title !== "string" || typeof row.url !== "string") {
+      throw new TypeError("connector item " + sourceIndex + " needs string title and url");
+    }
+    const metadata = {
+      issue_number: row.issue_number, title: row.title, url: row.url,
+    };
+    const metadataStates = {};
+    for (const key of nullableFields) {
+      if (!own(row, key)) {
+        metadataStates[key] = "missing";
+        continue;
+      }
+      const value = row[key];
+      if (value === null) {
+        metadata[key] = null;
+        metadataStates[key] = "null";
+        continue;
+      }
+      const valid = key === "comments"
+        ? Number.isSafeInteger(value) && value >= 0
+        : typeof value === "string";
+      if (!valid) {
+        throw new TypeError("connector item " + sourceIndex + "." + key +
+          " has an invalid non-null type");
+      }
+      metadata[key] = value;
+      metadataStates[key] = "value";
+    }
+    const metadataChars = Object.values(metadata)
+      .reduce((count, value) => count + (value === null ? 0 : String(value).length), 0);
+    if (metadataChars > maxMetadata) {
+      throw new RangeError("connector item " + sourceIndex + " exceeds max_metadata_chars");
+    }
+    const bodyState = !own(row, "body") ? "missing" : row.body === null ? "null" : "text";
+    if (bodyState === "text" && typeof row.body !== "string") {
+      throw new TypeError("connector item " + sourceIndex + ".body must be string, null, or absent");
+    }
+    const bodyChars = bodyState === "text" ? row.body.length : null;
+    sourceBodies[bodyState] += 1;
+    if (bodyChars !== null) suppliedBodyChars += bodyChars;
+    return {metadata, metadataStates, metadataChars, bodyState, bodyChars};
+  });
+
+  let returnedMetadataChars = 0;
+  let blockedIndex = null;
+  const selected = [];
+  const projected = [];
+  for (const sourceIndex of requested) {
+    const row = rows[sourceIndex];
+    if (returnedMetadataChars + row.metadataChars > totalMetadata) {
+      blockedIndex = sourceIndex;
+      break;
+    }
+    selected.push(sourceIndex);
+    returnedMetadataChars += row.metadataChars;
+    projected.push({
+      source_index: sourceIndex,
+      source_path: "structuredContent.issues[" + sourceIndex + "]",
+      ...row.metadata,
+      metadata_states: row.metadataStates,
+      metadata_chars: row.metadataChars,
+      body_state: row.bodyState, body_chars: row.bodyChars,
+      body_withheld: true, returned_body_chars: 0,
+    });
+  }
+  const omittedRanges = [];
+  let cursor = 0;
+  for (const index of selected) {
+    if (cursor < index) omittedRanges.push([cursor, index]);
+    cursor = index + 1;
+  }
+  if (cursor < items.length) omittedRanges.push([cursor, items.length]);
+  return {
+    schema: "commons.connected_github_connector_issue_headers/v1",
+    source: {
+      scope: "supplied_envelope_only", payload_path: "structuredContent.issues",
+      identity_basis: "caller_supplied_connector_fields",
+      query_application: "not_verified", kind_application: "not_verified",
+      pagination_evidence: "not_available_in_supported_envelope",
+      omitted_fields: "body_text_and_all_other_native_fields",
+      metadata_unit: "UTF-16 code units",
+    },
+    limits: {
+      max_items: maxItems, max_metadata_chars: maxMetadata,
+      max_total_metadata_chars: totalMetadata, max_input_items: SEARCH_LIMIT,
+    },
+    selection: {
+      mode: sparse ? "source_indices" : "contiguous",
+      requested_source_indices: requested, source_indices: selected, start_index: start,
+      next_index: sparse || start + selected.length >= items.length
+        ? null : start + selected.length,
+      metadata_budget_blocked_index: blockedIndex,
+      omitted_requested_source_indices: requested.slice(selected.length),
+    },
+    coverage: {
+      supplied_items: items.length, requested_items: requested.length,
+      returned_items: projected.length, omitted_items: items.length - projected.length,
+      omitted_source_index_ranges: omittedRanges,
+      source_body_states: sourceBodies, supplied_text_body_chars: suppliedBodyChars,
+      returned_body_chars: 0, returned_metadata_chars: returnedMetadataChars,
+      metadata_budget_exhausted: blockedIndex !== null,
+      all_requested_headers_included: selected.length === requested.length,
+      all_supplied_items_selected: selected.length === items.length,
+    },
+    items: projected,
+  };
+}
+
+module.exports = { searchGitHubIssues, projectGitHubIssueItems, inspectGitHubIssueUpdatedAtBound, projectGitHubConnectorIssueHeaders };
