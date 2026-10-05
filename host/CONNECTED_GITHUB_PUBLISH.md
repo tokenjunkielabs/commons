@@ -1217,6 +1217,77 @@ record the specific custody gap and keep their transport/execution pending;
 do not reconstruct missing bytes from a summary or substitute new inputs under
 the old identities. Continue independent authorized work while that gap remains.
 
+### Keep native journal locators on the private receipt
+
+Source/result custody and native-envelope discoverability are different. In
+one actual completed publication, the complete prepared specification, progress
+and result survived compaction, but no known key located its original
+`create_tree` response. They could not establish that response's fields.
+A later, distinct publication retained a discoverable journal; its exact native
+`create_tree` envelope supplied only a tree SHA, with no leaf entries, modes,
+blob identities or completeness flag. That fresh observation did not recover
+the older envelope and did not justify removing the created-tree verification
+reads.
+
+Keep the existing caller's private request/raw-response journal. Give it one
+stable, operation-specific directory key before dispatch, and retain that key
+in the operation's handoff and final receipt. A small metadata directory can
+record the operation ID, exact entry prefix, suffix/key format, and highest
+assigned call index. Each indexed metadata entry identifies the actual tool,
+request key, returned-response or thrown-error key when present, and custody
+state. It need not duplicate request arguments or returned bodies.
+
+Assign each call's index synchronously before awaiting its binding, so parallel
+readbacks retain independent keys. Bank the exact arguments before dispatch and
+the returned envelope before parsing it. A returned MCP error is still a
+returned envelope; a thrown binding has an error locator and no invented native
+response. Mark a locator as stored only after that store succeeds. An assigned
+index alone does not establish dispatch, settlement or successful custody.
+Keep journal-storage failures distinct from native errors and preserve the
+original native return/error when available; a post-write custody failure is
+never authority to repeat the writer.
+
+For example, attach this bounded locator projection to the existing private
+completion receipt, using values from the actual caller directory:
+
+```javascript
+const privateReceipt = {
+  publication: result,
+  native_journal: {
+    directory_key: journal.directory_key,
+    entry_prefix: journal.entry_prefix,
+    assigned_count: journal.assigned_count,
+    key_suffixes: journal.key_suffixes,
+    storage_scope: 'current_runtime; durability_not_established',
+  },
+};
+store(operationReceiptKey, privateReceipt);
+```
+
+Attach the same locator projection when retaining the existing outer
+`GitHubPublishError`, its progress, cause and response. This is caller receipt
+metadata, not a mutation of publisher progress or a new helper API. Keep
+separate final/audit reads under their own identified directory so they are
+not silently counted as publisher calls. If an existing journal uses a
+different naming format or an explicit list of keys, retain that exact format
+or list; do not rename or reconstruct historical keys from a convention.
+
+Print only the selected metadata needed for coordination. Do not print the
+directory wholesale if its existing entries also contain arguments, nor copy
+raw envelopes, full source, credentials or private provider payloads into a
+public receipt or repository. Directory size can be kept constant by retaining
+a prefix, key format and index range; inspect only the needed existing entry
+metadata when selecting a response.
+
+Known keys improve discoverability only while their stored values remain
+available. They are not a durable backup, cross-agent storage guarantee or
+provider evidence. Where portable byte custody is already needed, use the
+authorized carrier described above and preserve its exact locator privately.
+If an envelope is unavailable, record the narrow gap; do not substitute the
+request, a summary, a different publication's response, or another provider
+call. This guidance adds no automatic logging, acquisition, retry, permission
+gate or whole-operation acceptance claim.
+
 ## Advance an existing contribution pull request
 
 Use `advanceGitHubContribution` for an already-authorized continuation on the
