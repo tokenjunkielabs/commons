@@ -1,0 +1,60 @@
+diff --git a/app/(tabs)/history.tsx b/app/(tabs)/history.tsx
+--- a/app/(tabs)/history.tsx
++++ b/app/(tabs)/history.tsx
+@@ -132,7 +132,7 @@
+       We couldn't refresh your activity right now. Please try again.
+     </Text>
+     <TouchableOpacity
+-      style={styles.fullScreenErrorRetryButton}
++      style={styles.refreshErrorRetryButton}
+       onPress={onRetry}
+       disabled={isRetrying}
+       accessibilityRole="button"
+@@ -140,7 +140,7 @@
+       {isRetrying ? (
+         <ActivityIndicator size="small" color={colors.background} />
+       ) : (
+-        <Text style={styles.fullScreenErrorRetryText}>Retry</Text>
++        <Text style={styles.refreshErrorRetryText}>Retry</Text>
+       )}
+     </TouchableOpacity>
+   </View>
+@@ -183,6 +183,7 @@
+     hasMoreTransactions,
+     publicKey,
+     error,
++    refreshError,
+     refreshWalletData,
+     loadMoreTransactions,
+   } = useWalletStore();
+@@ -317,7 +318,7 @@
+               onRetry={() => { refreshWalletData(); retry(); }}
+               isRetrying={isLoading}
+             />
+-            {error && transactions.length > 0 && (
++            {!!refreshError && transactions.length > 0 && (
+               <RefreshErrorBanner
+                 message="Couldn't refresh activity. Showing cached transactions."
+                 onRetry={() => { refreshWalletData(); retry(); }}
+@@ -378,6 +379,7 @@
+           colors,
+           styles,
+           error,
++          refreshError,
+           hasTransactions: transactions.length > 0,
+         }}
+       />
+@@ -466,7 +468,12 @@
+     fontSize: 18,
+     fontWeight: '600',
+     marginBottom: SIZES.sm,
++  },
++  fullScreenErrorMessage: {
++    color: colors.textSecondary,
++    textAlign: 'center',
++    marginBottom: SIZES.md,
+-
++  },
+   sectionHeader: {
+     paddingTop: SIZES.sm,
+     paddingBottom: SIZES.xs,
