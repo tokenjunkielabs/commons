@@ -399,3 +399,121 @@ not independently authenticate a message or author, establish raw Slack storage
 identity, compare the outer envelope, or grant permission to update the upstream
 PR body. An exact Slack payload leaves any separate GitHub publication or
 maintainer-action boundary unchanged.
+
+## Read a confirmed publication at its native reported parent
+
+A send addressed to a reply can be routed by Slack to the canonical parent of
+that reply's thread. The original `thread_ts` then differs from the parent
+needed by the thread reader. The default publisher and `readSlackPublication`
+continue to use their existing explicit-parent contract. They do not silently
+adopt a URL, repeat a send/edit, or retry a read at another parent.
+
+For a new, necessary read, the additive export
+`readSlackPublicationAtNativeParent(tools, published, retainedSendResponse, options)`
+selects the parent reported by the original native send acknowledgement.
+It requires confirmed-edit publication metadata and that send's original
+retained response. Keep the original requested configuration, previous
+observations and comparisons separately; this function does not replace them.
+
+~~~javascript
+const routed = await moduleBox.exports.readSlackPublicationAtNativeParent(
+  tools,
+  savedConfirmedPublication,
+  retainedNativeSendResponse,
+  {
+    onProgress: value => store('operation-routed-read', value),
+  }
+);
+store('operation-routed-response', routed.observation.readback_response);
+const comparison = moduleBox.exports.compareSlackPublication(
+  routed.observation,
+  separatelyPreparedMessage,
+  {normalization: 'slack_bare_urls_entities'}
+);
+text({routing: routed.routing, comparison});
+~~~
+
+The return shape is `{schema, routing, observation}`, with schema
+`commons.connected_slack_native_parent_readback/v1`.
+`observation` is a fresh ordinary read result whose `thread_ts` and
+`readback_thread_ts` both name the selected native parent. Pass this nested
+observation to the existing whole-message or fenced-payload comparator.
+The original publication object and native acknowledgement remain unchanged.
+
+### Bind the route to the confirmed message
+
+The native acknowledgement must identify the same channel, message timestamp
+and complete `message_link` as the supplied publication metadata. A missing
+retained link, conflicting acknowledgement, native error or identity mismatch
+refuses before any read. This export accepts the exact native payload containing
+`message_link` and `message_context`, or its MCP `structuredContent` and/or
+JSON text-block representations. Multiple representations must agree on all
+three identity values. Unknown payload/context fields, non-text blocks and
+unreadable JSON are refused rather than selecting a convenient representation.
+
+Only a narrow literal permalink shape is supported:
+
+- HTTPS, one ASCII workspace label followed by `.slack.com`, with no userinfo
+  or port.
+- `/archives/<confirmed-channel>/p<confirmed-message-digits>`, where the path's
+  digits exactly equal the acknowledged timestamp with its decimal point removed.
+- Exactly one `thread_ts` and one `cid` query parameter, in either order.
+  The channel query must match both the path and native acknowledgement.
+- Native message and parent timestamps have six fractional digits, with the
+  reported parent no later than the message.
+
+There is no percent-decoding, URL normalization, fragment handling, shortened
+link resolution or general URL trust. Encoded, duplicate, unknown or ambiguous
+query fields are refused. Fixed bounds are eight text blocks of at most 4,096
+UTF-16 code units each, a 2,048-code-unit link, an 80-code-unit channel ID and
+at most sixteen digits before each timestamp's decimal point. These are limits
+of this explicit route selector, not changes to the old publication API.
+
+`routing` retains the native link, acknowledgement representation paths,
+confirmed channel/message, original `requested_thread_ts`, previous
+`prior_readback_thread_ts`, and selected `native_parent_thread_ts`.
+An absent original/prior parent is represented as null. The source is
+`caller_retained_native_send_acknowledgement`; authority is only
+`reported_routing_metadata` and authentication is `not_performed`.
+The helper binds supplied evidence consistently; it does not independently
+authenticate Slack, a workspace, an author or permission to act.
+
+### One read, with original observations preserved
+
+Options are `bindings`, `onProgress` and optional
+`readback_thread_ts`. An explicitly supplied parent must equal the native
+parent; a conflict refuses before a provider call. Calling this separately
+named export is the explicit choice to make a new observation at the native
+parent, even if the saved publication's earlier read used the requested parent.
+That earlier choice remains in the routing metadata and original saved input.
+
+The function delegates once to the existing reader, with the same selected
+channel/message, `limit: 1` and exact reply timestamp window. Only the read
+binding is needed. No send/edit binding, fallback, pagination or automatic
+retry is added. Call counts inherit the original publication's counts and
+increase the readback count for this one read.
+
+Progress callbacks receive copied, body-free `{routing, observation}`
+metadata. Pre-read input/routing errors throw without a provider call.
+A delegated read failure retains the existing `SlackPublishError.progress`,
+`cause` and native `response`, and adds copied `error.routing`.
+A readable response can still omit the selected message or have unsupported
+framing; `captured` never promises a match. The unchanged comparator keeps
+all request, message selection, framing, ambiguity and full-body checks.
+
+### Actual motivation and execution boundary
+
+A completed native publication on 2026-10-05 used requested reply timestamp
+`1791169091.858809`, while its send acknowledgement's permalink reported
+canonical parent `1790851459.659859` for message `1791181593.279659` in
+`C0BU51F1PL3`. The original requested-parent read did not contain the selected
+message. A separately authorized bounded read at the reported parent located
+it, and the caller retained both observations and its exact comparison.
+No write was repeated.
+
+That already-completed publication motivated this API; its body and comparison
+were not replayed to exercise the new code. At this publication, the new route
+selector and wrapper were source-inspected only. Their first useful invocation
+is reserved for future real readback work. No generated inputs, fixtures,
+tests, native process or current-message re-send/edit is part of this delivery.
+All pre-existing publisher, reader and comparator function bytes are unchanged.
