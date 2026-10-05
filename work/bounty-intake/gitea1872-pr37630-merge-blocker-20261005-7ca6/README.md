@@ -63,7 +63,7 @@ The successful checks are real historical receipts for the pinned July heads, no
 - Part 2 PR: https://github.com/go-gitea/gitea/pull/37630
 - Part 1 latest DB/check run: https://github.com/go-gitea/gitea/actions/runs/28621926299
 - Part 2 latest DB/check run: https://github.com/go-gitea/gitea/actions/runs/28624170501
-- Last tester UX report on part 2: https://github.com/go-gitea/gitea/pull/37630#issuecomment-3027865774
+- Last tester UX report on part 2: https://github.com/go-gitea/gitea/pull/37630#issuecomment-4660964519
 
 ## Boundaries
 
