@@ -1,0 +1,37 @@
+diff --git a/index.js b/index.js
+index cb880abdc5b7e8b967756cf0761867ef1a4cc2d7..e3c797518f627e1ee59a8818d1c28d4df343d050 100644
+--- a/index.js
++++ b/index.js
+@@ -89,14 +89,18 @@
+             process.exit();
+         });
+ 
++        const failBuild = () => {
++            if(isTmp) {
++                removeDirectory(options.outDir);
++            }
++            cb(new PluginError(PLUGIN_NAME, "Build FAIL:" + file.path));
++        };
++
+         const parcel = new parcelBundler(file.path, options_c);
+         parcel.bundle().then(bundle => {
+             if(parcel.errored) {
+-                if(isTmp) {
+-                    removeDirectory(options.outDir);
+-                }
+-                this.emit('error', new PluginError(PLUGIN_NAME, "Build FAIL:" + file.path));
+-                cb(null, file);
++                failBuild();
++                return;
+             }
+ 
+ 			// In case dealing with Pug files
+@@ -146,7 +150,7 @@
+                 this.emit('error', new PluginError(PLUGIN_NAME, "Build FAIL:" + file.path));
+                 cb(null, file);
+             }
+-        });
++        }, failBuild);
+     });
+ }
+ 
