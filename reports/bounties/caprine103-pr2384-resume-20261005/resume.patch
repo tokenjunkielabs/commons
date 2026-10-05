@@ -1,0 +1,110 @@
+diff --git a/source/index.ts b/source/index.ts
+--- a/source/index.ts
++++ b/source/index.ts
+@@ -22,7 +22,8 @@
+ import electronDebug from 'electron-debug';
+ import {is, darkMode} from 'electron-util';
+ import {bestFacebookLocaleFor} from 'facebook-locales';
+-import doNotDisturb from '@sindresorhus/do-not-disturb';
++import doNotDisturb from '@sindresorhus/do-not-disturb';
++import isOnline from 'is-online';
+ import updateAppMenu from './menu';
+ import config, {StoreType} from './config';
+ import tray from './tray';
+@@ -431,14 +432,88 @@
+ 
+ 	const {webContents} = mainWindow;
+ 
+-	// Reload the page on system resume to restore the Messenger connection,
+-	// which is lost when the computer sleeps. Wait for network connectivity
+-	// before reloading to avoid a blank page on slow reconnects.
+-	// See: https://github.com/sindresorhus/caprine/issues/103
+-	powerMonitor.on('resume', async () => {
+-		await ensureOnline();
+-		webContents.reload();
+-	});
++	// Resume must not reuse startup's interactive Wait/Quit dialog. Keep one
++	// connectivity check in flight, and invalidate it when its page or resume
++	// is superseded. Reload semantics remain those of PR #2384.
++	let resumePending = false;
++	let resumeEpoch = 0;
++	let connectivityCheckRunning = false;
++	let resumeDisposed = false;
++	let resumeRetry: ReturnType<typeof setTimeout> | undefined;
++
++	const canRecoverResume = (): boolean => !resumeDisposed
++		&& !isQuitting
++		&& !mainWindow.isDestroyed()
++		&& !webContents.isDestroyed();
++
++	const cancelResumeRecovery = (): void => {
++		resumeEpoch++;
++		resumePending = false;
++		if (resumeRetry !== undefined) {
++			clearTimeout(resumeRetry);
++			resumeRetry = undefined;
++		}
++	};
++
++	const checkResumeConnectivity = async (): Promise<void> => {
++		if (!resumePending || connectivityCheckRunning || !canRecoverResume()) {
++			return;
++		}
++
++		const epoch = resumeEpoch;
++		connectivityCheckRunning = true;
++		try {
++			// Failed connectivity checks are retried without a dialog or app exit.
++			const online = await isOnline().catch(() => false);
++			if (!canRecoverResume() || !resumePending || epoch !== resumeEpoch) {
++				return;
++			}
++
++			if (online) {
++				resumePending = false;
++				// A navigation already in progress is itself replacing the old page.
++				if (!webContents.isLoadingMainFrame()) {
++					webContents.reload();
++				}
++			}
++		} finally {
++			connectivityCheckRunning = false;
++			if (resumePending && canRecoverResume() && resumeRetry === undefined) {
++				resumeRetry = setTimeout(() => {
++					resumeRetry = undefined;
++					void checkResumeConnectivity();
++				}, 1000);
++			}
++		}
++	};
++
++	const recoverAfterResume = (): void => {
++		cancelResumeRecovery();
++		resumePending = true;
++		void checkResumeConnectivity();
++	};
++
++	const cancelForNavigation = (
++		_event: Electron.Event,
++		_url: string,
++		isInPlace: boolean,
++		isMainFrame: boolean,
++	): void => {
++		if (isMainFrame && !isInPlace) {
++			cancelResumeRecovery();
++		}
++	};
++
++	powerMonitor.on('resume', recoverAfterResume);
++	powerMonitor.on('suspend', cancelResumeRecovery);
++	webContents.on('did-start-navigation', cancelForNavigation);
++	mainWindow.once('closed', () => {
++		resumeDisposed = true;
++		cancelResumeRecovery();
++		powerMonitor.removeListener('resume', recoverAfterResume);
++		powerMonitor.removeListener('suspend', cancelResumeRecovery);
++		webContents.removeListener('did-start-navigation', cancelForNavigation);
++	});
+ 
+ 	webContents.on('dom-ready', async () => {
+ 		// Set window title to Caprine
