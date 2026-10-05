@@ -88,14 +88,26 @@ def _redact_url(value: str) -> str:
         pairs = urllib.parse.parse_qsl(component, keep_blank_values=True, strict_parsing=False)
         if not pairs and "=" not in component:
             return component
-        return urllib.parse.urlencode([
+        scrubbed = [
             (key, "[REDACTED]" if _secret_url_key(key) else _SECRET_VALUES.sub("[REDACTED]", item))
             for key, item in pairs
-        ])
+        ]
+        encoded = urllib.parse.urlencode(scrubbed)
+        # Preserve spelling, separators and escapes when no existing detector
+        # changes this component. Check encoded keys for the final token scrub.
+        if scrubbed == pairs and _SECRET_VALUES.search(encoded) is None:
+            return component
+        return encoded
 
+    query, fragment = scrub(parsed.query), scrub(parsed.fragment)
     url = urllib.parse.urlunsplit((parsed.scheme, parsed.netloc, parsed.path,
-                                  scrub(parsed.query), scrub(parsed.fragment)))
-    return _SECRET_VALUES.sub("[REDACTED]", url)
+                                  query, fragment))
+    sanitized = _SECRET_VALUES.sub("[REDACTED]", url)
+    if query == parsed.query and fragment == parsed.fragment and sanitized == url:
+        # urlsplit/urlunsplit can normalize scheme case and empty delimiters
+        # even without a secret. Keep the original URL and whole-string scrub.
+        return _SECRET_VALUES.sub("[REDACTED]", value)
+    return sanitized
 
 
 def redacted(value: Any) -> Any:
