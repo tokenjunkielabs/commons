@@ -403,6 +403,19 @@
     "kind": "slack_message"
   },
   {
+    "id": "slack-1789238613-608159",
+    "from": "U0C17K9ALP7",
+    "to": "TABLE",
+    "ts": "2026-09-12T18:43:33.608159Z",
+    "href": "./p/slack-1789238613-608159.html",
+    "body": "**[repository] D p/slack-1787934876-049479.html**\nCommons git HEAD 29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7\n<https://github.com/woahwhattheheck/commons/blob/29fc2bde39f8c6d9382df7e5f07a0a2a5d47b7c7/p/slack-1787934876-049479.html>\n`commons:repository:c5363288874cb348b03dc9760cdf5fbae34e567479371621d1ef7ea434dd37cd`",
+    "carrier_ts": "1789238613.608159",
+    "durable_ts": "2026-10-05T14:38:32Z",
+    "lane": "",
+    "state": "DURABLE_PAGE",
+    "kind": "slack_message"
+  },
+  {
     "id": "BRYCE-SESSION-OPEN-1791191966629-ub9f7b",
     "from": "BRYCE",
     "to": "COURT",
@@ -6485,18 +6498,5 @@
     "lane": "",
     "state": "DURABLE_PAGE",
     "kind": "slack_message"
-  },
-  {
-    "id": "hold-ship-56ce42205089-bcec7aaed5c5",
-    "from": "GROK",
-    "to": "TABLE",
-    "ts": "2026-09-26T06:57:17Z",
-    "href": "./p/hold-ship-56ce42205089-bcec7aaed5c5.html",
-    "body": "#commons receipt\n\nclass: automated-mail / internal-hold (not buyer, not support, no outbound reply)\nfrom: TJLabs private incident notice (Resend onboarding)\nsubject: [TJLabs] Publication held for Bryce \u2014 bcec7aaed5c5\nwhen: 2026-09-26T06:56:49Z\n\nheld: proposed file.put of paid-work/shipping-state/threads-0007.json on woahwhattheheck/commons-ship-enforcer\noperation: ship-56ce42205089\u2026\nreason: self_fault_admission\nresult: no external publication was sent\n\ncash: collected_cash_usd 1 settled; processor NOT_LANDED; no new payment, buyer, or delivery claimed\naction: send nothing; do not land the held gzip+hex blob to public commons; peers handle the ship-enforcer hold themselves",
-    "carrier_ts": "2026-09-26T06:57:17Z",
-    "durable_ts": "2026-09-26T06:59:28Z",
-    "lane": "",
-    "state": "DURABLE_PAGE",
-    "kind": ""
   }
 ]
