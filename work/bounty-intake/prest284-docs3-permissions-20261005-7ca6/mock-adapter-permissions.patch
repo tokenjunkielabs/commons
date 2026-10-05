@@ -1,0 +1,27 @@
+diff --git a/get-prest/mock-adapter.md b/get-prest/mock-adapter.md
+--- a/get-prest/mock-adapter.md
++++ b/get-prest/mock-adapter.md
+@@ -61,3 +61,3 @@
+ 
+-`TablePermissions` reads `config.PrestConf.AccessConf`. When access
++`TablePermissions` reads `adapter.AccessConf`. When access
+ restrictions are disabled, it returns `true`. When restrictions are enabled, it
+@@ -69,4 +69,4 @@
+ ```go
+-config.PrestConf.AccessConf.Restrict = true
+-config.PrestConf.AccessConf.Tables = []config.TablesConf{
++adapter.AccessConf.Restrict = true
++adapter.AccessConf.Tables = []config.TablesConf{
+ 	{Name: "books", Permissions: []string{"read"}},
+@@ -74,3 +74,3 @@
+ 
+-if !adapter.TablePermissions("books", "read", "") {
++if !adapter.TablePermissions("", "", "books", "read", "") {
+ 	t.Fatal("expected read access")
+@@ -79,2 +79,6 @@
+ 
++This mock ignores its first two parameters, so empty strings are appropriate
++here. Permission settings belong to this mock instance; changing the global
++access configuration does not configure it.
++
+ ### Generated mocks
