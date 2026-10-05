@@ -509,7 +509,11 @@ const AppointmentScreen: React.FC = () => {
     await cancelAllAppointmentReminders(sourceAppointment.id).catch(() => {});
     await removeAppointmentFromCalendar(sourceAppointment.id).catch(() => {});
 
-    const date = dateObj.toISOString().slice(0, 10);
+    const date = [
+      String(dateObj.getFullYear()).padStart(4, '0'),
+      String(dateObj.getMonth() + 1).padStart(2, '0'),
+      String(dateObj.getDate()).padStart(2, '0'),
+    ].join('-');
     const time = dateObj.toTimeString().slice(0, 5);
 
     const rescheduled = await rescheduleAppointment(
@@ -521,7 +525,7 @@ const AppointmentScreen: React.FC = () => {
       // Offline fallback
       const fallback: Appointment = {
         ...sourceAppointment,
-        date: dateObj.toISOString(),
+        date,
         time,
         status: AppointmentStatus.RESCHEDULED,
         notificationId: undefined,
