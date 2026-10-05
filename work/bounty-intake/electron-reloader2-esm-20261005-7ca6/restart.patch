@@ -1,0 +1,56 @@
+diff --git a/index.js b/index.js
+index 227a300..b1916af 100644
+--- a/index.js
++++ b/index.js
+@@ -1,4 +1,5 @@
+ import path from 'node:path';
++import {spawn} from 'node:child_process';
+ import {fileURLToPath} from 'node:url';
+ import {inspect} from 'node:util';
+ import {app} from 'electron';
+@@ -62,8 +63,42 @@
+ 			return;
+ 		}
+ 
+-		isRelaunching = true;
+-		app.relaunch();
+-		app.exit(0);
++		isRelaunching = true;
++		if (!process.defaultApp) {
++			app.relaunch();
++			app.exit(0);
++			return;
++		}
++
++		let releasedSingleInstanceLock = false;
++		const onSpawnError = error => {
++			isRelaunching = false;
++			if (releasedSingleInstanceLock && !app.requestSingleInstanceLock()) {
++				console.error('electron-reloader: Could not restore the single-instance lock after a failed restart.');
++			}
++
++			console.error('electron-reloader: Could not restart the app:', error);
++		};
++
++		try {
++			// Let the replacement acquire a lock held by this instance.
++			releasedSingleInstanceLock = app.hasSingleInstanceLock();
++			if (releasedSingleInstanceLock) {
++				app.releaseSingleInstanceLock();
++			}
++
++			const child = spawn(process.execPath, process.argv.slice(1), {
++				cwd: process.cwd(),
++				env: process.env,
++				stdio: 'inherit',
++			});
++			child.once('error', onSpawnError);
++			// Keep the current app alive if process creation fails.
++			child.once('spawn', () => {
++				app.exit(0);
++			});
++		} catch (error) {
++			onSpawnError(error);
++		}
+ 	});
+ }
