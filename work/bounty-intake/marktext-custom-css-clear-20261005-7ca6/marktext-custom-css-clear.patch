@@ -1,0 +1,15 @@
+diff --git a/packages/desktop/src/renderer/src/util/theme.ts b/packages/desktop/src/renderer/src/util/theme.ts
+index b940531723dee030cf5072223939c6adf587b87f..91fe3751bfcbcb82fcf995e4169cc7df31a0ea3a 100644
+--- a/packages/desktop/src/renderer/src/util/theme.ts
++++ b/packages/desktop/src/renderer/src/util/theme.ts
+@@ -255,6 +255,10 @@
+ 
+ export const addCustomStyle = (options: CustomStyleOptions): void => {
+   const { customCss } = options
++  if (customCss === '') {
++    document.querySelector('#custom-styles')?.remove()
++    return
++  }
+   if (!customCss) return
+ 
+   let customStyleEle = document.querySelector('#custom-styles') as HTMLStyleElement | null

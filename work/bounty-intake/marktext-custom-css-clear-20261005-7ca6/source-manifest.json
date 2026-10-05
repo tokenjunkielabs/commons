@@ -1,0 +1,107 @@
+{
+  "schema": "marktext.custom_css_clear.source_packet/v1",
+  "operation_id": "MARKTEXT-CSS-CLEAR-ASTRA-7CA6-20261005",
+  "source_repository": "marktext/marktext",
+  "source_branch": "develop",
+  "source_commit": "0d8dba02bb77efdf33198a3b197bf8fdb42bec79",
+  "source_files": [
+    {
+      "path": "packages/desktop/src/renderer/src/util/theme.ts",
+      "blob_sha": "b940531723dee030cf5072223939c6adf587b87f",
+      "bytes": 7859,
+      "mode": "100644",
+      "role": "modified production preimage"
+    },
+    {
+      "path": "packages/desktop/src/renderer/src/pages/app.vue",
+      "blob_sha": "ff474637a280a3c6edb7eeee2ffa335bab315ac5",
+      "bytes": 8554,
+      "role": "complete read-only caller or preference context"
+    },
+    {
+      "path": "packages/desktop/src/renderer/src/store/preferences.ts",
+      "blob_sha": "49298f2882110a33679e621bf30b6dc9cfe83c34",
+      "bytes": 10477,
+      "role": "complete read-only caller or preference context"
+    },
+    {
+      "path": "AGENTS.md",
+      "blob_sha": "038761cefba86754f3ec0e327dfa6c9d08367647",
+      "role": "upstream development guidance"
+    },
+    {
+      "path": ".github/CONTRIBUTING.md",
+      "blob_sha": "22a63ab3b23dff7ff53f40e97b36e7a304250af1",
+      "role": "upstream contribution requirements"
+    },
+    {
+      "path": ".github/COMMENTING-GUIDELINES.md",
+      "blob_sha": "31ed10a4267ccf52a723c4bc94b99273392fee53",
+      "role": "upstream commenting guidance"
+    },
+    {
+      "path": "LICENSE",
+      "blob_sha": "5c82a20b2e2a389b7b7e320339dc462310c3ba08",
+      "role": "MIT notice included unchanged"
+    }
+  ],
+  "result": {
+    "path": "packages/desktop/src/renderer/src/util/theme.ts",
+    "blob_sha": "91fe3751bfcbcb82fcf995e4169cc7df31a0ea3a",
+    "bytes": 7955,
+    "mode": "100644",
+    "patch": {
+      "hunks": 1,
+      "inserted_lines": 4,
+      "deleted_lines": 0
+    }
+  },
+  "verification": {
+    "complete_source_blob_identity": true,
+    "complete_preimage_postimage_comparison": true,
+    "serialized_patch_roundtrip": true,
+    "changed_function_syntax_parse": "TypeScript annotations removed; no invocation",
+    "git_apply_execution": false,
+    "dom_or_electron_execution": false,
+    "typecheck": false,
+    "lint": false,
+    "test_suite": false,
+    "hosted_ci": false
+  },
+  "integration": {
+    "source_carrier_repository": "woahwhattheheck/commons",
+    "source_carrier_branch": "work/marktext-custom-css-clear-20261005-7ca6",
+    "upstream_mutation": false,
+    "issuehunt_submission": false,
+    "broad_issue375_completed": false,
+    "award_or_payment_claim": false
+  },
+  "source_scope": {
+    "canonical_issue": "https://github.com/marktext/marktext/issues/375",
+    "canonical_issue_state": "open",
+    "advertised_funding_usd": 30,
+    "funding_is_award": false,
+    "own_upstream_pr_search": {
+      "query": "repo:marktext/marktext is:pr author:woahwhattheheck",
+      "total_count": 0,
+      "incomplete_results": false,
+      "scope": "one fresh native search result; no global absence claim"
+    },
+    "commons_pr_search": {
+      "query": "repo:woahwhattheheck/commons is:pr marktext",
+      "total_count": 0,
+      "incomplete_results": false
+    },
+    "internal_thread": {
+      "channel_id": "C0BU51F1PL3",
+      "parent_message_ts": "1791165374.545749",
+      "activity_message_ts": "1791173620.331959"
+    },
+    "earlier_wrong_channel_lookup": {
+      "channel_id": "C0BVANHNB26",
+      "message_ts": "1791165374.545749",
+      "result": "thread_not_found",
+      "repeated": false
+    }
+  }
+}
