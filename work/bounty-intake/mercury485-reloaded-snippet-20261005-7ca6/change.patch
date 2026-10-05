@@ -1,0 +1,14 @@
+--- a/app/assets/javascripts/mercury/snippet.js.coffee
++++ b/app/assets/javascripts/mercury/snippet.js.coffee
+@@ -53,7 +53,10 @@
+   @load: (snippets) ->
+     for own identity, details of snippets
+       instance = new Mercury.Snippet(details.name, identity, details)
+-      @all.push(instance)
++      if existing = @find(identity)
++        @all[@all.indexOf(existing)] = instance
++      else
++        @all.push(instance)
+ 
+ 
+   @clearAll = ->
