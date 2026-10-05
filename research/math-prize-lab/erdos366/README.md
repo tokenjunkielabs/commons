@@ -32,6 +32,17 @@ Pinned task identity:
 The task manifest forbids using `Erdos366.erdos_366` itself as a dependency and
 marks the task production-eligible.
 
+## New interval result (2026-10-05)
+
+The [fresh-range report](RANGE_1E12_2E12.md) covers every 3-full successor
+in `10^12 < m <= 2*10^12`: **11,077 candidates and 0 target witnesses**.
+The new [coefficient-plan/shard API](erdos366_range_shards.cjs) generates only
+that interval. Its [saved manifest](range_1e12_2e12_manifest.json) identifies
+the declared input, once-built plan and every candidate certificate across four
+completed shards. The report gives the enumeration and predecessor-certificate
+proofs, inherited prime-prefix premise and finite scope; the earlier search and
+test evidence below retain their original scope.
+
 ## Search strategy
 
 Write `m = n + 1`. Any target witness must have `m` 3-full, so instead of
