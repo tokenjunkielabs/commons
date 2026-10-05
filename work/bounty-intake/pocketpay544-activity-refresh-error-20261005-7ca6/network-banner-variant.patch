@@ -1,0 +1,98 @@
+diff --git a/src/components/NetworkStatusBanner.tsx b/src/components/NetworkStatusBanner.tsx
+--- a/src/components/NetworkStatusBanner.tsx
++++ b/src/components/NetworkStatusBanner.tsx
+@@ -12,6 +12,8 @@
+   onRetry?: () => void;
+   /** True while a re-check or refresh is in flight. */
+   isRetrying?: boolean;
++  /** Layout requested by NetworkStateBanner; direct callers retain the banner default. */
++  variant?: 'banner' | 'fullscreen';
+   /** Optional custom test ID for the container. Defaults to 'network-status-banner'. */
+   testID?: string;
+   /** Optional custom test ID for the retry button. Defaults to 'network-status-retry'. */
+@@ -38,10 +40,12 @@
+   state,
+   onRetry,
+   isRetrying = false,
++  variant = 'banner',
+   testID = 'network-status-banner',
+   retryTestID = 'network-status-retry',
+ }: NetworkStatusBannerProps) => {
+   const copy = describeNetworkState(state);
++  const isFullscreen = variant === 'fullscreen';
+ 
+   if (!copy.showBanner) return null;
+ 
+@@ -50,20 +54,23 @@
+ 
+   return (
+     <View
+-      style={[styles.container, { borderColor: `${iconColor}30` }]}
++      style={[styles.container, isFullscreen && styles.fullscreenContainer, { borderColor: `${iconColor}30` }]}
+       accessibilityRole="alert"
+       accessibilityLabel={copy.bannerMessage}
+       testID={testID}
+     >
+-      <View style={styles.content}>
++      <View style={[styles.content, isFullscreen && styles.fullscreenContent]}>
+         <Icon
+           color={iconColor}
+           size={16}
+-          style={styles.icon}
++          style={[styles.icon, isFullscreen && styles.fullscreenIcon]}
+           accessibilityElementsHidden
+           importantForAccessibility="no"
+         />
+-        <Text style={[styles.message, { color: iconColor }]} numberOfLines={2}>
++        <Text
++          style={[styles.message, isFullscreen && styles.fullscreenMessage, { color: iconColor }]}
++          numberOfLines={isFullscreen ? undefined : 2}
++        >
+           {copy.bannerMessage}
+         </Text>
+       </View>
+@@ -72,7 +79,7 @@
+         <TouchableOpacity
+           onPress={onRetry}
+           disabled={isRetrying}
+-          style={[styles.retryButton, isRetrying && styles.retryButtonDisabled]}
++          style={[styles.retryButton, isFullscreen && styles.fullscreenRetryButton, isRetrying && styles.retryButtonDisabled]}
+           accessibilityRole="button"
+           accessibilityLabel={copy.retryLabel}
+           accessibilityState={{ disabled: isRetrying }}
+@@ -105,6 +112,35 @@
+     paddingVertical: SIZES.sm,
+     marginBottom: SIZES.md,
+   },
++  fullscreenContainer: {
++    flex: 1,
++    flexDirection: 'column',
++    justifyContent: 'center',
++    paddingHorizontal: SIZES.xl,
++    paddingVertical: SIZES.xl,
++    marginBottom: 0,
++    borderWidth: 0,
++    backgroundColor: 'transparent',
++  },
++  fullscreenContent: {
++    flex: 0,
++    alignSelf: 'stretch',
++    flexDirection: 'column',
++    alignItems: 'center',
++    marginRight: 0,
++  },
++  fullscreenIcon: {
++    marginRight: 0,
++    marginTop: 0,
++    marginBottom: SIZES.md,
++  },
++  fullscreenMessage: {
++    flex: 0,
++    textAlign: 'center',
++  },
++  fullscreenRetryButton: {
++    marginTop: SIZES.lg,
++  },
+   content: {
+     flex: 1,
+     flexDirection: 'row',

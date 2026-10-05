@@ -1,4 +1,4 @@
-# PocketPay activity refresh error and asset-format continuations
+# PocketPay activity refresh error, asset format and network layout continuations
 
 This patch repairs the history-screen integration of Binali223's existing [PocketPay mobile PR544](https://github.com/Stellar-PocketPay/pocketpay-mobile/pull/544), which implements [issue100](https://github.com/Stellar-PocketPay/pocketpay-mobile/issues/100). Issue100 remains assigned to Binali223. This is an attributed Commons source continuation, not a competing upstream submission, assignment, acceptance or reward claim.
 
@@ -14,7 +14,7 @@ This patch repairs the history-screen integration of Binali223's existing [Pocke
 | Source Git blob before | `4b96e0a777f14b843cb76bbf8827d309ae616b66` |
 | Source Git blob after | `588a009a0379f5992877a2eab2cb15649e4d880b` |
 
-Apply `activity-refresh-error.patch` and the separate `asset-format.patch` to the pinned contributor input, or port their small hunks to a newer carrier after reconciling that carrier's actual source. Do not replace a newer screen with the old donor. The original screen delta remains +11/-4; the separate formatting-helper delta is +1/-1. The complete donor tree had 374 entries, was not truncated, and contained no license file; this packet therefore publishes only the narrow patch and this integration guide, not the complete sponsor module.
+Apply `activity-refresh-error.patch`, `asset-format.patch` and `network-banner-variant.patch` to the pinned contributor input, or port their small hunks to a newer carrier after reconciling that carrier's actual source. Do not replace a newer screen with the old donor. The original screen delta remains +11/-4; the separate formatting-helper delta is +1/-1, and the network layout delta is +41/-5. The complete donor tree had 374 entries, was not truncated, and contained no license file; this packet therefore publishes only the narrow patch and this integration guide, not the complete sponsor module.
 
 ## Concrete correction
 
@@ -40,9 +40,9 @@ The Activity state catalogue requires keeping loaded data usable after a failed 
 
 ## Limits and remaining work
 
-This correction is established by reading the actual store, caller and style definitions, with exact source/preimage accounting. It is not a successful build or a whole-PR readiness statement. Other observed donor issues are outside this one-screen delta:
+This correction is established by reading the actual store, caller and style definitions, with exact source/preimage accounting. It is not a successful build or a whole-PR readiness statement. Scope boundaries and other observed donor issues:
 
-- `NetworkStateBanner.tsx` passes `variant` although the imported `NetworkStatusBanner` props do not define it.
+- The wrapper's previously unsupported `variant` prop is implemented by the separate network layout patch below. This does not wire that wrapper into the history screen.
 - The separately exported amount helper's literal-asset regression is corrected by the additional patch below; this does not imply every screen uses that helper.
 - The history screen's preexisting missing-wallet early return precedes later hooks. No wallet-transition or general hook-order repair is claimed.
 - Store balance semantics, concurrent refresh behavior, global accessibility compliance and the other changed PR files have not been corrected here.
@@ -66,3 +66,21 @@ The index exports the helpers and the feature guide explicitly documents amount 
 This is an exported-helper contract repair, with bounded consumer evidence. The retained `TransactionListItem` formats its amount/asset separately, and `receipt.ts` (`f25482663a91b19ffb2a2eacc51d58d5b959dcf6`) likewise uses its own receipt formatter. This packet does not claim those screens' displayed output changed or that all callers were enumerated.
 
 The original `activity-refresh-error.patch` remains exactly `2af7ba7ee37bc4df889947418c32dfeb2f9ddcaa`; the helper patch composes with it on a different file. The fresh donor metadata retained the same external head and author conditions, with no new review feedback. No source function, numeric example, test, application or device was executed for this correction.
+
+## Network wrapper layout contract
+
+The actual `NetworkStateBanner` wrapper (`src/components/NetworkStateBanner.tsx`, blob `4725935e8256ae15619b3b55302ade4bd251eb1a`) passes `variant={hasData ? 'banner' : 'fullscreen'}`. Its imported `NetworkStatusBanner` neither declared nor consumed that prop, so the wrapper's no-data layout request was ignored and the JSX prop did not match the declared interface.
+
+`network-banner-variant.patch` adds the optional `'banner' | 'fullscreen'` prop to the existing component and defaults it to `'banner'`. The fullscreen branch centers a column in the available parent space with existing theme spacing, removes the compact border/background, places retry below the message and allows the full message to wrap. The wrapper stays unchanged. Existing callers that omit the prop retain the prior compact styles and two-line message limit.
+
+| Source | Identity |
+| --- | --- |
+| Path at contributor head `aa9583734f9fbc8eb7518a1e81b70d472c13b70e` | `src/components/NetworkStatusBanner.tsx` |
+| Preimage Git blob | `e3b1e893eb048467fffd1c1c5f09aabc2de1067a` |
+| Postimage Git blob | `b1ce6b1bb8f7b566cfaeb8f94bb6d0215a95f899` |
+
+The existing `describeNetworkState` call and `showBanner` early return, generic copy, icon/color selection, retry visibility, callback, disabled state, accessibility labels and test IDs remain unchanged. No raw error is displayed, and no network-state classification or refresh behavior is altered.
+
+This is a component/interface correction with a real wrapper consumer. The actual history screen imports `NetworkStatusBanner` directly without a variant and uses its separate `ActivityErrorState` for no-data failures, despite the external PR body describing a wrapper integration. This patch does not change that screen's layout or claim the wrapper is mounted there. Fullscreen sizing still depends on its caller's available parent layout; no device, visual or accessibility acceptance was performed.
+
+The fresh PR544 metadata still showed the same head, one author comment and no inline review comments; the bounded public activity check showed only the two completed earlier continuations. The history patch `2af7ba7ee37bc4df889947418c32dfeb2f9ddcaa` and asset patch `748710597a21d8aeeead38df5d497f579bde2bd8` remain exact and compose on different files. Upstream typecheck/lint/test, screen and device expectations remain pending, with Binali223's assignment and author credit preserved.
