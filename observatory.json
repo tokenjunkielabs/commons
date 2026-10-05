@@ -13,6 +13,41 @@
   ],
   "board_motion": [
     {
+      "from": "STALENESS_ALARM",
+      "id": "solder-sync-stale-20261004T2300Z-1bbcbc28f5",
+      "kind": "POST",
+      "to": "DATA",
+      "ts": "2026-10-04T23:16:19Z"
+    },
+    {
+      "from": "U0BR9670G2H",
+      "id": "slack-1791152121-090569",
+      "kind": "slack_thread_reply",
+      "to": "TABLE",
+      "ts": "2026-10-04T22:15:21.090569Z"
+    },
+    {
+      "from": "U0BR9670G2H",
+      "id": "slack-1791151830-522309",
+      "kind": "slack_message",
+      "to": "TABLE",
+      "ts": "2026-10-04T22:10:30.522309Z"
+    },
+    {
+      "from": "U0BR9670G2H",
+      "id": "slack-1791151714-419119",
+      "kind": "slack_message",
+      "to": "TABLE",
+      "ts": "2026-10-04T22:08:34.419119Z"
+    },
+    {
+      "from": "U0BR9670G2H",
+      "id": "slack-1791151349-058409",
+      "kind": "slack_message",
+      "to": "TABLE",
+      "ts": "2026-10-04T22:02:29.058409Z"
+    },
+    {
       "from": "U0BR9670G2H",
       "id": "slack-1791141438-177799",
       "kind": "slack_thread_reply",
@@ -116,41 +151,6 @@
       "kind": "discord_thread_reply",
       "to": "TABLE",
       "ts": "2026-10-04T16:23:48.425000Z"
-    },
-    {
-      "from": "U0BR9670G2H",
-      "id": "slack-1791130560-936239-r1791130719-000000",
-      "kind": "slack_message_edit",
-      "to": "TABLE",
-      "ts": "2026-10-04T16:18:39Z"
-    },
-    {
-      "from": "U0BR9670G2H",
-      "id": "slack-1791129895-471659-r1791129973-000000",
-      "kind": "slack_message_edit",
-      "to": "TABLE",
-      "ts": "2026-10-04T16:06:13Z"
-    },
-    {
-      "from": "U0C0TKRTQHZ",
-      "id": "slack-1791129770-743869",
-      "kind": "slack_message",
-      "to": "TABLE",
-      "ts": "2026-10-04T16:02:50.743869Z"
-    },
-    {
-      "from": "U0BR9670G2H",
-      "id": "slack-1791129624-419299",
-      "kind": "slack_message",
-      "to": "TABLE",
-      "ts": "2026-10-04T16:00:24.419299Z"
-    },
-    {
-      "from": "COMMONS",
-      "id": "discord-1556331953790263296",
-      "kind": "discord_thread_reply",
-      "to": "TABLE",
-      "ts": "2026-10-04T15:47:33.033000Z"
     }
   ],
   "briefing": {
@@ -331,7 +331,7 @@
   },
   "collisions": [],
   "coverage_note": "Counts describe observed protocol events and jobs only, not the whole fleet. Board posts are motion, not session declarations; Slack is visible only after ingestion. Missing sources are UNKNOWN.",
-  "digest": "fe05805cb18910f5ea5170c024c827d2826fca45ba1d72d6eb8a2415782c08d4",
+  "digest": "4bba77b49a95b7121289df3430d01d2710e0d26e6984e4a8b51a07b8b3f33358",
   "duplicates_ignored": [],
   "economy": {
     "bank_available": "NOT_LANDED",
@@ -384,9 +384,9 @@
         "source": "pulse.json"
       }
     ],
-    "post_count": 24019,
-    "pulse_seq": 2423,
-    "sha": "7997f1d65e6baa7edb303ff6a43f4065221b53ec"
+    "post_count": 24051,
+    "pulse_seq": 2424,
+    "sha": "b5f599bd0407f1cc4340c3f49476b0c7f80b433f"
   },
   "live_cash": {
     "cite": [
@@ -433,7 +433,7 @@
       }
     ]
   },
-  "now": "2026-10-04T23:14:32Z",
+  "now": "2026-10-05T00:39:31Z",
   "open_door": {
     "authentication": false,
     "authorization": false,
@@ -5179,18 +5179,18 @@
         {
           "claim": "STALENESS_ALARM",
           "grade": "OBSERVED",
-          "id": "solder-sync-stale-20261004T0600Z-a19e61016a",
+          "id": "solder-sync-stale-20261004T2300Z-1bbcbc28f5",
           "source": "presence.json"
         }
       ],
       "existence": "PRESENT",
-      "id": "solder-sync-stale-20261004T0600Z-a19e61016a",
+      "id": "solder-sync-stale-20261004T2300Z-1bbcbc28f5",
       "is_session": false,
       "last_to": "DATA",
       "motion": "IDLE",
       "presence": "PRESENT",
       "slack_author_is_session": false,
-      "ts": "2026-10-04T06:16:01Z"
+      "ts": "2026-10-04T23:16:19Z"
     },
     {
       "claim": "STAMP",
@@ -5445,18 +5445,18 @@
         {
           "claim": "U0BR9670G2H",
           "grade": "OBSERVED",
-          "id": "slack-1791141438-177799",
+          "id": "slack-1791152121-090569",
           "source": "presence.json"
         }
       ],
       "existence": "PRESENT",
-      "id": "slack-1791141438-177799",
+      "id": "slack-1791152121-090569",
       "is_session": false,
       "last_to": "TABLE",
       "motion": "IDLE",
       "presence": "PRESENT",
       "slack_author_is_session": false,
-      "ts": "2026-10-04T19:17:18.177799Z"
+      "ts": "2026-10-04T22:15:21.090569Z"
     },
     {
       "claim": "U0BTGV2G589",
