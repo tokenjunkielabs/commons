@@ -5,8 +5,9 @@
 The fence composes with ``coordination_state.py`` and never writes GitHub or
 Slack. SAFE requires complete Slack, owner-PR-census, owner-default, and
 upstream evidence; any incomplete absence proof fails closed. For ordinary
-issues, live upstream assignment or an open cross-referenced PR also blocks
-branch binding so stale marketplace listings do not create duplicate work.
+issues, a closed state or live upstream assignment still blocks branch binding.
+Open cross-referenced PRs are retained as coordination context; their existence
+alone does not establish a duplicate own PR or exclusive implementation claim.
 """
 from __future__ import annotations
 
@@ -134,12 +135,10 @@ def decide(report):
         state = str(upstream.get("state") or "").strip().lower()
         if state != "open":
             return MANUAL
-        if upstream.get("assignees") or any(
-            isinstance(item, dict)
-            and str(item.get("state") or "").strip().lower() == "open"
-            for item in (upstream.get("cross_referenced_prs") or [])
-        ):
+        if upstream.get("assignees"):
             return MANUAL
+        # An open timeline reference alone is advisory, not an admission gate.
+        # Exact own-PR matches are handled by the owner census above.
 
     if upstream.get("kind") != "pull":
         inp = report.get("input") if isinstance(report.get("input"), dict) else {}
