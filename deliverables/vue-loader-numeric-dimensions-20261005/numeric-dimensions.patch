@@ -1,0 +1,30 @@
+diff --git a/src/ContentLoader.tsx b/src/ContentLoader.tsx
+--- a/src/ContentLoader.tsx
++++ b/src/ContentLoader.tsx
+@@ -11,17 +11,15 @@
+     return value
+   }
+ 
+-  if (typeof value === 'string') {
+-    const trimmed = value.trim()
+-    if (/^\d+(\.\d+)?$/.test(trimmed)) {
+-      return Number(trimmed)
+-    }
+-
+-    const px = /^(\d+(\.\d+)?)px$/i.exec(trimmed)
+-    if (px) {
+-      return Number(px[1])
+-    }
+-  }
++  if (typeof value === 'string') {
++    const match = /^([+-]?(?:\d+(?:\.\d+)?|\.\d+)(?:e[+-]?\d+)?)(?:px)?$/i.exec(
++      value.trim()
++    )
++    if (match) {
++      const parsed = Number(match[1])
++      return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback
++    }
++  }
+ 
+   return fallback
+ }
