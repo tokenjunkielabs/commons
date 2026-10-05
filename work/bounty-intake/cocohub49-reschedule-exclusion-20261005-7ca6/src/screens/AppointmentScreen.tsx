@@ -116,6 +116,7 @@ const AppointmentScreen: React.FC = () => {
   // ── Conflict modal state ────────────────────────────────────────────────────
   const [conflictResult, setConflictResult] = useState<ConflictDetectionResult | null>(null);
   const [pendingAppointment, setPendingAppointment] = useState<Appointment | null>(null);
+  const [pendingAction, setPendingAction] = useState<'book' | 'reschedule' | null>(null);
   const [conflictModalVisible, setConflictModalVisible] = useState(false);
   const [isCheckingConflicts, setIsCheckingConflicts] = useState(false);
 
@@ -319,6 +320,7 @@ const AppointmentScreen: React.FC = () => {
     closeBookingModal();
     setConflictModalVisible(false);
     setPendingAppointment(null);
+    setPendingAction(null);
     setConflictResult(null);
     await load();
   };
@@ -368,6 +370,7 @@ const AppointmentScreen: React.FC = () => {
 
       if (result.hasConflicts || !result.appointmentReadComplete) {
         setPendingAppointment(appt);
+        setPendingAction('book');
         setConflictResult(result);
         setConflictModalVisible(true);
       } else {
@@ -380,10 +383,18 @@ const AppointmentScreen: React.FC = () => {
 
   // ─── Conflict modal actions ───────────────────────────────────────────────────
 
+  const persistConflictChoice = async (appt: Appointment, resolutionNote: string) => {
+    if (pendingAction === 'reschedule') {
+      await doReschedule(new Date(appt.date), resolutionNote, appt);
+    } else if (pendingAction === 'book') {
+      await persistAppointment(appt, resolutionNote);
+    }
+  };
+
   /** User chooses to proceed despite conflicts */
   const handleProceedAnyway = async () => {
     if (!pendingAppointment) return;
-    await persistAppointment(
+    await persistConflictChoice(
       pendingAppointment,
       conflictResult?.appointmentReadComplete === false
         ? 'User chose to proceed despite an incomplete local appointment check and any listed conflicts.'
@@ -406,7 +417,7 @@ const AppointmentScreen: React.FC = () => {
       date: suggested.toISOString(),
       time: suggested.toTimeString().slice(0, 5),
     };
-    await persistAppointment(
+    await persistConflictChoice(
       updated,
       `Selected time from local conflict check: ${suggested.toLocaleString()}.`,
     );
@@ -416,6 +427,7 @@ const AppointmentScreen: React.FC = () => {
   const handleCancelConflict = () => {
     setConflictModalVisible(false);
     setPendingAppointment(null);
+    setPendingAction(null);
     setConflictResult(null);
   };
 
@@ -470,10 +482,12 @@ const AppointmentScreen: React.FC = () => {
         const provisional: Appointment = {
           ...detailAppt,
           date: dateObj.toISOString(),
-          status: AppointmentStatus.PENDING,
+          time: dateObj.toTimeString().slice(0, 5),
+          status: AppointmentStatus.RESCHEDULED,
           notificationId: undefined,
         };
         setPendingAppointment(provisional);
+        setPendingAction('reschedule');
         setConflictResult(result);
         setRescheduleVisible(false);
         setConflictModalVisible(true);
@@ -485,27 +499,41 @@ const AppointmentScreen: React.FC = () => {
     }
   };
 
-  const doReschedule = async (dateObj: Date, resolutionNote?: string) => {
-    if (!detailAppt) return;
+  const doReschedule = async (
+    dateObj: Date,
+    resolutionNote?: string,
+    sourceAppointment: Appointment | null = detailAppt,
+  ) => {
+    if (!sourceAppointment) return;
     // Cancel old reminders and calendar event
-    await cancelAllAppointmentReminders(detailAppt.id).catch(() => {});
-    await removeAppointmentFromCalendar(detailAppt.id).catch(() => {});
+    await cancelAllAppointmentReminders(sourceAppointment.id).catch(() => {});
+    await removeAppointmentFromCalendar(sourceAppointment.id).catch(() => {});
 
     const date = dateObj.toISOString().slice(0, 10);
     const time = dateObj.toTimeString().slice(0, 5);
 
-    const updated = await rescheduleAppointment(detailAppt.id, date, time).catch(async () => {
+    const rescheduled = await rescheduleAppointment(
+      sourceAppointment.id,
+      date,
+      time,
+      sourceAppointment.durationMinutes ?? 30,
+    ).catch(async () => {
       // Offline fallback
       const fallback: Appointment = {
-        ...detailAppt,
+        ...sourceAppointment,
         date: dateObj.toISOString(),
         time,
         status: AppointmentStatus.RESCHEDULED,
         notificationId: undefined,
       };
-      await saveAppointment(fallback, resolutionNote);
+      await saveAppointment(fallback);
       return fallback;
     });
+
+    // Preserve the explicit conflict choice through the existing note-aware save path.
+    const updated = resolutionNote
+      ? await saveAppointment(rescheduled, resolutionNote)
+      : rescheduled;
 
     // Schedule new reminders and sync calendar
     await scheduleAppointmentReminders(updated).catch(() => {});
@@ -514,6 +542,7 @@ const AppointmentScreen: React.FC = () => {
     setRescheduleVisible(false);
     setConflictModalVisible(false);
     setPendingAppointment(null);
+    setPendingAction(null);
     setConflictResult(null);
     setDetailAppt(updated);
     await load();

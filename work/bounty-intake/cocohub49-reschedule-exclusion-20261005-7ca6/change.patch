@@ -219,7 +219,20 @@ diff --git a/src/screens/AppointmentScreen.tsx b/src/screens/AppointmentScreen.t
    const [bookingLoading, setBookingLoading] = useState(false);
    const [conflictState, setConflictState] = useState<ConflictCheckResponse | null>(null);
    const [archivedIds, setArchivedIds] = useState<Set<string>>(new Set());
-@@ -318,18 +323,50 @@
+@@ -111,6 +116,7 @@
+   // ── Conflict modal state ────────────────────────────────────────────────────
+   const [conflictResult, setConflictResult] = useState<ConflictDetectionResult | null>(null);
+   const [pendingAppointment, setPendingAppointment] = useState<Appointment | null>(null);
++  const [pendingAction, setPendingAction] = useState<'book' | 'reschedule' | null>(null);
+   const [conflictModalVisible, setConflictModalVisible] = useState(false);
+   const [isCheckingConflicts, setIsCheckingConflicts] = useState(false);
+ 
+@@ -314,23 +320,57 @@
+     closeBookingModal();
+     setConflictModalVisible(false);
+     setPendingAppointment(null);
++    setPendingAction(null);
+     setConflictResult(null);
      await load();
    };
  
@@ -270,11 +283,27 @@ diff --git a/src/screens/AppointmentScreen.tsx b/src/screens/AppointmentScreen.t
 -      if (result.hasConflicts) {
 +      if (result.hasConflicts || !result.appointmentReadComplete) {
          setPendingAppointment(appt);
++        setPendingAction('book');
          setConflictResult(result);
          setConflictModalVisible(true);
-@@ -348,13 +385,21 @@
+       } else {
+@@ -343,27 +383,43 @@
+ 
+   // ─── Conflict modal actions ───────────────────────────────────────────────────
+ 
++  const persistConflictChoice = async (appt: Appointment, resolutionNote: string) => {
++    if (pendingAction === 'reschedule') {
++      await doReschedule(new Date(appt.date), resolutionNote, appt);
++    } else if (pendingAction === 'book') {
++      await persistAppointment(appt, resolutionNote);
++    }
++  };
++
+   /** User chooses to proceed despite conflicts */
+   const handleProceedAnyway = async () => {
      if (!pendingAppointment) return;
-     await persistAppointment(
+-    await persistAppointment(
++    await persistConflictChoice(
        pendingAppointment,
 -      'User chose to proceed despite scheduling conflicts.',
 +      conflictResult?.appointmentReadComplete === false
@@ -297,16 +326,26 @@ diff --git a/src/screens/AppointmentScreen.tsx b/src/screens/AppointmentScreen.t
      const suggested = conflictResult.suggestedTime;
      const updated: Appointment = {
        ...pendingAppointment,
-@@ -363,7 +408,7 @@
+       date: suggested.toISOString(),
+       time: suggested.toTimeString().slice(0, 5),
      };
-     await persistAppointment(
+-    await persistAppointment(
++    await persistConflictChoice(
        updated,
 -      `Rescheduled to conflict-free slot: ${suggested.toLocaleString()}.`,
 +      `Selected time from local conflict check: ${suggested.toLocaleString()}.`,
      );
    };
  
-@@ -404,6 +449,8 @@
+@@ -371,6 +427,7 @@
+   const handleCancelConflict = () => {
+     setConflictModalVisible(false);
+     setPendingAppointment(null);
++    setPendingAction(null);
+     setConflictResult(null);
+   };
+ 
+@@ -404,6 +461,8 @@
        Alert.alert('Invalid date', 'Use format YYYY-MM-DDTHH:MM');
        return;
      }
@@ -315,7 +354,7 @@ diff --git a/src/screens/AppointmentScreen.tsx b/src/screens/AppointmentScreen.t
  
      setIsCheckingConflicts(true);
      try {
-@@ -413,9 +460,12 @@
+@@ -413,17 +472,22 @@
          dateObj,
          petMeds,
          detailAppt.id, // exclude self
@@ -329,7 +368,76 @@ diff --git a/src/screens/AppointmentScreen.tsx b/src/screens/AppointmentScreen.t
          // Build a provisional updated appointment and show conflict modal
          const provisional: Appointment = {
            ...detailAppt,
-@@ -517,6 +567,26 @@
+           date: dateObj.toISOString(),
+-          status: AppointmentStatus.PENDING,
++          time: dateObj.toTimeString().slice(0, 5),
++          status: AppointmentStatus.RESCHEDULED,
+           notificationId: undefined,
+         };
+         setPendingAppointment(provisional);
++        setPendingAction('reschedule');
+         setConflictResult(result);
+         setRescheduleVisible(false);
+         setConflictModalVisible(true);
+@@ -435,28 +499,42 @@
+     }
+   };
+ 
+-  const doReschedule = async (dateObj: Date, resolutionNote?: string) => {
+-    if (!detailAppt) return;
++  const doReschedule = async (
++    dateObj: Date,
++    resolutionNote?: string,
++    sourceAppointment: Appointment | null = detailAppt,
++  ) => {
++    if (!sourceAppointment) return;
+     // Cancel old reminders and calendar event
+-    await cancelAllAppointmentReminders(detailAppt.id).catch(() => {});
+-    await removeAppointmentFromCalendar(detailAppt.id).catch(() => {});
++    await cancelAllAppointmentReminders(sourceAppointment.id).catch(() => {});
++    await removeAppointmentFromCalendar(sourceAppointment.id).catch(() => {});
+ 
+     const date = dateObj.toISOString().slice(0, 10);
+     const time = dateObj.toTimeString().slice(0, 5);
+ 
+-    const updated = await rescheduleAppointment(detailAppt.id, date, time).catch(async () => {
++    const rescheduled = await rescheduleAppointment(
++      sourceAppointment.id,
++      date,
++      time,
++      sourceAppointment.durationMinutes ?? 30,
++    ).catch(async () => {
+       // Offline fallback
+       const fallback: Appointment = {
+-        ...detailAppt,
++        ...sourceAppointment,
+         date: dateObj.toISOString(),
+         time,
+         status: AppointmentStatus.RESCHEDULED,
+         notificationId: undefined,
+       };
+-      await saveAppointment(fallback, resolutionNote);
++      await saveAppointment(fallback);
+       return fallback;
+     });
+ 
++    // Preserve the explicit conflict choice through the existing note-aware save path.
++    const updated = resolutionNote
++      ? await saveAppointment(rescheduled, resolutionNote)
++      : rescheduled;
++
+     // Schedule new reminders and sync calendar
+     await scheduleAppointmentReminders(updated).catch(() => {});
+     await syncAppointmentToCalendar(updated).catch(() => {});
+@@ -464,6 +542,7 @@
+     setRescheduleVisible(false);
+     setConflictModalVisible(false);
+     setPendingAppointment(null);
++    setPendingAction(null);
+     setConflictResult(null);
+     setDetailAppt(updated);
+     await load();
+@@ -517,6 +596,26 @@
      [renderItem, archivedIds],
    );
  
@@ -356,7 +464,7 @@ diff --git a/src/screens/AppointmentScreen.tsx b/src/screens/AppointmentScreen.t
    // ─── Render ──────────────────────────────────────────────────────────────────
  
    return (
-@@ -687,6 +757,7 @@
+@@ -687,6 +786,7 @@
                    placeholderTextColor="#9CA3AF"
                    accessibilityLabel="Date and time"
                  />
@@ -364,7 +472,7 @@ diff --git a/src/screens/AppointmentScreen.tsx b/src/screens/AppointmentScreen.t
                </View>
              )}
              {bookingStep === 2 && (
-@@ -787,11 +858,18 @@
+@@ -787,11 +887,18 @@
              {/* Icon + title */}
              <View style={styles.conflictHeader}>
                <Text style={styles.conflictIcon}>⚠️</Text>
@@ -385,7 +493,7 @@ diff --git a/src/screens/AppointmentScreen.tsx b/src/screens/AppointmentScreen.t
              </Text>
  
              {/* Conflict list */}
-@@ -807,9 +885,9 @@
+@@ -807,9 +914,9 @@
              </ScrollView>
  
              {/* Suggested time */}
@@ -397,7 +505,7 @@ diff --git a/src/screens/AppointmentScreen.tsx b/src/screens/AppointmentScreen.t
                  <Text style={styles.suggestionTime}>
                    {conflictResult.suggestedTime.toLocaleString([], {
                      weekday: 'short',
-@@ -823,7 +901,7 @@
+@@ -823,7 +930,7 @@
              )}
  
              {/* Actions */}
@@ -406,7 +514,7 @@ diff --git a/src/screens/AppointmentScreen.tsx b/src/screens/AppointmentScreen.t
                <TouchableOpacity
                  style={styles.primaryBtn}
                  onPress={() => void handleUseSuggestedTime()}
-@@ -901,6 +979,7 @@
+@@ -901,6 +1008,7 @@
                    placeholder="2026-06-01T10:00"
                    placeholderTextColor="#9CA3AF"
                  />
