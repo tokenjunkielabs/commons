@@ -1,7 +1,7 @@
 diff --git a/src/temporal-resolve/TemporalResolve.js b/src/temporal-resolve/TemporalResolve.js
 --- a/src/temporal-resolve/TemporalResolve.js
 +++ b/src/temporal-resolve/TemporalResolve.js
-@@ -96,14 +96,16 @@
+@@ -96,14 +96,18 @@
  		this.ptRenderer.stableTiles = false;
  
  		const { camera } = this.ptRenderer;
@@ -9,7 +9,9 @@ diff --git a/src/temporal-resolve/TemporalResolve.js b/src/temporal-resolve/Temp
 +		const cameraChanged = camera !== this.activeCamera;
 +		if ( cameraChanged ) {
  
++			const weightTransform = this.weightTransform;
  			this.initNewCamera( camera );
++			this.weightTransform = weightTransform;
  
  		}
  

@@ -99,7 +99,9 @@ export class TemporalResolve {
 		const cameraChanged = camera !== this.activeCamera;
 		if ( cameraChanged ) {
 
+			const weightTransform = this.weightTransform;
 			this.initNewCamera( camera );
+			this.weightTransform = weightTransform;
 
 		}
 
