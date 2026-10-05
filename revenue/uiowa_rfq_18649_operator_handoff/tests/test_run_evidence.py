@@ -125,7 +125,7 @@ class RunEvidenceTests(unittest.TestCase):
         self.assertFalse(self.out.exists())
 
     def test_unknown_direct_api_selection_is_rejected(self):
-        with self.assertRaisesRegex(ValueError, "unknown"):
+        with self.assertRaisesRegex(RuntimeError, "preflight failed:.*unknown --asset values"):
             self.run_sample(selected_assets={"not-a-known-asset"})
         self.assertFalse(self.out.exists())
 
@@ -367,8 +367,8 @@ class RunEvidenceTests(unittest.TestCase):
 
     def test_entrypoint_disappearing_after_preflight_gets_failure_receipt(self):
         real_validate = runner.validate
-        def checked_then_removed(manifest, root):
-            result = real_validate(manifest, root)
+        def checked_then_removed(manifest, root, selected_assets):
+            result = real_validate(manifest, root, selected_assets)
             (root / "fixture lane/sample.py").unlink()
             return result
         with mock.patch.object(runner, "validate", side_effect=checked_then_removed):
