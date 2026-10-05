@@ -513,6 +513,39 @@ test or new provider request was used for the composition.
 
 ## Retain and resume
 
+### Keep capture keys separate from orchestration results
+
+Reserve an operation-scoped capture key for each collection invocation, including
+each continuation. Keep the full collector, per-page native envelopes and projected
+views under different suffixes; per-call numbers restart at one for each collection.
+
+```js
+const captureKey = operationId + ":slack:" + captureId;
+const collected = await box.exports.collectSlackPages(tools, actualRequest, {
+  onResponse: async event =>
+    store(captureKey + ":page:" + event.page.call, event)
+});
+store(captureKey + ":collection", collected);
+const view = box.exports.projectSlackCollectedMessages(collected, actualProjection);
+store(captureKey + ":view", view);
+store(captureKey + ":summary", collected.summary);
+```
+
+`operationId`, the distinct `captureId`, request and projection options belong to
+the caller. Use the collected-search projector for a search operation. If an outer
+function returns only a summary or view, store that return under its own key.
+`store(key, await orchestration())` runs its final store after the function returns:
+reusing a key that the function used for the full collector replaces that collector
+with the outer return value. The awaited `onResponse` callback does not prevent
+later caller overwrites, and these session stores do not guarantee durable custody
+across an isolate reset.
+
+In an actual intake, this aliasing replaced the raw collector with an outer result;
+only a complete projected message body remained. Preserve such surviving data with
+its narrower coverage and mark the original envelope unavailable. Do not treat a
+projection as the missing raw collection or reconstruct that envelope from it.
+This guidance changes no reader API and required no repeat of that intake.
+
 `responses` contains every original native response returned during the invocation, including error envelopes. A call that throws before returning has no response entry. `pages[].response_index` connects each call record to its envelope; `null` means none returned.
 
 `pages` retains the actual requested arguments, the provider's pagination text, the next opaque cursor and any native/parser/callback diagnostic. The optional awaited `onResponse({page, response})` receives JSON copies after the original envelope is retained. Mutating a callback copy does not alter the returned source. A failed callback stops further reads; the returned result still contains the response.
