@@ -142,12 +142,20 @@ function normalizeNativeEnvelope(result) {
 }
 
 function inspectToolError(action, result) {
+  const nativeResponse = result;
   result = normalizeNativeEnvelope(result);
   if (!result || typeof result !== 'object' || result.isError !== true) return null;
   const structured = result.structuredContent;
   const data = structured && typeof structured === 'object' ? structured.error_data : undefined;
   const status = data && /^[1-5][0-9]{2}$/.test(String(data.status))
     ? Number(data.status) : null;
+  // Evidence paths address the supplied native response, never a reconstructed envelope.
+  const directEnvelope = nativeResponse !== result;
+  const providerMessage = directEnvelope ? nativeResponse.error_data?.message : data?.message;
+  const messagePath = directEnvelope ? 'error_data.message' : 'structuredContent.error_data.message';
+  const connectorError = directEnvelope ? nativeResponse.error : structured?.error;
+  const connectorPath = directEnvelope ? 'error' : 'structuredContent.error';
+  const evidence = {};
   const details = {
     action,
     error_code: 'native_tool_error',
@@ -158,6 +166,21 @@ function inspectToolError(action, result) {
   if (typeof structured?.error_code === 'string'
       && /^[A-Z0-9_]{1,64}$/.test(structured.error_code)) {
     details.connector_error_code = structured.error_code;
+  }
+  // Only this explicit provider sentence classifies a secondary limit.
+  // Other 403s, absent timing and arbitrary body text establish no limit kind.
+  if (typeof providerMessage === 'string' && providerMessage.length <= 8192
+      && providerMessage.startsWith('You have exceeded a secondary rate limit.')) {
+    details.rate_limit_kind = 'secondary';
+    evidence.rate_limit_kind = {source_path: messagePath, source_range: [0,41],
+      format: 'github_secondary_limit_sentence'};
+    const support = /please include the request ID ([0-9A-F]{1,16}(?::[0-9A-F]{1,16}){4})\.$/.exec(providerMessage);
+    if (support) {
+      const start = support.index + 'please include the request ID '.length;
+      details.github_request_id = support[1];
+      evidence.github_request_id = {source_path: messagePath,
+        source_range: [start,start + support[1].length], format: 'github_support_request_id'};
+    }
   }
   const metadata = [data?.headers, data, structured?.headers, structured,
     result.headers, result].filter(value => value && typeof value === 'object' && !Array.isArray(value))
@@ -209,14 +232,28 @@ function inspectToolError(action, result) {
     details.message = action + ' returned no usable result because its transport closed; '
       + 'reconcile provider state before retrying a write';
   }
+  // Add status evidence only after existing error-code classification. In particular,
+  // a transport_closed error keeps its old null-status/cache behavior.
+  if (details.error_code === 'native_tool_error' && status === null
+      && typeof connectorError === 'string') {
+    const prefix = /^GitHub API error (403): \{/.exec(connectorError.slice(0,24));
+    if (prefix) {
+      details.http_status = 403;
+      details.message = action + ' returned a native tool error (GitHub HTTP 403)';
+      evidence.http_status = {source_path: connectorPath, source_range: [17,20],
+        format: 'github_connector_error_prefix'};
+    }
+  }
+  if (Object.keys(evidence).length) details.provider_evidence = evidence;
   return details;
 }
 
 function unpack(result, action) {
+  const nativeResponse = result;
   result = normalizeNativeEnvelope(result);
   object(result, `${action} response`);
   if (result.isError) {
-    const details = inspectToolError(action, result);
+    const details = inspectToolError(action, nativeResponse);
     const error = new Error(details?.message ?? action + ' returned a tool error');
     if (details) error.tool_error = details;
     throw error;

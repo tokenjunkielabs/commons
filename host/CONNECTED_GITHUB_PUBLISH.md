@@ -775,8 +775,8 @@ try {
 
 Sequential native tool refusals add a bounded `tool_error` object to the thrown error and
 failure progress, with the action, a stable error code, an HTTP status when the
-native structured response supplies one, and its connector error code when
-available. The message is generated locally; raw provider bodies are not copied
+native structured response supplies one (or the exact GitHub connector prefix
+below reports HTTP 403), and its connector error code when available. The message is generated locally; raw provider bodies are not copied
 into progress. Failed parallel readback rows retain their own `tool_error`
 objects so their provider facts stay attached to the affected file.
 
@@ -800,6 +800,72 @@ absent, `retry_after` uses the connector seconds. Retry-After and primary reset
 remain separate so the caller can honor both delay floors instead of discarding
 a later reset. Existing error codes, raw-response retention and write uncertainty
 are unchanged; this extraction does not retry or schedule a provider action.
+
+#### Explicit secondary-limit evidence
+
+The inspector additionally reports `rate_limit_kind: 'secondary'` only when
+the provider's structured `error_data.message` is a string of at most 8,192
+UTF-16 code units beginning exactly with
+`You have exceeded a secondary rate limit.`. A recognized message can also
+supply `github_request_id` from its exact final
+`please include the request ID ….` support phrase: five uppercase hexadecimal
+groups, each 1–16 characters, separated by colons. Differently worded, longer,
+or differently formatted messages remain unclassified. An ordinary 403,
+`FORBIDDEN`, documentation URL, or primary remaining count alone does not
+establish a secondary limit. Missing classification does not establish access
+denial, available quota, or absence of throttling.
+
+If structured status is absent, only the anchored connector-generated
+`GitHub API error 403: {` prefix can supply `http_status: 403`. Structured
+status keeps precedence, and this fallback applies only after the existing
+classification leaves `native_tool_error`. Thus a transport error retains its
+old null-status/cache behavior; the 405 base-move path is unchanged. A secondary
+refusal still has
+`error_code: 'native_tool_error'`.
+
+Each newly extracted fact has a `provider_evidence` entry with
+`source_path`, zero-based half-open UTF-16 `source_range`, and `format`.
+Paths address the original response supplied to the inspector. MCP envelopes
+use `structuredContent.error` and `structuredContent.error_data.message`;
+the existing direct GitHub envelope uses `error` and `error_data.message`.
+Publication error handling passes that original envelope through to the
+inspector. Evidence contains positions and format labels, not copied error
+bodies. Keep the complete native response, exact native tool arguments and
+tool name under separate caller-owned custody keys; `action` is the caller's
+label and does not reconstruct an unrecorded request.
+
+This remains an advisory projection. It does not schedule a retry, turn
+“a few minutes” into a deadline, infer a reset, declare a global outage or
+recovery, or authorize repeating an uncertain write. Retry/reset fields keep
+their existing named-field extraction and omission rules.
+
+Two actual retained native errors supplied the first pure projections, once
+each, with no failed-route call or fabricated input:
+
+- The complete `github_fetch` error observed at 2026-10-05 10:20:52 UTC was
+  projected once with candidate `4d9981af89c4368ad6393751864e76686f7ba65b`.
+  Its exact native request arguments were retained separately. The result
+  reported HTTP 403, `native_tool_error`, `FORBIDDEN`, secondary limit and
+  request ID `F25F:29D1F9:40F425:DA1F8A:6AC379F6`. Evidence addressed
+  `structuredContent.error[17:20]` for status and
+  `structuredContent.error_data.message[0:41]` / `[341:375]` for kind/ID.
+- Source review then restricted fallback status extraction to the existing
+  generic-error branch, preserving transport-error cache semantics. The final
+  source `421d1697d498b14669b041cd86acdec2028b64d4` projected the separately
+  retained 09:42:02 UTC error once. It reported the same kind/codes/status and
+  request ID `F78F:33860D:9CDD4:2043AA:6AC370C3`, whose exact ID span is
+  `[341:374]` in `structuredContent.error_data.message`. Status/kind paths
+  and spans are the same as above. The original serialized native
+  request/binding was not recoverable; `retained_ci_error` was only a caller
+  label, and that custody gap remains explicit.
+
+Neither native response supplied retry-after, reset, remaining or resource
+fields; none was invented. Complete inputs were unchanged, and the first
+request object was unchanged. Provider calls for the projections were zero.
+Both clocks are external observation metadata, not fields supplied by the
+native error. Direct-envelope, ordinary-403, conflicting-status, malformed
+and length-bound branches were source-inspected only; no test suite, fixture
+or runtime acceptance is claimed.
 
 Pass the retained interval and applicable reset evidence to the existing
 [shared provider budget](../integrations/command_center/PROVIDER-ADMISSION.md)
