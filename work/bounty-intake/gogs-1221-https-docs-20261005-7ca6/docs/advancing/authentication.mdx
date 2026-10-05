@@ -1,0 +1,348 @@
+---
+title: "Authentication"
+description: "Integrate with your existing IAM system"
+icon: "key"
+---
+
+Gogs supports authentication through various external sources. Currently supported backends are **LDAP**, **SAML 2.0**, **SMTP**, **PAM**, and **HTTP header**. Authentication sources can be configured in two ways:
+
+- **Admin Panel**: Navigate to **Admin Panel > Authentication Sources**
+- **Configuration files**: Place `.conf` files in the `custom/conf/auth.d/` directory. Each file describes one source using INI format. Files are loaded once at startup and keyed by `id`. See the "Configuration file" subsection under each backend below for examples.
+
+## LDAP
+
+Gogs supports two variants of LDAP authentication: **Simple Auth** and **Bind DN**. In both cases, authentication is performed by attempting to bind to the LDAP server with the User DN and password. The difference is that with Bind DN, a preliminary query is performed (using the Bind DN credentials) to find the User DN first.
+
+<Tabs>
+  <Tab title="When to use Bind DN">
+    The Bind DN mechanism has these advantages:
+
+    - It may be more secure than blindly attempting to bind with a possibly non-existent User DN.
+    - It supports login with attributes such as email address or phone number. The preliminary search can look up the User DN using `mail` or `mobile` attributes.
+    - It is required when the LDAP does not allow the User DN to query its own attributes or group memberships.
+
+    The downside is that, unless the LDAP allows anonymous queries, it requires a bind DN to be defined and Gogs needs to store its credentials. Gogs currently does not encrypt these credentials.
+  </Tab>
+  <Tab title="When to use Simple Auth">
+    In the ideal situation where you know the exact DN template for your users and the LDAP allows the User DN to query its own attributes, Simple Auth is the simpler option. It requires no separate bind account and no stored credentials beyond what the user provides at login.
+  </Tab>
+</Tabs>
+
+### Shared fields
+
+The following fields are shared between both **Bind DN** and **Simple Auth** configurations:
+
+| Field | Required | Description | Example |
+|---|---|---|---|
+| **Authentication Name** | Yes | A friendly name for the authentication source. | `My LDAP` |
+| **Security Protocol** | Yes | Connection security: Unencrypted, LDAPS, or StartTLS. | `LDAPS` |
+| **Host** | Yes | The address of the LDAP server. | `ldap.mydomain.com` |
+| **Port** | Yes | The port for the LDAP connection. Usually `389` for LDAP/StartTLS, `636` for LDAPS. | `389` |
+| **User Filter** | Yes | An LDAP filter declaring which users can log in. The `%s` parameter is substituted with the login name. | `(&(objectClass=posixAccount)(uid=%s))` |
+| **Email Attribute** | Yes | The LDAP attribute containing the user's email address. | `mail` |
+| **Admin Filter** | No | An LDAP filter applied to the User DN context to determine Gogs administrator privileges. | `(memberOf=cn=admins,cn=groups,dc=mydomain,dc=com)` |
+| **Username Attribute** | No | The LDAP attribute containing the username. Used for the Gogs account name after first sign-in. Leave empty to use the login name from the sign-in form. | `uid` |
+| **First Name Attribute** | No | The LDAP attribute containing the user's first name. | `givenName` |
+| **Surname Attribute** | No | The LDAP attribute containing the user's last name. | `sn` |
+
+<Tip>
+  The **User Filter** field can be used to filter on group membership if the User DN object has `memberOf` attributes. For example:
+  ```
+  (&(objectClass=posixAccount)(uid=%s)(memberOf=cn=gogs_users,cn=groups,dc=mydomain,dc=com))
+  ```
+  In the Bind DN authenticator, the User Filter can also match against multiple user attributes:
+  ```
+  (&(objectClass=Person)(|(uid=%s)(mail=%s)(mobile=%s)))
+  ```
+</Tip>
+
+### Simple Auth fields
+
+LDAP via Simple Auth adds the following field:
+
+| Field | Required | Description | Example |
+|---|---|---|---|
+| **User DN** | Yes | A template for the user's DN. The `%s` parameter is substituted with the login name. | `cn=%s,ou=Users,dc=mydomain,dc=com` or `uid=%s,ou=Users,dc=mydomain,dc=com` |
+
+### Bind DN fields
+
+LDAP via Bind DN adds the following fields:
+
+| Field | Required | Description | Example |
+|---|---|---|---|
+| **Bind DN** | No | The DN used to bind to the LDAP server when searching for the user. Leave blank for anonymous search. | `cn=Search,dc=mydomain,dc=com` |
+| **Bind Password** | No | The password for the Bind DN specified above. | -- |
+| **User Search Base** | Yes | The LDAP base below which user accounts will be searched. | `ou=Users,dc=mydomain,dc=com` |
+| **Fetch Attributes in Bind DN Context** | No | When enabled, user attributes are retrieved while bound as the Bind DN instead of the User DN. | -- |
+
+<Warning>
+  The Bind Password is stored in plaintext on the server. Ensure that your Bind DN has the minimum privileges necessary.
+</Warning>
+
+### Group membership verification
+
+You can optionally verify LDAP group membership using the following fields:
+
+| Field | Required | Description | Example |
+|---|---|---|---|
+| **Group Search Base DN** | No | The LDAP base below which groups will be searched. | `ou=group,dc=mydomain,dc=com` |
+| **Group Filter** | No | An LDAP filter declaring the groups that grant access. | `(\|(cn=gogs_users)(cn=admins))` |
+| **Group Attribute Containing List of Users** | No | The multi-valued attribute containing the group's members. | `memberUid` or `member` |
+| **User Attribute Listed in Group** | No | The user attribute referenced in the group membership attributes. | `uid` or `dn` |
+
+### Configuration files
+
+LDAP sources can also be defined as `.conf` files in `custom/conf/auth.d/` instead of through the admin panel. Files are loaded at startup and keyed by `id`.
+
+<Tabs>
+  <Tab title="Bind DN">
+    ```ini
+    id           = 101
+    type         = ldap_bind_dn
+    name         = LDAP BindDN
+    is_activated = true
+
+    [config]
+    host               = mydomain.com
+    port               = 636
+    # 0 - Unencrypted, 1 - LDAPS, 2 - StartTLS
+    security_protocol  = 0
+    skip_verify        = false
+    bind_dn            =
+    bind_password      =
+    user_base          = ou=Users,dc=mydomain,dc=com
+    attribute_username =
+    attribute_name     =
+    attribute_surname  =
+    attribute_mail     = mail
+    attributes_in_bind = false
+    filter             = (&(objectClass=posixAccount)(cn=%s))
+    admin_filter       =
+    group_enabled      = false
+    group_dn           =
+    group_filter       =
+    group_member_uid   =
+    user_uid           =
+    ```
+  </Tab>
+  <Tab title="Simple Auth">
+    ```ini
+    id           = 102
+    type         = ldap_simple_auth
+    name         = LDAP Simple Auth
+    is_activated = true
+
+    [config]
+    host               = mydomain.com
+    port               = 636
+    # 0 - Unencrypted, 1 - LDAPS, 2 - StartTLS
+    security_protocol  = 0
+    skip_verify        = false
+    bind_dn            =
+    bind_password      =
+    user_base          =
+    user_dn            = cn=%s,ou=Users,dc=mydomain,dc=com
+    attribute_username =
+    attribute_name     =
+    attribute_surname  =
+    attribute_mail     = mail
+    attributes_in_bind = false
+    filter             = (&(objectClass=posixAccount)(cn=%s))
+    admin_filter       =
+    group_enabled      = false
+    group_dn           =
+    group_filter       =
+    group_member_uid   =
+    user_uid           =
+    ```
+  </Tab>
+</Tabs>
+
+### FreeIPA examples
+
+It is possible to use either Bind DN or Simple Auth with FreeIPA. The examples below assume your domain is `domain.com` and that users must be a member of the `gogs_users` group to get access.
+
+<AccordionGroup>
+  <Accordion title="FreeIPA with Simple Auth">
+    Setting up access using Simple Auth is straightforward:
+
+    ```ini
+    user_dn            = uid=%s,cn=users,cn=accounts,dc=domain,dc=com
+    filter             = (&(objectClass=posixAccount)(memberOf=cn=gogs_users,cn=groups,cn=accounts,dc=domain,dc=com))
+    attribute_username = uid
+    attribute_name     = givenName
+    attribute_surname  = sn
+    attribute_mail     = mail
+    admin_filter       = (memberOf=cn=admins,cn=groups,cn=accounts,dc=domain,dc=com)
+    group_enabled      = false
+    ```
+  </Accordion>
+  <Accordion title="FreeIPA with Bind DN">
+    If you want to allow login by email address, note that FreeIPA by default does not grant anonymous search access to the `mail` attribute. This can be changed in IPA:
+
+    ```bash
+    ipa permission-mod --includedattrs=mail 'System: Read User Standard Attributes'
+    ```
+
+    Alternatively, you can ask your LDAP administrators for a dedicated bind user account.
+
+    <Info>
+      Allowing email-based login via Bind DN may no longer be necessary. Gogs translates email logins to the corresponding user ID before making the authentication call to the backend LDAP. The only requirement is that the user's **first login** is with their user ID. After that, they can use either user ID or email address.
+    </Info>
+
+    More precisely, Gogs maps the login name onto the user's "Authentication Login Name", which administrators can edit on the user's **Edit Account** page.
+  </Accordion>
+</AccordionGroup>
+
+## SAML 2.0
+
+SAML authentication lets users sign in through an external identity provider (IdP). Gogs acts as the service provider (SP), validates signed SAML responses, and creates an activated Gogs account after the first successful sign-in.
+
+Gogs supports SP-initiated SAML 2.0 sign-in with the HTTP-Redirect or HTTP-POST request binding and the HTTP-POST response binding. IdP-initiated sign-in and single logout are not supported.
+
+### Prerequisites
+
+- Set `[server] EXTERNAL_URL` to the exact public URL users use to reach Gogs. The generated entity ID, metadata URL, and assertion consumer service (ACS) URL are based on this value.
+- Create a certificate and private key that Gogs can read. Gogs uses this key pair to sign authentication requests with SHA-256 and to protect pending sign-in cookies.
+- Configure your IdP to return stable login, username, and email attributes.
+
+<Warning>
+  For an IdP on a different site, serve Gogs over HTTPS and set `EXTERNAL_URL` to that public `https://` URL, including when a reverse proxy terminates TLS. Gogs derives the ACS URL and its pending-request cookie settings from this value. An HTTPS ACS uses `SameSite=None; Secure`; an HTTP ACS uses `SameSite=Lax`, which browsers omit from the IdP's cross-site POST to the ACS, so Gogs cannot recover the pending sign-in request. **Skip TLS Verify** affects only the server's IdP metadata fetch; it does not change this browser-cookie requirement.
+</Warning>
+
+For example, create a five-year self-signed SP certificate:
+
+```bash
+openssl req -newkey rsa:3072 -nodes -x509 -days 1825 \
+  -subj "/CN=gogs-saml" \
+  -keyout /etc/gogs/saml.key \
+  -out /etc/gogs/saml.crt
+chmod 600 /etc/gogs/saml.key
+```
+
+The private key must be readable only by the account running Gogs. The certificate may be shared with the IdP through Gogs' generated SP metadata.
+
+### Configuration
+
+Create a **SAML 2.0** source under **Admin Panel > Authentication Sources**. Configure these fields:
+
+| Field | Required | Description | Example |
+|---|---|---|---|
+| **Authentication Name** | Yes | The label shown on the sign-in button. | `Company SSO` |
+| **Identity provider metadata URL** | Yes | The IdP metadata endpoint. Gogs verifies TLS by default and caches valid metadata for one hour. | `https://idp.example.com/metadata` |
+| **Service provider issuer** | No | A custom entity ID. Leave empty to use the generated SP metadata URL. | `https://gogs.example.com/saml` |
+| **Service provider certificate file** | Yes | Absolute path to the PEM-encoded SP certificate. | `/etc/gogs/saml.crt` |
+| **Service provider private key file** | Yes | Absolute path to the matching PEM-encoded private key. | `/etc/gogs/saml.key` |
+| **Login identifier attribute** | Yes | A stable, unique IdP attribute used to match returning users. | `uid` |
+| **Username Attribute** | Yes | The IdP attribute used as the Gogs username on first sign-in. | `uid` |
+| **Email Attribute** | Yes | The IdP attribute used as the primary email address on first sign-in. | `mail` |
+| **Full name attribute** | No | The IdP attribute used as the display name. | `cn` |
+| **Skip TLS Verify** | No | Disable TLS certificate verification when loading IdP metadata. Use only for controlled test environments. | -- |
+
+After saving the source, open it again and copy the **Service provider metadata** URL into your IdP application. The metadata contains the entity ID, signing certificate, and ACS URL for that source.
+
+<Warning>
+  The login identifier must be stable and unique. Changing the configured attribute or changing its value in the IdP can prevent an existing user from being matched. Gogs never links a SAML identity to a local account based only on a matching username or email address.
+</Warning>
+
+SAML users are provisioned automatically after a valid assertion. If the asserted username or email is already owned by another account, sign-in stops and an administrator must resolve the conflict. Gogs' local multi-factor authentication remains in effect for SAML users that enabled it.
+
+### Configuration file
+
+SAML sources can also be defined in `custom/conf/auth.d/`:
+
+```ini
+id           = 106
+type         = saml
+name         = Company SSO
+is_activated = true
+is_default   = false
+
+[config]
+idp_metadata_url             = https://idp.example.com/metadata
+service_provider_issuer      =
+service_provider_certificate = /etc/gogs/saml.crt
+service_provider_private_key = /etc/gogs/saml.key
+login_attribute              = uid
+username_attribute           = uid
+email_attribute              = mail
+full_name_attribute          = cn
+skip_verify                  = false
+```
+
+The metadata URL for this example is `/api/web/user/saml/106/metadata` under the configured `EXTERNAL_URL`.
+
+## PAM
+
+To configure PAM authentication, set the **PAM Service Name** to a filename in `/etc/pam.d/`.
+
+<Warning>
+  If you want PAM authentication to work with normal Linux passwords, the user running Gogs must have read access to `/etc/shadow`.
+</Warning>
+
+### Configuration file
+
+```ini
+id           = 104
+type         = pam
+name         = System Auth
+is_activated = true
+
+[config]
+service_name = system-auth
+```
+
+## SMTP
+
+SMTP authentication allows Gogs to log in to your SMTP host to verify user credentials. Configure the following fields:
+
+| Field | Required | Description | Example |
+|---|---|---|---|
+| **Authentication Name** | Yes | A name for this authentication source. | `Company SMTP` |
+| **SMTP Authentication Type** | Yes | The authentication type: `PLAIN` or `LOGIN`. | `PLAIN` |
+| **Host** | Yes | The address of the SMTP server. | `smtp.mydomain.com` |
+| **Port** | Yes | The port for the SMTP connection. | `587` |
+| **Allowed Domains** | No | Restrict login to specific email domains. Separate multiple domains with commas. | `gogs.io,mydomain.com` |
+| **Enable TLS Encryption** | No | Enable TLS encryption for the authentication connection. | -- |
+| **Skip TLS Verify** | No | Disable TLS certificate verification. | -- |
+| **This Authentication is Activated** | No | Enable or disable this authentication method. | -- |
+
+### Configuration file
+
+```ini
+id           = 103
+type         = smtp
+name         = GMail
+is_activated = true
+
+[config]
+# Either "PLAIN" or "LOGIN"
+auth            = PLAIN
+host            = smtp.gmail.com
+port            = 587
+allowed_domains =
+tls             = true
+skip_verify     = false
+```
+
+## HTTP header
+
+If your reverse proxy already handles user authentication (e.g. via SSO, OAuth, or client certificates), Gogs can trust the authenticated username from an HTTP header. This is configured in `custom/conf/app.ini` under `[auth]`:
+
+```ini
+[auth]
+ENABLE_REVERSE_PROXY_AUTHENTICATION = true
+REVERSE_PROXY_AUTHENTICATION_HEADER = X-WEBAUTH-USER
+```
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `ENABLE_REVERSE_PROXY_AUTHENTICATION` | `false` | Enable reading the authenticated username from a request header. |
+| `REVERSE_PROXY_AUTHENTICATION_HEADER` | `X-WEBAUTH-USER` | The HTTP header containing the authenticated username. |
+| `ENABLE_REVERSE_PROXY_AUTO_REGISTRATION` | `false` | Automatically create a Gogs account for users that do not yet exist. |
+
+When auto-registration is enabled, Gogs creates new accounts with an activated status and a placeholder email address. The user can update their email after first login.
+
+<Warning>
+  Only enable this feature if Gogs is exclusively accessed through a trusted reverse proxy that sets the header. Exposing Gogs directly to the internet with this enabled would allow anyone to impersonate any user by setting the header themselves.
+</Warning>
