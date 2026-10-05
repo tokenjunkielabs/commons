@@ -1,0 +1,12 @@
+diff --git a/src/middleware/rateLimit.js b/src/middleware/rateLimit.js
+--- a/src/middleware/rateLimit.js
++++ b/src/middleware/rateLimit.js
+@@ -21,7 +21,7 @@
+       pipeline.zadd(`ratelimit:window:${key}`, now.toString(), `${now}:${Math.random()}`);
+       pipeline.zcard(`ratelimit:window:${key}`);
+       const results = await pipeline.exec();
+-      const count = results[3][1];
++      const count = results[4][1];
+ 
+       return {
+         allowed: count <= maxRequests,
