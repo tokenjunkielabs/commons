@@ -1,0 +1,64 @@
+diff --git a/src/index.ts b/src/index.ts
+--- a/src/index.ts
++++ b/src/index.ts
+@@ -650,10 +650,18 @@ export class Bundler {
+       )
+       const watcher = watch(configs)
++      let watcherClosed = false
+       watcher.on('event', (e) => {
+         if (isRollupErrorEvent(e)) {
+           logger.error(e.error.message)
++          if (e.code === 'FATAL' && !watcherClosed) {
++            watcherClosed = true
++            Promise.resolve(watcher.close()).catch((error) => {
++              logger.error(error.message)
++            })
++          }
+         }
+       })
+diff --git a/test/watch.test.ts b/test/watch.test.ts
+--- a/test/watch.test.ts
++++ b/test/watch.test.ts
+@@ -28,18 +28,45 @@ describe('watch mode', () => {
+-  it('logs fatal Rollup watch events', async () => {
++  it('closes once when Rollup emits repeated fatal events', async () => {
+     const error = new Error('watch failed')
++    const close = jest.fn()
++    let onEvent: ((payload: any) => void) | undefined
+ 
+     mockWatch.mockReturnValue({
++      close,
+       on(_event: string, listener: (payload: any) => void) {
+-        listener({ code: 'FATAL', error })
++        onEvent = listener
+       },
+     })
+ 
+     await createBundler().run({ watch: true })
++    onEvent!({ code: 'FATAL', error })
++    onEvent!({ code: 'FATAL', error })
+ 
+     expect(logger.error).toHaveBeenCalledWith('watch failed')
++    expect(close).toHaveBeenCalledTimes(1)
++  })
++
++  it('reports watcher-close failures after the fatal diagnostic', async () => {
++    const error = new Error('watch failed')
++    const closeError = new Error('close failed')
++    const close = jest.fn().mockRejectedValue(closeError)
++    let onEvent: ((payload: any) => void) | undefined
++
++    mockWatch.mockReturnValue({
++      close,
++      on(_event: string, listener: (payload: any) => void) {
++        onEvent = listener
++      },
++    })
++
++    await createBundler().run({ watch: true })
++    onEvent!({ code: 'FATAL', error })
++    await new Promise((resolve) => setImmediate(resolve))
++
++    expect(logger.error).toHaveBeenNthCalledWith(1, 'watch failed')
++    expect(logger.error).toHaveBeenNthCalledWith(2, 'close failed')
+   })
