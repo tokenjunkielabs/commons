@@ -1,0 +1,17 @@
+diff --git a/concierge/bounty_audit.py b/concierge/bounty_audit.py
+--- a/concierge/bounty_audit.py
++++ b/concierge/bounty_audit.py
+@@ -273,7 +273,12 @@
+             delay = None
+         if delay is not None and math.isfinite(delay) and delay >= 0:
+             deadline = now + delay
+-    if deadline is None and exc.rate_limit_reset is not None:
++    # A primary reset is a throttle deadline only when that quota is exhausted.
++    if (
++        deadline is None
++        and exc.rate_limit_remaining == 0
++        and exc.rate_limit_reset is not None
++    ):
+         try:
+             reset = float(exc.rate_limit_reset.strip())
+         except ValueError:
