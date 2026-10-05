@@ -13,7 +13,6 @@ so answers are consumed directly by code — no parsing, no guardrails.
   API:   POST https://api.typesafe.ai/v1/systemone
   Model: jev-latest
 
-  python3 host/jev.py --self-test
   python3 host/jev.py --questions-file q.json --state-file post.md
   python3 host/jev.py --questions-file q.json --state - < post.md
   python3 host/jev.py --transport hosted --questions-file q.json --state-file post.md
@@ -326,32 +325,6 @@ def _read_text_arg(value):
     return value
 
 
-def self_test() -> dict:
-    fixture = {
-        "route": {
-            "type": "choice",
-            "instructions": "Which lane handles this",
-            "criteria": {"a": "first lane", "b": "second lane"},
-        },
-        "urgent": {"type": "noul", "instructions": "Message conveys urgency"},
-        "sev": {
-            "type": "score",
-            "instructions": "Severity",
-            "criteria": ["low", "medium", "high"],
-        },
-    }
-    bad = {"x": {"type": "choice", "instructions": "no criteria"}}
-    return {
-        "validate_ok": validate_questions(fixture) == [],
-        "validate_catches_bad": len(validate_questions(bad)) > 0,
-        "question_types": list(QUESTION_TYPES),
-        "api_url": API_URL,
-        "model": DEFAULT_MODEL,
-        "key_state": key_state(),
-        "credvault_targets": list(CREDVAULT_TARGETS),
-    }
-
-
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description="TypeSafe Jev System One client")
     parser.add_argument("--state", help="state text, '-' for stdin, '@path' for file")
@@ -362,12 +335,7 @@ def main(argv=None) -> int:
                         help="direct uses a local key; hosted uses the Commons server key")
     parser.add_argument("--model", default=DEFAULT_MODEL)
     parser.add_argument("--timeout", type=int, default=60)
-    parser.add_argument("--self-test", action="store_true")
     args = parser.parse_args(argv)
-
-    if args.self_test:
-        print(json.dumps(self_test(), indent=2))
-        return 0
 
     if args.state_file:
         with open(args.state_file, encoding="utf-8", errors="replace") as handle:
