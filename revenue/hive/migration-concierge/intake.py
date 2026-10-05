@@ -6,10 +6,13 @@ import csv
 import hashlib
 import io
 import json
+import os
 import re
 from datetime import date
 from pathlib import Path
 from typing import Any
+
+from attachment_intake import AttachmentError, read_attachment
 
 
 class MigrationError(ValueError):
@@ -68,6 +71,22 @@ def read_source(root: Path, relative: str) -> bytes:
         raise MigrationError(f"Cannot read source {relative}: {exc}") from exc
 
 
+def read_attachment_source(root: Path, relative: str) -> bytes:
+    """Use the bounded descriptor reader when its required APIs are available."""
+    descriptor_reads = (
+        all(hasattr(os, name) for name in ("O_NOFOLLOW", "O_DIRECTORY", "O_NONBLOCK"))
+        and os.open in os.supports_dir_fd
+        and os.stat in os.supports_dir_fd
+    )
+    if not descriptor_reads:
+        return read_source(root, relative)
+    try:
+        return read_attachment(root, relative, max_bytes=MAX_FILE_BYTES)["data"]
+    except AttachmentError as exc:
+        # A rejected descriptor read must not retry through the portable reader.
+        raise MigrationError(f"Cannot read attachment {relative}: {exc}") from exc
+
+
 def validate_data(kind: str, data: dict[str, Any]) -> None:
     if kind == "customers":
         if not data.get("name", "").strip():
@@ -89,8 +108,8 @@ def validate_data(kind: str, data: dict[str, Any]) -> None:
 def collect(root: Path, mapping_path: str) -> dict[str, Any]:
     files: dict[str, dict[str, Any]] = {}
 
-    def read(relative: str) -> bytes:
-        raw = read_source(root, relative)
+    def read(relative: str, *, attachment: bool = False) -> bytes:
+        raw = read_attachment_source(root, relative) if attachment else read_source(root, relative)
         metadata = {"sha256": digest(raw), "bytes": len(raw)}
         if relative in files and files[relative] != metadata:
             raise MigrationError(f"Source changed during intake: {relative}")
@@ -155,7 +174,7 @@ def collect(root: Path, mapping_path: str) -> dict[str, Any]:
                     data.setdefault("status", "open")
                     data.setdefault("due_date", "")
                 if kind == "attachments":
-                    asset = read(data["path"])
+                    asset = read(data["path"], attachment=True)
                     data.setdefault("name", Path(data["path"]).name)
                     data.update(sha256=digest(asset), bytes=len(asset))
                 validate_data(kind, data)

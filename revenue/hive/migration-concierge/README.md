@@ -38,6 +38,18 @@ Task statuses are `open`, `in_progress`, `done`, and `cancelled`. Missing status
 
 Attachment paths are relative to the export directory. Ordinary files up to 64 MiB each are supported; symbolic links and parent-directory references are not source attachments. Original filenames remain display metadata; copied bytes use their SHA-256 content address. The original export is never rewritten or deleted.
 
+## Canonical attachment reader integration
+
+The attachment paths in both trial collection and cutover now consume LINDEN's existing `attachment_intake.read_attachment` component from Commons #10493. The integration preserves RELAY's canonical workspace from #10501 and passes its existing 64 MiB per-file limit explicitly. Mapping and CSV files continue to use the original `read_source` path.
+
+When `O_NOFOLLOW`, `O_DIRECTORY`, `O_NONBLOCK` and descriptor-relative `os.open`/`os.stat` are available, the adapter reads the attachment bytes from opened directory/file descriptors and checks regular-file type, size and identity around the read. It rejects symlinks (including the supplied export root), non-regular files, source replacement/change, and nonportable or empty/dot/parent path components according to its existing contract. Export attachment paths must use ordinary relative POSIX names on this path.
+
+A platform lacking those required APIs retains the original portable reader. That fallback keeps the existing bounded read and path checks but does not acquire the adapter's descriptor-relative or change-detection guarantees. An adapter rejection on a capable platform becomes `MigrationError`; it is never retried through the weaker fallback. A frozen source export is still required, and no protection against every concurrent or privileged writer is claimed.
+
+Only attachment byte acquisition changes. The canonical intake still records the digest and byte length of the returned bytes in the trial. Cutover still compares the newly read bytes with that trial before using the existing content-addressed asset storage. Identity, duplicate decisions, relationships, revisions, journal entries and rollback remain unchanged. The adapter's separate `prepare_attachments` duplicate-coalescing API is not used, and its source is unchanged. The canonical destination remains its existing SQLite records plus asset files, not a new BLOB schema.
+
+This continuation was checked by complete retained-source inspection, exact serialized patch reconstruction and independent blob identities. No Python, SQLite, filesystem migration, browser, test, backup or recovery drill was executed. The historical validation receipts elsewhere in this guide remain attributed to their original work and are not evidence that this integration ran. No customer data, external CRM/provider action, deployment, payment or commercial acceptance is involved.
+
 ## Duplicates and revisions
 
 `duplicate_email: "error"` stops the trial when customer email addresses collide after trimming whitespace and case-folding. Correct the source or explicitly choose `"keep_separate"`; the trial records the affected IDs and retains distinct customer records. There is no implicit merge, fuzzy match, or attachment reassignment.
