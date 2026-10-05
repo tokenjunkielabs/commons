@@ -1,0 +1,26 @@
+diff --git a/js/reddit.js b/js/reddit.js
+--- a/js/reddit.js
++++ b/js/reddit.js
+@@ -72,6 +72,13 @@
+         }, this.onend, this.onerror);
+     },
+     downloadNextPage: function(ondone, onend, onerror, retries) {
++        if (this.after === null) {
++            if (typeof onend == 'function') {
++                onend();
++            }
++            return;
++        }
++
+         var self = this;
+         var after = this.after;
+ 
+@@ -112,7 +119,7 @@
+                 retryOrError();
+                 return;
+             }
+-            self.after = feed.data.after || '';
++            self.after = feed.data.after === null ? null : (feed.data.after || '');
+ 
+             feed.data.children = feed.data.children.map(function(item) {
+                 return new Reddit.Post(item.data);
