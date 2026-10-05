@@ -1775,8 +1775,297 @@ async function publishGitHubContentsChange(tools, change, options = {}) {
   }
 }
 
+
+/**
+ * Recover selected regular UTF-8 files from observed immutable Git source.
+ * No writer, PR reconstruction, retry, or inference of whole-operation custody.
+ */
+async function recoverGitHubFiles(tools, input, options = {}) {
+  object(input, 'recovery input');
+  object(options, 'recovery options');
+  const allowed = ['repository_full_name', 'operation_id', 'commit_sha',
+    'branch_name', 'expected_head_sha', 'files'];
+  if (Object.keys(input).some(key => !allowed.includes(key))) {
+    throw new TypeError('Unsupported recovery input field');
+  }
+  if (Object.keys(options).some(key => !['bindings', 'git_blob_identity', 'limits'].includes(key))) {
+    throw new TypeError('Unsupported recovery option');
+  }
+  const repository = text(input.repository_full_name, 'repository_full_name');
+  if (repository.length > 200 || !/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repository)
+      || repository.split('/').some(part => part === '.' || part === '..')) {
+    throw new TypeError('repository_full_name must be owner/repository');
+  }
+  const operationId = text(input.operation_id, 'operation_id');
+  if (operationId.length > 160 || !/^[A-Za-z0-9_.:-]+$/.test(operationId)) {
+    throw new TypeError('operation_id must be a bounded stable identifier');
+  }
+  const byBranch = input.branch_name !== undefined;
+  if (byBranch) {
+    branch(input.branch_name, 'branch_name');
+    if (input.branch_name.length > 255 || input.commit_sha !== undefined) {
+      throw new TypeError('Choose an immutable commit or a bounded branch with expected head');
+    }
+    sha(input.expected_head_sha, 'expected_head_sha');
+  } else {
+    sha(input.commit_sha, 'commit_sha');
+    if (input.expected_head_sha !== undefined) throw new TypeError('expected_head_sha requires branch_name');
+  }
+  if (!Array.isArray(input.files) || input.files.length < 1 || input.files.length > 64) {
+    throw new TypeError('Recovery requires 1 to 64 explicitly selected files');
+  }
+  const seen = new Set();
+  const files = [];
+  for (let index = 0; index < input.files.length; index++) {
+    if (!Object.prototype.hasOwnProperty.call(input.files, index)) throw new TypeError('files must be dense');
+    const item = object(input.files[index], 'recovery file');
+    if (Object.keys(item).some(key => !['path', 'expected_blob_sha'].includes(key))) {
+      throw new TypeError('Recovery files accept only path and optional expected_blob_sha');
+    }
+    const path = text(item.path, 'recovery path');
+    if (path.length > 1024 || path.includes('\\') || /[\x00-\x1f\x7f]/.test(path)
+        || path.split('/').some(part => !part || part === '.' || part === '..')) {
+      throw new TypeError('Noncanonical or oversized recovery path: ' + path);
+    }
+    if (seen.has(path)) throw new TypeError('Duplicate recovery path: ' + path);
+    seen.add(path);
+    if (item.expected_blob_sha !== undefined) sha(item.expected_blob_sha, 'expected_blob_sha');
+    files.push({path, ...(item.expected_blob_sha === undefined ? {} : {expected_blob_sha: item.expected_blob_sha})});
+  }
+  for (const path of seen) {
+    const parts = path.split('/');
+    while (parts.length > 1) {
+      parts.pop();
+      if (seen.has(parts.join('/'))) throw new TypeError('A selected file is also a parent directory');
+    }
+  }
+  const defaults = {max_calls: 128, max_file_bytes: 2097152, max_total_bytes: 8388608,
+    max_metadata_chars: 2097152, max_tree_entries: 10000, max_elapsed_ms: 60000};
+  const maxima = {max_calls: 512, max_file_bytes: 16777216, max_total_bytes: 67108864,
+    max_metadata_chars: 8388608, max_tree_entries: 100000, max_elapsed_ms: 300000};
+  const supplied = options.limits === undefined ? {} : object(options.limits, 'limits');
+  if (Object.keys(supplied).some(key => !Object.prototype.hasOwnProperty.call(defaults, key))) {
+    throw new TypeError('Unsupported recovery limit');
+  }
+  const limits = {...defaults, ...supplied};
+  for (const [key, value] of Object.entries(limits)) {
+    if (!Number.isSafeInteger(value) || value < 1 || value > maxima[key]) {
+      throw new TypeError('Recovery limit out of range: ' + key);
+    }
+  }
+  const customBindings = options.bindings === undefined ? {} : object(options.bindings, 'bindings');
+  if (Object.keys(customBindings).some(key => !['fetch', 'fetch_file'].includes(key))) {
+    throw new TypeError('Recovery accepts only read bindings fetch and fetch_file');
+  }
+  const bindings = {};
+  for (const action of ['fetch', 'fetch_file']) {
+    bindings[action] = customBindings[action] ?? 'mcp__codex_apps__github_' + action;
+    if (typeof bindings[action] !== 'string' || typeof tools?.[bindings[action]] !== 'function') {
+      throw new TypeError('Recovery binding not present: ' + action);
+    }
+  }
+  let identity = options.git_blob_identity;
+  if (identity === undefined && typeof require === 'function') {
+    identity = require('./connected_git_blob_identity.cjs').gitBlobIdentity;
+  }
+  if (typeof identity !== 'function') {
+    throw new TypeError('Supply the verified gitBlobIdentity function in options.git_blob_identity');
+  }
+
+  const requestedCommit = input.commit_sha;
+  const requestedBranch = input.branch_name;
+  const expectedHead = input.expected_head_sha;
+  const start = Date.now();
+  const result = {operation: 'source_recovery', operation_id: operationId,
+    operation_id_provenance: 'caller_supplied', repository_full_name: repository,
+    status: 'incomplete', stage: 'resolve_commit', writes: 0, snapshot: false,
+    publication_verification: 'not_performed', execution_verification: 'not_performed',
+    whole_operation_custody: 'not_inferred', limits: {...limits},
+    calls: {fetch: 0, fetch_file: 0}, reads: [], files: files.map(file => ({...file, status: 'pending'})),
+    recovered_files: 0, recovered_bytes: 0, metadata_chars: 0, tree_entries: 0,
+    preimage_fallbacks: []};
+  const fail = (code, message) => { const error = new Error(message); error.code = code; return error; };
+  const describe = error => ({code: error?.code ?? 'RECOVERY_READ_FAILED',
+    message: String(error?.message ?? error), ...(error?.tool_error ? {tool_error: error.tool_error} : {})});
+  const checkTime = () => {
+    if (Date.now() - start > limits.max_elapsed_ms) {
+      throw fail('RECOVERY_TIME_LIMIT', 'Recovery elapsed-time limit reached; no further reads');
+    }
+  };
+  let lastReadError;
+  const call = async (action, args) => {
+    checkTime();
+    if (result.reads.length >= limits.max_calls) throw fail('RECOVERY_CALL_LIMIT', 'Recovery call limit reached');
+    const record = {action, args: {...args}, outcome: 'calling'};
+    result.reads.push(record);
+    result.calls[action]++;
+    lastReadError = undefined;
+    try {
+      const response = await tools[bindings[action]](args);
+      record.response = response; // Preserve each exact envelope before decoding.
+      const payload = unpack(response, action);
+      record.outcome = 'received';
+      checkTime();
+      return payload;
+    } catch (error) {
+      record.thrown = error;
+      lastReadError = error instanceof Error ? error : new Error(String(error?.message ?? error));
+      if (error?.tool_error) lastReadError.tool_error = error.tool_error;
+      if (error?.code) lastReadError.code = error.code;
+      record.outcome = 'error';
+      record.error = describe(error);
+      throw lastReadError;
+    }
+  };
+  const api = 'https://api.github.com/repos/' + repository;
+  const trees = new Map();
+  const fetchJSON = async url => {
+    const payload = await call('fetch', {url});
+    const serialized = typeof payload.content === 'string' ? payload.content : JSON.stringify(payload);
+    if (serialized.length > limits.max_metadata_chars - result.metadata_chars) {
+      throw fail('RECOVERY_METADATA_LIMIT', 'Recovery metadata character limit reached');
+    }
+    result.metadata_chars += serialized.length;
+    const data = typeof payload.content === 'string'
+      ? object(JSON.parse(payload.content), 'GitHub recovery resource') : payload;
+    if (url.startsWith(api + '/git/trees/')) {
+      const expected = url.slice((api + '/git/trees/').length);
+      if (data.sha !== expected || !Array.isArray(data.tree) || data.truncated !== false) {
+        throw fail('RECOVERY_INCOMPLETE_TREE', 'Recovery requires a complete identified parent tree');
+      }
+      if (data.tree.length > limits.max_tree_entries - result.tree_entries) {
+        throw fail('RECOVERY_TREE_LIMIT', 'Recovery tree-entry limit reached');
+      }
+      const names = new Set();
+      const types = {'100644': 'blob', '100755': 'blob', '120000': 'blob', '040000': 'tree', '160000': 'commit'};
+      for (let i = 0; i < data.tree.length; i++) {
+        const entry = data.tree[i];
+        if (!entry || typeof entry.path !== 'string' || !entry.path || entry.path.includes('/')
+            || entry.path.includes('\\') || /[\x00-\x1f\x7f]/.test(entry.path)
+            || ['.', '..'].includes(entry.path) || names.has(entry.path)
+            || !Object.prototype.hasOwnProperty.call(types, entry.mode) || types[entry.mode] !== entry.type
+            || typeof entry.sha !== 'string' || !SHA.test(entry.sha)
+            || (entry.size !== undefined && (!Number.isSafeInteger(entry.size) || entry.size < 0))) {
+          throw fail('RECOVERY_INVALID_TREE', 'Invalid or duplicate native Git tree entry');
+        }
+        names.add(entry.path);
+      }
+      result.tree_entries += data.tree.length;
+      trees.set(expected, data.tree);
+    }
+    return data;
+  };
+  let currentFile;
+  try {
+    let commitSha = requestedCommit;
+    if (byBranch) {
+      const ref = await fetchJSON(api + '/git/ref/heads/' + requestedBranch.split('/').map(encodeURIComponent).join('/'));
+      if (ref.ref !== 'refs/heads/' + requestedBranch || ref.object?.type !== 'commit') {
+        throw fail('RECOVERY_BRANCH_IDENTITY', 'The native ref does not identify the requested commit branch');
+      }
+      commitSha = sha(ref.object.sha, 'Observed recovery head');
+      result.branch_observation = {branch_name: requestedBranch,
+        expected_head_sha: expectedHead, observed_head_sha: commitSha};
+      if (commitSha !== expectedHead) {
+        throw fail('RECOVERY_HEAD_CHANGED', 'The branch differs from the expected head; no source files were read');
+      }
+    }
+    result.commit_sha = commitSha;
+    const commit = await fetchJSON(api + '/git/commits/' + commitSha);
+    if (commit.sha !== commitSha || !Array.isArray(commit.parents) || commit.parents.length > 64) {
+      throw fail('RECOVERY_COMMIT_IDENTITY', 'The native commit does not identify the requested commit and bounded parents');
+    }
+    const parents = [];
+    for (let i = 0; i < commit.parents.length; i++) {
+      parents.push(sha(commit.parents[i]?.sha, 'Recovery parent commit'));
+    }
+    result.commit = {sha: commitSha, parent_shas: parents, tree_sha: sha(commit.tree?.sha, 'Recovery root tree')};
+    const readEntry = baseFileReader({api, repository_full_name: repository,
+      commitSha, treeSha: result.commit.tree_sha, fetchJSON, progress: result, treeLabel: 'recovery',
+      // An omitted parent tree cannot establish an existing file's Git mode.
+      // Keep the original read failure and perform no one-line Contents fallback.
+      readPreimage: async () => { throw lastReadError
+        ?? fail('RECOVERY_MODE_UNAVAILABLE', 'No complete parent tree; recovery does not infer a Git mode'); }});
+    for (const file of result.files) {
+      currentFile = file;
+      result.stage = 'read_path';
+      checkTime();
+      const entry = await readEntry(file.path, file.expected_blob_sha);
+      const components = file.path.split('/');
+      let treeSha = result.commit.tree_sha;
+      file.tree_path = [];
+      for (let i = 0; i < components.length; i++) {
+        const found = trees.get(treeSha)?.find(item => item.path === components[i]);
+        file.tree_path.push({directory_path: components.slice(0, i).join('/'),
+          tree_sha: treeSha, entry: found ? {path: found.path, mode: found.mode, type: found.type, sha: found.sha} : null});
+        if (!found || i === components.length - 1) break;
+        treeSha = found.sha;
+      }
+      if (!entry) {
+        file.status = 'absent';
+        throw fail('RECOVERY_PATH_ABSENT', 'Selected path is absent from the observed complete tree: ' + file.path);
+      }
+      Object.assign(file, {blob_sha: entry.sha, mode: entry.mode, type: entry.type});
+      if (entry.type !== 'blob' || !['100644', '100755'].includes(entry.mode)) {
+        throw fail('RECOVERY_UNSUPPORTED_FILE', 'Recovery supports regular files only: ' + file.path);
+      }
+      if (file.expected_blob_sha !== undefined && entry.sha !== file.expected_blob_sha) {
+        throw fail('RECOVERY_BLOB_CHANGED', 'Selected path differs from the expected blob: ' + file.path);
+      }
+      if (entry.size !== undefined) {
+        file.observed_size = entry.size;
+        if (entry.size > limits.max_file_bytes || entry.size > limits.max_total_bytes - result.recovered_bytes) {
+          throw fail('RECOVERY_BYTE_LIMIT', 'Observed file size exceeds recovery byte budget: ' + file.path);
+        }
+      }
+      result.stage = 'read_content';
+      const data = await call('fetch_file', {repository_full_name: repository,
+        path: file.path, ref: commitSha, encoding: 'utf-8'});
+      if (data.sha !== entry.sha || (data.encoding !== undefined && data.encoding !== 'utf-8')) {
+        throw fail('RECOVERY_CONTENT_IDENTITY', 'File response differs from the observed UTF-8 blob: ' + file.path);
+      }
+      if (typeof data.content !== 'string' || (data.content === '' && entry.sha !== EMPTY_BLOB_SHA)) {
+        throw fail('RECOVERY_CONTENT_UNAVAILABLE', 'Complete source text was not returned: ' + file.path);
+      }
+      // UTF-16 length is a lower bound on UTF-8 bytes for valid Unicode.
+      if (data.content.length > limits.max_file_bytes || data.content.length > limits.max_total_bytes - result.recovered_bytes) {
+        throw fail('RECOVERY_BYTE_LIMIT', 'Returned source exceeds recovery byte budget: ' + file.path);
+      }
+      const measured = identity(data.content);
+      if (!measured || !Number.isSafeInteger(measured.bytes) || measured.bytes < 0
+          || measured.git_blob_sha !== entry.sha
+          || (entry.size !== undefined && measured.bytes !== entry.size)) {
+        throw fail('RECOVERY_BLOB_MISMATCH', 'Complete source bytes do not match the observed Git blob: ' + file.path);
+      }
+      if (measured.bytes > limits.max_file_bytes || measured.bytes > limits.max_total_bytes - result.recovered_bytes) {
+        throw fail('RECOVERY_BYTE_LIMIT', 'Measured source exceeds recovery byte budget: ' + file.path);
+      }
+      checkTime();
+      Object.assign(file, {status: 'recovered', encoding: 'utf-8', content: data.content,
+        bytes: measured.bytes, git_blob_sha_verified: true, commit_sha: commitSha});
+      result.recovered_files++;
+      result.recovered_bytes += measured.bytes;
+      currentFile = undefined;
+    }
+    result.status = 'recovered';
+    result.stage = 'complete';
+  } catch (error) {
+    result.error = describe(error);
+    if (currentFile) {
+      if (currentFile.status === 'pending') currentFile.status = 'failed';
+      currentFile.error = result.error;
+    }
+  }
+  result.elapsed_ms = Date.now() - start;
+  result.coverage = {requested_files: files.length, recovered_files: result.recovered_files,
+    pending_paths: result.files.filter(file => file.status === 'pending').map(file => file.path),
+    all_selected_files_recovered: result.recovered_files === files.length,
+    repository_scope: 'caller_selected_paths_only'};
+  return result;
+}
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {GitHubPublishError, publishGitHubChange, publishGitHubContentsChange, continueGitHubMerge,
     advanceGitHubContribution, reconcileGitHubContribution, observeGitHubContributionHead,
-    inspectReadback, resolveReadback, inspectToolError};
+    inspectReadback, resolveReadback, inspectToolError, recoverGitHubFiles};
 }

@@ -1202,3 +1202,176 @@ without changing the read result.
 Keep using `reconcileGitHubContribution` when the immutable source comparison
 itself is missing, uncertain, or needs to be established again. Its complete
 source/tree reconciliation remains unchanged.
+
+
+## Recover selected immutable source after losing transient state
+
+`recoverGitHubFiles(tools, input, options)` is a read-only source-custody API.
+Use it when a real recovery or delivery needs the complete original source of
+explicitly selected files. It reuses the publisher's native envelope/error
+handling and complete parent-tree path reader, and the existing
+[Git blob identity module](CONNECTED_GIT_BLOB_IDENTITY.md). It does not infer
+a prepared change, PR title/body, acceptance record, or an entire operation
+from whichever commit happens to be the latest.
+
+Before a long publication, record the stable repository/branch locator in the
+original activity and retain the complete prepared source through an authorized
+durable carrier. The atomic publisher banks its tree and commit before creating
+the source branch and PR. Contents publication may leave several serial commits;
+the last commit's changed-file list is not the whole operation. A transient
+store key, progress record or source hash cannot reconstruct missing bytes.
+This reader can recover bytes that actually reached Git; it cannot recover
+source that was never banked.
+
+```javascript
+const recovered = await recoverGitHubFiles(tools, {
+  repository_full_name: repository,
+  operation_id: originalOperationId,
+  commit_sha: observedFullCommitSha,
+  files: selectedPaths.map(path => ({path})),
+}, {git_blob_identity: verifiedIdentityModule.gitBlobIdentity});
+
+// Retain the full result privately; display only the required metadata.
+show({
+  status: recovered.status,
+  commit: recovered.commit,
+  coverage: recovered.coverage,
+  files: recovered.files.map(file => ({
+    path: file.path, status: file.status, blob_sha: file.blob_sha,
+    mode: file.mode, bytes: file.bytes, error: file.error
+  })),
+  calls: recovered.calls,
+  error: recovered.error,
+});
+```
+
+Supply exactly one selector:
+
+- `commit_sha`: a complete lowercase 40-character immutable commit SHA.
+- `branch_name` plus `expected_head_sha`: a short branch and its observed full
+  commit SHA. The reader fetches that exact ref once, records both expected
+  and observed heads, and stops before source reads if they differ. All later
+  reads are pinned to the accepted commit, even if the branch subsequently moves.
+
+`operation_id` is a caller-supplied stable identifier of 1–160 ASCII letters,
+digits, underscores, periods, colons or hyphens. It is a custody label, not
+independently verified operation history or authorization. `files` must contain
+1–64 distinct canonical repository-relative paths, each at most 1,024 UTF-16
+code units, in the caller's chosen order. A file may include an
+`expected_blob_sha`; when present, it must match the blob observed at that path.
+Null pins, source content, encoding, deletion and mode input are not accepted.
+No selected path may also be a selected parent directory.
+
+The reader gets the immutable Git commit, its parent SHA list and root tree,
+then walks only the parent trees needed for the selected paths. Each tree must
+be complete, identify the expected SHA and contain valid unique entry names,
+types, modes and blob references. Shared parent trees are read once. An absent
+entry is recorded only from a complete parent tree. Symlinks, directories and
+submodules are refused as source files; only regular modes `100644` and `100755`
+are recovered. Modes are native tree observations anchored to the commit, not
+caller guesses or an independently rehashed Git tree object.
+
+For each file, one full native `fetch_file` at the immutable commit must return
+the same blob and UTF-8 content. The supplied identity function measures and
+hashes the entire exact string once. Its Git blob SHA and any native byte size
+must agree with the tree; line endings and Unicode spelling remain unchanged.
+Empty text is accepted only for the real empty Git blob. A missing body is
+`RECOVERY_CONTENT_UNAVAILABLE`, not an empty source. There is no blob fallback,
+base64 decoding, snippet assembly, symlink following or second source route
+after a failed read.
+
+### Connected V8 and dependency custody
+
+The old publisher exports remain self-contained. The recovery API alone uses
+`./connected_git_blob_identity.cjs`. In CommonJS, it lazily requires that module
+only when `options.git_blob_identity` is absent. Connected V8 can supply the
+already verified function explicitly, without Node, filesystem or network
+imports:
+
+```javascript
+const identityBox = {exports: {}};
+new Function('module', 'exports', completeIdentitySource)(
+  identityBox, identityBox.exports);
+const publisherBox = {exports: {}};
+new Function('module', 'exports', completePublisherSource)(
+  publisherBox, publisherBox.exports);
+
+const recoverGitHubFiles = publisherBox.exports.recoverGitHubFiles;
+// Pass identityBox.exports.gitBlobIdentity in options.git_blob_identity.
+```
+
+Read and identify both complete module sources before using them. The existing
+identity module's accepted Git blob is
+`132074b6393afd73a921939ad39789f3a6b38ce5`; it exports
+`gitBlobIdentity(string) -> {bytes, git_blob_sha}` and rejects unpaired UTF-16
+surrogates. An injected function is a trusted caller dependency: checking that
+it is callable cannot independently prove its implementation. The reader does
+not acquire source modules, credentials or a substitute runtime.
+
+Only `fetch` and `fetch_file` native bindings are required, optionally mapped
+with `options.bindings`. No writer binding is used. Invalid inputs, limits,
+missing bindings or a missing identity function throw before provider reads.
+The options object accepts only `bindings`, `git_blob_identity` and `limits`.
+
+### Bounds, partial custody and evidence
+
+| `options.limits` field | Default | Maximum |
+|---|---:|---:|
+| `max_calls` | 128 | 512 |
+| `max_file_bytes` | 2,097,152 | 16,777,216 |
+| `max_total_bytes` | 8,388,608 | 67,108,864 |
+| `max_metadata_chars` | 2,097,152 | 8,388,608 |
+| `max_tree_entries` | 10,000 | 100,000 |
+| `max_elapsed_ms` | 60,000 | 300,000 |
+
+Each limit is a positive safe integer. Metadata characters and tree entries
+are cumulative across decoded native JSON resources. Byte limits govern
+verified recovered content, with native tree sizes checked before content
+reads when available. The elapsed limit is checked between steps and after
+reads; it cannot cancel an in-flight native call. Connector deadlines still
+apply. These are processing/admission bounds, not guarantees on provider
+response size, transient transport memory, or total wall time.
+
+Reads are serial and stop at the first read, identity, unsupported-file or
+budget failure. No retry, poll, sleep, branch update or alternate transport is
+performed. `status: 'recovered'` means every requested file has complete,
+hash-verified content. Otherwise `status: 'incomplete'` preserves all already
+recovered files, the current error, any observed absence, and explicit pending
+paths. Each successful file contains `content`, `encoding`, `bytes`, `blob_sha`,
+`mode`, `type`, `commit_sha`, `git_blob_sha_verified: true`, and `tree_path`.
+The latter identifies every observed directory tree and selected entry on the
+immutable path. `commit` includes the observed commit, immediate parent SHAs
+and root tree; parents are recorded, not recursively inspected.
+
+`reads` retains exact requests and returned tool envelopes before decoding,
+including a provider error, or the thrown error when no response exists.
+Do not print the entire result: raw envelopes can contain full source, commit
+messages and provider diagnostics, and can exceed accepted content budgets.
+`preimage_fallbacks`, if present after a transport failure at an immediate
+parent tree, records the reused path reader's unavailable diagnostic only:
+its one-line fallback is deliberately disabled and performs no provider call.
+Actual calls are enumerated in `reads` and `calls`.
+
+The result always reports `writes: 0`, `snapshot: false`,
+`publication_verification: 'not_performed'`,
+`execution_verification: 'not_performed'`, and
+`whole_operation_custody: 'not_inferred'`. Immutable path/blob agreement is
+source custody. It does not establish current branch freshness, writer outcome,
+PR metadata, validation, merge, deployment or ownership clearance. Keep prior
+write errors and acceptance records separately; source recovery does not
+authorize replaying an uncertain writer.
+
+This addition follows actual loss of older in-memory publication/source
+journals while newer keys survived. Its branches were source-inspected and
+its publication was read back; the recovery API itself was not invoked on old
+accepted packets, fixtures or fabricated provider responses. Runtime
+acceptance remains unperformed until a real subsequent recovery/delivery
+needs this API.
+
+A distinct actual subsequent atomic publisher consumer, Commons PR #31485,
+published five pinned UTF-8 files (18,407 bytes) in 20 helper calls: five
+metadata/tree fetches, five blob creates, one tree, one commit, one branch,
+one PR, one merge and five complete merge-file reads. The base did not change.
+Nine separate main/PR/path reads were outside that count. This is an observed
+different packet, not a replay, like-for-like benchmark or execution of the
+changed-base preimage branch.
