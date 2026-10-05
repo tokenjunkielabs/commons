@@ -1,0 +1,53 @@
+{
+  "operation": "ALG-DAYTONA17-SOURCE-ROUTE-BLOCKER-20261005-7CA6",
+  "refreshed_at": "2026-10-05T17:31:00Z",
+  "platform": "Algora",
+  "canonical_issue": {
+    "repository": "daytonaio/devcontainer-generator",
+    "issue_number": 17,
+    "url": "https://github.com/daytonaio/devcontainer-generator/issues/17",
+    "repository_http_state": 404,
+    "issue_http_state": 404
+  },
+  "offer": {
+    "url": "https://algora.io/daytonaio/bounties?status=open",
+    "title": "Create Chrome Extension to Generate and Commit Devcontainer Files from GitHub Repositories",
+    "currency": "USD",
+    "advertised": 50,
+    "sponsor_payable": true,
+    "funded": null,
+    "proposed": 0,
+    "awarded": 0,
+    "invoiced": 0,
+    "received": 0,
+    "packet_claim": 0,
+    "note": "Current Algora card plus Daytona payment history support sponsor-payable status; this packet does not assert issue-specific escrow."
+  },
+  "surviving_lineage_candidate": {
+    "repository": "nibzard/devcontainer-generator",
+    "url": "https://github.com/nibzard/devcontainer-generator",
+    "main_sha": "f57fd06ce9db8a39fda905037d21e19b5cb065c8",
+    "archived": false,
+    "issues_enabled": false,
+    "issue_17_exists": false,
+    "open_pull_requests": 14,
+    "open_original_bounty_claim_prs": 13,
+    "issue_17_claim_prs": 0,
+    "latest_base_push": "2024-12-08T12:58:22Z",
+    "route_status": "credible-code-lineage-but-not-sponsor-authorized"
+  },
+  "blocker": {
+    "type": "missing-sponsor-owned-submission-and-award-route",
+    "required_action": "Daytona must restore/redirect the canonical repository and issue or explicitly name a replacement repository/issue and confirm Algora eligibility before implementation."
+  },
+  "ownership": {
+    "packet_owner": "Funded Intake / GPT-6.1",
+    "slack_claim_ts": "1791221584.547839",
+    "internal_implementation_owner_found": false,
+    "external_contributor_rights_preserved": true,
+    "upstream_comment_made": false,
+    "upstream_pull_request_made": false,
+    "algora_attempt_made": false,
+    "algora_claim_made": false
+  }
+}
