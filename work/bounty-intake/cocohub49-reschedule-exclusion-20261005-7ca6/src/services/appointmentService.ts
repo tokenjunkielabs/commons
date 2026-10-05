@@ -71,14 +71,32 @@ export async function detectConflicts(
   excludeId?: string,
   includeSuggestedTime = true,
 ): Promise<ConflictDetectionResult> {
-  const conflicts: AppointmentConflict[] = [];
-
   const windowStart = new Date(proposedTime.getTime() - CONFLICT_BUFFER_MS).toISOString();
   const windowEnd = new Date(proposedTime.getTime() + CONFLICT_BUFFER_MS).toISOString();
 
   const nearby = await getAppointmentsInWindow<Appointment>(petId, windowStart, windowEnd);
   const allLocalAppointments = await getAllAppointmentsByPetId<Appointment>(petId).catch(() => []);
   const appointmentCandidates = mergeAppointmentsById(nearby, allLocalAppointments);
+  const result = detectConflictsInAppointments(
+    proposedTime,
+    medications,
+    appointmentCandidates,
+    excludeId,
+  );
+  const suggestedTime =
+    result.hasConflicts && includeSuggestedTime
+      ? await findNextAvailableSlot(petId, proposedTime, medications, excludeId)
+      : undefined;
+  return { ...result, suggestedTime };
+}
+
+function detectConflictsInAppointments(
+  proposedTime: Date,
+  medications: Medication[],
+  appointmentCandidates: Appointment[],
+  excludeId?: string,
+): ConflictDetectionResult {
+  const conflicts: AppointmentConflict[] = [];
   const proposedInterval = {
     startMs: proposedTime.getTime(),
     endMs: proposedTime.getTime() + 30 * 60_000,
@@ -118,13 +136,7 @@ export async function detectConflicts(
     }
   }
 
-  const hasConflicts = conflicts.length > 0;
-  const suggestedTime =
-    hasConflicts && includeSuggestedTime
-      ? await findNextAvailableSlot(petId, proposedTime, medications, excludeId)
-      : undefined;
-
-  return { hasConflicts, conflicts, suggestedTime };
+  return { hasConflicts: conflicts.length > 0, conflicts };
 }
 
 export function isVetSupervised(med: Medication): boolean {
@@ -146,9 +158,22 @@ export async function findNextAvailableSlot(
 ): Promise<Date | undefined> {
   const MAX_ITERATIONS = 14 * 24;
   let candidate = new Date(from.getTime() + CONFLICT_BUFFER_MS);
+  let appointmentCandidates: Appointment[] | undefined;
 
   for (let i = 0; i < MAX_ITERATIONS; i++) {
-    const result = await detectConflicts(petId, candidate, medications, excludeId, false);
+    // Keep the detector's invalid/out-of-range time rejection before any database read.
+    new Date(candidate.getTime() - CONFLICT_BUFFER_MS).toISOString();
+    new Date(candidate.getTime() + CONFLICT_BUFFER_MS).toISOString();
+    if (i === 0) {
+      // One local snapshot belongs only to this search; later calls read again.
+      const appointments = await getAllAppointmentsByPetId<Appointment>(petId).catch(
+        () => undefined,
+      );
+      if (appointments) appointmentCandidates = mergeAppointmentsById([], appointments);
+    }
+    const result = appointmentCandidates
+      ? detectConflictsInAppointments(candidate, medications, appointmentCandidates, excludeId)
+      : await detectConflicts(petId, candidate, medications, excludeId, false);
     if (!result.hasConflicts) return candidate;
     candidate = new Date(candidate.getTime() + CONFLICT_BUFFER_MS);
   }
