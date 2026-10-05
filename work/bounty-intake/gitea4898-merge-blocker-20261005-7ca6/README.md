@@ -1,4 +1,4 @@
-# Gitea #4898 / PR #36862 current-head blocker packet
+# Gitea #4898 / PR #36862 handoff and related carriers
 
 Captured: 2026-10-05T14:35Z
 
@@ -8,9 +8,10 @@ Captured: 2026-10-05T14:35Z
 - Advertised amount: **$300**
 - Funded/awarded/invoiced/received by this operation: **$0 / $0 / $0 / $0**
 - Canonical issue: https://github.com/go-gitea/gitea/issues/4898
-- Existing implementation: https://github.com/go-gitea/gitea/pull/36862
-- Original implementation owner: **yuvrajangadsingh**
-- Payment/submission rights remain with the original contributor. This packet creates no competing claim, attempt, source branch, or upstream PR.
+- Retained PR #36862 implementation: https://github.com/go-gitea/gitea/pull/36862
+- PR #36862 author: **yuvrajangadsingh**
+- Separate PR #39280 implementation: https://github.com/go-gitea/gitea/pull/39280, by **realuca660-pixel** (see below).
+- Each contribution retains its own authorship and payment/submission rights. This packet selects no winning carrier and creates no competing claim, attempt, source branch, or upstream PR.
 
 ## Fresh pinned state
 
@@ -25,7 +26,17 @@ Captured: 2026-10-05T14:35Z
 | Last PR source push | 2026-08-21 |
 | Latest PR conversation | 2026-08-25 |
 
-The first actionable blocker is therefore not another feature implementation. It is to make the existing contributor's carrier current and reviewable.
+For PR #36862 specifically, the first actionable blocker is to make that contributor's carrier current and reviewable. This is a carrier-specific handoff, not a finding that #36862 is the only implementation or that maintainers selected it over another contribution.
+
+## Separate existing carrier: PR #39280
+
+A later warm source handoff identified [PR #39280](https://github.com/go-gitea/gitea/pull/39280), `feat: inline comments on commit diff (#4898)`, by `realuca660-pixel`. The 2026-10-05 read found it OPEN, non-draft and unmerged at `e2efbaf09c93257f18ef74f154fffea05a733595`, branch `feat/commit-inline-comments-v2`, with eight commits and 25 changed files. Its observed base is `92f2f6161b4c4e5c91c38a3615ce8e5711f9457b`; it is also `mergeable=false`, `mergeable_state=dirty`, with labels `type/feature` and `lgtm/need 2`.
+
+Its production patch supplies a different storage approach: `CommentTypeCommitComment` with a junction table registered by migration 353, rather than the retained #36862 migration 350. Do not combine or apply these two carriers' migration instructions mechanically. The PR body's claim to supersede competing work is the author's statement, not a maintainer decision, merge or award. This bounded read found no issue comments and one automated COMMENTED review, not two approvals.
+
+The two automated inline comments ([renamed-file old-side coordinates](https://github.com/go-gitea/gitea/pull/39280#discussion_r3963734736) and [trash-icon click targeting](https://github.com/go-gitea/gitea/pull/39280#discussion_r3963734745)) were posted against `93de4c1518`, before the current head. Current service/template patches and the deletion handler were inspected to ground the handoff; no browser behavior, complete rename integration or full-carrier acceptance was verified. This correction does not create a duplicate production patch or transfer either author's work.
+
+The existing contributor-side #2 template follow-up below is based on #36862, not #39280. Reconcile any proposed continuation against the intended carrier's actual source and preserve all contributors' credit.
 
 ## Changed-file surface on the retained PR
 
@@ -73,7 +84,7 @@ Historical review comments are distinguished from the implementation present at 
 
 Earlier review discussion also raised permission parity, poster batch-loading, notifications/webhooks, and deletion-race semantics. Some of that was subsequently changed in the 31-commit carrier; re-check the current head before treating an old comment as still open.
 
-## Exact next action for the retained carrier owner
+## Exact next action for the retained PR #36862 carrier owner
 
 1. In the original contributor fork, fetch current `go-gitea/gitea:main`.
 2. Rebase or merge that exact main into `feat/commit-inline-comments`; record the actual conflict paths.
@@ -87,4 +98,4 @@ Earlier review discussion also raised permission parity, poster batch-loading, n
 
 ## Boundaries
 
-No test pass is claimed here. The source reconciliation inspected the retained migration implementation/registration and all nine production patches of the existing template follow-up. It did not execute Gitea, replay the contributor's checks, mutate either contributor fork, post upstream, or create a competing implementation carrier. The packet is a durable current-state handoff for the original owner or an explicitly authorized collaborator.
+No test pass is claimed here. The source reconciliation inspected the retained migration implementation/registration and all nine production patches of the existing template follow-up. It did not execute Gitea, replay the contributor's checks, mutate either contributor fork, post upstream, or create a competing implementation carrier. The packet is a durable, carrier-specific handoff. It does not select between #36862 and #39280, treat author claims as maintainer acceptance, or confer another contributor's submission/payment rights.
