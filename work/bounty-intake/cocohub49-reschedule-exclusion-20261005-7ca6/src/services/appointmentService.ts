@@ -4,6 +4,8 @@ import apiClient from './apiClient';
 import {
   getAllLocalAppointments,
   getAllAppointmentsByPetId,
+  getAppointmentSnapshotByPetId,
+  isReadableAppointmentForConflicts,
   getAppointmentsInWindow,
   upsertAppointment,
   deleteAppointmentById,
@@ -41,6 +43,9 @@ export interface AppointmentConflict {
 export interface ConflictDetectionResult {
   hasConflicts: boolean;
   conflicts: AppointmentConflict[];
+  /** Whether the local appointment reads needed for this result completed without skipped rows. */
+  appointmentReadComplete: boolean;
+  checkWarning?: string;
   suggestedTime?: Date;
 }
 
@@ -81,9 +86,14 @@ export async function detectConflicts(
   const windowStart = new Date(proposedTime.getTime() - lookupBufferMs).toISOString();
   const windowEnd = new Date(proposedTime.getTime() + lookupBufferMs).toISOString();
 
-  const nearby = await getAppointmentsInWindow<Appointment>(petId, windowStart, windowEnd);
-  const allLocalAppointments = await getAllAppointmentsByPetId<Appointment>(petId).catch(() => []);
-  const appointmentCandidates = mergeAppointmentsById(nearby, allLocalAppointments);
+  const nearby = await getAppointmentsInWindow<Appointment>(petId, windowStart, windowEnd).catch(
+    () => undefined,
+  );
+  const snapshot = await getAppointmentSnapshotByPetId<Appointment>(petId).catch(() => undefined);
+  const appointmentCandidates = mergeAppointmentsById(
+    nearby?.filter(isReadableAppointmentForConflicts) ?? [],
+    snapshot?.appointments ?? [],
+  );
   const result = detectConflictsInAppointments(
     proposedTime,
     medications,
@@ -92,18 +102,38 @@ export async function detectConflicts(
     appointmentBufferMs,
     proposedDurationMinutes,
   );
-  const suggestedTime =
-    result.hasConflicts && includeSuggestedTime
-      ? await findNextAvailableSlot(
-          petId,
-          proposedTime,
-          medications,
-          excludeId,
-          appointmentBufferMinutes,
-          proposedDurationMinutes,
-        )
-      : undefined;
-  return { ...result, suggestedTime };
+  if (!snapshot || snapshot.unreadableRows > 0) {
+    return {
+      ...result,
+      appointmentReadComplete: false,
+      checkWarning:
+        'Some saved appointments could not be read. Conflicts may be missing, and no suggested time is available.',
+      suggestedTime: undefined,
+    };
+  }
+
+  let suggestedTime: Date | undefined;
+  if (result.hasConflicts && includeSuggestedTime) {
+    try {
+      suggestedTime = await findNextAvailableSlot(
+        petId,
+        proposedTime,
+        medications,
+        excludeId,
+        appointmentBufferMinutes,
+        proposedDurationMinutes,
+      );
+    } catch {
+      return {
+        ...result,
+        appointmentReadComplete: false,
+        checkWarning:
+          'The suggested-time search could not finish. Known conflicts are shown, but no alternative time has been confirmed.',
+        suggestedTime: undefined,
+      };
+    }
+  }
+  return { ...result, appointmentReadComplete: true, suggestedTime };
 }
 
 function detectConflictsInAppointments(
@@ -113,7 +143,7 @@ function detectConflictsInAppointments(
   excludeId: string | undefined,
   appointmentBufferMs: number,
   proposedDurationMinutes: number,
-): ConflictDetectionResult {
+): Pick<ConflictDetectionResult, 'hasConflicts' | 'conflicts'> {
   const conflicts: AppointmentConflict[] = [];
   const proposedInterval = {
     startMs: proposedTime.getTime(),
@@ -186,31 +216,24 @@ export async function findNextAvailableSlot(
     // Keep the detector's invalid/out-of-range time rejection before any database read.
     new Date(candidate.getTime() - lookupBufferMs).toISOString();
     new Date(candidate.getTime() + lookupBufferMs).toISOString();
-    if (i === 0) {
-      // One local snapshot belongs only to this search; later calls read again.
-      const appointments = await getAllAppointmentsByPetId<Appointment>(petId).catch(
+    if (!appointmentCandidates) {
+      // One complete local snapshot belongs only to this search; later calls read again.
+      const snapshot = await getAppointmentSnapshotByPetId<Appointment>(petId).catch(
         () => undefined,
       );
-      if (appointments) appointmentCandidates = mergeAppointmentsById([], appointments);
+      if (!snapshot || snapshot.unreadableRows > 0) {
+        throw new Error('The local appointment check is incomplete; no suggested time is available.');
+      }
+      appointmentCandidates = mergeAppointmentsById([], snapshot.appointments);
     }
-    const result = appointmentCandidates
-      ? detectConflictsInAppointments(
-          candidate,
-          medications,
-          appointmentCandidates,
-          excludeId,
-          appointmentBufferMs,
-          proposedDurationMinutes,
-        )
-      : await detectConflicts(
-          petId,
-          candidate,
-          medications,
-          excludeId,
-          false,
-          appointmentBufferMinutes,
-          proposedDurationMinutes,
-        );
+    const result = detectConflictsInAppointments(
+      candidate,
+      medications,
+      appointmentCandidates,
+      excludeId,
+      appointmentBufferMs,
+      proposedDurationMinutes,
+    );
     if (!result.hasConflicts) return candidate;
     candidate = new Date(candidate.getTime() + CONFLICT_BUFFER_MS);
   }
