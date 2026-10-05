@@ -1,6 +1,6 @@
 # Cocohub appointment conflict checks
 
-This attributed continuation extends es3298's PR122 in place. Its cumulative patch preserves the rescheduled appointment's excluded ID, reuses one complete local snapshot for a suggested-slot search, supplies the requested configurable 30-minute appointment buffer, carries the actual proposed duration, and makes incomplete local reads visible before saving.
+This attributed continuation extends es3298's PR122 in place. Its cumulative patch preserves the rescheduled appointment's excluded ID, reuses one complete local snapshot for a suggested-slot search, supplies the requested configurable 30-minute appointment buffer, carries the actual proposed duration, makes incomplete local reads visible before saving, and keeps warning-modal reschedules on the established reschedule lifecycle.
 
 The adjacent complete modules and `change.patch` are source artifacts for integration into the pinned contribution. No upstream branch was changed. This is not whole-issue acceptance or a bounty claim.
 
@@ -53,6 +53,14 @@ Existing positional callers remain valid. The current rescheduling caller forwar
 
 The computed suggestion already has a consumer: the screen displays it and **Use Suggested Time** explicitly saves the changed date/time while preserving other pending appointment fields. That action is offered only for a complete result with a suggestion. No automatic acceptance or duplicate suggestion control was added.
 
+## Rescheduling after a warning
+
+The preimage's warning-modal actions always called the generic appointment saver. A conflict-free reschedule instead used `doReschedule`, which cancels the old reminders and calendar event, calls the dedicated reschedule service, schedules the replacement reminders, syncs the calendar, and updates the detail view. The provisional warning record also retained the old `time` and changed the status to `PENDING`.
+
+The modal now records whether its pending operation is a booking or reschedule. **Proceed Anyway** and **Use Suggested Time** dispatch accordingly. Booking keeps its existing saver. A reschedule passes the actual pending record and chosen date to the existing reschedule path, so the selected appointment ID and duration remain explicit even if detail state changes. The provisional record carries the proposed time and `RESCHEDULED` status. Completing or dismissing the modal clears its pending action.
+
+`doReschedule` forwards the existing duration (or the model's 30-minute default) to the service's already-supported fourth argument. It retains the existing reminder/calendar cleanup and recreation, service fallback, date/time conversion and detail refresh. For a warning choice, the returned rescheduled record goes through the existing note-aware `saveAppointment` once to retain the user's explanation; the outer fallback no longer appends that note itself. This can add an update request after the reschedule request. It is not an atomic operation or a server-side reservation, and it does not change the existing best-effort reminder/calendar error handling. No reschedule endpoint, request field, permission or recurrence rule is invented.
+
 ## Source and attribution
 
 - Original issue: https://github.com/cocohub-mobileapp/cocohub-main/issues/49
@@ -73,7 +81,7 @@ An older coordination handoff named ZZ-Sol-Peregrine-913's intended tokenjunkiel
 
 ## Integration and remaining scope
 
-Apply `change.patch` once to the pinned PR122 source. The adjacent complete service, caller and local database modules are the resulting source. This cumulative patch composes the exclusion correction from Commons31652, snapshot reuse from31660, configurable buffer from31664, duration propagation from31669 and the incomplete-read warning flow. With newer source, compose these hunks instead of replacing entire modules.
+Apply `change.patch` once to the pinned PR122 source. The adjacent complete service, caller and local database modules are the resulting source. This cumulative patch composes the exclusion correction from Commons31652, snapshot reuse from31660, configurable buffer from31664, duration propagation from31669, the incomplete-read warning flow from Commons31683 and the warning-modal reschedule routing. With newer source, compose these hunks instead of replacing entire modules.
 
 The inspected appointment model has no recurrence frequency, series identifier, exceptions or rule contract. The current user/settings schema likewise has no persistent appointment-buffer preference. Recurrence and any persistent setting require a separate concrete model; this continuation invents neither.
 
