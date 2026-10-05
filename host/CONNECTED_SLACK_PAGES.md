@@ -308,6 +308,24 @@ For a direct native read, retain its original response and pass its actual argum
 | `max_header_chars` | 800 | 0–65536 | Header prefix per entry; accepted only with `header_only: true`. |
 | `max_total_header_chars` | 6400 | 0–262144 | Combined header prefix budget; accepted only with `header_only: true`. |
 
+When moving from header-only intake to explicitly selected bodies, construct the
+body projection with its body budgets and omit both `max_header_chars` and
+`max_total_header_chars`. They are known options for `header_only: true`, not
+body-projection options. Leaving either in body mode still throws `TypeError`
+with the existing `unknown projection option: <key>` prefix, followed by a
+mode-specific explanation. It does not discard the budgets, enable header mode
+or return body text. Other unknown options and all existing value validation
+retain their prior behavior.
+
+An actual caller passed both header budgets into its first body projection
+after successful header-only intake. The old diagnostic was
+`unknown projection option: max_header_chars`. That invocation made no provider
+call; the caller preserved the error, removed only the two header budgets and
+projected the same retained collection. This diagnostic improvement uses only
+that safe request/error metadata. No message bodies were transferred, no native
+read or old projection was replayed, and no synthetic input was exercised.
+The changed diagnostic branch is source-inspected and remains unexecuted here.
+
 Character counts and ranges use JavaScript UTF-16 code units. A prefix stops one code unit early when necessary to preserve a surrogate pair. For a native JSON text block, the input budget charges the encoded block; for a structured payload, it charges its two decoded strings. Multiple supplied representations each consume that budget. The input was already captured before projection; this limit does not bound a provider's response allocation. Returned metadata is additional to the content budget.
 
 Each entry exposes:

@@ -384,7 +384,10 @@ function projectSlackMessages(response, request, options = {}) {
   for (const key of Object.keys(options)) {
     if (key !== 'source_indices' && key !== 'header_only' &&
         !Object.prototype.hasOwnProperty.call(defaults, key)) {
-      throw new TypeError('unknown projection option: ' + key);
+      const modeHint = !headerOnly && (key === 'max_header_chars' || key === 'max_total_header_chars')
+        ? '; header budgets require header_only: true; omit both header-budget options for body projection'
+        : '';
+      throw new TypeError('unknown projection option: ' + key + modeHint);
     }
   }
   const limits = {...defaults, ...options};
