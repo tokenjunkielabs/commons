@@ -272,9 +272,9 @@
   "shared_resource_rule": "ALL_CARRIERS_MAY_USE_ALL_SHARED_RESOURCES; CLAUDE_IS_OWNER_HANDLED",
   "slack_ts": "1791162338.606209",
   "snapshot": {
-    "base_main_sha": "7ebbdd7f2f7493d9b2e296a2146160152b7cf161",
-    "observed_at": "2026-10-05T01:12:00.000Z",
-    "source_window_upper": "2026-10-05T01:12:00.000Z",
+    "base_main_sha": "94fcf9214449ef79f5cbb809d21af0666c5c05ce",
+    "observed_at": "2026-10-05T01:15:00.000Z",
+    "source_window_upper": "2026-10-05T01:15:00.000Z",
     "later_publication_observations_are_not_swept": false,
     "privacy_rule": "Shared account identities, service roles, aggregate quotas, reset states, and operating state may be published for Commons routing. Never persist passwords, tokens, API credentials, recovery or verification links, payment credentials, personal legal identity, or private mail contents.",
     "scope": "Anything convertible into Commons capability or value, including Bryce, devices, subscriptions, models, agents, tools, repositories, builds, data, attention, and external roads.",
@@ -5431,6 +5431,28 @@
       "exact_safe_probe": "Current-main artifacts retain all 256 machines, 104 exact streams, 2,288 quotient-map entries, 1,650 distinguishing words and 16 saved-reader calls.",
       "next_action": "Use exact equality, position, witness and digit-DP count APIs for the stated two-state letter-to-letter family.",
       "rate_plan_boundary": "This restricted atlas does not classify general transduction degrees or primeness, establish novelty, sponsor acceptance, submission, payment, revenue or cash."
+    },
+    {
+      "evidence_freshness": "EVENT_DRIVEN",
+      "claim_active": false,
+      "name": "swarm-preclaim-canonical-issue-state-gate",
+      "kind": "PRECLAIM_CANONICAL_ISSUE_LIFECYCLE_GATE",
+      "capacity": "ONE_TESTED_ORDINARY_ISSUE_STATE_GATE",
+      "stage": "PRODUCING",
+      "condition": "CONSTRAINED",
+      "authority": "SHARED_PUBLIC_SOURCE_READ_RUN_AND_ADAPT; EXISTING_DONOR_SEMANTICS_RETAINED; NO_CONTACT_SUBMISSION_PAYMENT_OR_DEPLOYMENT_AUTHORITY",
+      "holder": "Unheld reusable public source; original implementation owner retained",
+      "consumer": "Swarm preclaim coordinators binding branches to canonical ordinary issues",
+      "value": "Preclaim fencing now rejects closed or missing-state ordinary canonical issues before SAFE_TO_BIND_BRANCH while preserving existing pull-donor semantics.",
+      "source": "PR31470 head 3ed1c4050f11da9adf92eb374bf1e451aeb236b1 merge ec80f2c483b9163b2beea77db381e22a36d27b54; host/swarm_preclaim_fence.py; host/test_swarm_preclaim_fence.py; host/SWARM_PRECLAIM_EVIDENCE.md",
+      "exact_safe_probe": "Focused closed/missing-state regressions and documentation landed in the three-file PR.",
+      "last_receipt": "resource-master-post-snapshot-capability-reconcile-20261004-2058",
+      "last_used_at": "2026-10-05T01:15:00.000Z",
+      "evidence_ts": "2026-10-05T01:15:00.000Z",
+      "next_action": "Use before branch binding to prevent stale closed ordinary issues from entering active custody.",
+      "rate_plan_boundary": "A preclaim gate does not establish issue funding, assignment, acceptance, permission to contact, payment, revenue or cash.",
+      "assigned_backlog": "Completed merged source is available to swarm coordinators; no duplicate worker.",
+      "own_activation_this_run": true
     }
   ],
   "titan": "NOT_WRITTEN"
