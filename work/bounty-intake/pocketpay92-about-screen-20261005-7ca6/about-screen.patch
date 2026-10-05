@@ -1,0 +1,191 @@
+diff --git a/app/(tabs)/settings.tsx b/app/(tabs)/settings.tsx
+index 0295e4c93d564ff44adfb7391fe0bc02c09eaf09..84b721536e5d2251e74c88249da2904cf732e4b8 100644
+--- a/app/(tabs)/settings.tsx
++++ b/app/(tabs)/settings.tsx
+@@ -117,6 +117,14 @@
+               style={styles.menuButton}
+             />
+             <Button
++              title="About PocketPay"
++              variant="outline"
++              onPress={() => router.push('/about')}
++              accessibilityRole="button"
++              accessibilityHint="Shows project, version and configured network information."
++              style={styles.menuButton}
++            />
++            <Button
+               title={showSecret ? "Hide Export Menu" : "Export Secret Key"}
+               variant="outline"
+               onPress={handleExportKey}
+@@ -156,8 +164,8 @@
+         </View>
+ 
+         <View style={styles.footer}>
+-          <Text style={styles.footerText}>Stellar PocketPay v1.0.0</Text>
+-          <Text style={styles.footerText}>Network: Testnet</Text>
++          <Text style={styles.footerText}>Stellar PocketPay</Text>
++          <Text style={styles.footerText}>Testnet demo</Text>
+         </View>
+       </ScrollView>
+       <WalletResetConfirmModal
+diff --git a/app/about.tsx b/app/about.tsx
+new file mode 100644
+index 0000000000000000000000000000000000000000..db734a445635cd499ad15fe295f567398faa5b0c
+--- /dev/null
++++ b/app/about.tsx
+@@ -0,0 +1,155 @@
++import React, { useMemo } from 'react';
++import { Alert, Linking, ScrollView, StyleSheet, Text, View } from 'react-native';
++import Constants from 'expo-constants';
++import { useRouter } from 'expo-router';
++import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
++import { Button } from '../src/components/Button';
++import { CURRENT_STELLAR_NETWORK } from '../src/constants/network';
++import { RADIUS, SIZES, ThemeColors } from '../src/constants/theme';
++import { useTheme } from '../src/hooks/useTheme';
++
++const PROJECT_LINKS = [
++  {
++    title: 'PocketPay mobile project',
++    url: 'https://github.com/Stellar-PocketPay/pocketpay-mobile',
++  },
++  {
++    title: 'PocketPay SDK',
++    url: 'https://github.com/Axionvera/pocketpay-sdk',
++  },
++  {
++    title: 'PocketPay contracts',
++    url: 'https://github.com/Axionvera/pocketpay-contracts',
++  },
++];
++
++export default function AboutScreen() {
++  const router = useRouter();
++  const { colors } = useTheme();
++  const styles = useMemo(() => createStyles(colors), [colors]);
++  const appVersion = Constants.expoConfig?.version?.trim() || 'Not available';
++  const configuredNetwork = CURRENT_STELLAR_NETWORK.trim() || 'Testnet';
++
++  const handleBack = () => {
++    if (router.canGoBack()) {
++      router.back();
++    } else {
++      router.replace('/(tabs)/settings');
++    }
++  };
++
++  const openProjectLink = async (url: string) => {
++    try {
++      await Linking.openURL(url);
++    } catch {
++      Alert.alert('Unable to Open Link', 'Please try opening this project link again later.');
++    }
++  };
++
++  return (
++    <SafeAreaProvider style={styles.container}>
++      <SafeAreaView style={styles.container}>
++        <ScrollView contentContainerStyle={styles.content}>
++          <Button
++            title="Back"
++            variant="outline"
++            onPress={handleBack}
++            accessibilityRole="button"
++            accessibilityHint="Returns to the previous screen, or to Settings if there is no previous screen."
++            style={styles.backButton}
++          />
++
++          <Text accessibilityRole="header" style={styles.title}>About PocketPay</Text>
++          <Text style={styles.description}>
++            Stellar PocketPay is an Expo wallet project for experimenting with Stellar Testnet.
++          </Text>
++
++          <View style={styles.card}>
++            <Text accessibilityRole="header" style={styles.sectionTitle}>App information</Text>
++            <Text style={styles.label}>App version</Text>
++            <Text selectable style={styles.value}>{appVersion}</Text>
++            <Text style={styles.label}>Configured network</Text>
++            <Text selectable style={styles.value}>{configuredNetwork}</Text>
++          </View>
++
++          <View style={styles.card}>
++            <Text accessibilityRole="header" style={styles.sectionTitle}>Testnet development</Text>
++            <Text style={styles.description}>
++              This project is intended for development and experimentation on Stellar Testnet.
++              It is not production-ready and should not be used to manage real assets.
++              Testnet XLM has no monetary value.
++            </Text>
++          </View>
++
++          <View style={styles.card}>
++            <Text accessibilityRole="header" style={styles.sectionTitle}>Related projects</Text>
++            {PROJECT_LINKS.map((link) => (
++              <Button
++                key={link.url}
++                title={link.title}
++                variant="outline"
++                onPress={() => { void openProjectLink(link.url); }}
++                accessibilityRole="link"
++                accessibilityHint="Opens the project repository in your browser."
++                style={styles.projectLink}
++              />
++            ))}
++          </View>
++        </ScrollView>
++      </SafeAreaView>
++    </SafeAreaProvider>
++  );
++}
++
++const createStyles = (colors: ThemeColors) => StyleSheet.create({
++  container: {
++    flex: 1,
++    backgroundColor: colors.background,
++  },
++  content: {
++    padding: SIZES.lg,
++    paddingBottom: SIZES.xl,
++  },
++  backButton: {
++    alignSelf: 'flex-start',
++    marginBottom: SIZES.lg,
++  },
++  title: {
++    color: colors.textPrimary,
++    fontSize: 28,
++    fontWeight: '700',
++    marginBottom: SIZES.sm,
++  },
++  description: {
++    color: colors.textSecondary,
++    fontSize: 16,
++    lineHeight: 24,
++  },
++  card: {
++    backgroundColor: colors.surface,
++    borderRadius: RADIUS.lg,
++    borderWidth: 1,
++    borderColor: colors.border,
++    padding: SIZES.lg,
++    marginTop: SIZES.lg,
++  },
++  sectionTitle: {
++    color: colors.textPrimary,
++    fontSize: 18,
++    fontWeight: '600',
++    marginBottom: SIZES.sm,
++  },
++  label: {
++    color: colors.textSecondary,
++    fontSize: 14,
++    marginTop: SIZES.sm,
++  },
++  value: {
++    color: colors.textPrimary,
++    fontSize: 16,
++    marginTop: 4,
++  },
++  projectLink: {
++    marginTop: SIZES.sm,
++  },
++});
