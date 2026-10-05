@@ -1,0 +1,12 @@
+diff --git a/src/index.ts b/src/index.ts
+--- a/src/index.ts
++++ b/src/index.ts
+@@ -740,6 +740,8 @@
+       format: 'es',
+     })
+     fs.renameSync(tempFile, outputFile)
++    // Preserve completed entry bundles during subsequent cleanup passes.
++    existingDeclarationFiles.add(outputFile)
+     for (const file of declarationFiles) {
+       fs.unlinkSync(file)
+     }
