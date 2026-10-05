@@ -27,27 +27,109 @@ diff --git a/src/temporal-resolve/TemporalResolve.js b/src/temporal-resolve/Temp
  	}
  
  	initNewSize( width, height ) {
-@@ -96,14 +100,18 @@
- 		this.ptRenderer.stableTiles = false;
+@@ -93,59 +97,68 @@
+ 		// save original values
+ 		const origRenderTarget = renderer.getRenderTarget();
  
- 		const { camera } = this.ptRenderer;
+-		this.ptRenderer.stableTiles = false;
++		try {
+ 
+-		const { camera } = this.ptRenderer;
 -		if ( camera !== this.activeCamera ) {
-+		const cameraChanged = camera !== this.activeCamera;
-+		if ( cameraChanged ) {
++			this.ptRenderer.stableTiles = false;
  
-+			const weightTransform = this.weightTransform;
- 			this.initNewCamera( camera );
-+			this.weightTransform = weightTransform;
+-			this.initNewCamera( camera );
++			const { camera } = this.ptRenderer;
++			const cameraChanged = camera !== this.activeCamera;
++			if ( cameraChanged ) {
  
- 		}
+-		}
++				const weightTransform = this.weightTransform;
++				this.initNewCamera( camera );
++				this.weightTransform = weightTransform;
  
- 		const { width, height } = this.ptRenderer.target;
+-		const { width, height } = this.ptRenderer.target;
 -		if ( width !== this.lastSize.width || height !== this.lastSize.height ) {
-+		// A replacement pass needs sizing even when the render target is unchanged.
-+		if ( cameraChanged || width !== this.lastSize.width || height !== this.lastSize.height ) {
++			}
  
- 			this.initNewSize( width, height );
+-			this.initNewSize( width, height );
++			const { width, height } = this.ptRenderer.target;
++			// A replacement pass needs sizing even when the render target is unchanged.
++			if ( cameraChanged || width !== this.lastSize.width || height !== this.lastSize.height ) {
  
+-		}
++				this.initNewSize( width, height );
+ 
+-		// ensure that the scene's objects' matrices are updated for the VelocityPass
+-		this.scene.updateMatrixWorld();
++			}
+ 
+-		this.scene.traverse( ( c ) => {
++			// ensure that the scene's objects' matrices are updated for the VelocityPass
++			this.scene.updateMatrixWorld();
+ 
+-			// update the modelViewMatrix which is used by the VelocityPass
+-			c.modelViewMatrix.multiplyMatrices(
+-				this.activeCamera.matrixWorldInverse,
+-				c.matrixWorld
+-			);
++			this.scene.traverse( ( c ) => {
+ 
+-		} );
++				// update the modelViewMatrix which is used by the VelocityPass
++				c.modelViewMatrix.multiplyMatrices(
++					this.activeCamera.matrixWorldInverse,
++					c.matrixWorld
++				);
+ 
+-		// keep uniforms updated
+-		this.temporalResolvePass.fullscreenMaterial.samples =
+-			this.ptRenderer.samples;
++			} );
+ 
+-		this.temporalResolvePass.fullscreenMaterial.temporalResolveMix =
+-			this.temporalResolveMix;
++			// keep uniforms updated
++			this.temporalResolvePass.fullscreenMaterial.samples =
++				this.ptRenderer.samples;
+ 
+-		this.temporalResolvePass.fullscreenMaterial.clampRadius =
+-			parseInt( this.clampRadius );
++			this.temporalResolvePass.fullscreenMaterial.temporalResolveMix =
++				this.temporalResolveMix;
+ 
+-		this.temporalResolvePass.fullscreenMaterial.newSamplesSmoothing =
+-			this.newSamplesSmoothing;
++			this.temporalResolvePass.fullscreenMaterial.clampRadius =
++				parseInt( this.clampRadius );
+ 
+-		this.temporalResolvePass.fullscreenMaterial.newSamplesCorrection =
+-			this.newSamplesCorrection;
++			this.temporalResolvePass.fullscreenMaterial.newSamplesSmoothing =
++				this.newSamplesSmoothing;
+ 
+-		this.temporalResolvePass.render( renderer );
++			this.temporalResolvePass.fullscreenMaterial.newSamplesCorrection =
++				this.newSamplesCorrection;
+ 
+-		renderer.setRenderTarget( this.renderTarget );
+-		this.fsQuad.render( renderer );
++			this.temporalResolvePass.render( renderer );
+ 
+-		// restore original values
+-		renderer.setRenderTarget( origRenderTarget );
++			renderer.setRenderTarget( this.renderTarget );
++			this.fsQuad.render( renderer );
+ 
++		} finally {
++
++			renderer.setRenderTarget( origRenderTarget );
++
++		}
++
+ 	}
+ 
+ }
 diff --git a/src/temporal-resolve/passes/TemporalResolvePass.js b/src/temporal-resolve/passes/TemporalResolvePass.js
 --- a/src/temporal-resolve/passes/TemporalResolvePass.js
 +++ b/src/temporal-resolve/passes/TemporalResolvePass.js
@@ -60,6 +142,40 @@ diff --git a/src/temporal-resolve/passes/TemporalResolvePass.js b/src/temporal-r
  		this.accumulatedSamplesTexture.dispose();
  		this.lastDepthTexture.dispose();
  		this.fullscreenMaterial.dispose();
+@@ -100,19 +102,24 @@
+ 
+ 	render( renderer ) {
+ 
+-		// render depth
+-		this.scene.overrideMaterial = meshDepthMaterial;
+-		renderer.setRenderTarget( this.depthRenderTarget );
+-		renderer.clear();
++		// Restore the caller's scene state even if depth rendering fails.
++		const { background, overrideMaterial } = this.scene;
++		try {
+ 
+-		const { background } = this.scene;
+-		this.scene.background = blackColor;
++			this.scene.overrideMaterial = meshDepthMaterial;
++			renderer.setRenderTarget( this.depthRenderTarget );
++			renderer.clear();
++			this.scene.background = blackColor;
+ 
+-		renderer.render( this.scene, this.camera );
++			renderer.render( this.scene, this.camera );
+ 
+-		this.scene.background = background;
+-		this.scene.overrideMaterial = null;
++		} finally {
+ 
++			this.scene.background = background;
++			this.scene.overrideMaterial = overrideMaterial;
++
++		}
++
+ 		// render velocity
+ 		this.velocityPass.render( renderer );
+ 
 diff --git a/src/temporal-resolve/passes/VelocityPass.js b/src/temporal-resolve/passes/VelocityPass.js
 --- a/src/temporal-resolve/passes/VelocityPass.js
 +++ b/src/temporal-resolve/passes/VelocityPass.js
@@ -78,15 +194,32 @@ diff --git a/src/temporal-resolve/passes/VelocityPass.js b/src/temporal-resolve/
  export class VelocityPass {
  
  	constructor( scene, camera ) {
-@@ -22,6 +30,7 @@
+@@ -22,6 +30,8 @@
  		this.camera = camera;
  
  		this.cachedMaterials = new WeakMap();
++		this.materialReplacements = new Map();
 +		this.velocityMaterials = new Set();
  
  		this.renderTarget = new WebGLRenderTarget(
  			typeof window !== 'undefined' ? window.innerWidth : 2000,
-@@ -48,12 +57,21 @@
+@@ -37,23 +47,37 @@
+ 
+ 	setVelocityMaterialInScene() {
+ 
++		const replacements = this.materialReplacements = new Map();
+ 		this.scene.traverse( c => {
+ 
+-			if ( c.material ) {
++			if ( c.material && ! replacements.has( c ) ) {
+ 
+ 				const originalMaterial = c.material;
+ 
+ 				// eslint-disable-next-line prefer-const
+ 				let [ cachedOriginalMaterial, velocityMaterial ] = this.cachedMaterials.get( c ) || [];
++				// Record before any swap so partial setup can restore this exact object.
++				const replacement = { originalMaterial, velocityMaterial };
++				replacements.set( c, replacement );
  
  				if ( originalMaterial !== cachedOriginalMaterial ) {
  
@@ -96,6 +229,7 @@ diff --git a/src/temporal-resolve/passes/VelocityPass.js b/src/temporal-resolve/
  						vertexShader: VelocityShader.vertexShader,
  						fragmentShader: VelocityShader.fragmentShader
  					} );
++					replacement.velocityMaterial = velocityMaterial;
 +					this.velocityMaterials.add( velocityMaterial );
  
 +					if ( previousVelocityMaterial ) {
@@ -108,17 +242,121 @@ diff --git a/src/temporal-resolve/passes/VelocityPass.js b/src/temporal-resolve/
  					c.material = velocityMaterial;
  
  					if ( c.skeleton && c.skeleton.boneTexture ) this.saveBoneTexture( c );
-@@ -134,6 +152,13 @@
+@@ -86,13 +110,13 @@
+ 
+ 	}
+ 
+-	saveBoneTexture( object ) {
++	saveBoneTexture( object, material = object.material ) {
+ 
+-		let boneTexture = object.material.uniforms.prevBoneTexture.value;
++		let boneTexture = material.uniforms.prevBoneTexture.value;
+ 
+ 		if ( boneTexture && boneTexture.image.width === object.skeleton.boneTexture.width ) {
+ 
+-			boneTexture = object.material.uniforms.prevBoneTexture.value;
++			boneTexture = material.uniforms.prevBoneTexture.value;
+ 			boneTexture.image.data.set( object.skeleton.boneTexture.image.data );
+ 
+ 		} else {
+@@ -103,7 +127,7 @@
+ 			const size = object.skeleton.boneTexture.image.width;
+ 
+ 			boneTexture = new DataTexture( boneMatrices, size, size, RGBAFormat, FloatType );
+-			object.material.uniforms.prevBoneTexture.value = boneTexture;
++			material.uniforms.prevBoneTexture.value = boneTexture;
+ 
+ 			boneTexture.needsUpdate = true;
+ 
+@@ -111,30 +135,46 @@
+ 
+ 	}
+ 
+-	unsetVelocityMaterialInScene() {
++	unsetVelocityMaterialInScene( updateHistory = true ) {
+ 
+-		this.scene.traverse( c => {
++		const replacements = this.materialReplacements;
++		try {
+ 
+-			if ( c.material ) {
++			if ( updateHistory ) {
+ 
+-				c.material.uniforms.prevVelocityMatrix.value.multiplyMatrices( this.camera.projectionMatrix, c.modelViewMatrix );
++				for ( const [ object, { velocityMaterial } ] of replacements ) {
+ 
+-				if ( c.skeleton && c.skeleton.boneTexture ) this.saveBoneTexture( c );
++					velocityMaterial.uniforms.prevVelocityMatrix.value.multiplyMatrices( this.camera.projectionMatrix, object.modelViewMatrix );
++					if ( object.skeleton && object.skeleton.boneTexture ) this.saveBoneTexture( object, velocityMaterial );
+ 
+-				const [ originalMaterial ] = this.cachedMaterials.get( c );
++				}
+ 
+-				c.material = originalMaterial;
++			}
+ 
++		} finally {
++
++			for ( const [ object, { originalMaterial } ] of replacements ) {
++
++				object.material = originalMaterial;
++
+ 			}
++			replacements.clear();
+ 
+-		} );
++		}
+ 
+ 	}
+ 
  	dispose() {
  
  		this.renderTarget.dispose();
 +		for ( const material of this.velocityMaterials ) {
-+
+ 
 +			disposeVelocityMaterial( material );
 +
 +		}
 +		this.velocityMaterials.clear();
 +		this.cachedMaterials = new WeakMap();
- 
++
  	}
  
+ 	setSize( width, height ) {
+@@ -145,19 +185,28 @@
+ 
+ 	render( renderer ) {
+ 
+-		this.setVelocityMaterialInScene();
++		const { background, overrideMaterial } = this.scene;
++		let rendered = false;
++		try {
+ 
+-		renderer.setRenderTarget( this.renderTarget );
+-		renderer.clear();
+-		const { background } = this.scene;
+-		this.scene.background = backgroundColor;
++			this.setVelocityMaterialInScene();
+ 
+-		renderer.render( this.scene, this.camera );
++			renderer.setRenderTarget( this.renderTarget );
++			renderer.clear();
++			this.scene.background = backgroundColor;
++			this.scene.overrideMaterial = null;
+ 
+-		this.scene.background = background;
++			renderer.render( this.scene, this.camera );
++			rendered = true;
+ 
+-		this.unsetVelocityMaterialInScene();
++		} finally {
+ 
++			this.scene.background = background;
++			this.scene.overrideMaterial = overrideMaterial;
++			this.unsetVelocityMaterialInScene( rendered );
++
++		}
++
+ 	}
+ 
+ }
