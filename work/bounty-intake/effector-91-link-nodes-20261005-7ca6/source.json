@@ -1,0 +1,57 @@
+{
+  "schema": "source-packet/v1",
+  "operation": "ISSUEHUNT-EFFECTOR91-LINK-NODES-7CA6-20261005",
+  "canonical_issue": "https://github.com/effector/effector/issues/91",
+  "canonical_pull_request": "https://github.com/effector/effector/pull/1334",
+  "source_repository": "landeqiming666/effector",
+  "source_branch": "codex/issuehunt-91-inspect-graph-links",
+  "source_commit": "63c8326c386fd5079f0bbd68c5899e6032c41d05",
+  "original_contribution_author": "landeqiming666",
+  "external_issue_assignee": "zerobias",
+  "files": [
+    {
+      "path": "documentation/src/content/docs/en/api/effector/inspect.mdx",
+      "before_blob_sha": "65809433855b0fbe822f644c87f4a2d2f9a95b5f",
+      "after_blob_sha": "e436585151c172d8e9c1275bfeade3360b77ae93",
+      "changed_line": 186,
+      "after_utf8_bytes": 6110
+    },
+    {
+      "path": "documentation/src/content/docs/ru/api/effector/inspect.mdx",
+      "before_blob_sha": "e3bac500abde074e35a87cf1bc1d61b5385bc158",
+      "after_blob_sha": "f2fc7fd0433d850691cca16059515706850e3ed0",
+      "changed_line": 184,
+      "after_utf8_bytes": 7558
+    }
+  ],
+  "reference_types": {
+    "path": "packages/effector/inspect.d.ts",
+    "blob_sha": "21af9c255436e6e4ab82de4802ee4ca905919593",
+    "modified": false
+  },
+  "patch": {
+    "path": "link-nodes.patch",
+    "blob_sha": "43368e83ecc03a81bd7b7647736da9da08e9c249"
+  },
+  "license": {
+    "path": "LICENSE.upstream",
+    "blob_sha": "1cc6813534c46f6b7a6ab5c5694c63dfa6e76bf8"
+  },
+  "evidence": {
+    "source": "Complete pinned English/Russian docs and Declaration union read; both original examples insert only units but create edges to/from each link ID. Existing link declarations supply id, optional name and kind.",
+    "preservation": "Exactly one unit-or-link guard replacement per document; inverse substitutions equal both complete original documents.",
+    "runtime": "not_performed",
+    "typecheck": "not_performed",
+    "documentation_build": "not_performed",
+    "tests": "not_performed",
+    "renderer": "not_performed",
+    "upstream_write": "not_performed",
+    "platform_claim": "not_performed"
+  },
+  "limits": [
+    "This records each observed link declaration as an example node; it does not prove every referenced owner/target was observed or that all graph edges are represented.",
+    "No historical-node replay, region/factory node insertion, graph.next edge processing, layout or visualization UI is added.",
+    "The underlying PR1334 core changes, larger PR1320 scope and zerobias external assignment are preserved.",
+    "No sponsor acceptance, allocation, payout or complete issue-resolution claim."
+  ]
+}

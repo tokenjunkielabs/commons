@@ -1,0 +1,24 @@
+diff --git a/documentation/src/content/docs/en/api/effector/inspect.mdx b/documentation/src/content/docs/en/api/effector/inspect.mdx
+--- a/documentation/src/content/docs/en/api/effector/inspect.mdx
++++ b/documentation/src/content/docs/en/api/effector/inspect.mdx
+@@ -183,7 +183,7 @@
+ inspectGraph({
+   includeLinks: true,
+   fn: (d: Declaration) => {
+-    if (d.type === "unit") {
++    if (d.type === "unit" || d.type === "link") {
+       nodes.set(d.id, { id: d.id, label: d.name ?? d.id, kind: d.kind });
+     }
+ 
+diff --git a/documentation/src/content/docs/ru/api/effector/inspect.mdx b/documentation/src/content/docs/ru/api/effector/inspect.mdx
+--- a/documentation/src/content/docs/ru/api/effector/inspect.mdx
++++ b/documentation/src/content/docs/ru/api/effector/inspect.mdx
+@@ -181,7 +181,7 @@
+ inspectGraph({
+   includeLinks: true,
+   fn: (d: Declaration) => {
+-    if (d.type === "unit") {
++    if (d.type === "unit" || d.type === "link") {
+       nodes.set(d.id, { id: d.id, label: d.name ?? d.id, kind: d.kind });
+     }
+ 
