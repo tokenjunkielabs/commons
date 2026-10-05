@@ -1,6 +1,8 @@
-# Search issues and pull requests through native GitHub REST
+# Connected GitHub issue search and retained projections
 
 [connected_github_issue_search.cjs](connected_github_issue_search.cjs) provides bounded issue and pull-request search through the existing native GitHub fetch action. It forwards the caller's exact GitHub query to `/search/issues` and retains the returned item fields. Its pure `projectGitHubIssueItems` companion provides bounded views of those retained bodies without another provider call.
+
+The same module also provides `projectGitHubConnectorIssueHeaders` for an already retained shortcut search envelope. It preserves the shortcut's issue numbers and nullable metadata while producing bounded headers with body text withheld. See [shortcut search headers](#project-shortcut-search-headers-from-a-retained-envelope) for its separate input and coverage contract.
 
 This packages the existing route workaround for queue intake. During the October 3 Broker work, `github_search_issues` returned ordinary issue #1406 for a query containing `is:pr`. Direct metadata confirmed that item was an open issue. The identical query through the approved native REST route returned zero open Broker PRs. The route had already been shared in fleet coordination; this module supplies reusable pagination and coverage reporting.
 
@@ -453,3 +455,168 @@ guide. The collector-integrated audit, empty input, missing/invalid date,
 diagnostic-limit and invalid-input branches remain source-inspected only.
 No generated inputs, fixtures, tests or native process were used. The existing
 collector and body projector's accepted uses remain unchanged.
+
+
+## Project shortcut search headers from a retained envelope
+
+The connected `github_search_issues` action has a different response shape from
+the REST route above. Its actual retained envelope supplied
+`structuredContent.issues`, with `issue_number` and a single `url` field.
+State, comment counts and timestamps were present as null. It did not supply
+REST item IDs, `number`, `html_url`, a `pull_request` marker, advertised totals,
+an incompleteness flag, or native pagination evidence.
+
+Use the separate pure export
+`projectGitHubConnectorIssueHeaders(response, options)` for that shape:
+
+~~~javascript
+const headers = box.exports.projectGitHubConnectorIssueHeaders(
+  retainedShortcutResponse,
+  {
+    max_items: 20,
+    max_metadata_chars: 4096,
+    max_total_metadata_chars: 8000
+  }
+);
+store("retained-shortcut-headers", headers);
+text({
+  source: headers.source,
+  selection: headers.selection,
+  coverage: headers.coverage,
+  items: headers.items
+});
+~~~
+
+`retainedShortcutResponse` is the complete MCP envelope already captured from
+the shortcut action. Keep its exact request and native response separately.
+The projector performs no tool call, chooses no transport route and does not
+replay a search. A failed source read remains subject to the caller's hold;
+projection refusal is not a reason to acquire the same source another way.
+
+The existing REST collector, REST item projector and timestamp-bound observer
+keep their input contracts. Do not manufacture REST IDs or copy `issue_number`
+into `number` to make a shortcut row satisfy those contracts. In particular, a
+query containing `is:open` is not a source for a missing or null state.
+
+### Literal header fields and uncertainty
+
+Every returned header preserves the following supplied fields:
+
+| Field | Accepted shape and projection |
+| --- | --- |
+| `issue_number` | Required positive safe integer; retained under its native name. |
+| `title`, `url` | Required strings, copied in full within the metadata bounds. |
+| `state`, `state_reason` | When present, string or null; no semantic state or kind inference. |
+| `created_at`, `updated_at`, `closed_at` | When present, string or null; strings are not parsed or certified as dates. |
+| `comments` | When present, nonnegative safe integer or null. Null does not become zero. |
+
+The six optional metadata fields also have `metadata_states` entries:
+
+- `missing` means the original row has no own property with that name. The
+  corresponding native field remains absent from the header.
+- `null` means the property is present and null. The header retains null.
+- `value` means the present value has the accepted scalar type. It does not
+  certify a date, state, comment freshness, query match or eligibility.
+
+An invalid type causes an explicit `TypeError`; the function does not drop the
+row or return a partially validated collection. All supplied rows are checked,
+including rows outside the requested output window. Other original fields,
+including author, assignees, labels, milestone, display aliases and arbitrary
+nested objects, stay in the retained response.
+
+Each header includes its original `source_index` and
+`source_path: "structuredContent.issues[i]"`. Order and duplicate occurrences
+are preserved. The function does not infer issue-versus-PR kind from a query or
+URL, add a global item ID, sort rows, or deduplicate them.
+
+Body text is never included. `body_state` distinguishes a supplied string, null
+and missing property; `body_chars` gives the string's UTF-16 length or null.
+An empty string remains a text body of length zero. `body_withheld` is true,
+`returned_body_chars` is zero, and no `body` field is added to a header.
+This is field selection, not a privacy classification of title or URL text;
+the caller's topic and publication limits still apply.
+
+### Local selection and metadata budgets
+
+| Option | Default | Accepted values |
+| --- | --- | --- |
+| `start_index` | 0 | Safe integer from 0 through the supplied array length; exclusive with `source_indices`. |
+| `source_indices` | Omitted | Increasing, distinct, in-range original indices; length at most `max_items`. |
+| `max_items` | 20 | Safe integer from 0 through 100. |
+| `max_metadata_chars` | 4,096 | Safe integer from 0 through 65,536, checked for every supplied row. |
+| `max_total_metadata_chars` | 8,000 | Safe integer from 0 through 1,000,000, applied to selected output in order. |
+
+The envelope must contain at most 1,000 rows in `structuredContent.issues`.
+That is a local input bound, not a shortcut-provider result ceiling.
+`isError: true` is refused before projection. A non-boolean `isError` value,
+malformed envelope, invalid row, unknown option or incompatible selector is
+also refused. An omitted `isError` is allowed by the MCP envelope contract.
+Ordinary status text such as “Action completed.” is not parsed or treated as
+search metadata. The function has no nested-payload fallback.
+
+Metadata character counts sum the selected native scalar values' string lengths,
+with null contributing zero. They use UTF-16 code units and exclude field
+names, JSON syntax, body text and the fixed projection annotations. They are
+not serialized-output byte or token measurements. Body sizes are obtained from
+string lengths; the function does not serialize the envelope or parse bodies.
+
+A per-row metadata overflow throws `RangeError` before output. Metadata and URLs
+are never silently truncated. If a requested row would exceed the total output
+metadata budget, projection stops before that row and does not skip ahead.
+`metadata_budget_blocked_index` identifies it;
+`omitted_requested_source_indices` preserves the unreturned requested suffix.
+
+For contiguous selection, `next_index` is the next local array index. If the
+budget cannot fit even the first requested header, that index stays unchanged;
+repeating the same projection cannot advance. Increase a local budget or make
+a deliberate different selection. For sparse selection, `next_index` is null
+and the explicit omitted requested indices guide any later local choice.
+Neither value is a native pagination cursor.
+
+Coverage reports supplied, requested, returned and omitted item counts, omitted
+half-open source-index ranges, body-state counts, supplied body lengths, returned
+metadata characters and metadata-budget exhaustion. The `all_*` flags concern
+this supplied array and requested headers only. Empty input can satisfy a local
+selection flag without establishing that the provider has no results.
+
+`source.query_application` and `source.kind_application` remain `not_verified`.
+`source.pagination_evidence` is `not_available_in_supported_envelope`.
+A full local projection, twenty rows, a short array or an empty array establishes
+no advertised total, native END, current source state or global absence. The
+shape label records the supplied structure; it does not authenticate where an
+envelope originated. Read a selected canonical record when current metadata is
+needed and its source route is available.
+
+### Actual retained shortcut use, October 5, 2026
+
+The first consumer used one already captured successful shortcut response for
+`repo:woahwhattheheck/commons is:issue is:open`, with `sort: "updated"`,
+`order: "desc"` and `topn: 20`. Its twenty bodies contained 54,972 UTF-16 code
+units. Every supplied state, state reason, comment count and creation/update/close
+timestamp was null. The response supplied no provider pagination or total.
+
+The new export ran once on that exact envelope with its default options:
+
+| Observation | Actual result |
+| --- | --- |
+| Supplied / requested / returned headers | 20 / 20 / 20 |
+| Original source indices | 0 through 19, unchanged order |
+| Returned metadata scalar characters | 2,055 |
+| Supplied text body characters | 54,972 |
+| Returned body characters | 0; no header had a `body` key |
+| Null metadata | 20 null values retained in each of the six optional fields |
+| Local omissions / metadata-budget exhaustion | 0 / false |
+| Native calls made by projection | 0 |
+
+The complete input JSON was unchanged. All native issue numbers were retained
+under `issue_number`; no state, kind, date-bound compliance or provider-end
+claim was inferred. The caller kept mirrored Slack records and held topics out
+of further body expansion; the header view did not recover failed Slack reads.
+This was a new use of the projector on retained source, with no repeated search.
+
+Only the successful default contiguous path and actual null metadata were
+executed. Sparse selection, budget boundaries, zero-item cases, missing fields,
+other scalar metadata, null/missing bodies and refusal paths remain inspected
+as source only. No synthetic response, fixture, test, native process or accepted
+REST operation was replayed. The older REST function bodies are byte-for-byte
+preserved; the module adds this function and its export.
