@@ -363,6 +363,7 @@ const AppointmentScreen: React.FC = () => {
         undefined,
         true,
         appointmentBufferMinutes,
+        appt.durationMinutes ?? 30,
       );
 
       if (result.hasConflicts) {
@@ -453,6 +454,7 @@ const AppointmentScreen: React.FC = () => {
         detailAppt.id, // exclude self
         true,
         appointmentBufferMinutes,
+        detailAppt.durationMinutes ?? 30,
       );
 
       if (result.hasConflicts) {
