@@ -165,6 +165,68 @@ source readbacks. It introduces no delay, retry, shared queue or fleet-wide limi
 shared provider admission and Retry-After handling remain with the caller. The
 two current-head observation reads and all provider writes are unchanged.
 
+### Optional per-action wall-clock attribution
+
+Set `options.action_timing: true` when a new authorized operation needs
+per-action timing metadata. The option is supported by `publishGitHubChange`,
+`publishGitHubContentsChange`, `continueGitHubMerge`,
+`advanceGitHubContribution` and `reconcileGitHubContribution`. It is boolean
+and is checked before any provider dispatch. Omitted or `false` retains the
+existing direct binding awaits and adds no timing field. The separate
+head-observation and source-recovery APIs do not adopt this option.
+
+```javascript
+const result = await publishGitHubChange(tools, preparedChange, {
+  action_timing: true,
+  onProgress: progress => store('my-operation-progress', progress),
+});
+text({calls: result.calls, action_timing: result.action_timing});
+```
+
+`progress.action_timing` is a bounded action-key summary with
+`clock: 'Date.now'`, `unit: 'milliseconds'`,
+`scope: 'native_binding_settlement'`, `monotonic: false`,
+`recording_errors`, and `actions`. Each observed action has:
+
+- `count`: settled binding invocations recorded so far, divided into
+  `returned` and `threw`. Unsettled calls are not counted here; the existing
+  `calls` field still counts dispatch attempts.
+- `timed_count`, `total_ms`, `min_ms`, and `max_ms`: signed finite elapsed
+  samples. Minimum and maximum remain `null` until a usable sample arrives.
+- `unavailable_samples`: a start/end sample or elapsed difference was unavailable
+  or nonfinite. Such calls still contribute to the settled counts.
+- `negative_samples`: negative elapsed differences, retained in total/min/max
+  without clamping. The wall clock can move backward; these are not monotonic
+  duration guarantees.
+
+Sampling and recording are best-effort. Clock errors produce unavailable
+samples; aggregation exceptions increment `recording_errors` when possible
+and can leave a partial metric record. Neither path replaces the returned
+native response or the original thrown binding error. Timing includes awaiting
+the supplied binding, including any caller custody wrapper around that binding.
+It excludes the publisher's subsequent envelope unpacking, source checks,
+progress callbacks and other local work. Concurrent read durations overlap,
+so summing them does not measure the operation's elapsed time. Millisecond
+wall-clock resolution and timing-wrapper overhead also limit comparisons.
+
+A returned MCP error envelope counts as `returned`, even when the existing
+unpacker then rejects it. A rejected promise or synchronous binding exception
+counts as `threw`. Neither label establishes provider acceptance, write success,
+failure or safe retry. Existing `pending_write`, native error, response,
+progress and uncertain-write handling remain authoritative and unchanged.
+
+Only action names and numeric summaries enter these metrics; request arguments,
+repository paths, source bodies, returned bodies and error messages are absent.
+The option adds no timeout, retry, concurrency policy, dispatch gate or threshold.
+Existing `onProgress` callbacks and thrown `GitHubPublishError.progress` carry
+the same summary at their existing notification points; no new callback is added.
+
+At source publication, this option was source-inspected but unexecuted. The
+motivating completed packets retained call counts, not missing latency data,
+and were not replayed. The first useful invocation is reserved for a fresh
+publication; its actual wrapper paths and clock observations will be reported
+separately. No synthetic clock, fixture suite or timing benchmark was used.
+
 The commit has the observed base as its
 parent. Existing file modes are retained. The branch primitive creates a new
 branch; use a unique operation name. `publishGitHubChange` does not update an existing branch; the explicit

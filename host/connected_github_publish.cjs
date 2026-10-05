@@ -597,6 +597,54 @@ async function settleReadbacks(items, read, limit) {
   return outcomes;
 }
 
+/** Optional bounded wall-clock attribution around native binding settlement only. */
+function actionTimer(options, progress) {
+  if (options.action_timing !== undefined && typeof options.action_timing !== 'boolean') {
+    throw new TypeError('action_timing must be boolean');
+  }
+  if (options.action_timing !== true) return null;
+  const summary = {clock: 'Date.now', unit: 'milliseconds',
+    scope: 'native_binding_settlement', monotonic: false, recording_errors: 0, actions: {}};
+  progress.action_timing = summary;
+  const sample = () => {
+    try {
+      const value = Date.now();
+      return Number.isFinite(value) ? value : null;
+    } catch (_) { return null; }
+  };
+  return async (action, invoke) => {
+    const started = sample();
+    let returned = false;
+    try {
+      const result = await invoke();
+      returned = true;
+      return result;
+    } finally {
+      // Metrics must not replace a native response or the original binding error.
+      const ended = sample();
+      try {
+        const record = summary.actions[action] ??= {count: 0, returned: 0, threw: 0,
+          timed_count: 0, unavailable_samples: 0, negative_samples: 0,
+          total_ms: 0, min_ms: null, max_ms: null};
+        record.count++;
+        record[returned ? 'returned' : 'threw']++;
+        const elapsed = started === null || ended === null ? null : ended - started;
+        if (elapsed === null || !Number.isFinite(elapsed)) {
+          record.unavailable_samples++;
+        } else {
+          record.timed_count++;
+          if (elapsed < 0) record.negative_samples++;
+          record.total_ms += elapsed;
+          record.min_ms = record.min_ms === null ? elapsed : Math.min(record.min_ms, elapsed);
+          record.max_ms = record.max_ms === null ? elapsed : Math.max(record.max_ms, elapsed);
+        }
+      } catch (_) {
+        try { summary.recording_errors++; } catch (_) { /* Best effort only. */ }
+      }
+    }
+  };
+}
+
 /** Publish regular-file changes through native GitHub tools, optionally merge. */
 async function publishGitHubChange(tools, change, options = {}) {
   const progress = {status: 'incomplete', stage: 'validate', calls: {}, files: [], progress_callback_errors: []};
@@ -634,10 +682,13 @@ async function publishGitHubChange(tools, change, options = {}) {
       try { await options.onProgress(JSON.parse(JSON.stringify(progress))); }
       catch (error) { progress.progress_callback_errors.push(String(error.message ?? error)); }
     };
+    const timeAction = actionTimer(options, progress);
     const call = async (action, args) => {
       progress.calls[action] = (progress.calls[action] ?? 0) + 1;
       lastResponse = undefined;
-      lastResponse = await tools[bindings[action]](args);
+      lastResponse = timeAction
+        ? await timeAction(action, () => tools[bindings[action]](args))
+        : await tools[bindings[action]](args);
       return unpack(lastResponse, action);
     };
     const fetchJSON = async url => {
@@ -895,10 +946,13 @@ async function continueGitHubMerge(tools, change, previousProgress, options = {}
       try { await options.onProgress(JSON.parse(JSON.stringify(progress))); }
       catch (error) { progress.progress_callback_errors.push(String(error.message ?? error)); }
     };
+    const timeAction = actionTimer(options, progress);
     const call = async (action, args) => {
       progress.calls[action] = (progress.calls[action] ?? 0) + 1;
       lastResponse = undefined;
-      lastResponse = await tools[bindings[action]](args);
+      lastResponse = timeAction
+        ? await timeAction(action, () => tools[bindings[action]](args))
+        : await tools[bindings[action]](args);
       return unpack(lastResponse, action);
     };
     const fetchJSON = async url => {
@@ -1179,12 +1233,15 @@ async function contributionOperation(tools, change, options, readOnly, previousP
       try { await options.onProgress(JSON.parse(JSON.stringify(progress))); }
       catch (error) { progress.progress_callback_errors.push(String(error.message ?? error)); }
     };
+    const timeAction = actionTimer(options, progress);
     const call = async (action, args) => {
       progress.calls[action] = (progress.calls[action] ?? 0) + 1;
       let response;
       try {
         lastResponse = undefined;
-        response = await tools[bindings[action]](args);
+        response = timeAction
+          ? await timeAction(action, () => tools[bindings[action]](args))
+          : await tools[bindings[action]](args);
         lastResponse = response;
         return unpack(response, action);
       } catch (error) {
@@ -1576,10 +1633,13 @@ async function publishGitHubContentsChange(tools, change, options = {}) {
       try { await options.onProgress(JSON.parse(JSON.stringify(progress))); }
       catch (error) { progress.progress_callback_errors.push(String(error.message ?? error)); }
     };
+    const timeAction = actionTimer(options, progress);
     const call = async (action, args) => {
       progress.calls[action] = (progress.calls[action] ?? 0) + 1;
       lastResponse = undefined;
-      const response = await tools[bindings[action]](args);
+      const response = timeAction
+        ? await timeAction(action, () => tools[bindings[action]](args))
+        : await tools[bindings[action]](args);
       lastResponse = response;
       try { return unpack(response, action); }
       catch (error) { error.native_response = response; throw error; }
