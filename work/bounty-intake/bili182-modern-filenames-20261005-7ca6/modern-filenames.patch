@@ -1,0 +1,25 @@
+diff --git a/src/index.ts b/src/index.ts
+--- a/src/index.ts
++++ b/src/index.ts
+@@ -478,7 +478,7 @@
+       .replace(/\[ext\]/, '.js')
+ 
+     if (modern && !hasModernPlaceholder) {
+-      fileName = fileName.replace(/(\.[^./]+)$/, '.modern$1')
++      fileName = fileName.replace(/(\.[^./]+)?$/, '.modern$1')
+     }
+ 
+     if (rollupFormat === 'esm') {
+diff --git a/src/types.ts b/src/types.ts
+--- a/src/types.ts
++++ b/src/types.ts
+@@ -175,7 +175,8 @@
+   target?: OutputTarget
+   /**
+    * Generate an additional modern bundle for browsers with native ES module support.
+-   * Modern bundles use Babel's `esmodules` target and append `.modern` to output file names.
++   * Modern bundles use Babel's `esmodules` target and insert `.modern` before the final extension,
++   * or append it when the output file name has no extension.
+    * @cli `--modern`
+    */
+   modern?: boolean
