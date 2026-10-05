@@ -1,0 +1,45 @@
+diff --git a/example/App.tsx b/example/App.tsx
+--- a/example/App.tsx
++++ b/example/App.tsx
+@@ -20,35 +20,35 @@
+ 
+ export default function App() {
+   const [pingUrl, setPingUrl] = useState(onlineUrl);
+-  const [fontsLoaded] = useFonts({
++  const [fontsLoaded, fontsError] = useFonts({
+     ...Ionicons.font,
+     'space-mono': require('./assets/fonts/SpaceMono-Regular.ttf'),
+   });
+ 
+   const onLayoutRootView = useCallback(async () => {
+-    if (fontsLoaded) {
++    if (fontsLoaded || fontsError) {
+       await SplashScreen.hideAsync();
+     }
+-  }, [fontsLoaded]);
++  }, [fontsLoaded, fontsError]);
+ 
+   useEffect(() => {
+-    if (fontsLoaded) {
++    if (fontsLoaded || fontsError) {
+       SplashScreen.hideAsync().catch(() => undefined);
+     }
+-  }, [fontsLoaded]);
++  }, [fontsLoaded, fontsError]);
+ 
+   const network = useMemo(
+     () => ({
+       pingUrl,
+       toggleConnection: () =>
+         setPingUrl(current =>
+           current === onlineUrl ? offlineUrl : onlineUrl,
+         ),
+     }),
+     [pingUrl],
+   );
+ 
+-  if (!fontsLoaded) {
++  if (!fontsLoaded && !fontsError) {
+     return null;
+   }
+ 
