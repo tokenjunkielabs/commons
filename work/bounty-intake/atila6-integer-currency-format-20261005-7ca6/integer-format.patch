@@ -1,0 +1,12 @@
+diff --git a/src/services/utils/CurrencyUtils.ts b/src/services/utils/CurrencyUtils.ts
+--- a/src/services/utils/CurrencyUtils.ts
++++ b/src/services/utils/CurrencyUtils.ts
+@@ -23,7 +23,7 @@
+     }
+ 
+     if (convertToInteger) {
+-        input = Number.parseInt(input.toLocaleString());
++        input = Number.isFinite(input) ? Math.trunc(input) : NaN;
+     }
+     return input.toLocaleString('en-ca', {style : 'currency', currency, minimumFractionDigits });
+ }
