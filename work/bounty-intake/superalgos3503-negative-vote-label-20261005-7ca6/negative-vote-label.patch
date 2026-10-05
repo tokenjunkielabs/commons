@@ -1,0 +1,44 @@
+diff --git a/Projects/Governance/UI/Function-Libraries/VotingProgram.js b/Projects/Governance/UI/Function-Libraries/VotingProgram.js
+--- a/Projects/Governance/UI/Function-Libraries/VotingProgram.js
++++ b/Projects/Governance/UI/Function-Libraries/VotingProgram.js
+@@ -512,7 +512,13 @@
+ 
+             node.payload.uiObject.setValue(votesText, UI.projects.governance.globals.designer.SET_VALUE_COUNTER)
+ 
+-            UI.projects.governance.utilities.nodeCalculations.drawPercentage(node, percentage, 180)
++            // Modified 2026-10-05: show configured negative outgoing votes without changing allocation (#3503).
++            let negative = node.payload.referenceParent !== undefined
++                && node.type !== 'Votes Switch'
++                && node.type !== 'Claim Votes Switch'
++                && node.type !== 'Weight Votes Switch'
++                && UI.projects.visualScripting.utilities.nodeConfig.loadConfigProperty(node.payload, 'negative') === true
++            UI.projects.governance.utilities.nodeCalculations.drawPercentage(node, percentage, 180, negative)
+ 
+ 
+             function drawUserNode(node, votes, percentage) {
+diff --git a/Projects/Governance/UI/Utilities/NodeCalculations.js b/Projects/Governance/UI/Utilities/NodeCalculations.js
+--- a/Projects/Governance/UI/Utilities/NodeCalculations.js
++++ b/Projects/Governance/UI/Utilities/NodeCalculations.js
+@@ -48,7 +48,7 @@
+         return result
+     }
+ 
+-    function drawPercentage(node, percentage, percentageAngleOffset) {
++    function drawPercentage(node, percentage, percentageAngleOffset, negative) {
+         /* Outputs percentage power allocations at nodes, depending if the allocation is percentage or absolute amount-based */
+         if (node === undefined) { return }
+         if (percentage === undefined) { return }
+@@ -59,7 +59,12 @@
+                 node.payload.uiObject.percentageAngleOffset = percentageAngleOffset
+                 node.payload.uiObject.percentageAtAngle = true
+             }
+-            node.payload.uiObject.setPercentage(percentage.toFixed(2),
++            // Modified 2026-10-05: the optional sign is display-only, including a configured negative zero.
++            let displayPercentage = percentage.toFixed(2)
++            if (negative === true && percentage >= 0) {
++                displayPercentage = '-' + displayPercentage
++            }
++            node.payload.uiObject.setPercentage(displayPercentage,
+             UI.projects.governance.globals.designer.SET_PERCENTAGE_COUNTER)
+         }
+     }
