@@ -295,6 +295,83 @@ snapshot. It does not claim that a later current-main tip is
 unchanged, that a running service reloaded it, or that it is deployed. Source
 execution and product acceptance remain the caller's work.
 
+### Reuse immutable readbacks at an exactly matching named-main observation
+
+The existing publisher already returns `readback_ref` and complete immutable
+file readbacks. A caller can use those retained checks when a **fresh named-main
+ref observation reports exactly the same commit**, without fetching each file
+again through the literal `main` ref. This is a caller audit recipe, not a new
+publisher option or export. Keep the original publication result and immutable
+readback evidence unchanged.
+
+Use this sequence for a new publication:
+
+1. Finish the complete immutable readbacks at the actual merge commit. Retain
+   the exact requests and native responses, repository and paths, full returned
+   content and encoding, complete source comparisons, provider blob identities,
+   and independently calculated Git blob identities. Every selected file must
+   have its already-completed checks and source pins available; a result flag,
+   expected pin, tree SHA or metadata-only response alone is insufficient.
+2. After those checks, make one fresh supported read of the named `main` ref in
+   the same repository. Bank its exact request and native response before
+   interpreting it. A successful `/branches/main` response must identify
+   `name: "main"` and its full `commit.sha`; a successful
+   `/git/ref/heads/main` response must identify `ref: "refs/heads/main"`, a
+   commit object and its full `object.sha`. Use the chosen operation once;
+   these are supported request shapes, not automatic alternate recovery routes.
+3. Require exact full commit-ID equality between that observed main commit,
+   the actual merge commit and the immutable `readback_ref`. Bind every reused
+   file record to the same repository, path and immutable commit. Do not use a
+   pre-merge base observation, a PR head, a shortened SHA, a cached main value,
+   or a branch display URL as this fresh named-ref evidence.
+4. Attach a separate caller audit receipt identifying the named-ref request/raw
+   locators and observation time, observed main SHA, immutable readback ref,
+   prior complete file/identity evidence locators, and
+   `literal_main_content_reads: 0`. Describe the result as **main pointed to
+   the verified immutable commit at the recorded ref observation**. Do not
+   label the reused evidence as a second literal-main content transfer.
+
+This establishes alias provenance at that observation. It does not establish
+that main remains unchanged, create a provider snapshot, or establish runtime,
+deployment or product acceptance. Reuse only what the original file checks
+actually established; this recipe adds no mode, binary, deletion or whole-tree
+verification. A task that specifically requires a literal-main content
+transfer still needs that transfer.
+
+If the successful named-ref observation differs from the immutable merge, or
+the complete immutable evidence is unavailable or incomplete, this alias path
+is inapplicable: retain the existing caller plan for complete file reads.
+If an actual provider/source/access error or uncertain response occurs, retain
+that failure and its held route; do not turn it into a commit mismatch, retry,
+or permission for alternate acquisition. No source-integrity check is skipped
+to obtain an alias result. The existing `observeGitHubContributionHead` API
+checks a PR's source head and is not this main-ref observation.
+
+The modeled opportunity depends on the caller's existing audit. For **N**
+otherwise duplicated file reads, a named-ref read already required by that
+audit leaves N file calls avoidable; if the ref read is additional, the net
+modeled reduction is N - 1 calls. Full immutable transfers and independent
+identity checks remain. Record any actual future outcome separately; do not
+replay an accepted publication to measure this recipe.
+
+Three completed publication receipts already retained exact main/merge
+equality and both sets of complete file checks:
+
+| Receipt | Separately received literal-main files | Received UTF-8 source-content bytes |
+| --- | ---: | ---: |
+| [#31708](https://github.com/woahwhattheheck/commons/pull/31708) | 2 | 17,184 |
+| [#31714](https://github.com/woahwhattheheck/commons/pull/31714) | 1 | 17,345 |
+| [#31718](https://github.com/woahwhattheheck/commons/pull/31718) | 2 | 153,780 |
+| Total | 5 | 188,309 |
+
+Those are actual previously received UTF-8 file-content bytes and call counts,
+not wire bytes, measured savings, timing, quota effects or an executed alias
+path. The opportunities are modeled from the retained receipts without new
+file requests or repeated identity computations. The separate #31703 receipt
+observed main at a different commit from its merge and is excluded, even
+though its later literal-main files matched. Equality of selected files alone
+does not satisfy this recipe's exact commit requirement.
+
 ### Batch regular-file publication and check the current merge base
 
 `publishGitHubChange` is the existing Git Trees route for a prepared regular-file
