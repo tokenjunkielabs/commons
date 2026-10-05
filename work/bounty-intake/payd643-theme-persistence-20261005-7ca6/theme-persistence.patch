@@ -1,0 +1,49 @@
+diff --git a/src/context/ThemeContext.jsx b/src/context/ThemeContext.jsx
+--- a/src/context/ThemeContext.jsx
++++ b/src/context/ThemeContext.jsx
+@@ -5,8 +5,12 @@
+ export function ThemeProvider({ children }) {
+   const [theme, setTheme] = useState(() => {
+     if (typeof window === 'undefined') return 'light';
+-    const saved = localStorage.getItem('payd-theme');
+-    if (saved) return saved;
++    try {
++      const saved = window.localStorage.getItem('payd-theme');
++      if (saved === 'light' || saved === 'dark') return saved;
++    } catch {
++      // Use the system preference when saved preferences are unavailable.
++    }
+     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+   });
+ 
+@@ -17,7 +21,11 @@
+     } else {
+       root.classList.remove('dark');
+     }
+-    localStorage.setItem('payd-theme', theme);
++    try {
++      window.localStorage.setItem('payd-theme', theme);
++    } catch {
++      // The selected theme remains usable without persistent storage.
++    }
+   }, [theme]);
+ 
+   const toggleTheme = () => {
+diff --git a/src/index.css b/src/index.css
+--- a/src/index.css
++++ b/src/index.css
+@@ -1,5 +1,5 @@
+ :root {
+-  color-scheme: light dark;
++  color-scheme: light;
+   --bg: #ffffff;
+   --fg: #0f172a;
+   --muted: #64748b;
+@@ -8,6 +8,7 @@
+ }
+ 
+ html.dark {
++  color-scheme: dark;
+   --bg: #0b1220;
+   --fg: #e2e8f0;
+   --muted: #94a3b8;
