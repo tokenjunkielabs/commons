@@ -1,0 +1,12 @@
+diff --git a/docs/content/api/most-run.md b/docs/content/api/most-run.md
+--- a/docs/content/api/most-run.md
++++ b/docs/content/api/most-run.md
+@@ -38,7 +38,7 @@
+ let dispose
+ 
+ runEffects(
+-  tap(fn, sources.DOM.select(':root').elements),
++  tap(fn, sources.DOM.select(':root').elements()),
+   scheduler
+ ).then(() => dispose())
+ 
