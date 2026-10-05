@@ -1,10 +1,10 @@
-# Temporal resolve: preserve camera state and release owned resources
+# Temporal resolve: preserve camera state, restore temporary state and release owned resources
 
 ## Change and attribution
 
 This packet continues [0beqz's external temporal-resolving PR 241](https://github.com/gkjohnson/three-gpu-pathtracer/pull/241), pinned to head `fc044fd7eccb9d4c8795a0991ba34d21500309de`. The original temporal resolve implementation, demos and prior rendering improvements belong to that contributor, with the project author's reviews and referenced shader credit retained in the original PR.
 
-The cumulative correction is **+42/-7 across seven hunks in three production files**. It includes the earlier **+6/-2** camera-size and weight-setting correction, followed by **+36/-5** for resource ownership and retirement. The initial [camera-sizing correction in Commons 31630](https://github.com/woahwhattheheck/commons/pull/31630) captures whether the camera changed before replacing the pass, then includes that flag in the existing resize condition. A replacement pass receives the path tracer target's current width and height even when those dimensions have not changed since the preceding frame.
+The cumulative correction is **+138/-69 across 11 hunks in three production files**. It retains the earlier **+6/-2** camera-size and weight-setting correction and **+36/-5** resource-ownership continuation. The new temporary-state continuation is **+102/-68 across 9 hunks** relative to [Commons 31646](https://github.com/woahwhattheheck/commons/pull/31646); much of its controller delta is the indentation required by one enclosing try/finally. The initial [camera-sizing correction in Commons 31630](https://github.com/woahwhattheheck/commons/pull/31630) captures whether the camera changed before replacing the pass, then includes that flag in the existing resize condition. A replacement pass receives the path tracer target's current width and height even when those dimensions have not changed since the preceding frame.
 
 The [weight-setting correction in Commons 31639](https://github.com/woahwhattheheck/commons/pull/31639) added **two source lines** to that existing class: capture the currently selected `weightTransform` before replacing the pass and reapply it afterward through its existing setter. This preserves the selected shader setting in the new material while retaining the complete earlier size correction. Both changes remain intact.
 
@@ -56,7 +56,7 @@ The continuation adds a set containing only the shader materials created by this
 
 Each generated shader material uses the existing `UniformsUtils.clone(VelocityShader.uniforms)` construction. The already retained native new-file shader patch explicitly initializes `prevBoneTexture` to null. The complete velocity source allocates that history texture with `new DataTexture(...)` from a copy of the skeleton's matrix data, and already replaces/disposes a previous history texture when its size changes. The new disposal helper retires that private `prevBoneTexture`, if present, and the generated material itself.
 
-The separate `boneTexture` uniform is assigned directly from the scene object's skeleton. It is borrowed and is not passed to `dispose()`. Original scene materials are likewise absent from the ownership set. No shader equations, uniforms, matrix updates, rendering order or live skeleton data are changed.
+The separate `boneTexture` uniform is assigned directly from the scene object's skeleton. It is borrowed and is not passed to `dispose()`. Original scene materials are likewise absent from the ownership set. The disposal continuation did not alter shader equations, matrix-update arithmetic or live skeleton data. The later restoration continuation changes when end-of-render history updates run after failures, as described below.
 
 ### Shared resources remain shared
 
@@ -64,7 +64,37 @@ The depth material is allocated once at module scope and reused by multiple pass
 
 The newly read [Three.js r141 FullScreenQuad implementation](https://github.com/mrdoob/three.js/blob/r141/examples/jsm/postprocessing/Pass.js) constructs all quads using the same module-global `_geometry`; its `dispose()` disposes that shared geometry. Per-camera retirement therefore does not call `fsQuad.dispose()`. This ownership observation is tied to the inspected r141 development revision, not a claim that every allowed or deployed dependency version was inspected.
 
-The change does not add an overall `TemporalResolve.dispose()` API, change the shared geometry's owner, or address the existing render-exception restoration paths. It establishes explicit retirement of the generated resources listed above; it does not measure GPU memory, garbage collection or performance.
+The change does not add an overall `TemporalResolve.dispose()` API or change the shared geometry's owner or lifetime. The separate temporary-state continuation below now addresses the bounded render-exception restoration paths. It establishes explicit retirement of the generated resources listed above; it does not measure GPU memory, garbage collection or performance.
+
+## Temporary scene and renderer state
+
+The three complete Commons 31646 postimages, cumulative patch, guide and unchanged license were read at immutable commit `37e1e4355317345a8ba132575236f642b74cf28e`, with independently calculated blob identities matching all six returned identities. This is a new continuation of the restoration gap explicitly left outside that completed disposal change.
+
+### Caller render target and scoped depth override
+
+The controller's `update()` saved the caller's current renderer target but reached its restoring call only after every camera, matrix, temporal and composing operation returned normally. Those same operations now sit inside one try/finally, whose cleanup calls `setRenderTarget(origRenderTarget)`. Their order and text are unchanged apart from indentation. The intentionally persistent `stableTiles = false`, camera/size updates and all existing tuning assignments remain as before.
+
+Depth rendering formerly installed the shared depth material, changed the background, rendered, then restored the background and assigned a literal null override. A failure could strand the temporary state, and a successful call discarded a pre-existing caller override. The depth scope now captures both original fields before mutation and restores them in finally. The remaining temporal pass body is unchanged.
+
+Restoring a non-null caller override before velocity rendering requires a corresponding velocity scope: otherwise Three.js would use that override instead of the generated velocity materials. Velocity therefore temporarily sets `overrideMaterial = null` during its draw and restores the exact captured override afterward, along with the captured background. This preserves the intended depth-then-generated-velocity rendering path while retaining caller state.
+
+### Exact material records and success-only end-of-render history
+
+The original velocity cleanup traversed the current scene again and looked up each current object's original material in the cache. A partial setup failure could leave earlier objects swapped; a render or history exception could bypass restoration; an object removed or reparented during the call could be missed by the second traversal. Newly encountered objects could also lack the assumed generated uniforms or cache entry.
+
+Setup now creates a Map keyed by each actual object and records its original material and generated material before the first material assignment. A repeated traversal visit to the same object is skipped. The replacement-material disposal and private-history ownership paths remain intact. The complete setup call is inside render's protected try, so cleanup can use all records accumulated before a later setup failure.
+
+After the renderer returns successfully, a flag enables the existing end-of-render velocity matrix and bone-history updates. These updates use the captured generated material. `saveBoneTexture(object, material = object.material)` preserves the original one-argument behavior and lets this recorded-material path avoid depending on a potentially changed `object.material`. Initial allocation/copy of bone history during creation of a new generated material remains in setup; it is not an end-of-render success update.
+
+`unsetVelocityMaterialInScene(updateHistory = true)` keeps the existing no-argument paired-helper behavior. Its history loop is enclosed by a finally that restores every recorded object's original material and clears the Map, without traversing the scene again. Render passes false if setup, target selection, clearing or rendering throws, so no end-of-render history update occurs on those paths. If a history update itself throws after a successful render, material restoration still runs. Scene background and override are restored before that history/cleanup helper is called.
+
+This is restoration of ordinary scene fields and object material references, not transactional rendering. Earlier history writes, cache entries, allocations, matrices and renderer side effects are not rolled back if a later operation throws. Removed objects' generated materials remain owned until the existing pass-retirement path. No custom throwing-property-setter, recursive/reentrant invocation, repeated unpaired setup, renderer-target restoration failure, constructor-allocation cleanup or new overall controller-lifetime guarantee is asserted. The standalone pass target behavior remains unchanged; caller target restoration is provided by `TemporalResolve.update()`.
+
+| Latest production postimage | Git blob | UTF-8 bytes |
+| --- | --- | --- |
+| `src/temporal-resolve/TemporalResolve.js` | `be983fadfff36b8cd0ec9a079dbbb8f5a458f679` | 4086 |
+| `src/temporal-resolve/passes/TemporalResolvePass.js` | `9ab0a50510e18910243c6d3db8d09327b90c637f` | 4307 |
+| `src/temporal-resolve/passes/VelocityPass.js` | `2a23ac97aff2a25364be119bf9a69028c8fe00dd` | 5042 |
 
 ## Evidence and original issue context
 
@@ -82,12 +112,12 @@ All 12 changed-path records were retained. The three complete implementation mod
 | Original TemporalResolve class, 3,685 UTF-8 bytes | `eb575b1205c22a61b24c451cde327e953583bac3` |
 | Earlier size-corrected class, 3,820 UTF-8 bytes | `d39ea2558a40cf19d22d32fe89fe86472c35d723` |
 | Prior size-and-weight class, 3,912 UTF-8 bytes | `75595e4234e239cb16a08bc951f93349e897266c` |
-| Current controller with camera retirement, 4,049 UTF-8 bytes | `225535c4bbe4fe7abdbbd18dc3df369b67629bf0` |
+| Controller after Commons 31646 camera retirement, 4,049 UTF-8 bytes | `225535c4bbe4fe7abdbbd18dc3df369b67629bf0` |
 | Original TemporalResolvePass, 4,124 UTF-8 bytes | `a5b67e589f8632e2d8f40686804aeffc7323e03a` |
-| Current TemporalResolvePass, 4,191 UTF-8 bytes | `1f802c4ab333a3577d3af007ed2bcc050e8d3b95` |
+| TemporalResolvePass after Commons 31646, 4,191 UTF-8 bytes | `1f802c4ab333a3577d3af007ed2bcc050e8d3b95` |
 | TemporalResolveMaterial, complete source read for the follow-through | `e257be71ff513acb5f34be6fdbe8e19374ee5e26` |
 | Original VelocityPass, 3,574 UTF-8 bytes | `c798a19468f612e2ff44623153718397c547d64b` |
-| Current VelocityPass, 4,245 UTF-8 bytes | `36debcdb7bd41295043712efbb93e93855767750` |
+| VelocityPass after Commons 31646, 4,245 UTF-8 bytes | `36debcdb7bd41295043712efbb93e93855767750` |
 | VelocityShader, retained native PR patch and tree identity | `fdef3dfeada0411ce7a889016c2d288b44657b18` |
 | Three.js r141 Pass.js, complete newly read source | `c3bf9d9b84ec46afb4cfbe86ec795ffaaf50fc8e` |
 | README | `f0a92adadf8cfe1753e6ed09faa4040694fe2aef` |
@@ -108,11 +138,13 @@ Primary source links:
 
 ## Validation and limits
 
-The actual serialized cumulative `camera-resize.patch` was parsed and applied to all three complete retained original preimages. Its three paths, seven hunk locations/counts and every context/removal row matched exactly. All three resulting full texts matched the prepared implementation files and their independently calculated Git blob identities. The original UTF-8 byte-order marks, tabs, line endings and every byte outside the changed hunks are preserved. The new ownership delta is six hunks, +36/-5; the cumulative patch is seven hunks, +42/-7.
+The actual serialized cumulative `camera-resize.patch` was parsed and applied to all three complete retained original preimages. Its three paths, 11 hunk locations/counts and every context/removal row matched exactly. All three resulting full texts matched the prepared implementation files and their independently calculated Git blob identities. The original UTF-8 byte-order marks, tabs, line endings and every byte outside the changed hunks are preserved. The latest restoration delta is 9 hunks, +102/-68; the cumulative patch is 11 hunks, +138/-69. The three original preimages were recovered by reversing the retained cumulative patch against the complete immutable packet postimages and matched their already documented original blob identities. The actual new serialized patch was then applied to those exact preimages; this is text reconstruction, not application execution or a repeated rendering acceptance check. The controller's protected body matches its preimage after removing one indentation level, the temporal pass body after depth rendering is exact, and the velocity disposal and sizing methods are unchanged.
 
-A second reviewer assessed the supplied exact construction, allocation, ownership and replacement snippets. That review found no established ownership or ordering defect and specifically checked private history textures against the borrowed skeleton texture. It was source reasoning, without a separate dependency-body read or execution.
+For the earlier disposal continuation, a second reviewer assessed the supplied exact construction, allocation, ownership and replacement snippets. That review found no established ownership or ordering defect and specifically checked private history textures against the borrowed skeleton texture. It was source reasoning, without a separate dependency-body read or execution.
 
-No application, GPU, WebGL context, renderer, browser, model, screenshot, video, dependency installation, test suite or workflow was run. This packet makes no observed image-quality, frame-time, memory-use, browser compatibility or whole-feature claim. Shader source, temporal-blending equations and render-state restoration are unchanged. Resource disposal changes only the ownership paths described above. The existing `weightTransform` setter is still reapplied when `update()` replaces the camera pass.
+A separate source review of the literal restoration hunks checked the Map record before mutation, the incomplete-record success flag, depth/velocity override scopes, explicit generated-material history arguments and the history loop's encompassing finally. No concrete ordering defect was identified within the stated ordinary-material, paired-call scope. This was independent source reasoning; no production execution or dependency-body replay was performed.
+
+No application, GPU, WebGL context, renderer, browser, model, screenshot, video, dependency installation, test suite or workflow was run. This packet makes no observed image-quality, frame-time, memory-use, browser compatibility or whole-feature claim. Shader source and temporal-blending equations are unchanged. Resource disposal retains the prior ownership paths; temporary-state restoration changes only the scoped paths described above. The existing `weightTransform` setter is still reapplied when `update()` replaces the camera pass.
 
 The narrow Commons PR query returned four unrelated-title records; it was not treated as proof that no related work exists. The exact filename query returned zero records with `incomplete_results: true`, which is likewise not exhaustive. The bounded public Slack query returned no rendered matches and provider end, without independently proving query application. For the follow-through, a fresh native PR read retained the same open/unmerged `fc044fd7` head and comment counts; an exact Commons PR query for `weightTransform` returned zero records with `incomplete_results: false`. That bounded result is not a global absence claim. The resource continuation's separate exact Commons PR query for `velocityMaterials` also returned zero records with `incomplete_results: false`; its fresh PR read retained the same open/unmerged external head, 22 discussion comments and 18 inline comments.
 
