@@ -1,0 +1,13 @@
+diff --git a/packages/babel-plugin-flow-runtime/src/firstPassVisitors.js b/packages/babel-plugin-flow-runtime/src/firstPassVisitors.js
+index 2b92dc83f0f5561ff9e8e626fdf2d6da2188b84a..7a5dfaaa5e8051088128ffe08a1af54ab7a391fa 100644
+--- a/packages/babel-plugin-flow-runtime/src/firstPassVisitors.js
++++ b/packages/babel-plugin-flow-runtime/src/firstPassVisitors.js
+@@ -106,6 +106,8 @@
+ 
+       if (
+         context.libraryImport === 'require' &&
++        path.parentPath.parentPath &&
++        path.parentPath.parentPath.isProgram() &&
+         idPath.isIdentifier() &&
+         init.isCallExpression() &&
+         init.get('callee').isIdentifier({name: 'require'}) &&
