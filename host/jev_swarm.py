@@ -22,7 +22,6 @@ or writes by itself — it returns decisions callers may route on.
   python3 host/jev_swarm.py frontdoor --window me.json --docket docket.json
   python3 host/jev_swarm.py triage --file msg.txt
   python3 host/jev_swarm.py triage --transport hosted --file msg.txt
-  python3 host/jev_swarm.py --self-test
 """
 from __future__ import annotations
 
@@ -328,33 +327,6 @@ def _load_json(path):
         return json.load(handle)
 
 
-def self_test() -> dict:
-    rows = [
-        {"id": "a", "ask": "land the ledger fix", "status": "OPEN"},
-        {"id": "b", "ask": "post the receipt", "status": "OPEN"},
-    ]
-    windows = [
-        {"id": "w1", "harness": "cursor", "model": "grok", "tools": "git,slack",
-         "resources": "owner-pc"},
-        {"id": "w2", "harness": "chatgpt", "model": "gpt", "tools": "github-mcp",
-         "resources": "cloud"},
-    ]
-    checks = {
-        "classify": jev.validate_questions(classify_questions()),
-        "dedup": jev.validate_questions(dedup_questions(rows)),
-        "assign": jev.validate_questions(assign_questions(windows)),
-        "frontdoor": jev.validate_questions(front_door_questions(rows)),
-        "triage": jev.validate_questions(triage_questions()),
-    }
-    return {
-        "surfaces": list(checks),
-        "problems": {k: v for k, v in checks.items() if v},
-        "all_valid": not any(checks.values()),
-        "key_state": jev.key_state(),
-        "model": jev.DEFAULT_MODEL,
-    }
-
-
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description="Jev swarm decision surfaces")
     sub = parser.add_subparsers(dest="cmd")
@@ -372,12 +344,8 @@ def main(argv=None) -> int:
                        help="direct uses a local key; hosted uses the Commons server key")
         p.add_argument("--model", default=jev.DEFAULT_MODEL)
         p.add_argument("--timeout", type=int, default=60)
-    parser.add_argument("--self-test", action="store_true")
     args = parser.parse_args(argv)
 
-    if args.self_test:
-        print(json.dumps(self_test(), indent=2))
-        return 0
     handlers = {
         "classify": cmd_classify,
         "dedup": cmd_dedup,

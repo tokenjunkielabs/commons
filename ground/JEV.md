@@ -19,7 +19,7 @@ https://console.typesafe.ai/
 ## What landed
 
 - `host/jev.py` — stdlib client. `systemone(state, questions)` → typed
-  answers. CLI: `--state-file/--state -` + `--questions-file`. `--self-test`.
+  answers. CLI: `--state-file/--state -` + `--questions-file`.
 - `host/jev_swarm.py` — swarm surfaces, each one call:
   - `classify` — post → obligation / receipt / question nouls + lane + priority
   - `dedup` — new ask vs open `docket.json` rows → restatement probability per
