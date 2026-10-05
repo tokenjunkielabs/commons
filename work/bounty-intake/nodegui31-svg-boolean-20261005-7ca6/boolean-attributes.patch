@@ -1,0 +1,13 @@
+diff --git a/src/components/Svg/RNSvg.ts b/src/components/Svg/RNSvg.ts
+index 8f42815b4835cf903bbea2a74b2936055e83acd8..49eef0d3c1135f3e02ba6ff1c8b8926804a0e8f0 100644
+--- a/src/components/Svg/RNSvg.ts
++++ b/src/components/Svg/RNSvg.ts
+@@ -604,7 +604,7 @@
+       return result;
+     }
+ 
+-    result.push(value === true ? attributeName : `${attributeName}="${escapeAttribute(attributeValue)}"`);
++    result.push(`${attributeName}="${escapeAttribute(attributeValue)}"`);
+     return result;
+   }, [] as string[]);
+ 
