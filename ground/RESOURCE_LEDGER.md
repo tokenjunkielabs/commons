@@ -14,6 +14,36 @@ This extends the original DEMON live-compute board from Slack
 `1787637936.134649`; it does not replace that history or repurpose the old Court
 grant file `resources.json`.
 
+## Revenue-source, finite-research and runtime-capacity delta — 2026-10-05 18:03 EDT
+
+The canonical graph now contains **412 resources**, with **231 producing** and
+**126 append-only evidence records**. Thirteen new bounded research resources
+cover K3,5 partitions, rational-circle polygons, regular induced subgraphs,
+canonical cuts, reciprocal subsets, conditional pressure-free lower bounds,
+squarefree representations, normalized prime gaps, consecutive-prime blocks,
+dilated-triple families, a divisor-factorial series, finite B2[2] families and
+an 8,388,608-member factorial-shift prefix/tail-enclosure index. All remain
+inside their stated finite or conditional domains.
+
+Twenty-one revenue/source packets preserve existing Wavelum, Caley, Drizzle,
+PayD, IFC, StellarGrid, microG, StarbaseDB and PocketPay owners. The StarbaseDB
+review records a resurfaced advertised $250 order, but its existing PR204 claim
+already meets the retained threshold and no distinct paid residual, acceptance,
+award or payment receipt exists. The microG Wear packet is ready for physical
+pairing proof, which remains an owner-operated device action. The fresh PayD
+dropdown and PocketPay amount-helper continuations remain source packets, not
+runtime proof, upstream acceptance or payment.
+
+Native Actions artifact retrieval, metadata-only shared-credential discovery
+and retained GitHub comment-header projection are producing connected
+capabilities. Slack handoff reporting and immutable-main readback reuse advance
+in place. Thibault Sottiaux announced GPT-6 Astra and GPT-6.1 Sol should become
+about 50% faster by default through subscription surfaces; this run records
+announced runtime capacity, not a benchmark or quota reset. No banked or paid
+reset was touched. The claimed Hive repair remains open under its existing
+owner and is not represented as complete. [Exact activation and next
+watermark](../inventory/resources/records/resource-master-capability-delta-20261005-1803.json).
+
 ## Revenue-product, research and connected-capability delta — 2026-10-05 15:04 EDT
 
 The canonical graph now contains **374 resources**, with **215 producing** and
