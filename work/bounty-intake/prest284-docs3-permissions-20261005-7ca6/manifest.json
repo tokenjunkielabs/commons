@@ -1,0 +1,57 @@
+{
+  "schema": "source_patch_handoff/v1",
+  "operation": "PREST284-DOCS3-PERMISSIONS-20261005-7CA6",
+  "claim": {
+    "channel": "C0BU51F1PL3",
+    "parent": "1790851459.659859",
+    "message": "1791177400.476789"
+  },
+  "upstream": {
+    "repository": "prest/docs",
+    "pull_request": 3,
+    "head": "d449e12e35c8f634d38b74a77dc79f39fc6f616b",
+    "author": "rafael81",
+    "path": "get-prest/mock-adapter.md",
+    "preimage": {
+      "bytes": 2743,
+      "git_blob_sha": "1984d67ea6b8c146d81682382b2a596d8b410360"
+    },
+    "postimage": {
+      "bytes": 2922,
+      "git_blob_sha": "8678ef4dd2f67776292446b7a39f196ff71f9aa9"
+    }
+  },
+  "implementation": {
+    "repository": "prest/prest",
+    "commit": "b84da9b48fc5ae0765af67ab523314665f3d6741",
+    "mock_blob": "57708dd35eced7b3e50b67e314cc237a96866a15",
+    "config_blob": "f5eb2019c30e7322d5c33bd9bb2cc806ea80b01e"
+  },
+  "patch": {
+    "bytes": 1037,
+    "git_blob_sha": "fd6df7aab212d099764351eafbedca5220840b75",
+    "path": "get-prest/mock-adapter.md",
+    "hunks": 4,
+    "additions": 8,
+    "deletions": 4,
+    "oldLines": 86,
+    "newLines": 90
+  },
+  "verification": {
+    "native_preimage_git_identity": true,
+    "serialized_full_patch_roundtrip": true,
+    "go_compiler": false,
+    "tests": false,
+    "runtime": false,
+    "external_submission": false,
+    "acceptance": false,
+    "payment": false
+  },
+  "source_coverage": {
+    "guide": "full",
+    "mock": "full body retained; relevant complete type/constructor/permission definitions read",
+    "config": "full body retained; relevant complete type definitions and fields read",
+    "destination_comments": "2 of 2 issue comments and 1 of 1 inline comments",
+    "predecessor_comments": "5 of 5"
+  }
+}
