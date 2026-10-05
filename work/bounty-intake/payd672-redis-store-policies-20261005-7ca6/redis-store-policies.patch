@@ -1,0 +1,34 @@
+diff --git a/src/middleware/rateLimiter.ts b/src/middleware/rateLimiter.ts
+--- a/src/middleware/rateLimiter.ts
++++ b/src/middleware/rateLimiter.ts
+@@ -1,12 +1,16 @@
+ import { Request, Response, NextFunction } from 'express';
+ import rateLimit from 'express-rate-limit';
+ import Redis from 'ioredis';
++import { RedisStore, type RedisReply } from 'rate-limit-redis';
+ 
+ const redisClient = new Redis(process.env.REDIS_URL);
++const sendCommand = (command: string, ...args: string[]) =>
++    redisClient.call(command, ...args) as Promise<RedisReply>;
+ 
+ export const rateLimiter = rateLimit({
+-    store: new (require('rate-limit-redis').RedisStore)({
+-        client: redisClient,
++    store: new RedisStore({
++        sendCommand,
++        prefix: 'payd:tenants:standard:',
+     }),
+     windowMs: 15 * 60 * 1000, // 15 minutos
+     max: 100, // Limite de 100 requisições por IP
+@@ -16,8 +20,9 @@
+ });
+ 
+ export const strictRateLimiter = rateLimit({
+-    store: new (require('rate-limit-redis').RedisStore)({
+-        client: redisClient,
++    store: new RedisStore({
++        sendCommand,
++        prefix: 'payd:tenants:strict:',
+     }),
+     windowMs: 1 * 60 * 1000, // 1 minuto
+     max: 10, // Limite de 10 requisições por IP
