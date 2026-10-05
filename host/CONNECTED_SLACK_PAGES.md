@@ -1158,3 +1158,102 @@ preserved all earlier behavior except the explicit additional operation,
 its field validation and its projected operation label. The schema check used
 the current exposed public tool definition; no private search, old provider
 request replay, OS process, fixture or repository test was run.
+
+
+## Retained collection handoffs, 2026-10-05
+
+`projectSlackCollectionHandoffs(records, options)` is a pure, additive
+metadata report for caller-selected `read_channel` collections. It addresses a
+real handoff failure: a lane resumed from its own older window while a later
+cross-lane observation was already available. A private message hold also arrived
+after selection. This report can expose supplied request windows and unresolved
+cursor state; it cannot discover a missing collection or recover, infer or clear
+a hold.
+
+Keep the original collections and this report private. Pass actual retained
+collections, not rewritten summaries or reconstructed requests:
+
+```js
+const handoff = projectSlackCollectionHandoffs([
+  {custody_key: earlierCollectionKey, collection: earlierCollection},
+  {custody_key: laterCollectionKey, collection: laterCollection},
+], {max_collections: 20, max_metadata_chars: 65536});
+// Bank handoff beside the named collection keys before transferring its metadata.
+```
+
+Each output record keeps its input index, caller-supplied custody key, collection
+source path, normalized request and budgets, per-page request and response-index
+paths, known stop reason, reported native ending, cursor disposition, error
+presence and recorded next request. The existing full-chain metadata consistency
+checks are reused with a callback that does not parse or copy its native-response
+argument. `CONSISTENT_RECORDED_METADATA` describes that local consistency only;
+it is neither authentication nor validation of request application. Unsupported
+operations or inconsistent metadata stay visibly refused. A no-page stop or a
+final native exception may have consistent metadata without a selected response.
+
+Only the known channel-read argument fields are included. Unknown argument
+values and names are omitted, with their count retained. Invalid or oversized
+known argument values become null and their field names are listed. Individual
+text fields are bounded at 4,096 characters; timestamps recording the collection
+start/end are bounded at 64, and custody keys at 256. A cursor separately distinguishes absent, present,
+invalid and omitted-oversize, so an omitted cursor does not become END. Native
+error messages, pagination prose, bodies, snippets and raw response payloads are
+never emitted. Error metadata includes its original source path, an uppercase
+bounded error code when present, and an explicit numeric HTTP status when valid;
+it does not infer a failure classification or wait deadline.
+
+The recorded next request is descriptive, never a recommendation or retry
+authorization. The collector can retain one after native or callback failure.
+Every original failure and external hold therefore remains applicable. END for
+a request that starts with a cursor is labelled as an ended suffix, not a
+completed whole window. Standalone bounded requests, unbounded or one-sided
+requests, absent END and END accompanied by an error have distinct scope labels.
+No recommended next request, interval union, deduplication, global absence,
+snapshot, ownership or permission result is computed.
+
+For consistent records with the same channel and two valid ordered decimal
+bounds, the report compares the requested bounds exactly. An overlap carries
+both input indexes and the original selected endpoint strings, with explicit
+limit/format-change flags. Touching numeric bounds count as intersection of
+the requested ranges; native endpoint inclusion semantics remain unverified.
+No overlap entry is evidence about message identities or the provider applying
+those bounds. Missing or unsupported bounds are not compared.
+
+Limits are caller-selected `max_collections` (default 20, maximum 100) and
+`max_metadata_chars` (default 65,536, maximum 262,144). Each collection is limited
+to 1,000 page records and 1,000 retained-response slots, matching the existing
+metadata validator; at most 100 overlap records are emitted. Metadata charging
+uses the JSON character length of admitted record and overlap objects, excluding
+the small fixed report envelope. The first record that does not fit ends record
+selection and reports the remaining omitted count. Overlap omissions are counted
+separately. Either budget omission yields `PARTIAL`. Invalid options or an
+over-limit input array raise `TypeError`; inspected holes or invalid custody keys
+also raise it. Entries omitted by the metadata budget are not inspected.
+An empty supplied list says only that no collections were supplied.
+
+### First actual use and limits
+
+Before source publication, one invocation consumed the two complete retained
+MCP channel collections ending at 20:00:30 and 20:18:04 UTC on 2026-10-05. Their exact
+requested bounds were 1791223849.000000–1791230430.000000 and
+1791230429.000000–1791231484.000000. Both used limit 100/detailed, contained one
+successful page and one retained response, started without a cursor, reported
+provider END and had no recorded next request.
+
+The new report returned two consistent records with their separate original
+request shapes, one requested-bound overlap
+1791230429.000000–1791230430.000000, unchanged limit/format, and no omissions.
+Charged metadata was 3,237 characters; the complete report was 3,851 characters.
+Both input collections remained JSON-identical. Provider calls and existing
+message-body projector executions were zero. The complete report and original
+native envelopes remain in private caller custody; no message bodies or raw
+envelopes were copied into the repository.
+
+This is the only first-consumer observation. Resumed cursors, native failures,
+callback failures, unknown pagination, cursor cycles, inconsistent metadata,
+changed limits/formats, unsupported operations and budget refusals/omissions
+remain unexecuted. No synthetic input, fixture, test suite, state-branch read,
+runtime service or old provider request was used. The prior root 19:29 collection
+was not supplied and is not reconstructed; its coverage and all message holds
+remain outside the report. All existing collector and projector function bodies
+are byte-for-byte unchanged.

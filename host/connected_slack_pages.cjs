@@ -1188,7 +1188,189 @@ function projectSlackCollectedSearchResults(collection, options = {}) {
     ['search', 'search_public'], projectSlackSearchResults);
 }
 
+
+/**
+ * Report caller-retained read_channel metadata across collections. Never reads
+ * response bodies, recommends requests, or changes collection/hold state.
+ */
+function projectSlackCollectionHandoffs(records, options = {}) {
+  object(options, 'handoff options');
+  for (const key of Object.keys(options)) {
+    if (!['max_collections', 'max_metadata_chars'].includes(key)) {
+      throw new TypeError('unknown handoff option');
+    }
+  }
+  const maxCollections = positive(options.max_collections ?? 20, 'max_collections', 100);
+  const maxChars = positive(options.max_metadata_chars ?? 65536, 'max_metadata_chars', 262144);
+  if (!Array.isArray(records) || records.length > maxCollections) {
+    throw new TypeError('records must be an array within max_collections');
+  }
+  const result = {
+    schema: 'commons.connected_slack_collection_handoffs/v1', status: 'PROJECTED',
+    provenance: {
+      basis: 'caller_retained_metadata_only', authentication: 'not_performed',
+      native_responses_parsed: false, snapshot: false,
+      window_application: 'not_verified', holds: 'not_assessed',
+      scope: 'supplied_collections_only', continuation: 'recorded_not_recommended',
+    },
+    limits: {max_collections: maxCollections, max_metadata_chars: maxChars,
+      max_pages_per_collection: 1000, max_overlap_records: 100},
+    supplied_collections: records.length, records: [], omitted_collections: 0,
+    requested_window_overlaps: [], omitted_overlap_records: 0, metadata_chars: 0,
+  };
+  const isRecord = value => value && typeof value === 'object' && !Array.isArray(value);
+  const boundedText = (value, maximum = 4096) =>
+    typeof value === 'string' && value.length <= maximum ? value : null;
+  const cursorView = value => ({
+    value: boundedText(value),
+    state: value === null || value === undefined ? 'absent'
+      : typeof value !== 'string' || !value.trim() ? 'invalid'
+        : value.length > 4096 ? 'omitted_oversize' : 'present',
+  });
+  const count = value => Number.isSafeInteger(value) && value >= 0 ? value : null;
+  const flag = value => typeof value === 'boolean' ? value : null;
+  const fields = OPERATIONS.read_channel.fields;
+  const requestView = value => {
+    if (!isRecord(value)) return null;
+    const args = isRecord(value.args) ? value.args : {};
+    const view = {operation: value.operation === 'read_channel' ? 'read_channel' : null,
+      args: {}, invalid_argument_fields: [],
+      unrecognized_argument_count: Object.keys(args).filter(key => !fields.includes(key)).length,
+      max_pages: count(value.max_pages), timeout_ms: count(value.timeout_ms)};
+    for (const key of fields) {
+      if (!Object.prototype.hasOwnProperty.call(args, key)) continue;
+      const v = key === 'limit' ? count(args[key]) : boundedText(args[key]);
+      view.args[key] = v;
+      if (v === null) view.invalid_argument_fields.push(key);
+    }
+    return view;
+  };
+  const errorView = (value, sourcePath) => {
+    if (!value) return null;
+    return {source_path: sourcePath,
+      error_code: typeof value.error_code === 'string' && /^[A-Z0-9_]{1,64}$/.test(value.error_code)
+        ? value.error_code : null,
+      http_status: Number.isInteger(value.http_status) && value.http_status >= 100 &&
+        value.http_status <= 599 ? value.http_status : null};
+  };
+  const stops = new Set(['TIME_BUDGET', 'NATIVE_EXCEPTION', 'NATIVE_ERROR',
+    'UNKNOWN_PAGINATION', 'PROVIDER_END', 'CURSOR_REPEAT', 'UNREADABLE_RESPONSE',
+    'CALLBACK_ERROR', 'PAGE_BUDGET']);
+  const admit = (target, value) => {
+    const size = JSON.stringify(value).length;
+    if (result.metadata_chars + size > maxChars) return false;
+    result.metadata_chars += size;
+    target.push(value);
+    return true;
+  };
+  for (let i = 0; i < records.length; i++) {
+    const entry = records[i];
+    if (!Object.prototype.hasOwnProperty.call(records, i) || !isRecord(entry) ||
+        typeof entry.custody_key !== 'string' || !entry.custody_key.trim() ||
+        entry.custody_key.length > 256) {
+      throw new TypeError('each record requires a nonempty custody_key of at most 256 characters');
+    }
+    const collection = entry.collection;
+    const row = {source_index: i, custody_key: entry.custody_key,
+      collection_source_path: 'records[' + i + '].collection',
+      metadata_status: 'REFUSED', issue_code: null};
+    if (!isRecord(collection) || collection.operation !== 'read_channel') {
+      row.issue_code = 'UNSUPPORTED_COLLECTION';
+    } else if (!Array.isArray(collection.pages) || collection.pages.length > 1000 ||
+        !Array.isArray(collection.responses) || collection.responses.length > 1000) {
+      row.issue_code = 'COLLECTION_ARRAY_LIMIT';
+    } else {
+      // Reuse the existing full-chain metadata checks with a body-free callback.
+      // The callback neither parses nor copies its native-response argument.
+      const checked = projectCollectedSlackPage(collection, {page_index: 0},
+        ['read_channel'], () => ({status: 'METADATA_ONLY', issue: null}));
+      row.metadata_status = checked.status === 'METADATA_ONLY' ||
+        ['NO_RECORDED_PAGE', 'SELECTED_PAGE_HAS_NO_RESPONSE'].includes(checked.issue?.code)
+        ? 'CONSISTENT_RECORDED_METADATA' : 'REFUSED';
+      row.issue_code = checked.issue?.code ?? null;
+      row.binding = collection.binding === OPERATIONS.read_channel.binding ? collection.binding : null;
+      row.request = requestView(collection.request);
+      row.started_at = boundedText(collection.started_at, 64);
+      row.finished_at = boundedText(collection.finished_at, 64);
+      row.retained_responses = collection.responses.length;
+      const summary = isRecord(collection.summary) ? collection.summary : {};
+      row.reported_summary = {
+        calls: count(summary.calls), successful_pages: count(summary.successful_pages),
+        retained_responses: count(summary.retained_responses),
+        started_with_cursor: flag(summary.started_with_cursor),
+        provider_end_observed: flag(summary.provider_end_observed),
+        stop_reason: stops.has(summary.stop_reason) ? summary.stop_reason : 'UNRECOGNIZED',
+        next_cursor: cursorView(summary.next_cursor),
+        native_error: errorView(summary.native_error, row.collection_source_path + '.summary.native_error'),
+      };
+      row.recorded_next_request = requestView(collection.next_request);
+      row.next_request_recorded = collection.next_request !== null && collection.next_request !== undefined;
+      row.pages = collection.pages.map((page, j) => {
+        if (!isRecord(page)) return {source_index: j, issue_code: 'INVALID_PAGE'};
+        const path = row.collection_source_path + '.pages[' + j + ']';
+        return {source_index: j, source_path: path, call: count(page.call),
+          request: requestView({operation: 'read_channel', args: page.request_args}),
+          response_index: count(page.response_index),
+          response_source_path: Number.isSafeInteger(page.response_index) && page.response_index >= 0 &&
+            page.response_index < collection.responses.length
+            ? row.collection_source_path + '.responses[' + page.response_index + ']' : null,
+          provider_end_observed: flag(page.provider_end_observed),
+          next_cursor: cursorView(page.next_cursor),
+          error: errorView(page.error, path + '.error'),
+          callback_error_recorded: Boolean(page.callback_error)};
+      });
+      const args = row.request?.args ?? {};
+      row.end_scope = row.metadata_status !== 'CONSISTENT_RECORDED_METADATA' ? 'unassessed'
+        : summary.provider_end_observed !== true || summary.stop_reason !== 'PROVIDER_END'
+          ? 'no_provider_end_disposition'
+          : args.cursor !== undefined ? 'resumed_suffix_provider_end'
+            : args.oldest !== undefined && args.latest !== undefined
+              ? 'standalone_bounded_request_provider_end' : 'unbounded_request_provider_end';
+      row.has_recorded_stop_error = Boolean(summary.native_error) ||
+        collection.pages.some(page => Boolean(page?.error || page?.callback_error));
+      if (row.has_recorded_stop_error && summary.provider_end_observed === true) {
+        row.end_scope = 'provider_end_with_recorded_error';
+      }
+    }
+    if (!admit(result.records, row)) {
+      result.status = 'PARTIAL';
+      result.omitted_collections = records.length - i;
+      break;
+    }
+  }
+  // Compare declared bounds only. No union, deduplication, snapshot or next
+  // frontier is derived, including when a resumed suffix reports provider END.
+  const stamp = value => {
+    if (typeof value !== 'string' || !/^[0-9]{1,16}\.[0-9]{1,16}$/.test(value)) return null;
+    const [seconds, fraction] = value.split('.');
+    return BigInt(seconds) * 10000000000000000n + BigInt(fraction.padEnd(16, '0'));
+  };
+  for (let i = 0; i < result.records.length; i++) {
+    const a = result.records[i], aa = a.request?.args;
+    if (a.metadata_status !== 'CONSISTENT_RECORDED_METADATA' || !aa ||
+        typeof aa.channel_id !== 'string' || !aa.channel_id.trim()) continue;
+    const al = stamp(aa.oldest), ah = stamp(aa.latest);
+    if (al === null || ah === null || al > ah) continue;
+    for (let j = i + 1; j < result.records.length; j++) {
+      const b = result.records[j], ba = b.request?.args;
+      if (b.metadata_status !== 'CONSISTENT_RECORDED_METADATA' || !ba ||
+          aa.channel_id !== ba.channel_id) continue;
+      const bl = stamp(ba.oldest), bh = stamp(ba.latest);
+      if (bl === null || bh === null || bl > bh || ah < bl || bh < al) continue;
+      const overlap = {source_indices: [a.source_index, b.source_index],
+        scope: 'requested_bounds_only',
+        oldest: al >= bl ? aa.oldest : ba.oldest, latest: ah <= bh ? aa.latest : ba.latest,
+        limit_changed: aa.limit !== ba.limit,
+        response_format_changed: aa.response_format !== ba.response_format};
+      if (result.requested_window_overlaps.length >= result.limits.max_overlap_records ||
+          !admit(result.requested_window_overlaps, overlap)) result.omitted_overlap_records++;
+    }
+  }
+  if (result.omitted_overlap_records) result.status = 'PARTIAL';
+  return result;
+}
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {collectSlackPages, projectSlackMessages, projectSlackSearchResults, projectSlackReadFailure,
-    projectSlackCollectedMessages, projectSlackCollectedSearchResults};
+    projectSlackCollectedMessages, projectSlackCollectedSearchResults, projectSlackCollectionHandoffs};
 }
