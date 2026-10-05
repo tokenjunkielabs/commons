@@ -61,13 +61,13 @@ web_src/js/features/repo-issue.ts
 web_src/js/features/repo-legacy.ts
 ```
 
-## Review-derived acceptance blockers
+## Review feedback reconciled with the retained source
 
-These are current review facts, not speculative redesign:
+Historical review comments are distinguished from the implementation present at the retained head:
 
 1. **Resolve the dirty/rebase block first.** PR metadata reports both merge and rebase blocked against current upstream.
-2. **Template data contract.** The latest inline review on `templates/repo/diff/section_split.tmpl` asks not to pass `root` and points to the repository's backend template guidance. A contributor-side follow-up exists at yuvrajangadsingh/gitea#2, commit `3f288d7879089416d7a4ed258eb2b9b69c33f106`; it must be reconciled against the retained head, not copied blindly.
-3. **Migration shape.** Maintainer review on `modelmigration/migrations.go` asked that the commit-comment and notification migrations be merged into one migration.
+2. **Template data contract: existing follow-up available.** The latest inline review on `templates/repo/diff/section_split.tmpl` asks not to pass `root`. `marcusdytrich`'s existing [contributor-side PR #2](https://github.com/yuvrajangadsingh/gitea/pull/2), head `3f288d7879089416d7a4ed258eb2b9b69c33f106`, is based on the exact retained upstream head `b46f3c2d0d93e66ed03b63b0e9677d4c24ca3e99`. Its nine-file production patch supplies named template values, uses `ctx.RootData` for request-level data and synchronizes the POST render key as `Comments`. Preserve and reconcile that existing contribution after the upstream update; do not recreate it. The follow-up remains OPEN/unmerged.
+3. **Migration-combine request: already implemented at this head.** Historical [review comment 3700162298](https://github.com/go-gitea/gitea/pull/36862#discussion_r3700162298) asked for one migration. Current `modelmigration/v28/v350.go`, blob `6581cea5e63a7730a683c5ddd02a7027eefd436b`, already defines both `CommitComment` and `Notification.CommitCommentID` and synchronizes them in one `SyncWithOptions` call. Current `modelmigration/migrations.go`, blob `9a345f221b0ff2627b1aa44482a417a5db3dade6`, registers that one migration as 350. This historical request is not a remaining combine task. Preserve its combined semantics when resolving any actual current-main migration conflict.
 4. **Maintainability / reuse.** Maintainer discussion explicitly asks that new diff/comment templates reuse existing structures and avoid duplicated fragile template logic.
 5. **Approval gate.** Even after conflicts and review items are resolved, the PR needs two maintainer approvals.
 
@@ -78,7 +78,7 @@ Earlier review discussion also raised permission parity, poster batch-loading, n
 1. In the original contributor fork, fetch current `go-gitea/gitea:main`.
 2. Rebase or merge that exact main into `feat/commit-inline-comments`; record the actual conflict paths.
 3. Resolve conflicts while preserving commit-comment ownership, attachment cleanup, notification linkage, and existing integration coverage.
-4. Reconcile the explicit-template-data follow-up and the migration-combine request on the rebased tree.
+4. Reconcile the existing explicit-template-data follow-up on the updated tree. Preserve the already combined migration; resolve actual upstream conflicts without repeating the historical combine task.
 5. Run only the maintainer-relevant checks:
    - `git diff --check`
    - `make backend`
@@ -87,4 +87,4 @@ Earlier review discussion also raised permission parity, poster batch-loading, n
 
 ## Boundaries
 
-No test pass is claimed here. This seat did not clone or execute Gitea, mutate the contributor fork, post upstream, or open another carrier. The packet is a durable current-state handoff for the original owner or an explicitly authorized collaborator.
+No test pass is claimed here. The source reconciliation inspected the retained migration implementation/registration and all nine production patches of the existing template follow-up. It did not execute Gitea, replay the contributor's checks, mutate either contributor fork, post upstream, or create a competing implementation carrier. The packet is a durable current-state handoff for the original owner or an explicitly authorized collaborator.

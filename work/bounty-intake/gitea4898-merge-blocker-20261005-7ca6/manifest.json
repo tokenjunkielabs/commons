@@ -45,5 +45,26 @@
   "operation": "ALG-GITEA4898-MERGE-BLOCKER-PACKET-7CA6-20261005",
   "source_mutation": false,
   "upstream_message": false,
-  "preserves_original_owner": true
+  "preserves_original_owner": true,
+  "source_reconciliation": {
+    "head": "b46f3c2d0d93e66ed03b63b0e9677d4c24ca3e99",
+    "migration": {
+      "status": "already_combined_at_retained_head",
+      "review_comment": 3700162298,
+      "path": "modelmigration/v28/v350.go",
+      "blob": "6581cea5e63a7730a683c5ddd02a7027eefd436b",
+      "registry_path": "modelmigration/migrations.go",
+      "registry_blob": "9a345f221b0ff2627b1aa44482a417a5db3dade6",
+      "migration_id": 350
+    },
+    "template_followup": {
+      "status": "existing_open_unmerged_contribution",
+      "author": "marcusdytrich",
+      "head": "3f288d7879089416d7a4ed258eb2b9b69c33f106",
+      "base": "b46f3c2d0d93e66ed03b63b0e9677d4c24ca3e99",
+      "production_files": 9
+    },
+    "runtime_execution": false,
+    "inspected_on": "2026-10-05"
+  }
 }
