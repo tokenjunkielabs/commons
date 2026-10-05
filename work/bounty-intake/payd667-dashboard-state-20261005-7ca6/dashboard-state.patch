@@ -1,0 +1,77 @@
+diff --git a/src/components/Dashboard.jsx b/src/components/Dashboard.jsx
+--- a/src/components/Dashboard.jsx
++++ b/src/components/Dashboard.jsx
+@@ -1,23 +1,32 @@
+-import React from 'react';
+-import { DashboardProvider } from '../context/DashboardContext';
++import React, { useContext } from 'react';
++import { DashboardContext, DashboardProvider } from '../context/DashboardContext';
+ import DashboardCard from './DashboardCard';
++import '../styles/Dashboard.css';
+ 
+-const Dashboard = () => {
++const initialCards = [
++  { title: 'Overview', content: <p>Key metrics and summary data</p> },
++  { title: 'Analytics', content: <p>Detailed analytics and charts</p> },
++  { title: 'Recent Activity', content: <p>Latest user activities and events</p> }
++];
++
++const DashboardCards = () => {
++  const { cards } = useContext(DashboardContext);
++
+   return (
+-    <DashboardProvider>
+-      <div className="dashboard-container">
+-        <DashboardCard title="Overview">
+-          <p>Key metrics and summary data</p>
+-        </DashboardCard>
+-        
+-        <DashboardCard title="Analytics">
+-          <p>Detailed analytics and charts</p>
+-        </DashboardCard>
+-        
+-        <DashboardCard title="Recent Activity">
+-          <p>Latest user activities and events</p>
++    <div className="dashboard-container">
++      {cards.map(card => (
++        <DashboardCard key={card.title} title={card.title}>
++          {card.content}
+         </DashboardCard>
+-      </div>
++      ))}
++    </div>
++  );
++};
++
++const Dashboard = () => {
++  return (
++    <DashboardProvider initialCards={initialCards}>
++      <DashboardCards />
+     </DashboardProvider>
+   );
+ };
+diff --git a/src/components/DashboardCard.jsx b/src/components/DashboardCard.jsx
+--- a/src/components/DashboardCard.jsx
++++ b/src/components/DashboardCard.jsx
+@@ -1,6 +1,6 @@
+ import React, { useContext } from 'react';
+ import { DashboardContext } from '../context/DashboardContext';
+-import './DashboardCard.css';
++import '../styles/DashboardCard.css';
+ 
+ const DashboardCard = ({ title, children, removable = true }) => {
+   const { removeCard } = useContext(DashboardContext);
+diff --git a/src/context/DashboardContext.jsx b/src/context/DashboardContext.jsx
+--- a/src/context/DashboardContext.jsx
++++ b/src/context/DashboardContext.jsx
+@@ -2,8 +2,8 @@
+ 
+ export const DashboardContext = createContext();
+ 
+-export const DashboardProvider = ({ children }) => {
+-  const [cards, setCards] = useState([]);
++export const DashboardProvider = ({ children, initialCards = [] }) => {
++  const [cards, setCards] = useState(initialCards);
+ 
+   const addCard = useCallback((card) => {
+     setCards(prev => [...prev, card]);
