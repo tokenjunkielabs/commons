@@ -1,0 +1,13 @@
+diff --git a/packages/babel-plugin-flow-runtime/src/convert.js b/packages/babel-plugin-flow-runtime/src/convert.js
+--- a/packages/babel-plugin-flow-runtime/src/convert.js
++++ b/packages/babel-plugin-flow-runtime/src/convert.js
+@@ -13,7 +13,8 @@
+ export type ConverterDict = {[name: string]: Converter};
+ 
+ const converters: ConverterDict = {};
+-const GLOBAL_TYPE_VALUE_REFS = ['Date', 'Map', 'Promise', 'Set'];
++// Map must retain its registered key/value validator, including for polyfills.
++const GLOBAL_TYPE_VALUE_REFS = ['Date', 'Promise', 'Set'];
+ 
+ function getPropertyName(path: NodePath): string {
+   if (path.get('key').isIdentifier()) return path.node.key.name;
