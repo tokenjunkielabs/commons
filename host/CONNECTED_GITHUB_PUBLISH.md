@@ -227,6 +227,50 @@ and were not replayed. The first useful invocation is reserved for a fresh
 publication; its actual wrapper paths and clock observations will be reported
 separately. No synthetic clock, fixture suite or timing benchmark was used.
 
+#### First actual action-timing consumer
+
+The first new consumer was the six-file E330 packet
+[Commons #31668](https://github.com/woahwhattheheck/commons/pull/31668), using
+publisher `9144645393d487644a81d54161b3841c48824a00` with
+`action_timing: true` and `inline_pinned_utf8: true`.
+Its prepared head was `f5a42557c0649b7282cfe6c27ebaee56bddb485b` and merge
+`c174f4c260cae00fec39539bd11ac8d01ad4f9c4`.
+
+The retained publisher result recorded these actual binding intervals in
+milliseconds, including the caller's request/raw-response custody wrapper:
+
+| Action | Settled count | Total ms | Minimum ms | Maximum ms |
+|---|---:|---:|---:|---:|
+| `fetch` | 7 | 4312 | 312 | 1439 |
+| `create_tree` | 1 | 1235 | 1235 | 1235 |
+| `create_commit` | 1 | 527 | 527 | 527 |
+| `create_branch` | 1 | 625 | 625 | 625 |
+| `create_pull_request` | 1 | 1832 | 1832 | 1832 |
+| `merge_pull_request` | 1 | 2980 | 2980 | 2980 |
+| `fetch_file` | 6 | 2182 | 246 | 416 |
+
+All 18 invocations returned and had finite samples. Each action's `returned`
+and `timed_count` equaled its count; `threw`, `unavailable_samples` and
+`negative_samples` were zero, and `recording_errors` was zero. These are
+signed `Date.now` observations, not a monotonic-clock guarantee. Concurrent
+readbacks used `readback_concurrency: 3`; their intervals overlap and accumulated
+totals are not operation elapsed
+time, isolated provider/network latency or a speedup comparison.
+
+The inline tree `752cad5a04117ca5ea618a6d4abec9de788d7979` required three
+additional native tree reads, included in the seven `fetch` calls, and all six
+source pins passed before commit creation. All six complete immutable and main
+texts, provider and independent blob identities, PR, changed paths and directory
+matched. Observed main was the merge above. Ten separate final reads are outside
+the helper's timing summary, and the original release readback matched after one
+ordinary URL wrapper. No default-route run or old publication was replayed.
+
+Only the successful atomic publication with inline pins was exercised by this
+consumer. Thrown bindings, returned error envelopes, unavailable/negative clock
+samples, recording failures, invalid option values, and other supported wrapper
+APIs remain source-inspected and unexecuted by it. This observation does not
+extend the source's bounded timing contract or establish future call latency.
+
 The commit has the observed base as its
 parent. Existing file modes are retained. The branch primitive creates a new
 branch; use a unique operation name. `publishGitHubChange` does not update an existing branch; the explicit
