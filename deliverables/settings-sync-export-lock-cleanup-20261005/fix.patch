@@ -1,0 +1,26 @@
+diff --git a/src/service/filesystem/store.ts b/src/service/filesystem/store.ts
+--- a/src/service/filesystem/store.ts
++++ b/src/service/filesystem/store.ts
+@@ -142,11 +142,17 @@
+       await fs.writeFile(staged, serialized, { encoding: "utf8", mode: 0o600 });
+       await fs.rename(staged, this.filename);
+     } finally {
+-      if (temporary) {
+-        await fs.remove(temporary);
+-      }
+-      await fs.close(lock);
+-      await fs.unlink(lockPath);
++      try {
++        if (temporary) {
++          await fs.remove(temporary);
++        }
++      } finally {
++        try {
++          await fs.close(lock);
++        } finally {
++          await fs.unlink(lockPath);
++        }
++      }
+     }
+   }
+ }
