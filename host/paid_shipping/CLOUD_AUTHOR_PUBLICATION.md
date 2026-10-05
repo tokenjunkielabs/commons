@@ -72,6 +72,24 @@ another target. Its observation includes publication attempt, publisher HTTP
 status, allow/result codes, supplied retry timing, observed head and
 `body_matches`.
 
+## Authenticated reads during GitHub core exhaustion
+
+The [maintained Quittance carrier](../../.github/workflows/quittance-publication-reset.yml)
+retains authenticated identity, source and duplicate checks when GitHub explicitly
+reports an exhausted REST core quota. Its fallback requires HTTP 403 or 429,
+`X-RateLimit-Resource: core`, zero remaining calls, and no separate `Retry-After`.
+It then uses the same credential for GraphQL `viewer`, repository references,
+issue state and fully paginated pull-request reads. Permission errors and other
+rate-limit responses remain typed failures. It does not substitute an anonymous
+identity or ignore source changes.
+
+[Run 37245760231](https://github.com/woahwhattheheck/commons/actions/runs/37245760231)
+executed this path during a real core-quota failure, confirmed the original
+account and existing PR587/588/589, and sent no duplicate publication request.
+Use these maintained read helpers when composing another existing-operation
+carrier. The publisher request contract and classifier requirements remain the
+same; a successful read fallback does not establish classifier availability.
+
 ## Existing free classifier credential
 
 The current publisher can use the existing shared `groq/api-key` credential
