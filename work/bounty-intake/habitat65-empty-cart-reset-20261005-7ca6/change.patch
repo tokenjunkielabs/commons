@@ -1,0 +1,14 @@
+diff --git a/web/lib/HabitatTransactionCart.js b/web/lib/HabitatTransactionCart.js
+--- a/web/lib/HabitatTransactionCart.js
++++ b/web/lib/HabitatTransactionCart.js
+@@ -127,6 +127,10 @@
+         grid.append(e);
+       }
+ 
++      if (!evt.data.value.length) {
++        this._closedManually = false;
++      }
++
+       if (!this._closedManually) {
+         const wrapper = this.shadowRoot.querySelector('#outer');
+         if (evt.data.value.length) {
