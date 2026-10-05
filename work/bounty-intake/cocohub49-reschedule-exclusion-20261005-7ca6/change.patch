@@ -1,0 +1,29 @@
+diff --git a/src/services/appointmentService.ts b/src/services/appointmentService.ts
+--- a/src/services/appointmentService.ts
++++ b/src/services/appointmentService.ts
+@@ -121,7 +121,7 @@
+   const hasConflicts = conflicts.length > 0;
+   const suggestedTime =
+     hasConflicts && includeSuggestedTime
+-      ? await findNextAvailableSlot(petId, proposedTime, medications)
++      ? await findNextAvailableSlot(petId, proposedTime, medications, excludeId)
+       : undefined;
+ 
+   return { hasConflicts, conflicts, suggestedTime };
+@@ -141,14 +141,15 @@
+ export async function findNextAvailableSlot(
+   petId: string,
+   from: Date,
+   medications: Medication[] = [],
++  excludeId?: string,
+ ): Promise<Date | undefined> {
+   const MAX_ITERATIONS = 14 * 24;
+   let candidate = new Date(from.getTime() + CONFLICT_BUFFER_MS);
+ 
+   for (let i = 0; i < MAX_ITERATIONS; i++) {
+-    const result = await detectConflicts(petId, candidate, medications, undefined, false);
++    const result = await detectConflicts(petId, candidate, medications, excludeId, false);
+     if (!result.hasConflicts) return candidate;
+     candidate = new Date(candidate.getTime() + CONFLICT_BUFFER_MS);
+   }
+   return undefined;
