@@ -1,0 +1,104 @@
+{
+  "captured_at": "2026-10-05T15:31:59Z",
+  "operation": "ALG-GITEA1872-PR37630-MERGE-BLOCKER-20261005-7CA6",
+  "platform": "Algora",
+  "issue": {
+    "repo": "go-gitea/gitea",
+    "number": 1872,
+    "url": "https://github.com/go-gitea/gitea/issues/1872",
+    "state": "open",
+    "assignees": []
+  },
+  "money": {
+    "advertised_funded_offers_usd": [
+      500,
+      250,
+      100,
+      80,
+      50
+    ],
+    "advertised_funded_total_usd": 980,
+    "awarded_usd": 0,
+    "invoiced_usd": 0,
+    "received_usd": 0,
+    "packet_entitlement_usd": 0
+  },
+  "owner": {
+    "github": "GamerGirlandCo",
+    "preserves_claim": true,
+    "preserves_payment_rights": true
+  },
+  "carriers": [
+    {
+      "pr": 35265,
+      "url": "https://github.com/go-gitea/gitea/pull/35265",
+      "role": "models_api_part_1_of_3",
+      "state": "open",
+      "draft": false,
+      "head": "4ef5a231667525c1c544fba65c9793a713ced25c",
+      "observed_main": "e8d2c493bbdb4863e6aa73352167b2416d236c11",
+      "mergeable": false,
+      "rebaseable": false,
+      "mergeable_state": "dirty",
+      "commits": 117,
+      "changed_files": 147,
+      "additions": 57222,
+      "deletions": 1301,
+      "reviews": {
+        "approvals": 0,
+        "label": "lgtm/need 2",
+        "combined_status": "pending"
+      },
+      "checks": {
+        "total": 22,
+        "success": 20,
+        "skipped": 2,
+        "latest_completed": "2026-07-02T21:37:06Z",
+        "run": "https://github.com/go-gitea/gitea/actions/runs/28621926299"
+      }
+    },
+    {
+      "pr": 37630,
+      "url": "https://github.com/go-gitea/gitea/pull/37630",
+      "role": "frontend_integrated_part_2_of_3",
+      "state": "open",
+      "draft": true,
+      "head": "d80be732155c4f18a777c8ffcee8757198f54a93",
+      "observed_main": "e8d2c493bbdb4863e6aa73352167b2416d236c11",
+      "mergeable": false,
+      "rebaseable": false,
+      "mergeable_state": "dirty",
+      "commits": 237,
+      "changed_files": 214,
+      "additions": 60265,
+      "deletions": 2930,
+      "reviews": {
+        "approvals": 0,
+        "total": 0,
+        "label": "lgtm/need 2",
+        "combined_status": "pending"
+      },
+      "checks": {
+        "total": 22,
+        "success": 20,
+        "skipped": 2,
+        "latest_completed": "2026-07-02T22:21:29Z",
+        "run": "https://github.com/go-gitea/gitea/actions/runs/28624170501"
+      },
+      "retest_target": {
+        "kind": "keyboard_parent_group_selection",
+        "source": "https://github.com/go-gitea/gitea/pull/37630#issuecomment-4660964519",
+        "status": "reported_2026-06-09_not_reverified_by_this_packet"
+      }
+    }
+  ],
+  "acceptance": {
+    "demo_video_required": true,
+    "maintainer_approvals_required": 2
+  },
+  "source_mutation": false,
+  "upstream_message": false,
+  "upstream_claim": false,
+  "runtime_execution": false,
+  "result": "durable_merge_blocker_and_dependency_handoff"
+}
