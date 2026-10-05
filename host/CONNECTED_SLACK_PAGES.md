@@ -449,6 +449,78 @@ selected messages were then read in full from that same collection, returning
 This observed channel path used no fixture, test suite or replay of prior
 acceptance; raw messages remain private caller custody.
 
+### Size channel history pages and header views together
+
+A channel history request can use the native `limit: 100` to collect a larger
+page in one call. The collector's page limit and the projector's display limits
+are independent: selecting 100 messages does not increase the default combined
+header budget of 6,400 UTF-16 code units. Choose both explicitly when a larger
+header inventory is useful.
+
+The example below uses the existing loaded `box` module. `actualHistoryArgs`
+contains the intended observed channel ID and any exact cursor or time bounds;
+`operationId` and `captureId` identify this collection's separate storage keys.
+
+```js
+const captureKey = operationId + ":slack:" + captureId;
+const historyRequest = {
+  operation: "read_channel",
+  args: {...actualHistoryArgs, limit: 100, response_format: "detailed"},
+  max_pages: 1,
+  timeout_ms: 30000
+};
+store(captureKey + ":request", historyRequest);
+const history = await box.exports.collectSlackPages(tools, historyRequest, {
+  onResponse: async event =>
+    store(captureKey + ":page:" + event.page.call, event)
+});
+store(captureKey + ":collection", history);
+const headers = box.exports.projectSlackCollectedMessages(history, {
+  projection: {
+    header_only: true,
+    max_messages: 100,
+    max_header_chars: 512,
+    max_total_header_chars: 32768
+  }
+});
+store(captureKey + ":headers", headers);
+text({
+  summary: history.summary,
+  status: headers.status,
+  issue: headers.issue,
+  coverage: headers.projection?.coverage
+});
+```
+
+Read `truncated_headers`, `omitted_after` and `all_rendered_headers_included`
+before describing header coverage. The explicit budgets above are bounded
+choices, not a promise that every possible header will fit. If only the local
+header projection is short, increase its applicable budget or select fewer
+retained indices and project the same collection again. No native refetch is
+needed for that display change. Inspect the saved header entries and select
+needed bodies using the preceding examples. The compact display above does not
+include the saved message entries.
+
+A requested limit is not a returned-message count. Keep native pagination,
+parsed header counts and projection loss separate. Follow `history.next_request`
+when continuing the native chain, keeping its opaque cursor and original
+selectors. If deliberately changing an existing chain's page size, retain that
+change with the exact request; it does not justify changing time bounds or
+claiming a snapshot. A refused or shortened native rendering is a different
+case from a short local header projection; see
+[Recover a shortened native page](#recover-a-shortened-native-page).
+
+During actual channel intake on 2026-10-05, one `limit: 100` page rendered 92
+headers containing 12,130 header code units. Selecting those 92 entries with
+the default 6,400-unit combined header budget reported 44 truncated headers.
+Reprojecting that retained collection with the explicit limits above returned
+all 12,130 header code units with zero truncated headers and
+`all_rendered_headers_included: true`; body output remained withheld at that
+step. The budget correction made no provider call. The next native continuation
+rendered 75 headers, repeated the preceding boundary timestamp and reported
+provider END. These are two observed pages, not a throughput benchmark,
+deduplicated history, complete thread read or whole-workspace coverage claim.
+
 ### Inspect a retained request's time window
 
 The message projector preserves supplied `oldest`, `latest` and, for a thread,
