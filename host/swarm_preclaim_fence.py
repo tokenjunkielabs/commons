@@ -4,7 +4,9 @@
 
 The fence composes with ``coordination_state.py`` and never writes GitHub or
 Slack. SAFE requires complete Slack, owner-PR-census, owner-default, and
-upstream evidence; any incomplete absence proof fails closed.
+upstream evidence; any incomplete absence proof fails closed. For ordinary
+issues, live upstream assignment or an open cross-referenced PR also blocks
+branch binding so stale marketplace listings do not create duplicate work.
 """
 from __future__ import annotations
 
@@ -131,6 +133,12 @@ def decide(report):
     if upstream.get("kind") == "issue":
         state = str(upstream.get("state") or "").strip().lower()
         if state != "open":
+            return MANUAL
+        if upstream.get("assignees") or any(
+            isinstance(item, dict)
+            and str(item.get("state") or "").strip().lower() == "open"
+            for item in (upstream.get("cross_referenced_prs") or [])
+        ):
             return MANUAL
 
     if upstream.get("kind") != "pull":
@@ -475,6 +483,15 @@ def _issue(github, repo, number):
             f"issue timeline exceeded {MAX_PR_FILE_PAGES * 100} rows for "
             f"{repo}#{number}"
         )
+    raw_assignees = issue.get("assignees") or []
+    if not isinstance(raw_assignees, list):
+        raise EvidenceError(f"issue assignees must be a list for {repo}#{number}")
+    assignees = []
+    for assignee in raw_assignees:
+        login = assignee.get("login") if isinstance(assignee, dict) else None
+        if not isinstance(login, str) or not login.strip():
+            raise EvidenceError(f"issue assignee lacks login for {repo}#{number}")
+        assignees.append(login.strip())
     return {
         "kind": "issue",
         "repo": repo,
@@ -484,6 +501,7 @@ def _issue(github, repo, number):
         "html_url": issue.get("html_url"),
         "head_sha": None,
         "changed_files": [],
+        "assignees": assignees,
         "cross_referenced_prs": cross,
     }
 
@@ -792,6 +810,17 @@ def render_text(report):
         f"head={upstream.get('head_sha')} "
         f"changed={len(upstream.get('changed_files') or [])}"
     )
+    if upstream.get("kind") == "issue":
+        assignees = upstream.get("assignees") or []
+        open_cross_refs = [
+            item for item in (upstream.get("cross_referenced_prs") or [])
+            if isinstance(item, dict)
+            and str(item.get("state") or "").strip().lower() == "open"
+        ]
+        lines.append(
+            f"Issue collision evidence: assignees={len(assignees)} "
+            f"open_cross_referenced_prs={len(open_cross_refs)}"
+        )
     lines.append("Blob comparisons:")
     for item in report.get("blob_comparisons") or []:
         lines.append(
