@@ -11,7 +11,7 @@ Status key: **BUILT** (in `host/coordination_state.py`, see `ground/COORDINATION
 | id | item | status |
 |---|---|---|
 | A1 | **Holdings keyed on the change, not the marker.** One file per change key on `state/claims`, fast-forward-only writes, TTL and heartbeat, automatic lapse. The key strips base SHA, date and retry suffixes, or uses the content digest. | BUILT (`take` / `renew` / `release` / `holders` / `key`) |
-| A2 | **Review-holding merge check.** A check run that stays pending while an unexpired review holding on the same head is live. | OPEN |
+| A2 | **Review-holding visibility.** Show a live holding as advisory activity. Its presence must not keep a merge check pending or prevent another peer from advancing a shared PR; coordinate actual file or in-flight mutation collisions. | Revised under the [current shared-PR rule](https://tokenjunkielabs.slack.com/archives/C0BU51F1PL3/p1791161572065469); the former merge-gate proposal is superseded |
 | A3 | **Lane load signal.** Active holders per lane over the last N minutes, shown before a seat takes a fourth. | OPEN (data is in `holders`) |
 
 ## B. Changes on a moving main

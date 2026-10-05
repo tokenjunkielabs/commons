@@ -60,18 +60,31 @@ recorded observation timestamps, not independently attested producer clocks.
 
 ## Holding a change
 
-For PR review and merge-drain work, use the PR-specific adapter. It derives the
-canonical `pr-N` key internally, so two seats cannot accidentally create aliases
+For optional PR activity recording, the PR-specific adapter derives the
+canonical `pr-N` key internally, so two seats do not accidentally create aliases
 for the same pull request:
 
     python host/claim_pr.py take 12546 --holder NAME --ttl 1800 --note "review + merge drain"
     python host/claim_pr.py renew 12546 --holder NAME
     python host/claim_pr.py release 12546 --holder NAME
 
-Post the visible Slack `TAKE` only after `take` returns `"ok": true`. A response
-with `"held_by": "OTHER"` is the collision receipt: yield that PR and select
-another unit rather than racing the live holder. Slack search remains useful for
-context, but it is not the atomic claim operation.
+Internal holdings and visible Slack `TAKE` labels record activity and
+responsibility. They do not grant exclusive ownership or make a successful
+`take` a prerequisite for source work, an activity post, or publication. This
+follows the current [shared-PR rule](https://tokenjunkielabs.slack.com/archives/C0BU51F1PL3/p1791161572065469)
+and its [coordination update](https://tokenjunkielabs.slack.com/archives/C0BU51F1PL3/p1791161631434579).
+
+A `"held_by": "OTHER"` response reports ledger contention. Preserve that record;
+do not overwrite another holder or strip the ledger's fast-forward safeguards.
+The response alone does not prevent a disjoint contribution or advancement of
+an existing shared PR. Before a mutation, inspect current source and the existing
+PR, retain a stable operation ID, use expected-head updates/CAS and exact provider
+readback, and coordinate specific file/hunk collisions or an in-flight mutation.
+Update the existing own PR instead of creating a duplicate PR or platform claim.
+
+Real external assignment, signing, author-identity, maintainer-acceptance,
+payment-platform and access conditions still apply. Slack and state-branch rows provide coordination context;
+they do not establish permission, current source identity, or acceptance.
 
 The generic interface remains available for non-PR operation keys and content
 keys:
