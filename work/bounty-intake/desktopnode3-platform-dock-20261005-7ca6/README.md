@@ -1,41 +1,41 @@
-# Desktop-node: guard macOS Dock calls
+# Desktop-node: Dock guards and clickable window controls
 
-The actual close control for [issue 3](https://github.com/kryptokrona/desktop-node/issues/3) sends the hide IPC message. The main-process handler currently calls `app.dock.hide()` before `mainWindow.hide()`, although Electron exposes Dock integration for macOS. The two tray visibility actions also access Dock unconditionally.
+The actual close control for [issue 3](https://github.com/kryptokrona/desktop-node/issues/3) sends the hide IPC message. [Commons 31615](https://github.com/woahwhattheheck/commons/pull/31615) guarded the three macOS-only Dock calls so other platforms can reach the existing window show/hide actions. This continuation adds an explicit non-draggable region to the two existing trafficlight controls, whose source rectangles overlap the draggable title strip.
 
-This source packet limits those three Dock calls to `process.platform === 'darwin'`. The existing window show/hide actions remain in the same order. A Windows invocation of the hide handler can therefore reach the existing window action without first accessing the macOS-only Dock API. This is a source-path correction; no native Windows interaction result is claimed.
+The only new production change is a dated notice and `-webkit-app-region: no-drag` in the existing `.actions div` rule. It applies to the two inner clickable controls. Their parent, intervening gap, positions, sizes, colors, handlers and surrounding dragbar remain unchanged. This is a source correction supported by the actual layout and official Electron documentation; native Windows pointer behavior has not been exercised.
 
 ## Exact source composition
 
-Fresh upstream main remained `b9e38b0592c4a99db33f16c07741641c63f6d730`, tree `8910dc11b3b9927af694fe2181bcff7388b64ddf`. The prepared main-process input is the complete accepted postimage from [Commons 31610](https://github.com/woahwhattheheck/commons/pull/31610), head `e01e172e761c2d5cd11e94d111d21ec6102e85e4`, merge `ab1fae1ca62e65112571ce36927a9d247cd32f70`.
+The observed upstream main was `b9e38b0592c4a99db33f16c07741641c63f6d730`, tree `8910dc11b3b9927af694fe2181bcff7388b64ddf`. Complete caller and layout bytes were retained from the existing source scout and independently matched to the native Git blobs. No accepted source acquisition or runtime was replayed.
 
 | File or premise | Exact Git blob |
 | --- | --- |
 | Original upstream `src/electron.cjs` | `e29d2c99c6a7126aeb4c7c7d77a26ef44b4e4b39` |
-| Composed 31610 input `src/electron.cjs` | `748568cce1b9228d04a057eb303adb06b3cc4f65` |
-| This packet's complete `src/electron.cjs` | `bd434d968a15830fee3e1feaba5897e56fb074f3` |
-| Actual caller `src/components/TrafficLights.svelte` | `d881bc01d1318bb136e5272753bc54903b9db747` |
-| Actual layout `src/routes/__layout.svelte` | `eed15fc99de81aa13517d8e1dff074c366d41bbb` |
-| Original preload | `f703bdb03d435fc5e1ec6f3592229dca15ca49e7` |
+| Accepted 31610 input `src/electron.cjs` | `748568cce1b9228d04a057eb303adb06b3cc4f65` |
+| Unchanged 31615 / this packet `src/electron.cjs` | `bd434d968a15830fee3e1feaba5897e56fb074f3` |
+| Original `src/components/TrafficLights.svelte` | `d881bc01d1318bb136e5272753bc54903b9db747` |
+| New complete `src/components/TrafficLights.svelte` | `84cf766516b0ca643ea7ed0f7395fe10523b1858` |
+| Unchanged source premise `src/routes/__layout.svelte` | `eed15fc99de81aa13517d8e1dff074c366d41bbb` |
 | Unchanged accepted 31610 preload | `7c31d346778439178b5bb8707e0f7446587324ec` |
 
-The complete caller and layout were transferred from the existing source scout, then independently matched to their native Git blob identities. The accepted main-process input and preload came from retained bytes; no accepted source read or runtime was replayed.
+The original 31615 packet merged at `13a25b99f75182438afe5a2b8c7601ea1678fef1`, head `561953e7d39dba499619712f9d299a23025e31e5`. Its complete 6530-byte electron file and the GPL text are unchanged here. The accepted 31610 child-lifecycle block remains byte-identical, and no IPC or process path changes in this continuation.
 
-`change.patch` has three hunks, +4/-3, and 906 bytes, Git blob `31a9bae49804bb49bc780786b181a6aec1f3ed3c`. Reading its serialized context, removals, additions and hunk offsets reconstructed the complete 6530-byte result exactly. The entire accepted 31610 child-lifecycle block is byte-identical. Apply the patch over the stated 31610 input, not blindly over another source revision.
+`change.patch` is cumulative within this packet: the original three Dock hunks over accepted 31610 plus one TrafficLights hunk over the stated upstream caller. It contains four hunks, +6/-3, 1316 bytes, Git blob `530685d588c855e9d470f9d6d3f236c23c225043`. Reading its actual serialized context, removals, additions and hunk offsets reconstructed both complete postimages exactly. The TrafficLights file remains without an ending newline, as in the input. The new delta after 31615 is only +2/-0 in that component. The cumulative patch replaces the previous `31a9bae49804bb49bc780786b181a6aec1f3ed3c` patch; do not apply both or blindly use a different source revision.
 
-## Actual caller and platform evidence
+## Source path and primary convention
 
-The layout mounts TrafficLights after onMount. Its close control calls `window.api.send("hide")`; the preload's generic send forwards that existing channel to the main process. The minimize control uses the separate min channel and is outside these three replacements. The relevant hide handler is present in both the original source and the composed input.
+The layout mounts TrafficLights after onMount. Its full-width dragbar is 40 pixels high and declares `-webkit-app-region: drag`. The controls are fixed at top 11 pixels with a 12-pixel height in the inspected source. Their original rule had no non-draggable declaration. Those rectangles establish the source overlap; they do not establish a native hit-testing result.
 
-The existing scout directly read the complete official [Electron Dock documentation](https://www.electronjs.org/docs/latest/api/dock) on 2026-10-05. It describes the API as macOS Dock integration and explicitly labels both show and hide as macOS methods. This is a distinct successful primary source, not a retry or alternate for the earlier failed child_process, ipc-main or ipc-renderer pages. Those exact failed routes remain held.
+The official [Electron Custom Window Interactions documentation](https://www.electronjs.org/docs/latest/tutorial/custom-window-interactions) was directly read on 2026-10-05. It explains that overlapping draggable regions suppress pointer events and that title-bar controls need a non-draggable region. The patch follows the existing application's prefixed property spelling. Current documentation is convention evidence, not a test of this application's declared Electron 19 dependency or its installed package.
 
-On macOS, the existing Dock calls still execute after the same window action in tray callbacks, and before window hide in the IPC handler. On other platforms only those Dock calls are skipped. Window lifecycle, the existing close-versus-hide behavior, tray availability, preload API, renderer layout and child shutdown semantics are otherwise retained.
+The earlier scout directly read the official [Electron Dock documentation](https://www.electronjs.org/docs/latest/api/dock), which identifies show and hide as macOS methods. The preserved guards restrict only those three calls to `process.platform === 'darwin'`. Their original ordering relative to window actions is unchanged. The close control still sends hide, and minimize still sends min.
 
-## Limits and attribution
+These successful primary reads are distinct from the earlier failed child_process, ipc-main, ipc-renderer and performance.now pages. Those exact failed routes remain held. No alternative to a failed route was used.
 
-The issue also asks about the drag area. The retained layout has a full-width, 40-pixel dragbar, and inspected renderer styles do not show an explicit no-drag rule for the controls. These are observed source facts only. This packet does not change that geometry or infer actual Windows hit testing, pointer behavior, renderer accessibility, or a complete Windows title bar. It is not completion of the whole issue.
+## Scope, chronology and attribution
 
-No Electron, Svelte, browser, OS window, process, node RPC, test, build, lint, workflow, account or chain operation was executed. There was no upstream source mutation, PR, contact or platform claim. The earlier 31610 acknowledgement remains limited to the tracked child's close, not every descendant or durable flush; platform signal and packaging acceptance remain unverified.
+31615 explicitly left CSS untouched. This follow-through addresses its retained no-drag source question; it does not retroactively claim a CSS result for that earlier packet. No Electron, Svelte, browser, OS window, process, node RPC, test, build, lint, workflow, account or chain operation was executed. Actual platform behavior, renderer accessibility and completion of the whole Windows UI request remain unverified. The 31610 acknowledgement remains limited to the tracked child's close, not every descendant or durable flush.
 
-Original application contributors, including Swepool, retain credit. The source carries a 2026-10-05 modification notice. The already read upstream README `29e88d1fc3861279515397e75d52cdbd40a09e8a` declares GPL-3.0. This packet reuses the exact complete GNU GPL version 3 text from the accepted source packet, `e142a525bd3fcc4eb1964d6b6b9a0434eee11d89`, 34,470 bytes. No or-later license expansion is inferred. The previously observed ancestor listings contained no AGENTS/contribution file; that observation is not a repository-wide policy census.
+Original application contributors, including Swepool, retain credit. Modified source sections carry 2026-10-05 notices. Upstream README `29e88d1fc3861279515397e75d52cdbd40a09e8a` declares GPL-3.0. This packet retains the exact complete GNU GPL version 3 text, `e142a525bd3fcc4eb1964d6b6b9a0434eee11d89`, 34,470 bytes; no or-later expansion is inferred. The previously observed ancestor listings contained no AGENTS/contribution file; that bounded observation is not a repository-wide policy census.
 
-The current issue was OPEN/unassigned with the body about the drag area and traffic lights. Its sole complete observed comment, member Swepool's `1222124964` on 2022-08-22, offered 5,000 XKR. That historical offer is not verified current funding, a USD15+ amount, an award or payment. The precise all-state query `repo:kryptokrona/desktop-node is:pr windows` returned zero with incomplete_results false; that is term-limited coverage, not proof that no related contribution exists. The exact public activity search also returned zero/provider END. No named PR was supplied by the issue comment.
+The issue was OPEN/unassigned with the drag-area/trafficlights request. Its sole complete observed comment, member Swepool's `1222124964` on 2022-08-22, offered 5,000 XKR. That historical offer is not current verified funding, a USD amount, an award or payment. The earlier all-state query `repo:kryptokrona/desktop-node is:pr windows` returned zero with incomplete_results false; that is term-limited coverage. The exact public activity search returned zero/provider END. No named PR was supplied by the issue comment. This continuation uses the existing Commons packet and operation; there is no upstream mutation, submission or contact.
