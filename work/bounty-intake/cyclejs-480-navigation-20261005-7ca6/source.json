@@ -1,0 +1,206 @@
+{
+  "schema": "commons.source_packet/v1",
+  "operation": "ISSUEHUNT-CYCLE480-EXAMPLE-NAVIGATION-7CA6-20261005",
+  "observed_at": "2026-10-05 06:22:24 UTC",
+  "issue": "https://github.com/cyclejs/cyclejs/issues/480",
+  "existing_pull_request": "https://github.com/cyclejs/cyclejs/pull/880",
+  "original_order": "https://tokenjunkielabs.slack.com/archives/C0BU51F1PL3/p1791171038724239",
+  "activity": "https://tokenjunkielabs.slack.com/archives/C0BU51F1PL3/p1791181262662609",
+  "work_order_row": "BATCH25-05 row21",
+  "upstream": {
+    "repository": "cyclejs/cyclejs",
+    "base_ref": "master",
+    "observed_base_sha": "2a80dce8aa65ea2c02426097038ce939e712c472",
+    "readme_blob": "4279c705c70715f1aee6b7dec9d37cfda432be47"
+  },
+  "existing_contribution": {
+    "repository": "janat08/cyclejs",
+    "author": "janat08",
+    "branch": "documentExamples",
+    "head_sha": "13d35ef96f9d1478798a105b5243d8f3ee6b922d",
+    "open": true,
+    "merged": false,
+    "path": "examples/README.md",
+    "preimage_blob": "80355ca9357811672763f3fc38c9fc1d6c9c0f8d",
+    "postimage_blob": "753d8bc58e33952e884742a9cb4521469b47d2db"
+  },
+  "changes": {
+    "runtime_files": 0,
+    "document_paths": 1,
+    "relative_links_added": 28,
+    "distinct_directory_targets": 19,
+    "existing_descriptions_preserved": true
+  },
+  "destinations": [
+    {
+      "name": "bmi-naive",
+      "label": "bmi-naive",
+      "target": "./basic/bmi-naive/",
+      "path": "examples/basic/bmi-naive",
+      "tree_sha": "4ffb4e469a974f73ef9c235911c0bc870eb8f595"
+    },
+    {
+      "name": "checkbox",
+      "label": "checkbox",
+      "target": "./basic/checkbox/",
+      "path": "examples/basic/checkbox",
+      "tree_sha": "acba23fd3983d557e2cba559a90e1f0b5990b4e5"
+    },
+    {
+      "name": "counter",
+      "label": "counter",
+      "target": "./basic/counter/",
+      "path": "examples/basic/counter",
+      "tree_sha": "47c86801d983b87518d0a46116d49f7ebc159d13"
+    },
+    {
+      "name": "hello-world",
+      "label": "hello-world",
+      "target": "./basic/hello-world/",
+      "path": "examples/basic/hello-world",
+      "tree_sha": "7ea0cbe89bdac634b9e35c83634e0eedde9d562a"
+    },
+    {
+      "name": "http-random-user",
+      "label": "http-random-user",
+      "target": "./basic/http-random-user/",
+      "path": "examples/basic/http-random-user",
+      "tree_sha": "dc0af159a1dd9d14df19854c974b3acb181093f3"
+    },
+    {
+      "name": "jsx-seconds-elapsed",
+      "label": "jsx-seconds-elapsed",
+      "target": "./basic/jsx-seconds-elapsed/",
+      "path": "examples/basic/jsx-seconds-elapsed",
+      "tree_sha": "3dd208cc84861e3e580581c08f36cd1ef8a4f488"
+    },
+    {
+      "name": "animation",
+      "label": "animation",
+      "target": "./intermediate/animation/",
+      "path": "examples/intermediate/animation",
+      "tree_sha": "d3d3d0bbb88530e82b53a89ffc17c8e62c7b1718"
+    },
+    {
+      "name": "bmi-typescript",
+      "label": "bmi-TypeScript",
+      "target": "./intermediate/bmi-typescript/",
+      "path": "examples/intermediate/bmi-typescript",
+      "tree_sha": "2b0063e357d44efcc5383185307fba8ac6a17d30"
+    },
+    {
+      "name": "hello-lastname",
+      "label": "hello-lastname",
+      "target": "./intermediate/hello-lastname/",
+      "path": "examples/intermediate/hello-lastname",
+      "tree_sha": "403b0caae11aa163a4216136e6e53f9c206fb764"
+    },
+    {
+      "name": "http-search-github",
+      "label": "http-search-github",
+      "target": "./intermediate/http-search-github/",
+      "path": "examples/intermediate/http-search-github",
+      "tree_sha": "c0370dad8270434ab9ded6ba094bb0fff0b0c8f4"
+    },
+    {
+      "name": "tsx-seconds-elapsed",
+      "label": "tsx-seconds-elapsed",
+      "target": "./intermediate/tsx-seconds-elapsed/",
+      "path": "examples/intermediate/tsx-seconds-elapsed",
+      "tree_sha": "2859985ca05aad37b752857ee06e8ed6c92e14d6"
+    },
+    {
+      "name": "animated-letters",
+      "label": "animated-letters",
+      "target": "./advanced/animated-letters/",
+      "path": "examples/advanced/animated-letters",
+      "tree_sha": "ebff4654420babdc729c4ed2df84187d3fb75603"
+    },
+    {
+      "name": "autocomplete-search",
+      "label": "autocomplete-search",
+      "target": "./advanced/autocomplete-search/",
+      "path": "examples/advanced/autocomplete-search",
+      "tree_sha": "791ed4ddf20c0243e349e73c7f6ca574585d606b"
+    },
+    {
+      "name": "bmi-nested",
+      "label": "bmi-nested",
+      "target": "./advanced/bmi-nested/",
+      "path": "examples/advanced/bmi-nested",
+      "tree_sha": "030bb3c729e8824512caed3e1c22a1524fcdcc92"
+    },
+    {
+      "name": "custom-driver",
+      "label": "custom-driver",
+      "target": "./advanced/custom-driver/",
+      "path": "examples/advanced/custom-driver",
+      "tree_sha": "3cfdbaaf681e3dafce13f5f1238f8d7988877325"
+    },
+    {
+      "name": "isomorphic",
+      "label": "isomorphic",
+      "target": "./advanced/isomorphic/",
+      "path": "examples/advanced/isomorphic",
+      "tree_sha": "1a1d31b93b32cc28942b83216bc6ea77854bfd01"
+    },
+    {
+      "name": "many",
+      "label": "many",
+      "target": "./advanced/many/",
+      "path": "examples/advanced/many",
+      "tree_sha": "19ccffc29eb246626e5f155dac3d8be5f1821c4a"
+    },
+    {
+      "name": "nested-folders",
+      "label": "nested-folders",
+      "target": "./advanced/nested-folders/",
+      "path": "examples/advanced/nested-folders",
+      "tree_sha": "3d48af9809ffb6d081637d72eebe32f6f0bcfba0"
+    },
+    {
+      "name": "routing-view",
+      "label": "routing-view",
+      "target": "./advanced/routing-view/",
+      "path": "examples/advanced/routing-view",
+      "tree_sha": "ccca0f2e2b66fa3d69e1c91783178a3eb8ee93ec"
+    }
+  ],
+  "artifacts": {
+    "patch_blob": "3c5449e278b01c0693c5526b3706b96f2766ee59",
+    "license_blob": "3e5de3c7c87eb2b21ae65678125391b7aa67aad2"
+  },
+  "evidence": {
+    "issue_comments": 7,
+    "pr_comments": 5,
+    "pr_review_comments": 14,
+    "changed_pr_files": 2,
+    "own_pr_query": {
+      "query": "repo:cyclejs/cyclejs is:pr author:woahwhattheheck 480",
+      "reported_total": 0,
+      "incomplete_results": false,
+      "query_application": "not_verified"
+    },
+    "commons_packet_query": {
+      "query": "repo:woahwhattheheck/commons is:pr \"cyclejs\" \"480\"",
+      "reported_total": 0,
+      "incomplete_results": false,
+      "query_application": "not_verified"
+    },
+    "public_activity": {
+      "reported_results": 1,
+      "provider_end": true,
+      "matched": "original work order only"
+    }
+  },
+  "limits": {
+    "validation": "source_inspection_and_exact_artifact_comparison_only",
+    "example_execution": false,
+    "browser_rendering": false,
+    "tests": false,
+    "upstream_mutation": false,
+    "external_submission": false,
+    "funding_or_award_reverified": false,
+    "original_author_rights_preserved": true
+  }
+}
