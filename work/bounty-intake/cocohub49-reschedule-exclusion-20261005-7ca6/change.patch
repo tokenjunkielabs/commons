@@ -1,7 +1,16 @@
 diff --git a/src/services/appointmentService.ts b/src/services/appointmentService.ts
 --- a/src/services/appointmentService.ts
 +++ b/src/services/appointmentService.ts
-@@ -22,9 +22,12 @@
+@@ -4,6 +4,8 @@
+ import {
+   getAllLocalAppointments,
+   getAllAppointmentsByPetId,
++  getAppointmentSnapshotByPetId,
++  isReadableAppointmentForConflicts,
+   getAppointmentsInWindow,
+   upsertAppointment,
+   deleteAppointmentById,
+@@ -22,9 +24,12 @@
  
  const BASE_URL = '/appointments';
  
@@ -15,7 +24,17 @@ diff --git a/src/services/appointmentService.ts b/src/services/appointmentServic
  // ─── Types ────────────────────────────────────────────────────────────────────
  
  export interface AppointmentConflict {
-@@ -70,18 +73,51 @@
+@@ -38,6 +43,9 @@
+ export interface ConflictDetectionResult {
+   hasConflicts: boolean;
+   conflicts: AppointmentConflict[];
++  /** Whether the local appointment reads needed for this result completed without skipped rows. */
++  appointmentReadComplete: boolean;
++  checkWarning?: string;
+   suggestedTime?: Date;
+ }
+ 
+@@ -70,18 +78,76 @@
    medications: Medication[] = [],
    excludeId?: string,
    includeSuggestedTime = true,
@@ -23,17 +42,21 @@ diff --git a/src/services/appointmentService.ts b/src/services/appointmentServic
 +  proposedDurationMinutes = 30,
  ): Promise<ConflictDetectionResult> {
 -  const conflicts: AppointmentConflict[] = [];
--
--  const windowStart = new Date(proposedTime.getTime() - CONFLICT_BUFFER_MS).toISOString();
--  const windowEnd = new Date(proposedTime.getTime() + CONFLICT_BUFFER_MS).toISOString();
 +  const appointmentBufferMs = getAppointmentBufferMs(appointmentBufferMinutes);
 +  const lookupBufferMs = Math.max(CONFLICT_BUFFER_MS, appointmentBufferMs);
 +  const windowStart = new Date(proposedTime.getTime() - lookupBufferMs).toISOString();
 +  const windowEnd = new Date(proposedTime.getTime() + lookupBufferMs).toISOString();
  
-   const nearby = await getAppointmentsInWindow<Appointment>(petId, windowStart, windowEnd);
-   const allLocalAppointments = await getAllAppointmentsByPetId<Appointment>(petId).catch(() => []);
-   const appointmentCandidates = mergeAppointmentsById(nearby, allLocalAppointments);
+-  const windowStart = new Date(proposedTime.getTime() - CONFLICT_BUFFER_MS).toISOString();
+-  const windowEnd = new Date(proposedTime.getTime() + CONFLICT_BUFFER_MS).toISOString();
++  const nearby = await getAppointmentsInWindow<Appointment>(petId, windowStart, windowEnd).catch(
++    () => undefined,
++  );
++  const snapshot = await getAppointmentSnapshotByPetId<Appointment>(petId).catch(() => undefined);
++  const appointmentCandidates = mergeAppointmentsById(
++    nearby?.filter(isReadableAppointmentForConflicts) ?? [],
++    snapshot?.appointments ?? [],
++  );
 +  const result = detectConflictsInAppointments(
 +    proposedTime,
 +    medications,
@@ -42,18 +65,41 @@ diff --git a/src/services/appointmentService.ts b/src/services/appointmentServic
 +    appointmentBufferMs,
 +    proposedDurationMinutes,
 +  );
-+  const suggestedTime =
-+    result.hasConflicts && includeSuggestedTime
-+      ? await findNextAvailableSlot(
-+          petId,
-+          proposedTime,
-+          medications,
-+          excludeId,
-+          appointmentBufferMinutes,
-+          proposedDurationMinutes,
-+        )
-+      : undefined;
-+  return { ...result, suggestedTime };
++  if (!snapshot || snapshot.unreadableRows > 0) {
++    return {
++      ...result,
++      appointmentReadComplete: false,
++      checkWarning:
++        'Some saved appointments could not be read. Conflicts may be missing, and no suggested time is available.',
++      suggestedTime: undefined,
++    };
++  }
+ 
+-  const nearby = await getAppointmentsInWindow<Appointment>(petId, windowStart, windowEnd);
+-  const allLocalAppointments = await getAllAppointmentsByPetId<Appointment>(petId).catch(() => []);
+-  const appointmentCandidates = mergeAppointmentsById(nearby, allLocalAppointments);
++  let suggestedTime: Date | undefined;
++  if (result.hasConflicts && includeSuggestedTime) {
++    try {
++      suggestedTime = await findNextAvailableSlot(
++        petId,
++        proposedTime,
++        medications,
++        excludeId,
++        appointmentBufferMinutes,
++        proposedDurationMinutes,
++      );
++    } catch {
++      return {
++        ...result,
++        appointmentReadComplete: false,
++        checkWarning:
++          'The suggested-time search could not finish. Known conflicts are shown, but no alternative time has been confirmed.',
++        suggestedTime: undefined,
++      };
++    }
++  }
++  return { ...result, appointmentReadComplete: true, suggestedTime };
 +}
 +
 +function detectConflictsInAppointments(
@@ -63,7 +109,7 @@ diff --git a/src/services/appointmentService.ts b/src/services/appointmentServic
 +  excludeId: string | undefined,
 +  appointmentBufferMs: number,
 +  proposedDurationMinutes: number,
-+): ConflictDetectionResult {
++): Pick<ConflictDetectionResult, 'hasConflicts' | 'conflicts'> {
 +  const conflicts: AppointmentConflict[] = [];
    const proposedInterval = {
      startMs: proposedTime.getTime(),
@@ -72,7 +118,7 @@ diff --git a/src/services/appointmentService.ts b/src/services/appointmentServic
    };
  
    for (const appt of appointmentCandidates) {
-@@ -90,7 +126,7 @@
+@@ -90,7 +156,7 @@
  
      const apptInterval = getAppointmentInterval(appt);
      const gapMs = getIntervalGapMs(apptInterval, proposedInterval);
@@ -81,7 +127,7 @@ diff --git a/src/services/appointmentService.ts b/src/services/appointmentServic
        conflicts.push({
          type: 'appointment',
          description: `"${appt.title ?? 'Appointment'}" is scheduled ${_formatTimeDiff(gapMs)} from the proposed time.`,
-@@ -118,13 +154,7 @@
+@@ -118,13 +184,7 @@
      }
    }
  
@@ -96,7 +142,7 @@ diff --git a/src/services/appointmentService.ts b/src/services/appointmentServic
  }
  
  export function isVetSupervised(med: Medication): boolean {
-@@ -142,12 +172,45 @@
+@@ -142,12 +202,38 @@
    petId: string,
    from: Date,
    medications: Medication[] = [],
@@ -115,35 +161,28 @@ diff --git a/src/services/appointmentService.ts b/src/services/appointmentServic
 +    // Keep the detector's invalid/out-of-range time rejection before any database read.
 +    new Date(candidate.getTime() - lookupBufferMs).toISOString();
 +    new Date(candidate.getTime() + lookupBufferMs).toISOString();
-+    if (i === 0) {
-+      // One local snapshot belongs only to this search; later calls read again.
-+      const appointments = await getAllAppointmentsByPetId<Appointment>(petId).catch(
++    if (!appointmentCandidates) {
++      // One complete local snapshot belongs only to this search; later calls read again.
++      const snapshot = await getAppointmentSnapshotByPetId<Appointment>(petId).catch(
 +        () => undefined,
 +      );
-+      if (appointments) appointmentCandidates = mergeAppointmentsById([], appointments);
++      if (!snapshot || snapshot.unreadableRows > 0) {
++        throw new Error('The local appointment check is incomplete; no suggested time is available.');
++      }
++      appointmentCandidates = mergeAppointmentsById([], snapshot.appointments);
 +    }
-+    const result = appointmentCandidates
-+      ? detectConflictsInAppointments(
-+          candidate,
-+          medications,
-+          appointmentCandidates,
-+          excludeId,
-+          appointmentBufferMs,
-+          proposedDurationMinutes,
-+        )
-+      : await detectConflicts(
-+          petId,
-+          candidate,
-+          medications,
-+          excludeId,
-+          false,
-+          appointmentBufferMinutes,
-+          proposedDurationMinutes,
-+        );
++    const result = detectConflictsInAppointments(
++      candidate,
++      medications,
++      appointmentCandidates,
++      excludeId,
++      appointmentBufferMs,
++      proposedDurationMinutes,
++    );
      if (!result.hasConflicts) return candidate;
      candidate = new Date(candidate.getTime() + CONFLICT_BUFFER_MS);
    }
-@@ -376,6 +439,14 @@
+@@ -376,6 +462,14 @@
  
  // ─── Private helpers ──────────────────────────────────────────────────────────
  
@@ -180,7 +219,7 @@ diff --git a/src/screens/AppointmentScreen.tsx b/src/screens/AppointmentScreen.t
    const [bookingLoading, setBookingLoading] = useState(false);
    const [conflictState, setConflictState] = useState<ConflictCheckResponse | null>(null);
    const [archivedIds, setArchivedIds] = useState<Set<string>>(new Set());
-@@ -318,16 +323,48 @@
+@@ -318,18 +323,50 @@
      await load();
    };
  
@@ -228,9 +267,46 @@ diff --git a/src/screens/AppointmentScreen.tsx b/src/screens/AppointmentScreen.t
 +        appt.durationMinutes ?? 30,
 +      );
  
-       if (result.hasConflicts) {
+-      if (result.hasConflicts) {
++      if (result.hasConflicts || !result.appointmentReadComplete) {
          setPendingAppointment(appt);
-@@ -404,6 +441,8 @@
+         setConflictResult(result);
+         setConflictModalVisible(true);
+@@ -348,13 +385,21 @@
+     if (!pendingAppointment) return;
+     await persistAppointment(
+       pendingAppointment,
+-      'User chose to proceed despite scheduling conflicts.',
++      conflictResult?.appointmentReadComplete === false
++        ? 'User chose to proceed despite an incomplete local appointment check and any listed conflicts.'
++        : 'User chose to proceed despite scheduling conflicts.',
+     );
+   };
+ 
+-  /** User accepts the suggested conflict-free slot */
++  /** User accepts the time suggested by the local conflict check. */
+   const handleUseSuggestedTime = async () => {
+-    if (!pendingAppointment || !conflictResult?.suggestedTime) return;
++    if (
++      !pendingAppointment ||
++      !conflictResult?.appointmentReadComplete ||
++      !conflictResult.suggestedTime
++    ) {
++      return;
++    }
+     const suggested = conflictResult.suggestedTime;
+     const updated: Appointment = {
+       ...pendingAppointment,
+@@ -363,7 +408,7 @@
+     };
+     await persistAppointment(
+       updated,
+-      `Rescheduled to conflict-free slot: ${suggested.toLocaleString()}.`,
++      `Selected time from local conflict check: ${suggested.toLocaleString()}.`,
+     );
+   };
+ 
+@@ -404,6 +449,8 @@
        Alert.alert('Invalid date', 'Use format YYYY-MM-DDTHH:MM');
        return;
      }
@@ -239,7 +315,7 @@ diff --git a/src/screens/AppointmentScreen.tsx b/src/screens/AppointmentScreen.t
  
      setIsCheckingConflicts(true);
      try {
-@@ -413,6 +452,9 @@
+@@ -413,9 +460,12 @@
          dateObj,
          petMeds,
          detailAppt.id, // exclude self
@@ -248,8 +324,12 @@ diff --git a/src/screens/AppointmentScreen.tsx b/src/screens/AppointmentScreen.t
 +        detailAppt.durationMinutes ?? 30,
        );
  
-       if (result.hasConflicts) {
-@@ -517,6 +559,26 @@
+-      if (result.hasConflicts) {
++      if (result.hasConflicts || !result.appointmentReadComplete) {
+         // Build a provisional updated appointment and show conflict modal
+         const provisional: Appointment = {
+           ...detailAppt,
+@@ -517,6 +567,26 @@
      [renderItem, archivedIds],
    );
  
@@ -276,7 +356,7 @@ diff --git a/src/screens/AppointmentScreen.tsx b/src/screens/AppointmentScreen.t
    // ─── Render ──────────────────────────────────────────────────────────────────
  
    return (
-@@ -687,6 +749,7 @@
+@@ -687,6 +757,7 @@
                    placeholderTextColor="#9CA3AF"
                    accessibilityLabel="Date and time"
                  />
@@ -284,7 +364,49 @@ diff --git a/src/screens/AppointmentScreen.tsx b/src/screens/AppointmentScreen.t
                </View>
              )}
              {bookingStep === 2 && (
-@@ -901,6 +964,7 @@
+@@ -787,11 +858,18 @@
+             {/* Icon + title */}
+             <View style={styles.conflictHeader}>
+               <Text style={styles.conflictIcon}>⚠️</Text>
+-              <Text style={styles.conflictTitle}>Scheduling Conflict</Text>
++              <Text style={styles.conflictTitle}>
++                {conflictResult?.appointmentReadComplete ? 'Scheduling Conflict' : 'Incomplete Check'}
++              </Text>
+             </View>
+ 
++            {conflictResult?.checkWarning && (
++              <Text style={styles.conflictSubtitle}>{conflictResult.checkWarning}</Text>
++            )}
+             <Text style={styles.conflictSubtitle}>
+-              The selected time conflicts with the following:
++              {conflictResult?.hasConflicts
++                ? 'Known scheduling conflicts:'
++                : 'No conflicts were found in the available data. This check is incomplete.'}
+             </Text>
+ 
+             {/* Conflict list */}
+@@ -807,9 +885,9 @@
+             </ScrollView>
+ 
+             {/* Suggested time */}
+-            {conflictResult?.suggestedTime && (
++            {conflictResult?.appointmentReadComplete && conflictResult.suggestedTime && (
+               <View style={styles.suggestionBox}>
+-                <Text style={styles.suggestionLabel}>💡 Next available slot:</Text>
++                <Text style={styles.suggestionLabel}>💡 Suggested time from local check:</Text>
+                 <Text style={styles.suggestionTime}>
+                   {conflictResult.suggestedTime.toLocaleString([], {
+                     weekday: 'short',
+@@ -823,7 +901,7 @@
+             )}
+ 
+             {/* Actions */}
+-            {conflictResult?.suggestedTime && (
++            {conflictResult?.appointmentReadComplete && conflictResult.suggestedTime && (
+               <TouchableOpacity
+                 style={styles.primaryBtn}
+                 onPress={() => void handleUseSuggestedTime()}
+@@ -901,6 +979,7 @@
                    placeholder="2026-06-01T10:00"
                    placeholderTextColor="#9CA3AF"
                  />
@@ -292,3 +414,70 @@ diff --git a/src/screens/AppointmentScreen.tsx b/src/screens/AppointmentScreen.t
                  <TouchableOpacity
                    style={[styles.primaryBtn, isCheckingConflicts && styles.btnDisabled]}
                    onPress={() => void handleReschedule()}
+diff --git a/src/services/localDB.ts b/src/services/localDB.ts
+--- a/src/services/localDB.ts
++++ b/src/services/localDB.ts
+@@ -290,6 +290,63 @@
+ 
+ // ─── Appointments CRUD ────────────────────────────────────────────────────────
+ 
++export interface AppointmentSnapshot<T> {
++  appointments: T[];
++  unreadableRows: number;
++}
++
++/** Validate the fields actually consumed by the local conflict evaluator. */
++export function isReadableAppointmentForConflicts(value: unknown): boolean {
++  if (typeof value !== 'object' || value === null || Array.isArray(value)) return false;
++  const appointment = value as Record<string, unknown>;
++  if (typeof appointment.id !== 'string' || typeof appointment.date !== 'string') return false;
++  const durationMinutes = appointment.durationMinutes ?? 30;
++  if (
++    typeof durationMinutes !== 'number' ||
++    !Number.isFinite(durationMinutes) ||
++    durationMinutes < 0
++  ) {
++    return false;
++  }
++  let start: Date;
++  if (appointment.date.includes('T')) {
++    start = new Date(appointment.date);
++  } else {
++    const time = appointment.time ?? '00:00';
++    if (typeof time !== 'string') return false;
++    start = new Date(`${appointment.date}T${time}:00`);
++  }
++  return (
++    Number.isFinite(start.getTime()) &&
++    Number.isFinite(start.getTime() + durationMinutes * 60_000)
++  );
++}
++
++/** Keep readable local appointments while reporting unusable stored rows. */
++export async function getAppointmentSnapshotByPetId<T = unknown>(
++  petId: string,
++): Promise<AppointmentSnapshot<T>> {
++  const rows = await db.getAllAsync<{ data: string }>(
++    `SELECT data FROM appointments WHERE pet_id = ? ORDER BY scheduled_at ASC`,
++    [petId],
++  );
++  const appointments: T[] = [];
++  let unreadableRows = 0;
++  for (const row of rows) {
++    try {
++      const value = await safeDecrypt<unknown>(row.data, 'localdb_appointments', true);
++      if (!isReadableAppointmentForConflicts(value)) {
++        unreadableRows++;
++        continue;
++      }
++      appointments.push(value as T);
++    } catch {
++      unreadableRows++;
++    }
++  }
++  return { appointments, unreadableRows };
++}
++
+ export async function getAllAppointmentsByPetId<T = unknown>(petId: string): Promise<T[]> {
+   const rows = await db.getAllAsync<{ data: string }>(
+     `SELECT data FROM appointments WHERE pet_id = ? ORDER BY scheduled_at ASC`,
