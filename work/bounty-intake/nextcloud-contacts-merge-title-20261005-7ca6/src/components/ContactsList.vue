@@ -1,0 +1,611 @@
+<!--
+  - SPDX-FileCopyrightText: 2018 Nextcloud GmbH and Nextcloud contributors
+  - SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<template>
+	<AppContentList class="content-list">
+		<NcDialog
+			:open="showDeleteConfirmationDialog"
+			:name="n(
+				'contacts',
+				'Delete {number} contact',
+				'Delete {number} contacts',
+				multiSelectedContacts.size,
+				{ number: multiSelectedContacts.size },
+			)"
+			:buttons="buttons"
+			no-close>
+			{{ t('contacts', 'Are you sure you want to proceed?') }}
+			<NcNoteCard
+				v-if="readOnlyMultiSelectedCount"
+				variant="info"
+				:text="n('contacts',
+					'Please note that {number} contact is read only and will not be deleted',
+					'Please note that {number} contacts are read only and will not be deleted',
+					readOnlyMultiSelectedCount,
+					{ number: readOnlyMultiSelectedCount })" />
+		</NcDialog>
+
+		<NcModal
+			v-if="isMerging"
+			:name="t('contacts', 'Merge contacts')"
+			size="large"
+			@close="isMerging = false">
+			<Merging :contacts="multiSelectedContacts" @finished="finishContactMerging" />
+		</NcModal>
+
+		<NcModal
+			v-if="isGrouping"
+			:name="t('contacts', 'Add contacts to group')"
+			size="large"
+			@close="isGrouping = false">
+			<Batch :contacts="Array.from(multiSelectedContacts.values())" mode="group" @submit="finishBatch" />
+		</NcModal>
+
+		<NcModal
+			v-if="isMovingAddressbook"
+			:name="t('contacts', 'Move contacts to addressbook')"
+			size="large"
+			@close="isMovingAddressbook = false">
+			<Batch :contacts="Array.from(multiSelectedContacts.values())" mode="move" @submit="finishBatch" />
+		</NcModal>
+
+		<div class="contacts-list__header">
+			<div class="search-contacts-field">
+				<NcTextField
+					v-model="query"
+					:label="t('contacts', 'Search contacts …')"
+					trailing-button-icon="close"
+					:show-trailing-button="query !== ''"
+					@trailing-button-click="query = ''" />
+			</div>
+		</div>
+		<transition name="contacts-list__multiselect-header">
+			<div v-if="isMultiSelecting" class="contacts-list__multiselect-header">
+				<NcButton
+					variant="tertiary"
+					:title="t('contacts', 'Unselect {number}', { number: multiSelectedContacts.size })"
+					:close-after-click="true"
+					@click.prevent="unselectAllMultiSelected">
+					<IconSelect :size="16" />
+				</NcButton>
+				<NcButton
+					variant="tertiary"
+					:disabled="!canDeleteAnySelected"
+					:title="deleteActionTitle"
+					:close-after-click="true"
+					@click.prevent="attemptDeleteAllMultiSelected">
+					<IconDelete :size="16" />
+				</NcButton>
+				<NcButton
+					v-if="!isMergingLoading"
+					variant="tertiary"
+					:disabled="!canMergeSelected"
+					:title="mergeActionTitle"
+					:close-after-click="true"
+					@click.prevent="initiateContactMerging">
+					<IconSetMerge :size="20" />
+				</NcButton>
+				<NcLoadingIcon v-else :size="20" />
+				<NcButton
+					variant="tertiary"
+					:title="groupActionTitle"
+					:disabled="!canModifyAnySelected"
+					:close-after-click="true"
+					@click.prevent="isGrouping = true">
+					<IconAccountMultiple :size="20" />
+				</NcButton>
+				<NcButton
+					variant="tertiary"
+					:title="moveActionTitle"
+					:disabled="!canDeleteAnySelected"
+					:close-after-click="true"
+					@click.prevent="isMovingAddressbook = true">
+					<IconBookAccount :size="20" />
+				</NcButton>
+			</div>
+		</transition>
+
+		<VList
+			v-slot="{ item, index }"
+			ref="scroller"
+			class="contacts-list"
+			:data="filteredList">
+			<ContactsListItem
+				:key="item.key"
+				:index="index"
+				:source="item"
+				:reload-bus="reloadBus"
+				:on-select-multiple-from-parent="onSelectMultiple"
+				:on-navigate-from-parent="onNavigateContact" />
+		</VList>
+	</AppContentList>
+</template>
+
+<script>
+import IconCancelRaw from '@mdi/svg/svg/cancel.svg?raw'
+import IconDeleteRaw from '@mdi/svg/svg/delete-outline.svg'
+import {
+	NcAppContentList as AppContentList,
+	NcButton,
+	NcDialog,
+	NcLoadingIcon,
+	NcModal,
+	NcNoteCard,
+	NcTextField,
+} from '@nextcloud/vue'
+import { VList } from 'virtua/vue'
+import IconAccountMultiple from 'vue-material-design-icons/AccountMultipleOutline.vue'
+import IconBookAccount from 'vue-material-design-icons/BookAccountOutline.vue'
+import IconSelect from 'vue-material-design-icons/CloseThick.vue'
+import IconSetMerge from 'vue-material-design-icons/SetMerge.vue'
+import IconDelete from 'vue-material-design-icons/TrashCanOutline.vue'
+import Batch from './ContactsList/Batch.vue'
+import ContactsListItem from './ContactsList/ContactsListItem.vue'
+import Merging from './ContactsList/Merging.vue'
+import RouterMixin from '../mixins/RouterMixin.js'
+import { getNextContactKey, getPreviousContactKey } from '../utils/contactNavigation.ts'
+
+export default {
+	name: 'ContactsList',
+
+	components: {
+		AppContentList,
+		NcNoteCard,
+		VList,
+		NcButton,
+		IconSelect,
+		IconDelete,
+		IconSetMerge,
+		IconAccountMultiple,
+		IconBookAccount,
+		NcDialog,
+		NcModal,
+		Merging,
+		NcLoadingIcon,
+		ContactsListItem,
+		Batch,
+		NcTextField,
+	},
+
+	mixins: [
+		RouterMixin,
+	],
+
+	props: {
+		list: {
+			type: Array,
+			required: true,
+		},
+
+		contacts: {
+			type: Object,
+			required: true,
+		},
+
+		searchQuery: {
+			type: String,
+			default: '',
+		},
+
+		reloadBus: {
+			type: Object,
+			required: true,
+		},
+	},
+
+	data() {
+		return {
+			query: '',
+			multiSelectedContacts: new Map(),
+			refreshKey: 0, // used to force re-render of the list when search query changes, can be removed in vue3
+			showDeleteConfirmationDialog: false,
+			buttons: [
+				{
+					label: t('contacts', 'Cancel'),
+					icon: IconCancelRaw,
+					callback: () => { this.showDeleteConfirmationDialog = false },
+				},
+				{
+					label: t('contacts', 'Delete'),
+					type: 'primary',
+					icon: IconDeleteRaw,
+					callback: () => { this.deleteAllMultiSelected() },
+				},
+			],
+
+			lastToggledIndex: undefined,
+			isMerging: false,
+			isMergingLoading: false,
+			isGrouping: false,
+			isMovingAddressbook: false,
+		}
+	},
+
+	computed: {
+		filteredList() {
+			let contactsList = this.list
+				.filter((item) => this.matchSearch(this.contacts[item.key]))
+				.map((item) => this.contacts[item.key])
+
+			contactsList = contactsList.filter((item) => item !== undefined)
+
+			contactsList.forEach((contact, index) => {
+				if (contact !== undefined) {
+					contact.isMultiSelected = this.multiSelectedContacts.has(index)
+				}
+			})
+
+			return contactsList
+		},
+
+		isMultiSelecting() {
+			return this.multiSelectedContacts.size > 0
+		},
+
+		readOnlyMultiSelectedCount() {
+			let count = 0
+
+			this.multiSelectedContacts.forEach((contact) => {
+				if (contact.addressbook.readOnly) {
+					count++
+				}
+			})
+
+			return count
+		},
+
+		selectedEditable() {
+			let count = 0
+
+			this.multiSelectedContacts.forEach((contact) => {
+				if (contact.addressbook.canModifyCard) {
+					count++
+				}
+			})
+
+			return count
+		},
+
+		selectedDeletable() {
+			let count = 0
+
+			this.multiSelectedContacts.forEach((contact) => {
+				if (contact.addressbook.canDeleteCard) {
+					count++
+				}
+			})
+
+			return count
+		},
+
+		canModifyAnySelected() {
+			return this.selectedEditable > 0
+		},
+
+		canDeleteAnySelected() {
+			return this.selectedDeletable > 0
+		},
+
+		canMergeSelected() {
+			return this.multiSelectedContacts.size === 2 && this.selectedEditable === this.multiSelectedContacts.size
+		},
+
+		deleteActionTitle() {
+			return this.canDeleteAnySelected
+				? n('contacts', 'Delete {number} contact', 'Delete {number} contacts', this.multiSelectedContacts.size, { number: this.multiSelectedContacts.size })
+				: t('contacts', 'Please select at least one editable contact to delete')
+		},
+
+		mergeActionTitle() {
+			return this.canMergeSelected
+				? t('contacts', 'Merge contacts')
+				: t('contacts', 'Please select two editable contacts to merge')
+		},
+
+		groupActionTitle() {
+			return this.canModifyAnySelected
+				? n('contacts', 'Add {number} contact to group', 'Add {number} contacts to group', this.multiSelectedContacts.size, { number: this.multiSelectedContacts.size })
+				: t('contacts', 'Please select at least one editable contact to add to a group')
+		},
+
+		moveActionTitle() {
+			return this.canDeleteAnySelected
+				? n('contacts', 'Move {number} contact to addressbook', 'Move {number} contacts to addressbook', this.multiSelectedContacts.size, { number: this.multiSelectedContacts.size })
+				: t('contacts', 'Please select at least one editable contact to move to an addressbook')
+		},
+	},
+
+	watch: {
+		async selectedContact(key) {
+			if (!key) {
+				return
+			}
+
+			await this.$nextTick()
+			this.scrollToContact(key)
+		},
+
+		list(val, old) {
+			// we just loaded the list and the url already have a selected contact
+			// if not, the selectedContact watcher will take over
+			// to select the first entry
+			if (val.length !== 0 && old.length === 0 && this.selectedContact) {
+				this.$nextTick(() => {
+					this.scrollToContact(this.selectedContact)
+				})
+			}
+		},
+	},
+
+	mounted() {
+		this.query = this.searchQuery
+	},
+
+	methods: {
+		// Select closest contact on deletion
+		selectContact(oldIndex) {
+			if (this.list.length > 0 && oldIndex < this.list.length) {
+				// priority to the one above then the one after
+				const newContact = oldIndex === 0 ? this.list[oldIndex + 1] : this.list[oldIndex - 1]
+				if (newContact) {
+					this.$router.push({ name: 'contact', params: { selectedGroup: this.selectedGroup, selectedContact: newContact.key } })
+				}
+			}
+		},
+
+		/**
+		 * Scroll to the desired contact if in the list and not visible
+		 *
+		 * @param {string} key the contact unique key
+		 */
+		scrollToContact(key) {
+			const index = this.list.findIndex((contact) => contact.key === key)
+			if (index === -1) {
+				return
+			}
+
+			const scroller = this.$refs.scroller
+			const scrollerBoundingRect = scroller.$el.getBoundingClientRect()
+			const item = document.getElementById(key.slice(0, -2))
+			const itemBoundingRect = item?.getBoundingClientRect()
+
+			// Try to scroll the item fully into view
+			if (!item || itemBoundingRect.y < scrollerBoundingRect.y) {
+				// Item is above the current scroll window (or partly overlapping)
+				scroller.scrollToIndex(index)
+			} else if (item) {
+				const itemHeight = scroller.getItemSize(index)
+				const pos = itemBoundingRect.y + itemHeight - (this.$el.offsetHeight + 50)
+				if (pos > 0) {
+					// Item is below the current scroll window (or partly overlapping)
+					scroller.scrollTo(scroller.scrollOffset + pos)
+				}
+			}
+		},
+
+		/**
+		 * Is this matching the current search ?
+		 *
+		 * @param {Contact} contact the contact to search
+		 * @return {boolean}
+		 */
+		matchSearch(contact) {
+			if (this.query.trim() !== '') {
+				try {
+					return contact.searchData.toString().toLowerCase().search(this.query.trim().toLowerCase()) !== -1
+				} catch (e) {
+					if (e instanceof SyntaxError) {
+						// this.query likely is an invalid regex (i.e. just `+`)
+						return contact.searchData.toString().toLowerCase().includes(this.query.trim().toLowerCase())
+					}
+				}
+			}
+			return true
+		},
+
+		onSelectMultiple(contact, index, isRange = false) {
+			if (isRange && this.lastToggledIndex !== index) {
+				if (this.onSelectRange(index)) {
+					return
+				}
+			}
+
+			if (this.multiSelectedContacts.has(index)) {
+				this.multiSelectedContacts.delete(index)
+			} else {
+				this.multiSelectedContacts.set(index, contact)
+			}
+			this.lastToggledIndex = index
+			this.multiSelectedContacts = new Map(this.multiSelectedContacts)
+		},
+
+		onSelectRange(index) {
+			const lastToggledIndex = this.lastToggledIndex ?? undefined
+			if (lastToggledIndex === undefined) {
+				return false
+			}
+
+			const start = Math.min(lastToggledIndex, index)
+			const end = Math.max(lastToggledIndex, index)
+			const selected = this.multiSelectedContacts.has(index)
+
+			const newSelection = new Map(this.multiSelectedContacts)
+
+			for (let i = start; i <= end; i++) {
+				if (!selected) {
+					newSelection.set(i, this.filteredList[i])
+				} else {
+					newSelection.delete(i)
+				}
+			}
+
+			this.lastToggledIndex = index
+			this.multiSelectedContacts = newSelection
+
+			return true
+		},
+
+		/**
+		 * Move focus to the previous/next contact in the filtered list, scrolling it into view if necessary
+		 *
+		 * @param {number} index index of the contact the navigation started from
+		 * @param {'up'|'down'} direction direction to navigate to
+		 */
+		async onNavigateContact(index, direction) {
+			const currentKey = this.filteredList[index]?.key
+			if (!currentKey) {
+				return
+			}
+
+			const targetKey = direction === 'down'
+				? getNextContactKey(this.filteredList, currentKey)
+				: getPreviousContactKey(this.filteredList, currentKey)
+
+			if (!targetKey) {
+				return
+			}
+
+			this.scrollToContact(targetKey)
+			const anchor = await this.waitForContactAnchor(targetKey)
+			anchor?.focus()
+		},
+
+		/**
+		 * Wait for the given contact's anchor to be mounted by the virtual scroller
+		 *
+		 * @param {string} key the contact unique key
+		 * @return {Promise<HTMLElement|null>}
+		 */
+		async waitForContactAnchor(key) {
+			const id = key.slice(0, -2)
+			for (let attempt = 0; attempt < 5; attempt++) {
+				await this.$nextTick()
+				const anchor = document.getElementById(id)?.querySelector('a')
+				if (anchor) {
+					return anchor
+				}
+			}
+			return null
+		},
+
+		unselectAllMultiSelected() {
+			this.multiSelectedContacts = new Map()
+			this.lastToggledIndex = undefined
+		},
+
+		attemptDeleteAllMultiSelected() {
+			this.showDeleteConfirmationDialog = true
+		},
+
+		async deleteAllMultiSelected() {
+			// read only contacts are not deleted, so they must not affect the route either
+			const deletable = Array.from(this.multiSelectedContacts.values())
+				.filter((contact) => !contact.addressbook.readOnly)
+			const deletesSelectedContact = deletable
+				.some((contact) => contact.key === this.selectedContact)
+
+			const deletions = deletable.map(async (contact) => {
+				await new Promise((resolve) => setTimeout(resolve, 500))
+				await this.$store.dispatch('deleteContact', { contact })
+			})
+			this.unselectAllMultiSelected()
+			this.showDeleteConfirmationDialog = false
+
+			await Promise.all(deletions)
+
+			// the route would otherwise keep pointing at a deleted contact
+			if (deletesSelectedContact) {
+				this.$router.replace(this.listRoute())
+			}
+		},
+
+		async initiateContactMerging() {
+			// For every contact in the multiSelectedContacts, we need to dispatch the load contact action
+			this.isMergingLoading = true
+			const contacts = Array.from(this.multiSelectedContacts.values())
+			for (const contact of contacts) {
+				await this.$store.dispatch('fetchFullContact', { contact })
+			}
+
+			this.isMergingLoading = false
+			this.isMerging = true
+		},
+
+		async finishContactMerging(mergedContact) {
+			// After merging, we need to update the contact in the store
+			await this.$store.dispatch('fetchFullContact', { contact: mergedContact, forceReFetch: true })
+
+			this.unselectAllMultiSelected()
+			this.isMerging = false
+
+			await this.$router.push({
+				name: 'root',
+			})
+		},
+
+		async finishBatch() {
+			if (this.isGrouping) {
+				for (const contact of this.multiSelectedContacts.values()) {
+					await this.$store.dispatch('fetchFullContact', { contact, forceReFetch: true })
+				}
+			}
+
+			this.isGrouping = false
+			this.isMovingAddressbook = false
+			this.unselectAllMultiSelected()
+		},
+	},
+}
+</script>
+
+<style lang="scss" scoped>
+// Make virtual scroller scrollable
+.contacts-list {
+	max-height: calc(100vh - var(--header-height) - var(--default-grid-baseline) * 14);
+	flex: 1 auto;
+	contain: none !important;
+}
+
+// Add empty header to contacts-list that solves overlapping of contacts with app-navigation-toogle
+.contacts-list__header {
+	min-height: calc(var(--default-grid-baseline) * 12)
+}
+
+// Search field
+.search-contacts-field {
+	padding: var(--default-grid-baseline) calc(var(--default-grid-baseline) * 2) var(--default-grid-baseline) calc(var(--default-grid-baseline) * 12);
+
+	> input {
+		width: 100%;
+	}
+}
+
+.content-list {
+	overflow-y: auto;
+	padding: 0 var(--default-grid-baseline);
+}
+
+.contacts-list__multiselect-header {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	background-color: var(--color-main-background-translucent);
+	position: sticky;
+	height: calc(var(--default-grid-baseline) * 12);
+	z-index: 100;
+}
+
+.contacts-list__multiselect-header-enter-active, .contacts-list__multiselect-header-leave-active {
+	transition: all calc(var(--animation-slow) / 2);
+}
+
+.contacts-list__multiselect-header-enter,
+.contacts-list__multiselect-header-leave-to {
+	opacity: 0;
+	height: 0;
+	transform: scaleY(0);
+}
+</style>

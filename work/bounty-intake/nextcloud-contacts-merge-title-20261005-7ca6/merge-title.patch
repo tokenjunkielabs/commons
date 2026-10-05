@@ -1,0 +1,12 @@
+diff --git a/src/components/ContactsList.vue b/src/components/ContactsList.vue
+--- a/src/components/ContactsList.vue
++++ b/src/components/ContactsList.vue
+@@ -299,7 +299,7 @@
+ 		},
+ 
+ 		mergeActionTitle() {
+-			return this.areTwoEditable
++			return this.canMergeSelected
+ 				? t('contacts', 'Merge contacts')
+ 				: t('contacts', 'Please select two editable contacts to merge')
+ 		},
