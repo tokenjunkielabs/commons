@@ -1,0 +1,26 @@
+diff --git a/src/App.tsx b/src/App.tsx
+--- a/src/App.tsx
++++ b/src/App.tsx
+@@ -66,15 +66,13 @@
+   }, [employees]);
+ 
+   const handleSort = useCallback((field: SortField) => {
+-    setSortField(prev => {
+-      if (prev === field) {
+-        setSortDirection(d => d === 'asc' ? 'desc' : 'asc');
+-        return field;
+-      }
+-      setSortDirection('asc');
+-      return field;
+-    });
+-  }, []);
++    setSortDirection(direction =>
++      sortField === field
++        ? (direction === 'asc' ? 'desc' : 'asc')
++        : 'asc'
++    );
++    setSortField(field);
++  }, [sortField]);
+ 
+   return (
+     <div className="app">
