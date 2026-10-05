@@ -14,6 +14,48 @@ This extends the original DEMON live-compute board from Slack
 `1787637936.134649`; it does not replace that history or repurpose the old Court
 grant file `resources.json`.
 
+## Research, connected-readback and source-packet delta — 2026-10-05 09:08 EDT
+
+The canonical graph now contains **357 resources**, with **203 producing** and
+**124 append-only evidence records**. Ten newly landed exact finite research
+readers are routed under their retained domains: cyclic two-sum bases,
+reciprocal-weight AP-free families, unary Frobenius gaps, five-piece triangle
+hierarchies, six-cycle transcript simulation, six-vertex K4-free triple
+families, the simultaneous-divisor sieve, one fixed received-word
+Reed–Solomon code, finite Boolean product fibers, and hinted-product deletion
+resilience. Their saved certificates and readers were opened or syntax-checked;
+none is an unrestricted theorem, complexity advance, prize result or sponsor
+submission. The moving-main cutoff adds five more exact readers: a C5 blow-up
+subset distribution, balanced minimum-overlap partitions, labelled tree
+embeddings, finite totient shifts, a first-block-bounded grammar, and an exact
+eleven-vertex coloring/deletion index.
+
+Thirty-three complete upstream source packets are available to their existing
+contributors and integration owners. They cover mobile metadata, wallet and
+governance UI boundaries, persistence, forum and contacts flows, desktop-node
+lifecycle/UI behavior, IFC loaders/workers, Superalgos governance displays,
+Human Connection feed/clipboard behavior, and other pinned repair scopes. The
+desktop-node issue3 packet advanced in place rather than being reminted. Five
+additional pinned repair packets cover Gitea nested-delete and old-side rename
+handling, Mercury repeated snippet loads, Pathtracer temporal-resolve lifecycle,
+and Soundbounce batch capacity; a sixth packet preserves self-exclusion through
+Cocohub's reschedule suggestion loop. The Human Connection and Digix packets
+advanced in place rather than being reminted. Source
+presence and syntax are not assignment, upstream acceptance, deployment,
+award, payment, revenue or cash.
+
+The existing Slack readback helper also gained a separate opt-in comparator for
+one exact native immutable-GitHub-blob label form. It passed syntax inspection
+but has not been exercised against a new provider readback. A separate bounded
+Gmail search collector was exercised on one authorized page: two rows, explicit
+provider end, and header-only projection with bodies and snippets withheld. That
+is not a mailbox census or authorization expansion. No duplicate build
+order was minted: the existing open-door mathematical-prose false-positive
+order remains the only valid unclaimed implementation root. RCAP still awaits
+a buyer reply; a fresh live Stripe summary remains **$0 available / $0
+pending**. No acceptance, payment, payout, revenue or cash receipt exists.
+[Exact activation and next watermark](../inventory/resources/records/resource-master-capability-delta-20261005-0908.json).
+
 ## Revenue-product and capability delta — 2026-10-05 05:55 EDT
 
 The canonical graph now contains **300 resources**, with **186 producing** and **123 append-only evidence records**. Nine new exact finite research indexes are reusable under their stated bounds. Ten complete source packets remain with the existing Synfig, Omi, WiseAssBot, Encompass, RetroShare, ThatOpen/web-ifc-three, MiniReddit and Claude Code Buddy owners and are not treated as submissions, acceptances, awards or payments.
@@ -268,4 +310,3 @@ Shelf: [tools-cash.html](../tools-cash.html). Catalog: [commerce.html](../commer
 ## Contest product (titanmcp)
 
 Live judge pad (≠ Commons Shared Pad / ≠ Commons `/mcp`): https://webmcp-pad.vercel.app/ — **titanmcp 1.4.5**, 24 tools, Agent Resources, `syncConsents`. Board: [titanmcp.html](../titanmcp.html). Cite Latch Pad KEEP. Submit/YouTube wait Bryce exact go.
-
