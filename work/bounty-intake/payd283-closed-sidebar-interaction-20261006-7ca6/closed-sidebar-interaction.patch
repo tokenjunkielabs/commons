@@ -1,0 +1,38 @@
+diff --git a/frontend/src/components/EmployerLayout.tsx b/frontend/src/components/EmployerLayout.tsx
+--- a/frontend/src/components/EmployerLayout.tsx
++++ b/frontend/src/components/EmployerLayout.tsx
+@@ -1,4 +1,5 @@
+-import React, { useState } from 'react';
++// Modified 2026-10-06: keep the closed mobile sidebar inert and link its toggle state.
++import React, { useId, useState } from 'react';
+ import { Outlet } from 'react-router-dom';
+ import { DashboardSidebar } from './DashboardSidebar';
+ import { DashboardTopBar } from './DashboardTopBar';
+@@ -6,6 +7,7 @@
+ 
+ export const EmployerLayout: React.FC = () => {
+   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
++  const mobileSidebarId = useId();
+ 
+   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+ 
+@@ -26,6 +28,10 @@
+ 
+       {/* Mobile Sidebar Content */}
+       <div
++        id={mobileSidebarId}
++        ref={(node) => {
++          if (node) node.inert = !isSidebarOpen;
++        }}
+         className={`
+                 lg:hidden fixed left-0 top-0 h-full w-64 z-[70] transition-transform duration-300 ease-in-out transform
+                 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+@@ -50,6 +56,8 @@
+             onClick={toggleSidebar}
+             className="p-2 rounded-lg bg-(--surface) border border-(--border) hover:bg-(--surface-hi) transition-colors"
+             aria-label="Toggle Sidebar"
++            aria-expanded={isSidebarOpen}
++            aria-controls={mobileSidebarId}
+           >
+             {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+           </button>
