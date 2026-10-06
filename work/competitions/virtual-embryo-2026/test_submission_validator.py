@@ -1,7 +1,11 @@
+import json
+import tempfile
 import unittest
+from pathlib import Path
+
 import numpy as np
 
-from submission_validator import validate_anndata
+from submission_validator import load_board_spec, validate_anndata
 
 
 class FakeAnnData:
@@ -16,6 +20,23 @@ class SubmissionValidatorTests(unittest.TestCase):
     def setUp(self):
         self.genes = [f"g{i}" for i in range(500)]
 
+    def _board(self, *, key="T2:embryo:val_interp", n_genes=498, min_cells=3, max_cells=5):
+        payload = {
+            key: {
+                "key": key,
+                "task": key.split(":", 1)[0],
+                "n_genes": n_genes,
+                "genes_file": "panel.genes.txt",
+                "needs_coords": key.startswith(("T2:", "T3:")),
+                "min_cells": min_cells,
+                "max_cells": max_cells,
+            }
+        }
+        tmp = tempfile.TemporaryDirectory()
+        path = Path(tmp.name) / "index.json"
+        path.write_text(json.dumps(payload), encoding="utf-8")
+        return tmp, load_board_spec(path, key)
+
     def test_t3_valid_contract(self):
         adata = FakeAnnData(
             np.zeros((4, 500), dtype=np.float32),
@@ -24,6 +45,28 @@ class SubmissionValidatorTests(unittest.TestCase):
         )
         result = validate_anndata(adata, task="T3", expected_genes=self.genes, min_cells=4)
         self.assertTrue(result.valid, result.errors)
+
+    def test_embryo_board_accepts_498_and_rejects_legacy_500(self):
+        tmp, spec = self._board()
+        self.addCleanup(tmp.cleanup)
+        genes498 = self.genes[:498]
+        valid = FakeAnnData(np.zeros((4, 498)), genes498, np.zeros((4, 3)))
+        result = validate_anndata(valid, task="T2", expected_genes=genes498, board_spec=spec)
+        self.assertTrue(result.valid, result.errors)
+
+        legacy = FakeAnnData(np.zeros((4, 500)), self.genes, np.zeros((4, 3)))
+        result = validate_anndata(legacy, task="T2", expected_genes=self.genes, board_spec=spec)
+        self.assertFalse(result.valid)
+        self.assertTrue(any("must contain 498" in error for error in result.errors))
+
+    def test_board_bounds_override_task_defaults(self):
+        tmp, spec = self._board(min_cells=583, max_cells=5000)
+        self.addCleanup(tmp.cleanup)
+        genes = self.genes[:498]
+        adata = FakeAnnData(np.zeros((582, 498)), genes, np.zeros((582, 3)))
+        result = validate_anndata(adata, task="T2", expected_genes=genes, board_spec=spec)
+        self.assertFalse(result.valid)
+        self.assertTrue(any("below minimum 583" in error for error in result.errors))
 
     def test_gene_order_fails_strict_and_warns_when_explicitly_allowed(self):
         genes = self.genes.copy()
