@@ -67,6 +67,30 @@ unless a concrete connected-router route is already configured. The private
 demo journal additionally suppresses duplicate message operation IDs across
 fresh gateway requests and restarts.
 
+### Internal carrier receipts
+
+When the request is submitted through the internal Slack equipment carrier,
+the carrier emits a small machine-readable
+`<commons_equipment_receipt>...</commons_equipment_receipt>` reply keyed by
+`request_id` and the message `operation_id`. These receipts stay in the
+internal carrier conversation; they are never copied into
+`michael-external-demo`.
+
+A post first emits `ACCEPTED` after the envelope is parsed and before the
+outward tool call. The terminal receipt is one of:
+
+- `DELIVERED` with only the fixed channel ID and provider Slack timestamp.
+- `DUPLICATE` with the original safe delivery receipt when the message
+  operation ID was already delivered.
+- `FAILED` with a stable state/error code and an `uncertain` marker when
+  reconciliation is required.
+
+Receipt posts use their own ToolCallStore keys, so replaying the same equipment
+request does not duplicate the ACK, terminal receipt, or outward message.
+Receipt bodies deliberately omit the requested demo text and provider error
+messages. The existing `<commons_equipment_result>` envelope remains
+unchanged for compatibility.
+
 ## One-shot execution without a gateway restart
 
 With the existing private account custody available in the current runtime:
