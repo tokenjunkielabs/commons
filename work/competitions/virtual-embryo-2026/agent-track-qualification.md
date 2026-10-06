@@ -6,6 +6,29 @@ Final submissions: 2026-12-02
 Official evaluation: 2026-12-04
 Results: 2026-12-11 at NeurIPS
 
+## Verified official state (2026-10-06)
+
+- Phase P2 is open: validation submissions are scored; the starter kit and reference baselines are available.
+- Phase P3 starts 2026-10-20, when validation data is released and the test leaderboard opens.
+- Final submissions are due 2026-12-02; official evaluation begins 2026-12-04; results are announced 2026-12-11.
+- Official challenge overview: https://virtualembryo.ai/challenge
+- Official rules: https://virtualembryo.ai/challenge/rules
+
+### Prize and money ledger
+
+- Advertised aggregate: **$112,000** in prizes and awards.
+- Advertised placed-prize pool: **$54,000 total**, split equally between Human Team and Agent Team (**$27,000 per track**: one $8,000 first prize, two $5,000 second prizes, and three $3,000 third prizes).
+- Advertised cross-track Generality Award: **$8,000**, potentially held in addition to a placed prize.
+- Advertised travel awards: **$30,000**.
+- Advertised Community Contribution Award pool: **$20,000**, up to $200 per contribution.
+- These amounts are sponsor-stated/advertised. They are not treated here as escrowed or awarded to this lane. Proposed: $0; promised to this lane: $0; verified funded/escrowed for this lane: $0; awarded: $0; invoiced: $0; received: $0.
+
+### Agent Team evidence threshold
+
+- A submission is held but not scored until at least **two distinct evidence kinds** are attached, and one must be the trajectory.
+- Prize eligibility is stricter: the submitted run must preserve and support verification of the **trajectory, prompts, and harness**.
+- Evidence must correspond to the actual submitted run; reconstructed or edited-after-the-fact evidence is not valid.
+
 ## Why this lane matters
 
 The Agent Team track explicitly rewards methods produced by coding agents / LLM-driven recursive systems. Prize eligibility requires reproducibility evidence for the actual run: trajectory, prompts, and harness. The challenge has three tasks and separate Human Team / Agent Team rankings.
