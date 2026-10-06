@@ -1,0 +1,185 @@
+diff --git a/frontend/src/pages/CustomReportBuilder.tsx b/frontend/src/pages/CustomReportBuilder.tsx
+index da817b49f6f79fc9ed34a9f5047f483829a8f1bb..4fc17ecc9bcbf450f92f600f914ec31885217f2a 100644
+--- a/frontend/src/pages/CustomReportBuilder.tsx
++++ b/frontend/src/pages/CustomReportBuilder.tsx
+@@ -1,20 +1,21 @@
+-// Modified 2026-10-06: associate the report date labels with their inputs.
++// Modified 2026-10-06: associate date labels and route report UI copy through i18n.
+ import { useState, useMemo, useId } from 'react';
+ import { Button, Card, Icon } from '@stellar/design-system';
++import { useTranslation } from 'react-i18next';
+ 
+ // Define all possible columns for the report
+ type ReportColumn = {
+   id: string;
+-  label: string;
++  labelKey: string;
+ };
+ 
+ const ALL_COLUMNS: ReportColumn[] = [
+-  { id: 'worker_id', label: 'Worker ID' },
+-  { id: 'amount', label: 'Amount' },
+-  { id: 'asset', label: 'Asset' },
+-  { id: 'setup_date', label: 'Stream Setup Date' },
+-  { id: 'payout_date', label: 'Expected Payout Date' },
+-  { id: 'status', label: 'Status' },
++  { id: 'worker_id', labelKey: 'customReport.column.worker_id' },
++  { id: 'amount', labelKey: 'customReport.column.amount' },
++  { id: 'asset', labelKey: 'customReport.column.asset' },
++  { id: 'setup_date', labelKey: 'customReport.column.setup_date' },
++  { id: 'payout_date', labelKey: 'customReport.column.payout_date' },
++  { id: 'status', labelKey: 'customReport.column.status' },
+ ];
+ 
+ // Mock data (matching the columns)
+@@ -62,6 +63,7 @@
+ ];
+ 
+ const CustomReportBuilder = () => {
++  const { t } = useTranslation();
+   const startDateId = useId();
+   const endDateId = useId();
+   const [selectedColumns, setSelectedColumns] = useState<string[]>(ALL_COLUMNS.map((c) => c.id));
+@@ -89,16 +91,19 @@
+   const handleExport = () => {
+     // Simulate export logic (e.g. converting filteredData to CSV and triggering download)
+     alert(
+-      `Exporting ${filteredData.length} records with columns: ${activeColumns.map((c) => c.label).join(', ')}`
++      t('customReport.exportSummary', {
++        records: filteredData.length,
++        columns: activeColumns.map((c) => t(c.labelKey)).join(', '),
++      })
+     );
+   };
+ 
+   return (
+     <div className="p-8 max-w-7xl mx-auto space-y-8">
+       <div>
+-        <h1 className="text-3xl font-bold text-(--text) mb-2">Custom Report Builder</h1>
++        <h1 className="text-3xl font-bold text-(--text) mb-2">{t('customReport.title')}</h1>
+         <p className="text-(--muted)">
+-          Select columns and date ranges to preview and export custom payroll data.
++          {t('customReport.subtitle')}
+         </p>
+       </div>
+ 
+@@ -107,10 +112,10 @@
+         <div className="md:col-span-1 space-y-6 flex flex-col">
+           <Card>
+             <div className="p-4 space-y-4">
+-              <h3 className="font-semibold text-lg border-b pb-2">Date Range</h3>
++              <h3 className="font-semibold text-lg border-b pb-2">{t('customReport.dateRange')}</h3>
+               <div className="space-y-3">
+                 <div>
+-                  <label htmlFor={startDateId} className="block text-sm font-medium text-(--text) mb-1">Start Date</label>
++                  <label htmlFor={startDateId} className="block text-sm font-medium text-(--text) mb-1">{t('customReport.startDate')}</label>
+                   <input
+                     id={startDateId}
+                     type="date"
+@@ -120,7 +125,7 @@
+                   />
+                 </div>
+                 <div>
+-                  <label htmlFor={endDateId} className="block text-sm font-medium text-(--text) mb-1">End Date</label>
++                  <label htmlFor={endDateId} className="block text-sm font-medium text-(--text) mb-1">{t('customReport.endDate')}</label>
+                   <input
+                     id={endDateId}
+                     type="date"
+@@ -135,7 +140,7 @@
+ 
+           <Card>
+             <div className="p-4 space-y-4">
+-              <h3 className="font-semibold text-lg border-b pb-2">Columns</h3>
++              <h3 className="font-semibold text-lg border-b pb-2">{t('customReport.columnsTitle')}</h3>
+               <div className="space-y-2">
+                 {ALL_COLUMNS.map((col) => (
+                   <label key={col.id} className="flex items-center space-x-3 cursor-pointer">
+@@ -145,7 +150,7 @@
+                       checked={selectedColumns.includes(col.id)}
+                       onChange={() => toggleColumn(col.id)}
+                     />
+-                    <span className="text-(--text) text-sm">{col.label}</span>
++                    <span className="text-(--text) text-sm">{t(col.labelKey)}</span>
+                   </label>
+                 ))}
+               </div>
+@@ -159,7 +164,7 @@
+             className="w-full flex justify-center mt-auto"
+           >
+             <Icon.DownloadCloud01 className="mr-2" />
+-            Export Data
++            {t('customReport.exportData')}
+           </Button>
+         </div>
+ 
+@@ -168,9 +173,9 @@
+           <Card>
+             <div className="p-4">
+               <div className="flex justify-between items-center mb-4">
+-                <h3 className="font-semibold text-xl">Live Preview</h3>
++                <h3 className="font-semibold text-xl">{t('customReport.livePreview')}</h3>
+                 <span className="text-sm text-(--muted) bg-(--surface-hi) px-3 py-1 rounded-full">
+-                  {filteredData.length} records found
++                  {t('customReport.recordsFound', { records: filteredData.length })}
+                 </span>
+               </div>
+ 
+@@ -184,7 +189,7 @@
+                             key={col.id}
+                             className="px-6 py-3 text-left text-xs font-medium text-(--muted) uppercase tracking-wider"
+                           >
+-                            {col.label}
++                            {t(col.labelKey)}
+                           </th>
+                         ))}
+                       </tr>
+@@ -208,7 +213,7 @@
+                             colSpan={activeColumns.length}
+                             className="px-6 py-8 text-center text-(--muted)"
+                           >
+-                            No data found for the selected date range.
++                            {t('customReport.noData')}
+                           </td>
+                         </tr>
+                       )}
+@@ -216,7 +221,7 @@
+                   </table>
+                 ) : (
+                   <div className="py-12 text-center text-(--muted) border-2 border-dashed border-(--border-hi) rounded-lg">
+-                    Please select at least one column to preview data.
++                    {t('customReport.selectColumn')}
+                   </div>
+                 )}
+               </div>
+diff --git a/frontend/src/locales/en/translation.json b/frontend/src/locales/en/translation.json
+index 1188a937baa87a95fe955a5855a57632602b14be..30f4748d482f49013f9d77f9d09aaf41f4dfd2d6 100644
+--- a/frontend/src/locales/en/translation.json
++++ b/frontend/src/locales/en/translation.json
+@@ -204,5 +204,27 @@
+     "loginDescription": "Enter the 6-digit code from your authenticator app to finish signing in.",
+     "loginButton": "Verify and continue",
+     "loginRecoveryHint": "Lost your device? Enter one of your recovery codes instead."
++  },
++  "customReport": {
++    "title": "Custom Report Builder",
++    "subtitle": "Select columns and date ranges to preview and export custom payroll data.",
++    "dateRange": "Date Range",
++    "startDate": "Start Date",
++    "endDate": "End Date",
++    "columnsTitle": "Columns",
++    "exportData": "Export Data",
++    "livePreview": "Live Preview",
++    "recordsFound": "{{records}} records found",
++    "noData": "No data found for the selected date range.",
++    "selectColumn": "Please select at least one column to preview data.",
++    "exportSummary": "Exporting {{records}} records with columns: {{columns}}",
++    "column": {
++      "worker_id": "Worker ID",
++      "amount": "Amount",
++      "asset": "Asset",
++      "setup_date": "Stream Setup Date",
++      "payout_date": "Expected Payout Date",
++      "status": "Status"
++    }
+   }
+ }
