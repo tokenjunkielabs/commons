@@ -1,0 +1,12 @@
+diff --git a/src/hooks/useProgressiveWebApp.ts b/src/hooks/useProgressiveWebApp.ts
+--- a/src/hooks/useProgressiveWebApp.ts
++++ b/src/hooks/useProgressiveWebApp.ts
+@@ -176,7 +176,7 @@
+       setIsLoading(true);
+       setState(PWAInstallState.INSTALLING);
+ 
+-      installPrompt.prompt();
++      await installPrompt.prompt();
+       const { outcome } = await installPrompt.userChoice;
+ 
+       if (outcome === 'accepted') {
