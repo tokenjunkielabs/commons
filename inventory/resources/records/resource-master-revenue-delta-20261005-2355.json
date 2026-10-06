@@ -205,11 +205,11 @@
     "passed": [
       "JSON parse and 457-resource / 248-producing / 130-record-source assertions",
       "Unique resource names and append-only source registration",
-      "Open-door/no-auth, zero-fabrication, secret, privacy and four-path diff assertions"
+      "Open-door/no-auth, zero-fabrication, secret, privacy and four-path diff assertions",
+      "Competition ledger: 5/5 focused unit tests passed; Python source/tests compiled",
+      "Connected-operation recorder: Node syntax check passed"
     ],
     "pending": [
-      "Focused competition-ledger unit tests",
-      "Connected-operation source syntax check",
       "PR-head/current-main asynchronous workflow readback"
     ],
     "runtime_boundary": "No PayD/Stellar app, browser, wallet, clipboard, account, transaction, private customer data, upstream submission, deployment or payment action ran. No external-demo post, DM, relay or contact ran. No competition platform action ran."
