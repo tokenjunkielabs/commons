@@ -96,8 +96,9 @@ def main(argv: list[str] | None = None) -> int:
     try:
         ns, unknown = parser.parse_known_args(args)
     except SystemExit as exc:
-        code = int(exc.code or 1)
-        if code == 0:
+        # argparse raises SystemExit(0) after printing --help; that is not a
+        # finder failure.
+        if exc.code == 0:
             return 0
         print(
             json.dumps(
