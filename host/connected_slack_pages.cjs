@@ -375,6 +375,11 @@ function projectSlackMessages(response, request, options = {}) {
   const headerOnly = Object.prototype.hasOwnProperty.call(options, 'header_only')
     ? options.header_only : false;
   if (typeof headerOnly !== 'boolean') throw new TypeError('header_only must be boolean');
+  const observeApplicationSuppression = Object.prototype.hasOwnProperty.call(options, 'observe_application_suppression')
+    ? options.observe_application_suppression : false;
+  if (typeof observeApplicationSuppression !== 'boolean') {
+    throw new TypeError('observe_application_suppression must be boolean');
+  }
   const defaults = {start_index: 0, max_messages: 8, max_body_chars: 800,
     max_total_body_chars: 6400, max_input_chars: 1048576,
     ...(headerOnly ? {max_header_chars: 800, max_total_header_chars: 6400} : {})};
@@ -382,7 +387,7 @@ function projectSlackMessages(response, request, options = {}) {
     max_body_chars: 65536, max_total_body_chars: 262144, max_input_chars: 8388608,
     max_header_chars: 65536, max_total_header_chars: 262144};
   for (const key of Object.keys(options)) {
-    if (key !== 'source_indices' && key !== 'header_only' &&
+    if (key !== 'source_indices' && key !== 'header_only' && key !== 'observe_application_suppression' &&
         !Object.prototype.hasOwnProperty.call(defaults, key)) {
       const modeHint = !headerOnly && (key === 'max_header_chars' || key === 'max_total_header_chars')
         ? '; header budgets require header_only: true; omit both header-budget options for body projection'
@@ -392,6 +397,7 @@ function projectSlackMessages(response, request, options = {}) {
   }
   const limits = {...defaults, ...options};
   delete limits.header_only;
+  delete limits.observe_application_suppression;
   for (const [key, value] of Object.entries(limits)) {
     if (key === 'source_indices') continue;
     if (!Number.isSafeInteger(value) || value < (['max_messages', 'max_input_chars'].includes(key) ? 1 : 0) ||
@@ -599,6 +605,30 @@ function projectSlackMessages(response, request, options = {}) {
       }
     }
     const selected = sourceIndices === null ? rows.slice(from, until) : sourceIndices.map(index => rows[index]);
+    if (observeApplicationSuppression) {
+      // Exact retained rendering only: this is not authenticated application state.
+      const notice = '_Due to a high volume of activity, we are not displaying some messages sent by this application. • <https://api.slack.com/docs/rate-limits|Details>_';
+      const observation = {
+        scope: 'all_parsed_rendered_message_content_ranges',
+        format: 'slack_application_high_volume_v1',
+        authentication: 'not_performed', interpretation: 'literal_notice_only',
+        suppressed_messages_count: null, complete_message_coverage: 'not_established',
+        observed_literal_count: 0, record_limit: 20, records: [], omitted_records: 0,
+      };
+      for (const row of rows) {
+        const [start, end] = row.rendered_content_range;
+        if (end - start !== notice.length || rendered.slice(start, end) !== notice) continue;
+        observation.observed_literal_count++;
+        if (observation.records.length < observation.record_limit) {
+          observation.records.push({source_index: row.source_index,
+            message_ts: row.message_ts, kind: row.kind,
+            rendered_content_range: [start, end]});
+        } else {
+          observation.omitted_records++;
+        }
+      }
+      result.coverage.application_suppression_notice = observation;
+    }
     let used = 0;
     let full = 0;
     let truncated = 0;
