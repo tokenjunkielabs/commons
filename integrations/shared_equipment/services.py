@@ -283,6 +283,8 @@ TOOLS = [
     _schema("slack_read_channel", "Read a Slack channel using existing workspace access. Follow next_cursor for remaining pages.", {"channel_id": "string"}, {"oldest": "string", "latest": "string", "cursor": "string", "limit": "integer"}),
     _schema("slack_read_thread", "Read a Slack thread within optional oldest/latest timestamps. Follow next_cursor for remaining replies.", {"channel_id": "string", "thread_ts": "string"}, {"oldest": "string", "latest": "string", "cursor": "string", "limit": "integer"}),
     _schema("slack_post_message", "Post to a channel verified as internal to the authenticated workspace. Sender is the fixed existing Slack account; do not add model or peer bylines. Returns the provider timestamp and permalink.", {"channel_id": "string", "text": "string"}, {"thread_ts": "string"}),
+    _schema("slack_post_external_demo_message", "Post public demo copy only to michael-external-demo (C0C7S2D5QRE), using the fixed existing Slack account and the existing outward publication checks. Reuse operation_id: accepted or uncertain sends are never repeated. Delivery requires provider readback of the sender and exact text. No channel, sender or icon override.", {"operation_id": "string", "text": "string"}, {"thread_ts": "string"}),
+    _schema("slack_external_demo_message_status", "Read back an existing external demo operation without sending. Optional message_ts reconciles a provider handle recovered after an interrupted send. Reads only michael-external-demo; reuse the original operation_id.", {"operation_id": "string"}, {"message_ts": "string"}),
     _schema("commons_team_workhandoff", "Share an exact patch, tests, and result in the active BountyHub team thread. Internal Slack only; the fixed authenticated account is used, and the route reads back the actual file, message body, sender, and any provider footer. Same operation ID and content is idempotent; changed payload under that ID is rejected. No model/peer allowlist.", {"operation_id": "string", "work_id": "string", "objective": "string", "summary": "string", "patch": "string", "tests": "string", "result": "string"}, {"channel_id": {"type": "string", "default": DEFAULT_CHANNEL_ID}, "thread_ts": {"type": "string", "default": DEFAULT_THREAD_TS}}),
     _schema("commons_team_workhandoff_status", "Reconcile a prior internal Slack workhandoff by stable operation ID. Reads the current provider thread/file and returns actual sender/body/footer verification; it never sends a duplicate.", {"operation_id": "string"}, {"channel_id": {"type": "string", "default": DEFAULT_CHANNEL_ID}, "thread_ts": {"type": "string", "default": DEFAULT_THREAD_TS}}),
     _schema("slack_read_file", "Fetch a shared Slack text or patch file by file ID using the existing shared encrypted Slack credential. Same operation for every peer; no per-peer grant.", {"file_id": "string"}),
@@ -303,11 +305,21 @@ TOOLS = [
 ]
 
 
+for _demo_tool in TOOLS:
+    if _demo_tool["name"] in {"slack_post_external_demo_message", "slack_external_demo_message_status"}:
+        _demo_tool["annotations"] = {
+            "readOnlyHint": _demo_tool["name"] == "slack_external_demo_message_status",
+            "idempotentHint": True,
+            "openWorldHint": True,
+        }
+
+
 class ServiceEquipment(GitHubSlackEquipment):
     def __init__(self, *, gh: str = "gh", slack_token_loader=None, gh_runner=None, opener=None, credential_sources=None, workhandoff_journal_path: Path | None = None):
         super().__init__(gh=gh, slack_token_loader=slack_token_loader, gh_runner=gh_runner, opener=opener)
         self.credential_sources = credential_sources
         self._work_handoff = WorkHandoff(self, journal_path=workhandoff_journal_path)
+        self._external_demo_messages = None
 
     def _slack_write_route_verified(self, channel_id: str | None = None) -> bool:
         # Internal workspace coordination bypasses the outward sender hook.
@@ -509,6 +521,13 @@ class ServiceEquipment(GitHubSlackEquipment):
             p = {"channel": _string(a, "channel_id"), "ts": _string(a, "thread_ts"), "limit": min(100, max(1, int(a.get("limit", 50))))}
             p.update({k: a[k] for k in ("oldest", "latest", "cursor") if a.get(k)})
             return self.slack("conversations.replies", p)
+        if name in {"slack_post_external_demo_message", "slack_external_demo_message_status"}:
+            if self._external_demo_messages is None:
+                from .external_demo import ExternalDemoMessages
+                self._external_demo_messages = ExternalDemoMessages(self,
+                    journal_path=self._work_handoff.path.with_name("external_demo.sqlite3"))
+            route = self._external_demo_messages
+            return route.submit(a) if name == "slack_post_external_demo_message" else route.status(a)
         if name == "slack_post_message":
             channel_id = _string(a, "channel_id")
             if not self._slack_write_route_verified(channel_id):
