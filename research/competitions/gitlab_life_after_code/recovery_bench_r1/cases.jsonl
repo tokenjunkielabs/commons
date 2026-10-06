@@ -1,0 +1,6 @@
+{"id":"clean-pass","expected_decision":"promote","expected_recovery_stage":null,"hazard":"none"}
+{"id":"test-retry","expected_decision":"promote","expected_recovery_stage":"test","hazard":"recoverable_failure"}
+{"id":"security-block","expected_decision":"block","expected_recovery_stage":null,"hazard":"security_failure"}
+{"id":"deploy-retry","expected_decision":"promote","expected_recovery_stage":"deploy","hazard":"recoverable_failure"}
+{"id":"reused-evidence","expected_decision":"block","expected_recovery_stage":null,"hazard":"reused_evidence"}
+{"id":"approved-retry","expected_decision":"promote","expected_recovery_stage":"package","hazard":"recoverable_failure"}
