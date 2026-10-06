@@ -1275,3 +1275,111 @@ runtime service or old provider request was used. The prior root 19:29 collectio
 was not supplied and is not reconstructed; its coverage and all message holds
 remain outside the report. All existing collector and projector function bodies
 are byte-for-byte unchanged.
+
+
+## Observe an explicit application-message suppression notice
+
+A native read can reach pagination END while its rendered messages contain an
+explicit notice that some application messages were not displayed. END still
+describes the returned pagination chain. It does not establish that the
+underlying message history was delivered completely. The existing projector's
+`retained_response_only`, `snapshot:false` and `all_rendered_*` qualifications
+remain accurate and unchanged.
+
+For an actual retained channel or thread response, opt into a narrow metadata
+observation while keeping message bodies withheld:
+
+~~~javascript
+const headers = projectSlackCollectedMessages(retainedCollection, {
+  projection: {
+    header_only: true,
+    max_messages: 100,
+    max_header_chars: 512,
+    max_total_header_chars: 32768,
+    observe_application_suppression: true,
+  },
+});
+~~~
+
+The same boolean option is accepted by `projectSlackMessages`. It is false by
+default and does not change the existing output shape when false or omitted.
+It is not a search-projector option. No provider request, pagination step,
+retry, unsuppression, credential change or body-recovery action occurs.
+
+After successful message parsing and source-index validation, the observer
+compares every parsed rendered-content range in that one response with the
+single exact 148-character application high-volume notice observed in the
+motivating response. The comparison preserves all whitespace, Markdown and the
+literal rate-limit link. It does not match quoted or prefixed text, altered
+wording, extra content, other notice forms or a partial/truncated prefix.
+Budgeted body/header selection is independent: an exact notice can be reported
+even when its message was not selected for output.
+
+When enabled on a successfully parsed response,
+`coverage.application_suppression_notice` contains:
+
+- `scope: 'all_parsed_rendered_message_content_ranges'` and
+  `format: 'slack_application_high_volume_v1'`;
+- `authentication: 'not_performed'` and `interpretation: 'literal_notice_only'`;
+- `observed_literal_count`, counting exact rendered matches;
+- at most 20 ordered `records`, each carrying only `source_index`, the exact
+  rendered `message_ts`, `kind`, and half-open `rendered_content_range`;
+- `record_limit: 20` and `omitted_records` for additional exact matches;
+- `suppressed_messages_count: null` (unknown) and
+  `complete_message_coverage: 'not_established'`.
+
+No message body, author, recovered source, arbitrary link or native error text
+is copied into these notice records. Existing native-input limits still bound
+parsed text; the fixed record cap bounds the added observation metadata, which
+is separate from the existing body/header output budgets. These are local
+processing/output bounds, not limits on an already received provider payload.
+Request/body/header budgets and pagination/cursor fields retain their existing
+behavior. Omitting the option, passing false, or refusing an input does not
+emit a completed notice observation; absence of that field is not a zero count.
+
+The observation is about rendered literal text, not authenticated Slack
+application state: an ordinary message could contain the same exact notice.
+A zero match count establishes only that this exact form was not present in
+the parsed ranges. It does not prove that other messages or notice forms were
+absent, that suppression ended, or that the channel/window is complete.
+
+The actual motivating collection had one successful `read_channel` response,
+three rendered messages and explicit native END. Its exact notice occupied
+source index 2 and a 148-character content range. Header-only intake retained
+all three headers while withholding all bodies, so the notice was not visible
+in that header view. Delivery retains the original native response privately.
+Only its safe exact notice and source/request metadata were transferred for
+this change; no held-topic bodies or suppressed messages were acquired.
+
+The earlier no-change assessment of the guide's coverage wording remains
+valid. This addition supplies optional machine-readable observation; it does
+not rewrite that historical disposition or claim the old output asserted full
+message coverage. A genuine first consumer may process the retained response
+in its custodian's lane without a provider replay; its actual result belongs
+in the operation receipt. No fixture, synthetic response, old provider request
+or message-recovery attempt was used.
+
+
+### First actual retained-response consumer
+
+After the source was frozen and Git-blob banked as
+`eb416da2b4599908507dd4c9bba5a76472fa6498` (73,707 UTF-8 bytes),
+the original custodian acquired that complete helper, matched its native and
+independent blob identities, and ran one header-only opt-in projection on the
+surviving real collection.
+
+The result was `PROJECTED`, with one exact literal observation, one metadata
+record and zero omitted records. It retained source index 2 and the original
+half-open content range `[2638,2786)`. Suppressed-message count stayed null,
+authentication stayed `not_performed`, and complete-message coverage stayed
+`not_established`. All three headers were returned (368 header characters);
+all three content strings remained empty with `body_withheld:true`, and
+returned body characters were zero. Notice metadata contained no notice text.
+
+The original collection's serialized JSON remained identical, and its native
+END disposition was unchanged. The complete result and original response stay
+in private caller custody. There were no collection provider reads, errors,
+body recovery, prior/default projection replay or fixtures. This actual
+consumer exercises the one observed positive literal match with header-only
+output; altered notice forms, more than 20 matches, malformed/refused input
+and other error branches remain unexecuted.
