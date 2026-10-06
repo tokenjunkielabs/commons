@@ -1,0 +1,33 @@
+{
+  "path": "B",
+  "autonomy": "hands-off",
+  "expected_outcome": "promote",
+  "decision": "promote",
+  "trigger": {
+    "evidence_url": "https://gitlab.example/evidence/trigger/reuse"
+  },
+  "stages": [
+    {
+      "name": "test",
+      "status": "passed",
+      "evidence": [
+        {
+          "url": "https://gitlab.example/evidence/reused/shared"
+        }
+      ]
+    },
+    {
+      "name": "security",
+      "status": "passed",
+      "evidence": [
+        {
+          "url": "https://gitlab.example/evidence/reused/shared"
+        }
+      ]
+    }
+  ],
+  "human_approvals": [],
+  "outcome": {
+    "evidence_url": "https://gitlab.example/evidence/outcome/reuse"
+  }
+}

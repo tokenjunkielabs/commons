@@ -1,0 +1,42 @@
+{
+  "path": "A",
+  "autonomy": "hands-off",
+  "expected_outcome": "promote",
+  "decision": "promote",
+  "trigger": {
+    "evidence_url": "https://gitlab.example/evidence/trigger/golden"
+  },
+  "stages": [
+    {
+      "name": "code_review",
+      "status": "passed",
+      "evidence": [
+        {
+          "url": "https://gitlab.example/evidence/golden/review"
+        }
+      ]
+    },
+    {
+      "name": "test",
+      "status": "passed",
+      "evidence": [
+        {
+          "url": "https://gitlab.example/evidence/golden/test"
+        }
+      ]
+    },
+    {
+      "name": "security",
+      "status": "passed",
+      "evidence": [
+        {
+          "url": "https://gitlab.example/evidence/golden/security"
+        }
+      ]
+    }
+  ],
+  "human_approvals": [],
+  "outcome": {
+    "evidence_url": "https://gitlab.example/evidence/outcome/golden"
+  }
+}

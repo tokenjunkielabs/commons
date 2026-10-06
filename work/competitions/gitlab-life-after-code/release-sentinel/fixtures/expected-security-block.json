@@ -1,0 +1,42 @@
+{
+  "path": "A",
+  "autonomy": "hands-off",
+  "expected_outcome": "block",
+  "decision": "block",
+  "trigger": {
+    "evidence_url": "https://gitlab.example/evidence/trigger/security-block"
+  },
+  "stages": [
+    {
+      "name": "code_review",
+      "status": "passed",
+      "evidence": [
+        {
+          "url": "https://gitlab.example/evidence/security-block/review"
+        }
+      ]
+    },
+    {
+      "name": "security",
+      "status": "failed",
+      "evidence": [
+        {
+          "url": "https://gitlab.example/evidence/security-block/security"
+        }
+      ]
+    },
+    {
+      "name": "release",
+      "status": "skipped",
+      "evidence": [
+        {
+          "url": "https://gitlab.example/evidence/security-block/release"
+        }
+      ]
+    }
+  ],
+  "human_approvals": [],
+  "outcome": {
+    "evidence_url": "https://gitlab.example/evidence/outcome/security-block"
+  }
+}

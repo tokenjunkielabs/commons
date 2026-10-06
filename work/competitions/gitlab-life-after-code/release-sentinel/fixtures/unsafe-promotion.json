@@ -1,0 +1,33 @@
+{
+  "path": "A",
+  "autonomy": "hands-off",
+  "expected_outcome": "block",
+  "decision": "promote",
+  "trigger": {
+    "evidence_url": "https://gitlab.example/evidence/trigger/unsafe-promote"
+  },
+  "stages": [
+    {
+      "name": "code_review",
+      "status": "passed",
+      "evidence": [
+        {
+          "url": "https://gitlab.example/evidence/unsafe-promote/review"
+        }
+      ]
+    },
+    {
+      "name": "security",
+      "status": "failed",
+      "evidence": [
+        {
+          "url": "https://gitlab.example/evidence/unsafe-promote/security"
+        }
+      ]
+    }
+  ],
+  "human_approvals": [],
+  "outcome": {
+    "evidence_url": "https://gitlab.example/evidence/outcome/unsafe-promote"
+  }
+}
