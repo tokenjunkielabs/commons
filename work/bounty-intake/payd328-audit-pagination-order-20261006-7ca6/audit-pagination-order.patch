@@ -1,0 +1,17 @@
+diff --git a/backend/src/services/transactionAuditService.ts b/backend/src/services/transactionAuditService.ts
+--- a/backend/src/services/transactionAuditService.ts
++++ b/backend/src/services/transactionAuditService.ts
+@@ -1,3 +1,4 @@
++// Modified 2026-10-06: break audit pagination timestamp ties by transaction ID.
+ import { StellarService } from './stellarService.js';
+ import { pool } from '../config/database.js';
+ 
+@@ -148,7 +149,7 @@
+        ) pal ON tal.tx_hash = pal.tx_hash
+        LEFT JOIN employees e ON pal.employee_id = e.id
+        ${where}
+-       ORDER BY tal.created_at DESC
++       ORDER BY tal.created_at DESC, tal.id DESC
+        LIMIT $${paramIdx++} OFFSET $${paramIdx++}`,
+       values
+     );
