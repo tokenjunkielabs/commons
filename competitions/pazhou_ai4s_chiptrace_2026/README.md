@@ -100,6 +100,15 @@ python -m unittest \
 
 The competition-scoped GitHub Actions workflow runs the same compile, hostile tests, deterministic demo, receipt verification, and independent twin-demo byte comparison on Python 3.11–3.13.
 
+
+## Frozen benchmark and evidence-bound triage
+
+`benchmark.py` evaluates the existing deterministic ChipTrace QC core on five frozen synthetic cases: clean, level shift, cadence gap, replicate divergence, and sparse evidence. The triage wrapper emits `SUPPORTED_QC`, `REVIEW`, or `ABSTAIN` and attaches JSON-pointer citations back to the exact report fields supporting the decision.
+
+The benchmark reports precision, recall, F1, false-flag rate, sparse-case abstention accuracy, citation validity, repeat decision churn, and median/P95 execution latency. Its deterministic receipt excludes wall-clock timing so runner load does not change the evidence hash.
+
+This is a synthetic research-software QC benchmark floor, not biological or competition validation.
+
 ## Competition status and authority boundary
 
 This repository carrier is source/test/demo/report readiness only. It does not assert Kaggle registration, terms acceptance, official submission, organizer validation, finalist status, score, ranking, prize, payment, or revenue. Any eventual competition action must preserve the event's current rules, data licenses, attribution requirements, and identity/entry requirements.
