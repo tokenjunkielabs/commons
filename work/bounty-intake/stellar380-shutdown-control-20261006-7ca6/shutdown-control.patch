@@ -1,0 +1,79 @@
+diff --git a/backend/src/reconciliation/compare.rs b/backend/src/reconciliation/compare.rs
+index b090291ed8bcb5427fff339e1360e278640b34f4..bb06d4135c3f75e1532d9985b18fc90a4a45f5a0 100644
+--- a/backend/src/reconciliation/compare.rs
++++ b/backend/src/reconciliation/compare.rs
+@@ -1,3 +1,4 @@
++// Modification (2026-10-06): honor shutdown state and channel closure during retry waits.
+ use std::collections::{BTreeMap, BTreeSet};
+ use std::sync::Arc;
+ use std::time::{Duration, SystemTime};
+@@ -454,12 +455,18 @@
+         Ok(())
+     }
+ 
+-    /// Run the reconciliation loop cooperatively until `shutdown` signal fires.
++    /// Run until shutdown is requested or all shutdown senders are dropped.
++    /// False updates do not shorten a pending retry backoff.
+     pub async fn run_until_shutdown(
+         &self,
+         interval: Duration,
+         mut shutdown: tokio::sync::watch::Receiver<bool>,
+     ) {
++        if shutdown.has_changed().is_err() || *shutdown.borrow() {
++            info!("ReconciliationJob not started: shutdown or closed channel");
++            return;
++        }
++
+         let mut ticker = tokio::time::interval(interval);
+         ticker.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Delay);
+         let mut consecutive_tick_failures: u32 = 0;
+@@ -485,11 +492,11 @@
+                                 if !backoff.is_zero() {
+                                     tokio::select! {
+                                         _ = tokio::time::sleep(backoff) => {}
+-                                        _ = shutdown.changed() => {
+-                                            if *shutdown.borrow() {
+-                                                info!("ReconciliationJob shutting down during backoff sleep");
+-                                                break;
+-                                            }
++                                        _ = async {
++                                            let _ = shutdown.wait_for(|requested| *requested).await;
++                                        } => {
++                                            info!("ReconciliationJob stopping during backoff");
++                                            break;
+                                         }
+                                     }
+                                 }
+@@ -523,22 +530,22 @@
+                             if !backoff.is_zero() {
+                                 tokio::select! {
+                                     _ = tokio::time::sleep(backoff) => {}
+-                                    _ = shutdown.changed() => {
+-                                        if *shutdown.borrow() {
+-                                            info!("ReconciliationJob shutting down during backoff sleep");
+-                                            break;
+-                                        }
++                                    _ = async {
++                                        let _ = shutdown.wait_for(|requested| *requested).await;
++                                    } => {
++                                        info!("ReconciliationJob stopping during backoff");
++                                        break;
+                                     }
+                                 }
+                             }
+                         }
+                     }
+                 }
+-                _ = shutdown.changed() => {
+-                    if *shutdown.borrow() {
+-                        info!("ReconciliationJob received shutdown signal; terminating daemon");
+-                        break;
+-                    }
++                _ = async {
++                    let _ = shutdown.wait_for(|requested| *requested).await;
++                } => {
++                    info!("ReconciliationJob stopping: shutdown or closed channel");
++                    break;
+                 }
+             }
+         }
