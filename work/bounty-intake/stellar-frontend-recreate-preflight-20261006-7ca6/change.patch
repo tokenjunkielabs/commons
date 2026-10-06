@@ -1,0 +1,22 @@
+diff --git a/scripts/close_and_recreate_all.sh b/scripts/close_and_recreate_all.sh
+index 2b6d5f31f40dcd536101155fa0fc8ff5fb95a762..ad33b2f7c127a35baa8605e02e717d9c2469dabc 100755
+--- a/scripts/close_and_recreate_all.sh
++++ b/scripts/close_and_recreate_all.sh
+@@ -1,5 +1,17 @@
+ #!/bin/bash
+ 
++# Resolve the replacement prerequisite before any issue mutation.
++SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)" || exit 1
++RECREATE_SCRIPT="$SCRIPT_DIR/create_all_70_detailed.py"
++
++if [[ ! -f "$RECREATE_SCRIPT" || ! -r "$RECREATE_SCRIPT" ]]; then
++    printf 'Cannot close issues: replacement generator is missing or unreadable: %s\n' "$RECREATE_SCRIPT" >&2
++    exit 1
++fi
++
++# Keep relative commands anchored to the checkout containing this wrapper.
++cd -- "$SCRIPT_DIR/.." || exit 1
++
+ echo "=========================================="
+ echo "CLOSING ALL LAZY ISSUES"
+ echo "=========================================="
