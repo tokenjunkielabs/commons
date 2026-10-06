@@ -1,0 +1,25 @@
+diff --git a/src/components/notifications/NotificationPreferences.tsx b/src/components/notifications/NotificationPreferences.tsx
+index fd1482e..083079f 100644
+--- a/src/components/notifications/NotificationPreferences.tsx
++++ b/src/components/notifications/NotificationPreferences.tsx
+@@ -16,6 +16,7 @@
+ } from 'lucide-react';
+ import { NotificationPreferences as NotificationPreferencesType } from '@/types/notifications';
+ import { useNotifications } from '@/contexts/NotificationContext';
++import { logger } from '@/lib/logger';
+ 
+ interface NotificationPreferencesProps {
+   isOpen: boolean;
+@@ -74,6 +75,12 @@
+       gainNode.gain.linearRampToValueAtTime(localPreferences.sound.volume * 0.1, audioContext.currentTime + 0.01);
+       gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.2);
+       
++      oscillator.onended = () => {
++        void audioContext.close().catch(() => {
++          logger.warn('Failed to close test sound audio context');
++        });
++      };
++
+       oscillator.start(audioContext.currentTime);
+       oscillator.stop(audioContext.currentTime + 0.2);
+     }
