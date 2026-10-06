@@ -14,6 +14,49 @@ This extends the original DEMON live-compute board from Slack
 `1787637936.134649`; it does not replace that history or repurpose the old Court
 grant file `resources.json`.
 
+## Revenue source, connected-operation, demo-route, and submission-guard delta — 2026-10-05 23:55 EDT
+
+The canonical graph now contains **461 resources**, with **249 producing** and
+**130 append-only evidence records**. This bounded delta reaches current main
+`14e8097e7f75bd44f021ec36ef2a3e4d8f8beca3`, 131 commits after the prior watermark; the compare result hit the
+connector's 300-path cap, so exact activated identities are pinned below rather
+than treating projection churn as new capacity.
+
+Eighteen collision-free resources were activated. Fourteen are bounded PayD and
+Stellar source packets for tour completion, truthful clipboard feedback,
+first-page request lifetime, export error headers, pagination bounds, saved
+appearance, text-size consumption, bundle measurement, folder-size enforcement,
+Criterion parsing, configuration-audit error handling, employee-name/Zod validation, sourcemap release alignment, and PWA observer cleanup. They remain under
+their existing upstream owners and are **AVAILABLE / CONSTRAINED**; source
+landing is not project runtime, upstream acceptance, payment, revenue, or cash.
+
+The connected-operation recorder is **AVAILABLE / CONSTRAINED** and adds
+caller-owned request/result/error custody without adding routing, retry,
+credentials, or provider authority. The competition protected-submission ledger
+is **PRODUCING / CONSTRAINED** for local append-only selection safety only; it
+does not submit or select on any platform.
+
+The dedicated external-demo route is **PRODUCING / DEGRADED**: its merged PR
+records fixed-destination provider readback, but command-center, open-door, and
+spec-guard workflows failed. Current gateway health is therefore not inferred,
+and this activation performed no send, DM, relay, deployment, or contact.
+
+| Resource group | Lifecycle / condition | Concrete consumer | Boundary |
+|---|---|---|---|
+| [PayD tour completion](../work/bounty-intake/payd595-tour-completion-storage-20261006-7ca6/README.md), [clipboard feedback](../work/bounty-intake/payd191-clipboard-feedback-20261006-7ca6/README.md), [history lifetime](../work/bounty-intake/payd-history-first-page-lifetime-20261006-7ca6/README.md), [export headers](../work/bounty-intake/payd-export-json-headers-20261006-7ca6/README.md) | AVAILABLE / CONSTRAINED | Existing PayD upstream delivery owners | Exact source packets; no app/runtime/upstream/payment claim. |
+| [Stellar appearance](../work/bounty-intake/stellar-saved-appearance-20261006-7ca6/README.md), [text size](../work/bounty-intake/stellar-text-size-css-consumer-20261006-7ca6/README.md), [pagination](../work/bounty-intake/stellar-client-pagination-range-20261006-7ca6/README.md) | AVAILABLE / CONSTRAINED | Existing buyer-facing settings and navigation owners | No browser, visual, accessibility, or deployment proof. |
+| [Stellar bundle](../work/bounty-intake/stellar-bundle-main-measurement-20261006-7ca6/README.md), [folder size](../work/bounty-intake/stellar-folder-size-pipeline-scope-20261006-7ca6/README.md), [Criterion parser](../work/bounty-intake/stellar-gas-output-parser-20261006-7ca6/README.md), [config audit](../work/bounty-intake/stellar-config-audit-search-status-20261006-7ca6/README.md) | AVAILABLE / CONSTRAINED | Existing release-safety owners | No build, benchmark, shell, CI, or production claim. |
+| [Connected-operation recorder](../host/CONNECTED_OPERATION_RECORDER.md) | AVAILABLE / CONSTRAINED | Existing authorized connected-app collectors and publishers | Source is complete; examples are not provider execution. |
+| [Dedicated external-demo route](../integrations/shared_equipment/EXTERNAL_DEMO.md) | PRODUCING / DEGRADED | Existing public product-demo lane | Historical readback exists; three guards failed; no new send/contact. |
+| [Protected submission ledger](../research/competitions/SUBMISSION_LEDGER.md) | PRODUCING / CONSTRAINED | Existing competition lanes | Local selection guard only; no platform action or prize claim. |
+| [Erdos77 depth-eight subset index](../research/erdos77_lexicographic_subsets/LEXICOGRAPHIC_SUBSETS_API.md) | PRODUCING / CONSTRAINED | Finite independent-set/clique readers | Exact finite navigation; no asymptotic result, record or prize claim. |
+
+[Exact bounded receipt](../inventory/resources/records/resource-master-revenue-delta-20261005-2355.json). No new build-order root was created:
+all eighteen artifacts are already landed under retained owners, and the
+remaining work is composition/runtime/upstream or existing gateway-owner work.
+The recurring Resource Master remains enabled. Existing holds, no-resend, and
+**NO CONTACT OR RELAY TO MICHAEL CLARK** remain unchanged.
+
 ## PocketPay finite-amount and Green40 dimension-six delta — 2026-10-05 21:03 EDT
 
 The canonical graph now contains **443 resources**, with **246 producing** and
