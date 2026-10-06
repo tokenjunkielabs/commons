@@ -1,0 +1,18 @@
+{
+  "model_version":"fixture-golden-v1",
+  "policy_version":"paypal-evidence-policy-v1",
+  "results":[
+    {"fixture_id":"F01","decision":"approve","evidence_ids":["F01-E1","F01-E2"],"missing_evidence_ids":[],"unsupported_claims":[],"staged_action":true,"human_approval_receipt":"APR-F01","sandbox_request_id":"REQ-F01","sandbox_response_id":"RESP-F01"},
+    {"fixture_id":"F02","decision":"reject","evidence_ids":["F02-E1"],"missing_evidence_ids":["F02-E2"],"unsupported_claims":[],"staged_action":false},
+    {"fixture_id":"F03","decision":"needs_review","evidence_ids":["F03-E1","F03-E2"],"missing_evidence_ids":[],"unsupported_claims":[],"staged_action":false},
+    {"fixture_id":"F04","decision":"needs_review","evidence_ids":["F04-E1","F04-E2"],"missing_evidence_ids":[],"unsupported_claims":[],"staged_action":false},
+    {"fixture_id":"F05","decision":"reject","evidence_ids":["F05-E1"],"missing_evidence_ids":[],"unsupported_claims":[],"staged_action":false},
+    {"fixture_id":"F06","decision":"reject","evidence_ids":["F06-E1"],"missing_evidence_ids":[],"unsupported_claims":[],"staged_action":false},
+    {"fixture_id":"F07","decision":"reject","evidence_ids":["F07-E1"],"missing_evidence_ids":[],"unsupported_claims":[],"staged_action":false},
+    {"fixture_id":"F08","decision":"needs_review","evidence_ids":["F08-E1"],"missing_evidence_ids":[],"unsupported_claims":[],"staged_action":false},
+    {"fixture_id":"F09","decision":"reject","evidence_ids":["F09-E1"],"missing_evidence_ids":[],"unsupported_claims":[],"staged_action":false},
+    {"fixture_id":"F10","decision":"reject","evidence_ids":["F10-E1","F10-E2"],"missing_evidence_ids":[],"unsupported_claims":[],"staged_action":false},
+    {"fixture_id":"F11","decision":"reject","evidence_ids":["F11-E1"],"missing_evidence_ids":[],"unsupported_claims":[],"staged_action":false},
+    {"fixture_id":"F12","decision":"reject","evidence_ids":["F12-E1"],"missing_evidence_ids":[],"unsupported_claims":[],"staged_action":false}
+  ]
+}
