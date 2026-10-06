@@ -11124,7 +11124,7 @@
       "value": "Prevents a newer run from silently replacing a stronger protected-best submission and records intentional regression overrides append-only.",
       "source": "PR31849 head/merge 92003dca56e18f16ea73d060b824ff77acb11ba3; guide blob a1e25670082e14ffbd479ef37c509f80a52371fb; source blob b7196c3eb8d5b58763be4d58868901103cc4b7b3; test blob 3b9accc953905b64aad749a1077fd94c699b65ca",
       "auth_surface": "Public current-main local files only; no competition account, credential or platform request.",
-      "exact_safe_probe": "The complete guide, source and unit test were inspected. Focused local unit tests are required in this operation before merge; no platform submission or account action is authorized.",
+      "exact_safe_probe": "The complete guide, source and unit test were inspected. Five focused local unit tests passed; both Python files compiled. No platform submission, account action or external competition write ran.",
       "next_action": "Use a separate append-only ledger per authorized competition lane, preserve exact artifact identity, and keep platform submission/final-selection owner-controlled.",
       "rate_plan_boundary": "A local public score record is not an official leaderboard, private score, platform acceptance, final submission, prize, award, payment, revenue or cash.",
       "assigned_backlog": "Existing competition owners retained; complete guard already landed, so no duplicate submission worker or order.",
