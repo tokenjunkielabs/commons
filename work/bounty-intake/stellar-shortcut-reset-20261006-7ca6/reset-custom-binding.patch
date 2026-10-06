@@ -1,0 +1,20 @@
+diff --git a/src/components/keyboard-shortcuts/ShortcutCustomizer.tsx b/src/components/keyboard-shortcuts/ShortcutCustomizer.tsx
+--- a/src/components/keyboard-shortcuts/ShortcutCustomizer.tsx
++++ b/src/components/keyboard-shortcuts/ShortcutCustomizer.tsx
+@@ -17,6 +17,7 @@
+     getShortcutsByCategory,
+     platform,
+     config,
++    setConfig,
+     customizeBinding,
+     toggleShortcut,
+     resetConfig,
+@@ -76,7 +77,7 @@
+   const resetShortcut = (shortcutId: string) => {
+     const newBindings = { ...config.customBindings };
+     delete newBindings[shortcutId];
+-    customizeBinding(shortcutId, shortcuts.find(s => s.id === shortcutId)!.defaultBinding);
++    setConfig({ customBindings: newBindings });
+   };
+ 
+   // Record keyboard input
