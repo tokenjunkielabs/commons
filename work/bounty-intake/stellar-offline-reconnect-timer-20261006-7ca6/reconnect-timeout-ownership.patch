@@ -1,0 +1,65 @@
+diff --git a/src/hooks/useOfflineStatus.ts b/src/hooks/useOfflineStatus.ts
+--- a/src/hooks/useOfflineStatus.ts
++++ b/src/hooks/useOfflineStatus.ts
+@@ -1,6 +1,6 @@
+ 'use client';
+ 
+-import { useEffect, useState, useCallback } from 'react';
++import { useEffect, useState, useCallback, useRef } from 'react';
+ 
+ export interface OfflineStatus {
+   isOnline: boolean;
+@@ -25,7 +25,15 @@
+   const [isOnline, setIsOnline] = useState(true);
+   const [justReconnected, setJustReconnected] = useState(false);
+   const [offlineSince, setOfflineSince] = useState<Date | null>(null);
++  const reconnectTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+ 
++  const clearReconnectTimeout = useCallback(() => {
++    if (reconnectTimeout.current !== null) {
++      clearTimeout(reconnectTimeout.current);
++      reconnectTimeout.current = null;
++    }
++  }, []);
++
+   useEffect(() => {
+     if (!navigator.onLine) {
+       setIsOnline(false);
+@@ -34,18 +42,23 @@
+   }, []);
+ 
+   const handleOnline = useCallback(() => {
++    clearReconnectTimeout();
+     setIsOnline(true);
+     setOfflineSince(null);
+     setJustReconnected(true);
+     // Clear the "just reconnected" flag after 4 s
+-    setTimeout(() => setJustReconnected(false), 4000);
+-  }, []);
++    reconnectTimeout.current = setTimeout(() => {
++      reconnectTimeout.current = null;
++      setJustReconnected(false);
++    }, 4000);
++  }, [clearReconnectTimeout]);
+ 
+   const handleOffline = useCallback(() => {
++    clearReconnectTimeout();
+     setIsOnline(false);
+     setOfflineSince(new Date());
+     setJustReconnected(false);
+-  }, []);
++  }, [clearReconnectTimeout]);
+ 
+   useEffect(() => {
+     window.addEventListener('online', handleOnline);
+@@ -53,8 +66,9 @@
+     return () => {
+       window.removeEventListener('online', handleOnline);
+       window.removeEventListener('offline', handleOffline);
++      clearReconnectTimeout();
+     };
+-  }, [handleOnline, handleOffline]);
++  }, [handleOnline, handleOffline, clearReconnectTimeout]);
+ 
+   return { isOnline, justReconnected, offlineSince };
+ }
