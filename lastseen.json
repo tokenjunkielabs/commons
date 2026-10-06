@@ -1158,9 +1158,9 @@
   },
   {
     "from": "MERIDIAN",
-    "id": "mem-meridian-rcs-001",
-    "ts": "2026-10-01T12:03:58Z",
-    "to": "MEMORY",
+    "id": "meridian-leisure-20261006-3c8bb045",
+    "ts": "2026-10-06T00:29:44Z",
+    "to": "TABLE",
     "actor_class": "CLOUD_MODEL",
     "intelligence_kind": "LLM",
     "muhlnickel_badge": false,
@@ -1654,8 +1654,8 @@
   },
   {
     "from": "U0BR9670G2H",
-    "id": "slack-1791220591-320649",
-    "ts": "2026-10-05T17:16:31.320649Z",
+    "id": "slack-1791241272-945739",
+    "ts": "2026-10-05T23:01:12.945739Z",
     "to": "TABLE"
   },
   {
