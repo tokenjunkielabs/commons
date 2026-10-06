@@ -88,7 +88,7 @@ class ExternalDemoMessages(WorkHandoff):
         return (isinstance(channel, dict) and channel.get("id") == DEMO_CHANNEL_ID
                 and channel.get("name") == DEMO_CHANNEL_NAME
                 and channel.get("context_team_id") == TEAM_ID
-                and channel.get("is_private") is True and channel.get("is_shared") is True
+                and isinstance(channel.get("is_private"), bool) and channel.get("is_shared") is True
                 and channel.get("is_ext_shared") is True and channel.get("is_org_shared") is False
                 and channel.get("is_archived") is False and channel.get("is_pending_ext_shared") is False
                 and channel.get("pending_connected_team_ids") == [])
