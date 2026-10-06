@@ -1,0 +1,43 @@
+diff --git a/frontend/src/components/UpgradeConfirmModal.tsx b/frontend/src/components/UpgradeConfirmModal.tsx
+--- a/frontend/src/components/UpgradeConfirmModal.tsx
++++ b/frontend/src/components/UpgradeConfirmModal.tsx
+@@ -16,7 +16,7 @@
+  * data that exists for that step (no optional field sprawl).
+  */
+ 
+-import { useState, useEffect, useCallback, useRef } from 'react';
++import { useState, useEffect, useCallback, useRef, useId } from 'react';
+ import {
+   X,
+   ChevronRight,
+@@ -187,6 +187,8 @@
+   onUpgradeComplete,
+ }: UpgradeConfirmModalProps) {
+   const { notifySuccess, notifyError } = useNotification();
++  const wasmHashId = useId();
++  const adminSecretId = useId();
+ 
+   const [modal, setModal] = useState<ModalState>({
+     step: 'input',
+@@ -467,8 +469,9 @@
+ 
+               {/* New WASM hash input */}
+               <div>
+-                <label className={LABEL_CLASS}>New WASM Hash</label>
++                <label htmlFor={wasmHashId} className={LABEL_CLASS}>New WASM Hash</label>
+                 <input
++                  id={wasmHashId}
+                   type="text"
+                   value={modal.wasmHash}
+                   onChange={(e) =>
+@@ -686,8 +689,9 @@
+ 
+               {/* Admin secret key */}
+               <div>
+-                <label className={LABEL_CLASS}>Admin Secret Key (S…)</label>
++                <label htmlFor={adminSecretId} className={LABEL_CLASS}>Admin Secret Key (S…)</label>
+                 <input
++                  id={adminSecretId}
+                   type="password"
+                   value={modal.adminSecret}
+                   onChange={(e) =>
