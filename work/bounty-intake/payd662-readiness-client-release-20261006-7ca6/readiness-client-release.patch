@@ -1,0 +1,22 @@
+diff --git a/src/controllers/healthController.js b/src/controllers/healthController.js
+--- a/src/controllers/healthController.js
++++ b/src/controllers/healthController.js
+@@ -1,3 +1,4 @@
++// Modified 2026-10-06: release the acquired readiness client when its query fails.
+ const { Pool } = require('pg');
+ const redis = require('redis');
+ 
+@@ -19,8 +20,11 @@
+   const pool = new Pool(dbConfig);
+   try {
+     const client = await pool.connect();
+-    await client.query('SELECT 1');
+-    client.release();
++    try {
++      await client.query('SELECT 1');
++    } finally {
++      client.release();
++    }
+     return true;
+   } catch (error) {
+     console.error('Database health check failed:', error);
