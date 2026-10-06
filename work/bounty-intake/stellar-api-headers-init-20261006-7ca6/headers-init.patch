@@ -1,0 +1,35 @@
+diff --git a/src/lib/api-client.ts b/src/lib/api-client.ts
+index 12c2b7e4b2dbd081c6a7520e6ca5dadd2b38f5a5..86485c374b44dac55b3c9489a2fdbf07070cf7f4 100644
+--- a/src/lib/api-client.ts
++++ b/src/lib/api-client.ts
+@@ -53,16 +53,16 @@
+ async function apiFetch(url: string, options: ApiOptions = {}): Promise<Response> {
+   const { skipCsrf = false, headers = {}, ...restOptions } = options;
+ 
+-  const requestHeaders: HeadersInit = {
+-    'Content-Type': 'application/json',
+-    ...headers,
+-  };
++  const requestHeaders = new Headers(headers);
++  if (!requestHeaders.has('Content-Type')) {
++    requestHeaders.set('Content-Type', 'application/json');
++  }
+ 
+   // Add trace context for distributed tracing
+   try {
+     const traceContext = getOrCreateTraceContext();
+     const traceparent = formatTraceparentHeader(traceContext);
+-    requestHeaders['traceparent'] = traceparent;
++    requestHeaders.set('traceparent', traceparent);
+   } catch (e) {
+     console.warn('Failed to inject trace context:', e);
+   }
+@@ -74,7 +74,7 @@
+     if (!csrfToken) {
+       throw new Error('CSRF token not found. Please refresh the page.');
+     }
+-    requestHeaders['X-CSRF-Token'] = csrfToken;
++    requestHeaders.set('X-CSRF-Token', csrfToken);
+   }
+ 
+   const fetchOpts = { ...restOptions, method, headers: requestHeaders };
