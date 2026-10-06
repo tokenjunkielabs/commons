@@ -1,0 +1,24 @@
+diff --git a/scripts/config-audit.sh b/scripts/config-audit.sh
+index b08890b61a061988c1b12ea46f66c5a6b1bbde8d..a7a4a64c7250eb97f69ffa07768b26c14a0a82d7 100755
+--- a/scripts/config-audit.sh
++++ b/scripts/config-audit.sh
+@@ -1,4 +1,5 @@
+ #!/bin/bash
++# Modified 2026-10-06: fail the audit when a placeholder search cannot complete.
+ 
+ # Stellar Insights Configuration Audit Script
+ # Scans the repository for sensitive placeholders and validates configuration patterns.
+@@ -18,8 +19,12 @@
+ 
+ for placeholder in "${PLACEHOLDERS[@]}"; do
+     grep -r "$placeholder" . --exclude-dir={node_modules,target,.git,.next} --exclude="*.md" --exclude="*.sh"
+-    if [ $? -eq 0 ]; then
++    scan_status=$?
++    if [ "$scan_status" -eq 0 ]; then
+         echo -e "${COLOR_RED}❌ Found placeholder '$placeholder' in the codebase!${COLOR_RESET}"
++        EXIT_CODE=1
++    elif [ "$scan_status" -ne 1 ]; then
++        echo -e "${COLOR_RED}❌ Placeholder scan failed for '$placeholder' (grep exit $scan_status).${COLOR_RESET}" >&2
+         EXIT_CODE=1
+     fi
+ done
