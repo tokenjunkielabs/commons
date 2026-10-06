@@ -1,0 +1,29 @@
+diff --git a/src/lib/export-utils.ts b/src/lib/export-utils.ts
+index dcbf1e6e10be89b6b871c51f3da0d745a9f79147..06166ec2e0bd0df466072ecc7463f00cc0bf8943 100644
+--- a/src/lib/export-utils.ts
++++ b/src/lib/export-utils.ts
+@@ -8,7 +8,12 @@
+   data: ExportRow[],
+   columns: { id: string; label: string }[],
+ ) {
+-  const headers = columns.map((c) => c.label).join(",");
++  const escapeCSVField = (value: ExportRow[string]): string => {
++    const text = String(value ?? "");
++    return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
++  };
++
++  const headers = columns.map((c) => escapeCSVField(c.label)).join(",");
+   const rows = data.map((row) =>
+     columns
+       .map((col) => {
+@@ -19,9 +24,9 @@
+         if (col.id === "success_rate" && typeof val === "number") {
+           return (val * 100).toFixed(2) + "%";
+         }
+-        if (typeof val === "string" && val.includes(",")) return `"${val}"`;
+         return val ?? "";
+       })
++      .map(escapeCSVField)
+       .join(","),
+   );
+ 
