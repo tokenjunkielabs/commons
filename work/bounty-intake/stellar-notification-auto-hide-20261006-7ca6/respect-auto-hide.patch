@@ -1,0 +1,25 @@
+diff --git a/src/components/notifications/NotificationSystem.tsx b/src/components/notifications/NotificationSystem.tsx
+index 749f533..65831bb 100644
+--- a/src/components/notifications/NotificationSystem.tsx
++++ b/src/components/notifications/NotificationSystem.tsx
+@@ -30,16 +30,17 @@
+   const toastNotifications: ToastNotification[] = useMemo(() =>
+     notifications
+       .filter(n =>
+-        // Show notifications that are less than 30 seconds old or persistent
+-        n.persistent || (now - new Date(n.timestamp).getTime()) < 30000
++        // Apply the age cutoff only when automatic dismissal is enabled
++        !preferences.autoHide || n.persistent || (now - new Date(n.timestamp).getTime()) < 30000
+       )
+       .map(n => ({
+         ...n,
++        persistent: n.persistent || !preferences.autoHide,
+         duration: preferences.autoHideDelay,
+         dismissible: true,
+         position: 'top-right' as const,
+       })),
+-    [notifications, preferences.autoHideDelay, now]
++    [notifications, preferences.autoHide, preferences.autoHideDelay, now]
+   );
+ 
+   // Don't render anything during SSR
