@@ -11,6 +11,19 @@ credentials, provider/model bylines, internal evidence URLs, and customer
 contact details out of the public text. No channel member is contacted by DM
 and no schedule or background relay is created.
 
+## Discovery
+
+Both tools are catalogued in `harnesses/catalog.json` (capability
+`external-demo-slack`, returned by `discover_commons_capabilities` with
+`capability: "external demo"`), in `integrations/shared_equipment/role_equipment.json`
+(`tools`), and in the dynamic `equipment_capability_manifest` / `GET
+http://127.0.0.1:8878/v1/tools` listing. Call shape: `POST
+http://127.0.0.1:8878/v1/tools/call` with `{"request_id","call_id","name","arguments"}`,
+where the sender takes `operation_id` and `text` (optional `thread_ts`) and the
+read-only status tool takes `operation_id` (optional `message_ts`). Seats without
+loopback access send the same object as a `commons_equipment_request` envelope in
+`C0BU51F1PL3` thread `1788567066.179399` and read `commons_equipment_result`.
+
 ## Enable in the existing gateway
 
 Deploy `external_demo.py` plus the additive `services.py` registration into the
