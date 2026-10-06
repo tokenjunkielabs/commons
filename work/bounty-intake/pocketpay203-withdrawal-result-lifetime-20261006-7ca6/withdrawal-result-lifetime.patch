@@ -1,0 +1,91 @@
+diff --git a/app/vault/[id].tsx b/app/vault/[id].tsx
+--- a/app/vault/[id].tsx
++++ b/app/vault/[id].tsx
+@@ -1,4 +1,4 @@
+-import React, { useMemo } from 'react';
++import React, { useMemo, useState } from 'react';
+ import { View, Text, StyleSheet, ScrollView } from 'react-native';
+ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+ import { useTheme } from '../../src/hooks/useTheme';
+@@ -17,6 +17,7 @@
+   const styles = useMemo(() => createStyles(colors), [colors]);
+   const { isAvailable, reasons } = useVaultAvailability();
+   const { locks, isLoadingLocks, findLock } = useVault();
++  const [withdrawalLock, setWithdrawalLock] = useState<Lock | null>(null);
+ 
+   if (!isAvailable) {
+     return (
+@@ -30,7 +31,10 @@
+     );
+   }
+ 
+-  const lock: Lock | undefined = findLock(typeof id === 'string' ? id : '');
++  const lockId = typeof id === 'string' ? id : '';
++  // Keep this route's initiated withdrawal mounted after the store removes its lock.
++  const lock: Lock | undefined = findLock(lockId) ??
++    (withdrawalLock?.id === lockId ? withdrawalLock : undefined);
+   const isLoading = isLoadingLocks;
+ 
+ 
+@@ -55,7 +59,11 @@
+   return (
+     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+       <Stack.Screen options={{ title: 'Vault Lock Details' }} />
+-      <VaultLockDetail lock={lock} />
++      <VaultLockDetail
++        lock={lock}
++        onWithdrawalSubmit={() => setWithdrawalLock(lock)}
++        onWithdrawalClose={() => setWithdrawalLock(null)}
++      />
+     </ScrollView>
+   );
+ }
+diff --git a/src/components/VaultLockDetail.tsx b/src/components/VaultLockDetail.tsx
+--- a/src/components/VaultLockDetail.tsx
++++ b/src/components/VaultLockDetail.tsx
+@@ -11,9 +11,17 @@
+ 
+ interface VaultLockDetailProps {
+   lock: Lock;
++  /** Retain the caller's lock while submission removes the live record. */
++  onWithdrawalSubmit?: () => void;
++  /** Release retained caller data when the flow is dismissed. */
++  onWithdrawalClose?: () => void;
+ }
+ 
+-export const VaultLockDetail: React.FC<VaultLockDetailProps> = ({ lock }) => {
++export const VaultLockDetail: React.FC<VaultLockDetailProps> = ({
++  lock,
++  onWithdrawalSubmit,
++  onWithdrawalClose,
++}) => {
+   const { colors } = useTheme();
+   const styles = useMemo(() => createStyles(colors), [colors]);
+   const router = useRouter();
+@@ -27,9 +35,17 @@
+   const eligibility = getEligibilityText(lock.unlockDate, lock.status);
+   const canWithdraw = withdrawal.eligibility.isEligible;
+ 
++  const handleWithdrawalConfirm = () => {
++    if (withdrawal.step === 'submitting') return;
++    onWithdrawalSubmit?.();
++    void withdrawal.confirm();
++  };
++
+   const handleWithdrawalClosed = () => {
++    if (withdrawal.step === 'submitting') return;
+     const succeeded = withdrawal.step === 'success';
+     withdrawal.close();
++    onWithdrawalClose?.();
+     // The lock is gone from the vault once the withdrawal settles, so leave the
+     // detail screen rather than rendering its "not found" state.
+     if (succeeded) router.back();
+@@ -134,7 +150,7 @@
+         result={withdrawal.result}
+         error={withdrawal.error}
+         contractId={contractId || undefined}
+-        onConfirm={withdrawal.confirm}
++        onConfirm={handleWithdrawalConfirm}
+         onCancel={withdrawal.cancel}
+         onRetry={withdrawal.retry}
+         onClose={handleWithdrawalClosed}
