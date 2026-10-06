@@ -128,10 +128,13 @@ def response_evidence(value):
                 messages.append(native_error["message"].lower())
         secondary = any(term in message for message in messages
                         for term in ("secondary rate limit", "abuse detection mechanism"))
+        primary = any("api rate limit exceeded" in message for message in messages)
         if secondary:
             evidence["rate_limit_kind"] = "secondary"
+        elif primary:
+            evidence["rate_limit_kind"] = "primary"
         code = str(evidence.get("code", evidence.get("error_code", ""))).lower()
-        evidence["rate_limited"] = bool(status == 429 or secondary
+        evidence["rate_limited"] = bool(status == 429 or secondary or primary
             or evidence.get("rate_limit_kind") in ("primary", "secondary")
             or code in {"github_rate_limited", "rate_limited", "rate_limit_exceeded"}
             or evidence.get("rate_limit_remaining") in (0, "0")
