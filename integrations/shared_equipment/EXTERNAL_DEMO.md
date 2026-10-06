@@ -42,23 +42,64 @@ using stable request/call IDs and a stable message operation ID:
 ```
 
 Only public demo copy belongs in `text`. The route does not forward everything
-from the internal live channel. The sender must match the installed account
-`U0BTGV2G589` / `B0BTD42EMFY` in workspace `T0BRETUB5TK`; provider channel
-metadata must describe the exact existing Slack Connect conversation. Its
-public/private setting may change without changing this fixed destination;
-the owner changed it to public on 2026-10-06. This route changes no channel
-setting.
-The current installed bot returned `missing_scope` for `conversations.info`:
-needed `channels:read,groups:read,mpim:read,im:read`, provided
-`app_mentions:read,chat:write,channels:history,groups:history`. For that exact
-scope failure only, the route reuses the owner's native Slack metadata read
-on 2026-10-06 and requires a fresh successful bot history read of this channel.
-That read confirmed the channel ID/name/workspace and private, shared,
-external, active, nonpending flags, and listed the fixed bot as a member.
-`inspect.destination_probe` records the provider's metadata failure, membership
-result and metadata provenance. Other metadata errors do not use this fallback;
-provider-answered channel flags are checked directly. No new OAuth scopes or
-credentials are created.
+from the internal live channel. Two owner-installed bots in workspace
+`T0BRETUB5TK` may send: Commons Grok (`B0BTD42EMFY`, bot user `U0BTGV2G589`)
+and commons_swarm (`B0C26JX3G3S`). The sender is not chosen by the caller and
+not fixed in code: the route calls `auth.test` (no scope needed) once per
+route instance for the token in use and takes its `user_id`, `bot_id` and
+`team_id`. A token whose `bot_id` is outside that pair, or whose team differs,
+returns `ROUTE_UNAVAILABLE` with `reason: "SENDER_NOT_ALLOWED"` and sends
+nothing; an `auth.test` failure returns `reason: "SENDER_UNRESOLVED"` and is
+asked again on the next call. Readback must show the message `user` and
+`bot_id` equal to that resolved identity. `inspect.sender` shows the resolved
+`user_id`, `bot_id`, `team_id`, `team` and the allowlist decision; it never
+shows the token. Rebinding the gateway to the other bot needs a gateway reload
+so the new token is resolved. The destination is the fixed channel ID
+`C0C7S2D5QRE`. Before every send and every status read
+the route makes one bot `conversations.history` read of that ID; Slack answers
+`ok` only while the bot is a member of the channel. The route does not call
+`conversations.info`, which needs `channels:read`/`groups:read`; the bot does
+not hold those and this route does not need them. The channel's public/private
+setting may change without changing this check; the owner changed it to public
+on 2026-10-06. This route changes no channel setting.
+`inspect.destination_probe`, and `status` when it returns `ROUTE_UNAVAILABLE`,
+record that read's `ok`, `error`, `needed` and `provided` fields. A provider
+`missing_scope` on send or readback is returned with `code: "missing_scope"`
+and Slack's exact `needed` and `provided` scope lists.
+
+## Slack app scopes (owner)
+
+Bot token scopes this route uses in this channel:
+
+| Scope | Slack methods | Needed when |
+|---|---|---|
+| `chat:write` | `chat.postMessage` | always (the bot stays a channel member) |
+| `channels:history` | `conversations.history`, `conversations.replies` | the channel is public (current) |
+| `groups:history` | `conversations.history`, `conversations.replies` | the channel is private |
+
+Minimum today: `chat:write` and `channels:history`. Keep `groups:history` as
+well if the channel may be switched back to private. `auth.test` and
+`chat.getPermalink` need no scope. `channels:read`, `groups:read`, `mpim:read`,
+`im:read` and `chat:write.public` are not needed. The Commons Grok bot already
+holds `chat:write`, `channels:history` and `groups:history`, so it needs no
+scope change now; its `app_mentions:read` is not used by this route. Whichever
+allowed bot the gateway is bound to needs the same scopes and channel
+membership; `inspect.destination_probe` shows `missing_scope` or
+`not_in_channel` for that bot.
+
+To change scopes: api.slack.com/apps, select the installed app, then
+OAuth & Permissions, Scopes, Bot Token Scopes, Add an OAuth Scope. A scope
+change applies only after the app is reinstalled to the workspace (the
+reinstall banner on that page, or Install App, Reinstall to Workspace). If the
+reinstall shows a different Bot User OAuth Token, update it only through the
+existing encrypted Slack custody route. Never paste it into Commons, Slack or
+a command.
+
+Slack Connect: the app posts as its home workspace bot (`B0BTD42EMFY` or
+`B0C26JX3G3S`). The
+external organization would need to allow the app only if it were to post as
+one of that organization's members. This route never does, so no
+external-organization approval is needed.
 
 The gateway ToolCallStore journals every tool call, including the dedicated
 sender. Consumers of the optional connected router must mark a sender dispatch
@@ -123,8 +164,8 @@ No credential value enters the message, command arguments, output, or journal.
 
 ## Outcomes and reconciliation
 
-`DELIVERED` requires fresh provider readback matching the fixed sender, bot,
-exact channel/message timestamp, and exact text. A returned permalink is
+`DELIVERED` requires fresh provider readback matching the sender user and bot
+resolved by `auth.test`, the exact channel/message timestamp, and exact text. A returned permalink is
 optional; its lookup cannot erase a successful readback. Any appended footer
 is a mismatch. A repeated operation with identical input returns the prior
 confirmed receipt without another send; changed input is an idempotency

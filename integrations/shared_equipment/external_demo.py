@@ -15,12 +15,20 @@ from pathlib import Path
 from commons_publication_policy import PublicationPolicyViolation, check_outbound_identity
 from host.customer_link_boundary import require_customer_link_safe
 from .provider_io import EquipmentError, GitHubSlackEquipment, redacted
-from .workhandoff import WorkHandoff, TEAM_ID, SENDER_USER_ID, SENDER_BOT_ID, _OPERATION_ID
+from .workhandoff import WorkHandoff, TEAM_ID, _OPERATION_ID
 
 
 DEMO_CHANNEL_ID = "C0C7S2D5QRE"
 DEMO_CHANNEL_NAME = "michael-external-demo"
 _TIMESTAMP = re.compile(r"[0-9]{10}\.[0-9]{6}")
+_PROBE_KEYS = ("ok", "error", "needed", "provided", "status", "retry_after")
+# Owner-installed bots in workspace T0BRETUB5TK that may post here. The sender
+# is not fixed to one of them: it is read from auth.test for the token in use,
+# and the readback must match that identity.
+ALLOWED_SENDER_BOT_IDS = frozenset({
+    "B0BTD42EMFY",  # Commons Grok (bot user U0BTGV2G589)
+    "B0C26JX3G3S",  # commons_swarm
+})
 
 
 class _DemoTransport(GitHubSlackEquipment):
@@ -40,7 +48,7 @@ class _DemoTransport(GitHubSlackEquipment):
             if not decision["allowed"]:
                 raise PublicationPolicyViolation(decision)
             require_customer_link_safe(payload.get("text", ""))
-        elif method not in {"auth.test", "conversations.info", "conversations.history",
+        elif method not in {"auth.test", "conversations.history",
                             "conversations.replies", "chat.getPermalink"}:
             raise EquipmentError("external demo route maps only a text message",
                                  code="outbound_field_mapping_missing", delivered=False)
@@ -59,47 +67,63 @@ class ExternalDemoMessages(WorkHandoff):
             Path.home() / ".commons" / "shared_equipment" / "external_demo.sqlite3"))
         transport.demo = self
         self._destination_probe = {}
+        self._sender = None
+
+    def _resolve_sender(self):
+        # auth.test needs no scope. Its answer for the token in use is kept for
+        # the life of this route instance; a binding change reloads the
+        # gateway, which builds a new instance. A failed or unreachable
+        # auth.test is not kept, so the next call asks again.
+        if self._sender is not None:
+            return self._sender
+        try:
+            auth = self._slack_read("auth.test", {})
+        except Exception as exc:
+            return {"allowed": False, "reason": "SENDER_UNRESOLVED",
+                    "error": getattr(exc, "code", type(exc).__name__)}
+        if not isinstance(auth, dict) or auth.get("ok") is not True:
+            return {"allowed": False, "reason": "SENDER_UNRESOLVED",
+                    "error": auth.get("error") if isinstance(auth, dict) else "auth_test_invalid"}
+        sender = {key: auth.get(key) for key in ("user_id", "bot_id", "team_id", "team")}
+        # A user token (no bot_id), another app's bot, or another workspace
+        # is outside the owner-installed pair and never sends here.
+        allowed = (isinstance(sender["user_id"], str) and bool(sender["user_id"])
+                   and sender["bot_id"] in ALLOWED_SENDER_BOT_IDS and sender["team_id"] == TEAM_ID)
+        sender.update(allowed=allowed, reason=None if allowed else "SENDER_NOT_ALLOWED")
+        self._sender = sender
+        return sender
+
+    def sender_verified(self):
+        return self._resolve_sender().get("allowed") is True
 
     def _destination_verified(self, channel_id):
+        # Only the fixed Connect channel ID is accepted. conversations.info is
+        # not called: it needs channels:read/groups:read, which the installed
+        # bot does not hold (missing_scope), and the owner may switch the
+        # channel between public and private. A bot token's history read
+        # answers ok only for a channel the bot is a member of, under
+        # channels:history while public or groups:history while private. The
+        # bot holds both, so either setting passes; not_in_channel,
+        # channel_not_found or a missing scope fails closed.
         if channel_id != DEMO_CHANNEL_ID:
             return False
-        result = self._slack_read("conversations.info", {"channel": DEMO_CHANNEL_ID})
-        channel = result.get("channel") if result.get("ok") is True else None
-        self._destination_probe = {key: result[key] for key in ("ok", "error", "needed", "provided", "status", "retry_after")
-                                   if key in result}
-        if isinstance(channel, dict):
-            self._destination_probe["channel"] = {key: channel.get(key) for key in (
-                "id", "name", "context_team_id", "is_private", "is_shared", "is_ext_shared",
-                "is_org_shared", "is_archived", "is_pending_ext_shared", "pending_connected_team_ids")}
-        elif result.get("error") == "missing_scope":
-            # The current installed account has groups:history/chat:write but
-            # no groups:read. The owner's native connector already returned
-            # this exact Connect channel's name, workspace and sharing flags
-            # on 2026-10-06. Reuse that concrete destination mapping; the same
-            # fixed bot's fresh history read establishes its live membership.
-            # No other channel or metadata failure takes this fallback.
-            member = self._slack_read("conversations.history", {"channel": DEMO_CHANNEL_ID, "limit": 1})
-            self._destination_probe["membership_probe"] = {key: member[key] for key in (
-                "ok", "error", "needed", "provided", "status", "retry_after") if key in member}
-            self._destination_probe["metadata_source"] = "owner_observed_native_slack_connect_20261006"
-            return member.get("ok") is True
-        # This is the existing Connect conversation observed by the operator.
-        # A provider-answered channel is judged on its real sharing flags.
-        return (isinstance(channel, dict) and channel.get("id") == DEMO_CHANNEL_ID
-                and channel.get("name") == DEMO_CHANNEL_NAME
-                and channel.get("context_team_id") == TEAM_ID
-                and isinstance(channel.get("is_private"), bool) and channel.get("is_shared") is True
-                and channel.get("is_ext_shared") is True and channel.get("is_org_shared") is False
-                and channel.get("is_archived") is False and channel.get("is_pending_ext_shared") is False
-                and channel.get("pending_connected_team_ids") == [])
+        member = self._slack_read("conversations.history", {"channel": DEMO_CHANNEL_ID, "limit": 1})
+        self._destination_probe = {"method": "conversations.history", "channel_id": DEMO_CHANNEL_ID,
+                                   **{key: member[key] for key in _PROBE_KEYS if key in member}}
+        return member.get("ok") is True
 
     def inspect(self):
-        sender = self.sender_verified()
+        resolved = self._resolve_sender()
+        sender = resolved.get("allowed") is True
         destination = self._destination_verified(DEMO_CHANNEL_ID)
-        return {"ok": sender and destination, "state": "READY" if sender and destination else "ROUTE_UNAVAILABLE",
-                "channel_id": DEMO_CHANNEL_ID, "channel_name": DEMO_CHANNEL_NAME,
-                "sender_verified": sender, "destination_verified": destination,
-                "destination_probe": self._destination_probe, "writes": 0}
+        result = {"ok": sender and destination, "state": "READY" if sender and destination else "ROUTE_UNAVAILABLE",
+                  "channel_id": DEMO_CHANNEL_ID, "channel_name": DEMO_CHANNEL_NAME,
+                  "sender": resolved, "allowed_sender_bot_ids": sorted(ALLOWED_SENDER_BOT_IDS),
+                  "sender_verified": sender, "destination_verified": destination,
+                  "destination_probe": self._destination_probe, "writes": 0}
+        if not result["ok"]:
+            result["reason"] = resolved.get("reason") or "DESTINATION_UNVERIFIED"
+        return result
 
     @staticmethod
     def normalize(args):
@@ -124,11 +148,25 @@ class ExternalDemoMessages(WorkHandoff):
             item["thread_ts"] = args["thread_ts"]
         return item
 
+    @staticmethod
+    def _provider_failure(failure, *, operation_id=None, phase=None):
+        result = WorkHandoff._provider_failure(failure, operation_id=operation_id, phase=phase)
+        read = failure.get if isinstance(failure, dict) else (
+            lambda key, default=None: getattr(failure, key, default))
+        if read("error") == "missing_scope":
+            # Slack names the scopes it wanted and the scopes the token holds.
+            # Keep both so the fleet sees exactly which bot scope is missing.
+            result.update(code="missing_scope", provider_error="missing_scope",
+                          **{key: read(key) for key in ("needed", "provided") if isinstance(read(key), str)})
+        return result
+
     def _verify_message(self, item, digest):
         message_ts = item.get("message_ts")
         if not isinstance(message_ts, str) or not _TIMESTAMP.fullmatch(message_ts):
             return None
-        args = {"channel": DEMO_CHANNEL_ID, "limit": 100, "inclusive": True}
+        # GET query arguments: send Slack's documented "true" rather than
+        # Python True, which urlencode renders as "True".
+        args = {"channel": DEMO_CHANNEL_ID, "limit": 100, "inclusive": "true"}
         if item.get("thread_ts"):
             method = "conversations.replies"
             args.update(ts=item["thread_ts"], oldest=message_ts, latest=message_ts)
@@ -144,7 +182,11 @@ class ExternalDemoMessages(WorkHandoff):
         if not message:
             return None
         body = message.get("text")
-        sender = message.get("user") == SENDER_USER_ID and message.get("bot_id") == SENDER_BOT_ID
+        # The message must come from the identity auth.test resolved for the
+        # token in use, not merely from any allowed bot.
+        expected = self._resolve_sender()
+        sender = (expected.get("allowed") is True and message.get("user") == expected.get("user_id")
+                  and message.get("bot_id") == expected.get("bot_id"))
         body_ok = body == item["text"]
         # A provider-appended footer or rich field must never become a passed
         # outward result merely because the original text was a prefix.
@@ -153,7 +195,8 @@ class ExternalDemoMessages(WorkHandoff):
         confirmed = sender and body_ok and decision["allowed"]
         receipt = {"operation_id": item["operation_id"], "payload_sha256": digest,
                    "channel_id": DEMO_CHANNEL_ID, "message_ts": message_ts,
-                   "sender_user_id": message.get("user"), "sender_verified": sender,
+                   "sender_user_id": message.get("user"), "sender_bot_id": message.get("bot_id"),
+                   "sender_verified": sender,
                    "body_verified": body_ok, "provider_footer_present": not body_ok,
                    "readback_state": "confirmed" if confirmed else "mismatch", "message_permalink": None}
         try:
@@ -180,9 +223,13 @@ class ExternalDemoMessages(WorkHandoff):
             if not isinstance(args["message_ts"], str) or not _TIMESTAMP.fullmatch(args["message_ts"]):
                 return {"ok": False, "state": "INVALID_ARGUMENTS", "code": "invalid_message_ts"}
             item["message_ts"] = args["message_ts"]
-        if not self.sender_verified() or not self._destination_verified(DEMO_CHANNEL_ID):
+        resolved = self._resolve_sender()
+        sender = resolved.get("allowed") is True
+        if not sender or not self._destination_verified(DEMO_CHANNEL_ID):
             return {"ok": False, "state": "ROUTE_UNAVAILABLE", "operation_id": operation,
-                    "uncertain": prior["state"] != "delivered"}
+                    "reason": resolved.get("reason") or "DESTINATION_UNVERIFIED",
+                    "uncertain": prior["state"] != "delivered", "sender": resolved, "sender_verified": sender,
+                    "destination_probe": self._destination_probe if sender else {}}
         receipt = self._verify_message(item, prior["payload_sha256"])
         if receipt and receipt.get("readback_state") == "confirmed":
             self._save(operation, prior["payload_sha256"], "delivered", receipt, item)
@@ -192,7 +239,7 @@ class ExternalDemoMessages(WorkHandoff):
                 "uncertain": not bool(item.get("message_ts")), "receipt": receipt,
                 "message_ts": item.get("message_ts"), "retry": "read status; never resend an uncertain operation"}
 
-    def submit(self, args):
+    def post(self, args):
         item = self.normalize(args)
         digest = self.payload_hash(item)
         prior = self._journal(item["operation_id"])
@@ -238,6 +285,11 @@ class ExternalDemoMessages(WorkHandoff):
         return self.status({"operation_id": item["operation_id"]})
 
 
+    # Compatibility for the unchanged shared-equipment service; the concrete
+    # external action remains `post`, which is the route's actual behavior.
+    submit = post
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", choices=("inspect", "post", "status"))
@@ -246,7 +298,7 @@ def main(argv=None):
     route = ExternalDemoMessages(journal_path=args.journal)
     try:
         result = route.inspect() if args.action == "inspect" else (
-            route.submit(json.load(sys.stdin)) if args.action == "post" else route.status(json.load(sys.stdin)))
+            route.post(json.load(sys.stdin)) if args.action == "post" else route.status(json.load(sys.stdin)))
     except Exception as exc:
         result = {"ok": False, "state": "FAILED", "code": getattr(exc, "code", type(exc).__name__),
                   "message": redacted(str(exc)), "uncertain": bool(getattr(exc, "uncertain", False))}
