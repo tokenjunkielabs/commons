@@ -1,0 +1,2 @@
+{"record":"meta","schema":"tj-arc3-episode-trace/v1","episode_id":"compare-recovery","max_actions":4,"max_wall_ms":1000}
+{"record":"step","episode_id":"compare-recovery","seq":0,"state":{"room":"start","score":0},"action":{"type":"observe"},"next_state":{"room":"start","score":0},"wall_ms":400,"terminal":true,"failure_class":"stalled"}

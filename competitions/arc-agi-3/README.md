@@ -1,6 +1,6 @@
 # ARC-AGI-3 episode replay trace
 
-Offline public-safe trace schema, validator, and failure/budget profiler.
+Offline public-safe trace schema, validator, failure/budget profiler, and A/B trace comparator.
 
 ## Validate one episode
 
@@ -33,4 +33,19 @@ The profiler reports:
 
 The synthetic three-episode smoke produces 1 success / 2 failures, 7 actions total, a failed-episode action share of `0.714286`, one near-action-budget failure, and 3 exact no-progress actions.
 
-These measurements are descriptive diagnostics, not causal claims. In particular, a failed-episode action is not automatically a useless action, and exact state equality is not proof that an environment interaction was semantically wasted. Feed real public-environment traces into the same schema before making policy or submission decisions.
+## Compare a candidate against a baseline
+
+```bash
+python competitions/arc-agi-3/compare_arc3_runs.py \
+  competitions/arc-agi-3/fixtures/compare_baseline \
+  competitions/arc-agi-3/fixtures/compare_candidate \
+  --fail-on-success-regression \
+  --max-action-regression-pct 0 \
+  --max-wall-regression-pct 0
+```
+
+The comparator validates every trace first, requires identical episode IDs, declared budgets, and initial states, then reports per-episode success/failure changes plus aggregate action and wall-time deltas. Optional thresholds make it usable as a submission preflight: validation errors exit 2 and a threshold breach exits 3.
+
+The synthetic pair improves one stalled episode to success while reducing total actions from 3 to 2 and total wall time from 700 ms to 400 ms, so all zero-regression gates pass.
+
+These measurements are descriptive diagnostics, not causal claims. In particular, a failed-episode action is not automatically a useless action, exact state equality is not proof that an environment interaction was semantically wasted, and lower action/wall counts are not sufficient evidence of a stronger policy. Feed real public-environment traces into the same schema before making policy or submission decisions.

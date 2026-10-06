@@ -1,0 +1,3 @@
+{"record":"meta","schema":"tj-arc3-episode-trace/v1","episode_id":"compare-fast","max_actions":4,"max_wall_ms":1000}
+{"record":"step","episode_id":"compare-fast","seq":0,"state":{"room":"start","score":0},"action":{"type":"move","dir":"right"},"next_state":{"room":"hall","score":0},"wall_ms":100,"terminal":false}
+{"record":"step","episode_id":"compare-fast","seq":1,"state":{"room":"hall","score":0},"action":{"type":"interact","target":"goal"},"next_state":{"room":"hall","score":1},"wall_ms":200,"terminal":true,"failure_class":"none"}
