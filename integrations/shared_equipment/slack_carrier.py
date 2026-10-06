@@ -14,11 +14,14 @@ import time
 from pathlib import Path
 
 from .outcomes import effect_uncertain, tool_failed
-from .provider_io import EquipmentError
-from .services import build_capability_manifest, redacted
+from .provider_io import EquipmentError, redacted
 
 OPEN = "<commons_equipment_request>"
 CLOSE = "</commons_equipment_request>"
+RECEIPT_OPEN = "<commons_equipment_receipt>"
+RECEIPT_CLOSE = "</commons_equipment_receipt>"
+_EXTERNAL_DEMO_POST = "slack_post_external_demo_message"
+_EXTERNAL_DEMO_STATUS = "slack_external_demo_message_status"
 
 
 def slack_timestamp(value) -> str:
@@ -111,6 +114,79 @@ def _catalog_json(value) -> str:
             .replace(" ", "\\u0020").replace("`", "\\u0060").replace("<", "\\u003c"))
 
 
+def _external_demo_operation_id(request: dict) -> str | None:
+    if request.get("name") not in {_EXTERNAL_DEMO_POST, _EXTERNAL_DEMO_STATUS}:
+        return None
+    arguments = request.get("arguments")
+    operation_id = arguments.get("operation_id") if isinstance(arguments, dict) else None
+    return operation_id if isinstance(operation_id, str) and operation_id.strip() else None
+
+
+def _result_payload(result: dict) -> dict:
+    if not isinstance(result, dict):
+        return {}
+    nested = result.get("result")
+    return nested if isinstance(nested, dict) else result
+
+
+def _equipment_receipt(request: dict, state: str, result: dict | None = None) -> dict | None:
+    """Return a payload-free internal receipt for the external-demo road."""
+    operation_id = _external_demo_operation_id(request)
+    if operation_id is None:
+        return None
+    receipt = {
+        "request_id": request["request_id"],
+        "operation_id": operation_id,
+        "state": state,
+    }
+    if state == "ACCEPTED":
+        return receipt
+
+    payload = _result_payload(result or {})
+    provider_receipt = payload.get("receipt") if isinstance(payload.get("receipt"), dict) else {}
+    if state == "DELIVERED":
+        channel_id = provider_receipt.get("channel_id") or payload.get("channel_id")
+        message_ts = provider_receipt.get("message_ts") or payload.get("message_ts")
+        if channel_id is not None:
+            receipt["channel_id"] = channel_id
+        if message_ts is not None:
+            receipt["message_ts"] = message_ts
+        return receipt
+
+    if state == "DUPLICATE":
+        safe_keys = (
+            "operation_id", "payload_sha256", "channel_id", "message_ts",
+            "sender_user_id", "sender_verified", "body_verified",
+            "provider_footer_present", "readback_state", "message_permalink",
+        )
+        receipt["original_receipt"] = {
+            key: provider_receipt[key] for key in safe_keys if provider_receipt.get(key) is not None
+        }
+        return receipt
+
+    code = payload.get("code") or payload.get("state")
+    if not code and isinstance(result, dict):
+        code = result.get("code") or result.get("error")
+    receipt["code"] = str(code or "operation_failed")
+    if effect_uncertain(result or {}):
+        receipt["uncertain"] = True
+    return receipt
+
+
+def _terminal_equipment_receipt(request: dict, result: dict) -> dict | None:
+    if _external_demo_operation_id(request) is None:
+        return None
+    payload = _result_payload(result)
+    if (not tool_failed(result) and not effect_uncertain(result)
+            and payload.get("state") == "DELIVERED"):
+        state = "DUPLICATE" if (
+            request.get("name") == _EXTERNAL_DEMO_POST and payload.get("replayed") is True
+        ) else "DELIVERED"
+    else:
+        state = "FAILED"
+    return _equipment_receipt(request, state, result)
+
+
 class SlackEquipmentCarrier:
     def __init__(self, catalog, calls, route: dict, cursor_path: Path):
         self.catalog = catalog
@@ -146,6 +222,22 @@ class SlackEquipmentCarrier:
         temp.replace(self.path)
         self.cursor = cursor
 
+    def _post_receipt(self, request: dict, message: dict, receipt: dict | None, phase: str):
+        if receipt is None:
+            return None
+        text = RECEIPT_OPEN + json.dumps(redacted(receipt), ensure_ascii=False, separators=(",", ":")) + RECEIPT_CLOSE
+        return self.calls.execute_journaled(
+            "equipment-receipt:" + request["request_id"] + ":" + receipt["operation_id"],
+            request["call_id"] + ":" + phase,
+            "slack_post_message",
+            {
+                "channel_id": self.channel,
+                "thread_ts": message.get("thread_ts") or message["ts"],
+                "text": text,
+            },
+            self.catalog.services.call,
+        )
+
     def process(self, message):
         try:
             request = parse_request(message.get("text", ""))
@@ -158,16 +250,22 @@ class SlackEquipmentCarrier:
         if request is None:
             return
         rid, cid = request["request_id"], request["call_id"]
+        if request["name"] == _EXTERNAL_DEMO_POST:
+            # Receipt delivery is journaled independently from the outward
+            # effect. A failed/uncertain ACK never causes an external replay.
+            self._post_receipt(request, message, _equipment_receipt(request, "ACCEPTED"), "accepted")
         if request["name"] == "equipment_catalog":
             runner = lambda _name, _args: {"tools": self.catalog.tools()}
-        elif request["name"] == "equipment_capability_manifest":
-            runner = lambda _name, args: build_capability_manifest(
-                catalog=self.catalog, peer=(args or {}).get("peer")
-            )
         else:
+            # Capability manifests are ordinary catalog operations here.
+            # Avoid importing the high-level services module into the carrier:
+            # that widened this transport's runtime closure unnecessarily.
             runner = self.catalog.call
         result = self.calls.execute_journaled("equipment:" + rid, cid,
             request["name"], request.get("arguments", {}), runner)
+        terminal_receipt = _terminal_equipment_receipt(request, result)
+        if terminal_receipt is not None:
+            self._post_receipt(request, message, terminal_receipt, "terminal")
         metadata_reply = (
             not tool_failed(result) and not effect_uncertain(result)
             and isinstance(result, dict)
