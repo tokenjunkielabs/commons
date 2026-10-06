@@ -1,0 +1,58 @@
+diff --git a/app/review-transaction.tsx b/app/review-transaction.tsx
+--- a/app/review-transaction.tsx
++++ b/app/review-transaction.tsx
+@@ -266,7 +266,10 @@
+         onConfirm={isReviewPhase ? handleConfirmSign : undefined}
+         loadingText="Signing…"
+         cancelLabel="Back to Edit"
+-        onCancel={isReviewPhase ? () => router.back() : undefined}
++        onCancel={isReviewPhase ? () => router.replace({
++          pathname: '/send',
++          params: { destination, amount, memo },
++        }) : undefined}
+       />
+ 
+       {/* Signer Info Card */}
+diff --git a/app/send.tsx b/app/send.tsx
+--- a/app/send.tsx
++++ b/app/send.tsx
+@@ -9,7 +9,7 @@
+   Modal,
+   TouchableOpacity,
+ } from "react-native";
+-import { useRouter } from "expo-router";
++import { useLocalSearchParams, useRouter } from "expo-router";
+ import { AsyncActionButton } from "../src/components/AsyncActionButton";
+ import { FormField } from "../src/components/FormField";
+ import { QrScanner } from "../src/components/QrScanner";
+@@ -54,6 +54,11 @@
+ };
+ export default function SendScreen() {
+   const router = useRouter();
++  const params = useLocalSearchParams<{
++    destination?: string;
++    amount?: string;
++    memo?: string;
++  }>();
+   const { colors } = useTheme();
+   const styles = useMemo(() => createStyles(colors), [colors]);
+   const { publicKey, getSecretKey, refreshWalletData, balance, fundingStatus, error } =
+@@ -65,9 +70,15 @@
+   const isUnfunded = fundingStatus === 'unfunded';
+   const sendDisabled = isUnfunded || !publicKey || disableWriteActions;
+ 
+-  const [destination, setDestination] = useState("");
+-  const [amount, setAmount] = useState("");
+-  const [memo, setMemo] = useState("");
++  const [destination, setDestination] = useState(
++    () => typeof params.destination === "string" ? params.destination : ""
++  );
++  const [amount, setAmount] = useState(
++    () => typeof params.amount === "string" ? params.amount : ""
++  );
++  const [memo, setMemo] = useState(
++    () => typeof params.memo === "string" ? params.memo : ""
++  );
+   const [errors, setErrors] = useState<FieldErrors>({});
+   const [isLoading, setIsLoading] = useState(false);
+   const [isScanning, setIsScanning] = useState(false);
