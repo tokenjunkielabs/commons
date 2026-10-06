@@ -1,0 +1,14 @@
+diff --git a/src/app/globals.css b/src/app/globals.css
+--- a/src/app/globals.css
++++ b/src/app/globals.css
+@@ -196,6 +196,10 @@
+     stroke 0.3s ease !important;
+ }
+ 
++html {
++  font-size: var(--base-font-size, 100%);
++}
++
+ body {
+   background-color: var(--background);
+   color: var(--foreground);
