@@ -20,6 +20,17 @@ DEFAULT_MIN_CELLS = 1_000
 DEFAULT_MAX_FILE_MB = 1_200.0
 
 
+@dataclass(frozen=True)
+class BoardSpec:
+    key: str
+    task: str
+    n_genes: int
+    needs_coords: bool
+    min_cells: int
+    max_cells: int
+    genes_file: str
+
+
 @dataclass
 class ValidationReport:
     valid: bool
@@ -31,6 +42,36 @@ class ValidationReport:
 
     def to_json(self) -> str:
         return json.dumps(asdict(self), indent=2, sort_keys=True)
+
+
+def load_board_spec(path: str | os.PathLike[str], board: str) -> BoardSpec:
+    """Load one board contract from the challenge's current panels/index.json."""
+    payload = json.loads(Path(path).read_text(encoding="utf-8"))
+    if not isinstance(payload, dict) or board not in payload:
+        choices = ", ".join(sorted(payload)) if isinstance(payload, dict) else ""
+        raise ValueError(f"board {board!r} not found in index; available: {choices}")
+    row = payload[board]
+    if not isinstance(row, dict):
+        raise ValueError(f"board {board!r} must map to an object")
+    try:
+        spec = BoardSpec(
+            key=str(row["key"]),
+            task=str(row["task"]).upper(),
+            n_genes=int(row["n_genes"]),
+            needs_coords=bool(row["needs_coords"]),
+            min_cells=int(row["min_cells"]),
+            max_cells=int(row["max_cells"]),
+            genes_file=str(row["genes_file"]),
+        )
+    except (KeyError, TypeError, ValueError) as exc:
+        raise ValueError(f"board {board!r} has an incomplete contract") from exc
+    if spec.key != board:
+        raise ValueError(f"board key mismatch: index entry {board!r} declares {spec.key!r}")
+    if spec.task not in TASK_GENE_COUNTS:
+        raise ValueError(f"board {board!r} declares unsupported task {spec.task!r}")
+    if spec.n_genes <= 0 or spec.min_cells <= 0 or spec.max_cells < spec.min_cells:
+        raise ValueError(f"board {board!r} has invalid numeric bounds")
+    return spec
 
 
 def load_expected_genes(path: str | os.PathLike[str]) -> list[str]:
@@ -72,20 +113,34 @@ def validate_anndata(
     min_cells: int = DEFAULT_MIN_CELLS,
     max_cells: int | None = None,
     allow_reorder: bool = False,
+    board_spec: BoardSpec | None = None,
 ) -> ValidationReport:
     task = task.upper()
     if task not in TASK_GENE_COUNTS:
         raise ValueError(f"unsupported task {task!r}; expected T1, T2, or T3")
+    if board_spec is not None:
+        if board_spec.task != task:
+            raise ValueError(
+                f"board {board_spec.key!r} is for {board_spec.task}, not requested task {task}"
+            )
+        required_gene_count = board_spec.n_genes
+        min_cells = board_spec.min_cells
+        max_cells = board_spec.max_cells
+        needs_coords = board_spec.needs_coords
+    else:
+        required_gene_count = TASK_GENE_COUNTS[task]
+        needs_coords = task in {"T2", "T3"}
 
     errors: list[str] = []
     warnings: list[str] = []
     n_cells = int(getattr(adata, "n_obs", getattr(getattr(adata, "X", None), "shape", (0, 0))[0]))
     n_genes = int(getattr(adata, "n_vars", getattr(getattr(adata, "X", None), "shape", (0, 0))[1]))
 
-    required_gene_count = TASK_GENE_COUNTS[task]
     if len(expected_genes) != required_gene_count:
+        subject = f"board {board_spec.key}" if board_spec is not None else task
         errors.append(
-            f"official gene list for {task} must contain {required_gene_count} names; got {len(expected_genes)}"
+            f"official gene list for {subject} must contain {required_gene_count} names; "
+            f"got {len(expected_genes)}"
         )
 
     received_genes = [str(name) for name in getattr(adata, "var_names", [])]
@@ -122,7 +177,7 @@ def validate_anndata(
     if max_cells is not None and n_cells > max_cells:
         errors.append(f"cell count {n_cells} exceeds board maximum {max_cells}")
 
-    if task in {"T2", "T3"}:
+    if needs_coords:
         obsm = getattr(adata, "obsm", {})
         if "spatial_3D" not in obsm:
             errors.append('missing obsm["spatial_3D"]')
@@ -161,6 +216,7 @@ def validate_file(
     max_cells: int | None = None,
     max_file_mb: float = DEFAULT_MAX_FILE_MB,
     allow_reorder: bool = False,
+    board_spec: BoardSpec | None = None,
 ) -> ValidationReport:
     path = Path(input_path)
     if path.suffix.lower() != ".h5ad":
@@ -179,7 +235,7 @@ def validate_file(
         )
 
     try:
-        import anndata as ad  # lazy: unit tests exercise the validator without this optional dependency
+        import anndata as ad
     except ImportError as exc:
         raise RuntimeError("anndata is required to read .h5ad files; install it in the competition environment") from exc
 
@@ -191,16 +247,16 @@ def validate_file(
         min_cells=min_cells,
         max_cells=max_cells,
         allow_reorder=allow_reorder,
+        board_spec=board_spec,
     )
 
 
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--task", required=True, choices=["T1", "T2", "T3"])
+    parser.add_argument("--board", required=True, help="exact board key from current panels/index.json")
+    parser.add_argument("--index", required=True, help="current official panels/index.json")
     parser.add_argument("--input", required=True, help="submission .h5ad")
-    parser.add_argument("--genes", required=True, help="official gene list, one gene per line in released order")
-    parser.add_argument("--min-cells", type=int, default=DEFAULT_MIN_CELLS)
-    parser.add_argument("--max-cells", type=int, default=None, help="board maximum from current index.json")
+    parser.add_argument("--genes", required=True, help="official board gene list, one name per line")
     parser.add_argument("--max-file-mb", type=float, default=DEFAULT_MAX_FILE_MB)
     parser.add_argument(
         "--allow-reorder",
@@ -212,15 +268,15 @@ def _parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = _parse_args()
+    board_spec = load_board_spec(args.index, args.board)
     expected = load_expected_genes(args.genes)
     report = validate_file(
         args.input,
-        task=args.task,
+        task=board_spec.task,
         expected_genes=expected,
-        min_cells=args.min_cells,
-        max_cells=args.max_cells,
         max_file_mb=args.max_file_mb,
         allow_reorder=args.allow_reorder,
+        board_spec=board_spec,
     )
     print(report.to_json())
     return 0 if report.valid else 2

@@ -5,23 +5,23 @@ Bounded local preflight for the 2026 Virtual Embryo Challenge upload contract. I
 ## Current official contract encoded
 
 - AnnData `.h5ad` input.
-- T1: exactly 32,285 released genes, in released order; no spatial requirement.
-- T2/T3: exactly the 500-gene MERFISH panel, in released order; `obsm["spatial_3D"]` is required with one row per cell and at least three finite coordinate columns.
+- The exact board contract comes from the current official `panels/index.json`; gene cardinality, coordinate requirement, and cell bounds are board-specific.
+- In particular, `T2:embryo:val_interp` currently requires 498 genes, while the released heart and Task-3 boards require 500. Do not use a task-wide 500-gene assumption.
 - `.X` must be a 2D cells × genes matrix with finite, non-negative values. Sparse matrices are checked via their explicit values without forced densification.
-- Minimum cell count defaults to 1,000. Pass the board-specific current maximum from the challenge `index.json` with `--max-cells`.
+- Spatial boards require `obsm["spatial_3D"]` with one row per cell and at least three finite coordinate columns.
 - File-size gate defaults to 1,200 MB, matching the current challenge rule.
 - `obs["celltype"]` is intentionally ignored because the official scorer does not use submitted labels.
 
-The tool requires the official released gene list as a newline-delimited file. It does not embed a potentially stale gene order.
+Download both the current machine-readable board index and the named gene-panel file from `https://virtualembryo.ai/challenge/data`. The tool consumes those files at runtime instead of embedding a snapshot that will become stale when new boards open.
 
 ## Usage
 
 ```bash
 python submission_validator.py \
-  --task T3 \
+  --board T2:embryo:val_interp \
+  --index index.json \
   --input pred.h5ad \
-  --genes merfish_500_genes.txt \
-  --max-cells <current-board-maximum>
+  --genes T2__embryo__val_interp.genes.txt
 ```
 
 Strict gene order is always required for a valid result. `--allow-reorder` is diagnostic-only when the set is identical but order differs: it identifies the case cleanly, emits a warning, and still returns validation failure until the file is reordered.
@@ -35,4 +35,4 @@ python -m unittest test_submission_validator.py
 python -m py_compile submission_validator.py test_submission_validator.py
 ```
 
-The unit seam uses in-memory AnnData-like objects, so it checks the contract logic without needing to manufacture or upload competition data.
+The unit seam uses in-memory AnnData-like objects, so it checks the contract logic without needing to manufacture, download, or upload competition data.
