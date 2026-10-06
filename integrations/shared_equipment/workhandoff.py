@@ -179,21 +179,46 @@ class WorkHandoff:
         self._auth_checked_at = time.monotonic()
         return self._auth_ok
 
-    def _channel_info(self, channel_id: str) -> dict[str, Any] | None:
+    def _channel_info_result(self, channel_id: str) -> dict[str, Any]:
         try:
             result = self._slack_read("conversations.info", {"channel": channel_id})
         except Exception:
-            return None
-        channel = result.get("channel") if result.get("ok") is True else None
+            return {}
+        return result if isinstance(result, dict) else {}
+
+    def _channel_info(self, channel_id: str) -> dict[str, Any] | None:
+        channel = self._channel_info_result(channel_id).get("channel")
         if not isinstance(channel, dict):
             return None
+        return channel if self._channel_internal(channel) else None
+
+    @staticmethod
+    def _channel_internal(channel: dict[str, Any]) -> bool:
         shared = channel.get("shared_team_ids")
-        if (channel.get("context_team_id") != TEAM_ID or shared != [TEAM_ID]
-                or channel.get("is_shared") is not False or channel.get("is_ext_shared") is not False
-                or channel.get("is_org_shared") is not False or channel.get("is_pending_ext_shared") is not False
-                or channel.get("pending_connected_team_ids") != [] or channel.get("is_archived") is not False):
-            return None
-        return channel
+        return (channel.get("context_team_id") == TEAM_ID and shared == [TEAM_ID]
+                and channel.get("is_shared") is False and channel.get("is_ext_shared") is False
+                and channel.get("is_org_shared") is False and channel.get("is_pending_ext_shared") is False
+                and channel.get("pending_connected_team_ids") == [] and channel.get("is_archived") is False)
+
+    def _channel_member_verified(self, channel_id: str) -> bool:
+        # conversations.info needs a channel-read scope no installed token
+        # holds on private channels (Slack reports needed groups:read). The
+        # installed sender's existing groups:history read road answers ok
+        # only when the channel exists and the fixed sender is a member,
+        # which is the destination check the posting call relies on.
+        try:
+            result = self._slack_read("conversations.history", {"channel": channel_id, "limit": 1})
+        except Exception:
+            return False
+        return result.get("ok") is True
+
+    def _destination_verified(self, channel_id: str) -> bool:
+        channel = self._channel_info_result(channel_id).get("channel")
+        if isinstance(channel, dict):
+            # A provider-answered channel is judged on its sharing flags
+            # only; a failed internal check never falls back to membership.
+            return self._channel_internal(channel)
+        return self._channel_member_verified(channel_id)
 
     def _slack_read(self, method: str, payload: dict[str, Any]) -> dict[str, Any]:
         """Force provider readback past local observation caches when supported."""
@@ -214,7 +239,7 @@ class WorkHandoff:
         if replaced:
             ok = bool(verifier(channel_id))
         else:
-            ok = self.sender_verified() and self._channel_info(channel_id) is not None
+            ok = self.sender_verified() and self._destination_verified(channel_id)
         if ok:
             self.equipment._slack_route_preverified = channel_id
         return ok
@@ -354,7 +379,7 @@ class WorkHandoff:
         item = {"operation_id": operation_id, **metadata,
                 "channel_id": args.get("channel_id", metadata.get("channel_id", DEFAULT_CHANNEL_ID)),
                 "thread_ts": args.get("thread_ts", metadata.get("thread_ts", DEFAULT_THREAD_TS))}
-        if not self.sender_verified() or not self._channel_info(item["channel_id"]):
+        if not self.sender_verified() or not self._destination_verified(item["channel_id"]):
             return {"ok": False, "state": "PUBLISHER_ROUTE_REQUIRED", "operation_id": operation_id}
         receipt = self._verify(item, prior["payload_sha256"])
         if receipt and receipt["readback_state"] == "confirmed":
@@ -386,7 +411,7 @@ class WorkHandoff:
             return {"ok": False, "state": "RECONCILE_REQUIRED", "operation_id": item["operation_id"]}
         if not self.sender_verified():
             return {"ok": False, "state": "OUTBOUND_ROUTE_BLOCKED", "code": "slack_sender_identity_unverified"}
-        if not self._channel_info(item["channel_id"]):
+        if not self._destination_verified(item["channel_id"]):
             return {"ok": False, "state": "PUBLISHER_ROUTE_REQUIRED", "operation_id": item["operation_id"],
                     "code": "internal_channel_unavailable_or_external"}
         metadata = {key: value for key, value in item.items() if key != "patch"}
