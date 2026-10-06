@@ -1,0 +1,13 @@
+diff --git a/README.md b/README.md
+index 374ffef680426f41b9f3e832059106839cfc72bd..4b4af5d52cb5010a6e38390981e30314c7751b81 100644
+--- a/README.md
++++ b/README.md
+@@ -158,7 +158,7 @@
+ 
+ 1. **Clone the repository:**
+    ```bash
+-   git clone [https://github.com/your-org/payD.git](https://github.com/your-org/payD.git)
++   git clone https://github.com/Protocol-Guild/PayD.git payD
+    cd payD
+    Install dependencies:
+    bash
