@@ -1,0 +1,14 @@
+diff --git a/scripts/upload-sourcemaps.sh b/scripts/upload-sourcemaps.sh
+index c6b678a..56e6c81 100755
+--- a/scripts/upload-sourcemaps.sh
++++ b/scripts/upload-sourcemaps.sh
+@@ -21,7 +21,8 @@
+   exit 1
+ fi
+ 
+-RELEASE="${NEXT_PUBLIC_APP_VERSION:-$(git rev-parse --short HEAD)}"
++# Match the browser SDK fallback in sentry.client.config.js.
++RELEASE="${NEXT_PUBLIC_APP_VERSION:-unknown}"
+ 
+ echo "Uploading source maps to Sentry..."
+ echo "Release: $RELEASE"
