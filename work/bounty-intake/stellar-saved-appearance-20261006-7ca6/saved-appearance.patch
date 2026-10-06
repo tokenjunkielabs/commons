@@ -1,0 +1,109 @@
+diff --git a/src/contexts/UserPreferencesContext.tsx b/src/contexts/UserPreferencesContext.tsx
+--- a/src/contexts/UserPreferencesContext.tsx
++++ b/src/contexts/UserPreferencesContext.tsx
+@@ -1,8 +1,27 @@
+ "use client";
+ 
+-import React, { createContext, useContext, useCallback, useMemo } from "react";
++import React, { createContext, useContext, useCallback, useMemo, useEffect } from "react";
+ import { useLocalStorage } from "@/hooks/useLocalStorage";
+ 
++// ─── Accent colour presets ────────────────────────────────────────────────────
++export const ACCENT_PRESETS = [
++  { label: "Indigo", value: "#6366f1" },
++  { label: "Violet", value: "#8b5cf6" },
++  { label: "Sky", value: "#0ea5e9" },
++  { label: "Emerald", value: "#10b981" },
++  { label: "Rose", value: "#f43f5e" },
++  { label: "Amber", value: "#f59e0b" },
++] as const;
++
++// ─── Font-size presets ────────────────────────────────────────────────────────
++export const FONT_SIZE_PRESETS = [
++  { label: "Small", value: "sm", px: "13px" },
++  { label: "Default", value: "md", px: "14px" },
++  { label: "Large", value: "lg", px: "16px" },
++] as const;
++
++export type FontSizeValue = (typeof FONT_SIZE_PRESETS)[number]["value"];
++
+ // ─── Preference Types ────────────────────────────────────────────────────────
+ 
+ export type CorridorsSortBy = "health_score" | "success_rate" | "liquidity";
+@@ -11,6 +30,9 @@
+ export type Locale = "en" | "es" | "zh";
+ 
+ export interface UserPreferences {
++  /** Optional appearance choices saved by ThemeCustomizer */
++  accentColor?: (typeof ACCENT_PRESETS)[number]["value"];
++  fontSize?: FontSizeValue;
+   /** Preferred locale for UI (en, es, zh) */
+   locale: Locale;
+   /** Whether the sidebar is collapsed to icon-only mode */
+@@ -69,6 +91,19 @@
+     [storedPrefs],
+   );
+ 
++  // Restore saved appearance even when the settings screen is not mounted.
++  useEffect(() => {
++    const root = document.documentElement;
++    const accent = ACCENT_PRESETS.find((preset) => preset.value === prefs.accentColor);
++    if (accent) root.style.setProperty("--accent", accent.value);
++
++    const font = FONT_SIZE_PRESETS.find((preset) => preset.value === prefs.fontSize);
++    if (font) {
++      root.style.setProperty("--base-font-size", font.px);
++      root.setAttribute("data-font-size", font.value);
++    }
++  }, [prefs.accentColor, prefs.fontSize]);
++
+   const setPrefs = useCallback(
+     (partial: Partial<UserPreferences>) => {
+       setStoredPrefs((prev) => ({
+diff --git a/src/components/ThemeCustomizer.tsx b/src/components/ThemeCustomizer.tsx
+--- a/src/components/ThemeCustomizer.tsx
++++ b/src/components/ThemeCustomizer.tsx
+@@ -4,26 +4,12 @@
+ import { motion } from "framer-motion";
+ import { Sun, Moon, Monitor, Check, Palette, Type } from "lucide-react";
+ import { useTheme, type ThemePreference } from "@/contexts/ThemeContext";
+-import { useUserPreferences } from "@/contexts/UserPreferencesContext";
+-
+-// ─── Accent colour presets ────────────────────────────────────────────────────
+-const ACCENT_PRESETS = [
+-  { label: "Indigo", value: "#6366f1" },
+-  { label: "Violet", value: "#8b5cf6" },
+-  { label: "Sky", value: "#0ea5e9" },
+-  { label: "Emerald", value: "#10b981" },
+-  { label: "Rose", value: "#f43f5e" },
+-  { label: "Amber", value: "#f59e0b" },
+-] as const;
+-
+-// ─── Font-size presets ────────────────────────────────────────────────────────
+-const FONT_SIZE_PRESETS = [
+-  { label: "Small", value: "sm", px: "13px" },
+-  { label: "Default", value: "md", px: "14px" },
+-  { label: "Large", value: "lg", px: "16px" },
+-] as const;
+-
+-type FontSizeValue = (typeof FONT_SIZE_PRESETS)[number]["value"];
++import {
++  useUserPreferences,
++  ACCENT_PRESETS,
++  FONT_SIZE_PRESETS,
++  type FontSizeValue,
++} from "@/contexts/UserPreferencesContext";
+ 
+ // ─── Theme option card ────────────────────────────────────────────────────────
+ interface ThemeCardProps {
+@@ -83,8 +69,8 @@
+   const { prefs, setPrefs } = useUserPreferences();
+ 
+   // Accent colour stored in user prefs; apply to CSS variable on change
+-  const accentColor: string = (prefs as unknown as Record<string, unknown>).accentColor as string ?? "#d7a84b";
+-  const fontSize: FontSizeValue = ((prefs as unknown as Record<string, unknown>).fontSize as FontSizeValue) ?? "md";
++  const accentColor: string = prefs.accentColor ?? "#d7a84b";
++  const fontSize: FontSizeValue = prefs.fontSize ?? "md";
+ 
+   const applyAccent = (color: string) => {
+     document.documentElement.style.setProperty("--accent", color);
