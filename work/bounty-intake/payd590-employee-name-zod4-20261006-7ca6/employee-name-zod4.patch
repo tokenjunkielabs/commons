@@ -1,0 +1,36 @@
+diff --git a/frontend/src/schemas.ts b/frontend/src/schemas.ts
+--- a/frontend/src/schemas.ts
++++ b/frontend/src/schemas.ts
+@@ -1,8 +1,10 @@
++// Modified 2026-10-06: trim employee names and use Zod 4 enum error parameters.
+ import { z } from 'zod';
+ 
+ export const employeeFormSchema = z.object({
+   fullName: z
+     .string()
++    .trim()
+     .min(1, 'Full name is required')
+     .min(2, 'Full name must be at least 2 characters'),
+   email: z
+@@ -17,10 +19,10 @@
+       'Wallet address must be a valid Stellar public key (G...55 chars)'
+     ),
+   role: z.enum(['contractor', 'full-time', 'part-time'], {
+-    errorMap: () => ({ message: 'Please select a valid role' }),
++    error: 'Please select a valid role',
+   }),
+   currency: z.enum(['USDC', 'XLM', 'EURC'], {
+-    errorMap: () => ({ message: 'Please select a valid currency' }),
++    error: 'Please select a valid currency',
+   }),
+ });
+ 
+@@ -39,7 +41,7 @@
+       'Amount must be a positive number'
+     ),
+   frequency: z.enum(['weekly', 'monthly'], {
+-    errorMap: () => ({ message: 'Please select a frequency' }),
++    error: 'Please select a frequency',
+   }),
+   startDate: z
+     .string()
