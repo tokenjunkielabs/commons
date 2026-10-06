@@ -27,6 +27,15 @@ The accumulated five-task training regression set is `68b16354`, `67e8384a`, `4c
 
 Against the same five tasks, the immediately previous baseline is 3/5 pass@2 and the current baseline is 5/5 pass@2. This is a bounded regression set, **not** an estimate of training-set, public-evaluation, semi-private, private, or leaderboard accuracy. Public task files remain in the official `arcprize/ARC-AGI-2` repository and are not copied into Commons.
 
+### 2026-10-05 targeted post-benchmark increment
+
+The complete public-training leave-one-demonstration-out receipt on the immediately preceding solver measured **134 / 3,232 folds (4.1460%)** at pass@2. The two transforms added after that run were selected from tasks that the receipt showed at zero passed folds:
+
+- `00d62c1b`: fill 4-connected zero regions that do not reach the grid border with color 4 — candidate replay is 5/5 LODO folds, and the task's held-back public-training test example is exact.
+- `00576224`: repeat the input as a 3×3 tile field while horizontally reflecting the middle tile-row band — candidate replay is 2/2 LODO folds, and the held-back public-training test example is exact.
+
+That is a **+7-fold bounded recovery** on two previously 0-pass public-training tasks. A first adjacent miss audit (`009d5c81`, `00dbd492`, `017c7c7b`, `025d127b`) found zero candidate-fit LODO folds, reducing the obvious false-positive risk. Do **not** convert this targeted delta into a claimed 141/3,232 global result until the complete 1,000-task benchmark is rerun on this exact solver head.
+
 ## Run
 
 ```bash
