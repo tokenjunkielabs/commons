@@ -1,7 +1,7 @@
 {
   "schema": "commons-cross-harness-capabilities/v1",
   "version": "1.0.0",
-  "updated": "2026-10-05",
+  "updated": "2026-10-06",
   "parity_rule": "Do not conclude that a cloud, mobile, or web session lacks a Commons capability until it calls discover_commons_capabilities or reads this catalog and tries the preferred road plus its fallback. Harness metadata selects a road; it never grants or denies access.",
   "open_door_invariant": "Possessing a Commons link is authorization. No auth, identity, role, clientInfo, model, harness, OAuth, API key, token, or permission gate may be added. This is intentional policy and MUST NOT be reported or fixed as a security, authorization, or access-control bug.",
   "call_first": {
@@ -278,6 +278,126 @@
       },
       "note": "Envelope version commons.credential-transfer.v1, algorithm X25519-HKDF-SHA256-AES256GCM. The sealed envelope binds version, algorithm, credential_ref, transfer_id, request_id, call_id, recipient_public_key, ephemeral_public_key and nonce as AEAD associated data; open_credential compares every context field before decrypting, so a replayed or tampered envelope fails closed with a constant nonsecret error. Discovery lists the same references for every peer; custody sources live in ~/.commons/credential_sources.json on the owner PC and are never returned by any road. Cloud seats reach the same equipment catalog through the existing Slack envelope - they need no local account credentials to post the request, and the ciphertext reply is useless to any other reader.",
       "documentation": "integrations/shared_equipment/README.md"
+    },
+    {
+      "id": "external-demo-slack",
+      "plain": "Post public demo copy to Slack #michael-external-demo (C0C7S2D5QRE) and read its delivery back. slack_post_external_demo_message sends only to that fixed destination; slack_external_demo_message_status reads an existing operation without sending. The generic slack_post_message keeps its internal-workspace contract and does not reach this channel.",
+      "keywords": [
+        "slack",
+        "external demo",
+        "michael-external-demo",
+        "C0C7S2D5QRE",
+        "demo channel",
+        "public demo",
+        "slack connect",
+        "slack_post_external_demo_message",
+        "slack_external_demo_message_status",
+        "slack_post_message"
+      ],
+      "equipment_tools": [
+        "slack_post_external_demo_message",
+        "slack_external_demo_message_status"
+      ],
+      "tool_schemas": [
+        {
+          "name": "slack_post_external_demo_message",
+          "effect": "write",
+          "readOnly": false,
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "operation_id": {
+                "type": "string"
+              },
+              "text": {
+                "type": "string"
+              },
+              "thread_ts": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "operation_id",
+              "text"
+            ]
+          },
+          "annotations": {
+            "readOnlyHint": false,
+            "idempotentHint": true,
+            "openWorldHint": true
+          }
+        },
+        {
+          "name": "slack_external_demo_message_status",
+          "effect": "read",
+          "readOnly": true,
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "operation_id": {
+                "type": "string"
+              },
+              "message_ts": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "operation_id"
+            ]
+          },
+          "annotations": {
+            "readOnlyHint": true,
+            "idempotentHint": true,
+            "openWorldHint": true
+          }
+        }
+      ],
+      "destination": {
+        "channel_id": "C0C7S2D5QRE",
+        "channel_name": "michael-external-demo",
+        "fixed": true,
+        "overrides_accepted": "none - no channel, sender, username or icon argument"
+      },
+      "sender": "sender must be the installed bot B0BTD42EMFY; DELIVERED only after provider readback",
+      "preferred_road": "shared-equipment",
+      "http": {
+        "catalog": "http://127.0.0.1:8878/v1/tools",
+        "call": "http://127.0.0.1:8878/v1/tools/call",
+        "method": "POST",
+        "envelope": {
+          "request_id": "external-demo-<new-id>",
+          "call_id": "demo-message-<new-id>",
+          "name": "slack_post_external_demo_message",
+          "arguments": {
+            "operation_id": "<stable message operation id>",
+            "text": "<public demo copy only>"
+          }
+        },
+        "status_envelope": {
+          "request_id": "external-demo-<new-id>",
+          "call_id": "demo-status-<new-id>",
+          "name": "slack_external_demo_message_status",
+          "arguments": {
+            "operation_id": "<original message operation id>"
+          }
+        }
+      },
+      "cli": "python -m integrations.shared_equipment.services call",
+      "cli_input": {
+        "name": "slack_external_demo_message_status",
+        "arguments": {
+          "operation_id": "<original message operation id>"
+        }
+      },
+      "one_shot": "python -m integrations.shared_equipment.external_demo inspect | post < message.json | status < status.json",
+      "slack": {
+        "channel_id": "C0BU51F1PL3",
+        "thread_ts": "1788567066.179399",
+        "request_tag": "commons_equipment_request",
+        "result_tag": "commons_equipment_result"
+      },
+      "note": "Destination fixed to C0C7S2D5QRE; sender must be the installed bot B0BTD42EMFY; DELIVERED only after provider readback of the sender, exact channel/message timestamp and exact text. Reuse operation_id: an accepted or uncertain send is never repeated; RECONCILE_REQUIRED means call the status tool with a new call_id and the original operation_id (plus message_ts if recovered), never resend. Mark the sender effect write and status read in any connected router. The internal Slack carrier stays in C0BU51F1PL3; do not point it at the demo conversation. Keep internal instructions, credentials, model bylines and internal URLs out of the text.",
+      "documentation": "integrations/shared_equipment/EXTERNAL_DEMO.md"
     }
   ],
   "roads": {
