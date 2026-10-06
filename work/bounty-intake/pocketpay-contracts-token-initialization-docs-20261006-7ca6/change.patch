@@ -1,0 +1,54 @@
+diff --git a/README.md b/README.md
+index f6a4921cc8d63c0da4ae3b73292df7e6a76cdb4c..76fac7795e1b0d84ec69958a56cd9516c33cf3cc 100644
+--- a/README.md
++++ b/README.md
+@@ -5,7 +5,7 @@
+ 
+ > **This contract is for educational and testnet use.** Review the following before any mainnet deployment.
+ 
+-See the [Admin Role](docs/admin-role.md) document for details on what the `initialize(admin)` value records, what the admin can and cannot do today, and future admin design considerations.
++See the [Admin Role](docs/admin-role.md) document for details on what the `initialize(admin, token)` call records, what the admin can and cannot do today, and future admin design considerations.
+ 
+ See the [Admin & Emergency Mechanism Threat Model](docs/admin-pause-threat-model.md) for a security analysis of malicious admin, compromised admin, accidental pause, and blocked-withdrawal scenarios, including mitigations and trust assumptions.
+ 
+@@ -13,7 +13,7 @@
+ 
+ | Function | Description |
+ |---|---|
+-| `initialize(admin)` | One-time setup; records the admin address |
++| `initialize(admin, token)` | One-time setup; records the admin and token contract addresses |
+ | `deposit(user, amount)` | Add funds to a user's vault |
+ | `withdraw(user, amount)` | Remove funds from a user's vault |
+ | `get_balance(user)` | Query available (unlocked) balance |
+@@ -154,17 +154,20 @@
+ 
+ Save the returned **Contract ID** — you'll need it to invoke functions.
+ 
+ ### 4. Initialize the Contract
+ 
++For this testnet example, replace `CONTRACT_ID_PLACEHOLDER` with the deployed savings vault ID, `ADMIN_PUBLIC_KEY` with the signing deployer's public key, and `TOKEN_CONTRACT_ID_PLACEHOLDER` with the testnet token contract address to use. Initialization records the admin and token addresses once; deposits and withdrawals use that configured token contract.
++
+ ```bash
+ soroban contract invoke \
+-  --id YOUR_CONTRACT_ID \
++  --id CONTRACT_ID_PLACEHOLDER \
+   --source deployer \
+   --network testnet \
+   -- \
+   initialize \
+-  --admin deployer
++  --admin ADMIN_PUBLIC_KEY \
++  --token TOKEN_CONTRACT_ID_PLACEHOLDER
+ ```
+ 
+ ### 5. Invoke Functions
+ 
+@@ -244,7 +247,7 @@
+ - Admin and initialization flags use **instance** storage (tied to contract lifetime).
+ 
+ ### Known Limitations
+-- **No real token transfers**: This contract tracks balances internally but does not yet integrate with the Stellar Asset Contract (SAC) for actual XLM/token transfers. A production version should call the token contract's `transfer()` function.
++- **One configured token**: Initialization records one token contract address. Deposits transfer that token into the vault; withdrawals transfer it back to the user. Balances are not tracked separately for multiple token contracts.
+ - **Single unlock time**: Locking funds multiple times overwrites the previous unlock timestamp. A production version might use per-lock entries.
+ - **No admin recovery**: There is no mechanism for the admin to recover or migrate funds.
+ - **No upgrade mechanism**: The contract does not implement `upgrade()`. Consider adding this for mainnet.
