@@ -1,0 +1,16 @@
+diff --git a/src/components/LanguageSwitcher.tsx b/src/components/LanguageSwitcher.tsx
+--- a/src/components/LanguageSwitcher.tsx
++++ b/src/components/LanguageSwitcher.tsx
+@@ -23,10 +23,11 @@
+ 
+   const handleChange = (newLocale: Locale) => {
+     if (newLocale === locale) return;
++    const href = `${pathname}${window.location.search}${window.location.hash}`;
+     startTransition(() => {
+       setPrefs({ locale: newLocale });
+       document.cookie = `NEXT_LOCALE=${newLocale};path=/;max-age=31536000;SameSite=Lax`;
+-      router.replace(pathname, { locale: newLocale });
++      router.replace(href, { locale: newLocale });
+     });
+   };
+ 
