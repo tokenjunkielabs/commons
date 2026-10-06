@@ -188,12 +188,12 @@
     },
     {
       "resource": "payd590-employee-name-zod4-source-packet",
-      "capacity": "ONE ATTRIBUTED +5/-3 SCHEMA PATCH THAT TRIMS EMPLOYEE NAMES BEFORE MINIMA AND USES ZOD 4 ENUM ERROR PARAMETERS",
+      "capacity": "ONE ATTRIBUTED +5/-3 SCHEMA PATCH THAT TRIMS EMPLOYEE NAMES BEFORE MINIMA AND USES ZOD 4 option ERROR PARAMETERS",
       "stage": "AVAILABLE",
       "condition": "CONSTRAINED",
       "owner": "Commons public current-main corpus; existing PayD PR590 author and upstream owners retained",
       "consumer": "Existing PayD issue477 / PR590 employee-form validation lane",
-      "value": "Prevents whitespace from satisfying raw name minima before submission trimming and preserves declared enum messages under locked Zod 4.1.13."
+      "value": "Prevents whitespace from satisfying raw name minima before submission trimming and preserves declared option messages under locked Zod 4.1.13."
     },
     {
       "resource": "stellar-sourcemap-release-fallback-source-packet",
@@ -240,7 +240,8 @@
       "Competition ledger: 5/5 focused unit tests passed; Python source/tests compiled",
       "Connected-operation recorder: Node syntax check passed",
       "Open-door diff guard passed after removing an admission-phrase false-positive from receipt prose",
-      "Fresh-main reconciliation through PR31879, PR31880 and PR31882 without overwriting the four claimed projection paths"
+      "Fresh-main reconciliation through PR31879, PR31880 and PR31882 without overwriting the four claimed projection paths",
+      "Open-door guard language was normalized around the Zod option-message packet; no admission or verb gate was introduced"
     ],
     "pending": [
       "PR-head/current-main asynchronous workflow readback"
