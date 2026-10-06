@@ -1,0 +1,15 @@
+diff --git a/src/hooks/useNotificationSound.ts b/src/hooks/useNotificationSound.ts
+index 5fc9fe895921224065cfd0f3ea4441d0d824fc9e..2dd1c2f3701ed85dfc9195b545a0aab8bc106974 100644
+--- a/src/hooks/useNotificationSound.ts
++++ b/src/hooks/useNotificationSound.ts
+@@ -45,7 +45,9 @@
+     try {
+       const audioContext = initAudioContext();
+       if (audioContext.state === 'suspended') {
+-        audioContext.resume();
++        void audioContext.resume().catch((error) => {
++          logger.warn('Failed to play notification sound:', error);
++        });
+       }
+ 
+       const soundType = soundSettings.soundType === 'default' 
