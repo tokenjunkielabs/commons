@@ -148,6 +148,37 @@ def crop_component(g: Grid, background: int, choose_largest: bool) -> Grid:
     ]
 
 
+def fill_enclosed_zero_with_4(g: Grid) -> Grid:
+    """Fill 4-connected zero regions that do not reach the border with yellow."""
+    height, width = len(g), len(g[0])
+    out = copy_grid(g)
+    seen = [[False for _ in range(width)] for _ in range(height)]
+
+    for start_r in range(height):
+        for start_c in range(width):
+            if seen[start_r][start_c] or g[start_r][start_c] != 0:
+                continue
+            queue = [(start_r, start_c)]
+            seen[start_r][start_c] = True
+            cells: List[Tuple[int, int]] = []
+            touches_border = False
+            index = 0
+            while index < len(queue):
+                r, c = queue[index]
+                index += 1
+                cells.append((r, c))
+                if r in (0, height - 1) or c in (0, width - 1):
+                    touches_border = True
+                for rr, cc in ((r - 1, c), (r + 1, c), (r, c - 1), (r, c + 1)):
+                    if 0 <= rr < height and 0 <= cc < width and not seen[rr][cc] and g[rr][cc] == 0:
+                        seen[rr][cc] = True
+                        queue.append((rr, cc))
+            if not touches_border:
+                for r, c in cells:
+                    out[r][c] = 4
+    return out
+
+
 def self_mask_expand(g: Grid, background: int) -> Grid:
     """Replace each non-background mask cell with the whole source grid."""
     height, width = len(g), len(g[0])
@@ -238,6 +269,19 @@ def tile2x2(g: Grid) -> Grid:
     return doubled_rows + [row[:] for row in doubled_rows]
 
 
+def reflected_tile3x3(g: Grid) -> Grid:
+    """Repeat a grid 3x3, reflecting horizontally on the middle tile-row band."""
+    height, width = len(g), len(g[0])
+    if height * 3 > 30 or width * 3 > 30:
+        return copy_grid(g)
+    out: Grid = []
+    for band in range(3):
+        for row in g:
+            source = row[::-1] if band % 2 else row
+            out.append(source * 3)
+    return out
+
+
 def mirror_quadrants(g: Grid) -> Grid:
     """Mirror the input across its right and bottom edges, doubling both axes."""
     wide = [row + row[::-1] for row in g]
@@ -302,6 +346,8 @@ TRANSFORMS: Tuple[Tuple[str, Transform], ...] = (
     ("repeat_rows2", repeat_rows2),
     ("repeat_cols2", repeat_cols2),
     ("tile2x2", tile2x2),
+    ("fill_enclosed_zero_with_4", fill_enclosed_zero_with_4),
+    ("reflected_tile3x3", reflected_tile3x3),
 )
 
 
