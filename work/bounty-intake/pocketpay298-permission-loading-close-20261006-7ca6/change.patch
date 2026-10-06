@@ -1,0 +1,19 @@
+diff --git a/src/components/QrScanner.tsx b/src/components/QrScanner.tsx
+index 030319ba664c2522d1df04a5fa15a125b3529711..92d9777629385d2f3b2ec0b1fc6d0ced820adc5f 100644
+--- a/src/components/QrScanner.tsx
++++ b/src/components/QrScanner.tsx
+@@ -90,6 +90,14 @@
+       <View style={styles.centred} accessibilityLiveRegion="polite">
+         <ActivityIndicator color={colors.primary} size="large" />
+         <Text style={styles.statusText}>Checking camera permission…</Text>
++        <TouchableOpacity
++          style={styles.closeButtonFallback}
++          onPress={onClose}
++          accessibilityLabel="Close scanner"
++          accessibilityRole="button"
++        >
++          <Text style={styles.closeButtonFallbackText}>Cancel</Text>
++        </TouchableOpacity>
+       </View>
+     );
+   }
