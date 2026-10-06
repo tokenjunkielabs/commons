@@ -2,11 +2,12 @@
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="index,follow">
 <title>Dealer service lead rescue — Commons</title>
-
+<link rel="canonical" href="https://woahwhattheheck.github.io/commons/dealer-service-lead-rescue.html">
+<meta name="description" content="For a dealer service manager or BDC lead: a missed web form, after-hours inquiry or duplicate submit becomes exactly one customer follow-up and one booked-service / CRM record. Synthetic data, binary acceptance, timestamped receipt.">
 <meta property="og:type" content="website"><meta property="og:site_name" content="Commons">
-
-<meta name="twitter:card" content="summary">
-
+<meta property="og:title" content="Dealer service lead rescue — synthetic demo"><meta property="og:description" content="For a dealer service manager or BDC lead: a missed web form, after-hours inquiry or duplicate submit becomes exactly one customer follow-up and one booked-service / CRM record. Synthetic data, binary acceptance, timestamped receipt.">
+<meta name="twitter:card" content="summary"><meta name="twitter:title" content="Dealer service lead rescue — synthetic demo"><meta name="twitter:description" content="For a dealer service manager or BDC lead: a missed web form, after-hours inquiry or duplicate submit becomes exactly one customer follow-up and one booked-service / CRM record. Synthetic data, binary acceptance, timestamped receipt.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Product","name":"Dealer service lead rescue","description":"For a dealer service manager or BDC lead: a missed web form, after-hours inquiry or duplicate submit becomes exactly one customer follow-up and one booked-service / CRM record. Synthetic data, binary acceptance, timestamped receipt.","brand":{"@type":"Organization","name":"Commons"}}</script>
 <style>
 :root{color-scheme:light;--paper:#f3efe6;--ink:#1c1a16;--mute:#5c574c;--line:#c4b89a;--card:#fffdf6;--steel:#2f4a5c;--oil:#8a4b12;--ok:#1f7a4d;--bad:#a33b2f}
 *{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#d7e0e6 0%,var(--paper) 30%);color:var(--ink);font:16px/1.5 "Iowan Old Style",Georgia,serif}
@@ -33,15 +34,10 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;min-height:220px;background:#1c1
 <p class="kicker">Commons · dealer service / BDC diagnostic · synthetic / no live CRM</p>
 <h1>Missed form. After hours. One follow-up. One appointment.</h1>
 <p class="lede">For a dealer service manager or BDC lead: turn a synthetic missed web form, after-hours inquiry, or duplicate submit into exactly one customer follow-up and one booked-service / CRM record. The same inbound lead must not create a second appointment.</p>
-
 <section id="titanmcp-pad-pointer" class="law" aria-label="titanmcp contest pad">
   <strong>titanmcp pad (contest):</strong> <a href="https://webmcp-pad.vercel.app/">webmcp-pad.vercel.app</a> — <code>titanmcp 1.4.5</code> · 24 tools · Agent Resources · <a href="./titanmcp.html">titanmcp.html</a>. Commons Shared Pad is <a href="./webmcp.html">webmcp.html</a>. Commons <code>/mcp</code> KEEP separate.
 </section>
-
-
-
-
-<p class="bound"><strong>Truth boundary:</strong> this tab is a synthetic rescue proof only. It does not talk to a real dealership, live DMS/CRM, or a customer phone. Fixtures are fake dealer/vehicle ids. <code>cash_usd = 0</code> describes only this local proof run. The interactive proof never charges you; payment happens only if you complete Stripe Checkout in the separate tab. No outreach.</p>
+<p class="bound"><strong>Truth boundary:</strong> this tab is a synthetic rescue proof only. It does not talk to a real dealership, live DMS/CRM, or a customer phone. Fixtures are fake dealer/vehicle ids. <code>cash_usd = 0</code> describes only this local proof run. The interactive demo makes no payment requests. No outreach.</p>
 <div class="desk">
 <section class="card"><h2>Synthetic service lead</h2>
 <div class="fields">
@@ -79,7 +75,6 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;min-height:220px;background:#1c1
 <pre id="output">Run a synthetic lead. Exact JSON stays in this tab.</pre>
 <div class="row"><button id="copy" class="ghost">Copy JSON</button><button id="download" class="ghost">Download JSON</button></div>
 </section>
-
 <section class="card"><h2>Binary acceptance</h2>
 <ul class="small">
 <li>Lead identity is the idempotency key. Missed web form and after-hours inquiry of the same lead share one store row.</li>
@@ -87,9 +82,8 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;min-height:220px;background:#1c1
 <li>Incomplete or hold leads route once to HELD_INCOMPLETE and create zero appointments.</li>
 <li>Crash after classify / follow-up / appointment, then worker restart + replay: still one appointment and a timestamped receipt.</li>
 <li>Rollback of a crashed run returns a clean un-rescued state; a finished run stays single-rescued.</li>
-<li>PII-shaped fields, live phone/email/VIN, and non-DEMO dealer ids are refused. This runner makes zero live CRM, outreach, or payment-processor API calls; checkout is separate.</li>
+<li>PII-shaped fields, live phone/email/VIN, and non-DEMO dealer ids are refused. This runner makes zero live CRM, outreach, or payment-processor API calls.</li>
 </ul>
-<p class="small">Questions: <a href="mailto:tokenjunkielabs@gmail.com">tokenjunkielabs@gmail.com</a>. Related proofs: <a href="./referral-intake-completeness.html">referral intake completeness</a> and <a href="./plant-downtime-handoff.html">plant downtime handoff</a>.</p>
 
 </section>
 </div>
@@ -149,7 +143,6 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;min-height:220px;background:#1c1
     dirty.fields.phone = "555-010-9999";
     show(worker.processLead(dirty, { now: new Date().toISOString() }));
   };
-  
   document.getElementById("copy").onclick = function(){ navigator.clipboard.writeText(document.getElementById("output").textContent); };
   document.getElementById("download").onclick = function(){
     var blob = new Blob([document.getElementById("output").textContent], { type: "application/json" });
