@@ -1,0 +1,26 @@
+diff --git a/frontend/src/pages/Forecasting.tsx b/frontend/src/pages/Forecasting.tsx
+--- a/frontend/src/pages/Forecasting.tsx
++++ b/frontend/src/pages/Forecasting.tsx
+@@ -1,3 +1,4 @@
++// Modified 2026-10-06: preserve an explicit zero yellow-buffer input.
+ import { useEffect, useMemo, useState } from 'react';
+ import {
+   CartesianGrid,
+@@ -277,9 +278,14 @@
+             label="Yellow Buffer %"
+             type="number"
+             value={String(settingsDraft.yellowBufferPct ?? 10)}
+-            onChange={(e) =>
+-              setSettingsDraft((s) => ({ ...s, yellowBufferPct: Number(e.target.value) || 10 }))
+-            }
++            onChange={(e) => {
++              const value = e.target.value.trim();
++              const parsed = Number(value);
++              setSettingsDraft((s) => ({
++                ...s,
++                yellowBufferPct: value !== '' && !Number.isNaN(parsed) ? parsed : 10,
++              }));
++            }}
+             fieldSize="sm"
+           />
+           <Input
