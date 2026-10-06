@@ -8,6 +8,8 @@ import subprocess
 import sys
 import unicodedata
 from pathlib import Path
+from threading import Lock
+from time import monotonic
 
 from commons_publication_policy import check_publication
 from integrations.shared_equipment.provider_io import EquipmentError, redacted
@@ -44,6 +46,9 @@ _PROSE_OPERATIONS = {
     "release.create",
     "release.update",
 }
+_CAPABILITY_DRIFT_TTL_SECONDS = 300.0
+_CAPABILITY_DRIFT_LOCK = Lock()
+_CAPABILITY_DRIFT: dict[tuple[str, str], dict[str, object]] = {}
 
 
 def _identity_token_char(value: str) -> bool:
@@ -137,6 +142,81 @@ def _preflight(operation, arguments):
             )
 
 
+def _client_key(client: Path) -> str:
+    return str(client.expanduser().resolve(strict=False))
+
+
+def _capability_drift_result(
+    operation: str,
+    operation_id: str,
+    *,
+    publisher_version: str | None,
+    cached: bool,
+    retry_after_seconds: int | None = None,
+) -> dict:
+    publication = {
+        "allow": False,
+        "incident": False,
+        "operation_id": operation_id,
+        "error": "INVALID_OPERATION",
+        "cached_capability_drift": cached,
+    }
+    if publisher_version:
+        publication["version"] = publisher_version
+    drift = {
+        "operation": operation,
+        "publisher_version": publisher_version,
+        "cached": cached,
+        "quarantine_seconds": int(_CAPABILITY_DRIFT_TTL_SECONDS),
+    }
+    result = {
+        "ok": False,
+        "operation_id": operation_id,
+        "uncertain": False,
+        "actor": None,
+        "publication": publication,
+        "code": "publisher_capability_drift",
+        "retryable": False,
+        "capability_drift": drift,
+    }
+    if retry_after_seconds is not None:
+        result["retry_after_seconds"] = retry_after_seconds
+    return result
+
+
+def _cached_capability_drift(client: Path, operation: str, operation_id: str) -> dict | None:
+    key = (_client_key(client), operation)
+    now = monotonic()
+    with _CAPABILITY_DRIFT_LOCK:
+        entry = _CAPABILITY_DRIFT.get(key)
+        if entry is None:
+            return None
+        expires_at = float(entry["expires_at"])
+        if expires_at <= now:
+            _CAPABILITY_DRIFT.pop(key, None)
+            return None
+        version = entry.get("publisher_version")
+    remaining = max(1, int(expires_at - now + 0.999))
+    return _capability_drift_result(
+        operation,
+        operation_id,
+        publisher_version=version if isinstance(version, str) else None,
+        cached=True,
+        retry_after_seconds=remaining,
+    )
+
+
+def _record_capability_drift(client: Path, operation: str, receipt: dict) -> None:
+    version = receipt.get("version")
+    if not isinstance(version, str) or not version:
+        version = None
+    with _CAPABILITY_DRIFT_LOCK:
+        _CAPABILITY_DRIFT[(_client_key(client), operation)] = {
+            "publisher_version": version,
+            "expires_at": monotonic() + _CAPABILITY_DRIFT_TTL_SECONDS,
+        }
+
+
 GH = Path.home() / "AppData/Local/Programs/GitHub CLI/gh.exe"
 
 
@@ -185,6 +265,9 @@ def publish(operation, arguments, operation_id, *, runner=None, client=None, act
     client = Path(client) if client is not None else Path.home() / ".commons/tjlabs-publication/publish.py"
     if not client.is_file():
         raise EquipmentError("existing account publishing client is unavailable; restore its shared installation")
+    quarantined = _cached_capability_drift(client, operation, operation_id)
+    if quarantined is not None:
+        return quarantined
     envelope = {"operation_id": operation_id, "operation": operation, "args": arguments}
     env = None
     resolved_actor = None
@@ -216,5 +299,21 @@ def publish(operation, arguments, operation_id, *, runner=None, client=None, act
     uncertain = receipt.get("error") in {
         "GITHUB_DELIVERY_UNCERTAIN", "OPERATION_IN_PROGRESS_OR_REQUIRES_RECONCILIATION",
     } or receipt.get("state") in {"DISPATCHING", "DELIVERY_UNCERTAIN"}
-    return {"ok": ok, "operation_id": operation_id, "uncertain": uncertain,
-            "actor": resolved_actor, "publication": redacted(receipt)}
+    response = {"ok": ok, "operation_id": operation_id, "uncertain": uncertain,
+                "actor": resolved_actor, "publication": redacted(receipt)}
+    if (not ok and not uncertain and receipt.get("error") == "INVALID_OPERATION"
+            and receipt.get("incident") is not True):
+        _record_capability_drift(client, operation, receipt)
+        version = receipt.get("version")
+        if not isinstance(version, str) or not version:
+            version = None
+        response["code"] = "publisher_capability_drift"
+        response["retryable"] = False
+        response["retry_after_seconds"] = int(_CAPABILITY_DRIFT_TTL_SECONDS)
+        response["capability_drift"] = {
+            "operation": operation,
+            "publisher_version": version,
+            "cached": False,
+            "quarantine_seconds": int(_CAPABILITY_DRIFT_TTL_SECONDS),
+        }
+    return response
