@@ -1,0 +1,38 @@
+diff --git a/package.json b/package.json
+index 2b1c6ac1f83096666c7fd6d5ba3fd22780e6b8eb..6c85848de90912ce38f69e2376ef8cdc1ecc9367 100644
+--- a/package.json
++++ b/package.json
+@@ -10,7 +10,7 @@
+     "analyze": "ANALYZE=true next build && node scripts/analyze-bundle.mjs",
+     "lint": "eslint src/",
+     "lint:fix": "eslint src/ --fix",
+-    "lint:a11y": "eslint --ext .tsx,.ts --rule 'jsx-a11y/*: error' src/",
++    "lint:a11y": "eslint --ext .tsx,.ts --config eslint.a11y.config.mjs src/",
+     "test": "vitest",
+     "test:a11y": "vitest run --reporter=verbose src/components/__tests__/accessibility.a11y.test.tsx src/components/__tests__/accessibility.test.tsx",
+     "test:ui": "vitest --ui",
+diff --git a/eslint.a11y.config.mjs b/eslint.a11y.config.mjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..7a15db012151f0d0e27ff9d1be1d7da8dbeb5d89
+--- /dev/null
++++ b/eslint.a11y.config.mjs
+@@ -0,0 +1,19 @@
++// Created 2026-10-06: apply the existing accessibility policy as a flat config.
++import { readFileSync } from "node:fs";
++import jsxA11y from "eslint-plugin-jsx-a11y";
++import baseConfig from "./eslint.config.mjs";
++
++const accessibilityPolicy = JSON.parse(
++  readFileSync(new URL("./.eslintrc.a11y.json", import.meta.url), "utf8"),
++);
++
++export default [
++  ...baseConfig,
++  {
++    rules: {
++      ...jsxA11y.flatConfigs.recommended.rules,
++      ...accessibilityPolicy.rules,
++    },
++  },
++  ...accessibilityPolicy.overrides,
++];
