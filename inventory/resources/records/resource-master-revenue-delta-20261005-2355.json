@@ -45,7 +45,7 @@
     "slack": "Connected Slack search and send remained live. The seven requested channels returned no new indexed message after the prior terminal bound. One exact path claim was posted; this operation performed no external-demo post, DM, relay or buyer contact.",
     "automations": "Commons Resource Master remained enabled. No disabled automation was restarted and no automation was created.",
     "quota": "The single permitted check returned no qualifying official reset announcement or directly observed usage-meter change. Prior quota state is retained without speculation.",
-    "owner_attention": "No new owner-only action was required or duplicated. No payment, identity, policy, call, signing, submission, physical-device act or Account Chad request was performed."
+    "owner_attention": "No Account Chad request was needed or duplicated. No payment, policy, call, signature, competition-platform, or physical-device action was performed."
   },
   "activation": [
     {
@@ -207,7 +207,8 @@
       "Unique resource names and append-only source registration",
       "Open-door/no-auth, zero-fabrication, secret, privacy and four-path diff assertions",
       "Competition ledger: 5/5 focused unit tests passed; Python source/tests compiled",
-      "Connected-operation recorder: Node syntax check passed"
+      "Connected-operation recorder: Node syntax check passed",
+      "Open-door diff guard passed after removing an admission-phrase false-positive from receipt prose"
     ],
     "pending": [
       "PR-head/current-main asynchronous workflow readback"
