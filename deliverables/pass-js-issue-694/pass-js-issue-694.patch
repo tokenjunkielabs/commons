@@ -1,0 +1,100 @@
+--- src/constants.ts
++++ src/constants.ts
+@@ -29,6 +29,8 @@
+   PDF417: 'PKBarcodeFormatPDF417' as BarcodeFormat,
+   Aztec: 'PKBarcodeFormatAztec' as BarcodeFormat,
+   Code128: 'PKBarcodeFormatCode128' as BarcodeFormat,
++  Code39: 'PKBarcodeFormatCode39' as BarcodeFormat,
++  Format39: 'PKBarcodeFormat39' as BarcodeFormat,
+ };
+ 
+ export const dateTimeFormat = {
+@@ -87,6 +89,7 @@
+   'eventTicket',
+   'storeCard',
+   'generic',
++  'posterGeneric',
+ ]);
+ 
+ // Optional top level fields
+@@ -204,9 +207,12 @@
+   'headerFields',
+   'primaryFields',
+   'secondaryFields',
++  'footerFields',
+ ];
+ 
+ export const BARCODES_FORMAT: ReadonlySet<BarcodeFormat> = new Set([
+   'PKBarcodeFormatQR',
+   'PKBarcodeFormatPDF417',
+   'PKBarcodeFormatAztec',
+   'PKBarcodeFormatCode128',
++  'PKBarcodeFormatCode39',
++  'PKBarcodeFormat39',
+ ]);
+--- src/interfaces.ts
++++ src/interfaces.ts
+@@ -262,7 +262,8 @@
+   | 'coupon'
+   | 'eventTicket'
+   | 'storeCard'
+-  | 'generic';
++  | 'generic'
++  | 'posterGeneric';
+ 
+ export type BarcodeFormat =
+   | 'PKBarcodeFormatQR'
+-  | 'PKBarcodeFormatAztec'
+-  | 'PKBarcodeFormatCode128';
++  | 'PKBarcodeFormatAztec'
++  | 'PKBarcodeFormatCode128'
++  | 'PKBarcodeFormatCode39'
++  | 'PKBarcodeFormat39';
+ export interface BarcodeDescriptor {
+@@ -403,6 +406,10 @@
+    * additionalInfoFields?: Field[] | FieldsMap;
+    */
+   additionalInfoFields?: Field[] | FieldsMap;
++
++  /**
++   * Fields to be displayed in the footer of the pass.
++   */
++  footerFields?: Field[] | FieldsMap;
+ }
+ 
+ /**
+@@ -459,10 +466,15 @@
+   nfc?: NFCDictionary;
+ }
+ 
++export interface PosterGenericPass {
++  posterGeneric: PassCommonStructure;
++}
++
+ export type PassStructureFields =
+   | BoardingPass
+   | CouponPass
+   | EventTicketPass
+   | GenericPass
+-  | StoreCardPass;
++  | StoreCardPass
++  | PosterGenericPass;
+--- src/lib/pass-structure.ts
++++ src/lib/pass-structure.ts
+@@ -20,7 +20,8 @@
+   | 'backFields'
+   | 'primaryFields'
+   | 'secondaryFields'
+-  | 'additionalInfoFields';
++  | 'additionalInfoFields'
++  | 'footerFields';
+ 
+ export class PassStructure {
+@@ -131,5 +132,8 @@
+     return this.fieldMap('additionalInfoFields');
+   }
++
++  get footerFields(): FieldsMap {
++    return this.fieldMap('footerFields');
++  }
+ }
