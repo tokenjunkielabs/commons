@@ -1,0 +1,52 @@
+diff --git a/frontend/src/components/ErrorBoundary.tsx b/frontend/src/components/ErrorBoundary.tsx
+--- a/frontend/src/components/ErrorBoundary.tsx
++++ b/frontend/src/components/ErrorBoundary.tsx
+@@ -1,8 +1,9 @@
++// Modified 2026-10-06: expose reset to opt-in fallback renderers.
+ import React from 'react';
+ import * as Sentry from '@sentry/react';
+ 
+ type ErrorBoundaryProps = {
+-  fallback: React.ReactNode;
++  fallback: React.ReactNode | ((resetError: () => void) => React.ReactNode);
+   children: React.ReactNode;
+ };
+ 
+@@ -15,6 +16,10 @@
+     hasError: false,
+   };
+ 
++  resetError = () => {
++    this.setState({ hasError: false });
++  };
++
+   static getDerivedStateFromError() {
+     return { hasError: true };
+   }
+@@ -29,7 +34,8 @@
+ 
+   render() {
+     if (this.state.hasError) {
+-      return this.props.fallback;
++      const { fallback } = this.props;
++      return typeof fallback === 'function' ? fallback(this.resetError) : fallback;
+     }
+ 
+     return this.props.children;
+diff --git a/frontend/src/App.tsx b/frontend/src/App.tsx
+--- a/frontend/src/App.tsx
++++ b/frontend/src/App.tsx
+@@ -1,3 +1,4 @@
++// Modified 2026-10-06: connect cash-flow retry to its error boundary.
+ import { Routes, Route, Navigate } from 'react-router-dom';
+ import { useEffect } from 'react';
+ import Home from './pages/Home';
+@@ -109,7 +110,7 @@
+         <Route
+           path="/cash-flow"
+           element={
+-            <ErrorBoundary fallback={<ErrorFallback onReset={() => {}} />}>
++            <ErrorBoundary fallback={(resetError) => <ErrorFallback onReset={resetError} />}>
+               <CashFlowForecast />
+             </ErrorBoundary>
+           }
