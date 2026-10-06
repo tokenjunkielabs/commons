@@ -1,0 +1,56 @@
+diff --git a/src/components/QrScanner.tsx b/src/components/QrScanner.tsx
+--- a/src/components/QrScanner.tsx
++++ b/src/components/QrScanner.tsx
+@@ -42,7 +42,26 @@
+   const [permission, requestPermission] = useCameraPermissions();
+   const lastScanTime = useRef<number>(0);
+   const [hasScanned, setHasScanned] = useState(false);
++  const permissionRequestInFlight = useRef(false);
++  const [isRequestingPermission, setIsRequestingPermission] = useState(false);
++  const [permissionError, setPermissionError] = useState<string | null>(null);
+ 
++  const handleRequestPermission = useCallback(async () => {
++    if (permissionRequestInFlight.current || !permission || permission.granted || !permission.canAskAgain) return;
++
++    permissionRequestInFlight.current = true;
++    setIsRequestingPermission(true);
++    setPermissionError(null);
++    try {
++      await requestPermission();
++    } catch {
++      setPermissionError('Camera access could not be requested. Try again or enter the address manually.');
++    } finally {
++      permissionRequestInFlight.current = false;
++      setIsRequestingPermission(false);
++    }
++  }, [permission, requestPermission]);
++
+   const handleBarCodeScanned = useCallback(
+     ({ data }: BarcodeScanningResult) => {
+       const now = Date.now();
+@@ -86,14 +105,23 @@
+         <Text style={styles.subText}>
+           You can cancel and enter the recipient address manually instead.
+         </Text>
++        {permissionError && (
++          <Text style={styles.subText} accessibilityRole="alert" accessibilityLiveRegion="polite">
++            {permissionError}
++          </Text>
++        )}
+         {permission.canAskAgain ? (
+           <TouchableOpacity
+             style={styles.permissionButton}
+-            onPress={requestPermission}
++            onPress={handleRequestPermission}
++            disabled={isRequestingPermission}
++            accessibilityState={{ disabled: isRequestingPermission, busy: isRequestingPermission }}
+             accessibilityLabel="Grant camera permission"
+             accessibilityRole="button"
+           >
+-            <Text style={styles.permissionButtonText}>Grant Permission</Text>
++            <Text style={styles.permissionButtonText}>
++              {isRequestingPermission ? 'Requesting…' : 'Grant Permission'}
++            </Text>
+           </TouchableOpacity>
+         ) : (
+           <Text style={styles.subText}>
