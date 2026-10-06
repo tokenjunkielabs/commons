@@ -1,0 +1,43 @@
+diff --git a/scripts/check_folder_size.sh b/scripts/check_folder_size.sh
+index 0326de024e231ea0c762a125da1b075d88c01023..33d607f4de6065b9e3cba75951a2d2b150e0d32d 100644
+--- a/scripts/check_folder_size.sh
++++ b/scripts/check_folder_size.sh
+@@ -1,22 +1,25 @@
+ #!/usr/bin/env bash
++# Modified 2026-10-06: keep folder-size state and its failure decision in one pipeline stage.
+ set -euo pipefail
+ 
+ MAX_MB=200
+-BAD=0
+ 
+ # Use a narrow scope if desired (project folders) to avoid massive overhead.
+ # This checks all directories under the repo root (including nested). Change to /path/to/folders for targeted checks.
+-find . -type d -print0 | while IFS= read -r -d '' dir; do
+-  size_mb=$(du -sm "$dir" 2>/dev/null | awk '{print $1}')
+-  if [[ -n "$size_mb" && "$size_mb" -gt "$MAX_MB" ]]; then
+-    echo "ERROR: $dir is ${size_mb}MB (> ${MAX_MB}MB)"
+-    BAD=1
+-  fi
+-done
++find . -type d -print0 | {
++  BAD=0
++  while IFS= read -r -d '' dir; do
++    size_mb=$(du -sm "$dir" 2>/dev/null | awk '{print $1}')
++    if [[ -n "$size_mb" && "$size_mb" -gt "$MAX_MB" ]]; then
++      echo "ERROR: $dir is ${size_mb}MB (> ${MAX_MB}MB)"
++      BAD=1
++    fi
++  done
+ 
+-if [[ "$BAD" -ne 0 ]]; then
+-  echo "\nFolder size policy violation detected. Reduce folder size below ${MAX_MB}MB."
+-  exit 1
+-fi
++  if [[ "$BAD" -ne 0 ]]; then
++    echo "\nFolder size policy violation detected. Reduce folder size below ${MAX_MB}MB."
++    exit 1
++  fi
++}
+ 
+ echo "Folder size policy check passed (all dirs <= ${MAX_MB}MB)."
+\ No newline at end of file
