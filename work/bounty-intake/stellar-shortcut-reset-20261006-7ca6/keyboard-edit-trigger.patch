@@ -1,0 +1,25 @@
+diff --git a/src/components/keyboard-shortcuts/ShortcutCustomizer.tsx b/src/components/keyboard-shortcuts/ShortcutCustomizer.tsx
+--- a/src/components/keyboard-shortcuts/ShortcutCustomizer.tsx
++++ b/src/components/keyboard-shortcuts/ShortcutCustomizer.tsx
+@@ -203,14 +203,17 @@
+                   </div>
+                 ) : (
+                   <>
+-                    <kbd
++                    <button
++                      type="button"
++                      disabled={isDisabled}
+                       onClick={() => !isDisabled && startRecording(shortcut.id)}
+-                      className={`px-3 py-2 text-sm font-mono font-semibold bg-background border border-border rounded-md shadow-sm ${
++                      aria-label={`Customize ${shortcut.name} shortcut (${formatBinding(binding, platform)})`}
++                      className={`px-3 py-2 text-sm font-mono font-semibold bg-background border border-border rounded-md shadow-sm focus-visible:ring-2 focus-visible:ring-accent ${
+                         !isDisabled ? 'cursor-pointer hover:border-accent transition-colors' : ''
+                       }`}
+                     >
+-                      {formatBinding(binding, platform)}
+-                    </kbd>
++                      <kbd>{formatBinding(binding, platform)}</kbd>
++                    </button>
+                     {isCustomized && (
+                       <button
+                         onClick={() => resetShortcut(shortcut.id)}
