@@ -1,0 +1,38 @@
+diff --git a/src/hooks/usePagination.ts b/src/hooks/usePagination.ts
+--- a/src/hooks/usePagination.ts
++++ b/src/hooks/usePagination.ts
+@@ -2,21 +2,27 @@
+ import { useRouter, usePathname } from '@/i18n/navigation';
+ import { useCallback, useMemo } from 'react';
+ 
++function readPositiveInteger(value: string | null, fallback: number): number {
++    if (!value || /[^0-9]/.test(value)) return fallback;
++    const parsed = Number(value);
++    return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : fallback;
++}
++
+ export function usePagination(totalItems: number, defaultPageSize = 10) {
+     const router = useRouter();
+     const pathname = usePathname();
+     const searchParams = useSearchParams();
+ 
+-    const currentPage = useMemo(() => {
+-        const page = searchParams.get('page');
+-        return page ? parseInt(page) : 1;
+-    }, [searchParams]);
+-
+     const pageSize = useMemo(() => {
+-        const size = searchParams.get('pageSize');
+-        return size ? parseInt(size) : defaultPageSize;
++        return readPositiveInteger(searchParams.get('pageSize'), defaultPageSize);
+     }, [searchParams, defaultPageSize]);
+ 
++    const currentPage = useMemo(() => {
++        const requestedPage = readPositiveInteger(searchParams.get('page'), 1);
++        const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
++        return Math.min(requestedPage, totalPages);
++    }, [searchParams, totalItems, pageSize]);
++
+     const setPagination = useCallback((page: number, size: number) => {
+         const params = new URLSearchParams(searchParams.toString());
+         params.set('page', page.toString());
