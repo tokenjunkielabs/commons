@@ -4,7 +4,8 @@ import argparse
 import json
 import sys
 from pathlib import Path
-from .store import Store,redact
+from .store import redact
+from .peer_store import PeerStore as Store
 
 def main(argv=None):
     parser=argparse.ArgumentParser(description=__doc__)
@@ -28,17 +29,16 @@ def main(argv=None):
         if args.roots is not None: config["transcript_roots"]=args.roots
         if args.limit_files is not None: config["transcript_batch_files"]=args.limit_files
         store=Store(args.state/"telemetry.sqlite3")
-        if args.command=="snapshot": result=store.snapshot(detailed=True)
+        if args.command=="snapshot":
+            from .agent_queries import measurements
+            result=measurements(store)
         elif args.command=="export":
             if not args.output: raise ValueError("--output required")
             result=store.export(args.output,public=args.public)
         elif args.command=="query":
-            from .server import call
+            from .peer_server import call
             arguments=json.loads(args.arguments)
-            if args.tool=="get_dashboard_summary":
-                # This one-shot process cannot reuse a background refresh cache.
-                result=store._snapshot(summary=True)
-            else: result=call(store,args.tool,arguments)
+            result=call(store,args.tool,arguments)
         elif args.command=="ingest":
             data=json.loads(args.input.read_text(encoding="utf-8-sig")) if args.input else json.load(sys.stdin)
             if args.source=="events": events=data if isinstance(data,list) else data.get("events",[])
@@ -48,11 +48,11 @@ def main(argv=None):
             coverage=data.get("coverage",[]) if isinstance(data,dict) else []
             result=store.ingest(events,coverage=coverage)
         elif args.command=="collect":
-            from .runner import Runner
+            from .peer_runner import PeerRunner as Runner
             result=Runner(store,config).collect_once(providers=not args.local_only)
         else:
-            from .runner import Runner
-            from .server import Server
+            from .peer_runner import PeerRunner as Runner
+            from .peer_server import PeerServer as Server
             runner=Runner(store,config)
             server=Server((args.host,args.port),store,runner)
             runner.start()
