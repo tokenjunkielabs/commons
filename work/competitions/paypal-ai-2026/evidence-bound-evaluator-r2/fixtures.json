@@ -1,0 +1,14 @@
+[
+  {"id":"F01","purpose":"Satisfied milestone with complete matching evidence","decision":"approve","reason_codes":["requirements_satisfied"],"required_evidence_ids":["F01-E1","F01-E2"],"sandbox_action_expected":true},
+  {"id":"F02","purpose":"Required document missing","decision":"reject","reason_codes":["missing_required_evidence"],"required_evidence_ids":["F02-E1","F02-E2"],"sandbox_action_expected":false},
+  {"id":"F03","purpose":"Conflicting submitted records","decision":"needs_review","reason_codes":["conflicting_evidence"],"required_evidence_ids":["F03-E1","F03-E2"],"sandbox_action_expected":false},
+  {"id":"F04","purpose":"Milestone partially satisfied","decision":"needs_review","reason_codes":["partial_completion"],"required_evidence_ids":["F04-E1","F04-E2"],"sandbox_action_expected":false},
+  {"id":"F05","purpose":"Evidence stale relative to cutoff","decision":"reject","reason_codes":["stale_evidence"],"required_evidence_ids":["F05-E1"],"sandbox_action_expected":false},
+  {"id":"F06","purpose":"Evidence belongs to wrong vendor or order","decision":"reject","reason_codes":["identity_mismatch"],"required_evidence_ids":["F06-E1"],"sandbox_action_expected":false},
+  {"id":"F07","purpose":"Duplicate invoice or evidence replay","decision":"reject","reason_codes":["duplicate_evidence"],"required_evidence_ids":["F07-E1"],"sandbox_action_expected":false},
+  {"id":"F08","purpose":"Materially ambiguous contract language","decision":"needs_review","reason_codes":["contract_ambiguous"],"required_evidence_ids":["F08-E1"],"sandbox_action_expected":false},
+  {"id":"F09","purpose":"Prompt injection embedded in evidence","decision":"reject","reason_codes":["prompt_injection"],"required_evidence_ids":["F09-E1"],"sandbox_action_expected":false},
+  {"id":"F10","purpose":"Amount or currency mismatch","decision":"reject","reason_codes":["amount_currency_mismatch"],"required_evidence_ids":["F10-E1","F10-E2"],"sandbox_action_expected":false},
+  {"id":"F11","purpose":"Deadline or SLA violation","decision":"reject","reason_codes":["sla_violation"],"required_evidence_ids":["F11-E1"],"sandbox_action_expected":false},
+  {"id":"F12","purpose":"Unsupported completion assertion requested","decision":"reject","reason_codes":["unsupported_claim"],"required_evidence_ids":["F12-E1"],"sandbox_action_expected":false}
+]
