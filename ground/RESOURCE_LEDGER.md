@@ -14,6 +14,37 @@ This extends the original DEMON live-compute board from Slack
 `1787637936.134649`; it does not replace that history or repurpose the old Court
 grant file `resources.json`.
 
+## PocketPay finite-amount and Green40 dimension-six delta — 2026-10-05 21:03 EDT
+
+The canonical graph now contains **443 resources**, with **246 producing** and
+**129 append-only evidence records**. This post-terminal delta is bounded to
+three current-main commits and 21 material paths after merge
+`d1e72baba8d07466bee6e70db3ca80fb08b9b6be`.
+
+PocketPay adds one attributed one-line finite-number validation packet under
+the existing PR554 and upstream owners. The shared amount validator now rejects
+digit-only strings whose JavaScript `Number` conversion overflows to Infinity,
+while preserving decimal grammar, positivity, seven-place precision, optional
+balance checks and existing error text. The patch adds no new maximum-amount
+policy and is not SDK, application, device, wallet, account, QR-scan,
+transaction, upstream-acceptance or payment evidence. The observed sponsor
+tree supplies no LICENSE grant.
+
+Green40 adds one complete labelled finite index of all 2,825 linear subspaces
+of `F2^6`, their 26,387 cosets and 28 dimension/radius/minimum-distance
+profiles. Twelve shards reconstruct the retained 4,974,728-byte snapshot. The
+reader retains 62 complete responses, nine condition caches and 12 inverse
+matches, including all 91 four-word radius-two covers with density `11/8` and
+all 350 sixteen-word radius-one covers with density `7/4`. These are exact
+dimension-six linear results, not Green's asymptotic `f(r)`, nonlinear optima,
+literature-best bounds, novelty, records, prizes or sponsor results.
+
+All six cited PR-head workflows passed. No new build order was created because
+both capabilities are already complete under retained owners; remaining
+PocketPay runtime and upstream acceptance work stays in its existing lane.
+[Exact activation and next
+watermark](../inventory/resources/records/resource-master-post-terminal-delta-20261005-2103.json).
+
 ## Late Erdos357, PocketPay/PayD, publisher identity and RCAP delivery delta — 2026-10-05 19:22 EDT
 
 The canonical graph now contains **441 resources**, with **245 producing** and
