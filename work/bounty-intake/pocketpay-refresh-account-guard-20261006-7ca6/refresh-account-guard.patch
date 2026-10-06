@@ -1,0 +1,36 @@
+diff --git a/src/store/walletStore.ts b/src/store/walletStore.ts
+--- a/src/store/walletStore.ts
++++ b/src/store/walletStore.ts
+@@ -87,6 +87,7 @@
+   transactions: [],
+   pendingTransactions: {},
+   lastRefreshed: null,
++  isLoading: false,
+   isLoadingMore: false,
+   hasMoreTransactions: false,
+   nextCursor: null,
+@@ -166,7 +167,7 @@
+   setWallet: async (publicKey: string, secretKey: string) => {
+     try {
+       await SecureStore.setItemAsync(WALLET_KEY, secretKey);
+-      set({ publicKey, balance: DEFAULT_BALANCE, transactions: [], pendingTransactions: {}, error: null });
++      set({ publicKey, balance: DEFAULT_BALANCE, transactions: [], pendingTransactions: {}, isLoading: false, error: null });
+       return true;
+     } catch {
+       console.error(PERSIST_WALLET_ERROR);
+@@ -229,6 +230,7 @@
+         fetchXlmBalance(publicKey),
+         fetchTransactionsPage(publicKey, TX_PAGE_SIZE),
+       ]);
++      if (get().publicKey !== publicKey) return;
+ 
+       // Reconcile: drop any optimistic pending entry whose hash now shows up in the
+       // real Horizon response, so it isn't displayed twice. Operation records
+@@ -257,6 +259,7 @@
+         fundingStatus: 'funded',
+       });
+     } catch (err: any) {
++      if (get().publicKey !== publicKey) return;
+       console.error('Failed to refresh wallet data');
+       set({
+         isLoading: false,
