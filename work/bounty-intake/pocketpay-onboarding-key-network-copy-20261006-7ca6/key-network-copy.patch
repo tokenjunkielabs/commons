@@ -1,0 +1,30 @@
+diff --git a/app/(auth)/import.tsx b/app/(auth)/import.tsx
+--- a/app/(auth)/import.tsx
++++ b/app/(auth)/import.tsx
+@@ -182,7 +182,7 @@
+         <View style={styles.infoBanner}>
+           <Info color={colors.primary} size={18} />
+           <Text style={styles.infoText}>
+-            This app runs on <Text style={styles.infoBold}>Testnet</Text>. Only test-net secret keys will work.
++            This app runs on <Text style={styles.infoBold}>Testnet</Text>. Use a key reserved for testing, never one used on Mainnet.
+           </Text>
+         </View>
+ 
+diff --git a/src/types/onboarding.ts b/src/types/onboarding.ts
+--- a/src/types/onboarding.ts
++++ b/src/types/onboarding.ts
+@@ -43,10 +43,11 @@
+     message: 'The secret key you entered is not valid. It may be corrupted or incorrectly formatted.',
+     guidance: 'Double-check your secret key. It should be 56 characters starting with "S". Try copying it again from your backup.',
+   },
++  // Legacy error key retained for compatibility; secret seeds do not encode a network.
+   secret_key_wrong_network: {
+-    title: 'Wrong Network',
+-    message: 'This secret key is for a different Stellar network (not Testnet).',
+-    guidance: 'PocketPay only supports Stellar Testnet. Make sure you\'re using a Testnet secret key.',
++    title: 'Network Setup Error',
++    message: 'A network-related error was reported during wallet setup.',
++    guidance: 'Use PocketPay only on Stellar Testnet. Check your connection and try again.',
+   },
+   import_validation_failed: {
+     title: 'Import Failed',
