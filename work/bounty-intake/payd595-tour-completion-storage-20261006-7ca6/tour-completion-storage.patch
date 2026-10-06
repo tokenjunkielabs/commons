@@ -1,0 +1,21 @@
+diff --git a/frontend/src/components/OnboardingTour.tsx b/frontend/src/components/OnboardingTour.tsx
+--- a/frontend/src/components/OnboardingTour.tsx
++++ b/frontend/src/components/OnboardingTour.tsx
+@@ -1,3 +1,4 @@
++// Modified 2026-10-06: close completed tours even when optional storage fails.
+ import React, { useState, useCallback, useEffect } from 'react';
+ import Joyride, { Step, CallBackProps, STATUS } from 'react-joyride';
+ 
+@@ -60,7 +61,11 @@
+ 
+       const finishedStatuses: string[] = [STATUS.FINISHED, STATUS.SKIPPED];
+       if (finishedStatuses.includes(status)) {
+-        localStorage.setItem(ONBOARDING_KEY, 'true');
++        try {
++          localStorage.setItem(ONBOARDING_KEY, 'true');
++        } catch {
++          // Completion should still close the tour when persistence is unavailable.
++        }
+         setInternalRun(false);
+         onComplete();
+         return;
