@@ -13,7 +13,14 @@ import argparse
 import json
 import sys
 from collections.abc import Iterable, Mapping
+from pathlib import Path
 from typing import Any
+
+# Repo root on sys.path so `python3 host/generated_path_move_certificate.py`
+# works as well as `python3 -m host.generated_path_move_certificate`.
+_ROOT = str(Path(__file__).resolve().parents[1])
+if _ROOT not in sys.path:
+    sys.path.insert(0, _ROOT)
 
 from host.generated_path_moves import SCHEMA as PATH_MOVES_SCHEMA
 from host.generated_path_moves import classify_paths

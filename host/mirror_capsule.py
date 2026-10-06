@@ -1099,8 +1099,9 @@ def main(argv: list[str] | None = None) -> int:
     try:
         args = parser.parse_args(argv)
     except SystemExit as exc:
-        code = int(exc.code or 2)
-        if code == 0:
+        # argparse raises SystemExit(0) after printing --help; `exc.code or 2`
+        # would read that 0 as falsy and report a successful help as invalid.
+        if exc.code == 0:
             return 0
         print(json.dumps({"ok": False, "error": "invalid arguments", "canonical": False}, sort_keys=True))
         return 2
