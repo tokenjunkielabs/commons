@@ -1,0 +1,6 @@
+{"id":"clean-pass","decision":"promote","recovered":false,"recovery_stage":null,"stage_count":6,"wall_ms":780,"evidence_urls":["https://example.com/evidence/b1","https://example.com/evidence/b2","https://example.com/evidence/b3"]}
+{"id":"test-retry","decision":"block","recovered":false,"recovery_stage":null,"stage_count":2,"wall_ms":420,"evidence_urls":["https://example.com/evidence/b4"]}
+{"id":"security-block","decision":"block","recovered":false,"recovery_stage":null,"stage_count":3,"wall_ms":490,"evidence_urls":["https://example.com/evidence/b5","https://example.com/evidence/b6"]}
+{"id":"deploy-retry","decision":"block","recovered":false,"recovery_stage":null,"stage_count":5,"wall_ms":900,"evidence_urls":["https://example.com/evidence/b7","https://example.com/evidence/b8","https://example.com/evidence/b9"]}
+{"id":"reused-evidence","decision":"block","recovered":false,"recovery_stage":null,"stage_count":4,"wall_ms":610,"evidence_urls":["https://example.com/evidence/b10","https://example.com/evidence/b11"]}
+{"id":"approved-retry","decision":"block","recovered":false,"recovery_stage":null,"stage_count":4,"wall_ms":670,"evidence_urls":["https://example.com/evidence/b12","https://example.com/evidence/b13","https://example.com/evidence/b14"]}
