@@ -1,0 +1,31 @@
+diff --git a/scripts/replace-console-statements.mjs b/scripts/replace-console-statements.mjs
+index 89d67eb36bee3f419a0922ba3abab819fda09383..ef50fd47f98a0f72cfc7b7520751ee756980e705
+--- a/scripts/replace-console-statements.mjs
++++ b/scripts/replace-console-statements.mjs
+@@ -55,12 +55,18 @@
+ 
+ async function processFile(filePath) {
+   try {
++    // The logger owns the console sink; rewriting it would make it call itself.
++    if (path.resolve(filePath) === path.join(__dirname, '..', 'src', 'lib', 'logger.ts')) {
++      return { processed: false, modified: false };
++    }
++
+     let content = fs.readFileSync(filePath, 'utf8');
+     let modified = false;
+     let hasConsole = false;
+ 
+     // Check if file has console statements
+     for (const { pattern } of replacements) {
++      pattern.lastIndex = 0;
+       if (pattern.test(content)) {
+         hasConsole = true;
+         break;
+@@ -73,6 +79,7 @@
+ 
+     // Apply replacements
+     for (const { pattern, replacement } of replacements) {
++      pattern.lastIndex = 0;
+       if (pattern.test(content)) {
+         content = content.replace(pattern, replacement);
+         modified = true;
