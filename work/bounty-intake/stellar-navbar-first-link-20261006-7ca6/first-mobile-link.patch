@@ -1,0 +1,21 @@
+diff --git a/src/components/navbar.tsx b/src/components/navbar.tsx
+--- a/src/components/navbar.tsx
++++ b/src/components/navbar.tsx
+@@ -144,7 +144,7 @@
+           role="menu"
+           aria-hidden={!mobileOpen}
+         >
+-          {navLinkKeys.map((link) => {
++          {navLinkKeys.map((link, index) => {
+             const isActive = pathname === link.href;
+             const Icon = link.icon;
+             return (
+@@ -152,7 +152,7 @@
+                 key={link.href}
+                 href={link.href}
+                 className={`navbar-mobile-link ${isActive ? "navbar-mobile-link--active" : ""}`}
+-                ref={firstMobileLinkRef}
++                ref={index === 0 ? firstMobileLinkRef : undefined}
+                 role="menuitem"
+                 tabIndex={mobileOpen ? 0 : -1}
+               >
