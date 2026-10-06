@@ -1,0 +1,3 @@
+{"record":"meta","schema":"tj-arc3-episode-trace/v1","episode_id":"synthetic-stalled","max_actions":4,"max_wall_ms":1000}
+{"record":"step","episode_id":"synthetic-stalled","seq":0,"state":{"room":"start","score":0},"action":{"type":"observe"},"next_state":{"room":"start","score":0},"wall_ms":100,"terminal":false}
+{"record":"step","episode_id":"synthetic-stalled","seq":1,"state":{"room":"start","score":0},"action":{"type":"move","dir":"left"},"next_state":{"room":"pit","score":0},"wall_ms":200,"terminal":true,"failure_class":"stalled"}
