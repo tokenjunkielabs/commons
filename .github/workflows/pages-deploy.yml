@@ -18,6 +18,12 @@ on:
       - 'chargeback-evidence-readiness.html'
       - 'late-cancel-noshow-fee-leakage.html'
       - 'hotel-room-turn-evidence.html'
+      - 'dealer-service-lead-rescue.html'
+      - 'referral-intake-completeness.html'
+      - 'repair-booking-preflight.html'
+      - 'plant-downtime-handoff.html'
+      - 'diagnostic.html'
+      - 'commercial.html'
       - 'land/fixed-diagnostic-payment-links-*.md'
       - '.github/workflows/pages-deploy.yml'
   schedule:
