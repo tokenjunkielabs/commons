@@ -1,0 +1,121 @@
+diff --git a/app/receive.tsx b/app/receive.tsx
+index 088b7a6aef30e9e7958ec22c8a9c07f533b1aac6..86db673951e5a5c21fe559b9a73371356d5400d9 100644
+--- a/app/receive.tsx
++++ b/app/receive.tsx
+@@ -1,5 +1,6 @@
+ import React, { useMemo, useState } from "react";
+-import { View, Text, StyleSheet, Share, TouchableOpacity } from "react-native";
++import { View, Text, StyleSheet, Share, TouchableOpacity, ScrollView } from "react-native";
++import type { LayoutChangeEvent } from "react-native";
+ import { Button } from "../src/components/Button";
+ import { FormField } from "../src/components/FormField";
+ import { ScreenHeader } from "../src/components/ScreenHeader";
+@@ -13,6 +14,10 @@
+ import { useNetworkState } from "../src/hooks/useNetworkState";
+ import { NetworkStatusBanner } from "../src/components/NetworkStatusBanner";
+ 
++const MAX_QR_FRAME_SIZE = 400;
++const MIN_QR_MODULES = 21;
++const QR_QUIET_ZONE_MODULES = 4;
++
+ export default function ReceiveScreen() {
+   const { colors } = useTheme();
+   const styles = useMemo(() => createStyles(colors), [colors]);
+@@ -23,7 +28,20 @@
+   const [showRequestFields, setShowRequestFields] = useState(false);
+   const [amount, setAmount] = useState("");
+   const [memo, setMemo] = useState("");
++  const [qrContainerWidth, setQrContainerWidth] = useState(0);
++  const qrFrameSize = Math.min(qrContainerWidth, MAX_QR_FRAME_SIZE);
++  // A standard QR symbol has at least 21 modules per side. Reserve a
++  // four-module white margin before sizing the symbol, even at that minimum.
++  const qrPadding = Math.ceil(
++    (qrFrameSize * QR_QUIET_ZONE_MODULES) /
++      (MIN_QR_MODULES + 2 * QR_QUIET_ZONE_MODULES),
++  );
++  const qrSize = Math.max(0, qrFrameSize - 2 * qrPadding);
+ 
++  const handleQrLayout = ({ nativeEvent }: LayoutChangeEvent) => {
++    setQrContainerWidth(Math.max(0, Math.floor(nativeEvent.layout.width)));
++  };
++
+   // Requesting a specific amount has no sender balance to validate against
+   // (unlike send.tsx) - the requester isn't the one spending, so
+   // validateAmount is called with no balance argument.
+@@ -61,7 +79,12 @@
+   };
+ 
+   return (
+-    <View style={styles.container}>
++    <ScrollView
++      style={styles.container}
++      contentContainerStyle={styles.content}
++      keyboardShouldPersistTaps="handled"
++      automaticallyAdjustKeyboardInsets
++    >
+       <ScreenHeader
+         title="Receive XLM"
+         subtitle="Show this QR code to receive payments on the Stellar Testnet."
+@@ -72,14 +95,24 @@
+         onRetry={retry}
+       />
+ 
+-      <View style={styles.qrContainer}>
++      <View style={styles.qrContainer} onLayout={handleQrLayout}>
+         {publicKey ? (
+-          <QRCode
+-            value={payload}
+-            size={250}
+-            color={colors.background}
+-            backgroundColor={colors.textPrimary}
+-          />
++          qrSize > 0 ? (
++            <View
++              style={[styles.qrSurface, { padding: qrPadding }]}
++              accessible
++              accessibilityRole="image"
++              accessibilityLabel={isRequestPayload ? "Payment request QR code" : "Public key QR code"}
++              accessibilityHint="Your public key and sharing actions are below."
++            >
++              <QRCode
++                value={payload}
++                size={qrSize}
++                color="#000000"
++                backgroundColor="#FFFFFF"
++              />
++            </View>
++          ) : null
+         ) : (
+           <Text style={{ color: colors.textMuted }}>No public key found</Text>
+         )}
+@@ -141,7 +174,7 @@
+           style={styles.actionButton}
+         />
+       </View>
+-    </View>
++    </ScrollView>
+   );
+ }
+ 
+@@ -150,14 +183,18 @@
+     container: {
+       flex: 1,
+       backgroundColor: colors.background,
++    },
++    content: {
+       padding: SIZES.xl,
+       alignItems: "center",
+     },
+     qrContainer: {
+-      backgroundColor: colors.textPrimary,
+-      padding: SIZES.lg,
+-      borderRadius: RADIUS.lg,
++      width: "100%",
++      alignItems: "center",
+       marginBottom: SIZES.md,
++    },
++    qrSurface: {
++      backgroundColor: "#FFFFFF",
+     },
+     requestBadge: {
+       color: colors.primary,
