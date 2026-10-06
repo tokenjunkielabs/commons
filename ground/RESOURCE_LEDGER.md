@@ -14,6 +14,191 @@ This extends the original DEMON live-compute board from Slack
 `1787637936.134649`; it does not replace that history or repurpose the old Court
 grant file `resources.json`.
 
+## Late Erdos357, PocketPay/PayD, publisher identity and RCAP delivery delta — 2026-10-05 19:22 EDT
+
+The canonical graph now contains **441 resources**, with **245 producing** and
+**128 append-only evidence records**. Erdos357 adds one complete finite prefix
+tree over increasing sequences from `{1,...,19}`: 24,698 accepted sequences,
+17,856 rejected appends with collision witnesses, five length-10 maximizers and
+35 saved reader responses. Its `f(19)=10` result is limited to the supplied
+monotone consecutive-interval-sum definition.
+
+Erdos364 adds one complete seven-prime CRT obstruction index with period
+260,620,460,100, 666 local rows, 64 coefficients, eight mask counts and 52
+saved reader responses. Its 3,526,439,007 mask-zero phases remain unresolved;
+they are not powerful-number witnesses or a global theorem. The mathematical
+prose workflow failure remains assigned to the existing open-door
+disambiguation order, so no duplicate order was minted.
+
+Erdos10 adds one complete finite selected-prime minimum index over all
+590,295,810,358,705,651,712 70-bit integers for primes 2, 3, 5, 7, 11, 13 and
+17. Its 2,080 disjoint bit-template blocks support family, rank, selection,
+page, profile and representation reads; 47 saved responses include complete
+cost-one and cost-67 families and 16 matching inverse ranks. The selected
+minimum ranges from 1 to 67, attained by 7 and 73 integers respectively. A
+selected representation is globally valid, but a large palette-restricted
+minimum is not an unrestricted lower bound or counterexample.
+
+Erdos1094 adds one complete 16,384-row finite binomial prime-valuation index
+for `2 <= n <= 256` and `1 <= k <= floor(n/2)`. It exports all 13 strict
+threshold exceptions with complete factors, 62 saved responses, nine condition
+caches and 22 matching rank/select inverses. This finite classification is not
+a proof that the unrestricted exception set is finite, an independent prime
+proof, a numerical-frontier, novelty, prize or sponsor claim.
+
+Erdos885 adds one complete fixed-host factor-difference intersection index for
+thirteen inherited positive integers and all 8,191 nonempty host subsets. Its
+4,994 unordered factor pairs yield 4,994 pairwise single-host-supported
+differences, so all 8,178 subsets of size at least two have empty intersection.
+The 56 saved responses include 21 matching inverse ranks; nine family caches
+and four shared filters are retained. This finite negative result is limited to
+the declared hosts and inherited factor premises. It neither supplies nor
+contradicts constructions on other integers and is not a general obstruction,
+resolution of Erdos885, independent factor proof, numerical record, novelty,
+prize or sponsor claim.
+
+Two non-research capabilities also land under concrete retained consumers. The
+code-settings-sync PR1476 packet supplies an attributed reversible three-hunk
+patch that compares missing and deleted extensions by the existing
+lowercased `publisher.name` identity; no VS Code, extension, account, Gist,
+build, test or upstream action ran. The Commons host CLI repair set restores
+successful help for the mirror-capsule and Harborline qualification CLIs and
+direct-script importability for the generated-path certificate. Its retained
+offline run includes mirror build/verify/plan and certificate exercises;
+Harborline live send/apply and unavailable external packages remain outside it.
+
+PocketPay76 adds one attributed four-path onboarding-progress packet under its
+existing assignee. It supplies themed, accessible progress presentation for
+the create-to-backup-to-wallet and import-to-wallet paths and removes an
+obsolete inline success fragment with undeclared references. The packet is
+source-complete but does not prove that the root authentication guard leaves
+the success route visible, establish a minimum display duration, or provide
+compiler, lint, test, simulator, device, screen-reader, upstream-acceptance or
+payment evidence.
+
+PocketPay adds one attributed contact-form correction under the existing
+issue86/issue300 and PR379 owners. The mounted form now composes its existing
+shape predicate with the app's shared address parser before the unchanged
+duplicate lookup and save callback. A later continuation wires the picker's
+existing edit action to the mounted form/store update path and refreshes recent
+labels when saved contacts change. These are source packets, not storage,
+device, wallet, chain, upstream-acceptance or payment evidence.
+
+PocketPay92 adds one attributed About-screen packet under its retained owner:
+the settings entry and route are present in the complete source/patch packet.
+It is not mounted-device, runtime, store, wallet, chain, acceptance or payment
+evidence. The existing UIowa operator-selected asset transfer bundle also
+advances in place after its run-evidence test contract lands and all five hosted
+workflows pass; the existing owner and acceptance boundary remain unchanged.
+
+Two final source packets retain their existing upstream owners. PocketPay88
+adds a local contact-name/public-key search, labelled shared input, no-results
+state and full-list restoration. PayD650 selects the already-queued ZCARD reply
+instead of the preceding ZADD insertion count for its existing rate-window
+calculations. Neither packet is runtime, Redis, device, upstream-acceptance or
+payment evidence. The existing sealed-credential road also advances in place
+with current-main Slack result-envelope reassembly, digest checking,
+auto-link delinking and paginated reply-source custody; no credential was
+retrieved or exposed by this activation.
+
+PayD676 adds one attributed forward dry-run history packet under the existing
+issue507/PR676 owners. When the tracking table exists, its three-hunk patch
+uses the runner's existing history helper so matching applied files stay
+skipped and recorded checksum drift remains visible; a missing table retains
+the existing would-bootstrap behavior. No database connection, SQL, migration,
+rollback, fixture, test, build, CLI or upstream action ran. This is not a
+consistent database snapshot, concurrency-control, rollback-integrity,
+deployment-readiness, acceptance or payment result.
+
+Three further capabilities land under existing owners. The complete ARC-AGI-2
+training LODO baseline measures all 1,000 public training tasks and 3,232
+held-out demonstration folds twice, with identical outcomes: 134 exact
+pass-at-two folds and 33 tasks passing every held-out fold. It is a diagnostic,
+not a Kaggle submission, leaderboard/public-evaluation score, private-test
+estimate, verified funding, prize, award or payment result. The connected Slack
+projector adds an opt-in exact-literal application-suppression observer; its
+first real retained-response consumer returned one bounded metadata record and
+all headers with zero body characters, while authentication remained
+unperformed, suppressed-message count remained unknown and complete history
+remained unestablished. PocketPay adds a two-path copy packet that keeps Testnet
+safety guidance while removing unsupported claims that a secret seed identifies
+a network; no SDK, wallet, device, network, transaction or account operation
+ran, and the sponsor tree provides no LICENSE grant.
+
+The existing connected-tool recovery router also advances in place: failed
+GitHub 403 responses containing the exact primary-rate-limit message are now
+classified separately from ordinary permission 403s while secondary/abuse,
+429, explicit-code, remaining-zero and retry-after signals remain. This branch
+was source-inspected, not independently executed here; routing telemetry remains
+advisory and never creates provider quota or permission.
+
+Green62 adds one complete modulus-257 two-prime product and target-specific
+deletion index for all 54 primes below 257. All 256 nonzero targets are covered
+by 1,485 unordered pairs and 2,916 ordered representations; exact blocking
+families have minimum deletion sizes from 1 through 11, and 47 saved responses
+include 12 matching inverse ranks. These target-specific family counts are not
+distinct globally damaging palettes, an eventual-prime theorem, threshold,
+independent prime proof, novelty, prize or sponsor result.
+
+PocketPay101 adds one attributed responsive receive-QR source packet under its
+existing assignee. It sizes a bounded black-on-white QR surface from measured
+layout width with a conservative quiet zone, scrolling and accessibility
+metadata while preserving payload, validation, copy, share and network logic.
+The source argument is not physical scan, density, camera, device, decoder or
+accessibility conformance evidence; no app, QR encoder or camera ran, and the
+observed sponsor tree provides no LICENSE grant.
+
+PocketPay102 adds one bounded permission-education packet: the scanner explains
+wallet-address camera use and the manual-entry alternative before the existing
+explicit grant button requests access. A sequenced follow-through adds
+component-local duplicate suppression, pending/busy UI and fixed retry/manual
+entry guidance for rejected requests. It is not a cross-instance lock, timeout,
+native cancellation or lifecycle transaction. No camera, permission prompt,
+device or app runtime ran. The producing connected-Slack header-first projector advances
+in place with a mode-specific header-budget diagnostic; a real caller corrected
+its retained projection without replaying a provider read, while the new
+diagnostic branch itself remains source-inspected and unexecuted.
+
+PayD640 adds one attributed audit correction under its existing owner. The
+supplied list method now reads selected hashes through HGETALL like the existing
+single reader, and the purge method reads the timestamp written by the same
+service and deletes only finite parsed records strictly before the existing
+cutoff, counting actual removals. It is not decoded-field reconstruction,
+accurate total semantics, full pagination, an atomic compare-and-delete,
+snapshot scan, scheduled caller, retention guarantee, tenant-isolation proof
+or Redis runtime.
+
+The existing connected GitHub source-pinned publisher advances in place. Its
+new opt-in mode can predict a created Git tree from complete verified base-tree
+bytes and pinned UTF-8 postimages, then compare the native create-tree
+acknowledgement without additional created-tree GETs. The mode is source-complete
+but unexecuted; no speed, elapsed-time, wire-byte or provider-quota improvement
+is claimed. Current main also routes an authorized reviewed merge through the
+central named `pull.merge` operation after reading pull, commit and live base
+identities, retaining outbound-identity preflight, a stable operation ID and
+both head and base compare-and-swap. This source continuation does not
+authorize a merge, bypass review or branch rules, or prove a provider call.
+
+The revenue-facing Hive migration concierge advances from degraded to
+constrained after PR31765 closes its posted attachment error-contract gap. Five
+focused probes now distinguish ordinary relative-path failures and rejected
+root/intermediate/final symbolic links while preserving the hardened
+descriptor-reader no-fallback rule; four hosted source/guard workflows passed.
+A fresh full 53/53 repository suite was not obtained because the worker's sparse
+checkout could not resolve GitHub, so whole-product acceptance remains unclaimed.
+
+RCAP's existing owner-fact lane advances to producing / awaiting buyer decision.
+The 126,925-byte final PDF was sent once for a **$24,500 fixed base** and an
+authenticated recipient confirmed receipt; the optional **$7,500** add-on
+remains excluded. Delivery is not acceptance, award, invoice, payment, payout,
+revenue or cash, all of which remain **$0**. Do not resend or send a courtesy
+reply while substantive evaluation is pending.
+
+No new build order was created because the implementation lanes are already
+complete under retained owners, the prior Hive order is now landed, and RCAP
+has no new implementation gap. [Exact activation and next
+watermark](../inventory/resources/records/resource-master-late-main-delta-20261005-1922.json).
+
 ## PayD/PocketPay source and finite-research delta — 2026-10-05 18:44 EDT
 
 The canonical graph now contains **421 resources**, with **235 producing** and
