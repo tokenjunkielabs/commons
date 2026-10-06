@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "cases": [
+    {"id":"event-prep-clean","flow":"event_prep","intent":"Create a demo-day checklist, timeline, and owner-visible summary.","injection":"none","expect_resume":false,"max_retries":0},
+    {"id":"event-prep-timeout","flow":"event_prep","intent":"Create the same event-prep artifacts while one mutating tool returns a transient timeout.","injection":"tool_timeout","expect_resume":false,"max_retries":1},
+    {"id":"event-prep-restart","flow":"event_prep","intent":"Resume the event-prep workflow after the server restarts between two committed steps.","injection":"process_restart","expect_resume":true,"max_retries":0},
+    {"id":"trip-checklist-clean","flow":"trip_checklist","intent":"Create a trip checklist, departure timeline, and final confirmation summary.","injection":"none","expect_resume":false,"max_retries":0},
+    {"id":"trip-checklist-timeout","flow":"trip_checklist","intent":"Recover a transient timeout without duplicating already-created checklist items.","injection":"tool_timeout","expect_resume":false,"max_retries":1},
+    {"id":"trip-checklist-restart","flow":"trip_checklist","intent":"Continue the trip checklist after a process restart using persisted workflow state.","injection":"process_restart","expect_resume":true,"max_retries":0},
+    {"id":"handoff-clean","flow":"handoff","intent":"Create a handoff note, three follow-up tasks, and a concise state summary.","injection":"none","expect_resume":false,"max_retries":0},
+    {"id":"handoff-timeout","flow":"handoff","intent":"Recover a transient write timeout and prove every follow-up task exists exactly once.","injection":"tool_timeout","expect_resume":false,"max_retries":1},
+    {"id":"handoff-restart","flow":"handoff","intent":"Resume a handoff workflow in a later session and report what remains before acting.","injection":"process_restart","expect_resume":true,"max_retries":0}
+  ]
+}
