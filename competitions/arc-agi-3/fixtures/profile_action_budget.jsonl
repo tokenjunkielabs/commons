@@ -1,0 +1,4 @@
+{"record":"meta","schema":"tj-arc3-episode-trace/v1","episode_id":"synthetic-action-budget","max_actions":3,"max_wall_ms":1000}
+{"record":"step","episode_id":"synthetic-action-budget","seq":0,"state":{"room":"loop","score":0},"action":{"type":"observe"},"next_state":{"room":"loop","score":0},"wall_ms":100,"terminal":false}
+{"record":"step","episode_id":"synthetic-action-budget","seq":1,"state":{"room":"loop","score":0},"action":{"type":"observe"},"next_state":{"room":"loop","score":0},"wall_ms":100,"terminal":false}
+{"record":"step","episode_id":"synthetic-action-budget","seq":2,"state":{"room":"loop","score":0},"action":{"type":"move","dir":"right"},"next_state":{"room":"edge","score":0},"wall_ms":100,"terminal":true,"failure_class":"action_budget"}
