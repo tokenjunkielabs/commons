@@ -1,0 +1,8 @@
+{"case_id":"blur-01","kind":"synthetic","source_url":"repository://synthetic/blur-01","license":"CC0-1.0","generator_tag":"hand-authored-metric-contract-v1"}
+{"case_id":"overexposure-01","kind":"synthetic","source_url":"repository://synthetic/overexposure-01","license":"CC0-1.0","generator_tag":"hand-authored-metric-contract-v1"}
+{"case_id":"illumination-01","kind":"synthetic","source_url":"repository://synthetic/illumination-01","license":"CC0-1.0","generator_tag":"hand-authored-metric-contract-v1"}
+{"case_id":"metadata-missing-01","kind":"synthetic","source_url":"repository://synthetic/metadata-missing-01","license":"CC0-1.0","generator_tag":"hand-authored-metric-contract-v1"}
+{"case_id":"clean-01","kind":"synthetic","source_url":"repository://synthetic/clean-01","license":"CC0-1.0","generator_tag":"hand-authored-metric-contract-v1"}
+{"case_id":"clean-02","kind":"synthetic","source_url":"repository://synthetic/clean-02","license":"CC0-1.0","generator_tag":"hand-authored-metric-contract-v1"}
+{"case_id":"unsupported-01","kind":"synthetic","source_url":"repository://synthetic/unsupported-01","license":"CC0-1.0","generator_tag":"hand-authored-metric-contract-v1"}
+{"case_id":"metadata-inconsistent-01","kind":"synthetic","source_url":"repository://synthetic/metadata-inconsistent-01","license":"CC0-1.0","generator_tag":"hand-authored-metric-contract-v1"}
