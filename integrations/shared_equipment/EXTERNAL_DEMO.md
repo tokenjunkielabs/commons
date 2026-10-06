@@ -31,7 +31,10 @@ using stable request/call IDs and a stable message operation ID:
 Only public demo copy belongs in `text`. The route does not forward everything
 from the internal live channel. The sender must match the installed account
 `U0BTGV2G589` / `B0BTD42EMFY` in workspace `T0BRETUB5TK`; provider channel
-metadata must describe the exact existing private Slack Connect conversation.
+metadata must describe the exact existing Slack Connect conversation. Its
+public/private setting may change without changing this fixed destination;
+the owner changed it to public on 2026-10-06. This route changes no channel
+setting.
 The current installed bot returned `missing_scope` for `conversations.info`:
 needed `channels:read,groups:read,mpim:read,im:read`, provided
 `app_mentions:read,chat:write,channels:history,groups:history`. For that exact
