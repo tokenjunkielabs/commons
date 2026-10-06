@@ -1,0 +1,12 @@
+diff --git a/src/utils/validation.ts b/src/utils/validation.ts
+--- a/src/utils/validation.ts
++++ b/src/utils/validation.ts
+@@ -139,7 +139,7 @@
+   }
+ 
+   const value = Number(trimmed);
+-  if (!/^\d+(\.\d+)?$/.test(trimmed) || Number.isNaN(value)) {
++  if (!/^\d+(\.\d+)?$/.test(trimmed) || !Number.isFinite(value)) {
+     return "Please enter a valid number.";
+   }
+ 
