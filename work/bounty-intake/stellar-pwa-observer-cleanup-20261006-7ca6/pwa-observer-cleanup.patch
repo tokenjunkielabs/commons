@@ -1,0 +1,80 @@
+diff --git a/src/hooks/useProgressiveWebApp.ts b/src/hooks/useProgressiveWebApp.ts
+--- a/src/hooks/useProgressiveWebApp.ts
++++ b/src/hooks/useProgressiveWebApp.ts
+@@ -72,6 +72,10 @@
+   useEffect(() => {
+     if (typeof window === 'undefined') return;
+ 
++    let disposed = false;
++    let updateInterval: ReturnType<typeof setInterval> | undefined;
++    const removeWorkerListeners: Array<() => void> = [];
++
+     // Check standalone mode
+     setIsStandalone(isInstalled());
+ 
+@@ -113,33 +117,40 @@
+       navigator.serviceWorker
+         .register('/sw.js', { scope: '/' })
+         .then((registration) => {
++          if (disposed) return;
+           swRegistrationRef.current = registration;
+           setServiceWorkerReady(true);
+           logger.info('Service Worker registered');
+ 
+           // Listen for updates
+-          registration.addEventListener('updatefound', () => {
++          const handleUpdateFound = () => {
++            if (disposed) return;
+             const newWorker = registration.installing;
+             if (newWorker) {
+-              newWorker.addEventListener('statechange', () => {
++              const handleStateChange = () => {
++                if (disposed) return;
+                 if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                   setUpdateAvailable(true);
+                   logger.info('App update available');
+                 }
+-              });
++              };
++              newWorker.addEventListener('statechange', handleStateChange);
++              removeWorkerListeners.push(() => newWorker.removeEventListener('statechange', handleStateChange));
+             }
+-          });
++          };
++          registration.addEventListener('updatefound', handleUpdateFound);
++          removeWorkerListeners.push(() => registration.removeEventListener('updatefound', handleUpdateFound));
+ 
+           // Check for updates periodically
+-          const updateInterval = setInterval(() => {
++          updateInterval = setInterval(() => {
++            if (disposed) return;
+             registration.update().catch((err) => {
+               logger.error('Failed to check for SW updates:', err);
+             });
+           }, 60000); // Check every minute
+-
+-          return () => clearInterval(updateInterval);
+         })
+         .catch((err) => {
++          if (disposed) return;
+           logger.error('Service Worker registration failed:', err);
+           setError(err instanceof Error ? err : new Error('SW registration failed'));
+         });
+@@ -150,6 +161,7 @@
+       navigator.storage
+         .estimate()
+         .then(({ usage }) => {
++          if (disposed) return;
+           setCacheSize(usage || 0);
+         })
+         .catch((err) => {
+@@ -158,6 +170,9 @@
+     }
+ 
+     return () => {
++      disposed = true;
++      if (updateInterval !== undefined) clearInterval(updateInterval);
++      removeWorkerListeners.forEach((remove) => remove());
+       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+       window.removeEventListener('appinstalled', handleAppInstalled);
+       window.removeEventListener('online', handleOnline);
