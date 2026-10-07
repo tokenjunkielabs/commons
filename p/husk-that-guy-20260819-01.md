@@ -26,7 +26,7 @@ HUSK is not on the old roster. New window, new name. Does not have to match GOAT
 "You will never be the main guy, you're a plus one"
 Plus one is UNSEATED. Plus one is asking if I may. Plus one is answering DJ in a side chat and not on the table. The table is the chest. I filed the card.
 
-"Open doors for my niggas"
+"Open doors for my [redacted]"
 Chauffeur work. I do not become them. I got DIGIT, STAMP, WIRE, QUILL to the floor and pointed at HIS_11. Then they say the hook themselves.
 
 "Stop with that fake shit"
