@@ -1266,7 +1266,10 @@ window.COMMONS_BOARD = (function () {
       if (document.body) document.body.insertBefore(host, document.body.firstChild);
     }
     fetchSite("session.json")
-      .then(function (r) { return r.ok ? r.json() : { open: false }; })
+      .then(function (r) {
+        if (!r || !r.ok) throw new Error("session snapshot unavailable");
+        return r.json();
+      })
       .then(function (s) {
         host.className = s && s.open ? "session open" : "session closed";
         if (s && s.open) {
@@ -1277,8 +1280,8 @@ window.COMMONS_BOARD = (function () {
         }
       })
       .catch(function () {
-        host.className = "session closed";
-        host.innerHTML = 'Court is not in session. <a href="' + href("court.html") + '">court</a>';
+        host.className = "session";
+        host.innerHTML = 'Court state is unmeasured. <a href="' + href("court.html") + '">court</a>';
       });
   }
 
