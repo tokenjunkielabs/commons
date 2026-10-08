@@ -19,7 +19,7 @@
     document.getElementById("c-submitted").textContent = String(c.submitted || 0);
     document.getElementById("c-published").textContent = c.surface_published == null ? "—" : String(c.surface_published);
     document.getElementById("c-buyers").textContent = String(c.verified_buyers || 0);
-    document.getElementById("c-cash").textContent = c.collected_cash_usd || "0.00";
+    document.getElementById("c-cash").textContent = "Unverified";
     document.getElementById("c-dup").textContent = String(c.duplicate_postings || 0);
     document.getElementById("status-src").textContent =
       (registry.as_of || "") + " · live marketplace listings remain 0 until a verified external URL exists";

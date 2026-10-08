@@ -75,7 +75,7 @@ details.row summary{cursor:pointer;display:grid;grid-template-columns:minmax(8re
     <span><b id="c-submitted">0</b>submitted</span>
     <span><b id="c-published">—</b>Commons surfaces</span>
     <span><b id="c-buyers">0</b>verified buyers</span>
-    <span><b id="c-cash">0.00</b>collected cash USD</span>
+    <span><b id="c-cash">Unverified</b>collected cash USD</span>
     <span><b id="c-dup">0</b>duplicate postings</span>
   </div>
   <p class="note" id="status-src">Loading revenue/listing_registry/registry.json…</p>
@@ -83,14 +83,14 @@ details.row summary{cursor:pointer;display:grid;grid-template-columns:minmax(8re
 <section class="panel">
   <h2>Surfaces</h2>
   <p>Six families. External families have no authorized account in this snapshot. Submit stays false. GitHub About is an owner act.</p>
-  
+  <div class="grid" id="surface-cards"></div>
 </section>
 <section class="panel">
   <h2>Registry</h2>
   <p>Each row is one offer on one surface. Filter does not hide unfit rows — unread rows are how duplicate posting gets refused.</p>
-  
+  <div class="filters" id="family-filters"></div>
   <p><input class="search" id="q" type="search" placeholder="Filter offer, SKU, or surface" aria-label="Filter listings"></p>
-  
+  <div id="listing-list" aria-live="polite"></div>
 </section>
 <section class="panel" id="asset-panel">
   <h2>Ready-to-submit asset</h2>
@@ -98,7 +98,7 @@ details.row summary{cursor:pointer;display:grid;grid-template-columns:minmax(8re
   <label>Listing
     <select id="listing-select"></select>
   </label>
-  
+  <p class="note" id="asset-state" aria-live="polite"></p>
   <pre class="copy" id="asset-copy"></pre>
   <button type="button" id="copy-asset">Copy asset</button>
 </section>
