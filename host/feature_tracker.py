@@ -785,6 +785,7 @@ def render_html(projection):
 #ft-table{width:100%%;border-collapse:collapse}
 #ft-table th,#ft-table td{text-align:left;vertical-align:top;padding:.4rem .45rem;border-bottom:1px solid #ccc}
 #ft-table th{font-size:.8em;text-transform:uppercase;letter-spacing:.03em}
+#ft-table tr[hidden]{display:none}
 @media (max-width:720px){
   #ft-table, #ft-table thead, #ft-table tbody, #ft-table th, #ft-table td, #ft-table tr{display:block}
   #ft-table thead{position:absolute;left:-9999px}

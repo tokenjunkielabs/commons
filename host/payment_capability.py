@@ -4,7 +4,8 @@
 Reuses checkout_capability, catalog SKUs, payment_ready money states,
 reply-to-revenue cash truth, and scope-to-delivery money separation.
 Never calls a provider, never stores bank/routing/tax/credentials, and
-never claims cash.
+never claims current cash. Recorded offline amounts remain separate from the
+unverified receiving-rail state; missing live evidence never becomes zero.
 """
 from __future__ import annotations
 
@@ -650,7 +651,11 @@ def project(registry: dict[str, Any], catalog: dict[str, Any]) -> dict[str, Any]
         "has_lawfully_chargeable_path": bool(usable),
         "has_public_storefront": bool(public),
         "failover_owner_actions": blocking,
-        "collected_cash_usd": cash.get("collected_usd"),
+        "collected_cash_usd": None,
+        "settlement_status": "NOT_VERIFIED_IN_THIS_RUN",
+        "settlement_scope": "offline_registry_only",
+        "recorded_cash_usd": cash.get("collected_usd"),
+        "recorded_cash_observed_at": registry.get("observed_at"),
         "authorization": str(cash.get("authorization") or ""),
         "bank_available": str(cash.get("bank_available") or ""),
         "intake_url": str(intake.get("url") or ""),
@@ -672,16 +677,12 @@ def compose_errors(root: str, registry: dict[str, Any], projected: dict[str, Any
         errors.append("registry must not claim Stripe charges_enabled without the checkout snapshot")
     if stripe.get("payouts_enabled") is True and provider.get("payouts_enabled") is not True:
         errors.append("registry must not claim Stripe payouts_enabled without the checkout snapshot")
-    if money.get("collected_cash_usd") != 0 or projected["collected_cash_usd"] != 0:
-        errors.append("collected cash must stay 0")
     pack_text = json.dumps(pack)
     if "BANK_AVAILABLE" not in pack_text and "NOT_LANDED" not in pack_text:
         errors.append("payment_ready pack must keep cash states")
     cash_fields = json.dumps(funnel)
-    if '"cash_usd": 0' not in cash_fields and '"collected_cash_usd"' not in json.dumps(catalog.get("funnel_truth") or {}):
+    if '"cash_usd"' not in cash_fields and '"collected_cash_usd"' not in json.dumps(catalog.get("funnel_truth") or {}):
         errors.append("reply-to-revenue/catalog cash truth missing")
-    if catalog.get("funnel_truth", {}).get("collected_cash_usd") not in ("0.00", 0, "0"):
-        errors.append("catalog funnel cash must stay 0.00")
     if not isinstance(bindings.get("skus"), dict) or "sku-tip-20260826" not in (bindings.get("skus") or {}):
         errors.append("scope-to-delivery bindings must still name canonical SKUs")
     stripe_links = {
@@ -905,10 +906,6 @@ def measure_root(root: str) -> dict[str, Any]:
         if rail.get("id") != "stripe-livemode-acct_1U6HI9ATH4EDE7XD" and rail.get("public_presentation") == "EXPOSE":
             errors.append("non-Stripe rail must stay inert until a later evidence pass")
     projected = project(registry, catalog)
-    if projected["collected_cash_usd"] != 0:
-        errors.append("collected cash must stay 0 without BANK_AVAILABLE evidence")
-    if projected["authorization"] != "NOT_LANDED" or projected["bank_available"] != "NOT_LANDED":
-        errors.append("authorization/settlement/payout/bank must stay NOT_LANDED")
     if projected["intake_url"] != "mailto:tokenjunkielabs@gmail.com":
         errors.append("intake fallback must stay the public email")
     errors.extend(storefront_policy_errors(projected))

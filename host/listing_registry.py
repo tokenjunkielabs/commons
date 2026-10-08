@@ -6,6 +6,8 @@ copy, MCP directory rows, partner/vendor rows, procurement packs, service-catalo
 packages, and community-channel drafts from real evidence.
 
 Never submits. Never invents accounts, publication, buyers, or cash.
+Offline recorded amounts are separate from current settlement, which this
+generator does not verify against receiving rails. Unknown cash is not zero.
 Never duplicate-posts the same offer onto the same surface.
 
 Examples:
@@ -345,7 +347,7 @@ def checkout_for(offer_id: str, listing: dict[str, Any], checkout: dict[str, Any
     exposure = (rail or {}).get("exposure")
     if proven and exposure == "CHECKOUT_FIRST":
         state = "ACTIVE_CHARGEABLE"
-        note = "Stripe livemode rail proven on Commons checkout only. A click is intent. Cash stays 0. Not chargeable on an external marketplace listing."
+        note = "Stripe livemode rail proven on Commons checkout only. A click is intent. Settlement is not verified in this run. Not chargeable on an external marketplace listing."
     elif proven and exposure == "INTAKE_FIRST":
         state = "INTAKE_FIRST_ON_COMMONS"
         note = "Stripe rail proven; public Commons surfaces keep terms in front. Not a marketplace charge."
@@ -356,9 +358,6 @@ def checkout_for(offer_id: str, listing: dict[str, Any], checkout: dict[str, Any
         state = "NOT_CHARGEABLE_ON_THIS_SURFACE"
         url = None
         note = "No proven chargeable rail for this offer on this surface."
-    collected = money.get("collected_cash_usd")
-    if collected not in (0, "0", "0.00", 0.0, None):
-        raise ListingRegistryError("refusing invented cash in checkout snapshot")
     return {
         "state": state,
         "commons_rail": bool(proven),
@@ -815,8 +814,6 @@ def build_registry(
     if submitted:
         raise ListingRegistryError("refusing invented submissions")
     funnel = catalog.get("funnel_truth") or {}
-    if funnel.get("collected_cash_usd") not in (None, "0.00", "0"):
-        raise ListingRegistryError("catalog funnel must not invent cash")
     family_counts = {}
     for family in sorted(FAMILIES):
         family_counts[family] = {
@@ -851,10 +848,12 @@ def build_registry(
             "duplicate_postings": 0,
             "verified_buyers": 0,
             "verified_leads": 0,
-            "collected_cash_usd": "0.00",
+            "collected_cash_usd": None,
+            "settlement_status": "NOT_VERIFIED_IN_THIS_RUN",
+            "recorded_collected_cash_usd": funnel.get("collected_cash_usd"),
         },
         "family_counts": family_counts,
-        "chargeability_rule": "ACTIVE_CHARGEABLE describes Commons Stripe rails only. External surfaces stay NOT_CHARGEABLE_ON_THIS_SURFACE. MCP is NOT_A_PRICED_SKU. QUOTED is not CHARGEABLE. A click is intent. Cash stays 0.00 until BANK_AVAILABLE evidence.",
+        "chargeability_rule": "ACTIVE_CHARGEABLE describes Commons Stripe rails only. External surfaces stay NOT_CHARGEABLE_ON_THIS_SURFACE. MCP is NOT_A_PRICED_SKU. QUOTED is not CHARGEABLE. A click is intent. Current settlement is not verified in this run; recorded amounts remain separate.",
         "submit_rule": "submit always raises SUBMIT_FORBIDDEN. Packages and drafts are not listings. Absence of an account is not permission to invent one.",
         "duplicate_rule": "Exactly one row per (offer_id, surface_id). A second post of the same SKU on the same surface is forbidden.",
         "current_work_bind": {
@@ -876,7 +875,9 @@ def build_registry(
             "accepted_scopes": funnel.get("accepted_scopes", 0),
             "paid_deliveries": funnel.get("paid_deliveries", 0),
             "verified_positive_replies": funnel.get("verified_positive_replies", 0),
-            "collected_cash_usd": "0.00",
+            "collected_cash_usd": None,
+            "settlement_status": "NOT_VERIFIED_IN_THIS_RUN",
+            "recorded_collected_cash_usd": funnel.get("collected_cash_usd"),
             "source": funnel.get("source"),
         },
         "listings": rows,
@@ -933,7 +934,7 @@ def schema_doc() -> dict[str, Any]:
                     "submitted": {"const": 0},
                     "duplicate_postings": {"const": 0},
                     "verified_buyers": {"const": 0},
-                    "collected_cash_usd": {"const": "0.00"},
+                    "collected_cash_usd": {"type": ["null", "number", "string"]},
                 },
             },
             "listings": {
@@ -1002,7 +1003,6 @@ def self_test() -> dict[str, Any]:
     assets = build_assets(catalog, surfaces_doc, checkout, mcp, registry)
     assert registry["counts"]["external_live_listings"] == 0
     assert registry["counts"]["submitted"] == 0
-    assert registry["counts"]["collected_cash_usd"] == "0.00"
     assert registry["counts"]["duplicate_postings"] == 0
     ids = [r["id"] for r in registry["listings"]]
     assert len(ids) == len(set(ids))
