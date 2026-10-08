@@ -17,10 +17,11 @@
     document.getElementById("c-live-mkt").textContent = String(c.live_marketplace_listings || 0);
     document.getElementById("c-surfaces").textContent = c.live_commons_surfaces == null ? "—" : String(c.live_commons_surfaces);
     document.getElementById("c-leads").textContent = String(c.verified_leads || 0);
-    document.getElementById("c-cash").textContent = c.collected_cash_usd || "0.00";
+    document.getElementById("c-cash").textContent = "unverified";
     document.getElementById("c-blocked").textContent = c.blocked_pairs == null ? "—" : String(c.blocked_pairs);
     document.getElementById("status-src").textContent =
-      (statusDoc.as_of || "") + " · live marketplace listings remain 0 until a verified URL exists";
+      "Recorded snapshot as of " + (statusDoc.as_of || "date unavailable") +
+      ". Current settlement: unverified. Listing and lead counts describe this snapshot.";
   }
 
   function renderChannels() {
@@ -114,7 +115,8 @@
       state.textContent = pair.fit + " · " + pair.listing_state + " · no package (UNFIT). Conversion still " + pair.human_route + ".";
       pre.textContent = "No channel-ready package. This offer does not fit this channel.\nConversion remains: ./" + pair.human_route;
     } else {
-      state.textContent = pack.package_state + " · listing " + pack.listing_state + " · listed=false · leads=0 · cash=0.00";
+      state.textContent = pack.package_state + " · listing " + pack.listing_state +
+        " · recorded package as of " + (statusDoc.as_of || "date unavailable") + " · current settlement unverified";
       pre.textContent = pack.channel_copy;
     }
     inbound.value = [
