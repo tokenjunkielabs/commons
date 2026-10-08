@@ -158,9 +158,8 @@ table.ledger th{background:#111;color:#f4f1ea;position:sticky;top:0}
   function renderQueue(items){
     var rows = {};
     allRows.forEach(function(row){ rows[row.name] = row; });
-    var fresh = items.filter(function(item){ return rows[item.resource] && freshness(rows[item.resource]) !== "STALE"; });
-    if (!fresh.length) return;
-    document.getElementById("activation-queue").innerHTML = fresh.map(function(item){ return "<article><b>" + esc(item.priority) + " · " + esc(item.resource) + "</b>" + esc(item.activation) + "</article>"; }).join("");
+    var fresh = items.filter(function(item){ var row = rows[item.resource || item.name]; return row && freshness(row) !== "STALE"; });
+    document.getElementById("activation-queue").innerHTML = fresh.map(function(item){ return "<article><b>" + esc(item.priority) + " · " + esc(item.resource || item.name) + "</b>" + esc(item.activation == null ? item.next_action : item.activation) + "</article>"; }).join("");
   }
   function freshness(row){
     var boundary = String(row.stale_after || "");

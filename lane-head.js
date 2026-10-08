@@ -209,7 +209,8 @@ window.COMMONS_LANE_HEAD = (function () {
     var id = esc(p.id);
     var meta = [
       '<span class="state DURABLE_PAGE">DURABLE_PAGE</span>',
-      '<a href="./p/' + encodeURIComponent(p.id) + '.html">' + id + "</a>"
+      '<a href="./p/' + encodeURIComponent(p.id) + '.html">' + id + "</a>",
+      '<a href="./reply.html?id=' + encodeURIComponent(p.id) + '">reply</a>'
     ];
     if (p.carrier_ts) meta.push("carrier " + esc(p.carrier_ts));
     if (p.durable_ts) meta.push("durable " + esc(p.durable_ts));
@@ -340,7 +341,7 @@ window.COMMONS_LANE_HEAD = (function () {
         var extrasP = Promise.all([
           rawJson(sha, "lanes.json").then(function (j) { return idsFromLanesJson(j, lane); }),
           rawJson(sha, "hidden.json").then(function (j) { return j && typeof j === "object" ? j : {}; }),
-          api("commits?per_page=20").then(idsFromCommits).catch(function () { return []; })
+          api("commits?sha=" + encodeURIComponent(sha) + "&per_page=20").then(idsFromCommits).catch(function () { return []; })
         ]);
         return extrasP.then(function (pair) {
           var extra = pair[0].concat(pair[2]);
