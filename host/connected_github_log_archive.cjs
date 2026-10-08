@@ -36,10 +36,12 @@ function buildStoredZip(entries) {
   const prepared = entries.map(entry => {
     if (!entry || typeof entry.name !== "string" || !entry.name ||
         entry.name.includes("\\") || /[\u0000-\u001f\u007f]/.test(entry.name) ||
-        entry.name.includes(":") || entry.name.split("/").some(p => !p || p === "." || p === "..") ||
-        names.has(entry.name)) throw new Error("ZIP entry names must be unique safe relative file paths");
-    names.add(entry.name);
-    const name = utf8(entry.name), data = utf8(entry.content);
+        entry.name.includes(":") || entry.name.split("/").some(p => !p || p === "." || p === ".."))
+      throw new Error("ZIP entry names must be unique safe relative file paths");
+    const name = utf8(entry.name), nameIdentity = name.join(",");
+    if (names.has(nameIdentity)) throw new Error("ZIP entry names must be unique safe relative file paths");
+    names.add(nameIdentity);
+    const data = utf8(entry.content);
     if (name.length > 65535 || data.length >= 0xffffffff) throw new Error("ZIP32 entry limit exceeded");
     const record = { label: entry.name, name, data, crc: crc32(data), offset: localSize };
     localSize += 30 + name.length + data.length;

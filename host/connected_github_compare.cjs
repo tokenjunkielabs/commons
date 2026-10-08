@@ -1,6 +1,7 @@
 "use strict";
 
 const FETCH = "mcp__codex_apps__github_fetch";
+const TOKEN_READ = "mcp__codex_apps__github_token_connection_github_read";
 const SHA = /^[0-9a-f]{40}$/;
 
 function object(value) {
@@ -25,6 +26,14 @@ function decode(response) {
   const candidates = [response && response.structuredContent, response];
   for (const candidate of candidates) {
     if (!object(candidate)) continue;
+    if (Object.prototype.hasOwnProperty.call(candidate, "data")) {
+      if (candidate.ok !== true || !Number.isSafeInteger(candidate.status) ||
+          candidate.status < 200 || candidate.status >= 300) {
+        throw new TypeError("token read did not report a successful HTTP response");
+      }
+      if (object(candidate.data) && Array.isArray(candidate.data.commits)) return candidate.data;
+      throw new TypeError("token read did not return a GitHub comparison with commits");
+    }
     if (Array.isArray(candidate.commits)) return candidate;
     if (typeof candidate.content === "string") {
       try {
@@ -87,7 +96,12 @@ function fileRow(row) {
 /** Read native, immutable commit-pair pages. The caller owns private raw-response retention. */
 async function readGitHubCompare(tools, input, options = {}) {
   keys(input, ["repository_full_name", "base", "head", "per_page", "max_pages", "timeout_ms"], "input");
-  keys(options, ["onResponse"], "options");
+  keys(options, ["onResponse", "transport"], "options");
+  const transport = options.transport === undefined ? "native" : options.transport;
+  if (transport !== "native" && transport !== "token") {
+    throw new TypeError("transport must be native or token");
+  }
+  const tool = transport === "token" ? TOKEN_READ : FETCH;
   if (options.onResponse !== undefined && typeof options.onResponse !== "function") {
     throw new TypeError("onResponse must be a function");
   }
@@ -98,7 +112,7 @@ async function readGitHubCompare(tools, input, options = {}) {
   if (!SHA.test(input.base) || !SHA.test(input.head)) {
     throw new TypeError("base and head must be exact lowercase 40-character commit SHAs");
   }
-  if (!tools || typeof tools[FETCH] !== "function") throw new TypeError(`native tool ${FETCH} is required`);
+  if (!tools || typeof tools[tool] !== "function") throw new TypeError(`connected tool ${tool} is required`);
   const perPage = integer(input.per_page === undefined ? 100 : input.per_page, "per_page", 1, 100);
   const maxPages = integer(input.max_pages === undefined ? 10 : input.max_pages, "max_pages", 1, 100);
   const timeout = integer(input.timeout_ms === undefined ? 30000 : input.timeout_ms, "timeout_ms", 0, 1200000);
@@ -111,7 +125,7 @@ async function readGitHubCompare(tools, input, options = {}) {
   const result = {
     schema: "commons.connected_github_compare.v1",
     status: "INCONCLUSIVE",
-    source: { tool: FETCH, repository_full_name: input.repository_full_name, base: input.base, head: input.head, compare_url: api },
+    source: { tool, repository_full_name: input.repository_full_name, base: input.base, head: input.head, compare_url: api },
     comparison: null,
     commits: [],
     files: [],
@@ -151,7 +165,11 @@ async function readGitHubCompare(tools, input, options = {}) {
     const url = `${api}?per_page=${perPage}&page=${page}`;
     let response;
     result.stats.calls += 1;
-    try { response = await tools[FETCH]({ url }); }
+    try {
+      const args = transport === "token"
+        ? { path: url.slice("https://api.github.com".length) } : { url };
+      response = await tools[tool](args);
+    }
     catch (error) { return finish("TOOL_ERROR", error); }
     if (options.onResponse) {
       try {
