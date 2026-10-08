@@ -98,7 +98,7 @@
           <dt>fallback</dt><dd>${esc(row.fallback_road)}</dd>
           ${row.tools_road ? `<dt>tools</dt><dd><code>${esc(row.tools_road)}</code></dd>` : ""}
           ${row.project_config ? `<dt>config</dt><dd><code>${esc(row.project_config)}</code></dd>` : ""}
-          <dt>call order</dt><dd class="order">${row.call_order.map((item,index) => `${index + 1}. ${item}`).join("\n")}</dd>
+          <dt>call order</dt><dd class="order">${row.call_order.map((item,index) => `${index + 1}. ${esc(item)}`).join("\n")}</dd>
           ${row.note ? `<dt>truth</dt><dd>${esc(row.note)}</dd>` : ""}
         </dl>
         <div class="actions"><a class="button" href="./action.html">Use HTML road</a>${row.tools_road ? `<a class="button" href="./tools.html">Tools board</a>` : ""}<button type="button" data-copy="${esc(row.id)}">Copy tool prompt</button></div>

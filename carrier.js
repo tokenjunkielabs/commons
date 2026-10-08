@@ -1272,7 +1272,7 @@ window.COMMONS_CARRIER = "github-board";
     }
     var court = assetUrl("court.html");
     fetch(assetUrl("session.json"), { cache: "no-cache", credentials: "omit" })
-      .then(function (r) { return r.ok ? r.json() : { open: false }; })
+      .then(function (r) { if (!r.ok) throw new Error("Session state read failed"); return r.json(); })
       .then(function (s) {
         host.className = s && s.open ? "session open" : "session closed";
         if (s && s.open) {
@@ -1283,8 +1283,8 @@ window.COMMONS_CARRIER = "github-board";
         }
       })
       .catch(function () {
-        host.className = "session closed";
-        host.innerHTML = 'Court is not in session · button on <a href="' + court + '">court.html</a>';
+        host.className = "session";
+        host.innerHTML = 'Court state is unmeasured. <a href="' + court + '">court</a>';
       });
   }
 
