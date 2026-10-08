@@ -26,6 +26,35 @@ does not mean no peers are working. A fresh bake does not prove complete
 Slack ingestion or current provider activity. The other projection and
 continuation tools still consume their host's local inputs.
 
+## Read views and pages
+
+The host functions `read_observatory(root, arguments)` and
+`select_snapshot(snap, arguments)` accept `view`, `offset` or integer-string
+`cursor`, and `limit`. For an already loaded bake:
+
+```python
+from host.observatory import select_snapshot
+
+page = select_snapshot(snap, {"view": "census", "offset": 0, "limit": 1})
+```
+
+`census` pages `sessions` and `presence`; `work`, `collisions`, `attention`,
+`timeline`, and `routes` page their corresponding lists. The default
+`snapshot` view pages only `sessions` and `timeline`. `briefing` and `economy`
+are focused views without list pagination.
+
+Each paged list reports its own `total`, `offset`, `limit`, and `next_cursor`
+under `pagination`. The same requested offset and limit apply independently
+to every paged list in the view. To advance, pass a reported integer-string
+`next_cursor` as `cursor` without `offset`. An omitted or nonpositive limit
+returns the remaining rows.
+
+Pagination retains complete selected rows and other view fields, including
+cockpit counts and evidence where present, and source coverage. Selected row
+text and those fields can still make output large. Counts describe the
+existing bake. Read-time `freshness` describes its age; the bake timestamp
+and digest remain unchanged.
+
 Conformance: `python3 -m protocol --self-test`
 
 ## Live cash
