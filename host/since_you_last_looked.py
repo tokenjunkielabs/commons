@@ -136,7 +136,8 @@ def commons_rows(git_items: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 
 def slack_rows(catalog: dict[str, Any]) -> dict[str, Any]:
-    measured = list(catalog.get("slack_measured") or [])
+    # Keep the retained catalog rows unchanged while annotating output.
+    measured = [dict(row) for row in (catalog.get("slack_measured") or [])]
     for row in measured:
         row["surface"] = "slack"
         row["bryce_pin"] = bool(row.get("bryce_pin") or is_bryce_post(row))
