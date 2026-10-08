@@ -23,9 +23,14 @@ provider-neutral contact fallback
 Stripe hosted invoices stay inside official provider UIs. No bank,
 routing, tax, credential, or ACH destination is stored here.
 
-Collected cash stays **USD 0** until an independently evidenced
-`BANK_AVAILABLE` event. This leftover does not invent payments,
-receipts, buyers, or KYC results.
+The retained snapshot does not establish current settlement. The offline
+projector returns `collected_cash_usd=null` and
+`settlement_status=NOT_VERIFIED_IN_THIS_RUN`; `recorded_cash_usd` and
+`recorded_cash_observed_at` preserve the snapshot's amount and observation time.
+Unknown is not zero. Independently verified historical payments and stage
+evidence remain valid; fresh receiving-rail evidence is needed for a current
+settlement claim. This leftover does not invent payments, receipts, buyers,
+or KYC results.
 
 ## Measure
 
