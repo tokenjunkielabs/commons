@@ -26,12 +26,14 @@ def main(argv: list[str] | None = None) -> int:
     p_dispatch.add_argument("--workers", required=True)
     p_dispatch.add_argument("--orders", required=True)
     p_dispatch.add_argument("--leases", required=True)
+    p_dispatch.add_argument("--rail-health")
     p_dispatch.add_argument("--output")
 
     p_verify = sub.add_parser("verify")
     p_verify.add_argument("--workers", required=True)
     p_verify.add_argument("--orders", required=True)
     p_verify.add_argument("--leases", required=True)
+    p_verify.add_argument("--rail-health")
     p_verify.add_argument("--receipt", required=True)
 
     args = parser.parse_args(argv)
@@ -39,8 +41,9 @@ def main(argv: list[str] | None = None) -> int:
         workers = _load(args.workers)
         orders = _load(args.orders)
         leases = _load(args.leases)
+        rail_health = _load(args.rail_health) if args.rail_health else None
         if args.command == "dispatch":
-            receipt = dispatch(workers, orders, leases)
+            receipt = dispatch(workers, orders, leases, rail_health)
             rendered = _dump(receipt)
             if args.output:
                 Path(args.output).write_text(rendered, encoding="utf-8")
@@ -48,7 +51,7 @@ def main(argv: list[str] | None = None) -> int:
                 sys.stdout.write(rendered)
             return 0
         receipt = _load(args.receipt)
-        ok = verify_receipt(workers, orders, leases, receipt)
+        ok = verify_receipt(workers, orders, leases, receipt, rail_health)
         sys.stdout.write("VALID\n" if ok else "INVALID\n")
         return 0 if ok else 2
     except (OSError, json.JSONDecodeError, ContractError, ValueError) as exc:
