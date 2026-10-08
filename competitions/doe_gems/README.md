@@ -78,6 +78,39 @@ Python 3.11+:
 python -m pip install -r competitions/doe_gems/requirements.txt
 ```
 
+## 2026-10-06 scoring clarifications
+
+DrivenData has now answered two scoring questions that materially affect local
+evaluation and model-selection strategy:
+
+- the provided USGS/INGENIOUS training-fault raster is a **pixel-exact**
+  exclusion mask during leaderboard scoring; do not dilate it by the 300 m
+  metric radius;
+- pixels next to a known trace remain fully evaluated, and newly labeled
+  correction/modification faults may lie within 300 m of a known trace;
+- public/private leaderboard aggregation pools weighted TP/FP/FN over all
+  evaluated pixels before computing one Tversky index, rather than averaging
+  per-chunk scores.
+
+Sources:
+- https://community.drivendata.org/t/scoring-clarification-are-known-usgs-ingenious-faults-masked-when-scoring-and-are-they-in-the-final-round-label-set/11516
+- https://community.drivendata.org/t/leaderboard-aggregation-pooled-over-public-test-pixels-or-mean-of-per-chunk-scores/11550
+
+The local metric command now accepts `--known-fault-mask` to mirror that
+pixel-exact exclusion and ignores raster nodata/null pixels without broadening
+the known-fault mask. For a new-fault validation label raster:
+
+```bash
+python competitions/doe_gems/gems_solver.py metric \
+  --prediction /work/gems-submission.tif \
+  --labels /data/<new_fault_validation_labels>.tif \
+  --known-fault-mask /data/<official_training_fault_labels>.tif
+```
+
+Do not use the known-fault raster as the `--labels` argument in that mode:
+the labels are the new/corrected faults being evaluated; the training faults
+only define excluded pixels.
+
 ## Official-data handoff
 
 After a browser-capable operator enrolls and downloads the competition files, keep the sponsor filenames or pass explicit paths. The solver never guesses a label filename.
