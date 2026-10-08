@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from datetime import datetime, timezone
 from typing import Any
 
 SCHEMA_VERSION = "swarm-capacity-dispatcher/v1"
@@ -67,6 +68,106 @@ def _capabilities(value: Any, field: str) -> tuple[str, ...]:
     return tuple(sorted(value))
 
 
+def _timestamp(value: Any, field: str) -> datetime:
+    if not isinstance(value, str) or not value.strip():
+        raise ContractError(f"{field} must be an offset-aware RFC3339 timestamp")
+    rendered = value[:-1] + "+00:00" if value.endswith("Z") else value
+    try:
+        parsed = datetime.fromisoformat(rendered)
+    except ValueError as exc:
+        raise ContractError(f"{field} must be an offset-aware RFC3339 timestamp") from exc
+    if parsed.tzinfo is None:
+        raise ContractError(f"{field} must be an offset-aware RFC3339 timestamp")
+    return parsed.astimezone(timezone.utc)
+
+
+def _canonical_timestamp(value: Any, field: str) -> str:
+    return _timestamp(value, field).isoformat().replace("+00:00", "Z")
+
+
+def normalize_rail_health(value: Any) -> dict[str, Any] | None:
+    """Reduce router rail-health output to deterministic allocation facts."""
+
+    if value is None:
+        return None
+    if not isinstance(value, dict) or value.get("decision") != "RAIL_HEALTH":
+        raise ContractError("rail_health must be a RAIL_HEALTH projection")
+    observed_at = _canonical_timestamp(value.get("observed_at"), "rail_health.observed_at")
+    rails = value.get("rails")
+    if not isinstance(rails, list):
+        raise ContractError("rail_health.rails must be a list")
+
+    seen: set[str] = set()
+    normalized: list[dict[str, Any]] = []
+    for idx, raw in enumerate(rails):
+        if not isinstance(raw, dict):
+            raise ContractError(f"rail_health.rails[{idx}] must be an object")
+        domain = raw.get("quota_domain")
+        if not isinstance(domain, str) or not domain.strip() or domain != domain.strip():
+            raise ContractError(f"rail_health.rails[{idx}].quota_domain must be a non-empty trimmed string")
+        if domain in seen:
+            raise ContractError(f"duplicate rail-health quota domain: {domain}")
+        seen.add(domain)
+
+        cooldown_active = _as_bool(
+            raw.get("cooldown_active", False),
+            f"rail_health.rails[{domain}].cooldown_active",
+        )
+        budget_known = _as_bool(
+            raw.get("request_budget_known", False),
+            f"rail_health.rails[{domain}].request_budget_known",
+        )
+        remaining = raw.get("request_budget_remaining")
+        if remaining is not None and (
+            isinstance(remaining, bool) or not isinstance(remaining, int) or remaining < 0
+        ):
+            raise ContractError(
+                f"rail_health.rails[{domain}].request_budget_remaining must be null or a non-negative integer"
+            )
+        reset_at = raw.get("reset_at")
+        if reset_at is not None:
+            reset_at = _canonical_timestamp(reset_at, f"rail_health.rails[{domain}].reset_at")
+        normalized.append(
+            {
+                "quota_domain": domain,
+                "cooldown_active": cooldown_active,
+                "request_budget_known": budget_known,
+                "request_budget_remaining": remaining,
+                "reset_at": reset_at,
+            }
+        )
+
+    return {
+        "decision": "RAIL_HEALTH",
+        "observed_at": observed_at,
+        "rails": sorted(normalized, key=lambda row: row["quota_domain"]),
+    }
+
+
+def _blocked_quota_domains(order: dict[str, Any], rail_health: dict[str, Any] | None) -> list[str]:
+    if rail_health is None:
+        return []
+    required = order.get("required_quota_domains", [])
+    if not required:
+        return []
+
+    observed_at = _timestamp(rail_health["observed_at"], "rail_health.observed_at")
+    by_domain = {row["quota_domain"]: row for row in rail_health["rails"]}
+    blocked: list[str] = []
+    for domain in required:
+        row = by_domain.get(domain)
+        if row is None:
+            continue
+        if row["cooldown_active"]:
+            blocked.append(domain)
+            continue
+        if row["request_budget_known"] and row["request_budget_remaining"] == 0:
+            reset_at = row["reset_at"]
+            if reset_at is None or _timestamp(reset_at, f"rail_health.rails[{domain}].reset_at") > observed_at:
+                blocked.append(domain)
+    return blocked
+
+
 def normalize_workers(workers: list[dict[str, Any]]) -> list[dict[str, Any]]:
     if not isinstance(workers, list):
         raise ContractError("workers must be a list")
@@ -113,6 +214,11 @@ def normalize_orders(orders: list[dict[str, Any]]) -> list[dict[str, Any]]:
             raise ContractError(f"order[{oid}].preferred_workers must be a string list")
         if len(set(preferred)) != len(preferred):
             raise ContractError(f"order[{oid}].preferred_workers must not contain duplicates")
+        required_domains = raw.get("required_quota_domains")
+        if required_domains is not None:
+            required_domains = list(
+                _capabilities(required_domains, f"order[{oid}].required_quota_domains")
+            )
         out.append(
             {
                 "id": oid,
@@ -129,6 +235,11 @@ def normalize_orders(orders: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 "outbound": _as_bool(raw.get("outbound", False), f"order[{oid}].outbound"),
                 "status": status,
                 "preferred_workers": sorted(preferred),
+                **(
+                    {"required_quota_domains": required_domains}
+                    if required_domains is not None
+                    else {}
+                ),
             }
         )
     return sorted(out, key=lambda row: row["id"])
@@ -180,25 +291,31 @@ def _input_snapshot(
     workers: list[dict[str, Any]],
     orders: list[dict[str, Any]],
     leases: list[dict[str, Any]],
+    rail_health: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    return {
+    snapshot = {
         "schema_version": SCHEMA_VERSION,
         "workers": workers,
         "orders": orders,
         "leases": leases,
     }
+    if rail_health is not None:
+        snapshot["rail_health"] = rail_health
+    return snapshot
 
 
 def dispatch(
     workers: list[dict[str, Any]],
     orders: list[dict[str, Any]],
     leases: list[dict[str, Any]],
+    rail_health: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Allocate open work deterministically and return a digest-bound receipt."""
 
     workers_n = normalize_workers(workers)
     orders_n = normalize_orders(orders)
     leases_n = normalize_leases(leases)
+    rail_health_n = normalize_rail_health(rail_health)
 
     known_orders = {order["id"] for order in orders_n}
     unknown_lease_orders = sorted({lease["order_id"] for lease in leases_n} - known_orders)
@@ -245,6 +362,17 @@ def dispatch(
             continue
         if order["outbound"] and oid not in muse_leases:
             unassigned.append({"order_id": oid, "reason": "MUSE_LEASE_REQUIRED"})
+            continue
+
+        blocked_domains = _blocked_quota_domains(order, rail_health_n)
+        if blocked_domains:
+            unassigned.append(
+                {
+                    "order_id": oid,
+                    "reason": "RAIL_UNAVAILABLE",
+                    "quota_domains": blocked_domains,
+                }
+            )
             continue
 
         required = set(order["required_capabilities"])
@@ -312,7 +440,7 @@ def dispatch(
         for wid, st in sorted(state.items())
     ]
 
-    snapshot = _input_snapshot(workers_n, orders_n, leases_n)
+    snapshot = _input_snapshot(workers_n, orders_n, leases_n, rail_health_n)
     receipt_core = {
         "schema_version": SCHEMA_VERSION,
         "input_sha256": _sha256(snapshot),
@@ -334,13 +462,14 @@ def verify_receipt(
     orders: list[dict[str, Any]],
     leases: list[dict[str, Any]],
     receipt: dict[str, Any],
+    rail_health: dict[str, Any] | None = None,
 ) -> bool:
     """Return True iff receipt exactly matches a fresh deterministic replay."""
 
     if not isinstance(receipt, dict):
         return False
     try:
-        expected = dispatch(workers, orders, leases)
+        expected = dispatch(workers, orders, leases, rail_health)
     except (ContractError, ValueError, TypeError):
         return False
     return receipt == expected
