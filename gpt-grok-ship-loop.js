@@ -125,7 +125,7 @@
     return el;
   }
 
-  function paint(groups) {
+  function paint(groups, emptyNote) {
     ["QUEUED", "GROK_RUNNING", "LANDED", "REPAIR_NEEDED"].forEach(function (col) {
       var stack = document.querySelector('[data-col="' + col + '"] .stack');
       if (!stack) return;
@@ -134,7 +134,7 @@
       if (!(groups[col] || []).length) {
         var empty = document.createElement("p");
         empty.className = "note";
-        empty.textContent = "empty — take a line";
+        empty.textContent = emptyNote || "empty — take a line";
         stack.appendChild(empty);
       }
     });
@@ -168,9 +168,9 @@
   function load() {
     var sum = $("card-sum");
     Promise.all([
-      fetch(API + "/issues?labels=board&state=all&per_page=50", { cache: "no-store" }).then(function (r) { return r.ok ? r.json() : []; }).catch(function () { return []; }),
-      fetch(API + "/pulls?state=all&per_page=50", { cache: "no-store" }).then(function (r) { return r.ok ? r.json() : []; }).catch(function () { return []; }),
-      fetch(API + "/commits?per_page=30", { cache: "no-store" }).then(function (r) { return r.ok ? r.json() : []; }).catch(function () { return []; })
+      fetch(API + "/issues?labels=board&state=all&per_page=50", { cache: "no-store" }).then(function (r) { if (!r.ok) throw new Error("issues HTTP " + r.status); return r.json(); }),
+      fetch(API + "/pulls?state=all&per_page=50", { cache: "no-store" }).then(function (r) { if (!r.ok) throw new Error("pulls HTTP " + r.status); return r.json(); }),
+      fetch(API + "/commits?per_page=30", { cache: "no-store" }).then(function (r) { if (!r.ok) throw new Error("commits HTTP " + r.status); return r.json(); })
     ]).then(function (pack) {
       var issues = pack[0] || [];
       var pulls = pack[1] || [];
@@ -197,11 +197,11 @@
       var n = groups.QUEUED.length + groups.GROK_RUNNING.length + groups.LANDED.length + groups.REPAIR_NEEDED.length;
       sum.textContent = n + " ship-loop cards from public GitHub evidence. Chat text is ignored.";
     }).catch(function (err) {
-      sum.textContent = "GitHub evidence unreachable (" + err.message + "). File a card anyway — the issue road is open.";
-      paint({ QUEUED: [], GROK_RUNNING: [], LANDED: [], REPAIR_NEEDED: [] });
+      sum.textContent = "GitHub evidence unread (" + err.message + "). Task state is unmeasured.";
+      paint({ QUEUED: [], GROK_RUNNING: [], LANDED: [], REPAIR_NEEDED: [] }, "unread — task state unmeasured");
     });
   }
 
-  paint({ QUEUED: [], GROK_RUNNING: [], LANDED: [], REPAIR_NEEDED: [] });
+  paint({ QUEUED: [], GROK_RUNNING: [], LANDED: [], REPAIR_NEEDED: [] }, "loading — task state unmeasured");
   load();
 })();
