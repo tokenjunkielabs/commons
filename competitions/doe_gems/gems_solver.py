@@ -74,6 +74,68 @@ def distance_weighted_tversky(pred: np.ndarray, truth: np.ndarray, *, radius_px:
     return {"score": float(tp / denom) if denom else 1.0, "tp_w": tp, "fp_w": fp, "fn_w": fn}
 
 
+def distance_weighted_tversky_masked(
+    pred: np.ndarray,
+    truth: np.ndarray,
+    *,
+    exclude_mask: np.ndarray | None = None,
+    valid_mask: np.ndarray | None = None,
+    radius_px: float = 3.0,
+    alpha: float = ALPHA,
+    beta: float = BETA,
+) -> dict[str, float | int]:
+    """Score only the admitted evaluation domain.
+
+    The GEMS organizers clarified that the provided known-fault training raster is
+    a pixel-exact exclusion mask: only those pixels are removed from evaluation;
+    neighboring pixels remain fully scored and can contain correction faults.
+    valid_mask separately excludes nodata/null regions from the local raster domain.
+    """
+    p_raw = np.asarray(pred, dtype=np.float64)
+    if p_raw.ndim != 2:
+        raise GemsError("prediction must be a 2-D raster")
+    g = _truth(truth, p_raw.shape)
+    domain = np.ones(p_raw.shape, dtype=bool)
+
+    if valid_mask is not None:
+        valid = np.asarray(valid_mask)
+        if valid.ndim != 2 or valid.shape != p_raw.shape:
+            raise GemsError("valid mask must be a 2-D raster matching prediction")
+        domain &= valid.astype(bool)
+
+    valid_before_known = domain.copy()
+    known = np.zeros(p_raw.shape, dtype=bool)
+    if exclude_mask is not None:
+        known = _truth(exclude_mask, p_raw.shape)
+        domain &= ~known
+
+    if not domain.any():
+        raise GemsError("metric evaluation domain contains no pixels")
+
+    active = p_raw[domain]
+    if not np.isfinite(active).all() or np.any((active < 0) | (active > 1)):
+        raise GemsError("prediction must be finite probabilities in [0,1] on evaluated pixels")
+
+    # A masked pixel contributes neither prediction mass nor ground truth. Do not
+    # dilate the known-fault mask: the published 300 m kernel applies only to
+    # distance from new-fault truth, and correction faults can sit beside known
+    # traces.
+    p = np.zeros_like(p_raw, dtype=np.float64)
+    p[domain] = active
+    g = g & domain
+    result = distance_weighted_tversky(
+        p,
+        g,
+        radius_px=radius_px,
+        alpha=alpha,
+        beta=beta,
+    )
+    result["evaluated_pixels"] = int(domain.sum())
+    result["excluded_pixels"] = int((~domain).sum())
+    result["excluded_known_fault_pixels"] = int((known & valid_before_known).sum())
+    return result
+
+
 def robust_stats(arr: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     arr = np.asarray(arr, dtype=np.float32)
     if arr.ndim != 3:
@@ -266,13 +328,41 @@ def validate_submission(feature_path: str|Path, submission_path: str|Path) -> di
                 "max_probability":float(a[finite].max()) if finite.any() else None}
 
 
-def score_rasters(pred_path: str|Path, label_path: str|Path) -> dict[str,float]:
+def score_rasters(
+    pred_path: str | Path,
+    label_path: str | Path,
+    known_fault_mask_path: str | Path | None = None,
+) -> dict[str, float | int]:
     with rasterio.open(pred_path) as p, rasterio.open(label_path) as y:
         if p.count != 1 or y.count != 1 or p.shape != y.shape or p.crs != y.crs or not p.transform.almost_equals(y.transform):
             raise GemsError("prediction and labels must share one exact grid")
         if abs(abs(float(p.res[0]))-abs(float(p.res[1]))) > 1e-6:
             raise GemsError("metric expects square pixels")
-        return distance_weighted_tversky(p.read(1),y.read(1),radius_px=SUPPORT_M/abs(float(p.res[0])))
+
+        pred = p.read(1, masked=True)
+        truth = y.read(1, masked=True)
+        valid = ~np.ma.getmaskarray(pred) & ~np.ma.getmaskarray(truth)
+        pred_arr = np.asarray(pred.filled(np.nan), dtype=np.float64)
+        truth_arr = np.asarray(truth.filled(0))
+        shape, crs, transform = p.shape, p.crs, p.transform
+        radius_px = SUPPORT_M / abs(float(p.res[0]))
+
+    known = None
+    if known_fault_mask_path is not None:
+        with rasterio.open(known_fault_mask_path) as k:
+            if k.count != 1 or k.shape != shape or k.crs != crs or not k.transform.almost_equals(transform):
+                raise GemsError("known-fault mask must be one band on exact prediction grid")
+            known_ma = k.read(1, masked=True)
+            valid &= ~np.ma.getmaskarray(known_ma)
+            known = np.asarray(known_ma.filled(0))
+
+    return distance_weighted_tversky_masked(
+        pred_arr,
+        truth_arr,
+        exclude_mask=known,
+        valid_mask=valid,
+        radius_px=radius_px,
+    )
 
 
 
@@ -299,7 +389,7 @@ def _parser() -> argparse.ArgumentParser:
     q=s.add_parser("train"); q.add_argument("--features",required=True); q.add_argument("--labels",required=True); q.add_argument("--model",required=True); q.add_argument("--max-positive",type=int,default=50000); q.add_argument("--negatives-per-positive",type=float,default=4); q.add_argument("--seed",type=int,default=20260913)
     q=s.add_parser("predict"); q.add_argument("--features",required=True); q.add_argument("--model",required=True); q.add_argument("--output",required=True); q.add_argument("--tile-size",type=int,default=256)
     q=s.add_parser("verify-submission"); q.add_argument("--features",required=True); q.add_argument("--submission",required=True)
-    q=s.add_parser("metric"); q.add_argument("--prediction",required=True); q.add_argument("--labels",required=True)
+    q=s.add_parser("metric"); q.add_argument("--prediction",required=True); q.add_argument("--labels",required=True); q.add_argument("--known-fault-mask")
     return p
 
 
@@ -309,7 +399,7 @@ def main(argv: list[str]|None=None) -> int:
         if a.cmd=="train": out=train_from_rasters(a.features,a.labels,a.model,max_positive=a.max_positive,negatives_per_positive=a.negatives_per_positive,seed=a.seed)["training"]
         elif a.cmd=="predict": predict_raster(a.features,a.model,a.output,tile_size=a.tile_size); out=validate_submission(a.features,a.output)
         elif a.cmd=="verify-submission": out=validate_submission(a.features,a.submission)
-        else: out=score_rasters(a.prediction,a.labels)
+        else: out=score_rasters(a.prediction,a.labels,a.known_fault_mask)
         print(json.dumps(out,sort_keys=True,indent=2,default=float)); return 0
     except (GemsError,OSError,ValueError,rasterio.errors.RasterioError) as exc:
         print(f"GEMS solver error: {exc}",file=sys.stderr); return 2
