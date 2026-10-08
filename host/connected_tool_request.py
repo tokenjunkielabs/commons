@@ -46,10 +46,16 @@ def prepare_request(task: dict, routes: list[dict], available_tools: list[str]) 
         query = task.get("query")
         if not isinstance(query, str) or not query.strip() or len(query) > 2000:
             raise EquipmentError("search query must contain 1..2000 characters")
-        queries = task.get("search_queries", [query])
-        if (not isinstance(queries, list) or not 1 <= len(queries) <= 8
-                or any(not isinstance(q, str) or not q.strip() or len(q) > 500 for q in queries)):
-            raise EquipmentError("search_queries must contain 1..8 nonempty bounded queries")
+        if "search_queries" in task:
+            queries = task["search_queries"]
+            if (not isinstance(queries, list) or not 1 <= len(queries) <= 8
+                    or any(not isinstance(q, str) or not q.strip() or len(q) > 500 for q in queries)):
+                raise EquipmentError("search_queries must contain 1..8 nonempty bounded queries")
+        else:
+            # Parallel's bounded subqueries are a separate contract. Preserve
+            # the full main query for other routes rather than truncating it or
+            # rejecting those routes because Parallel needs a shorter query.
+            queries = [query] if len(query) <= 500 else None
         arguments = {
             "mcp__codex_apps__tinyfish_search": {"query": query, "purpose": objective},
             "mcp__codex_apps__tavily_tavily_search": {
@@ -58,7 +64,7 @@ def prepare_request(task: dict, routes: list[dict], available_tools: list[str]) 
                 "query": query, "sources": ["web"], "domainTools": False, "limit": 5},
             "exa_search": {"query": query, "num_results": 5},
         }
-        if session:
+        if session and queries is not None:
             for name in ("mcp__codex_apps__parallel_search_web_search", "parallel_anonymous_search"):
                 arguments[name] = {"objective": objective or query,
                                    "search_queries": queries, "session_id": session}
