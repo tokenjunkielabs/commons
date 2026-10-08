@@ -136,7 +136,7 @@
       td((row.tools || []).join(", ") || "UNKNOWN");
       td(row.task_id);
       td((row.lease && row.lease.lease_id) ? (text(row.lease.lease_id) + " until " + text(row.lease.until)) : "descriptive only");
-      td(row.blocker && row.blocker.type && row.blocker.type !== "UNKNOWN" ? (text(row.blocker.type) + " " + text(row.blocker.detail)) : "none");
+      td(row.blocker && row.blocker.type && row.blocker.type !== "UNKNOWN" ? (text(row.blocker.type) + " " + text(row.blocker.detail)) : "UNKNOWN");
       td(row.checkpoint);
       td(row.last_ts);
       const ev = document.createElement("td");
