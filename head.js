@@ -341,7 +341,7 @@ window.COMMONS_HEAD = (function () {
         body = rest.slice(plain).replace(/^\s*PLAIN:\s*/i, "");
       } else if (/\bfrom:\s*\w+.*\bto:\s*\w+.*\bid:\s*/i.test(rest)) {
         body = "";
-      } else if (parts.length > 2 && tsHdr && String(parts[1] || "").trim() === tsHdr[1]) {
+      } else if (parts.length >= 2 && tsHdr && String(parts[1] || "").trim() === tsHdr[1]) {
         // Rows are "{who} · {ts} · {text}". The author and stamp already render
         // in the card header, so keeping them inside the body pushed the actual
         // text off the phone screen -- and on an empty-body row left the card
@@ -492,7 +492,9 @@ window.COMMONS_HEAD = (function () {
     return api("commits?sha=main&per_page=20").then(function (commits) {
       var sha = commits && commits[0] && commits[0].sha;
       if (!sha) throw new Error("no HEAD sha");
-      setCached(SHA_KEY, { sha: sha });
+      setCached(SHA_KEY, {
+        sha: sha, observed_at: "", source: "github-api", status: "REMOTE_CURRENT", is_current: true
+      });
       var seen = {};
       var ids = [];
       idsFromCommits(commits).forEach(function (id) {
