@@ -87,6 +87,7 @@
     "tool_fleet.automations": "2026-09-07T04:08:47Z",
     "tool_fleet.current_confirmed_plugin_connections": "2026-10-04T08:33:13.265Z",
     "tool_fleet.free_pool_routes": "2026-10-04T08:33:13.265Z",
+    "tool_fleet.free_pool_routes.tinyfish-free-read": "2026-10-07T18:25:45.988Z",
     "tool_fleet.historical_plugin_search_findings": "2026-09-07T04:08:47Z",
     "tool_fleet.installed_plugins": "2026-09-07T04:08:47Z",
     "tool_fleet.plugin_eligibility_observations": "2026-10-04",
@@ -2139,7 +2140,7 @@
   "snapshot": {
     "base_main_sha": "d66ac9862e3448e2bff54c7386ce27f5a81b3640",
     "freshness_note": "Global observed_at/source_watermark retain the 2026-09-18 snapshot. Read component_freshness and per-provider observed_at/last_probe for later measurements; the refreshed census does not make retained account, repository, automation, quota or carrier facts current.",
-    "newest_component_observed_at": "2026-10-04T07:27:15.256Z",
+    "newest_component_observed_at": "2026-10-07T18:25:45.988Z",
     "observed_at": "2026-09-18T03:00:37Z",
     "refresh_base_main_sha": "8b13250af5876863235fd519e1906f5cca2b0656",
     "route_rule": "All Commons carriers may consume all shared resources; Claude is the sole owner-handled exception.",
@@ -3359,8 +3360,8 @@
           "search": "mcp__codex_apps__tinyfish_search",
           "url_read": "mcp__codex_apps__tinyfish_fetch_content"
         },
-        "observation_note": "Current wallet contract sets Search/query and Fetch/URL to $0. Auto-reload is unconfigured and no top-up is pending. Actual official-source search and fetch succeeded. Agent, Browser and Monitor have separate positive prices.",
-        "observed_at": "2026-10-04",
+        "observation_note": "Current connected-wallet contract reports Search/query and Fetch/URL at USD 0. Auto-reload is unconfigured and no top-up is pending. An actual complete 1,400-character public Search query was accepted unchanged. Agent, Browser and Monitor retain separate positive unit prices.",
+        "observed_at": "2026-10-07T18:25:45.988Z",
         "onboarding_consumer": "existing capability owner",
         "owner": "existing capability owner",
         "provider": "tinyfish",
@@ -3368,7 +3369,21 @@
         "quota_remaining": null,
         "task_domains": [
           "*"
-        ]
+        ],
+        "zero_net_spend_observation": {
+          "auto_reload_state": "unconfigured",
+          "currency": "USD",
+          "fetch_unit": "url",
+          "fetch_unit_amount": "0",
+          "observed_at": "2026-10-07T18:25:45.988Z",
+          "pending_top_up_present": false,
+          "rates_observed_at": "2026-10-07T18:25:45.909Z",
+          "scope": "TinyFish Search and Fetch only; Agent, Browser and Monitor remain separately priced.",
+          "search_unit": "query",
+          "search_unit_amount": "0",
+          "source": "tinyfish_get_wallet"
+        },
+        "zero_net_spend_verified": true
       },
       {
         "allowance_type": "recurring_free",
