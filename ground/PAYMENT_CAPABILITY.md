@@ -8,7 +8,7 @@ Cite [ground/CHECKOUT_CAPABILITY.md](./CHECKOUT_CAPABILITY.md). Cite
 [ground/PAY.md](./PAY.md). Cite [ground/STRIPE.md](./STRIPE.md). Cite
 [ground/COMMERCE.md](./COMMERCE.md). Do not remint those cards.
 
-## Current measured truth (account 2026-08-28; links through 2026-09-05)
+## Retained capability evidence (account 2026-08-28; links through 2026-09-05)
 
 - Token Junkie Labs Stripe `acct_1U6HI9ATH4EDE7XD` is **CHARGEABLE**:
   livemode, `charges_enabled=true`, `payouts_enabled=true`,
@@ -21,8 +21,12 @@ Cite [ground/CHECKOUT_CAPABILITY.md](./CHECKOUT_CAPABILITY.md). Cite
   official UI. Agents do not enter those values.
 - Hosted Stripe invoices are owner-usable on the same chargeable account
   and stay off the public storefront.
-- Collected cash is **USD 0**. AUTHORIZATION, SETTLEMENT, PAYOUT, and
-  BANK_AVAILABLE remain `NOT_LANDED`.
+- The registry's cash fields are a dated observation, not current receiving-rail
+  evidence. The offline projector returns `collected_cash_usd=null` and
+  `settlement_status=NOT_VERIFIED_IN_THIS_RUN`, with the original amount and
+  observation time in `recorded_cash_usd` and `recorded_cash_observed_at`.
+  Unknown current settlement is not zero. Keep independently verified historical
+  payments and stage evidence; an offline read does not replace them.
 
 ## Failover
 
