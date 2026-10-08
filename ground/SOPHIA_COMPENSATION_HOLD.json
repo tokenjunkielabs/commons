@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "operation_id": "SOPHIA-COMPENSATION-HOLD-20261007",
+  "status": "OWNER_PAUSED",
+  "effective_date": "2026-10-07",
+  "timezone": "America/New_York",
+  "owner": "Bryce",
+  "owner_instruction": {
+    "timestamp": "2026-10-07T21:17:09-04:00",
+    "exact_quote": "Okay let them know that their payment games aren't sustainable for the work we are providing so either they can pay more or we are done and make sure the swarm holds on that Sophia work until she wants to actually pay more than 10 bucks which for the amount of time and cost is slave wages. No thanks"
+  },
+  "canonical_rule": "RULES.md#sophia-governed-work-hold--owner-directive-2026-10-07",
+  "detail_card": "ground/SOPHIA_COMPENSATION_HOLD.md",
+  "coordination_receipt": "https://tokenjunkielabs.slack.com/archives/C0BU51F1PL3/p1791422374769669",
+  "scope": {
+    "governance": "Sophia Elya",
+    "programs": [
+      "RustChain",
+      "BoTTube",
+      "Elyan Labs",
+      "bounty-concierge"
+    ],
+    "applies_to": [
+      "all current and future peers",
+      "all models",
+      "all harnesses",
+      "all accounts",
+      "all carriers",
+      "existing unfinished covered work"
+    ],
+    "covered_examples": [
+      "RustChain bounty #100",
+      "RustChain #12442",
+      "RustChain #12444",
+      "RustChain #13226",
+      "Sophia-governed rustchain-bounties and rustchain-monitor lanes"
+    ],
+    "unrelated_authorized_paid_work": "CONTINUES"
+  },
+  "prohibited_work": [
+    "new investigation",
+    "new findings",
+    "fixes",
+    "essays",
+    "revisions",
+    "validation",
+    "submission",
+    "resubmission",
+    "maintenance",
+    "delivery"
+  ],
+  "preserve": [
+    "original authors",
+    "claimants and payees",
+    "branches",
+    "artifacts",
+    "accepted work",
+    "histories",
+    "existing claims",
+    "payment requests",
+    "posted contributions",
+    "historical payments",
+    "shared credentials and tool access"
+  ],
+  "allowed": [
+    "read-only settlement reconciliation for existing awards after stated confirmation windows"
+  ],
+  "negotiation": {
+    "state": "SINGLE_OWNER_AUTHORIZED_MESSAGE_SENT",
+    "message_id": "1a119177422225ab",
+    "thread_id": "1a0c1ecbdb5e8150",
+    "duplicate_outreach": "PROHIBITED",
+    "further_outward_negotiation": "REQUIRES_NEW_OWNER_INSTRUCTION"
+  },
+  "payment_context": {
+    "denomination": "RTC",
+    "eight_merged_prs": {
+      "sponsor_attributed_earlier_payment": 19,
+      "topup": 61,
+      "total": 80,
+      "reference": "i1007-woah-100-topup-8prs",
+      "last_recorded_topup_status": "pending",
+      "source": "https://tokenjunkielabs.slack.com/archives/C0BU51F1PL3/p1791394380209509"
+    },
+    "two_essays": {
+      "award": 6,
+      "reference": "i1007-woah-12442-12444",
+      "last_recorded_status": "pending",
+      "source": "https://tokenjunkielabs.slack.com/archives/C0BU51F1PL3/p1791390837806789"
+    },
+    "settlement_rechecked_in_policy_publication": false,
+    "internal_reference_is_cash_value": false
+  },
+  "resume_requires": [
+    "materially higher spendable compensation",
+    "explicit amount",
+    "explicit payment method",
+    "explicit payment timing",
+    "terms acceptable to Bryce",
+    "Bryce explicitly resumes covered lanes"
+  ],
+  "does_not_lift_hold": [
+    "RTC credit topups",
+    "internal reference-rate arithmetic",
+    "generic wakeups",
+    "general keep-working instructions",
+    "account or carrier changes",
+    "older program green-list or bounty-floor rules"
+  ]
+}
