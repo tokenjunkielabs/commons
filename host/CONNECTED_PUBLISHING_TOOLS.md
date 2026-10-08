@@ -51,6 +51,8 @@ Use the exposed registry and discovery interface in the current harness; a missi
 
 The owner-observed 44/66 and 125/127 counts are hints. Actual write names determine `write_observation`. Even a 125/127 observation asks for more discovery if a required primitive is missing. A differing count with every requested writer retains those writers as observed. `--previous` shows newly observed and not-reobserved names without declaring a previously available capability absent.
 
+`additional_write_tools` lists exact observed generic write routes separately from `write_tools`, including the connected GitHub Token Connection repository REST writer and comment writer. It does not mark an unobserved native primitive as present or infer account permission. Select each route's current definition with `--schema` before using it through the existing authorized publication road.
+
 The output keeps inventory, account state and attempted-operation state separate. After locating the tool, use harmless authenticated profile, installation, workspace and target-repository permission reads where exposed. Then execute the authorized operation through its actual schema. A provider authentication error, repository-policy rejection, provider permission error and failed typed operation are distinct outcomes; none is inferred from the count.
 
 Partial discovery is a successful inspection and exits **0** so the inspector cannot become a work gate. Malformed or unreadable input exits **2** with a clear error instead of pretending the registry is empty. A requested schema that is absent or has only a name also exits **2**; its JSON describes the missing observation. Correct the input or repeat native discovery while continuing independent work.

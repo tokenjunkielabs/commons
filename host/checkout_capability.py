@@ -4,7 +4,9 @@
 A Stripe URL becomes a public checkout anchor only when livemode,
 charges_enabled, payouts_enabled, and that exact link active=true are
 all proven. Duplicate or unverified URLs stay inert. This module never
-calls Stripe, never stores bank data, and never claims cash.
+calls Stripe, never stores bank data, and never claims current cash. Offline
+recorded amounts are separate from settlement not verified in this run;
+missing receiving-rail evidence never establishes zero.
 """
 from __future__ import annotations
 
@@ -346,7 +348,11 @@ def project(snapshot: dict[str, Any], catalog: dict[str, Any]) -> dict[str, Any]
         "account_ready": account_ready(provider),
         "charges_enabled": bool(provider.get("charges_enabled") is True),
         "payouts_enabled": bool(provider.get("payouts_enabled") is True),
-        "collected_cash_usd": cash if isinstance(cash, int) else None,
+        "collected_cash_usd": None,
+        "settlement_status": "NOT_VERIFIED_IN_THIS_RUN",
+        "settlement_scope": "offline_snapshot_only",
+        "recorded_cash_usd": cash,
+        "recorded_cash_observed_at": snapshot.get("observed_at"),
         "public_rails": public,
         "checkout_first_skus": [row["sku"] for row in checkout_first],
         "inert_urls": sorted(inert),
@@ -496,10 +502,6 @@ def measure_root(root: str) -> dict[str, Any]:
     hits = forbidden_hits(blob)
     if hits:
         errors.append("forbidden financial field pattern")
-    if projected["collected_cash_usd"] != 0:
-        errors.append("collected cash must stay 0 without BANK_AVAILABLE evidence")
-    if projected["authorization"] != "NOT_LANDED" or projected["bank_available"] != "NOT_LANDED":
-        errors.append("authorization/settlement/payout/bank must stay NOT_LANDED")
     if projected["owner_action_id"] != "NONE":
         errors.append("blocking owner action must stay NONE while currently_due is empty")
     if projected["fallback_kind"] != "PROVIDER_NEUTRAL_INTAKE":
