@@ -4,6 +4,7 @@
 // The caller supplies its existing native tool surface; this module owns no
 // credentials, network client, filesystem, scheduler, or mutation operation.
 const FETCH = "mcp__codex_apps__github_fetch";
+const TOKEN_READ = "mcp__codex_apps__github_token_connection_github_read";
 const SEARCH_FILTERS = new Set([
   "actor", "branch", "check_suite_id", "created", "event", "head_sha", "status",
 ]);
@@ -88,22 +89,42 @@ function inputOptions(input) {
   return { repository, parts, path, id, all, query, perPage, startPage, maxPages, timeout, first };
 }
 
+function workflowPayload(value) {
+  if (!object(value)) return null;
+  if (value.isError === true || value.ok === false ||
+      Object.prototype.hasOwnProperty.call(value, "error") ||
+      (Number.isInteger(value.status) && value.status >= 400)) {
+    const error = new Error("native GitHub response reports an error");
+    error.code = "NATIVE_ERROR";
+    throw error;
+  }
+  if (Array.isArray(value.workflow_runs)) return value;
+  if (value.ok === true && Number.isInteger(value.status) &&
+      value.status >= 200 && value.status < 300 && object(value.data) &&
+      Array.isArray(value.data.workflow_runs)) return value.data;
+  return null;
+}
+
 function decode(response) {
   const candidates = [response && response.structuredContent, response];
   for (const candidate of candidates) {
     if (!object(candidate)) continue;
-    if (Array.isArray(candidate.workflow_runs)) return candidate;
+    const payload = workflowPayload(candidate);
+    if (payload) return payload;
     if (typeof candidate.content === "string") {
       const parsed = JSON.parse(candidate.content);
-      if (object(parsed)) return parsed;
+      const payload = workflowPayload(parsed);
+      if (payload) return payload;
     }
   }
   for (const item of response && Array.isArray(response.content) ? response.content : []) {
     if (item.type !== "text" || typeof item.text !== "string") continue;
     try {
       const parsed = JSON.parse(item.text);
-      if (object(parsed) && Array.isArray(parsed.workflow_runs)) return parsed;
-    } catch (_) {
+      const payload = workflowPayload(parsed);
+      if (payload) return payload;
+    } catch (error) {
+      if (error.code === "NATIVE_ERROR") throw error;
       // An ordinary provider status message is not the JSON payload.
     }
   }
@@ -130,15 +151,25 @@ function message(value) {
  */
 async function findGitHubWorkflowRuns(tools, input, options = {}) {
   const config = inputOptions(input);
-  if (!tools || typeof tools[FETCH] !== "function") {
-    throw new TypeError("the native " + FETCH + " action is not available");
-  }
-  if (!object(options) || Object.keys(options).some(key => key !== "onResponse")) {
-    throw new TypeError("options supports only onResponse");
+  if (!object(options) || Object.keys(options).some(key =>
+    key !== "onResponse" && key !== "transport")) {
+    throw new TypeError("options supports only onResponse and transport");
   }
   if (options.onResponse !== undefined && typeof options.onResponse !== "function") {
     throw new TypeError("onResponse must be a function");
   }
+  const transport = options.transport ?? "native";
+  if (transport !== "native" && transport !== "token") {
+    throw new TypeError("transport must be native or token");
+  }
+  const binding = transport === "token" ? TOKEN_READ : FETCH;
+  if (!tools || typeof tools[binding] !== "function") {
+    throw new TypeError("the connected " + binding + " action is not available");
+  }
+  const encodeQuery = value => transport === "token"
+    ? encodeURIComponent(value).replace(/%2F/gi, "/").replace(/%3A/gi, ":")
+      .replace(/%20/g, "+")
+    : encodeURIComponent(value);
   const started = Date.now();
   const filtered = Object.keys(config.query).length > 0;
   const searchLimit = filtered ? 1000 : null;
@@ -170,6 +201,7 @@ async function findGitHubWorkflowRuns(tools, input, options = {}) {
     callback_errors: [],
     started_at: new Date(started).toISOString(),
   };
+  if (transport === "token") result.request = { transport, binding };
   const gap = code => {
     if (!result.coverage.gaps.includes(code)) result.coverage.gaps.push(code);
   };
@@ -184,7 +216,7 @@ async function findGitHubWorkflowRuns(tools, input, options = {}) {
       : result.coverage.complete ? "NOT_FOUND_IN_SCOPE" : "INCONCLUSIVE";
     return result;
   }
-  const base = "https://api.github.com/repos/" +
+  const base = "/repos/" +
     config.parts.map(encodeURIComponent).join("/") + "/actions/runs";
   let page = config.startPage;
   while (result.stats.calls < config.maxPages) {
@@ -202,19 +234,21 @@ async function findGitHubWorkflowRuns(tools, input, options = {}) {
       per_page: String(config.perPage),
       page: String(page),
     };
-    const url = base + "?" + Object.entries(query)
-      .map(([key, value]) => encodeURIComponent(key) + "=" + encodeURIComponent(value)).join("&");
+    const path = base + "?" + Object.entries(query)
+      .map(([key, value]) => encodeQuery(key) + "=" + encodeQuery(value)).join("&");
+    const url = "https://api.github.com" + path;
     result.coverage.next = { page, row_index: 0 };
     result.stats.calls += 1;
     let response;
     try {
-      response = await tools[FETCH]({ url });
+      response = await tools[binding](transport === "token" ? { path } : { url });
     } catch (error) {
       return finish("TOOL_ERROR", { url, native_message: message(error) });
     }
     if (options.onResponse) {
       try {
-        await options.onResponse({ page, url, response });
+        await options.onResponse({ page, url, response,
+          ...(transport === "token" ? { path, binding } : {}) });
       } catch (error) {
         result.callback_errors.push({ page, message: message(error) });
       }
@@ -231,7 +265,8 @@ async function findGitHubWorkflowRuns(tools, input, options = {}) {
         throw new TypeError("invalid workflow_runs, total_count, or page length");
       }
     } catch (error) {
-      return finish("INVALID_RESPONSE", { url, native_message: message(error) });
+      return finish(error.code === "NATIVE_ERROR" ? "NATIVE_ERROR" : "INVALID_RESPONSE",
+        { url, native_message: message(error) });
     }
     const rows = payload.workflow_runs;
     totals.add(payload.total_count);
@@ -240,6 +275,7 @@ async function findGitHubWorkflowRuns(tools, input, options = {}) {
       page, url, total_count: payload.total_count,
       received: rows.length, examined: 0, first_run_id: null, last_run_id: null,
     };
+    if (transport === "token") observation.path = path;
     result.coverage.pages.push(observation);
     result.stats.pages_read += 1;
     result.stats.runs_received += rows.length;
@@ -307,3 +343,4 @@ async function findGitHubWorkflowRuns(tools, input, options = {}) {
 }
 
 module.exports = { findGitHubWorkflowRuns };
+
