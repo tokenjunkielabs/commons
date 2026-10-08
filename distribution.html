@@ -59,26 +59,26 @@ pre.copy{white-space:pre-wrap;max-height:22rem;overflow:auto}
   <p class="lead">Commons already has sellable outcomes. This door identifies which offers fit which public marketplace, partner channel, procurement road, or developer ecosystem; writes channel-ready packages from canonical terms; and sends buyer interest back to the existing conversion pages. It does not mint accounts, listings, customers, or cash.</p>
 </header>
 <section class="panel" aria-labelledby="honest-heading">
-  <h2 id="honest-heading">Honest counts</h2>
+  <h2 id="honest-heading">Recorded distribution counts</h2>
   <div class="truth" id="truth-counts">
     <span><b id="c-packages">—</b>packages ready</span>
     <span><b id="c-live-mkt">0</b>live marketplace listings</span>
     <span><b id="c-surfaces">—</b>live Commons surfaces</span>
     <span><b id="c-leads">0</b>verified leads</span>
-    <span><b id="c-cash">0.00</b>collected cash USD</span>
+    <span><b id="c-cash">unverified</b>current USD settlement</span>
     <span><b id="c-blocked">—</b>blocked fit pairs</span>
   </div>
-  <p class="note" id="status-src">Loading revenue/distribution/status.json…</p>
+  <p class="note" id="status-src">Recorded snapshot date unavailable. Current settlement: unverified. Loading distribution status…</p>
 </section>
 <section class="panel">
   <h2>Channel families</h2>
   <p>Four external families plus Commons conversion surfaces and recorded Stripe URLs. Marketplace families have no authorized account in this snapshot. Submit stays false.</p>
-  
+  <div class="grid" id="channel-cards"></div>
 </section>
 <section class="panel">
   <h2>Offer × channel matrix</h2>
   <p>FIT means a truthful package can be generated. LIVE marketplace listings require a verified URL. None exist here.</p>
-  
+  <div class="filters" id="family-filters"></div>
   <div style="overflow:auto">
     <table class="matrix" id="matrix-table">
       <thead><tr><th>Offer</th><th>Channel</th><th>Family</th><th>Fit</th><th>Listing</th><th>Conversion</th></tr></thead>
@@ -95,7 +95,7 @@ pre.copy{white-space:pre-wrap;max-height:22rem;overflow:auto}
   <label>Channel
     <select id="channel-select"></select>
   </label>
-  
+  <p class="note" id="package-state" aria-live="polite"></p>
   <pre class="copy" id="package-copy"></pre>
   <button type="button" id="copy-package">Copy package</button>
 </section>
@@ -123,7 +123,7 @@ NOTE: This is intent only. It is not a lead, customer, or payment.</textarea>
   <pre id="out" aria-live="polite"></pre>
 </section>
 <p class="note">Machine: <a href="./revenue/distribution/status.json">status.json</a> · <a href="./revenue/distribution/packages.json">packages.json</a> · <a href="./revenue/distribution/matrix.json">matrix.json</a> · <a href="./revenue/distribution/channels.json">channels.json</a> · CLI <code>python3 host/distribution.py</code>. Law: <a href="./ground/DISTRIBUTION.md">ground/DISTRIBUTION.md</a>. Canonical commerce stays <a href="./commerce.html">commerce.html</a>..</p>
-<script src="./distribution.js?v=20260828a"></script>
+<script src="./distribution.js?v=20261008a"></script>
 
 <section id="live-cash">
   <h2>Live cash</h2>
