@@ -104,11 +104,14 @@ def _token_pool_status_tool() -> dict:
 
 
 def plan_capability_fallback(arguments: dict) -> dict:
-    """Suggest distinct usable quota domains; never invoke, retry or gate work.
+    """Suggest sustainable free quota domains; never invoke, retry or gate work.
 
     Route facts come from the existing connected-capability observations, not a
     second registry. Published free pricing is separate from the actual account
-    plan and binding. Consumption is descriptive, never an admission rule.
+    plan and binding. Temporary grants and funded usage are not fleet fallback
+    capacity. Metered recurring free routes need verified zero net spend;
+    direct authorized tools and credentials remain available. Consumption is
+    descriptive, never an admission rule.
     """
     capability = _string(arguments, "capability")
     operation_id = _string(arguments, "operation_id")
@@ -212,13 +215,12 @@ def plan_capability_fallback(arguments: dict) -> dict:
         if capability not in row["capabilities"]:
             continue
         reasons = []
-        recurring = row["allowance_type"] in {"recurring_free", "free_tier", "unmetered_free", "no_key_free"}
-        bounded = row["allowance_type"] in {"one_time_free", "conditional_free"}
-        if not recurring and not bounded:
+        sustainable = row["allowance_type"] in {"recurring_free", "free_tier", "unmetered_free", "no_key_free"}
+        if row["allowance_type"] in {"one_time_free", "conditional_free"}:
+            reasons.append("TEMPORARY_ALLOWANCE_NOT_SUSTAINABLE")
+        elif not sustainable:
             reasons.append("FREE_ALLOWANCE_TYPE_UNSUPPORTED")
-        if bounded and (row.get("quota_remaining") is None or row["quota_remaining"] <= 0):
-            reasons.append("BOUNDED_FREE_BALANCE_UNMEASURED_OR_EMPTY")
-        if row["allowance_type"] == "conditional_free" and row.get("zero_net_spend_verified") is not True:
+        if row["allowance_type"] in {"recurring_free", "free_tier"} and row.get("zero_net_spend_verified") is not True:
             reasons.append("ZERO_NET_SPEND_UNVERIFIED")
         allowance_expiry = timestamp(row.get("allowance_expires_at"), "allowance_expires_at")
         if allowance_expiry and allowance_expiry <= now:
@@ -279,7 +281,7 @@ TOOLS = [
             {"operation_id": "string", "capability": "string", "routes": {"type": "array", "maxItems": 500, "items": {"type": "object"}}},
             {"failed_route": "string", "failure": "object", "effect": {"type": "string", "enum": ["read", "inference", "write"]}, "previous_effect": {"type": "string", "enum": ["none", "rejected", "accepted", "unknown"]}, "input_sensitivity": {"type": "string", "enum": ["public", "private", "confidential"]}}),
     _schema("credential_references", "Discover credential references, configured sources, and populated/empty Claude MCP entries. Returns metadata only, equally for newcomers.", {}),
-    _schema("credential_retrieve_sealed", "Retrieve an actual credential encrypted to the requester's ephemeral public key. Keep the private key in the requesting runtime; only ciphertext enters this road.", {"credential_ref": "string", "recipient_public_key": "string", "transfer_id": "string", "request_id": "string", "call_id": "string"}),
+    _schema("credential_retrieve_sealed", "Retrieve an actual credential encrypted to the requester's ephemeral public key. recipient_public_key must be the raw 32-byte X25519 public key encoded as 64 lowercase hex characters. Keep the private key in the requesting runtime; only ciphertext enters this road.", {"credential_ref": "string", "recipient_public_key": "string", "transfer_id": "string", "request_id": "string", "call_id": "string"}),
     _schema("slack_read_channel", "Read a Slack channel using existing workspace access. Follow next_cursor for remaining pages.", {"channel_id": "string"}, {"oldest": "string", "latest": "string", "cursor": "string", "limit": "integer"}),
     _schema("slack_read_thread", "Read a Slack thread within optional oldest/latest timestamps. Follow next_cursor for remaining replies.", {"channel_id": "string", "thread_ts": "string"}, {"oldest": "string", "latest": "string", "cursor": "string", "limit": "integer"}),
     _schema("slack_post_message", "Post to a channel verified as internal to the authenticated workspace. Sender is the fixed existing Slack account; do not add model or peer bylines. Returns the provider timestamp and permalink.", {"channel_id": "string", "text": "string"}, {"thread_ts": "string"}),
@@ -291,13 +293,20 @@ TOOLS = [
     _schema("github_read_file", "Read a UTF-8 source file and resolved blob SHA through the existing gh account. Set ref to pin a version.", {"repository": "string", "path": "string"}, {"ref": "string"}),
     _schema("github_read_issue", "Read a GitHub issue and one comment page; use comment_page for further pages.", {"repository": "string", "issue_number": "integer"}, {"comment_page": "integer"}),
     _schema("github_read_pull_request", "Read PR state, head/base SHAs, changed files and checks. Use page for further file pages.", {"repository": "string", "pull_number": "integer"}, {"page": "integer"}),
-    _schema("github_add_issue_comment", "Comment on an issue or PR through the existing owner account publishing service. Reuse operation_id for retries; inspect its actual receipt. Available to every peer.", {"repository": "string", "issue_number": "integer", "body": "string", "operation_id": "string"}),
-    _schema("github_update_issue_comment", "Update an existing issue/PR conversation comment through the account publishing service, preserving the comment ID. Reuse operation_id for retries.", {"repository": "string", "comment_id": "integer", "body": "string", "operation_id": "string"}),
-    _schema("github_update_issue", "Update issue title/body through the existing account publishing service. GitHub enforces author/repository permissions. Reuse operation_id for retries.", {"repository": "string", "issue_number": "integer", "operation_id": "string"}, {"title": "string", "body": "string"}),
-    _schema("github_update_pull_request", "Update PR title/body through the existing account publishing service. Reads expected_head before publication and returns after-write head readback; it does not lock the branch. Reuse operation_id for retries.", {"repository": "string", "pull_number": "integer", "expected_head": "string", "operation_id": "string"}, {"title": "string", "body": "string"}),
+    _schema("github_add_issue_comment", "Comment on an issue or PR through the existing owner account publishing service. Optional actor selects an existing named GitHub account; omission keeps the current default. Reuse operation_id for retries; inspect its actual receipt. Available to every peer.", {"repository": "string", "issue_number": "integer", "body": "string", "operation_id": "string"}, {"actor": "string"}),
+    _schema("github_update_issue_comment", "Update an existing issue/PR conversation comment through the account publishing service, preserving the comment ID. Optional actor selects an existing named GitHub account; omission keeps the current default. Reuse operation_id for retries.", {"repository": "string", "comment_id": "integer", "body": "string", "operation_id": "string"}, {"actor": "string"}),
+    _schema("github_update_issue", "Update issue title/body through the existing account publishing service. Optional actor selects an existing named GitHub account; omission keeps the current default. GitHub enforces author/repository permissions. Reuse operation_id for retries.", {"repository": "string", "issue_number": "integer", "operation_id": "string"}, {"title": "string", "body": "string", "actor": "string"}),
+    _schema("github_update_pull_request", "Update PR title/body through the existing account publishing service. Optional actor selects an existing named GitHub account; omission keeps the current default. Reads expected_head before publication and returns after-write head readback; it does not lock the branch. Reuse operation_id for retries.", {"repository": "string", "pull_number": "integer", "expected_head": "string", "operation_id": "string"}, {"title": "string", "body": "string", "actor": "string"}),
     _schema("github_create_branch", "Create a branch from base_ref (default main), resolving its commit internally. base_sha remains a compatible override and also accepts a ref. Returns an existing branch only when its head matches the resolved base; never moves an existing branch. Publication runs through the existing account publishing service; reuse operation_id for retries.", {"repository": "string", "branch": "string", "operation_id": "string"}, {"base_ref": {"type": "string", "default": "main", "description": "Source branch, tag, ref, or commit; resolved internally. Defaults to main."}, "base_sha": {"type": "string", "description": "Compatibility override for base_ref: an existing commit SHA or ref."}}),
     _schema("github_commit_files", "Commit UTF-8 files to an existing branch through the existing account publishing service, comparing expected_head first and again inside the named operation. Supply full file contents. Reuse operation_id for retries.", {"repository": "string", "branch": "string", "expected_head": "string", "message": "string", "operation_id": "string"}, {"files": {"type": "array", "items": {"type": "object", "properties": {"path": {"type": "string"}, "content": {"type": "string"}}, "required": ["path", "content"]}}}),
-    _schema("github_create_pull_request", "Open a useful PR for existing task work through the existing account publishing service. Returns an existing open PR for the same head/base on retry. Reuse operation_id for retries; head_repo, maintainer_can_modify and transport ('graphql') pass through to the named operation.", {"repository": "string", "head": "string", "base": "string", "title": "string", "body": "string", "operation_id": "string"}, {"draft": "boolean", "head_repo": "string", "maintainer_can_modify": "boolean", "transport": "string"}),
+    _schema("github_edit_files", "Commit compact exact replacements using files read at expected_head. Each path and expected_blob_sha must match; each nonempty old anchor must occur exactly once. Delegates the complete atomic files to github_commit_files and its existing named-account publisher. Reuse operation_id for retries.",
+            {"repository": "string", "branch": "string", "expected_head": "string", "message": "string", "operation_id": "string",
+             "edits": {"type": "array", "minItems": 1, "items": {"type": "object", "additionalProperties": False,
+                       "properties": {"path": {"type": "string", "minLength": 1}, "expected_blob_sha": {"type": "string", "pattern": "^[0-9a-fA-F]{40}$"},
+                                      "replacements": {"type": "array", "minItems": 1, "items": {"type": "object", "additionalProperties": False,
+                                                       "properties": {"old": {"type": "string", "minLength": 1}, "new": {"type": "string"}}, "required": ["old", "new"]}}},
+                       "required": ["path", "expected_blob_sha", "replacements"]}}}),
+    _schema("github_create_pull_request", "Open a useful PR for existing task work through the existing account publishing service. Returns an existing open PR for the same head/base on retry. Reuse operation_id for retries; head_repo is the short repository name (e.g. wavelum-frontend), never owner/name; omit when it matches the target repo name. maintainer_can_modify and transport ('graphql') pass through to the named operation.", {"repository": "string", "head": "string", "base": "string", "title": "string", "body": "string", "operation_id": "string"}, {"draft": "boolean", "head_repo": {"type": "string", "minLength": 1, "maxLength": 100, "pattern": "^(?!\\.$|\\.\\.$)[A-Za-z0-9_.-]+$", "description": "Short head repository name, not owner/name. Omit when it matches the target repo name."}, "maintainer_can_modify": "boolean", "transport": "string"}),
     _schema("github_merge_pull_request", "Merge an authorized reviewed PR through the existing account publishing service. Reads the pull head, commit identities and base branch head first and supplies head and base compare-and-swap inside the named operation; GitHub still enforces branch rules. Reuse operation_id for retries.", {"repository": "string", "pull_number": "integer", "expected_head": "string", "operation_id": "string"}, {"merge_method": "string"}),
     _schema("cua_s1_form", "Score a form in one already-open Chrome tab with the official CUA-S1-FORMS checkpoint. Defaults to a dry run; execute and submit are separate explicit booleans. Reports observed actions and failures, and never opens a tab.",
             {"url": "string", "form_title": "string", "entities": {"type": "array", "items": {"type": "object", "properties": {"label": {"type": "string"}, "value": {"type": "string"}}, "required": ["label", "value"]}}},
@@ -563,6 +572,7 @@ class ServiceEquipment(GitHubSlackEquipment):
         if name in publication_tools:
             from .github_publication import publish
             operation, number_key = publication_tools[name]
+            actor = _string(a, "actor") if "actor" in a else None
             number = a.get(number_key)
             if isinstance(number, bool) or not isinstance(number, int) or number < 1:
                 raise EquipmentError(number_key + " must be a positive integer")
@@ -585,7 +595,7 @@ class ServiceEquipment(GitHubSlackEquipment):
                 current = self.github(f"{root}/pulls/{number}")
                 if current["head"]["sha"] != expected:
                     raise EquipmentError("PR head changed; read the current PR before updating its description")
-            result = publish(operation, outgoing, _string(a, "operation_id"))
+            result = publish(operation, outgoing, _string(a, "operation_id"), actor=actor)
             if expected is not None and result["ok"]:
                 # Publication already succeeded. A failed read cannot erase its receipt.
                 try:
@@ -668,6 +678,33 @@ class ServiceEquipment(GitHubSlackEquipment):
             return publish("branch.create",
                            {"owner": owner, "repo": repository_name, "branch": branch, "sha": sha},
                            _string(a, "operation_id"), actor=owner)
+        if name == "github_edit_files":
+            from .file_edits import prepare_file_edits, require_sha, validate_file_edits
+            edits = validate_file_edits(a.get("edits"))
+            branch = _string(a, "branch")
+            expected = require_sha(a.get("expected_head"), "expected_head")
+            message, operation_id = _string(a, "message"), _string(a, "operation_id")
+            _require_outbound_identity({"branch": branch, "message": message})
+            ref = self.github(root + "/git/ref/heads/" + _quote(branch))
+            if ref["object"]["sha"] != expected:
+                raise EquipmentError("branch head changed; read current head and reconcile edits")
+            sources = {}
+            for edit in edits:
+                path = "/".join(_quote(part) for part in edit["path"].split("/"))
+                value = self.github(root + "/contents/" + path + "?ref=" + _quote(expected))
+                if (not isinstance(value, dict) or value.get("type") != "file"
+                        or value.get("path") != edit["path"] or value.get("sha") != edit["expected_blob_sha"]):
+                    raise EquipmentError("pinned file path or blob SHA changed: " + edit["path"])
+                if value.get("encoding") == "none":
+                    blob = self.github(root + "/git/blobs/" + _quote(edit["expected_blob_sha"]))
+                    if not isinstance(blob, dict) or blob.get("sha") != edit["expected_blob_sha"]:
+                        raise EquipmentError("GitHub returned an invalid resolved blob")
+                    value = {**blob, "path": edit["path"]}
+                sources[edit["path"]] = value
+            files = prepare_file_edits(edits, sources)
+            return self._call("github_commit_files", {"repository": repo, "branch": branch,
+                              "expected_head": expected, "message": message,
+                              "operation_id": operation_id, "files": files})
         if name == "github_commit_files":
             branch, expected = _string(a, "branch"), _string(a, "expected_head")
             message = _string(a, "message")
@@ -700,14 +737,23 @@ class ServiceEquipment(GitHubSlackEquipment):
                 "title": title,
                 "body": body,
             })
+            head_repo = None
+            if "head_repo" in a:
+                head_repo = _string(a, "head_repo")
+                if (re.fullmatch(r"[A-Za-z0-9_.-]{1,100}", head_repo) is None
+                        or head_repo in {".", ".."}):
+                    raise EquipmentError(
+                        "head_repo must be a short repository name, not owner/name",
+                        code="invalid_head_repo", uncertain=False,
+                    )
             query = urllib.parse.urlencode({"state": "open", "head": head if ":" in head else owner + ":" + head, "base": base})
             existing = self.github(root + "/pulls?" + query)
             if existing:
                 return {"created": False, "pull_request": existing[0]}
             outgoing = {"owner": owner, "repo": repo.split("/")[1], "head": head, "base": base,
                         "title": title, "body": body, "draft": bool(a.get("draft", False))}
-            if "head_repo" in a:
-                outgoing["head_repo"] = _string(a, "head_repo")
+            if head_repo is not None:
+                outgoing["head_repo"] = head_repo
             if "maintainer_can_modify" in a:
                 outgoing["maintainer_can_modify"] = bool(a["maintainer_can_modify"])
             if "transport" in a:

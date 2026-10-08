@@ -16,8 +16,8 @@ from .provider_io import EquipmentError, redacted
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_ROUTES = ROOT / "inventory/resources/connected_capability_observations.json"
 ROUTER_TOOLS = frozenset({"connected_tool_run", "connected_tool_dispatch",
-                          "connected_tool_resume", "connected_tool_status"})
-SUCCESS_DECISIONS = frozenset({"DISPATCH", "COMPLETED", "AWAITING_PROVIDER_RESPONSE", "ROUTING"})
+                          "connected_tool_resume", "connected_tool_status", "connected_tool_rail_health"})
+SUCCESS_DECISIONS = frozenset({"DISPATCH", "COMPLETED", "AWAITING_PROVIDER_RESPONSE", "ROUTING", "RAIL_HEALTH"})
 
 
 def _tool(name, description, properties, required):
@@ -45,6 +45,11 @@ TOOLS = [
           {"operation_id": {"type": "string", "minLength": 1},
            "dispatch_id": {"type": "string", "minLength": 1},
            "response": {"type": "object"}}, ["operation_id", "dispatch_id", "response"]),
+    _tool("connected_tool_rail_health",
+          "Read typed per-quota-domain observations from this gateway\'s existing private journal. "
+          "No operation ID, provider call or routing change. Past outcomes and expired "
+          "cooldowns do not establish current health; unknown budgets stay unknown.",
+          {}, []),
     _tool("connected_tool_status",
           "Read one connected capability operation and the shared quota-domain observations "
           "without calling a provider or rewriting the journal. Unknown allowance stays unknown.",
@@ -90,6 +95,10 @@ class ConnectedToolEquipment:
                 result = router.dispatch(arguments["request"])
             elif name == "connected_tool_resume":
                 result = router.resume(arguments["operation_id"], arguments["dispatch_id"], arguments["response"])
+            elif name == "connected_tool_rail_health":
+                if arguments:
+                    raise EquipmentError("connected_tool_rail_health takes no arguments")
+                result = router.rail_health()
             else:
                 operation_id = arguments["operation_id"]
                 if not isinstance(operation_id, str) or not operation_id.strip():

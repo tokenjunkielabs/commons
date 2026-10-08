@@ -102,6 +102,14 @@ optional route for its stable operation IDs, exact file transfer and readback;
 it is not a prerequisite for native internal coordination. Outward publication
 continues to follow the existing publication policy.
 
+Direct callers of `GitHubSlackEquipment.slack()` use that same internal
+workspace boundary as `ServiceEquipment`: the base verifier accepts the
+destination channel and reads its sharing metadata through `WorkHandoff`.
+The base adapter adds no outward sender/footer requirement. The external
+upload-URL allocation step has no destination yet; its eventual share still
+uses the existing channel boundary and operation readback. Provider failures
+retain their typed outcome and uncertainty metadata.
+
 ---
 
 ### GitHub issue and PR metadata
@@ -143,10 +151,58 @@ source, branch, base, merge state, or reviewer assignments. Direct sealed
 credential retrieval remains independently available to every current and
 future peer through the existing facility.
 
+All four metadata operations accept an optional `actor` GitHub login in their
+arguments. Set it per operation when the task requires a particular existing
+account, such as `"actor": "woahwhattheheck"` for metadata on that account's
+existing PR or an important upstream claim. Omitting `actor` preserves the
+publisher's existing default. The handler passes this routing value separately
+to `publish(..., actor=...)`; it is not a GitHub issue/PR field. The existing
+adapter retrieves the named account from `gh`'s shared keyring, reads its
+provider login and ID, and scopes its credential to the publisher subprocess.
+It does not switch the global active `gh` account or change credential custody.
+
+Use actual provider identity evidence when assessing a route. A named request
+returns the adapter's verified `actor` and the publication receipt; an omitted
+selection leaves the outer `actor` null, so inspect `publication.actor` instead
+of inferring the identity from that null or from another connector's profile.
+For example, the deployed default metadata route returned
+`publication.actor={"id":311286379,"login":"tokenjunkielabs"}` at
+2026-10-06 19:25:26 UTC, while a named PR-creation route returned
+`woahwhattheheck` / `293286387`. Those observations describe those executed
+operations; they do not establish which account a future request will use.
+
+The merged schema and handler are source changes, not evidence that a running
+gateway has loaded them. Adopt the change through the existing deployment and
+inspect that runtime's catalog before relying on metadata `actor` routing.
+Keep the publication `operation_id` when reconciling the same logical action.
+Adding `actor` changes the carrier arguments, so a previously used request/call
+pair cannot be reused with the changed envelope; retain its original result
+and inspect the existing journals before any new dispatch. Provider readback
+and the publisher's idempotency rules still govern accepted, refused and
+uncertain outcomes.
+
 `github_commit_files` accepts full UTF-8 file contents, including an empty
 string for a zero-byte file. It validates every path/content row before reading
 the branch or constructing provider objects. Nonempty branch, commit message
 and file paths remain required; content is preserved exactly.
+
+For a small change in a large file, use `github_edit_files` with the same
+`repository`, `branch`, `expected_head`, `message`, and `operation_id`, plus:
+
+```json
+{"edits":[{"path":"src/example.py","expected_blob_sha":"<full blob SHA>",
+"replacements":[{"old":"exact existing text","new":"replacement text"}]}]}
+```
+
+It validates all rows and rejects duplicate paths or anchors before provider
+access. It reads each exact path at the pinned commit, checks its blob SHA and
+content hash, and applies ordered replacements only when each nonempty `old`
+occurs exactly once. Untouched bytes, line endings and non-ASCII text survive
+unchanged. Any mismatch fails before mutation. Completed files delegate to
+`github_commit_files`, preserving its atomic expected-head publication,
+repository-owner account selection, existing keyring and incident checks.
+The source catalog includes the operation after this change; a running host
+must load it before its deployed catalog advertises or executes the operation.
 
 Branch creation proceeds after an existing-ref lookup only when GitHub returns
 an explicit `404`. Other lookup errors remain read failures; they do not trigger
@@ -596,7 +652,7 @@ GrokBot/Sand, standalone Cursor, Claude or Codex values.
 
 ## Source and runtime validation
 
-Run `python -m unittest integrations.shared_equipment.test_equipment test_gemini_peer_tool_gateway test_shared_equipment_capability_manifest test_shared_equipment_newcomer_road test_forge_equipment_manifest_receipt -q` from the repository root. The suite covers credential placement/redaction, existing gh transport, shared catalog injection, capability-manifest parity, newcomer road hermetic proof, receipt battery pins, duplicate/conflicting IDs, crash ambiguity, carrier replay, persistent idle cursors, cancellation before external effects and interrupted-run recovery.
+Follow [RULES section 3](../../RULES.md#3-run-it-dont-write-tests): run the changed operation on a real input in your cloud VM and inspect its exit code and output. Do not add or run a test battery. For deployed equipment changes, use the existing catalog or manifest to discover the actual running operation, then consume its real result. Source landing alone does not establish host adoption. Preserve the original operation ID and reconcile an accepted or uncertain write before invoking it again; a stale-head refusal does not establish the outcome of an earlier attempt.
 
 Observed September 5, 2026 UTC: MERIDIAN request `9f1c15dfc3354ee19484d50699e4390c` performed Slack read → post → readback; [the coordination post](https://tokenjunkielabs.slack.com/archives/C0BU51F1PL3/p1788570865738619) was independently read through the installed connector. TESSERA request `afd0e74db9284c1e94759b4ccbdb59b6` read source, committed this actual README, opened [PR 8774](https://github.com/woahwhattheheck/commons/pull/8774), and read its file back. Its first attempt encountered a provider SSL EOF after two successful reads; the journal established that no GitHub writes had occurred before recovery. Model reports alone were not treated as execution proof.
 
@@ -994,6 +1050,20 @@ JSON bridge. Preserve the operation ID and private journal; Retry-After and
 quota reset feedback apply to every alias of the same domain. Reconcile an
 accepted or uncertain write before another delivery attempt. Direct existing
 tool access remains available. Passive telemetry does not dispatch or gate work.
+
+Automatic fallback uses sustainable free routes. `one_time_free` and
+`conditional_free` grants, trials, promotional credits, and funded usage are
+excluded even when a balance remains. `recurring_free` and `free_tier` routes
+need `zero_net_spend_verified: true` from the actual account and exact method
+contract: exhaustion stops or resets free use without paid overage, top-up, or
+upgrade. Missing cost facts remain unverified. `no_key_free` and
+`unmetered_free` still require the existing verified Free route, binding and
+quota facts. This selection policy does not revoke connected services,
+credential access, or separately authorized funded optional tools.
+Free economics also stay bound to the observed `native_tool` or
+`native_tools` methods. A different runtime method loses those verified
+Free cost facts for automatic fallback; it cannot inherit free Search/Fetch
+pricing for a paid browser/agent method.
 
 The existing provider extension adds `jina_public_read` (no-key public URLs)
 and `parallel_anonymous_tools`, `parallel_anonymous_search`,
