@@ -14,6 +14,17 @@ products, while a library documentation request may need Context7. Use
 specifies how to invoke a tool; a dispatch is an invocation request and does not
 prove that the provider accepted it.
 
+`host/connected_tool_request.py` prepares discovered search and URL-read
+bindings from a logical task. Search keeps the complete main `query` up to
+2,000 characters for TinyFish, Tavily, Firecrawl and Exa. The optional
+`search_queries` list belongs to Parallel's separate contract: one to eight
+nonempty queries, at most 500 characters each. If that list is omitted, a main
+query of at most 500 characters also supplies Parallel's default subquery;
+a longer main query prepares the other discovered bindings unchanged. To use
+Parallel with a longer main query, provide explicit bounded `search_queries`
+and the existing `session_id`. The adapter never truncates either field or
+changes route eligibility. Explicit malformed subqueries remain an input error.
+
 A request contains the existing `operation_id`, `capability`, `effect`
 (`read`, `inference` or `write`), `input_sensitivity`, and `bindings`. Each binding
 maps a route ID to `tool`, provider-specific `arguments`, and optional
@@ -106,6 +117,31 @@ The updated production function also returns `http_status=429`; the observed
 cooldown remains exactly one second. This restores status visibility and the
 existing router's HTTP-specific decisions. It does not establish a reduction
 in provider calls or deployment to other gateways, and no live write was used.
+
+## Offline rail health
+
+Existing bridge consumers can call `router.rail_health()` on the same router
+and private state file used by dispatch/resume. Operators can inspect it without
+an operation ID or provider call:
+
+```sh
+python host/connected_tool_router.py rail-health \
+  --routes-file inventory/resources/connected_capability_observations.json \
+  --state-file /private/runtime/connected-tools.json
+```
+
+The projection groups the configured route IDs by their exact quota-domain IDs.
+App, actor293 and actor311 remain separate only when their configured domains
+are separate; the helper never infers an actor or changes credentials. It shows
+the latest scalar outcome, provider/client cooldown deadlines, pending counts,
+and observed budget timestamps. Request counts remain separate from generic
+quota balances and request/token buckets. Old journals retain unknown latest
+outcomes and budget provenance until an actual response records them. Balances
+are observations, not current allowance promises; inspect their reset and
+observation times. The output excludes operation arguments and provider results.
+No routing, retry, schedule or provider invocation occurs.
+Pending counts use one pass over the operation journal for all configured
+quota domains, rather than rescanning that journal for each rail.
 
 ## Recovery and quota feedback
 
@@ -225,3 +261,4 @@ The timing loop used `perf_counter_ns` and `process_time_ns`, excluding imports,
 input preparation and result serialization. This measures local journal handling,
 with synthetic records and warm caches; it does not measure physical-disk latency,
 Windows locking, provider throughput or deployment to another carrier.
+
