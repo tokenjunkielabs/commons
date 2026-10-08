@@ -281,6 +281,32 @@ class BridgeStore:
 
 _PEER_PREFIX = re.compile(r"^\s*(meridian|tessera)\s*(?::|,|—|-)\s*", re.IGNORECASE)
 _SLACK_MENTION = re.compile(r"<@[A-Z0-9]+>")
+_GITHUB_WORK_REFERENCE = re.compile(
+    r"(?i)(?:https://github\.com/)?[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+"
+    r"(?:/(?:issues|pull)/|#)[1-9][0-9]*"
+)
+_BOUNTY_BATCH_HEADING = re.compile(
+    r"(?i)\b(?:new\s+work\s+orders\s+intake|payable\s+candidates?|"
+    r"bounty\s+(?:candidate|intake|audit))\b"
+)
+_UNVERIFIED_ECONOMIC_STATUS = re.compile(
+    r"(?i)\b(?:payable(?:\s+candidates?)?|escrow(?:ed)?|funded)\b"
+)
+_ECONOMIC_STATUS_REPLACEMENTS = (
+    (re.compile(r"(?i)\bpayable\s+candidates?\b"), "unverified leads"),
+    (re.compile(r"(?i)\bpayable\b"), "unverified lead"),
+    (re.compile(r"(?i)\bescrow(?:ed)?\b"), "provider funding unverified"),
+    (re.compile(r"(?i)\bfunded\b"), "provider funding unverified"),
+)
+_BOUNTY_VALIDATION_HOLD = (
+    "*BOUNTY ECONOMICS VALIDATION HOLD — LEADS ONLY*\n"
+    "This free-form peer reply has no code-owned receipt proving the canonical "
+    "GitHub resource exists, is an open issue, and has an independently verified "
+    "current provider and amount. Every listed row is therefore a lead; no positive "
+    "compensation status is established. Historical reward markers, unavailable or "
+    "closed resources, internal "
+    "repositories, and `Maybe Rewarded` labels cannot establish current funding.\n\n"
+)
 
 
 def route_message(text: str, remembered_peer: str | None = None) -> tuple[str, str]:
@@ -311,6 +337,37 @@ def chunks(text: str, limit: int = SLACK_TEXT_LIMIT) -> Iterable[str]:
         remaining = remaining[split_at:].lstrip()
     if remaining:
         yield remaining
+
+
+def downgrade_unverified_bounty_economics(text: str) -> str:
+    """Keep free-form Gemini bounty batches out of the payable queue.
+
+    The Slack bridge receives prose, not Bounty Concierge's live canonical and
+    provider receipts.  A model-authored batch therefore cannot prove that a
+    referenced GitHub object exists, is an open issue rather than a PR, or has
+    a current independently verified provider amount.  When such prose labels
+    a multi-row intake as payable, funded, or escrowed, preserve the leads while
+    downgrading every economic status.  Positive economic classification stays
+    with the code-owned Bounty Concierge intake path.
+
+    Ordinary Slack discussion and single-item status messages are unchanged.
+    This is an economic-truth boundary, not a claim, permission, identity, or
+    work-admission gate.
+    """
+    if not isinstance(text, str):
+        raise BridgeError("slack reply text must be a string")
+    references = _GITHUB_WORK_REFERENCE.findall(text)
+    if (
+        len(references) < 2
+        or _BOUNTY_BATCH_HEADING.search(text) is None
+        or _UNVERIFIED_ECONOMIC_STATUS.search(text) is None
+    ):
+        return text
+
+    downgraded = text
+    for pattern, replacement in _ECONOMIC_STATUS_REPLACEMENTS:
+        downgraded = pattern.sub(replacement, downgraded)
+    return _BOUNTY_VALIDATION_HOLD + downgraded
 
 
 
@@ -382,6 +439,7 @@ class SlackSink:
 
     def post(self, channel: str, thread_ts: str, peer: str, text: str) -> None:
         # Check the whole reply and destination before any provider mutation.
+        text = downgrade_unverified_bounty_economics(text)
         require_publication(text)
         self.scope.require_channel(channel)
         pieces = list(chunks(text)) or ["(empty reply)"]
@@ -682,4 +740,3 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
