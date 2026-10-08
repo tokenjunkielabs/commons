@@ -212,9 +212,12 @@ class GitHubSlackEquipment:
         self.gh_runner = gh_runner or subprocess.run
         self.opener = opener or urllib.request.build_opener(_NoRedirect()).open
 
-    def _slack_write_route_verified(self) -> bool:
-        """Production remains read-only until sender identity/footer are verified."""
-        return False
+    def _slack_write_route_verified(self, channel_id: str | None = None) -> bool:
+        """Read channel sharing metadata for the internal Slack transport."""
+        if channel_id is None:
+            return True
+        from .workhandoff import WorkHandoff
+        return WorkHandoff(self)._channel_info(channel_id) is not None
 
     @staticmethod
     def _load_slack_token() -> str:
@@ -269,15 +272,15 @@ class GitHubSlackEquipment:
             if getattr(self, "_slack_route_preverified", None) != destination:
                 if not callable(verifier) or not verifier(destination):
                     raise EquipmentError(
-                        "Slack write not delivered. The installed sender identity/footer "
-                        "does not match the fixed authenticated internal workspace account.",
-                        code="outbound_sender_identity_unverified",
+                        "Slack write not delivered. The internal workspace destination "
+                        "could not be established from the available channel metadata.",
+                        code="slack_internal_destination_unverified",
                         uncertain=False,
                         incident=False,
                         delivered=False,
                         matched_fields=(),
                         matched_terms=(),
-                        private_instruction="Read back the internal Slack sender and visible message fields before retrying.",
+                        private_instruction="Read the existing destination state before retrying this operation.",
                     )
             # Internal TJLabs Slack is explicitly exempt from the public
             # Commons/GitHub publication classifier. Fixed account + exact
