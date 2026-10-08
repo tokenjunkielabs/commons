@@ -1,0 +1,113 @@
+{
+  "schema": "commons-resource-activation/v1",
+  "id": "resource-master-capability-delta-20261006-0304",
+  "operation_id": "RM-20261006-0304-CAPABILITY-DELTA",
+  "observed_at": "2026-10-06T07:13:44.149Z",
+  "title": "Post-watermark revenue-source, benchmark, host-tool and finite-index reconciliation",
+  "consumer": "Existing PayD/Stellar delivery owners, competition benchmark owners, connected-operation owners and finite research consumers",
+  "outcome": {
+    "resources": 492,
+    "producing": 252,
+    "evidence_records": 131,
+    "activated_count": 31,
+    "activated": [
+      "payd177-local-setup-clone-source-packet",
+      "payd387-report-date-labels-source-packet",
+      "payd416-report-interface-i18n-source-packet",
+      "payd417-upgrade-input-labels-source-packet",
+      "payd417-upgrade-copy-rejection-source-packet",
+      "payd576-report-download-cleanup-source-packet",
+      "stellar-accessibility-flat-config-source-packet",
+      "stellar-api-headers-initialization-source-packet",
+      "stellar-console-replacement-scan-source-packet",
+      "stellar-csv-field-quoting-source-packet",
+      "stellar-export-progress-cleanup-source-packet",
+      "stellar-notification-audio-teardown-source-packet",
+      "stellar-notification-auto-hide-source-packet",
+      "stellar-notification-resume-rejection-source-packet",
+      "stellar-notification-test-sound-close-source-packet",
+      "stellar-notification-preference-switch-names-source-packet",
+      "stellar-offline-reconnect-timer-source-packet",
+      "stellar-pwa-install-prompt-await-source-packet",
+      "stellar-shortcut-reset-source-packet",
+      "stellar-keyboard-edit-trigger-source-packet",
+      "connected-intake-plan-tool",
+      "connected-public-checkpoint-tool",
+      "enveda-casmi26-mass-prefilter-and-hybrid-ranker",
+      "gitlab-recovery-benchmark-r1",
+      "hackerrank-orchestrate-benchmark-report",
+      "trafficflowbench-task1-shortgap-baseline",
+      "niddk-kidney-anomaly-retrieval-baseline",
+      "memecoin-leakage-aware-baseline",
+      "erdos146-k23-edge-subgraph-index",
+      "erdos593-weak-vertex-color-index",
+      "ppl145-hesse-uniform-support-index"
+    ],
+    "build_orders": [],
+    "completed_activation": "Twenty PayD/Stellar source packets, two connected-operation tools, six bounded competition benchmark sources and three saved finite research indexes were canonicalized under retained owners."
+  },
+  "watermark": {
+    "prior_terminal_slack_ts": "1791260019.072159",
+    "slack_sweep_through": "1791260019.072159",
+    "claim_ts": "1791270520.911739",
+    "prior_main_sha": "aa406a5fad935d80a3c86fccea8bfc732b1c2273",
+    "github_source_through": "91a128190790dc1070a158060af715d8cbba6d46",
+    "github_compare": {
+      "ahead_by": 85,
+      "behind_by": 0,
+      "total_commits": 85
+    },
+    "required_slack_channels": {
+      "commons": "C0BRGMDQB6G",
+      "delegations": "C0BTB4SUCP9",
+      "todo": "C0BU2V38CBC",
+      "shipped_builds": "C0BTVA3C0G3",
+      "products": "C0BTA20SU95",
+      "leads": "C0BTURDA3PW",
+      "sales": "C0BTTA66TK3"
+    },
+    "automations_observed": {
+      "resource_master_enabled": true,
+      "previously_disabled_restarted": false
+    },
+    "reset_check": "NO_QUALIFYING_OFFICIAL_OR_DIRECTLY_OBSERVED_RESET_RECORDED; PRIOR_QUOTA_STATE_RETAINED"
+  },
+  "evidence": {
+    "claim": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791270520911739",
+    "source_main": "https://github.com/woahwhattheheck/commons/commit/91a128190790dc1070a158060af715d8cbba6d46",
+    "material_prs": [
+      31929,
+      31931,
+      31932,
+      31933,
+      31935,
+      31936,
+      31938,
+      31939,
+      31940,
+      31942
+    ],
+    "slack_delta": "No message newer than the prior terminal receipt on the seven required channels.",
+    "collision_check": "No overlapping open pull request found for the four canonical ledger paths at claim time."
+  },
+  "boundaries": {
+    "production_write": false,
+    "buyer_contact": false,
+    "upstream_submission": false,
+    "competition_submission": false,
+    "owner_only_action": false,
+    "deployment_claim": false,
+    "acceptance_claim": false,
+    "award_claim": false,
+    "payment_claim": false,
+    "payout_claim": false,
+    "revenue_claim": false,
+    "cash_claim": false,
+    "no_contact_or_relay_to_michael_clark": true
+  },
+  "next_lower_bound": {
+    "github_main_sha": "91a128190790dc1070a158060af715d8cbba6d46",
+    "slack_ts": "1791270520.911739",
+    "durable_record": "inventory/resources/records/resource-master-capability-delta-20261006-0304.json"
+  }
+}

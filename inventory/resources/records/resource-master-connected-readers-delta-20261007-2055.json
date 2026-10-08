@@ -1,0 +1,143 @@
+{
+  "schema": "commons-resource-activation/v1",
+  "id": "resource-master-connected-readers-delta-20261007-2055",
+  "operation_id": "COMMONS-RESOURCE-MASTER-CONNECTED-READERS-DELTA-20261007-2055",
+  "observed_at": "2026-10-08T00:59:43Z",
+  "title": "Bounded connected GitHub observation, privacy-safe Library header projection, and ledger UI activation",
+  "consumer": "Resource Master, source-pinned publishers, connected-app operators, and Commons queue readers",
+  "outcome": {
+    "resources": 650,
+    "producing": 289,
+    "evidence_records": 147,
+    "activated_count": 3,
+    "new_resources": 2,
+    "advanced_resources": 1,
+    "activated": [
+      "connected-github-tree-branch-observation-stack",
+      "connected-library-read-header-projector",
+      "resource-master-office"
+    ],
+    "build_orders": [],
+    "completed_activation": "Activated bounded connected GitHub branch/tree/source-recovery projection and a privacy-safe Library read-header projector from exact retained-input receipts; advanced the Resource Master office so the ledger UI consumes canonical current queue fields. No deployment or fresh provider effect is claimed."
+  },
+  "watermark": {
+    "prior_terminal_slack_ts": "1791410960.986739",
+    "slack_sweep_through": "1791421159.485929",
+    "claim_ts": "1791421159.485929",
+    "prior_observed_main_sha": "1de23ef0984501a620e18d1c8b580f4e8b7490b6",
+    "github_source_through": "a83fe7c888ca9054e7da5d6e0c28faaece7d5fb6",
+    "later_arrivals_not_swept": [
+      "commits after a83fe7c888ca9054e7da5d6e0c28faaece7d5fb6",
+      "Slack messages after 1791421159.485929"
+    ],
+    "automations_observed": {
+      "resource_master_enabled": true,
+      "enabled": 3,
+      "disabled": 22,
+      "total_observed": 25,
+      "previously_disabled_restarted": false
+    },
+    "reset_check": "PRIOR_QUOTA_STATE_RETAINED; NO QUALIFYING NEW OFFICIAL OR DIRECTLY OBSERVED RESET"
+  },
+  "evidence": {
+    "claim": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791421159485929",
+    "source_main": "https://github.com/woahwhattheheck/commons/commit/a83fe7c888ca9054e7da5d6e0c28faaece7d5fb6",
+    "activation_branch": "resource-master/connected-readers-delta-20261007-2055",
+    "slack_channels_swept": [
+      "C0BRGMDQB6G",
+      "C0BTB4SUCP9",
+      "C0BU2V38CBC",
+      "C0BTVA3C0G3",
+      "C0BTA20SU95",
+      "C0BTURDA3PW",
+      "C0BTTA66TK3",
+      "C0BU51F1PL3"
+    ],
+    "open_pull_requests_after_sweep": 0,
+    "github_delta": {
+      "commits_after_prior_main": 56,
+      "merged_pull_requests": 26,
+      "non_generated_capability_and_display_merges": 26,
+      "generated_projection_commits_excluded": true
+    },
+    "connected_github_observation": {
+      "branch_reader_pr": "https://github.com/woahwhattheheck/commons/pull/32276",
+      "tree_reader_pr": "https://github.com/woahwhattheheck/commons/pull/32282",
+      "bounded_source_recovery_pr": "https://github.com/woahwhattheheck/commons/pull/32293",
+      "retained_tree_row_counts": [
+        1012,
+        1148
+      ],
+      "provider_continuations": 0,
+      "ref_resolutions": 0
+    },
+    "connected_library_header": {
+      "projector_pr": "https://github.com/woahwhattheheck/commons/pull/32287",
+      "retained_items": 1,
+      "retained_blocks": 1,
+      "body_or_url_published": false,
+      "provider_calls_by_activation": 0
+    },
+    "ledger_ui": {
+      "current_field_renderer_pr": "https://github.com/woahwhattheheck/commons/pull/32277",
+      "source_ledger_surfaces": 648,
+      "source_priority_rows": 47,
+      "rendered_rows_under_existing_filter": 29,
+      "browser_or_deployment_verification": false
+    },
+    "workflow_observations": {
+      "current_main_open_door_guard": "success",
+      "current_main_capability_entrypoints": "success",
+      "recovered_failures": [
+        "PR32293 and its push had an earlier open-door failure followed by a later successful current-main open-door run"
+      ],
+      "new_build_order": false,
+      "reason_no_build_order": "Every material capability gap in the delta is already landed; no fresh unowned, collision-free implementation lane remains."
+    },
+    "excluded_as_non_resources": [
+      "generated board and projection churn",
+      "projected Slack mirror issues 32291 and 32292",
+      "repeated coordination messages",
+      "cached account connection without an exact consumer",
+      "source-only display fixes without deployment receipt"
+    ],
+    "local_checks": [
+      "canonical counts exactly 650 resources / 289 producing / 147 evidence sources",
+      "two new identities and one existing identity advanced without duplication",
+      "only ledger, append-only receipt and generated projection changed",
+      "open-door/no-auth, zero-fabrication, secret-shaped, privacy and exact-diff assertions"
+    ]
+  },
+  "money_state": {
+    "proposed_usd": 0,
+    "promised_usd": 0,
+    "funded_usd": 0,
+    "awarded_usd": 0,
+    "invoiced_usd": 0,
+    "received_usd": 0
+  },
+  "boundaries": {
+    "buyer_contact": false,
+    "upstream_submission": false,
+    "deployment": false,
+    "device_action": false,
+    "account_action": false,
+    "repository_provider_configuration_mutation": false,
+    "authenticated_execution": false,
+    "acceptance": false,
+    "award": false,
+    "settlement": false,
+    "payment": false,
+    "payout": false,
+    "revenue": false,
+    "cash": false,
+    "michael_contact_or_relay": false,
+    "owner_only_action": false,
+    "titan_mutation": false,
+    "claude_session": false,
+    "claude_test_or_verdict": false,
+    "cursor_hold_preserved": true,
+    "grok_submit": false,
+    "private_data_published": false
+  }
+}

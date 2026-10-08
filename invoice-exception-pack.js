@@ -244,7 +244,7 @@
 
     form.addEventListener("submit", function (event) {
       event.preventDefault();
-      processCurrentInput({}, "Completed without moving money.");
+      processCurrentInput({});
     });
     doc.getElementById("force-crash").addEventListener("click", function () {
       try { processCurrentInput({ forceCrashAfterIntent: true }); }

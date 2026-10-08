@@ -1,0 +1,69 @@
+{
+  "schema": "commons-resource-activation/v1",
+  "id": "resource-master-late-arrivals-20261006-0317",
+  "operation_id": "RM-20261006-0317-LATE-ARRIVALS",
+  "observed_at": "2026-10-06T07:22:50.854Z",
+  "title": "Late Stellar, rectangular-matching and KCMO opportunity reconciliation",
+  "consumer": "Existing Stellar owners, finite matching readers and internal KCMO pursuit owner",
+  "outcome": {
+    "resources": 496,
+    "producing": 253,
+    "evidence_records": 132,
+    "activated_count": 4,
+    "activated": [
+      "stellar-chart-export-escape-dismissal-source-packet",
+      "stellar-notification-visible-selection-membership-source-packet",
+      "ppl171-rectangular-matching-index",
+      "kcmo-ev4601-stage1-challenge-pursuit"
+    ],
+    "build_orders": [],
+    "completed_activation": "Two landed Stellar source packets, one saved finite rectangular-matching index and one evidence-bound conditional KCMO pursuit were canonicalized under retained owners."
+  },
+  "watermark": {
+    "prior_terminal_slack_ts": "1791260019.072159",
+    "prior_claim_ts": "1791270520.911739",
+    "slack_sweep_through": "1791270848.049369",
+    "claim_ts": "1791271105.592599",
+    "prior_main_sha": "91a128190790dc1070a158060af715d8cbba6d46",
+    "github_source_through": "89f30675967a988eede8827aeabd9b63eaf9da01",
+    "automations_observed": {
+      "resource_master_enabled": true,
+      "previously_disabled_restarted": false
+    },
+    "reset_check": "PRIOR_QUOTA_STATE_RETAINED; NO SECOND RESET CHECK PERFORMED"
+  },
+  "evidence": {
+    "claim": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791271105592599",
+    "prior_activation_pr": "https://github.com/woahwhattheheck/commons/pull/31945",
+    "prior_merge": "573956e45f7d7c44b0f33a928d9f2bf66ea77ab8",
+    "source_main": "https://github.com/woahwhattheheck/commons/commit/89f30675967a988eede8827aeabd9b63eaf9da01",
+    "late_prs": [
+      31944,
+      31946
+    ],
+    "sales_packet": "https://tokenjunkielabs.slack.com/archives/C0BTTA66TK3/p1791270848049369"
+  },
+  "boundaries": {
+    "production_write": false,
+    "buyer_contact": false,
+    "outreach": false,
+    "present_to_michael": false,
+    "registration": false,
+    "pricing": false,
+    "signature": false,
+    "submission": false,
+    "deployment_claim": false,
+    "acceptance_claim": false,
+    "award_claim": false,
+    "payment_claim": false,
+    "payout_claim": false,
+    "revenue_claim": false,
+    "cash_claim": false,
+    "no_contact_or_relay_to_michael_clark": true
+  },
+  "next_lower_bound": {
+    "github_main_sha": "89f30675967a988eede8827aeabd9b63eaf9da01",
+    "slack_ts": "1791271105.592599",
+    "durable_record": "inventory/resources/records/resource-master-late-arrivals-20261006-0317.json"
+  }
+}

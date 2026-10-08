@@ -1,0 +1,95 @@
+{
+  "schema": "commons-resource-activation/v1",
+  "id": "resource-master-deferred-delta-20261006-0337",
+  "operation_id": "RM-20261006-0337-DEFERRED-DELTA",
+  "observed_at": "2026-10-06T07:53:44.836Z",
+  "title": "Deferred revenue source, bounded research and Vesuvius entrant-review reconciliation",
+  "consumer": "Existing Stellar/PayD owners, bounded PPL031 readers and authorized Vesuvius entrant review",
+  "outcome": {
+    "resources": 508,
+    "producing": 255,
+    "evidence_records": 134,
+    "activated_count": 8,
+    "activated": [
+      "stellar-notification-read-timestamps-source-packet",
+      "ppl031-quadrature-energy-argument",
+      "stellar-chart-export-nullable-ref-source-packet",
+      "payd580-favicon-revalidation-source-packet",
+      "vesuvius-october-progress-prize-application-packet",
+      "stellar-theme-hydration-source-packet",
+      "ppl120-finite-triangular-union-navigator",
+      "payd425-expired-csp-fingerprints-source-packet"
+    ],
+    "build_orders": [],
+    "completed_activation": "Eight complete current-main artifacts were canonicalized under retained consumers without external contact, submission or owner-only action."
+  },
+  "watermark": {
+    "prior_terminal_slack_ts": "1791272161.350779",
+    "slack_sweep_through": "1791272161.350779",
+    "claim_ts": "1791272471.619449",
+    "prior_observed_main_sha": "0cb6dfc92e12d6ea9afa15c47055a2286f1f13ae",
+    "prior_durable_source_sha": "6e1aa39055082012f2ba0d23206901961eacf68c",
+    "github_source_through": "4622afa33023fb690b4dcd1481962937baae8149",
+    "automations_observed": {
+      "resource_master_enabled": true,
+      "previously_disabled_restarted": false
+    },
+    "reset_check": "PRIOR_QUOTA_STATE_RETAINED; NO QUALIFYING OFFICIAL OR DIRECTLY OBSERVED RESET",
+    "claim_scope_extension_ts": "1791272773.842089",
+    "non_resource_custody_commits_observed": [
+      "bece66e1b539447ba56be05a1c6969d1c9a24778",
+      "53f771b2959091be473a0721476c84e7869d9f83"
+    ],
+    "claim_scope_extension_ppl120_ts": "1791273124.135289",
+    "claim_scope_extension_payd425_ts": "1791273224.836069"
+  },
+  "evidence": {
+    "claim": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791272471619449",
+    "source_main": "https://github.com/woahwhattheheck/commons/commit/4622afa33023fb690b4dcd1481962937baae8149",
+    "source_prs": [
+      31951,
+      31953,
+      31955,
+      31956,
+      31957,
+      31958
+    ],
+    "source_commits": [
+      "27ddb3c6308fb96c4ae9470b85ba5f1edec63c92",
+      "69f17243ffcb47e56dce114ce9b384f3b7a130bb",
+      "508419adb2c081901ad64574a104e474cd1eb4f9",
+      "8cc6622d74424b5bc388888049b724ea930bd16b",
+      "ffc6557bc5fb9f8fd5ace6a2f4d898cc45147f00",
+      "ce3daaf6d52badafef6f57caf695b9101b985238",
+      "24f8a500dab33d636e2e4df644038f5063cec536",
+      "4622afa33023fb690b4dcd1481962937baae8149"
+    ],
+    "claim_scope_extension": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791272773842089?thread_ts=1791272471.619449&cid=C0BRGMDQB6G",
+    "claim_scope_extension_ppl120": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791273124135289?thread_ts=1791272471.619449&cid=C0BRGMDQB6G",
+    "claim_scope_extension_payd425": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791273224836069?thread_ts=1791272471.619449&cid=C0BRGMDQB6G"
+  },
+  "boundaries": {
+    "production_write": false,
+    "buyer_contact": false,
+    "outreach": false,
+    "present_to_michael": false,
+    "applicant_identity_action": false,
+    "terms_acceptance": false,
+    "form_action": false,
+    "upload": false,
+    "submission": false,
+    "deployment_claim": false,
+    "acceptance_claim": false,
+    "award_claim": false,
+    "payment_claim": false,
+    "payout_claim": false,
+    "revenue_claim": false,
+    "cash_claim": false,
+    "no_contact_or_relay_to_michael_clark": true
+  },
+  "next_lower_bound": {
+    "github_main_sha": "4622afa33023fb690b4dcd1481962937baae8149",
+    "slack_ts": "1791272471.619449",
+    "durable_record": "inventory/resources/records/resource-master-deferred-delta-20261006-0337.json"
+  }
+}
