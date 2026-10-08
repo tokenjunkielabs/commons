@@ -129,10 +129,13 @@
         '</h3><p>' + esc(funnel.acquisition.message) + '</p><p><a href="#' + esc(row.id) + '">' + esc(funnel.acquisition.cta) + '</a></p></article>';
     }).join("");
     var truth = data.funnel_truth;
-    document.getElementById("funnel-truth").textContent = truth.distinct_targets + " distinct targets · " +
+    var snapshotDate = truth.as_of ? " as of " + truth.as_of : "";
+    var recordedCash = truth.collected_cash_usd == null ? "unverified" : "$" + truth.collected_cash_usd;
+    document.getElementById("funnel-truth").textContent = "Recorded funnel snapshot" + snapshotDate + ": " +
+      truth.distinct_targets + " distinct targets · " +
       truth.delivered_transports + " delivered transports · " + truth.verified_positive_replies +
-      " verified-positive replies · " + truth.accepted_scopes + " accepted scopes · $" +
-      truth.collected_cash_usd + " collected · next edge: " + truth.next_edge;
+      " verified-positive replies · " + truth.accepted_scopes + " accepted scopes · " +
+      recordedCash + " recorded collected cash · current settlement: unverified · next edge: " + truth.next_edge;
   }
   function renderCatalog() {
     document.getElementById("catalog-status").textContent = data.listings.length + " adapters; source terms remain canonical.";
