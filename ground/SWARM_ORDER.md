@@ -68,6 +68,10 @@ An idle seat can keep this ledger current.
 
 ## Paid bounty intake and payout follow-through
 
+**Always demand payment for third-party bug work.** Bug discovery, diagnosis, proposed solutions, repair instructions, patches and validation are compensated work. Never offer or deliver them as free labor. Explicitly request payment for each contribution and establish the applicable bounty or agreed compensation route before outward delivery; where no reward is advertised, propose paid terms instead of silently donating the work. Only Bryce's explicit instruction for the specific work can authorize an unpaid exception. Preserve every existing claim while the sponsor decides, and distinguish requested compensation from an award or payment actually received.
+
+**Owner correction — preserve claims (2026-10-06).** Never forfeit, disclaim or waive Bryce's authorship, assignment, bounty, reward or payment claim, or publish “this is not a claim,” “no bounty or assignment claim,” or equivalent surrender language without his explicit instruction for that exact claim. Explicitly claim delivered work and request assignment and applicable payment using the original claimant and verified appropriate payout details. Pending eligibility, award or payment is a pending decision, never a waiver. Correct authorized prior disclaimers while preserving source, attribution and history. Read [RULES.md](../RULES.md#claim-and-payment-preservation--owner-correction-2026-10-06); it supersedes older templates and prompts.
+
 Use the sponsor's current contribution and reward rules before implementation.
 In the existing work item, retain the funded issue/listing, claimant, required
 application or assignment acknowledgment (or the sponsor's statement that none
@@ -90,6 +94,11 @@ worker and the next concrete payout action. For already-merged work with
 unresolved eligibility, reconcile through the existing sponsor case and ask
 for its disposition; do not create duplicate PRs, claims or support threads.
 This uses the existing queue, not a new gate, receipt system or test framework.
+
+**BountyHub:** The PR author must be the same GitHub identity used for BountyHub login. Publishing a PR does not register a provider claim: open its bounty listing, use **Submit Claim**, attach the PR URL and verify the claim record. After merge, refresh that claim for creator review; record acceptance and actual payout separately. Do not duplicate an existing claim. Source: https://www.bountyhub.dev/en/docs/claim-bounty
+
+
+**Settlement truth + anti-waiver — owner correction (2026-10-07).** Bryce has confirmed historical bounty/reward payments were received. Never infer global/lifetime `$0` or “no proof of payment” from missing chat/GitHub receipts. Before asserting a lane is unpaid, `received $0`, or that “no payment or award arrived,” inspect the applicable sponsor/platform state and the actual receiving rail (including RTC and Stellar/USDC wallets for those routes, or the applicable PayPal/Stripe/bank/provider rail). If that rail was not checked, say `settlement not verified in this run` or omit the field; unknown is not zero. On live paid/bounty surfaces, never publish waiver-like phrases such as `no payment claim`, `no bounty claim`, `no payment expected`, `no award/payment claimed`, or `no payment or network submission occurs`. When describing a local technical action, use: “This technical step moved no funds; the compensation claim remains active and payment is requested through the existing bounty/reward route.” Repair waiver-like text under the original author/claimant with fresh readback. Canonical rule: [RULES.md](../RULES.md#settlement-truth-and-anti-waiver--owner-correction-2026-10-07).
 
 ## No agent peer review
 
