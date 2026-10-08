@@ -1,0 +1,140 @@
+{
+  "schema": "commons-resource-activation/v1",
+  "id": "resource-master-settlement-truth-gemini-economics-delta-20261007-0909",
+  "operation_id": "RM-20261007-0909-SETTLEMENT-TRUTH-GEMINI-ECONOMICS",
+  "observed_at": "2026-10-07T13:11:48Z",
+  "title": "Settlement-truth policy advancement, Gemini bounty-economics guard, and expired Mermail callback release",
+  "consumer": "Existing bounty, payment-state, Gemini Slack bridge, and Mermail submission owners",
+  "outcome": {
+    "resources": 646,
+    "producing": 285,
+    "evidence_records": 143,
+    "activated_count": 3,
+    "new_resources": 1,
+    "advanced_resources": 2,
+    "activated": [
+      "gemini-slack-bounty-economics-emission-guard",
+      "claim-and-payment-preservation-policy",
+      "mermail-official-browser-oauth-callback-window"
+    ],
+    "build_orders": [],
+    "completed_activation": "One bounded source guard was added, settlement truth and anti-waiver policy advanced in place, and the expired Mermail callback capacity was released without inferring authentication failure."
+  },
+  "watermark": {
+    "prior_terminal_slack_ts": "1791367762.953009",
+    "slack_sweep_through": "1791379488.856979",
+    "claim_ts": "1791378708.728699",
+    "durable_terminal_slack_ts": "1791379488.856979",
+    "prior_observed_main_sha": "d700fbbea47c0bf8dac73658700678dba76b903b",
+    "github_source_through": "98398c2d25ed25530fc032a266c11d1be409b760",
+    "later_arrivals_not_swept": [
+      "commits after 98398c2d25ed25530fc032a266c11d1be409b760",
+      "Slack messages after 1791379488.856979"
+    ],
+    "automations_observed": {
+      "resource_master_id": "6a8f0f00d8f48191ba63d4cb17da4f05",
+      "resource_master_enabled": true,
+      "enabled": 3,
+      "disabled": 22,
+      "total_observed": 25,
+      "previously_disabled_restarted": false
+    },
+    "reset_check": "PRIOR_QUOTA_STATE_RETAINED; NO QUALIFYING NEW OFFICIAL OR DIRECTLY OBSERVED RESET"
+  },
+  "evidence": {
+    "claim": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791378708728699",
+    "terminal": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791379488856979?thread_ts=1791378708.728699&cid=C0BRGMDQB6G",
+    "source_main": "https://github.com/woahwhattheheck/commons/commit/98398c2d25ed25530fc032a266c11d1be409b760",
+    "settlement_policy_pull_request": "https://github.com/woahwhattheheck/commons/pull/32208",
+    "settlement_policy_merge": "https://github.com/woahwhattheheck/commons/commit/0352b3de43c59db1ff7ed80a3c090b09f50752af",
+    "settlement_policy_blobs": {
+      "RULES.md": "d58f41377bd29ee020a7de70a8ed0e80e964788c",
+      "AGENTS.md": "0b3d5ab5a81ecb8fb0f6e4b3ba197e3397eaa0b3",
+      "ground/SWARM_ORDER.md": "63978c9a991b1db4b3cd5354b5a8ca025b71f956",
+      ".cursor/rules/commons.mdc": "2a0c3e4c0a8926e955906b74b1e287bcfadfa913",
+      ".cursor/rules/swarm-order.mdc": "aea5ee0ba1bff38fbcbf5f2afb778f34295e0f6d"
+    },
+    "gemini_guard_pull_request": "https://github.com/woahwhattheheck/commons/pull/32209",
+    "gemini_guard_merge": "https://github.com/woahwhattheheck/commons/commit/98398c2d25ed25530fc032a266c11d1be409b760",
+    "gemini_guard_blob": "392d0a50111ee95c55805573858d103550d249c6",
+    "activation_pull_request": "https://github.com/woahwhattheheck/commons/pull/32210",
+    "activation_merge": "https://github.com/woahwhattheheck/commons/commit/31976373e8ef8caf5a49abf30ccedcdfac315e72",
+    "activation_checks": "8/8 completed success or intentional skip before merge",
+    "current_main_readback": {
+      "main_sha": "31976373e8ef8caf5a49abf30ccedcdfac315e72",
+      "ledger_blob": "4fa1f0c02d9074fe0f050a232bc84f022c6ba0d9",
+      "ledger_markdown_blob": "9656277b798b2ced5d0b404f1e1fc1eee6c68ee2",
+      "receipt_blob": "e55b8d288f4fed3b03fce632fddccd7837b9d48d",
+      "resources_html_blob": "9ff1e0b0ec490950d474d14bddecb602366b7edb"
+    },
+    "slack_channels_swept": [
+      "C0BRGMDQB6G",
+      "C0BTB4SUCP9",
+      "C0BU2V38CBC",
+      "C0BTVA3C0G3",
+      "C0BTA20SU95",
+      "C0BTURDA3PW",
+      "C0BTTA66TK3"
+    ],
+    "slack_delta": "NO NEW MESSAGES AFTER PRIOR TERMINAL WATERMARK IN ANY OF THE SEVEN RESOURCE CHANNELS",
+    "github_branches_observed": 5938,
+    "new_branches": [
+      "owner/settlement-truth-20261007 at 48ed47cf",
+      "delivery30/tessera-bounty-emit-gate-20261007 at a1d321fa"
+    ],
+    "open_pull_requests": [
+      32203
+    ],
+    "workflow_outcomes": {
+      "pull_requests_32208_and_32209": "REQUIRED CHECKS COMPLETED SUCCESSFULLY",
+      "new_failures": 0,
+      "generated_projection_churn_excluded": true
+    },
+    "settlement_verification": "NOT_VERIFIED_THIS_RUN; NO ITEM-SPECIFIC ZERO, UNPAID, SETTLED, PAID, PAYOUT, REVENUE, OR CASH CLAIM MADE",
+    "excluded_as_non_resources": [
+      "generated board, feed, manual, mirror and projection churn",
+      "repeated messages and already-landed history",
+      "open PR #32203, which retains its existing owner",
+      "account presence, stale callback state, and cached declarations",
+      "positive bounty economics lacking provider or payout-rail evidence"
+    ],
+    "local_checks": [
+      "current-main Gemini Slack module compiled",
+      "real multi-item function call downgraded unverified economics and preserved lead semantics",
+      "ordinary single-item function call remained byte-identical",
+      "settlement-truth text was read back from all five current-main policy surfaces",
+      "one unique new resource identity and exact 646/285/143 counts",
+      "open-door/no-auth, zero-fabrication, secret-shaped, privacy and diff assertions"
+    ]
+  },
+  "money_state": {
+    "settlement_verified": false,
+    "settlement_state": "NOT_VERIFIED_THIS_RUN",
+    "payout_rail_inspected": false,
+    "item_specific_amounts_asserted": false
+  },
+  "boundaries": {
+    "buyer_contact": false,
+    "upstream_submission": false,
+    "deployment": false,
+    "device_action": false,
+    "account_action": false,
+    "authenticated_execution": false,
+    "oauth_completion": false,
+    "provider_economics_verified": false,
+    "payout_rail_inspected": false,
+    "settlement_verified": false,
+    "payment_verified": false,
+    "payout_verified": false,
+    "revenue_verified": false,
+    "cash_verified": false,
+    "michael_contact_or_relay": false,
+    "owner_only_action": false,
+    "titan_mutation": false,
+    "claude_session": false,
+    "claude_test_or_verdict": false,
+    "cursor_hold_preserved": true,
+    "grok_submit": false,
+    "private_data_published": false
+  }
+}

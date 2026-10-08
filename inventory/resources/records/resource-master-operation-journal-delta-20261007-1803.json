@@ -1,0 +1,136 @@
+{
+  "schema": "commons-resource-activation/v1",
+  "id": "resource-master-operation-journal-delta-20261007-1803",
+  "operation_id": "COMMONS-RESOURCE-MASTER-OPERATION-JOURNAL-DELTA-20261007-1803",
+  "observed_at": "2026-10-07T22:06:57Z",
+  "title": "Connected operation-journal recovery activation and public revenue-source truth",
+  "consumer": "Connected publication recovery operators and existing public commercial surfaces",
+  "outcome": {
+    "resources": 648,
+    "producing": 287,
+    "evidence_records": 146,
+    "activated_count": 3,
+    "new_resources": 1,
+    "advanced_resources": 2,
+    "activated": [
+      "connected-operation-journal-recovery-stack",
+      "revenue-offer-stack",
+      "public-commons-audience"
+    ],
+    "build_orders": [],
+    "completed_activation": "Activated a four-component operation-journal recovery stack after exact accepted-response recovery without provider replay; advanced the revenue-offer source to dated recorded-cash/current-settlement truth and repaired no-JS job fields; constrained public-audience freshness to the latest exact Pages deployment receipt instead of inferring later current-main deployment."
+  },
+  "watermark": {
+    "prior_terminal_slack_ts": "1791400885.130529",
+    "slack_sweep_through": "1791410746.269289",
+    "claim_ts": "1791410746.269289",
+    "prior_observed_main_sha": "12fbbe8cbb1a1656ad7ea621b8c1cc576a876cc5",
+    "github_source_through": "8b410e6d7828f60f48e3837b6966b1cc31eff3f0",
+    "later_arrivals_not_swept": [
+      "commits after 8b410e6d7828f60f48e3837b6966b1cc31eff3f0",
+      "Slack messages after 1791410746.269289"
+    ],
+    "automations_observed": {
+      "resource_master_enabled": true,
+      "enabled": 3,
+      "disabled": 22,
+      "total_observed": 25,
+      "previously_disabled_restarted": false
+    },
+    "reset_check": "PRIOR_QUOTA_STATE_RETAINED; NO QUALIFYING NEW OFFICIAL OR DIRECTLY OBSERVED RESET"
+  },
+  "evidence": {
+    "claim": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791410746269289",
+    "source_main": "https://github.com/woahwhattheheck/commons/commit/8b410e6d7828f60f48e3837b6966b1cc31eff3f0",
+    "activation_branch": "resource-master/operation-journal-delta-20261007-1803",
+    "slack_channels_swept": [
+      "C0BRGMDQB6G",
+      "C0BTB4SUCP9",
+      "C0BU2V38CBC",
+      "C0BTVA3C0G3",
+      "C0BTA20SU95",
+      "C0BTURDA3PW",
+      "C0BTTA66TK3",
+      "C0BU51F1PL3"
+    ],
+    "open_pull_requests_after_sweep": 0,
+    "github_delta": {
+      "commits_after_prior_main": 53,
+      "merged_pull_requests": 22,
+      "non_generated_capability_and_display_merges": 22,
+      "generated_projection_commits_excluded": true
+    },
+    "operation_journal": {
+      "writer_pr": "https://github.com/woahwhattheheck/commons/pull/32245",
+      "reader_pr": "https://github.com/woahwhattheheck/commons/pull/32257",
+      "key_index_pr": "https://github.com/woahwhattheheck/commons/pull/32260",
+      "locator_pr": "https://github.com/woahwhattheheck/commons/pull/32262",
+      "observed_revisions": 105,
+      "provider_replays": 0
+    },
+    "revenue_source_repairs": [
+      "https://github.com/woahwhattheheck/commons/pull/32244",
+      "https://github.com/woahwhattheheck/commons/pull/32258",
+      "https://github.com/woahwhattheheck/commons/pull/32263",
+      "https://github.com/woahwhattheheck/commons/pull/32265",
+      "https://github.com/woahwhattheheck/commons/pull/32267",
+      "https://github.com/woahwhattheheck/commons/pull/32268"
+    ],
+    "workflow_observations": {
+      "current_main_open_door_guard": "success",
+      "pages_deploy_latest_observed_source_sha": "621edd0edcad093bf8202f334f1a77c507ea465f",
+      "pages_deploy_latest_observed_conclusion": "success",
+      "recovered_failures": [
+        "capability-entrypoints failures were followed by a later successful current-main run",
+        "commons-board scheduled failure was followed by later board-ingest commits"
+      ],
+      "new_build_order": false,
+      "reason_no_build_order": "The journal stack and display fixes are already landed; the newer GitHub status-header lane is actively claimed, so no capability gap remains collision-free."
+    },
+    "excluded_as_non_resources": [
+      "generated board and projection churn",
+      "closed projected Slack mirror issues",
+      "repeated coordination messages",
+      "catalog presence without a live consumer",
+      "active connected GitHub status-header claim"
+    ],
+    "local_checks": [
+      "canonical counts exactly 648 resources / 287 producing / 146 evidence sources",
+      "one new identity and two existing identities advanced without duplication",
+      "only ledger, append-only receipt and generated projection changed",
+      "open-door/no-auth, zero-fabrication, secret-shaped, privacy and exact-diff assertions"
+    ]
+  },
+  "money_state": {
+    "proposed_usd": 0,
+    "promised_usd": 0,
+    "funded_usd": 0,
+    "awarded_usd": 0,
+    "invoiced_usd": 0,
+    "received_usd": 0
+  },
+  "boundaries": {
+    "buyer_contact": false,
+    "upstream_submission": false,
+    "deployment": false,
+    "device_action": false,
+    "account_action": false,
+    "repository_provider_configuration_mutation": false,
+    "authenticated_execution": false,
+    "acceptance": false,
+    "award": false,
+    "settlement": false,
+    "payment": false,
+    "payout": false,
+    "revenue": false,
+    "cash": false,
+    "michael_contact_or_relay": false,
+    "owner_only_action": false,
+    "titan_mutation": false,
+    "claude_session": false,
+    "claude_test_or_verdict": false,
+    "cursor_hold_preserved": true,
+    "grok_submit": false,
+    "private_data_published": false
+  }
+}

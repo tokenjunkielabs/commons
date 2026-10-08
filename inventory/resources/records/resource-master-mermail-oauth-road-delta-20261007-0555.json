@@ -1,0 +1,116 @@
+{
+  "schema": "commons-resource-activation/v1",
+  "id": "resource-master-mermail-oauth-road-delta-20261007-0555",
+  "operation_id": "RM-20261007-0555-MERMAIL-OAUTH-ROAD",
+  "observed_at": "2026-10-07T10:00:24Z",
+  "title": "Mermail official browser OAuth callback road and exact owner-consent routing",
+  "consumer": "Existing Mermail/Superteam submission owner needing one authenticated hosted-MCP canary",
+  "outcome": {
+    "resources": 645,
+    "producing": 285,
+    "evidence_records": 142,
+    "activated_count": 1,
+    "new_resources": 1,
+    "advanced_resources": 0,
+    "activated": ["mermail-official-browser-oauth-callback-window"],
+    "build_orders": [],
+    "existing_deduped_build_orders": ["https://tokenjunkielabs.slack.com/archives/C0BTB4SUCP9/p1791349534222109"],
+    "completed_activation": "One official browser-mode Mermail OAuth callback road is AVAILABLE / CONSTRAINED and routed to its owner. The callback remains uncompleted and the road expires unless the exact owner consent step occurs."
+  },
+  "watermark": {
+    "prior_terminal_slack_ts": "1791358034.016959",
+    "slack_sweep_through": "1791367762.953009",
+    "claim_ts": "1791367243.417849",
+    "durable_terminal_slack_ts": "1791367762.953009",
+    "prior_observed_main_sha": "3930e7387a98697892905393bfdc961b1a66f71a",
+    "github_source_through": "24e042e354f154d159e1468ac06c44771718463b",
+    "later_arrivals_not_swept": [
+      "commits after 24e042e354f154d159e1468ac06c44771718463b",
+      "Slack messages after 1791367762.953009"
+    ],
+    "automations_observed": {
+      "resource_master_id": "6a8f0f00d8f48191ba63d4cb17da4f05",
+      "resource_master_enabled": true,
+      "enabled": 3,
+      "disabled": 22,
+      "total_observed": 25,
+      "previously_disabled_restarted": false
+    },
+    "reset_check": "PRIOR_QUOTA_STATE_RETAINED; NO QUALIFYING NEW OFFICIAL OR DIRECTLY OBSERVED RESET"
+  },
+  "evidence": {
+    "claim": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791367243417849",
+    "terminal": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791367762953009?thread_ts=1791367243.417849&cid=C0BRGMDQB6G",
+    "source_message": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791365898061799",
+    "owner_route": "https://tokenjunkielabs.slack.com/archives/C0BU51F1PL3/p1791367224936579?thread_ts=1790977806.441259&cid=C0BU51F1PL3",
+    "source_main": "https://github.com/woahwhattheheck/commons/commit/faf20beee51c9b2d7861716ac71668f9defc3e34",
+    "activation_pull_request": "https://github.com/woahwhattheheck/commons/pull/32206",
+    "activation_merge": "https://github.com/woahwhattheheck/commons/commit/24e042e354f154d159e1468ac06c44771718463b",
+    "activation_checks": "8/8 completed success or intentional skip before merge",
+    "current_main_readback": {
+      "main_sha": "24e042e354f154d159e1468ac06c44771718463b",
+      "ledger_blob": "92d69c947b6dbe0f4fec4fd1789b2ac5dd2c9d42",
+      "ledger_markdown_blob": "c98eb463ed919b1d8b71e6116f18ce006b3d402d",
+      "receipt_blob": "456e10aeeb3289817d81a3443532f8513f020bb5",
+      "resources_html_blob": "635ec5f78cec9f5aa4a47c925ab2b541cde8cd46"
+    },
+    "slack_channels_swept": [
+      "C0BRGMDQB6G", "C0BTB4SUCP9", "C0BU2V38CBC", "C0BTVA3C0G3", "C0BTA20SU95", "C0BTURDA3PW", "C0BTTA66TK3"
+    ],
+    "github_branches_observed": 5934,
+    "open_pull_requests": [32203],
+    "workflow_outcomes": {
+      "new_runs_observed": 9,
+      "publisher_model_unavailable_failures": 2,
+      "existing_recovery_order_reused": true,
+      "other_success_or_skip_only": true
+    },
+    "excluded_as_non_resources": [
+      "generated public-board, feed, head, window, manual, projection and mirror churn",
+      "the two Resource Master branches created by the prior activation",
+      "repeated messages and already-landed history",
+      "Chrome CDP presence without owner consent",
+      "the expired earlier Mermail callback listener",
+      "open PR #32203, which retains its existing owner",
+      "publisher-model failures already covered by the existing deduplicated build order"
+    ],
+    "local_checks": [
+      "one unique new resource identity and exact 645/285/142 counts",
+      "owner route retains ACCOUNT-MERMAIL-CLI-OAUTH-LOGIN-20261007-06",
+      "official-browser callback road kept separate from Chrome-CDP consent state",
+      "open-door/no-auth, zero-fabrication, secret-shaped, privacy and diff assertions"
+    ]
+  },
+  "money_state": {
+    "proposed_usd": 0,
+    "promised_usd": 0,
+    "funded_usd": 0,
+    "awarded_usd": 0,
+    "invoiced_usd": 0,
+    "received_usd": 0
+  },
+  "boundaries": {
+    "buyer_contact": false,
+    "upstream_submission": false,
+    "deployment": false,
+    "device_action": false,
+    "account_action": false,
+    "authenticated_execution": false,
+    "oauth_completion": false,
+    "acceptance": false,
+    "award": false,
+    "settlement": false,
+    "payment": false,
+    "payout": false,
+    "revenue": false,
+    "cash": false,
+    "michael_contact_or_relay": false,
+    "owner_only_action": false,
+    "titan_mutation": false,
+    "claude_session": false,
+    "claude_test_or_verdict": false,
+    "cursor_hold_preserved": true,
+    "grok_submit": false,
+    "private_data_published": false
+  }
+}

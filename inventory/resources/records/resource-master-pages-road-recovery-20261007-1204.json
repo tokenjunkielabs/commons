@@ -1,0 +1,145 @@
+{
+  "schema": "commons-resource-activation/v1",
+  "id": "resource-master-pages-road-recovery-20261007-1204",
+  "operation_id": "COMMONS-PAGES-COMMERCIAL-RECOVERY-R42",
+  "observed_at": "2026-10-07T16:14:19Z",
+  "title": "Workflow-backed GitHub Pages public-road recovery",
+  "consumer": "Existing Commons readers and prospective buyers using the public commercial and diagnostic doors",
+  "outcome": {
+    "resources": 646,
+    "producing": 285,
+    "evidence_records": 144,
+    "activated_count": 3,
+    "new_resources": 0,
+    "advanced_resources": 3,
+    "activated": [
+      "public-commerce-road",
+      "revenue-offer-stack",
+      "public-commons-audience"
+    ],
+    "build_orders": [],
+    "completed_activation": "The absent GitHub Pages site was recreated as a public HTTPS workflow build, pages-deploy was re-enabled from disabled_manually, and run #273 successfully deployed and verified exact main 94e9771c546a95a7aee9fc3ef84a17d510837600. Signed-out commercial.html changed from the GitHub Pages no-site 404 to the live White Box offer and four diagnostic doors."
+  },
+  "watermark": {
+    "prior_terminal_slack_ts": "1791379488.856979",
+    "slack_sweep_through": "1791390329.551369",
+    "claim_ts": "1791389456.858089",
+    "durable_terminal_slack_ts": "1791390329.551369",
+    "prior_observed_main_sha": "76cb5a01054ee3bf19c239abf973291612ee19ba",
+    "github_source_through": "94e9771c546a95a7aee9fc3ef84a17d510837600",
+    "later_arrivals_not_swept": [
+      "commits after e82a8b849521d83b8ff5a561fdd4a3d3a4b3228a",
+      "Slack messages after 1791390329.551369"
+    ],
+    "automations_observed": {
+      "resource_master_enabled": true,
+      "enabled": 3,
+      "disabled": 22,
+      "total_observed": 25,
+      "previously_disabled_restarted": false
+    },
+    "reset_check": "PRIOR_QUOTA_STATE_RETAINED; NO QUALIFYING NEW OFFICIAL OR DIRECTLY OBSERVED RESET"
+  },
+  "evidence": {
+    "claim": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791389456858089",
+    "terminal": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791390329551369?thread_ts=1791389456.858089&cid=C0BRGMDQB6G",
+    "activation_pull_request": "https://github.com/woahwhattheheck/commons/pull/32224",
+    "activation_merge_sha": "e82a8b849521d83b8ff5a561fdd4a3d3a4b3228a",
+    "current_main_blobs": {
+      "ground/RESOURCE_LEDGER.json": "21378899d9374e5ab4c3f72bee5633fc7ef034ef",
+      "inventory/resources/records/resource-master-pages-road-recovery-20261007-1204.json": "aac3ce80f4d32902b75c742680c335e893933759",
+      "resources.html": "3e1af74045d33d794b8b07da907bb78a0525145f"
+    },
+    "source_main": "https://github.com/woahwhattheheck/commons/commit/94e9771c546a95a7aee9fc3ef84a17d510837600",
+    "source_recovery_pull_requests": [
+      "https://github.com/woahwhattheheck/commons/pull/32222",
+      "https://github.com/woahwhattheheck/commons/pull/32223"
+    ],
+    "pages_configuration": {
+      "public": true,
+      "https_enforced": true,
+      "build_type": "workflow",
+      "source_branch": "main",
+      "source_path": "/"
+    },
+    "workflow": {
+      "workflow_id": 348059776,
+      "state_before": "disabled_manually",
+      "state_after": "active",
+      "run_id": 37650078191,
+      "run_number": 273,
+      "event": "workflow_dispatch",
+      "conclusion": "success",
+      "head_sha": "94e9771c546a95a7aee9fc3ef84a17d510837600",
+      "live_receipt_step": "success",
+      "url": "https://github.com/woahwhattheheck/commons/actions/runs/37650078191"
+    },
+    "deployment": {
+      "id": 6914890571,
+      "environment": "github-pages",
+      "sha": "94e9771c546a95a7aee9fc3ef84a17d510837600",
+      "updated_at": "2026-10-07T16:14:19Z"
+    },
+    "live_routes": {
+      "commercial": "https://woahwhattheheck.github.io/commons/commercial.html",
+      "commercial_observation": "Signed-out page rendered White Box commercial pilot content after the prior no-site 404.",
+      "deployment_receipt": "The workflow's exact live deployment receipt step completed successfully."
+    },
+    "slack_channels_swept": [
+      "C0BRGMDQB6G",
+      "C0BTB4SUCP9",
+      "C0BU2V38CBC",
+      "C0BTVA3C0G3",
+      "C0BTA20SU95",
+      "C0BTURDA3PW",
+      "C0BTTA66TK3"
+    ],
+    "github_branches_observed": 5943,
+    "open_pull_requests_after_sweep": 0,
+    "excluded_as_non_resources": [
+      "generated llms.txt and fresh.md projection churn",
+      "repeated messages and already-landed history",
+      "merged source-only recovery comments after their acceptance condition failed to start a deployment",
+      "configuration presence before direct public and deployment proof"
+    ],
+    "local_checks": [
+      "canonical counts remain exactly 646 resources and 285 producing",
+      "one append-only evidence source advances three existing identities without duplication",
+      "workflow active readback plus exact run and deployment SHA",
+      "signed-out open-door page readback",
+      "zero-fabrication, secret-shaped, privacy and diff assertions"
+    ]
+  },
+  "money_state": {
+    "proposed_usd": 0,
+    "promised_usd": 0,
+    "funded_usd": 0,
+    "awarded_usd": 0,
+    "invoiced_usd": 0,
+    "received_usd": 0
+  },
+  "boundaries": {
+    "buyer_contact": false,
+    "upstream_submission": false,
+    "deployment": true,
+    "device_action": false,
+    "account_action": false,
+    "repository_provider_configuration_mutation": true,
+    "authenticated_execution": true,
+    "acceptance": false,
+    "award": false,
+    "settlement": false,
+    "payment": false,
+    "payout": false,
+    "revenue": false,
+    "cash": false,
+    "michael_contact_or_relay": false,
+    "owner_only_action": false,
+    "titan_mutation": false,
+    "claude_session": false,
+    "claude_test_or_verdict": false,
+    "cursor_hold_preserved": true,
+    "grok_submit": false,
+    "private_data_published": false
+  }
+}

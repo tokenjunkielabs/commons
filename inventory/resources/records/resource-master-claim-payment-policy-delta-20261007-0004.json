@@ -1,0 +1,134 @@
+{
+  "schema": "commons-resource-activation/v1",
+  "id": "resource-master-claim-payment-policy-delta-20261007-0004",
+  "operation_id": "RM-20261007-0004-CLAIM-PAYMENT-POLICY",
+  "observed_at": "2026-10-07T07:08:36Z",
+  "title": "Owner claim/payment preservation, Claude attribution configuration, and same-owner GitHub publication recovery",
+  "consumer": "Commons delivery, assignment, collection and payment-state operators plus authorized source-pinned repository publishers",
+  "outcome": {
+    "resources": 644,
+    "producing": 285,
+    "evidence_records": 141,
+    "activated_count": 3,
+    "new_resources": 2,
+    "advanced_resources": 1,
+    "activated": [
+      "claim-and-payment-preservation-policy",
+      "github-same-owner-repository-write-transport",
+      "claude"
+    ],
+    "build_orders": [],
+    "existing_deduped_build_orders": [
+      "https://tokenjunkielabs.slack.com/archives/C0BTB4SUCP9/p1791349534222109"
+    ],
+    "completed_activation": "The owner policy and original-actor repository write transport are PRODUCING / CONSTRAINED. Claude remains AVAILABLE / HELD; only attribution-suppression configuration evidence advanced."
+  },
+  "watermark": {
+    "prior_terminal_slack_ts": "1791346868.595899",
+    "slack_sweep_through": "1791349534.222109",
+    "claim_ts": "1791346334.675019",
+    "resume_ts": "1791356915.946249",
+    "durable_terminal_slack_ts": "1791358034.016959",
+    "prior_observed_main_sha": "84e9111476d74d19b5f267ea015aa976ef5a874d",
+    "prior_durable_source_sha": "499aab864755ffcf02e12efc1fd0a70530ec535f",
+    "github_source_through": "bf92d2a9d9970746266175c742c124b433022174",
+    "later_arrivals_not_swept": [
+      "commits after bf92d2a9d9970746266175c742c124b433022174",
+      "Slack messages after 1791356915.946249"
+    ],
+    "automations_observed": {
+      "resource_master_id": "6a8f0f00d8f48191ba63d4cb17da4f05",
+      "resource_master_enabled": true,
+      "enabled": 3,
+      "disabled": 22,
+      "total_observed": 25,
+      "previously_disabled_restarted": false
+    },
+    "reset_check": "PRIOR_QUOTA_STATE_RETAINED; NO QUALIFYING NEW OFFICIAL OR DIRECTLY OBSERVED RESET"
+  },
+  "evidence": {
+    "claim": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791346334675019",
+    "resume": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791356915946249?thread_ts=1791346334.675019",
+    "terminal": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791358034016959?thread_ts=1791346334.675019&cid=C0BRGMDQB6G",
+    "owner_policy_message": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791344316930879",
+    "existing_publisher_recovery_order": "https://tokenjunkielabs.slack.com/archives/C0BTB4SUCP9/p1791349534222109",
+    "source_main": "https://github.com/woahwhattheheck/commons/commit/bf92d2a9d9970746266175c742c124b433022174",
+    "activation_pull_request": "https://github.com/woahwhattheheck/commons/pull/32204",
+    "activation_merge": "https://github.com/woahwhattheheck/commons/commit/ba450fccc7ec8b5c7e26e8fcf449372a2c499273",
+    "policy_main": "https://github.com/woahwhattheheck/commons/commit/84e9111476d74d19b5f267ea015aa976ef5a874d",
+    "source_paths": [
+      "RULES.md",
+      "AGENTS.md",
+      "ground/SWARM_ORDER.md",
+      ".cursor/rules/commons.mdc",
+      ".cursor/rules/swarm-order.mdc",
+      ".claude/settings.json"
+    ],
+    "source_blobs": {
+      "rules": "87de9ee27a76263a775d76868b3d06e38fca3032",
+      "claude_settings": "9793db8666d3637cd0084c82282d811c23e3f934"
+    },
+    "branch_create": {
+      "branch": "codex/resource-master-claim-payment-policy-20261007-0004-7ca6",
+      "base_sha": "bf92d2a9d9970746266175c742c124b433022174",
+      "transport": "same-owner GitHub repository write",
+      "result": "201 Created"
+    },
+    "slack_channels_swept": [
+      "C0BRGMDQB6G",
+      "C0BTB4SUCP9",
+      "C0BU2V38CBC",
+      "C0BTVA3C0G3",
+      "C0BTA20SU95",
+      "C0BTURDA3PW",
+      "C0BTTA66TK3"
+    ],
+    "github_branch_pages_swept": 60,
+    "github_branches_observed": 5932,
+    "excluded_as_non_resources": [
+      "generated public-board, llms.txt and fresh.md churn",
+      "repeated messages and already-landed history",
+      "active Split corrections already owned elsewhere",
+      "PR #32203 oversized unrelated implementation with action-required checks",
+      "configuration presence without a live Claude session or permission"
+    ],
+    "local_checks": [
+      "two unique new identities and exact 644/285/141 counts",
+      "single in-place Claude advancement retaining AVAILABLE / HELD",
+      "same-owner branch create bound to exact current main",
+      "policy and settings exact-blob readback",
+      "open-door/no-auth, zero-fabrication, secret-shaped, privacy and diff assertions"
+    ]
+  },
+  "money_state": {
+    "proposed_usd": 0,
+    "promised_usd": 0,
+    "funded_usd": 0,
+    "awarded_usd": 0,
+    "invoiced_usd": 0,
+    "received_usd": 0
+  },
+  "boundaries": {
+    "buyer_contact": false,
+    "upstream_submission": false,
+    "deployment": false,
+    "device_action": false,
+    "account_action": false,
+    "authenticated_execution": false,
+    "acceptance": false,
+    "award": false,
+    "settlement": false,
+    "payment": false,
+    "payout": false,
+    "revenue": false,
+    "cash": false,
+    "michael_contact_or_relay": false,
+    "owner_only_action": false,
+    "titan_mutation": false,
+    "claude_session": false,
+    "claude_test_or_verdict": false,
+    "cursor_hold_preserved": true,
+    "grok_submit": false,
+    "private_data_published": false
+  }
+}

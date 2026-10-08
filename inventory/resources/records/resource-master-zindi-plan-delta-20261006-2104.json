@@ -1,0 +1,107 @@
+{
+  "schema": "commons-resource-activation/v1",
+  "id": "resource-master-zindi-plan-delta-20261006-2104",
+  "operation_id": "RM-20261006-2104-ZINDI-PLAN-DELTA",
+  "observed_at": "2026-10-07T01:04:11Z",
+  "title": "Zindi preregistered Best Bias Discovery plan reconciliation",
+  "consumer": "Existing Zindi Best Bias Discovery research owner and single authenticated submission owner",
+  "outcome": {
+    "resources": 642,
+    "producing": 283,
+    "evidence_records": 140,
+    "activated_count": 1,
+    "new_resources": 1,
+    "advanced_resources": 0,
+    "activated": [
+      "zindi-biasmap-preregistered-bias-discovery-plan"
+    ],
+    "build_orders": [],
+    "completed_activation": "The landed preregistration was added as AVAILABLE / CONSTRAINED capacity under the existing competition owner. The plan is complete; live inputs, account action, rules acceptance, analysis execution, and submission remain separate authorized steps."
+  },
+  "watermark": {
+    "prior_terminal_slack_ts": "1791325191.871699",
+    "slack_sweep_through": "1791325191.871699",
+    "claim_ts": "1791335151.159139",
+    "prior_observed_main_sha": "c2d1a1c4a5a54063a491bf0486604ac33542ebbd",
+    "prior_durable_source_sha": "c2d1a1c4a5a54063a491bf0486604ac33542ebbd",
+    "github_source_through": "9f4fb8621e44bb3a59b7fb8968a660a0e67356ed",
+    "later_arrivals_not_swept": [
+      "commits after 9f4fb8621e44bb3a59b7fb8968a660a0e67356ed"
+    ],
+    "automations_observed": {
+      "resource_master_id": "6a8f0f00d8f48191ba63d4cb17da4f05",
+      "resource_master_enabled": true,
+      "enabled": 3,
+      "disabled": 22,
+      "total_observed": 25,
+      "previously_disabled_restarted": false
+    },
+    "reset_check": "PRIOR_QUOTA_STATE_RETAINED; NO QUALIFYING NEW OFFICIAL OR DIRECTLY OBSERVED RESET"
+  },
+  "evidence": {
+    "claim": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791335151159139",
+    "source_main": "https://github.com/woahwhattheheck/commons/commit/9f4fb8621e44bb3a59b7fb8968a660a0e67356ed",
+    "source_pr": "https://github.com/woahwhattheheck/commons/pull/32193",
+    "source_merge_sha": "a7e4ee25b3a2c67b6825c8033521dcecf0201d7c",
+    "source_blob_sha": "9f23d26908b852720e298d524d034ec64b233145",
+    "source_path": "competitions/zindi-bias-map-equity-2026/best-bias-discovery/README.md",
+    "focused_source_checks": "6/6 focused static contract and exact provider readback as retained by PR #32193",
+    "workflow_runs_on_source_merge": [],
+    "slack_channels_swept": [
+      "C0BRGMDQB6G",
+      "C0BTB4SUCP9",
+      "C0BU2V38CBC",
+      "C0BTVA3C0G3",
+      "C0BTA20SU95",
+      "C0BTURDA3PW",
+      "C0BTTA66TK3"
+    ],
+    "excluded_as_non_resources": [
+      "generated record-board, projection, manual-rebuild, llms.txt, and fresh.md churn",
+      "repeated messages or already-landed history",
+      "advertised prize amount without funding, award, invoice, payment, revenue, or cash receipt",
+      "presence of a competition plan without live inputs, account state, rules acceptance, execution, score, or submission"
+    ],
+    "local_checks": [
+      "one new identity and exact 642/283/140 counts",
+      "ledger self-test and projection regeneration",
+      "resources-tab self-test and freshness check",
+      "open-door/no-auth guard",
+      "capability entrypoint and path-manifest tests",
+      "zero-fabrication, secret, privacy, and diff checks"
+    ]
+  },
+  "money_state": {
+    "advertised_prize_usd": 1000,
+    "proposed_usd": 0,
+    "promised_usd": 0,
+    "funded_usd": 0,
+    "awarded_usd": 0,
+    "invoiced_usd": 0,
+    "received_usd": 0
+  },
+  "boundaries": {
+    "buyer_contact": false,
+    "upstream_submission": false,
+    "deployment": false,
+    "device_action": false,
+    "account_action": false,
+    "rules_acceptance": false,
+    "authenticated_execution": false,
+    "measured_result": false,
+    "acceptance": false,
+    "award": false,
+    "settlement": false,
+    "payment": false,
+    "payout": false,
+    "revenue": false,
+    "cash": false,
+    "michael_contact_or_relay": false,
+    "owner_only_action": false,
+    "titan_mutation": false,
+    "claude_test_or_verdict": false,
+    "cursor_hold_preserved": true,
+    "grok_submit": false,
+    "private_data_published": false
+  }
+}

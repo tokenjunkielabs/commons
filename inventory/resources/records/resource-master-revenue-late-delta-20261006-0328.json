@@ -1,0 +1,74 @@
+{
+  "schema": "commons-resource-activation/v1",
+  "id": "resource-master-revenue-late-delta-20261006-0328",
+  "operation_id": "RM-20261006-0328-REVENUE-LATE-DELTA",
+  "observed_at": "2026-10-06T07:31:05.907Z",
+  "title": "Late Stellar CSV and Army IIIAC RFI reconciliation",
+  "consumer": "Existing Stellar export owner and internal Army IIIAC team-pursuit owner",
+  "outcome": {
+    "resources": 500,
+    "producing": 253,
+    "evidence_records": 133,
+    "activated_count": 4,
+    "activated": [
+      "stellar-notification-csv-timestamp-quoting-source-packet",
+      "army-iiiac-genai-workforce-rfi-pursuit",
+      "payd581-language-select-association-source-packet",
+      "stellar-chart-export-argument-forwarding-source-packet"
+    ],
+    "build_orders": [],
+    "completed_activation": "Three landed PayD/Stellar source packets, one evidence-bound Army IIIAC internal teaming/RFI packet and the two intervening complete source continuations were canonicalized under retained owners."
+  },
+  "watermark": {
+    "prior_terminal_slack_ts": "1791260019.072159",
+    "prior_claim_ts": "1791271105.592599",
+    "slack_sweep_through": "1791271657.317019",
+    "claim_ts": "1791271704.322429",
+    "prior_main_sha": "89f30675967a988eede8827aeabd9b63eaf9da01",
+    "github_source_through": "6e1aa39055082012f2ba0d23206901961eacf68c",
+    "automations_observed": {
+      "resource_master_enabled": true,
+      "previously_disabled_restarted": false
+    },
+    "reset_check": "PRIOR_QUOTA_STATE_RETAINED; NO SECOND RESET CHECK PERFORMED",
+    "claim_scope_extension_ts": "1791271815.911409"
+  },
+  "evidence": {
+    "claim": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791271704322429",
+    "prior_activation_pr": "https://github.com/woahwhattheheck/commons/pull/31948",
+    "prior_merge": "daed092ba6f8f2879cf0eada96527c6ec55c6e87",
+    "source_main": "https://github.com/woahwhattheheck/commons/commit/90a5484393c3984a32aba7deab7e91ec6df775d3",
+    "stellar_pr": 31947,
+    "sales_packet": "https://tokenjunkielabs.slack.com/archives/C0BTTA66TK3/p1791271657317019",
+    "scope_extension": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791271815911409?thread_ts=1791271704.322429&cid=C0BRGMDQB6G",
+    "late_prs": [
+      31949,
+      31950
+    ]
+  },
+  "boundaries": {
+    "production_write": false,
+    "buyer_contact": false,
+    "outreach": false,
+    "questions": false,
+    "present_to_michael": false,
+    "registration": false,
+    "pricing_commitment": false,
+    "legal_representation": false,
+    "signature": false,
+    "submission": false,
+    "deployment_claim": false,
+    "acceptance_claim": false,
+    "award_claim": false,
+    "payment_claim": false,
+    "payout_claim": false,
+    "revenue_claim": false,
+    "cash_claim": false,
+    "no_contact_or_relay_to_michael_clark": true
+  },
+  "next_lower_bound": {
+    "github_main_sha": "6e1aa39055082012f2ba0d23206901961eacf68c",
+    "slack_ts": "1791271704.322429",
+    "durable_record": "inventory/resources/records/resource-master-revenue-late-delta-20261006-0328.json"
+  }
+}

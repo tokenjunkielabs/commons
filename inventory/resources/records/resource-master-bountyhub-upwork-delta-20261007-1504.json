@@ -1,0 +1,121 @@
+{
+  "schema": "commons-resource-activation/v1",
+  "id": "resource-master-bountyhub-upwork-delta-20261007-1504",
+  "operation_id": "COMMONS-RESOURCE-MASTER-BOUNTYHUB-UPWORK-DELTA-20261007-1504",
+  "observed_at": "2026-10-07T19:16:59Z",
+  "title": "Public BountyHub marketplace API activation and current marketplace-account truth",
+  "consumer": "Existing Commons bounty discovery and marketplace-account lanes",
+  "outcome": {
+    "resources": 647,
+    "producing": 286,
+    "evidence_records": 145,
+    "activated_count": 3,
+    "new_resources": 1,
+    "advanced_resources": 2,
+    "activated": [
+      "bountyhub-public-marketplace-api",
+      "bountyhub-receiving-rail",
+      "upwork-marketplace-account"
+    ],
+    "build_orders": [],
+    "completed_activation": "Activated the public BountyHub API as zero-credential PRODUCING discovery capacity, advanced the receiving road with a complete 26-row current inventory and exact detail reads, and advanced Upwork to DEGRADED with 25 visible / 12 qualified listings while retaining its existing owner recovery operation. No bounty claim, application, buyer contact, spend, award, payment, payout, revenue or cash was asserted."
+  },
+  "watermark": {
+    "prior_terminal_slack_ts": "1791393038.226179",
+    "slack_sweep_through": "1791400255.796539",
+    "claim_ts": "1791400255.177339",
+    "prior_observed_main_sha": "1a07247c6c4559a57fa78bdb4b4761c0e5d1a076",
+    "github_source_through": "49dd7c4ba0485a53353c2125832ef39fa43f33cd",
+    "later_arrivals_not_swept": [
+      "commits after 49dd7c4ba0485a53353c2125832ef39fa43f33cd",
+      "Slack messages after 1791400255.796539"
+    ],
+    "automations_observed": {
+      "resource_master_enabled": true,
+      "previously_disabled_restarted": false
+    },
+    "reset_check": "PRIOR_QUOTA_STATE_RETAINED; NO QUALIFYING NEW OFFICIAL OR DIRECTLY OBSERVED RESET"
+  },
+  "evidence": {
+    "claim": "https://tokenjunkielabs.slack.com/archives/C0BRGMDQB6G/p1791400255177339",
+    "owner_route": "https://tokenjunkielabs.slack.com/archives/C0BU51F1PL3/p1791400255796539?thread_ts=1790977806.441259&cid=C0BU51F1PL3",
+    "source_bountyhub": "https://tokenjunkielabs.slack.com/archives/C0BU51F1PL3/p1791398929860949",
+    "source_main": "https://github.com/woahwhattheheck/commons/commit/49dd7c4ba0485a53353c2125832ef39fa43f33cd",
+    "activation_branch": "resource-master/bountyhub-upwork-delta-20261007-1504",
+    "slack_channels_swept": [
+      "C0BRGMDQB6G",
+      "C0BTB4SUCP9",
+      "C0BU2V38CBC",
+      "C0BTVA3C0G3",
+      "C0BTA20SU95",
+      "C0BTURDA3PW",
+      "C0BTTA66TK3"
+    ],
+    "open_pull_requests_after_sweep": 0,
+    "bountyhub": {
+      "api_base": "https://api.bountyhub.dev/api",
+      "unsolved_rows": 26,
+      "has_next_page": false,
+      "rows_at_or_above_usd_15": 19,
+      "rows_at_or_above_usd_50": 17,
+      "unique_github_issues_at_or_above_usd_50": 16,
+      "successful_detail_reads": 17,
+      "claim_submitted": false,
+      "reason_no_claim": "No collision-free, currently open and unassigned row survived exact provider and GitHub checks."
+    },
+    "upwork": {
+      "visible_listings": 25,
+      "qualified_at_or_above_usd_15": 12,
+      "authenticated_recheck": "DEGRADED",
+      "connects_and_eligibility": "UNMEASURED",
+      "applications": 0,
+      "spend_usd": 0,
+      "existing_owner_operation": "ACCOUNT-UPWORK-RECEIVING-20261007-01"
+    },
+    "excluded_as_non_resources": [
+      "generated projection churn",
+      "repeated messages and already-landed history",
+      "listing presence without current issue, assignment and claim eligibility",
+      "account presence without authenticated reachability"
+    ],
+    "local_checks": [
+      "canonical counts exactly 647 resources / 286 producing / 145 evidence sources",
+      "one new identity and two existing identities advanced without duplication",
+      "BountyHub listing hasNextPage=false and all selected detail reads succeeded",
+      "no build order because the existing bridge owns implementation and the remaining Upwork dependency is owner-only",
+      "open-door/no-auth, zero-fabrication, secret-shaped, privacy and exact-diff assertions"
+    ]
+  },
+  "money_state": {
+    "proposed_usd": 0,
+    "promised_usd": 0,
+    "funded_usd": 0,
+    "awarded_usd": 0,
+    "invoiced_usd": 0,
+    "received_usd": 0
+  },
+  "boundaries": {
+    "buyer_contact": false,
+    "upstream_submission": false,
+    "deployment": false,
+    "device_action": false,
+    "account_action": false,
+    "repository_provider_configuration_mutation": false,
+    "authenticated_execution": false,
+    "acceptance": false,
+    "award": false,
+    "settlement": false,
+    "payment": false,
+    "payout": false,
+    "revenue": false,
+    "cash": false,
+    "michael_contact_or_relay": false,
+    "owner_only_action": false,
+    "titan_mutation": false,
+    "claude_session": false,
+    "claude_test_or_verdict": false,
+    "cursor_hold_preserved": true,
+    "grok_submit": false,
+    "private_data_published": false
+  }
+}
