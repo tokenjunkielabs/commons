@@ -1,0 +1,27 @@
+{
+  "schema": "commons-feature-v1",
+  "id": "connected-web-json-results-20261007",
+  "name": "Connected JSON web-search result projection",
+  "added": "2026-10-07",
+  "owner_subsystem": "connected-reading",
+  "carrier": "connected-tools",
+  "capability": "Bounded projection of one retained JSON search-result document. Preserves original decoded source paths, literal title/URL/date/site/position fields, nullable or absent snippets, exact snippet prefixes and explicit retained-only coverage without provider calls or invented citation identities.",
+  "claimed_paths": [
+    "host/connected_web_json_results.cjs",
+    "host/CONNECTED_WEB_JSON_RESULTS.md"
+  ],
+  "test_paths": [],
+  "public_entrypoint": "",
+  "dependencies": [],
+  "resource_links": [
+    "host/CONNECTED_WEB_JSON_RESULTS.md",
+    "host/CONNECTED_WEB_PROJECTION.md"
+  ],
+  "next_gap": "Other JSON representations require explicit support; this projector reads one selected results-array document.",
+  "related": {
+    "boards": false,
+    "current_work": false,
+    "profitability": false,
+    "resources": true
+  }
+}

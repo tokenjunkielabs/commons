@@ -1,0 +1,24 @@
+{
+  "schema": "commons-feature-v1",
+  "id": "connected-exec-json-journal-20261007",
+  "name": "Bounded local JSON journal writer",
+  "added": "2026-10-07",
+  "owner_subsystem": "connected-publishing",
+  "carrier": "connected-tools",
+  "capability": "Retain caller-supplied JSON through bounded execution commands and an atomic local file installation. Exact JSON custody, exclusive snapshot names and explicit interruption metadata; no provider calls, credential lookup, effect retry or automatic resume.",
+  "claimed_paths": [
+    "host/connected_exec_json_journal.cjs",
+    "host/CONNECTED_EXEC_JSON_JOURNAL.md"
+  ],
+  "test_paths": [],
+  "public_entrypoint": "",
+  "dependencies": [],
+  "resource_links": ["host/CONNECTED_EXEC_JSON_JOURNAL.md"],
+  "next_gap": "Interrupted local writes require caller reconciliation; no implicit resume is provided.",
+  "related": {
+    "boards": false,
+    "current_work": false,
+    "profitability": false,
+    "resources": true
+  }
+}

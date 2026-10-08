@@ -1,0 +1,26 @@
+{
+  "schema": "commons-feature-v1",
+  "id": "connected-github-file-search-20261007",
+  "name": "Connected retained GitHub literal search",
+  "added": "2026-10-07",
+  "owner_subsystem": "connected-github",
+  "carrier": "connected-tools",
+  "capability": "Pure case-sensitive literal search over supplied retained UTF8 native file responses, with exact source positions and bounded metadata/excerpts; counts cover retained texts only.",
+  "claimed_paths": [
+    "host/connected_github_file_search.cjs",
+    "host/CONNECTED_GITHUB_FILE_SEARCH.md"
+  ],
+  "test_paths": [],
+  "public_entrypoint": "",
+  "dependencies": [],
+  "resource_links": [
+    "host/CONNECTED_GITHUB_FILE_SEARCH.md"
+  ],
+  "next_gap": "Source coverage and provider-index completeness remain separate; the finder does not fetch files or certify repository-wide absence.",
+  "related": {
+    "boards": false,
+    "current_work": false,
+    "profitability": false,
+    "resources": true
+  }
+}

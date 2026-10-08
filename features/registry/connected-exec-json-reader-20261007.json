@@ -1,0 +1,28 @@
+{
+  "schema": "commons-feature-v1",
+  "id": "connected-exec-json-reader-20261007",
+  "name": "Bounded cloud JSON journal recovery",
+  "added": "2026-10-07",
+  "owner_subsystem": "connected-custody",
+  "carrier": "connected-tools",
+  "capability": "Recover one complete saved cloud JSON journal through bounded read-only execution commands. Binds byte chunks to observed file identity, decodes strict UTF-8, verifies complete SHA256/byte count with the supplied helper and returns exact text/JSON without file writes, provider calls, retries or effect replay.",
+  "claimed_paths": [
+    "host/connected_exec_json_reader.cjs",
+    "host/CONNECTED_EXEC_JSON_READER.md"
+  ],
+  "test_paths": [],
+  "public_entrypoint": "",
+  "dependencies": [],
+  "resource_links": [
+    "host/CONNECTED_EXEC_JSON_READER.md",
+    "host/CONNECTED_EXEC_JSON_JOURNAL.md",
+    "host/connected_sha256.cjs"
+  ],
+  "next_gap": "Recovered snapshots remain historical data; their existing operation consumer must reconcile canonical provider state before any next mutation.",
+  "related": {
+    "boards": false,
+    "current_work": false,
+    "profitability": false,
+    "resources": true
+  }
+}

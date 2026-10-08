@@ -1,0 +1,28 @@
+{
+  "schema": "commons-feature-v1",
+  "id": "connected-operation-journal-locator-20261007",
+  "name": "Connected operation journal locator observation",
+  "added": "2026-10-07",
+  "owner_subsystem": "connected-recording",
+  "carrier": "connected-tools",
+  "capability": "Explicit bounded read-only observation of the highest complete local operation-journal index sequence, with exact file/directory identities and complete-reader digest verification.",
+  "claimed_paths": [
+    "host/connected_operation_journal_locator.cjs",
+    "host/CONNECTED_OPERATION_JOURNAL_LOCATOR.md"
+  ],
+  "test_paths": [],
+  "public_entrypoint": "",
+  "dependencies": [],
+  "resource_links": [
+    "host/CONNECTED_OPERATION_JOURNAL_LOCATOR.md",
+    "host/CONNECTED_OPERATION_JOURNAL.md",
+    "host/CONNECTED_EXEC_JSON_READER.md"
+  ],
+  "next_gap": "A local observed locator does not establish producer acknowledgement or provider outcome; canonical effect reconciliation remains with the existing consumer.",
+  "related": {
+    "boards": false,
+    "current_work": false,
+    "profitability": false,
+    "resources": true
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "schema": "commons-feature-v1",
+  "id": "connected-github-status-headers-20261007",
+  "name": "Connected retained GitHub commit-status headers",
+  "added": "2026-10-07",
+  "owner_subsystem": "connected-github",
+  "carrier": "connected-tools",
+  "capability": "Pure bounded native/token status projection with literal aggregate values, explicit missing fields and exact source paths; no CI verdict or completeness inference.",
+  "claimed_paths": [
+    "host/connected_github_status_headers.cjs",
+    "host/CONNECTED_GITHUB_STATUS_HEADERS.md"
+  ],
+  "test_paths": [],
+  "public_entrypoint": "",
+  "dependencies": [],
+  "resource_links": [
+    "host/CONNECTED_GITHUB_STATUS_HEADERS.md"
+  ],
+  "next_gap": "Compact native status responses may omit aggregate metadata. Other check families, request binding, collection completeness and actual CI success remain unestablished.",
+  "related": {
+    "boards": false,
+    "current_work": false,
+    "profitability": false,
+    "resources": true
+  }
+}
