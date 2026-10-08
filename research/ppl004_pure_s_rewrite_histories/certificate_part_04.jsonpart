@@ -1,0 +1,2245 @@
+0",
+          "targetTerm": 842
+        }
+      ]
+    },
+    {
+      "term": 842,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 843
+        }
+      ]
+    },
+    {
+      "term": 477,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 844
+        }
+      ]
+    },
+    {
+      "term": 844,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 845
+        }
+      ]
+    },
+    {
+      "term": 845,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 846
+        },
+        {
+          "address": "1",
+          "targetTerm": 847
+        }
+      ]
+    },
+    {
+      "term": 847,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 848
+        }
+      ]
+    },
+    {
+      "term": 478,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 849
+        }
+      ]
+    },
+    {
+      "term": 849,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 850
+        }
+      ]
+    },
+    {
+      "term": 850,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 851
+        }
+      ]
+    },
+    {
+      "term": 851,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 853
+        },
+        {
+          "address": "1",
+          "targetTerm": 854
+        }
+      ]
+    },
+    {
+      "term": 479,
+      "edges": [
+        {
+          "address": "00",
+          "targetTerm": 477
+        }
+      ]
+    },
+    {
+      "term": 480,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 855
+        }
+      ]
+    },
+    {
+      "term": 855,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 856
+        }
+      ]
+    },
+    {
+      "term": 856,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 857
+        }
+      ]
+    },
+    {
+      "term": 481,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 858
+        }
+      ]
+    },
+    {
+      "term": 858,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 859
+        }
+      ]
+    },
+    {
+      "term": 859,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 860
+        }
+      ]
+    },
+    {
+      "term": 482,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 861
+        }
+      ]
+    },
+    {
+      "term": 861,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 862
+        }
+      ]
+    },
+    {
+      "term": 862,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 863
+        }
+      ]
+    },
+    {
+      "term": 863,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 864
+        },
+        {
+          "address": "1",
+          "targetTerm": 865
+        }
+      ]
+    },
+    {
+      "term": 483,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 866
+        }
+      ]
+    },
+    {
+      "term": 866,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 867
+        }
+      ]
+    },
+    {
+      "term": 867,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 868
+        }
+      ]
+    },
+    {
+      "term": 868,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 869
+        }
+      ]
+    },
+    {
+      "term": 484,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 870
+        },
+        {
+          "address": "001",
+          "targetTerm": 482
+        }
+      ]
+    },
+    {
+      "term": 870,
+      "edges": [
+        {
+          "address": "00",
+          "targetTerm": 861
+        }
+      ]
+    },
+    {
+      "term": 485,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 469
+        }
+      ]
+    },
+    {
+      "term": 486,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 470
+        }
+      ]
+    },
+    {
+      "term": 487,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 474
+        }
+      ]
+    },
+    {
+      "term": 488,
+      "edges": [
+        {
+          "address": "00",
+          "targetTerm": 871
+        }
+      ]
+    },
+    {
+      "term": 871,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 872
+        }
+      ]
+    },
+    {
+      "term": 872,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 873
+        }
+      ]
+    },
+    {
+      "term": 873,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 874
+        }
+      ]
+    },
+    {
+      "term": 489,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 478
+        }
+      ]
+    },
+    {
+      "term": 490,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 479
+        }
+      ]
+    },
+    {
+      "term": 491,
+      "edges": [
+        {
+          "address": "00",
+          "targetTerm": 486
+        }
+      ]
+    },
+    {
+      "term": 492,
+      "edges": [
+        {
+          "address": "00",
+          "targetTerm": 488
+        }
+      ]
+    },
+    {
+      "term": 493,
+      "edges": [
+        {
+          "address": "000",
+          "targetTerm": 491
+        }
+      ]
+    },
+    {
+      "term": 498,
+      "edges": [
+        {
+          "address": "0111",
+          "targetTerm": 496
+        }
+      ]
+    },
+    {
+      "term": 502,
+      "edges": [
+        {
+          "address": "011",
+          "targetTerm": 875
+        }
+      ]
+    },
+    {
+      "term": 505,
+      "edges": [
+        {
+          "address": "011",
+          "targetTerm": 500
+        }
+      ]
+    },
+    {
+      "term": 506,
+      "edges": [
+        {
+          "address": "011",
+          "targetTerm": 502
+        }
+      ]
+    },
+    {
+      "term": 507,
+      "edges": [
+        {
+          "address": "0110",
+          "targetTerm": 505
+        }
+      ]
+    },
+    {
+      "term": 512,
+      "edges": [
+        {
+          "address": "011",
+          "targetTerm": 510
+        }
+      ]
+    },
+    {
+      "term": 515,
+      "edges": [
+        {
+          "address": "01",
+          "targetTerm": 876
+        }
+      ]
+    },
+    {
+      "term": 516,
+      "edges": [
+        {
+          "address": "01",
+          "targetTerm": 877
+        }
+      ]
+    },
+    {
+      "term": 519,
+      "edges": [
+        {
+          "address": "01",
+          "targetTerm": 878
+        }
+      ]
+    },
+    {
+      "term": 520,
+      "edges": [
+        {
+          "address": "01",
+          "targetTerm": 879
+        }
+      ]
+    },
+    {
+      "term": 879,
+      "edges": [
+        {
+          "address": "01",
+          "targetTerm": 880
+        }
+      ]
+    },
+    {
+      "term": 521,
+      "edges": [
+        {
+          "address": "010",
+          "targetTerm": 519
+        }
+      ]
+    },
+    {
+      "term": 526,
+      "edges": [
+        {
+          "address": "0101",
+          "targetTerm": 524
+        }
+      ]
+    },
+    {
+      "term": 527,
+      "edges": [
+        {
+          "address": "01",
+          "targetTerm": 511
+        }
+      ]
+    },
+    {
+      "term": 528,
+      "edges": [
+        {
+          "address": "01",
+          "targetTerm": 512
+        }
+      ]
+    },
+    {
+      "term": 529,
+      "edges": [
+        {
+          "address": "01",
+          "targetTerm": 516
+        }
+      ]
+    },
+    {
+      "term": 530,
+      "edges": [
+        {
+          "address": "010",
+          "targetTerm": 881
+        }
+      ]
+    },
+    {
+      "term": 881,
+      "edges": [
+        {
+          "address": "01",
+          "targetTerm": 882
+        }
+      ]
+    },
+    {
+      "term": 882,
+      "edges": [
+        {
+          "address": "01",
+          "targetTerm": 883
+        }
+      ]
+    },
+    {
+      "term": 531,
+      "edges": [
+        {
+          "address": "01",
+          "targetTerm": 520
+        }
+      ]
+    },
+    {
+      "term": 532,
+      "edges": [
+        {
+          "address": "01",
+          "targetTerm": 521
+        }
+      ]
+    },
+    {
+      "term": 533,
+      "edges": [
+        {
+          "address": "010",
+          "targetTerm": 528
+        }
+      ]
+    },
+    {
+      "term": 534,
+      "edges": [
+        {
+          "address": "010",
+          "targetTerm": 530
+        }
+      ]
+    },
+    {
+      "term": 535,
+      "edges": [
+        {
+          "address": "0100",
+          "targetTerm": 533
+        }
+      ]
+    },
+    {
+      "term": 536,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 357
+        }
+      ]
+    },
+    {
+      "term": 537,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 358
+        }
+      ]
+    },
+    {
+      "term": 538,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 359
+        }
+      ]
+    },
+    {
+      "term": 539,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 360
+        }
+      ]
+    },
+    {
+      "term": 540,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 361
+        },
+        {
+          "address": "011",
+          "targetTerm": 538
+        }
+      ]
+    },
+    {
+      "term": 541,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 362
+        }
+      ]
+    },
+    {
+      "term": 542,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 363
+        }
+      ]
+    },
+    {
+      "term": 543,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 364
+        }
+      ]
+    },
+    {
+      "term": 544,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 365
+        },
+        {
+          "address": "01",
+          "targetTerm": 884
+        }
+      ]
+    },
+    {
+      "term": 884,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 737
+        }
+      ]
+    },
+    {
+      "term": 545,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 366
+        }
+      ]
+    },
+    {
+      "term": 546,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 367
+        }
+      ]
+    },
+    {
+      "term": 547,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 368
+        },
+        {
+          "address": "01",
+          "targetTerm": 542
+        }
+      ]
+    },
+    {
+      "term": 548,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 369
+        },
+        {
+          "address": "01",
+          "targetTerm": 544
+        }
+      ]
+    },
+    {
+      "term": 549,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 370
+        },
+        {
+          "address": "010",
+          "targetTerm": 547
+        }
+      ]
+    },
+    {
+      "term": 550,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 394
+        }
+      ]
+    },
+    {
+      "term": 551,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 395
+        }
+      ]
+    },
+    {
+      "term": 552,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 396
+        }
+      ]
+    },
+    {
+      "term": 553,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 397
+        }
+      ]
+    },
+    {
+      "term": 554,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 398
+        },
+        {
+          "address": "01",
+          "targetTerm": 552
+        }
+      ]
+    },
+    {
+      "term": 555,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 885
+        }
+      ]
+    },
+    {
+      "term": 885,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 886
+        }
+      ]
+    },
+    {
+      "term": 886,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 888
+        }
+      ]
+    },
+    {
+      "term": 556,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 889
+        }
+      ]
+    },
+    {
+      "term": 889,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 890
+        }
+      ]
+    },
+    {
+      "term": 890,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 892
+        }
+      ]
+    },
+    {
+      "term": 557,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 893
+        }
+      ]
+    },
+    {
+      "term": 893,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 894
+        }
+      ]
+    },
+    {
+      "term": 894,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 895
+        }
+      ]
+    },
+    {
+      "term": 895,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 897
+        }
+      ]
+    },
+    {
+      "term": 558,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 723
+        }
+      ]
+    },
+    {
+      "term": 723,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 725
+        }
+      ]
+    },
+    {
+      "term": 725,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 727
+        }
+      ]
+    },
+    {
+      "term": 727,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 729
+        }
+      ]
+    },
+    {
+      "term": 729,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 899
+        }
+      ]
+    },
+    {
+      "term": 559,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 900
+        },
+        {
+          "address": "01",
+          "targetTerm": 557
+        }
+      ]
+    },
+    {
+      "term": 900,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 901
+        },
+        {
+          "address": "001",
+          "targetTerm": 902
+        },
+        {
+          "address": "011",
+          "targetTerm": 903
+        }
+      ]
+    },
+    {
+      "term": 901,
+      "edges": [
+        {
+          "address": "00",
+          "targetTerm": 904
+        },
+        {
+          "address": "101",
+          "targetTerm": 905
+        }
+      ]
+    },
+    {
+      "term": 904,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 906
+        },
+        {
+          "address": "101",
+          "targetTerm": 894
+        }
+      ]
+    },
+    {
+      "term": 906,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 908
+        },
+        {
+          "address": "101",
+          "targetTerm": 895
+        }
+      ]
+    },
+    {
+      "term": 905,
+      "edges": [
+        {
+          "address": "00",
+          "targetTerm": 894
+        }
+      ]
+    },
+    {
+      "term": 902,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 904
+        },
+        {
+          "address": "011",
+          "targetTerm": 893
+        }
+      ]
+    },
+    {
+      "term": 903,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 905
+        },
+        {
+          "address": "001",
+          "targetTerm": 893
+        }
+      ]
+    },
+    {
+      "term": 560,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 417
+        }
+      ]
+    },
+    {
+      "term": 561,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 418
+        }
+      ]
+    },
+    {
+      "term": 562,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 422
+        }
+      ]
+    },
+    {
+      "term": 563,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 423
+        }
+      ]
+    },
+    {
+      "term": 564,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 711
+        }
+      ]
+    },
+    {
+      "term": 711,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 713
+        }
+      ]
+    },
+    {
+      "term": 713,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 715
+        },
+        {
+          "address": "1",
+          "targetTerm": 717
+        }
+      ]
+    },
+    {
+      "term": 717,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 719
+        }
+      ]
+    },
+    {
+      "term": 565,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 909
+        }
+      ]
+    },
+    {
+      "term": 909,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 910
+        }
+      ]
+    },
+    {
+      "term": 910,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 911
+        },
+        {
+          "address": "1",
+          "targetTerm": 912
+        }
+      ]
+    },
+    {
+      "term": 911,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 913
+        },
+        {
+          "address": "1",
+          "targetTerm": 914
+        }
+      ]
+    },
+    {
+      "term": 914,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 915
+        },
+        {
+          "address": "11",
+          "targetTerm": 839
+        }
+      ]
+    },
+    {
+      "term": 839,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 916
+        }
+      ]
+    },
+    {
+      "term": 912,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 914
+        },
+        {
+          "address": "11",
+          "targetTerm": 917
+        }
+      ]
+    },
+    {
+      "term": 917,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 839
+        }
+      ]
+    },
+    {
+      "term": 566,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 918
+        }
+      ]
+    },
+    {
+      "term": 918,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 919
+        }
+      ]
+    },
+    {
+      "term": 567,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 920
+        }
+      ]
+    },
+    {
+      "term": 920,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 921
+        }
+      ]
+    },
+    {
+      "term": 568,
+      "edges": [
+        {
+          "address": "00",
+          "targetTerm": 564
+        }
+      ]
+    },
+    {
+      "term": 569,
+      "edges": [
+        {
+          "address": "00",
+          "targetTerm": 565
+        }
+      ]
+    },
+    {
+      "term": 570,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 443
+        }
+      ]
+    },
+    {
+      "term": 571,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 445
+        }
+      ]
+    },
+    {
+      "term": 572,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 447
+        }
+      ]
+    },
+    {
+      "term": 573,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 449
+        }
+      ]
+    },
+    {
+      "term": 574,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 451
+        },
+        {
+          "address": "001",
+          "targetTerm": 572
+        }
+      ]
+    },
+    {
+      "term": 575,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 922
+        }
+      ]
+    },
+    {
+      "term": 922,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 923
+        }
+      ]
+    },
+    {
+      "term": 923,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 924
+        },
+        {
+          "address": "1",
+          "targetTerm": 925
+        }
+      ]
+    },
+    {
+      "term": 925,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 926
+        },
+        {
+          "address": "1",
+          "targetTerm": 927
+        }
+      ]
+    },
+    {
+      "term": 927,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 928
+        }
+      ]
+    },
+    {
+      "term": 576,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 929
+        }
+      ]
+    },
+    {
+      "term": 929,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 930
+        },
+        {
+          "address": "01",
+          "targetTerm": 931
+        }
+      ]
+    },
+    {
+      "term": 930,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 932
+        },
+        {
+          "address": "10",
+          "targetTerm": 933
+        }
+      ]
+    },
+    {
+      "term": 933,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 934
+        },
+        {
+          "address": "1",
+          "targetTerm": 935
+        }
+      ]
+    },
+    {
+      "term": 935,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 936
+        },
+        {
+          "address": "1",
+          "targetTerm": 937
+        }
+      ]
+    },
+    {
+      "term": 931,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 933
+        }
+      ]
+    },
+    {
+      "term": 577,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 938
+        }
+      ]
+    },
+    {
+      "term": 938,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 939
+        }
+      ]
+    },
+    {
+      "term": 939,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 940
+        }
+      ]
+    },
+    {
+      "term": 940,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 941
+        },
+        {
+          "address": "1",
+          "targetTerm": 942
+        }
+      ]
+    },
+    {
+      "term": 941,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 944
+        },
+        {
+          "address": "1",
+          "targetTerm": 945
+        }
+      ]
+    },
+    {
+      "term": 945,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 947
+        },
+        {
+          "address": "11",
+          "targetTerm": 948
+        }
+      ]
+    },
+    {
+      "term": 942,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 945
+        },
+        {
+          "address": "11",
+          "targetTerm": 949
+        }
+      ]
+    },
+    {
+      "term": 949,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 948
+        }
+      ]
+    },
+    {
+      "term": 578,
+      "edges": [
+        {
+          "address": "00",
+          "targetTerm": 950
+        }
+      ]
+    },
+    {
+      "term": 950,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 951
+        }
+      ]
+    },
+    {
+      "term": 951,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 952
+        }
+      ]
+    },
+    {
+      "term": 579,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 953
+        }
+      ]
+    },
+    {
+      "term": 953,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 954
+        }
+      ]
+    },
+    {
+      "term": 954,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 955
+        }
+      ]
+    },
+    {
+      "term": 580,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 956
+        }
+      ]
+    },
+    {
+      "term": 956,
+      "edges": [
+        {
+          "address": "00",
+          "targetTerm": 957
+        }
+      ]
+    },
+    {
+      "term": 957,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 958
+        }
+      ]
+    },
+    {
+      "term": 958,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 959
+        }
+      ]
+    },
+    {
+      "term": 581,
+      "edges": [
+        {
+          "address": "00",
+          "targetTerm": 576
+        }
+      ]
+    },
+    {
+      "term": 582,
+      "edges": [
+        {
+          "address": "00",
+          "targetTerm": 578
+        }
+      ]
+    },
+    {
+      "term": 583,
+      "edges": [
+        {
+          "address": "000",
+          "targetTerm": 581
+        }
+      ]
+    },
+    {
+      "term": 584,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 480
+        }
+      ]
+    },
+    {
+      "term": 585,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 481
+        }
+      ]
+    },
+    {
+      "term": 586,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 482
+        }
+      ]
+    },
+    {
+      "term": 587,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 483
+        }
+      ]
+    },
+    {
+      "term": 588,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 484
+        },
+        {
+          "address": "0011",
+          "targetTerm": 586
+        }
+      ]
+    },
+    {
+      "term": 589,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 485
+        }
+      ]
+    },
+    {
+      "term": 590,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 486
+        }
+      ]
+    },
+    {
+      "term": 591,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 487
+        }
+      ]
+    },
+    {
+      "term": 592,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 488
+        },
+        {
+          "address": "001",
+          "targetTerm": 960
+        }
+      ]
+    },
+    {
+      "term": 960,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 871
+        }
+      ]
+    },
+    {
+      "term": 593,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 489
+        }
+      ]
+    },
+    {
+      "term": 594,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 490
+        }
+      ]
+    },
+    {
+      "term": 595,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 491
+        },
+        {
+          "address": "001",
+          "targetTerm": 590
+        }
+      ]
+    },
+    {
+      "term": 596,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 492
+        },
+        {
+          "address": "001",
+          "targetTerm": 592
+        }
+      ]
+    },
+    {
+      "term": 597,
+      "edges": [
+        {
+          "address": "",
+          "targetTerm": 493
+        },
+        {
+          "address": "0010",
+          "targetTerm": 595
+        }
+      ]
+    },
+    {
+      "term": 598,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 545
+        }
+      ]
+    },
+    {
+      "term": 599,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 546
+        }
+      ]
+    },
+    {
+      "term": 600,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 547
+        }
+      ]
+    },
+    {
+      "term": 601,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 548
+        }
+      ]
+    },
+    {
+      "term": 602,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 549
+        },
+        {
+          "address": "001",
+          "targetTerm": 600
+        }
+      ]
+    },
+    {
+      "term": 603,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 558
+        }
+      ]
+    },
+    {
+      "term": 604,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 559
+        }
+      ]
+    },
+    {
+      "term": 605,
+      "edges": [
+        {
+          "address": "00",
+          "targetTerm": 961
+        }
+      ]
+    },
+    {
+      "term": 961,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 962
+        }
+      ]
+    },
+    {
+      "term": 962,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 963
+        }
+      ]
+    },
+    {
+      "term": 606,
+      "edges": [
+        {
+          "address": "00",
+          "targetTerm": 964
+        }
+      ]
+    },
+    {
+      "term": 964,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 965
+        }
+      ]
+    },
+    {
+      "term": 965,
+      "edges": [
+        {
+          "address": "00",
+          "targetTerm": 966
+        }
+      ]
+    },
+    {
+      "term": 966,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 967
+        }
+      ]
+    },
+    {
+      "term": 607,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 567
+        }
+      ]
+    },
+    {
+      "term": 608,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 569
+        }
+      ]
+    },
+    {
+      "term": 609,
+      "edges": [
+        {
+          "address": "00",
+          "targetTerm": 968
+        }
+      ]
+    },
+    {
+      "term": 968,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 969
+        }
+      ]
+    },
+    {
+      "term": 969,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 970
+        },
+        {
+          "address": "01",
+          "targetTerm": 971
+        }
+      ]
+    },
+    {
+      "term": 971,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 972
+        }
+      ]
+    },
+    {
+      "term": 610,
+      "edges": [
+        {
+          "address": "00",
+          "targetTerm": 973
+        }
+      ]
+    },
+    {
+      "term": 973,
+      "edges": [
+        {
+          "address": "00",
+          "targetTerm": 974
+        }
+      ]
+    },
+    {
+      "term": 974,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 975
+        }
+      ]
+    },
+    {
+      "term": 975,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 976
+        },
+        {
+          "address": "01",
+          "targetTerm": 977
+        }
+      ]
+    },
+    {
+      "term": 977,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 978
+        }
+      ]
+    },
+    {
+      "term": 611,
+      "edges": [
+        {
+          "address": "000",
+          "targetTerm": 609
+        }
+      ]
+    },
+    {
+      "term": 612,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 579
+        }
+      ]
+    },
+    {
+      "term": 613,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 580
+        }
+      ]
+    },
+    {
+      "term": 614,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 581
+        }
+      ]
+    },
+    {
+      "term": 615,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 582
+        }
+      ]
+    },
+    {
+      "term": 616,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 583
+        },
+        {
+          "address": "0001",
+          "targetTerm": 614
+        }
+      ]
+    },
+    {
+      "term": 617,
+      "edges": [
+        {
+          "address": "00",
+          "targetTerm": 601
+        }
+      ]
+    },
+    {
+      "term": 618,
+      "edges": [
+        {
+          "address": "00",
+          "targetTerm": 602
+        }
+      ]
+    },
+    {
+      "term": 619,
+      "edges": [
+        {
+          "address": "00",
+          "targetTerm": 606
+        }
+      ]
+    },
+    {
+      "term": 620,
+      "edges": [
+        {
+          "address": "000",
+          "targetTerm": 979
+        }
+      ]
+    },
+    {
+      "term": 979,
+      "edges": [
+        {
+          "address": "00",
+          "targetTerm": 980
+        }
+      ]
+    },
+    {
+      "term": 980,
+      "edges": [
+        {
+          "address": "00",
+          "targetTerm": 981
+        }
+      ]
+    },
+    {
+      "term": 981,
+      "edges": [
+        {
+          "address": "0",
+          "targetTerm": 982
+        }
+      ]
+    },
+    {
+      "term": 982,
+      "edges": [
+        {
+          "address": "00",
+          "targetTerm": 983
+        }
+      ]
+    },
+    {
+      "term": 983,
+      "edges": [
+        {
+          "address": "00",
+          "targetTerm": 984
+        }
+      ]
+    },
+    {
+      "term": 621,
+      "edges": [
+        {
+          "address": "00",
+          "targetTerm": 610
+        }
+      ]
+    },
+    {
+      "term": 622,
+      "edges": [
+        {
+          "address": "00",
+          "targetTerm": 611
+        }
+      ]
+    },
+    {
+      "term": 623,
+      "edges": [
+        {
+          "address": "000",
+          "targetTerm": 618
+        }
+      ]
+    },
+    {
+      "term": 624,
+      "edges": [
+        {
+          "address": "000",
+          "targetTerm": 620
+        }
+      ]
+    },
+    {
+      "term": 625,
+      "edges": [
+        {
+          "address": "0000",
+          "targetTerm": 623
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "roots": 429,
+    "syntaxNodes": 985,
+    "states": 1321,
+    "redexTerms": 670,
+    "contractedTerms": 490,
+    "stateEdges": 1167,
+    "outcomeBySteps": {
+      "normal": [
+        "127",
+        "75",
+        "48",
+        "38",
+        "35",
+        "33",
+        "22"
+      ],
+      "horizon": [
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "52"
+      ],
+      "leaf_limit": [
+        "0",
+        "0",
+        "18",
+        "37",
+        "50",
+        "54",
+        "50"
+      ]
+    }
+  },
+  "constructionWork": {
+    "applicationRequests": 3037,
+    "syntaxNodesCreated": 985,
+    "rootForms": 429,
+    "redexOccurrenceVisits": 11212,
+    "redexMatches": 564,
+    "contractions": 563,
+    "ancestorRebuilds": 723,
+    "stateBuilds": 1321,
+    "stateHits": 113,
+    "coefficientAdditions": 13725,
+    "historyEnumeration": 0
+  }
+}
