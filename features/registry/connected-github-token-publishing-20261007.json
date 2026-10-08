@@ -1,0 +1,28 @@
+{
+  "schema": "commons-feature-v1",
+  "id": "connected-github-token-publishing-20261007",
+  "name": "Connected GitHub token publishing",
+  "added": "2026-10-07",
+  "owner_subsystem": "connected-publishing",
+  "carrier": "connected-tools",
+  "capability": "Explicit GitHub Token Connection bindings for the existing GitData publisher and UTF-8 Contents create/update publisher. Preserves observed file preimages, actual returned commit and blob identities, expected-head merges, raw provider envelopes and complete immutable source readback.",
+  "claimed_paths": [
+    "host/connected_github_token_adapter.cjs",
+    "host/CONNECTED_GITHUB_TOKEN_ADAPTER.md",
+    "host/connected_github_publish.cjs"
+  ],
+  "test_paths": [],
+  "public_entrypoint": "",
+  "dependencies": [],
+  "resource_links": [
+    "host/CONNECTED_GITHUB_TOKEN_ADAPTER.md",
+    "host/CONNECTED_GITHUB_PUBLISH.md"
+  ],
+  "next_gap": "Contents deletion and existing-ref advancement need their own compatible discovered bindings; the current token repository writer exposes POST, PUT and PATCH.",
+  "related": {
+    "boards": false,
+    "current_work": false,
+    "profitability": false,
+    "resources": true
+  }
+}

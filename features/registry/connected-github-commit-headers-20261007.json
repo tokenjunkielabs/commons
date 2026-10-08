@@ -1,0 +1,26 @@
+{
+  "schema": "commons-feature-v1",
+  "id": "connected-github-commit-headers-20261007",
+  "name": "Connected native GitHub commit headers",
+  "added": "2026-10-07",
+  "owner_subsystem": "connected-reading",
+  "carrier": "connected-tools",
+  "capability": "Bounded retained-only native commit and changed-file header view. Preserves actual SHA, repository/URL/date/login/ID fields and exact source paths, compares an optional requested commit identity, bounds literal message prefixes and sparse file selection, and omits diff, patch, comment, title-alias and email payloads without provider calls.",
+  "claimed_paths": [
+    "host/connected_github_commit_headers.cjs",
+    "host/CONNECTED_GITHUB_COMMIT_HEADERS.md"
+  ],
+  "test_paths": [],
+  "public_entrypoint": "",
+  "dependencies": [],
+  "resource_links": [
+    "host/CONNECTED_GITHUB_COMMIT_HEADERS.md"
+  ],
+  "next_gap": "The current projector consumes the native structuredContent.commit representation; it does not interpret raw REST or compare payloads.",
+  "related": {
+    "boards": false,
+    "current_work": false,
+    "profitability": false,
+    "resources": true
+  }
+}

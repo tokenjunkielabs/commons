@@ -1,0 +1,26 @@
+{
+  "schema": "commons-feature-v1",
+  "id": "connected-gmail-label-headers-20261007",
+  "name": "Connected retained Gmail label headers",
+  "added": "2026-10-07",
+  "owner_subsystem": "connected-gmail",
+  "carrier": "connected-tools",
+  "capability": "Pure bounded projection of retained native label metadata and literal message/thread counts, with exact field paths and distinct unknown or invalid fields; no label sums or account inference.",
+  "claimed_paths": [
+    "host/connected_gmail_label_headers.cjs",
+    "ground/CONNECTED_GMAIL_LABEL_HEADERS.md"
+  ],
+  "test_paths": [],
+  "public_entrypoint": "",
+  "dependencies": [],
+  "resource_links": [
+    "ground/CONNECTED_GMAIL_LABEL_HEADERS.md"
+  ],
+  "next_gap": "Counts describe literal supplied label fields; completeness, snapshot, account identity, request-filter application and account setup remain unestablished.",
+  "related": {
+    "boards": false,
+    "current_work": false,
+    "profitability": false,
+    "resources": true
+  }
+}

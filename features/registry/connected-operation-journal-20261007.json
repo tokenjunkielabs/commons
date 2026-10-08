@@ -1,0 +1,29 @@
+{
+  "schema": "commons-feature-v1",
+  "id": "connected-operation-journal-20261007",
+  "name": "Connected operation journal key recovery",
+  "added": "2026-10-07",
+  "owner_subsystem": "connected-recording",
+  "carrier": "connected-tools",
+  "capability": "Append-only logical-key retention through the existing JSON writer, with exact indexed file/digest locators and explicit bounded-reader recovery of one recorded JSON value.",
+  "claimed_paths": [
+    "host/connected_operation_journal.cjs",
+    "host/CONNECTED_OPERATION_JOURNAL.md"
+  ],
+  "test_paths": [],
+  "public_entrypoint": "",
+  "dependencies": [],
+  "resource_links": [
+    "host/CONNECTED_OPERATION_JOURNAL.md",
+    "host/CONNECTED_OPERATION_RECORDER.md",
+    "host/CONNECTED_EXEC_JSON_JOURNAL.md",
+    "host/CONNECTED_EXEC_JSON_READER.md"
+  ],
+  "next_gap": "Canonical provider reconciliation remains with the existing operation consumer; recovering data does not settle or resume an effect.",
+  "related": {
+    "boards": false,
+    "current_work": false,
+    "profitability": false,
+    "resources": true
+  }
+}
