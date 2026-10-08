@@ -6,6 +6,13 @@ const WRITES = Object.freeze({
     'create_file', 'update_file', 'create_pull_request', 'merge_pull_request'],
   slack: ['send_message', 'create_conversation', 'edit_message'],
 });
+const ADDITIONAL_WRITES = Object.freeze({
+  github: [
+    'mcp__codex_apps__github_token_connection_github_repository_write',
+    'mcp__codex_apps__github_token_connection_github_comment',
+  ],
+  slack: [],
+});
 const PROBES = Object.freeze({
   github: ['get_profile', 'list_installations', 'get_repo_collaborator_permission'],
   slack: ['list_workspaces'],
@@ -77,6 +84,7 @@ export function inspectPublishingTools(snapshot, {includeNames = false, previous
     providers[provider] = {
       observed_tools: rows.length,
       write_tools: writes,
+      additional_write_tools: ADDITIONAL_WRITES[provider].filter(name => current.unique.has(name)),
       write_primitives_not_observed: missingWrites,
       probe_tools: actionNames(rows, PROBES[provider]),
       ...(includeNames ? {tool_names: rows.map(row => row.name)} : {}),

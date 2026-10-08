@@ -165,7 +165,7 @@ class ConnectedOperationRecordingError extends Error {
 function createConnectedOperationRecorder(options) {
   object(options, 'options');
   for (const key of Object.keys(options)) {
-    if (!['operation_id', 'entry_prefix', 'retain', 'max_calls', 'serializable_errors'].includes(key)) {
+    if (!['operation_id', 'entry_prefix', 'retain', 'max_calls', 'serializable_errors', 'observe_timestamps'].includes(key)) {
       throw new TypeError('Unknown recorder option: ' + key);
     }
   }
@@ -181,10 +181,29 @@ function createConnectedOperationRecorder(options) {
     throw new TypeError('serializable_errors must be boolean');
   }
   const serializableErrors = options.serializable_errors === true;
+  if (options.observe_timestamps !== undefined
+      && typeof options.observe_timestamps !== 'boolean') {
+    throw new TypeError('observe_timestamps must be boolean');
+  }
+  const observeTimestamps = options.observe_timestamps === true;
   const retain = options.retain;
   const directoryKey = prefix + '_directory';
   const entries = [];
   let retentionTail = Promise.resolve();
+
+  function observeTimestamp(entry, event) {
+    if (!observeTimestamps) return;
+    let at = null;
+    let status = 'unavailable';
+    try {
+      at = new Date().toISOString();
+      status = 'observed';
+    } catch (_) {
+      // Clock failure must not change invocation count or its outcome.
+    }
+    entry.timestamps[event + '_at'] = at;
+    entry.timestamps[event + '_status'] = status;
+  }
 
   function metadata(entry) {
     return {
@@ -194,6 +213,7 @@ function createConnectedOperationRecorder(options) {
       phase: entry.phase,
       invocation_started: entry.invocation_started,
       settlement: entry.settlement,
+      ...(observeTimestamps ? {timestamps: {...entry.timestamps}} : {}),
       provider_outcome: entry.kind === 'binding' ? 'not_assessed' : 'not_applicable',
       keys: {...entry.keys},
       retention: {...entry.retention},
@@ -307,6 +327,12 @@ function createConnectedOperationRecorder(options) {
       entry = {
         call_id: callId, kind: descriptor.kind, name,
         phase: 'assigned', invocation_started: false, settlement: 'not_observed',
+        ...(observeTimestamps ? {timestamps: {
+          basis: 'caller_wall_clock_not_provider_native',
+          format: 'ISO_8601_UTC',
+          invocation_at: null, invocation_status: 'not_observed',
+          settlement_at: null, settlement_status: 'not_observed',
+        }} : {}),
         keys: {request: stem + '_request', result: stem + '_result',
           error: stem + '_error', entry: stem + '_entry'},
         retention: {directory: 'not_attempted', request: 'not_attempted',
@@ -344,10 +370,13 @@ function createConnectedOperationRecorder(options) {
 
     let value;
     try {
+      observeTimestamp(entry, 'invocation');
       value = await invoke(request);
     } catch (error) {
+      observeTimestamp(entry, 'settlement');
       return finishThrown(entry, error, 'invocation_threw');
     }
+    observeTimestamp(entry, 'settlement');
     entry.phase = 'returned';
     entry.settlement = 'returned';
     const outcome = {returned: true, value};
