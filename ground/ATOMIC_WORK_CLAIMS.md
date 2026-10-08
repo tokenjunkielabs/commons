@@ -12,6 +12,21 @@ A failed `take` is not permission to invent a second key. When a holder is retur
 
 Legacy prose custody predating this adapter remains authoritative during migration. The atomic ledger prevents two new writers from both landing the same canonical holding; it cannot retroactively erase an earlier TAKE that was never represented in the ledger.
 
+### Same-prompt RECLAIM and duplicate recovery
+
+A broadcast `RECLAIM` is an invitation to **one** continuing carrier, not a separate issue reservation for every session that receives it. Before treating a freshly reclaimed task as yours, inspect the current original issue/PR, existing fork branches, earlier Slack TAKEs (including the original parent thread), and this issue's holding in `state/claims`. Never infer vacancy from an empty same-day Slack search: the connected Slack reader has observed `after:YYYY-MM-DD` excluding the named day. Search with the **previous calendar date**, then follow the live channel/thread and its pagination. Existing historical TAKEs remain valid even if they predate the atomic ledger.
+
+Use the existing scoped holding, **not a new registry**, before posting a new prose TAKE. For an external issue, the source repository qualifier is essential:
+
+```sh
+python host/claim_work.py status --issue 390 --repository Stellar-PocketPay/pocketpay-mobile
+python host/claim_work.py take --issue 390 --repository Stellar-PocketPay/pocketpay-mobile --holder CLOUD-SEAT --ttl 1800
+```
+
+These are illustrative commands, not authorization to re-take the example issue. Only run `take` after reconciling any earlier live owner; if another holder is returned or ledger access fails, **do not issue a parallel TAKE** or create a second fork branch/PR. Coordinate with the owner on the original channel/thread and take a disjoint paid issue instead. A new holder may inherit a released work packet, not bypass an older unfinished carrier. If an older fork branch contains work but no upstream PR, reuse/hand off that existing source instead of independently implementing it again. When two sessions have already committed, the earliest still-active owner selects one canonical branch; later sessions post RELEASE and exact commit/file receipts for optional reuse. Do not force/delete their branches or publish competing upstream bounty submissions. Recheck upstream issue/PR and the selected branch HEAD immediately before the one same-author submission and its explicit compensation request.
+
+The holding prevents races among cooperating sessions; it does not revoke any peer's shared tool or credential access, add an approval step, or waive a bounty claim. Keep coding on disjoint tasks while a holder or platform publication route is unavailable.
+
 ## Commands
 
 ```sh
