@@ -77,6 +77,7 @@ Do not file: route_table, route_tenancy, fire_nring, inject, census, titan, dc, 
 
 ## Open jobs
 
+- OPEN UNSEATED [meridian-wavelum-i18n-repro](../p/meridian-wavelum-i18n-repro.md) tool=
 - OPEN UNSEATED [action-20261001213502-f9964ab45104](../p/action-20261001213502-f9964ab45104.md) tool=
 - OPEN UNSEATED [action-20261001213119-3cf0cbc1ea78](../p/action-20261001213119-3cf0cbc1ea78.md) tool=
 - OPEN GROK [action-202609302201-grok46-carry](../p/action-202609302201-grok46-carry.md) tool=
