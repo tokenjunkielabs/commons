@@ -3,7 +3,8 @@
 [connected_github_comments.cjs](connected_github_comments.cjs) exports the pure
 `projectGitHubRestComments(response, options)` function. It projects a retained
 native `github_fetch` response whose `structuredContent.content` is a JSON
-comment array. It makes no tool calls and owns no fetch, pagination, mutation,
+comment array, or a successful GitHub Token Connection response whose
+`structuredContent.data` is the comment array. It makes no tool calls and owns no fetch, pagination, mutation,
 filesystem, credentials, archive decoding or access decision.
 
 The motivating intake selected recent complete issue comments and exposed a
@@ -34,7 +35,8 @@ text(headers);
 This example uses the actual caller's already-loaded module, retained response
 and receipt key. It does not make a new request. The default body mode is
 `withheld`; no body property is emitted. Header views preserve each source
-index and `JSON.parse(structuredContent.content)[index]` path, observed comment
+index and the exact array path (`JSON.parse(structuredContent.content)[index]`
+for native JSON text or `structuredContent.data[index]` for token data), observed comment
 ID, API/browser/issue URLs, `user.login`, creation/update strings, and body
 state/character count. Unlisted native fields, including reactions, application
 metadata and user profile fields, are omitted.
@@ -81,15 +83,24 @@ Missing, null or invalid bodies emit no body text and retain their own states.
 
 ## Supported envelope and value states
 
-The function accepts an MCP envelope object with
-`structuredContent.content` as a JSON string containing an array of at most
-1,000 rows. It refuses native `isError: true`, invalid error-flag types,
-unsupported envelopes, malformed JSON and non-array payloads. Failure
-messages are fixed and body-free; in particular JSON parsing errors are not
-forwarded because engine error text can quote input. The original native
-response remains the caller's private evidence. There is no alternate parser
-for top-level text, REST search objects, connector shortcut comments or other
-representations.
+The function accepts an MCP envelope object with one of these representations:
+
+| Envelope | Required payload | Source path |
+| --- | --- | --- |
+| Native `github_fetch` | `structuredContent.content` is JSON text containing an array. | `JSON.parse(structuredContent.content)[index]` |
+| GitHub Token Connection | `structuredContent.ok === true`, integer HTTP `status` in 200–299, and `structuredContent.data` is an array. | `structuredContent.data[index]` |
+
+Both arrays are bounded to 1,000 rows. Native JSON text retains precedence if
+both representations are supplied. The function refuses native `isError: true`,
+invalid error-flag types, token responses without successful status, unsupported
+envelopes, malformed JSON and non-array payloads. Failure messages are fixed and
+body-free; parsing and serialization error details are not forwarded. The
+original response remains the caller's evidence. There is no alternate parser
+for top-level text, REST search objects or connector shortcut comments.
+
+Token status describes the supplied envelope; this pure function performs no
+authentication and does not certify the original request, account, permissions,
+pagination or array completeness. It adds no tool binding or provider request.
 
 A non-object row remains a header with `row_state: "invalid"`; its body and
 user fields are `unassessed`. Object-row metadata preserves these states:
@@ -120,8 +131,10 @@ whose headers are not selected.
 
 All character counts and ranges are **UTF-16 code units**, matching JavaScript
 string indexing. They are not UTF-8 byte counts, displayed glyph counts or
-wire sizes. The input limit measures only the JSON payload string before
-parsing, not other fields in the retained native envelope.
+wire sizes. For native input, the input limit measures only the JSON payload string before
+parsing. For token input, it measures `JSON.stringify(structuredContent.data)`
+so equivalent array data has a comparable serialized-content bound. Neither
+measurement includes other envelope fields or certifies original wire size.
 
 | Option | Default | Maximum |
 | --- | ---: | ---: |
@@ -167,11 +180,12 @@ This is an additive, source-inspected module and guide. The existing
 unchanged. No fixture, test suite, executor, browser, native request, archive
 decode or historical computation is invoked by the projector.
 
-At publication, the new projector has not been executed. The first intended
-consumer is a header-only operation on the already-retained actual
-eleven-comment native envelope, performed by its custodian after acquiring
-this exact source. That observation can retain its counts, omission/error
-states and unchanged-input comparison privately without transferring bodies,
-refetching comments or manufacturing fixtures. Explicit-body, invalid,
-oversize and budget/error paths remain unexecuted unless a later genuine
-operation exercises them. There is no acceptance or permission gate.
+The original native projector was published before its custodian's first use.
+The token-envelope extension was executed against retained real native and token
+reads of Commons issue #20318. Both responses supplied the same one comment ID;
+header-only views retained its metadata, withheld its body, and recorded the
+correct representation-specific source path. Native output matched the original
+projector byte for byte. Empty token input from PR #32227 also projected zero
+rows. No body output, historical archive decoding, malformed-input simulation,
+fixture or test suite was used. Error and budget paths remain unexecuted until
+a genuine operation exercises them; there is no acceptance or permission gate.
