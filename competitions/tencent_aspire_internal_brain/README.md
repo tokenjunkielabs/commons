@@ -36,6 +36,31 @@ Citations retain the source URI, `content_sha256` for the content bytes, and `do
 
 Each standalone invocation creates a fresh engine. Use a session when later operations must see an earlier ingestion and share one audit chain.
 
+## Run the browser demo
+
+From the directory containing this README:
+
+```bash
+python -B -m internal_brain.web_demo demo_bundle.json
+```
+
+Open the local URL printed in the terminal. The browser is a real operator surface over the same `InternalBrain` engine used by the CLI: it loads `demo_bundle.json`, executes scoped queries, displays authorization decisions and citations, and reads the engine's audit chain through an audit-capable declared actor.
+
+The page deliberately has no login and no token check. The operator selects one of the declarations already present in the fictional bundle; that selection is not authentication. `/meta` exposes role and clearance declarations without document bodies, `/query` executes the existing authorization-before-retrieval path, and `/audit` returns and verifies the current in-memory audit chain.
+
+### Export a digest-bound AI context packet
+
+The context command runs the same query engine, copies only the already-authorized result evidence into `internal-brain-ai-context/v1`, binds it to the query receipt, and adds explicit downstream constraints. It does not call a model or widen the selected actor's scope.
+
+```bash
+python -B -m internal_brain.assistant_context build \
+  demo_bundle.json demo_query_finance.json \
+  --out finance-context.json
+python -B -m internal_brain.assistant_context verify finance-context.json
+```
+
+The output is created exclusively. Its `source_result_receipt_sha256` binds the query receipt; `packet_sha256` binds the complete context packet. `NO_AUTHORIZED_MATCH` produces an empty evidence list with `abstain_when_no_authorized_match: true`. Authorized results retain document IDs, snippets, citations, content/document digests and untrusted-instruction markers. The browser `/query` response includes the same verified packet beside the ordinary receipt.
+
 ## Run the fictional operator session
 
 `demo_operations.json` supplies eight ordered operations:
@@ -159,3 +184,27 @@ The local audit chain and replay artifact bind retained evidence through SHA-256
 - Recovered implementation: [source at commit `6230a5bc1d4b47c4f6f3922381cd447a45997e31`](https://github.com/woahwhattheheck/commons/tree/6230a5bc1d4b47c4f6f3922381cd447a45997e31/competitions/tencent_aspire_internal_brain).
 
 The [submission packet](SUBMISSION.md) remains a draft. Tencent's [official release](https://en.prnasia.com/releases/apac/tencent-cloud-and-ai-singapore-connect-singapore-s-ai-talent-with-real-world-industry-challenges-548305.shtml) describes a requirement to apply Tencent-provided AI tools. This offline, non-generative prototype does not establish fulfillment of that requirement or overall challenge readiness. It performs no provider call, registration or submission.
+
+### Official event details
+
+- Event: [Tencent Cloud AI CAN DO IT Hackathon Singapore 2026](https://tch.tencentcloud.com/contest/44)
+- Team registration: [official registration form](https://qdrl.qq.com/65xN1yft)
+- Project submission: [official project-submission form](https://tinyurl.com/TCHackathonSGProjectSubmission)
+- Submission deadline shown by the official event page: `2026-10-16 23:59:59`. The event page does not state a timezone for this timestamp.
+- Track: **FinTech - The Internal Brain: Building a Context-Aware Enterprise Knowledge System with RBAC, Security Logging & Audit Trail**
+
+### Alignment with the official judging dimensions
+
+| Judging dimension | Current project evidence |
+| --- | --- |
+| Relevance | Implements context-aware enterprise knowledge access with RBAC decisions, security events and an inspectable audit trail. |
+| Human-centric design | Adds a browser workflow for role selection, questions, decisions, evidence, citations and the audit chain. |
+| Use of AI | Supplies a governed, authorized-evidence layer that an AI assistant can consume. Actual Tencent CodeBuddy, WorkBuddy or Miora use is recorded separately only after it occurs in the corresponding product account and leaves retained evidence. |
+| Technical execution | Provides a runnable Python package, CLI workflows, the real browser surface, strict schemas, replay and digest-bound evidence. |
+| Feasibility | Runs locally from a supplied bundle and exposes a boundary for enterprise identity, knowledge and logging integrations. |
+| Responsible AI practices | Authorization precedes retrieval; document text remains data; role scope, provenance, denials and audit evidence stay visible. |
+| Potential business impact | Reduces time spent finding and reusing internal knowledge while retaining control over access and accountability. |
+
+### Tencent product-use record
+
+Tencent CodeBuddy, WorkBuddy and Miora activity is an account/process fact separate from repository source history. Record a product as used only after work has actually been performed in that product. Retain the product name, date, account or workspace, task performed and resulting output or provider reference.
