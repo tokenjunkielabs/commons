@@ -45,6 +45,7 @@ Any active `"kind": "CLAIM"` lease fences the order from reassignment, regardles
   "token_cost": 40,
   "outbound": false,
   "status": "OPEN",
+  "required_quota_domains": ["github-app"],
   "preferred_workers": ["grok-heavy"]
 }
 ```
@@ -54,6 +55,21 @@ Any active `"kind": "CLAIM"` lease fences the order from reassignment, regardles
 ### Lease
 
 `CLAIM` means another owner already controls the work. `MUSE` is the single-writer prerequisite for outbound work. Lease expiry is deliberately **not** inferred from wall-clock time: upstream coordination must decide whether a lease is active and pass `active: true|false`, keeping replay deterministic.
+
+## Optional provider rail health
+
+Provider-bound orders may declare `required_quota_domains`. The dispatcher can consume the existing connected-tool router's offline `rail-health` projection with `--rail-health`.
+
+This is an advisory admission gate, not credential routing. A declared domain is deferred as `RAIL_UNAVAILABLE` only when the supplied snapshot reports an active cooldown, or a known zero request budget whose reset is still in the future. Missing/unknown domains remain eligible, and an expired reset does not freeze work. The normalized health facts are included in the receipt input digest so replay uses the same admission state.
+
+The dispatcher performs no provider calls and does not infer actors, credentials, or quota domains. Generate the snapshot from the existing private router journal:
+
+```bash
+python host/connected_tool_router.py rail-health \
+  --routes-file inventory/resources/connected_capability_observations.json \
+  --state-file /private/runtime/connected-tools.json \
+  > /tmp/rail-health.json
+```
 
 ## Ranking and allocation
 
@@ -78,12 +94,14 @@ python -m operations.swarm_capacity_dispatcher.cli dispatch \
   --workers operations/swarm_capacity_dispatcher/examples/workers.json \
   --orders operations/swarm_capacity_dispatcher/examples/orders.json \
   --leases operations/swarm_capacity_dispatcher/examples/leases.json \
+  --rail-health /tmp/rail-health.json \
   --output /tmp/dispatch-receipt.json
 
 python -m operations.swarm_capacity_dispatcher.cli verify \
   --workers operations/swarm_capacity_dispatcher/examples/workers.json \
   --orders operations/swarm_capacity_dispatcher/examples/orders.json \
   --leases operations/swarm_capacity_dispatcher/examples/leases.json \
+  --rail-health /tmp/rail-health.json \
   --receipt /tmp/dispatch-receipt.json
 ```
 
@@ -91,6 +109,7 @@ python -m operations.swarm_capacity_dispatcher.cli verify \
 
 ```bash
 python -m unittest operations.swarm_capacity_dispatcher.tests.test_dispatcher -v
+python -m unittest operations.swarm_capacity_dispatcher.tests.test_rail_health_gate -v
 python -O -m unittest operations.swarm_capacity_dispatcher.tests.test_dispatcher -v
 ```
 
