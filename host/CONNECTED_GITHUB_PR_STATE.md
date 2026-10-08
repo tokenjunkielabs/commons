@@ -1,8 +1,10 @@
 # Read canonical pull-request state once
 
 `connected_github_pr_state.cjs` reads a single pull request through the existing
-native `github_fetch` action and preserves GitHub's nullable fields. It also
-projects an already retained native response without another provider call.
+native `github_fetch` action and preserves GitHub's nullable fields. Callers may
+explicitly select the existing GitHub Token Connection read action instead. It
+also projects an already retained response from either connection without
+another provider call.
 
 During integration of Commons PR #31205 on October 4, 2026, the compact
 `get_pr_info` action reported `mergeable: false`. The canonical REST response
@@ -47,6 +49,35 @@ including bodies and other metadata that the compact view omits. A provider
 error response also remains available there. Printing only `status`, `calls`,
 and `pr` avoids repeating the full provider response in the working context.
 
+### Select the existing private-token read route
+
+When the current operation uses the GitHub Token Connection, select it explicitly:
+
+~~~javascript
+const result = await box.exports.readGitHubPullRequest(tools, {
+  repository_full_name: "woahwhattheheck/commons",
+  pr_number: 32226
+}, { transport: "token" });
+store("current-token-pr", result);
+text({ status: result.status, calls: result.calls, pr: result.pr });
+~~~
+
+The selected binding is
+`mcp__codex_apps__github_token_connection_github_read`, called once with the
+relative REST `path`. The result's `request` retains that path, transport and
+binding alongside the canonical API URL. Default or `transport: "native"`
+preserves the existing native request and result shape. Unknown options or
+transport values throw before a provider call, as does a missing selected
+binding.
+
+Route selection belongs to the caller's current authorization and provider
+state. The helper never switches connections after an error, retries a denied
+operation, looks up credentials, or infers account permission. A successful
+token response's `{status, ok, data}` wrapper is decoded only when `ok` is true
+and the recorded HTTP status is 2xx. Its canonical PR fields retain the same
+nullable descriptors. A returned `ok: false`, error envelope or HTTP error
+status becomes `NATIVE_ERROR`; the complete response remains available privately.
+
 ## Interpret fields without losing information
 
 Nullable fields have `{present, value}` descriptors:
@@ -64,8 +95,42 @@ value is distinct from a present `null`. The same descriptors preserve
 
 `state`, `title`, `number`, the canonical URL, and both branch refs, SHAs and
 repository names are included. A deleted head repository remains `null`.
-Reviewers, status checks, labels, body and other provider fields stay in the
-original `response`; this is a compact view, not their absence from GitHub.
+Reviewers, status checks, labels and other provider fields stay in the original
+`response`; this is a compact view, not their absence from GitHub. Body text is
+omitted by default and can be selected explicitly as described below.
+
+### Read exact body text for claim and description changes
+
+For a claim or description update, request the body from this same canonical
+PR response instead of using the indexed body returned by `github_search_prs`:
+
+~~~javascript
+const current = await box.exports.readGitHubPullRequest(tools, {
+  repository_full_name: "amithmandassociates-oss/hash-report-tool",
+  pr_number: 56
+}, { include_body: true });
+if (current.status !== "READ" || !current.pr.body.present) {
+  throw new Error("The current PR body was not retrieved");
+}
+const originalBody = current.pr.body.value;
+store("current-description", { head: current.pr.head, body: originalBody });
+~~~
+
+`include_body: true` adds `body: {present, value}` to the projection. The value
+is the exact string, a present `null`, or an absent field distinguished by
+`present: false`. It comes from the same GET as the branch head and update time;
+there is no extra hydration request, search, retry or mutation. The compact
+default remains unchanged. The retained-response projector supports the same
+option: `projectGitHubPullRequest(response, {include_body: true})`.
+
+The body contains provider-visible text, so retain it privately and print only
+what the current work needs. A captured body does not prevent later concurrent
+edits; the caller still rereads and composes current text before writing.
+
+During the Hash Report PR #56 payment follow-through, native
+`github_search_prs` omitted an existing `/claim #2`, while the exact REST PR
+body already contained it. Indexed search supplied the lead; the canonical
+body preserved the existing claim rather than duplicating it.
 
 These are observed fields, not a claim that the work is ready, authorized,
 accepted, or paid. In particular, `merge_commit_sha` can identify a temporary
@@ -85,6 +150,11 @@ that contain it in `structuredContent`, JSON-text `content`, or text content
 blocks. It does not mutate the original object or assign a new observation
 time. Keep the original request and capture time beside retained data.
 
+It also accepts the successful HTTP envelope retained by the private-token
+reader, including the envelope in `structuredContent` or a JSON text block.
+Arbitrary objects nested under `data` are not traversed without that successful
+HTTP wrapper. Failed wrappers do not become canonical PR state.
+
 Native envelopes can repeat identical PR JSON at several wrapper paths. The
 projector parses each canonical PR text once per invocation. Other wrapper JSON
 keeps its original traversal; the cache does not survive a projection or hide a
@@ -103,7 +173,7 @@ The live reader returns `READ`, `TOOL_ERROR`, `NATIVE_ERROR`, or
 classification. The original provider envelope remains in `response` when a
 response was returned; thrown tool errors retain their message instead.
 
-`calls: 1` counts the attempted native request, not a successful read. The
+`calls: 1` counts the attempted selected request, not a successful read. The
 started/finished timestamps and elapsed milliseconds cover that invocation.
 There is no timeout/retry wrapper or hidden continuation. Honor actual provider
 cooldowns before a later deliberate request; this helper does not change quotas
@@ -146,3 +216,4 @@ Provider contract: [GitHub REST — get a pull request](https://docs.github.com/
 Related helpers: [issue/PR search](CONNECTED_GITHUB_ISSUE_SEARCH.md),
 [changed-file comparison](CONNECTED_GITHUB_COMPARE.md), and
 [publication](CONNECTED_GITHUB_PUBLISH.md).
+
