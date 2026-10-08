@@ -4,6 +4,7 @@
 // The caller supplies the connected tool surface; this module owns no network
 // client, credentials, filesystem, scheduler, or mutation operation.
 const FETCH = "mcp__codex_apps__github_fetch";
+const TOKEN_READ = "mcp__codex_apps__github_token_connection_github_read";
 const SEARCH_LIMIT = 1000;
 const SORTS = new Set([
   "comments", "reactions", "reactions-+1", "reactions--1", "reactions-smile",
@@ -58,22 +59,42 @@ function configFor(input) {
   };
 }
 
+function searchPayload(value) {
+  if (!object(value)) return null;
+  if (value.isError === true || value.ok === false ||
+      Object.prototype.hasOwnProperty.call(value, "error") ||
+      (Number.isInteger(value.status) && value.status >= 400)) {
+    const error = new Error("native GitHub response reports an error");
+    error.code = "NATIVE_ERROR";
+    throw error;
+  }
+  if (Array.isArray(value.items)) return value;
+  if (value.ok === true && Number.isInteger(value.status) &&
+      value.status >= 200 && value.status < 300 && object(value.data) &&
+      Array.isArray(value.data.items)) return value.data;
+  return null;
+}
+
 function decode(response) {
   const candidates = [response && response.structuredContent, response];
   for (const candidate of candidates) {
     if (!object(candidate)) continue;
-    if (Array.isArray(candidate.items)) return candidate;
+    const payload = searchPayload(candidate);
+    if (payload) return payload;
     if (typeof candidate.content === "string") {
       const parsed = JSON.parse(candidate.content);
-      if (object(parsed)) return parsed;
+      const payload = searchPayload(parsed);
+      if (payload) return payload;
     }
   }
   for (const item of response && Array.isArray(response.content) ? response.content : []) {
     if (item.type !== "text" || typeof item.text !== "string") continue;
     try {
       const parsed = JSON.parse(item.text);
-      if (object(parsed) && Array.isArray(parsed.items)) return parsed;
-    } catch (_) {
+      const payload = searchPayload(parsed);
+      if (payload) return payload;
+    } catch (error) {
+      if (error.code === "NATIVE_ERROR") throw error;
       // Ordinary provider status text is not a search payload.
     }
   }
@@ -114,15 +135,27 @@ function itemIdentity(row) {
  */
 async function searchGitHubIssues(tools, input, options = {}) {
   const config = configFor(input);
-  if (!tools || typeof tools[FETCH] !== "function") {
-    throw new TypeError("the native " + FETCH + " action is not available");
-  }
-  if (!object(options) || Object.keys(options).some(key => key !== "onResponse")) {
-    throw new TypeError("options supports only onResponse");
+  if (!object(options) || Object.keys(options).some(key =>
+    key !== "onResponse" && key !== "transport")) {
+    throw new TypeError("options supports only onResponse and transport");
   }
   if (options.onResponse !== undefined && typeof options.onResponse !== "function") {
     throw new TypeError("onResponse must be a function");
   }
+  const transport = options.transport ?? "native";
+  if (transport !== "native" && transport !== "token") {
+    throw new TypeError("transport must be native or token");
+  }
+  const binding = transport === "token" ? TOKEN_READ : FETCH;
+  if (!tools || typeof tools[binding] !== "function") {
+    throw new TypeError("the connected " + binding + " action is not available");
+  }
+  // These characters are query-safe; reserved parameter delimiters stay escaped.
+  // Avoid the token connector's observed rejection of an encoded query slash.
+  const encodeQuery = value => transport === "token"
+    ? encodeURIComponent(value).replace(/%2F/gi, "/").replace(/%3A/gi, ":")
+      .replace(/%20/g, "+")
+    : encodeURIComponent(value);
   const started = Date.now();
   const seen = new Set();
   const repeated = new Set();
@@ -158,6 +191,7 @@ async function searchGitHubIssues(tools, input, options = {}) {
     callback_errors: [],
     started_at: new Date(started).toISOString(),
   };
+  if (transport === "token") result.request = { transport, binding };
   const gap = code => {
     if (!result.coverage.gaps.includes(code)) result.coverage.gaps.push(code);
   };
@@ -190,20 +224,22 @@ async function searchGitHubIssues(tools, input, options = {}) {
       per_page: String(config.perPage),
       page: String(page),
     };
-    const url = "https://api.github.com/search/issues?" + Object.entries(query)
-      .map(([key, value]) => encodeURIComponent(key) + "=" + encodeURIComponent(value))
+    const path = "/search/issues?" + Object.entries(query)
+      .map(([key, value]) => encodeQuery(key) + "=" + encodeQuery(value))
       .join("&");
+    const url = "https://api.github.com" + path;
     result.coverage.next_page = page;
     result.stats.calls += 1;
     let response;
     try {
-      response = await tools[FETCH]({ url });
+      response = await tools[binding](transport === "token" ? { path } : { url });
     } catch (error) {
       return finish("TOOL_ERROR", { url, native_message: diagnostic(error) });
     }
     if (options.onResponse) {
       try {
-        await options.onResponse({ page, url, response });
+        await options.onResponse({ page, url, response,
+          ...(transport === "token" ? { path, binding } : {}) });
       } catch (error) {
         result.callback_errors.push({ page, message: diagnostic(error) });
       }
@@ -221,7 +257,8 @@ async function searchGitHubIssues(tools, input, options = {}) {
         throw new TypeError("invalid items, total_count, incomplete_results, or page length");
       }
     } catch (error) {
-      return finish("INVALID_RESPONSE", { url, native_message: diagnostic(error) });
+      return finish(error.code === "NATIVE_ERROR" ? "NATIVE_ERROR" : "INVALID_RESPONSE",
+        { url, native_message: diagnostic(error) });
     }
     const rows = payload.items;
     totals.add(payload.total_count);
@@ -236,6 +273,7 @@ async function searchGitHubIssues(tools, input, options = {}) {
       incomplete_results: payload.incomplete_results,
       received: rows.length, retained: 0,
     };
+    if (transport === "token") observation.path = path;
     result.coverage.pages.push(observation);
     result.stats.pages_read += 1;
     result.stats.items_received += rows.length;
@@ -528,8 +566,8 @@ function projectGitHubIssueItems(items, options = {}) {
 
 
 /**
- * Project headers from a retained github_search_issues shortcut envelope.
- * The shortcut's nullable fields and absent paging evidence stay distinct
+ * Project headers from a retained native issue search or single-issue envelope.
+ * The connector's nullable fields and absent paging evidence stay distinct
  * from the REST reader's native item and traversal contract.
  */
 function projectGitHubConnectorIssueHeaders(response, options = {}) {
@@ -540,11 +578,25 @@ function projectGitHubConnectorIssueHeaders(response, options = {}) {
   if (response.isError !== undefined && typeof response.isError !== "boolean") {
     throw new TypeError("response.isError must be boolean when present");
   }
-  if (!object(response.structuredContent) ||
-      !Array.isArray(response.structuredContent.issues)) {
-    throw new TypeError("response needs structuredContent.issues");
+  if (!object(response.structuredContent)) {
+    throw new TypeError("response needs structuredContent.issues or structuredContent.issue");
   }
-  const items = response.structuredContent.issues;
+  const structured = response.structuredContent;
+  const single = Object.prototype.hasOwnProperty.call(structured, "issue");
+  const batch = Object.prototype.hasOwnProperty.call(structured, "issues");
+  if (single && batch) {
+    throw new TypeError("structuredContent.issue and structuredContent.issues are ambiguous together");
+  }
+  if (single) {
+    if (!object(structured.issue) || structured.isError === true || structured.ok === false ||
+        structured.error != null || structured.error_code != null ||
+        (Number.isInteger(structured.status) && structured.status >= 400)) {
+      throw new TypeError("structuredContent.issue needs a successful native issue object");
+    }
+  } else if (!Array.isArray(structured.issues)) {
+    throw new TypeError("response needs structuredContent.issues or structuredContent.issue");
+  }
+  const items = single ? [structured.issue] : structured.issues;
   if (items.length > SEARCH_LIMIT) {
     throw new RangeError("structuredContent.issues exceeds 1000 entries");
   }
@@ -658,7 +710,8 @@ function projectGitHubConnectorIssueHeaders(response, options = {}) {
     returnedMetadataChars += row.metadataChars;
     projected.push({
       source_index: sourceIndex,
-      source_path: "structuredContent.issues[" + sourceIndex + "]",
+      source_path: single ? "structuredContent.issue"
+        : "structuredContent.issues[" + sourceIndex + "]",
       ...row.metadata,
       metadata_states: row.metadataStates,
       metadata_chars: row.metadataChars,
@@ -676,7 +729,9 @@ function projectGitHubConnectorIssueHeaders(response, options = {}) {
   return {
     schema: "commons.connected_github_connector_issue_headers/v1",
     source: {
-      scope: "supplied_envelope_only", payload_path: "structuredContent.issues",
+      scope: "supplied_envelope_only",
+      payload_path: single ? "structuredContent.issue" : "structuredContent.issues",
+      ...(single ? {source_shape: "single"} : {}),
       identity_basis: "caller_supplied_connector_fields",
       query_application: "not_verified", kind_application: "not_verified",
       pagination_evidence: "not_available_in_supported_envelope",
@@ -710,3 +765,4 @@ function projectGitHubConnectorIssueHeaders(response, options = {}) {
 }
 
 module.exports = { searchGitHubIssues, projectGitHubIssueItems, inspectGitHubIssueUpdatedAtBound, projectGitHubConnectorIssueHeaders };
+

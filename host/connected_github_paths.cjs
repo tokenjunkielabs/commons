@@ -5,6 +5,8 @@
  */
 
 const SHA = /^[0-9a-f]{40}$/i;
+const FETCH = "mcp__codex_apps__github_fetch";
+const TOKEN_READ = "mcp__codex_apps__github_token_connection_github_read";
 const MODES = new Map([
   ["100644", "blob"], ["100755", "blob"], ["120000", "blob"],
   ["040000", "tree"], ["160000", "commit"],
@@ -95,10 +97,27 @@ function settings(input) {
   };
 }
 
-function responseJSON(result) {
+function responseJSON(result, transport) {
   if (result && result.isError) {
     const detail = Array.isArray(result.content) ? result.content.filter(x => x.type === "text").map(x => x.text).join("\n").slice(0, 1200) : null;
     throw new LookupStop("NATIVE_TOOL_ERROR", "The native GitHub fetch returned isError=true", detail);
+  }
+  if (transport === "token") {
+    const envelope = result && result.structuredContent;
+    if (envelope && typeof envelope === "object" && !Array.isArray(envelope) &&
+        (envelope.ok === false ||
+         (Number.isInteger(envelope.status) && envelope.status >= 400))) {
+      const detail = typeof envelope.data?.message === "string"
+        ? envelope.data.message.slice(0, 1200) : null;
+      throw new LookupStop("NATIVE_TOOL_ERROR", "The token GitHub reader returned an HTTP error", detail);
+    }
+    if (!envelope || typeof envelope !== "object" || Array.isArray(envelope) ||
+        envelope.ok !== true || !Number.isInteger(envelope.status) ||
+        envelope.status < 200 || envelope.status >= 300 ||
+        !envelope.data || typeof envelope.data !== "object") {
+      throw new LookupStop("RESPONSE_SHAPE", "The token reader omitted its successful HTTP data envelope");
+    }
+    return envelope.data;
   }
   const body = result && result.structuredContent && result.structuredContent.content;
   if (typeof body !== "string") {
@@ -117,11 +136,29 @@ function joined(parent, name) {
   return parent ? parent + "/" + name : name;
 }
 
-async function findGitHubPaths(tools, input) {
+async function findGitHubPaths(tools, input, runtime = {}) {
   const options = settings(input);
-  if (!tools || typeof tools.mcp__codex_apps__github_fetch !== "function") {
-    throw new TypeError("The native GitHub fetch tool is not exposed");
+  if (!runtime || typeof runtime !== "object" || Array.isArray(runtime) ||
+      Object.keys(runtime).some(key => key !== "transport" && key !== "onResponse")) {
+    throw new TypeError("runtime options supports only transport and onResponse");
   }
+  const transport = runtime.transport ?? "native";
+  if (transport !== "native" && transport !== "token") {
+    throw new TypeError("transport must be native or token");
+  }
+  if (runtime.onResponse !== undefined && typeof runtime.onResponse !== "function") {
+    throw new TypeError("onResponse must be a function");
+  }
+  const binding = transport === "token" ? TOKEN_READ : FETCH;
+  if (!tools || typeof tools[binding] !== "function") {
+    throw new TypeError(transport === "native"
+      ? "The native GitHub fetch tool is not exposed"
+      : "The connected " + binding + " tool is not exposed");
+  }
+  const encodeQuery = value => transport === "token"
+    ? encodeURIComponent(value).replace(/%2F/gi, "/").replace(/%3A/gi, ":")
+      .replace(/%20/g, "+")
+    : encodeURIComponent(value);
   const started = Date.now();
   const repository = options.repository_full_name;
   const api = "https://api.github.com/repos/" +
@@ -169,10 +206,21 @@ async function findGitHubPaths(tools, input) {
     counts.calls++;
     if (kind === "tree") counts.tree_reads++;
     const read = { url, kind, state: "STARTED" };
+    const path = url.slice("https://api.github.com".length);
+    if (transport === "token") Object.assign(read, { path, binding });
     reads.push(read);
     let result;
     try {
-      result = responseJSON(await tools.mcp__codex_apps__github_fetch({ url }));
+      const response = await tools[binding](transport === "token" ? { path } : { url });
+      if (runtime.onResponse) {
+        try {
+          await runtime.onResponse({ url, kind, response,
+            ...(transport === "token" ? { path, binding } : {}) });
+        } catch (error) {
+          read.callback_error = { message: String(error && error.message || error).slice(0, 1200) };
+        }
+      }
+      result = responseJSON(response, transport);
       read.state = "RETURNED";
     } catch (error) {
       read.state = "FAILED";
@@ -218,7 +266,7 @@ async function findGitHubPaths(tools, input) {
   try {
     const fullSha = SHA.test(options.ref);
     const refURL = api + (fullSha ? "/git/commits/" + options.ref :
-      "/commits?sha=" + encodeURIComponent(options.ref) + "&per_page=1");
+      "/commits?sha=" + encodeQuery(options.ref) + "&per_page=1");
     const refResult = await fetchJSON(refURL, "commit");
     if (!fullSha && (!Array.isArray(refResult) || refResult.length !== 1)) {
       throw new LookupStop("COMMIT_SHAPE", "The ref did not return exactly one starting commit");
@@ -357,6 +405,7 @@ async function findGitHubPaths(tools, input) {
     requested_ref: options.ref,
     commit_sha: commitSha,
     root_tree_sha: rootTreeSha,
+    ...(transport === "token" ? { request: { transport, binding } } : {}),
     ...(options.filename === undefined ?
       { filenames: options.filenames } : { filename: options.filename }),
     matches: [...matches.values()].sort((a, b) => a.path < b.path ? -1 : a.path > b.path ? 1 : 0),
@@ -383,3 +432,4 @@ async function findGitHubPaths(tools, input) {
 }
 
 module.exports = { findGitHubPaths };
+
