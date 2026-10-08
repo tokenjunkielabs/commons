@@ -142,6 +142,87 @@ def response_evidence(value):
     return evidence
 
 
+def project_rail_health(routes, state):
+    """Project typed observations only; none establishes current recovery."""
+    now = _now()
+
+    def timestamp(value):
+        if not isinstance(value, str):
+            return None
+        try:
+            return _iso(_time(value))
+        except (ValueError, TypeError, OverflowError, EquipmentError):
+            return None
+
+    def balance(value):
+        return value if (type(value) in (int, float) and math.isfinite(value)
+                         and value >= 0) else None
+
+    domains = {}
+    for route in routes:
+        domain = route["quota_domain"]
+        row = domains.setdefault(domain, {"quota_domain": domain, "route_ids": []})
+        row["route_ids"].append(route["id"])
+    pending_by_domain = dict.fromkeys(domains, 0)
+    for operation in state.get("operations", {}).values():
+        domain = (operation.get("pending") or {}).get("quota_domain")
+        if isinstance(domain, str) and domain in pending_by_domain:
+            pending_by_domain[domain] += 1
+    for domain, row in domains.items():
+        limits = state.get("quota_domains", {}).get(domain, {})
+        raw = limits.get("last_response", {})
+        raw = raw if isinstance(raw, dict) else {}
+        last = {}
+        observed = timestamp(raw.get("observed_at"))
+        if observed:
+            last["observed_at"] = observed
+        for key in ("failed", "uncertain", "rate_limited"):
+            if type(raw.get(key)) is bool:
+                last[key] = raw[key]
+        status = raw.get("http_status")
+        if type(status) is int and 100 <= status <= 599:
+            last["http_status"] = status
+        if raw.get("rate_limit_kind") in ("primary", "secondary"):
+            last["rate_limit_kind"] = raw["rate_limit_kind"]
+        if raw.get("rate_limit_resource") in ("core", "search", "graphql", "integration_manifest", "code_search"):
+            last["rate_limit_resource"] = raw["rate_limit_resource"]
+        row["last_response"] = last
+        row["last_response_known"] = bool(observed and "failed" in last and "uncertain" in last)
+        row["current_provider_health"] = "unknown"
+        for key in ("observed_at", "quota_observed_at", "reset_at",
+                    "cooldown_until", "client_cooldown_until"):
+            row[key] = timestamp(limits.get(key))
+        row["quota_remaining"] = balance(limits.get("quota_remaining"))
+        kind = limits.get("quota_remaining_kind")
+        row["quota_remaining_kind"] = kind if kind in ("quota", "requests") else None
+        row["client_backoff_attempts"] = (
+            limits.get("client_backoff_attempts") if type(limits.get("client_backoff_attempts")) is int
+            and limits["client_backoff_attempts"] >= 0 else None)
+        row["request_budget_known"] = bool(kind == "requests"
+            and row["quota_remaining"] is not None and row["quota_observed_at"])
+        row["request_budget_remaining"] = row["quota_remaining"] if row["request_budget_known"] else None
+        row["request_budget_observed_at"] = row["quota_observed_at"] if row["request_budget_known"] else None
+        reset = _time(row["reset_at"])
+        row["request_budget_window_expired"] = bool(reset and reset <= now) if reset else None
+        row["rate_limit_buckets"] = {}
+        for name, bucket in limits.get("rate_limit_buckets", {}).items():
+            if name not in ("requests", "tokens") or not isinstance(bucket, dict):
+                continue
+            row["rate_limit_buckets"][name] = {
+                "remaining": balance(bucket.get("remaining")),
+                "reset_at": timestamp(bucket.get("reset_at")),
+                "observed_at": timestamp(bucket.get("observed_at"))}
+        deadlines = [_time(row[key]) for key in
+                     ("cooldown_until", "client_cooldown_until")]
+        row["cooldown_active"] = any(value and value > now for value in deadlines)
+        row["cooldown_observation_known"] = bool(row["last_response_known"] or any(deadlines))
+        row["pending_dispatches"] = pending_by_domain[domain]
+    return {"decision": "RAIL_HEALTH", "observed_at": _iso(now),
+            "provider_calls": 0, "rails": list(domains.values()),
+            "identity_basis": "Configured quota-domain and route IDs only; no actor inference.",
+            "scope": "This private runtime journal only; expired deadlines and past success do not establish recovery."}
+
+
 class ConnectedToolRouter:
     """One operation journal and cooldown map shared by all bridge consumers."""
 
@@ -224,6 +305,16 @@ class ConnectedToolRouter:
             if tool is not None and (not isinstance(tool, str) or not tool.strip()):
                 raise EquipmentError("runtime tool names must be nonempty strings")
             if tool and isinstance(arguments, dict):
+                # Free economics belong to the observed method, not the whole
+                # provider. An arbitrary runtime binding cannot inherit them.
+                observed_tools = row.get("native_tools", {})
+                observed_methods = ({method for method in observed_tools.values() if isinstance(method, str)}
+                                    if isinstance(observed_tools, dict) else set())
+                if isinstance(row.get("native_tool"), str):
+                    observed_methods.add(row["native_tool"])
+                if tool not in observed_methods:
+                    row["free_plan_verified"] = False
+                    row["zero_net_spend_verified"] = False
                 row["native_tool"] = tool
                 row["binding_state"] = "callable"
             else:
@@ -373,6 +464,12 @@ class ConnectedToolRouter:
     def _limits(evidence, current):
         limits = dict(current)
         observed = _time(evidence["observed_at"])
+        limits["last_response"] = {key: evidence[key] for key in
+            ("observed_at", "http_status", "failed", "uncertain", "rate_limited") if key in evidence}
+        if evidence.get("rate_limit_kind") in {"primary", "secondary"}:
+            limits["last_response"]["rate_limit_kind"] = evidence["rate_limit_kind"]
+        if evidence.get("rate_limit_resource") in {"core", "search", "graphql", "integration_manifest", "code_search"}:
+            limits["last_response"]["rate_limit_resource"] = evidence["rate_limit_resource"]
         deadline = _time(evidence.get("retry_not_before"))
         retry_after = evidence.get("retry_after")
         if retry_after is not None:
@@ -400,6 +497,8 @@ class ConnectedToolRouter:
             if not math.isfinite(remaining) or remaining < 0:
                 raise EquipmentError("provider remaining quota must be finite and nonnegative")
             limits["quota_remaining"] = remaining
+            limits["quota_observed_at"] = evidence["observed_at"]
+            limits["quota_remaining_kind"] = "quota" if "quota_remaining" in evidence else "requests"
         reset = evidence.get("rate_limit_reset")
         if reset is not None:
             try:
@@ -517,6 +616,11 @@ class ConnectedToolRouter:
                     "attempted_routes": operation["attempted_routes"],
                     "quota_domains": copy.deepcopy(state["quota_domains"])}
 
+    def rail_health(self):
+        """Offline metadata only; configured identities are never inferred."""
+        with self._state(write=False) as state:
+            return project_rail_health(self.routes, state)
+
     def run(self, request: dict, invoker: Callable[[dict], dict]):
         """Run actual bridge calls, switching immediately on eligible failures."""
         result = self.dispatch(request)
@@ -555,7 +659,7 @@ class ConnectedToolRouter:
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("operation", choices=("dispatch", "resume", "run", "status"))
+    parser.add_argument("operation", choices=("dispatch", "resume", "run", "status", "rail-health"))
     parser.add_argument("--routes-file", type=Path, required=True)
     parser.add_argument("--state-file", type=Path, required=True,
                         help="private runtime state outside the git checkout")
@@ -566,7 +670,9 @@ def main():
     args = parser.parse_args()
     try:
         router = ConnectedToolRouter(load_routes(args.routes_file), args.state_file)
-        if args.operation == "status":
+        if args.operation == "rail-health":
+            result = router.rail_health()
+        elif args.operation == "status":
             result = router.status(args.operation_id)
         else:
             request = json.load(sys.stdin)
@@ -597,7 +703,7 @@ def main():
         # Native arguments/results belong to the calling private runtime. Secret
         # credential fields are redacted; the state file is never published.
         print(json.dumps(redacted(result), ensure_ascii=False, allow_nan=False))
-        return 0 if result["decision"] in {"DISPATCH", "COMPLETED", "AWAITING_PROVIDER_RESPONSE", "ROUTING"} else 3
+        return 0 if result["decision"] in {"DISPATCH", "COMPLETED", "AWAITING_PROVIDER_RESPONSE", "ROUTING", "RAIL_HEALTH"} else 3
     except (OSError, ValueError, KeyError, TypeError, EquipmentError) as exc:
         print(json.dumps({"isError": True, "code": "connected_router_failed", "message": redacted(str(exc))}))
         return 2
@@ -605,3 +711,4 @@ def main():
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
