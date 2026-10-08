@@ -1,6 +1,6 @@
 "use strict";
 
-// Pure views of retained native github_fetch issue-comment arrays.
+// Pure views of retained native or successful token issue-comment arrays.
 // No provider binding, query, filesystem, mutation, archive decoding or access decision.
 const own = (value, key) => Object.prototype.hasOwnProperty.call(value, key);
 const object = value => value !== null && typeof value === "object" && !Array.isArray(value);
@@ -52,18 +52,39 @@ function parseComments(response, maxInputChars) {
   if (own(response, "isError") && typeof response.isError !== "boolean") {
     throw new TypeError("response.isError has an invalid type");
   }
-  if (!object(response.structuredContent) ||
-      typeof response.structuredContent.content !== "string") {
-    throw new TypeError("response needs structuredContent.content JSON text");
+  if (!object(response.structuredContent)) {
+    throw new TypeError("response needs supported structuredContent");
   }
-  const input = response.structuredContent.content;
-  if (input.length > maxInputChars) throw new RangeError("comment payload exceeds max_input_chars");
-  let rows;
-  try { rows = JSON.parse(input); }
-  catch (_) { throw new TypeError("comment payload is not valid JSON"); }
+  const payload = response.structuredContent;
+  let rows, input, payloadPath, rowPath, representation;
+  if (typeof payload.content === "string") {
+    input = payload.content;
+    if (input.length > maxInputChars) throw new RangeError("comment payload exceeds max_input_chars");
+    try { rows = JSON.parse(input); }
+    catch (_) { throw new TypeError("comment payload is not valid JSON"); }
+    payloadPath = "structuredContent.content";
+    rowPath = "JSON.parse(structuredContent.content)";
+    representation = "JSON_array";
+  } else if (own(payload, "data")) {
+    if (payload.ok !== true || !Number.isSafeInteger(payload.status) ||
+        payload.status < 200 || payload.status >= 300) {
+      throw new TypeError("token response does not report successful HTTP status");
+    }
+    rows = payload.data;
+    if (!Array.isArray(rows)) throw new TypeError("comment payload must be a JSON array");
+    if (rows.length > MAX_ROWS) throw new RangeError("comment payload exceeds 1000 rows");
+    try { input = JSON.stringify(rows); }
+    catch (_) { throw new TypeError("comment payload cannot be serialized as JSON"); }
+    if (input.length > maxInputChars) throw new RangeError("comment payload exceeds max_input_chars");
+    payloadPath = "structuredContent.data";
+    rowPath = payloadPath;
+    representation = "array";
+  } else {
+    throw new TypeError("response needs supported comment payload");
+  }
   if (!Array.isArray(rows)) throw new TypeError("comment payload must be a JSON array");
   if (rows.length > MAX_ROWS) throw new RangeError("comment payload exceeds 1000 rows");
-  return {rows, inputChars: input.length};
+  return {rows, inputChars: input.length, payloadPath, rowPath, representation};
 }
 
 function field(row, key, valid, stringLimit) {
@@ -77,10 +98,10 @@ function field(row, key, valid, stringLimit) {
   return {state: "value", value};
 }
 
-function commentHeader(row, index, maxHeaderChars) {
+function commentHeader(row, index, maxHeaderChars, rowPath) {
   const result = {
     source_index: index,
-    source_path: "JSON.parse(structuredContent.content)[" + index + "]",
+    source_path: rowPath + "[" + index + "]",
     row_state: object(row) ? "object" : "invalid",
     metadata: {}, metadata_states: {}, omitted_metadata_chars: {},
   };
@@ -120,12 +141,13 @@ function commentHeader(row, index, maxHeaderChars) {
 }
 
 /**
- * Project one retained github_fetch JSON array. Headers are the default.
+ * Project one retained supported comment array. Headers are the default.
  * Selection is local to this payload; it is not native pagination or authority.
  */
 function projectGitHubRestComments(response, options = {}) {
   const config = optionsFor(options);
-  const {rows, inputChars} = parseComments(response, config.max_input_chars);
+  const {rows, inputChars, payloadPath, rowPath, representation} =
+    parseComments(response, config.max_input_chars);
   let requested;
   if (config.sparse) {
     if (!Array.isArray(options.source_indices) ||
@@ -152,7 +174,7 @@ function projectGitHubRestComments(response, options = {}) {
   let suppliedBodyChars = 0;
   let invalidRows = 0;
   const headers = rows.map((row, index) => {
-    const header = commentHeader(row, index, config.max_header_chars);
+    const header = commentHeader(row, index, config.max_header_chars, rowPath);
     bodyStates[header.body_state] += 1;
     if (header.body_chars !== null) suppliedBodyChars += header.body_chars;
     if (header.row_state === "invalid") invalidRows += 1;
@@ -220,8 +242,8 @@ function projectGitHubRestComments(response, options = {}) {
     schema: "commons.connected_github_rest_comments/v1",
     source: {
       scope: "one_supplied_envelope_only",
-      payload_path: "structuredContent.content",
-      representation: "JSON_array",
+      payload_path: payloadPath,
+      representation,
       identity_basis: "caller_supplied_native_fields",
       request_binding: "not_verified", route: "not_inferred",
       authentication: "not_performed", pagination: "not_evaluated",

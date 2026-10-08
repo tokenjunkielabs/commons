@@ -52,3 +52,37 @@ This does not fix provider cursor ordering, missing rendered results, or
 unavailable native bindings. The established reader and its search-context
 defaults remain unchanged. Both helper sources can also be loaded in an existing
 code-mode session; this adapter has no package dependency.
+
+## Search with an observed channel ID
+
+For the connected search tool, keep lexical terms in `keywords` and use its
+documented channel-reference syntax in `filters`:
+
+```javascript
+const original = await tools.mcp__codex_apps__slack_slack_search_public_and_private({
+  keywords: [actualSubject],
+  filters: `in:<#${observedChannelId}>`,
+  sort: 'timestamp',
+  limit: 3,
+  include_context: false,
+});
+```
+
+Use the actual already-observed channel ID. This request is a new search;
+keep existing cursor chains and their original arguments separate. If using
+the page collector's observed explicit-query workaround, retain the same
+channel-reference syntax in that query as in `filters`. See the
+[page guide](CONNECTED_SLACK_PAGES.md) for continuation and exact query custody.
+
+On 2026-10-07, an actual coordination lookup for a known delivered PR returned
+no results with bare `in:C0BU51F1PL3`. The documented `in:<#C0BU51F1PL3>` form
+returned both recorded release messages, using either the structured request
+above or a matching explicit query. This observes the channel-selector gap;
+it does not establish that explicit queries fail. No message bodies are
+reproduced here.
+
+An empty search is evidence about that request's returned rendering. It does
+not establish that work is unclaimed or that a known effect did not happen.
+Preserve accepted receipts and read the current claim/source before dispatch.
+Neither the envelope adapter nor the existing page collector rewrites channel
+selectors, retries searches or infers ownership.
