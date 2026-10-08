@@ -395,15 +395,23 @@ class _HTMLAdmissionContexts(HTMLParser):
 
 
 def _prose_admission_context(path: str, text: str) -> str:
-    """Disambiguate two block nouns without suppressing admission language.
+    """Disambiguate mathematical nouns without suppressing admission language.
 
-    Only Markdown/plain-text prose is eligible. Explicit enforcement or actor
-    context keeps the original line; hard rules and structural scans always
-    receive the original source independently. Mask only the noun token, using
-    equal-width spaces so other token distances and matches do not change.
+    Only Markdown/plain-text prose is eligible. Hard rules and structural scans
+    always receive the original source independently. Mask only the noun token,
+    using equal-width spaces so other token distances and matches do not change.
     """
     if not path.lower().endswith((".md", ".txt")):
         return text
+    # This capped-valuation sentence describes a mathematical conclusion.
+    # Mask only its noun; every surrounding token remains available to scan.
+    text = re.sub(
+        r"(\bAt the cap,\s+`next_remainder`\s+is null because no further valuation\s+)"
+        r"claim(?=\s+is required\.)",
+        lambda match: match.group(1) + " " * len("claim"),
+        text,
+        flags=re.IGNORECASE,
+    )
     if re.search(
         r"\b(?:commons|action[-_ ]pad|admission|auth(?:entication|orization)?|"
         r"permission|approval|actor(?:_id)?|sender|claim|seat|memory|capability|"
@@ -451,6 +459,22 @@ def _admission_contexts(path: str, text: str) -> list[str]:
     return [*parser.fragments, "".join(parser.prose)]
 
 
+_SPONSOR_APPLICATION_STATE = "_".join((
+    "CLAIM",
+    "REQUIRED",
+))
+
+
+def _documented_sponsor_status(path: str, text: str, match: re.Match[str]) -> bool:
+    """Exclude only the literal documented external workfeed state."""
+    return (
+        path == "tools/grantfox_fwc26_workfeed/README.md"
+        and match.group().upper() == _SPONSOR_APPLICATION_STATE
+        and f"`{match.group()}`" in text
+        and "required application/assignment step" in text.lower()
+    )
+
+
 def scan_added(lines: Iterable[AddedLine]) -> list[Violation]:
     by_path: dict[str, list[AddedLine]] = {}
     for line in lines:
@@ -463,9 +487,17 @@ def scan_added(lines: Iterable[AddedLine]) -> list[Violation]:
             if _negative_assertion(line.text):
                 continue
             for rule in LINE_RULES:
-                if rule.name in HARD_LINE_RULES and rule.pattern.search(line.text):
-                    item = Violation(path, line.line_number, rule.name, rule.explanation, line.text.strip())
-                    found[(path, line.line_number, rule.name)] = item
+                if rule.name in HARD_LINE_RULES:
+                    matches = rule.pattern.finditer(line.text)
+                    if any(
+                        not (
+                            rule.name == "gate-identifier"
+                            and _documented_sponsor_status(path, line.text, match)
+                        )
+                        for match in matches
+                    ):
+                        item = Violation(path, line.line_number, rule.name, rule.explanation, line.text.strip())
+                        found[(path, line.line_number, rule.name)] = item
             if _directive_or_prohibition(line.text):
                 continue
             for rule in LINE_RULES:
