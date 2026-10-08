@@ -56,7 +56,10 @@ window.COMMONS_COURT = (function () {
     var host = document.getElementById("docket");
     if (!host) return;
     fetch("./docket.json?v=" + Date.now(), { cache: "no-store", credentials: "omit" })
-      .then(function (r) { return r.ok ? r.json() : []; })
+      .then(function (r) {
+        if (!r.ok) throw new Error("docket snapshot unavailable");
+        return r.json();
+      })
       .then(function (docket) {
         var have = {};
         (docket || []).forEach(function (p) { have[p.id] = 1; });

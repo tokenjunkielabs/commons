@@ -16,7 +16,9 @@
   document.getElementById("c-file").addEventListener("change", function () {
     var f = this.files[0];
     if (!f) return;
-    PACK.readFile(f).then(function (b) { show(b, f.name); });
+    say("loading " + f.name + "…", true);
+    PACK.readFile(f).then(function (b) { show(b, f.name); })
+      .catch(function (e) { say("file not loaded (" + e + ")", true); });
   });
   document.getElementById("c-seed").addEventListener("click", function () {
     PACK.loadBytes(PACK.SEED0).then(function (b) { show(b, "SEED0.mno"); })
