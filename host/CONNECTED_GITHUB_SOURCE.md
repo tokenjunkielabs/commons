@@ -49,6 +49,51 @@ The manifest must be an ordinary file (or a symlink to one). Special files such
 as named pipes are rejected with `SOURCE_IMPORT_IO`, `errno_name: "EINVAL"`,
 and `operation: "read_manifest"` before reading or creating destinations.
 
+## Recover a bounded pinned source read
+
+A recursive tree request can fail while smaller requests for the same pinned
+repository state still succeed. Retain the complete failed request and response.
+A transport error does not establish an empty tree, a provider HTTP status,
+`truncated`, repository membership, or a service-wide outage. Keep those facts
+unknown when the response does not contain them.
+
+Recover only the source needed for the task:
+
+1. Keep the selected observed commit reference. Request its root tree without a
+   `recursive` query parameter. GitHub treats any supplied value, including `0`
+   and `false`, as recursive; omit the parameter for a nonrecursive request.
+   See [GitHub's Get a tree documentation](https://docs.github.com/en/rest/git/trees#get-a-tree).
+2. Retain the successful response's tree SHA, `truncated` value and direct
+   entries, including each observed path, type, mode and SHA. A nonrecursive
+   response lists direct entries; it does not enumerate descendants.
+3. Select a needed subtree from an actual returned `type: "tree"` entry and
+   request that entry's observed SHA without `recursive`. Repeat only for needed
+   paths, retaining the parent-to-child entry evidence and each response's
+   truncation state. The existing
+   [tree-entry projector](CONNECTED_GITHUB_TREE_ENTRIES.md) can provide a bounded
+   view of a supplied response; that view is not a complete repository inventory.
+4. Fetch needed files with the original observed commit as `ref`, or request
+   their observed blob identities. Capture the full responses and use the
+   importer's existing complete byte and Git blob checks described below.
+
+This recovery was observed after recursive reads returned transport errors:
+nonrecursive root and selected subtree reads, plus pinned manifest, toolchain
+and lockfile reads, succeeded. Tracked build and dependency directories were
+visible in the returned entries. Their presence did not establish why the
+recursive transport failed, and the selected reads did not reconstruct the
+whole source package. Preserve the original failures alongside the successful
+bounded captures.
+
+Source recovery also does not establish runtime readiness or successful
+execution. Read the selected manifest, toolchain and lockfile requirements
+before making an execution claim. In the observed recovery, required runtime
+versions were absent, so source intake ended without execution. Keep that
+boundary separate from the successful reads.
+
+These are read-only recovery steps. A successful smaller read does not resolve
+an uncertain writer effect or authorize replaying a mutation. Reconcile any
+previous writer dispatch independently before taking another write action.
+
 ## Capture in a tool-enabled JavaScript session
 
 This example uses the actual exposed `fetch_file` action and `apply_patch` to
