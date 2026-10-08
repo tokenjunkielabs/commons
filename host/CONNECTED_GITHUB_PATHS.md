@@ -1,9 +1,11 @@
 # Find repository paths through connected GitHub trees
 
 [connected_github_paths.cjs](connected_github_paths.cjs) finds one or more exact
-filenames under selected directory prefixes through the native GitHub fetch tool. It
-resolves one commit and follows that commit's Git trees. It returns paths and
-blob metadata without downloading file bodies or creating a checkout.
+filenames under selected directory prefixes through a connected GitHub tool. The
+planned additive transport option keeps the native fetch tool as the default
+and supports an explicitly selected token connection. It resolves one commit
+and follows that commit's Git trees. It returns paths and blob metadata without
+downloading file bodies or creating a checkout.
 
 Use this when a repository search omits a file, when a branch is moving, or
 when the likely directory is known but the full path is not. The motivating
@@ -45,18 +47,65 @@ text({ helper_blob_sha: fetched.structuredContent.sha, ...result });
 ```
 
 A normal CommonJS host can instead import the file with `require()` and pass
-its native tool object. The module itself uses no Node filesystem, shell,
+its connected tool object. The module itself uses no Node filesystem, shell,
 network client, package dependency, credential, or repository writer.
-It calls only:
+The planned signature is
+`findGitHubPaths(tools, input, { transport, onResponse })`. It calls the
+selected existing binding only:
 
 ```javascript
+// Default: transport: "native"
 tools.mcp__codex_apps__github_fetch({ url })
+
+// Explicit: transport: "token"
+tools.mcp__codex_apps__github_token_connection_github_read({ path })
 ```
 
 Tool discovery stays with the invoking session. If discovery is partial, keep
 working and repeat it under the existing [connected-tool guidance](../AGENTS.md).
-A missing fetch function throws before any native call. The helper does not
-substitute a different account or route.
+A missing selected binding throws before any provider call. The helper does
+not switch connections or transports, look up credentials, or substitute a
+different account or route.
+
+### Planned token transport and response retention
+
+Token mode uses relative REST paths to resolve one commit and read only the
+pinned, nonrecursive trees reached from it. The endpoint shapes remain those
+described under commit and tree identity below. Its ref query formatter leaves
+slash and colon literal, uses `+` for spaces, and escapes delimiters and literal
+`+` characters. Native URLs and their encoding stay unchanged.
+
+```javascript
+const result = await moduleBox.exports.findGitHubPaths(tools, {
+  repository_full_name: "woahwhattheheck/commons",
+  ref: "aa9c92e7f7535a4c9319ceffa74e78582cc54a20",
+  filename: "connected_github_issue_search.cjs",
+  prefixes: ["host"],
+}, {
+  transport: "token",
+  onResponse: async ({ url, kind, path, binding, response }) => {
+    store("pinned-path-read:" + kind + ":" + path,
+      { url, kind, path, binding, response });
+  },
+});
+```
+
+Token results add `request: { transport, binding }`, with
+`transport: "token"` and
+`binding: "mcp__codex_apps__github_token_connection_github_read"`.
+Each token read also records its relative `path` and `binding`. The optional
+awaited `onResponse` callback receives `{ url, kind, response }` in either
+transport, plus `path` and `binding` in token mode. It receives the exact
+original returned response, including failed or malformed wrappers. A callback
+error is retained as `callback_error` on the affected read; it neither replays
+the provider call nor discards returned data.
+
+The token decoder accepts only a successful `structuredContent` wrapper with
+a 2xx `status`, `ok === true`, and `data` containing a REST object or array.
+Failed or ill-shaped wrappers retain the existing `LookupStop` outcome
+classifications. Path matching, identity checks, coverage and existing result
+fields stay unchanged. No retries, connection switches, mutations, credential
+lookup or checkout are added.
 
 Use the returned `path` and `commit_sha` for the next full source read:
 
@@ -192,10 +241,12 @@ after the first match for **any** requested name, not one match per name.
 | `filenames` | Nonempty array of exact, case-sensitive basenames | Alternative to `filename` |
 | `prefixes` | Ordered relative directory paths to search | Required |
 | `stop_after_first` | Return as soon as the first matching blob entry is found | `true` |
-| `max_calls` | Maximum native fetch calls, including commit resolution | `32` |
+| `max_calls` | Maximum calls through the selected binding, including commit resolution | `32` |
 | `max_entries` | Maximum tree entries inspected across prefix resolution and searching | `50000` |
 | `max_depth` | Descendant directory depth relative to each selected prefix | `8` |
 | `timeout_ms` | Cooperative elapsed-time limit | `30000` |
+| `options.transport` | Planned third-argument selection: `"native"` or `"token"` | `"native"` |
+| `options.onResponse` | Optional awaited callback with `{url, kind, response}`; token mode also includes `path` and `binding` | None |
 
 Use `prefixes: [""]` to select the repository root. Other prefixes use canonical
 relative paths, without a leading/trailing slash, empty component, `.`, or
@@ -327,19 +378,19 @@ were searched.
 
 ## Resource accounting and failures
 
-`counts.calls` includes every native read started, successful or failed.
+`counts.calls` includes every read started through the selected binding, successful or failed.
 `tree_reads` counts those calls that requested trees.
 `tree_cache_hits` counts reuse of an already returned tree.
-`entries_received` counts entries in successful native tree payloads;
+`entries_received` counts entries in successful tree payloads;
 `entries_examined` counts the bounded inspections actually performed,
 including ancestor resolution and cached entries.
 
 The entry budget does not cap response bytes or the array returned by one
-in-flight provider read. The time limit is checked before another native read
-or entry inspection; it cannot cancel a native tool call already in progress.
-The native connector retains its own response-size and execution limits.
+in-flight provider read. The time limit is checked before another read
+or entry inspection; it cannot cancel a tool call already in progress.
+The selected connector retains its own response-size and execution limits.
 
-Invalid arguments and an unavailable native fetch function throw before
+Invalid arguments and an unavailable selected binding throw before
 network work. Runtime lookup failures return the structured partial result.
 A host that requires a complete search should fail its command explicitly:
 
@@ -390,3 +441,4 @@ The observed `main` resolved to `081f413dfe4b00319d37d496c6992a4e80850995`
 stopping at its first match in approximately 1.08 seconds. Its first response
 was the one-commit metadata list; subsequent reads used only the resolved tree
 IDs.
+

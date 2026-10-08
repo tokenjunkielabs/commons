@@ -2,11 +2,11 @@
 
 [connected_github_issue_search.cjs](connected_github_issue_search.cjs) provides bounded issue and pull-request search through the existing native GitHub fetch action. It forwards the caller's exact GitHub query to `/search/issues` and retains the returned item fields. Its pure `projectGitHubIssueItems` companion provides bounded views of those retained bodies without another provider call.
 
-The same module also provides `projectGitHubConnectorIssueHeaders` for an already retained shortcut search envelope. It preserves the shortcut's issue numbers and nullable metadata while producing bounded headers with body text withheld. See [shortcut search headers](#project-shortcut-search-headers-from-a-retained-envelope) for its separate input and coverage contract.
+The same module also provides `projectGitHubConnectorIssueHeaders` for an already retained shortcut search or native single-issue envelope. It preserves the inner issue metadata, including issue numbers and nullable fields, while producing bounded headers with body text withheld. See [shortcut search headers](#project-shortcut-search-headers-from-a-retained-envelope) for its separate input and coverage contract.
 
 This packages the existing route workaround for queue intake. During the October 3 Broker work, `github_search_issues` returned ordinary issue #1406 for a query containing `is:pr`. Direct metadata confirmed that item was an open issue. The identical query through the approved native REST route returned zero open Broker PRs. The route had already been shared in fleet coordination; this module supplies reusable pagination and coverage reporting.
 
-The module uses the caller's connected tool object. It owns no credentials, network client, filesystem, or mutation action.
+The module uses the caller's connected tool object. It owns no credentials, network client, filesystem, or mutation action. Native fetch remains the default; callers may explicitly select the existing GitHub Token Connection read action.
 
 ## Use from code mode
 
@@ -48,6 +48,47 @@ text({
 Pin the helper source ref when an operation needs a retained version. Supply repository, author, kind, state, date and other selectors in `query` as needed. The helper neither adds repository qualifiers nor rewrites the query. The current connector's approved resource access still applies.
 
 Keep an explicit `is:issue` or `is:pr` selector for single-kind queues. GitHub documents that some GitHub App user-token searches require a kind qualifier. Use separate queries when both kinds are needed under those connections.
+
+### Select the existing private-token read connection
+
+~~~javascript
+const result = await box.exports.searchGitHubIssues(tools, {
+  query: "repo:woahwhattheheck/commons is:issue is:open connector -label:board",
+  per_page: 20,
+  max_pages: 1
+}, {
+  transport: "token",
+  onResponse: ({ page, path, binding, response }) => {
+    store("token-issue-query-" + page, { path, binding, response });
+  }
+});
+text({ status: result.status, stats: result.stats, coverage: result.coverage });
+~~~
+
+The selected binding is `mcp__codex_apps__github_token_connection_github_read`.
+Each page makes one call with a relative `/search/issues` path. Token results
+add `request.transport` and `request.binding`; each coverage page retains its
+actual `path`, and the response callback additionally receives `path` and
+`binding`. Existing URL, query, pagination, deduplication and coverage fields
+remain available. Default or `transport: "native"` keeps the native request
+and result shape. Route selection is explicit: the helper never switches
+connections after an error or performs credential lookup.
+
+For this selected route, query encoding leaves colon and slash literal, uses
+`+` for spaces, and keeps reserved parameter delimiters and literal `+` escaped.
+Those spellings preserve the parameter value. The token connector rejected a
+fully encoded scoped query with `INVALID_ARGUMENT` / “Use a relative GitHub
+REST path”; the query-safe spelling reached GitHub successfully and returned
+the intended repository's open non-board issues. This is an observed formatter
+workaround, not a change to that connector's validation or provider access.
+Native URL encoding is unchanged. Unknown query shapes can still receive a
+provider error; no scope, permission or query-application claim is inferred.
+
+Only a token wrapper with `ok: true`, a 2xx integer `status` and canonical
+search `data` is decoded. An explicit error, `ok: false` or HTTP error status
+stops as `NATIVE_ERROR`; the original callback response remains available.
+Arbitrary objects under `data` are not search payloads without the successful
+HTTP envelope.
 
 ### Choose whether imported board records belong in the query
 
@@ -94,6 +135,7 @@ query strings were retained; no adapter change or repeat query was needed.
 | `timeout_ms` | Cooperative budget checked before each request; default 30,000 ms. Zero returns before a request. |
 | `updated_at_lte` | Optional caller-declared inclusive update-time ceiling; observes retained metadata without changing the query or filtering rows. See the bound observation below. |
 | `options.onResponse` | Optional awaited callback receiving `{page, url, response}` for each original native result, including native errors. |
+| `options.transport` | `native` (default) or `token`; selects one existing connected read binding without automatic fallback. |
 
 ~~~javascript
 const result = await box.exports.searchGitHubIssues(tools, {
@@ -466,8 +508,15 @@ State, comment counts and timestamps were present as null. It did not supply
 REST item IDs, `number`, `html_url`, a `pull_request` marker, advertised totals,
 an incompleteness flag, or native pagination evidence.
 
+The native `github_fetch_issue` envelope is also supported when its
+`structuredContent.issue` contains one issue object with the same field
+contract. It represents one retained row. A wrapper with both own `issue` and
+`issues` properties is rejected as ambiguous rather than choosing a shape.
+The single-issue path does not introduce a nested-payload fallback or accept an
+error payload as an issue.
+
 Use the separate pure export
-`projectGitHubConnectorIssueHeaders(response, options)` for that shape:
+`projectGitHubConnectorIssueHeaders(response, options)` for either shape:
 
 ~~~javascript
 const headers = box.exports.projectGitHubConnectorIssueHeaders(
@@ -492,6 +541,23 @@ the shortcut action. Keep its exact request and native response separately.
 The projector performs no tool call, chooses no transport route and does not
 replay a search. A failed source read remains subject to the caller's hold;
 projection refusal is not a reason to acquire the same source another way.
+
+For an already retained single-issue response, use the same API and budgets:
+
+~~~javascript
+const singleHeaders = box.exports.projectGitHubConnectorIssueHeaders(
+  retainedSingleIssueResponse,
+  {source_indices: [0], max_items: 1, max_metadata_chars: 4096,
+    max_total_metadata_chars: 8000}
+);
+store("retained-single-issue-headers", singleHeaders);
+text({source: singleHeaders.source, items: singleHeaders.items});
+~~~
+
+Only the new single shape adds `source.source_shape: "single"`; its
+`source.payload_path` is `"structuredContent.issue"`. Existing search-result
+JSON shape remains unchanged. Display aliases, titles or URLs on the outer
+wrapper are not copied into the header or certified as inner issue metadata.
 
 The existing REST collector, REST item projector and timestamp-bound observer
 keep their input contracts. Do not manufacture REST IDs or copy `issue_number`
@@ -525,7 +591,10 @@ including author, assignees, labels, milestone, display aliases and arbitrary
 nested objects, stay in the retained response.
 
 Each header includes its original `source_index` and
-`source_path: "structuredContent.issues[i]"`. Order and duplicate occurrences
+`source_path: "structuredContent.issues[i]"` for search rows. A single-issue
+header has `source_index: 0` and `source_path: "structuredContent.issue"`.
+Both shapes use the exact inner native fields and the same nullable metadata,
+body-withheld annotations and budgets. Search order and duplicate occurrences
 are preserved. The function does not infer issue-versus-PR kind from a query or
 URL, add a global item ID, sort rows, or deduplicate them.
 
@@ -546,13 +615,19 @@ the caller's topic and publication limits still apply.
 | `max_metadata_chars` | 4,096 | Safe integer from 0 through 65,536, checked for every supplied row. |
 | `max_total_metadata_chars` | 8,000 | Safe integer from 0 through 1,000,000, applied to selected output in order. |
 
-The envelope must contain at most 1,000 rows in `structuredContent.issues`.
-That is a local input bound, not a shortcut-provider result ceiling.
+The search envelope must contain at most 1,000 rows in
+`structuredContent.issues`; the single envelope must contain one object in
+`structuredContent.issue`. That is a local input bound, not a shortcut-provider
+result ceiling. For a single issue, `source_indices` can only be `[]` or `[0]`,
+and its length still cannot exceed `max_items`; contiguous `start_index` can be
+0 or 1. `max_items` retains its normal 0–100 range for both shapes. Starting at
+1 or selecting `[]` omits the retained single row without altering its source.
 `isError: true` is refused before projection. A non-boolean `isError` value,
-malformed envelope, invalid row, unknown option or incompatible selector is
-also refused. An omitted `isError` is allowed by the MCP envelope contract.
+malformed envelope, malformed or error single payload, invalid row, unknown
+option or incompatible selector is also refused. An omitted `isError` is
+allowed by the MCP envelope contract.
 Ordinary status text such as “Action completed.” is not parsed or treated as
-search metadata. The function has no nested-payload fallback.
+issue metadata. The function has no nested-payload fallback.
 
 Metadata character counts sum the selected native scalar values' string lengths,
 with null contributing zero. They use UTF-16 code units and exclude field
@@ -566,7 +641,7 @@ metadata budget, projection stops before that row and does not skip ahead.
 `metadata_budget_blocked_index` identifies it;
 `omitted_requested_source_indices` preserves the unreturned requested suffix.
 
-For contiguous selection, `next_index` is the next local array index. If the
+For contiguous selection, `next_index` is the next local collection index. If the
 budget cannot fit even the first requested header, that index stays unchanged;
 repeating the same projection cannot advance. Increase a local budget or make
 a deliberate different selection. For sparse selection, `next_index` is null
@@ -576,12 +651,12 @@ Neither value is a native pagination cursor.
 Coverage reports supplied, requested, returned and omitted item counts, omitted
 half-open source-index ranges, body-state counts, supplied body lengths, returned
 metadata characters and metadata-budget exhaustion. The `all_*` flags concern
-this supplied array and requested headers only. Empty input can satisfy a local
+this supplied collection and requested headers only. Empty search input can satisfy a local
 selection flag without establishing that the provider has no results.
 
 `source.query_application` and `source.kind_application` remain `not_verified`.
 `source.pagination_evidence` is `not_available_in_supported_envelope`.
-A full local projection, twenty rows, a short array or an empty array establishes
+A full local projection, one retained issue, twenty rows, a short array or an empty array establishes
 no advertised total, native END, current source state or global absence. The
 shape label records the supplied structure; it does not authenticate where an
 envelope originated. Read a selected canonical record when current metadata is
@@ -620,3 +695,4 @@ other scalar metadata, null/missing bodies and refusal paths remain inspected
 as source only. No synthetic response, fixture, test, native process or accepted
 REST operation was replayed. The older REST function bodies are byte-for-byte
 preserved; the module adds this function and its export.
+

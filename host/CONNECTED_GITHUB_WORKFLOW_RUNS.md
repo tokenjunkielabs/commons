@@ -1,6 +1,6 @@
-# Find workflow runs through the native GitHub collection
+# Find workflow runs through the connected GitHub collection
 
-[connected_github_workflow_runs.cjs](connected_github_workflow_runs.cjs) reads the repository's Actions run collection through the existing native GitHub fetch action and selects a workflow by path or numeric ID, or all workflows at one exact commit. It supplies a compact run/source handoff when the current connector does not expose workflow-specific list routes.
+[connected_github_workflow_runs.cjs](connected_github_workflow_runs.cjs) reads the repository's Actions run collection and selects a workflow by path or numeric ID, or all workflows at one exact commit. The planned additive transport option uses the existing native GitHub fetch action by default, or the caller-selected token connection. It supplies a compact run/source handoff when the current connector does not expose workflow-specific list routes.
 
 The helper owns no network client, credentials, filesystem or mutation operation. It does not dispatch, retry, cancel, approve or rerun a workflow. It reads the supplied repository with the caller's existing connected tool surface.
 
@@ -68,14 +68,50 @@ A path matches the exact returned path or that path followed by GitHub's optiona
 | `filters` | Optional GitHub filters: `actor`, `branch`, `check_suite_id`, `created`, `event`, `head_sha`, `status`. Unknown fields raise an input error instead of being silently ignored. |
 | `per_page` | 1–100; default 100. |
 | `start_page` | Default 1. Starting later is explicitly partial coverage. |
-| `max_pages` | Maximum native read attempts in this invocation; default 10. Successful pages and calls are counted separately. |
+| `max_pages` | Maximum read attempts in this invocation; default 10. Successful pages and calls are counted separately. |
 | `timeout_ms` | Cooperative elapsed budget, default 30,000 ms. Zero returns before a read. |
 | `stop_after_first` | Default true. False collects all matching runs within the stated budgets. |
-| `options.onResponse` | Optional awaited callback receiving page, URL and complete native response, including native error results. Callback errors are retained without replaying a call. |
+| `options.transport` | Planned third-argument option: `"native"` (default) or `"token"`. Selects one existing binding for the invocation; no automatic transport switch or credential lookup. |
+| `options.onResponse` | Optional awaited callback receiving page, URL and complete response, including error results. Token mode additionally supplies the relative `path` and selected `binding`. Callback errors are retained without replaying a call. |
 
-Text filter syntax is forwarded to GitHub after URL encoding. The helper does not maintain a second status/event vocabulary. It sets `exclude_pull_requests=true` to omit nested PR arrays from the response; **that parameter does not exclude pull-request-triggered runs**. Use the event filter when the operation needs a particular trigger.
+Text filter syntax is forwarded to GitHub after URL encoding. Native encoding stays unchanged. Token query encoding leaves colon and slash literal, uses `+` for spaces, and escapes delimiters and literal `+` characters. The helper does not maintain a second status/event vocabulary. It sets `exclude_pull_requests=true` to omit nested PR arrays from the response; **that parameter does not exclude pull-request-triggered runs**. Use the event filter when the operation needs a particular trigger.
 
-The time budget cannot cancel an in-flight native tool call or a caller callback. Both may finish after the budget. There is no background process, sleep, retry loop or scheduled follow-up.
+The time budget cannot cancel an in-flight tool call or a caller callback. Both may finish after the budget. There is no background process, sleep, retry loop or scheduled follow-up.
+
+## Planned token transport
+
+Pass `{ transport: "token" }` as the third argument to select the exact binding
+`mcp__codex_apps__github_token_connection_github_read`. Each attempted page
+makes one GET through that binding with a relative
+`/repos/{owner}/{repo}/actions/runs` path and the explicit query parameters.
+The helper does not switch transports, look up credentials or mutate provider
+state.
+
+~~~javascript
+const result = await module.exports.findGitHubWorkflowRuns(tools, {
+  repository_full_name: "woahwhattheheck/commons",
+  all_workflows: true,
+  filters: { head_sha: "dfd570c124168b9bf3345fe7624b2ed3e62ce66e" },
+  stop_after_first: false,
+  per_page: 100,
+  max_pages: 2
+}, {
+  transport: "token",
+  onResponse: ({ page, url, path, binding, response }) =>
+    store("pinned-head-token-runs-" + page, { url, path, binding, response })
+});
+~~~
+
+Token mode adds `result.request: { transport, binding }`, with
+`transport: "token"` and the exact binding above, plus the relative `path` on
+each attempted page. `onResponse` receives that same `path` and `binding`
+alongside its existing fields and the original complete response. A successful
+token wrapper has a 2xx `structuredContent.status`,
+`structuredContent.ok === true`, and a workflow-run collection at
+`structuredContent.data.workflow_runs`. An explicit failed wrapper stops with
+the retained `NATIVE_ERROR` classification; the callback preserves its original
+response. Matching, coverage and existing result fields stay unchanged, and
+omitting the transport option preserves the native behavior and result shape.
 
 ## Observe every workflow at one exact head
 
@@ -136,7 +172,7 @@ a disconnected local runtime.
 
 ## Read the result
 
-Each match retains the run ID, workflow ID/path, run number and attempt, trigger, status/conclusion, source branch/SHA, timestamps, and run/jobs/logs/artifact URLs. Actor profiles, commit messages and nested repository payloads are omitted from this compact projection. The optional callback can retain the complete native response.
+Each match retains the run ID, workflow ID/path, run number and attempt, trigger, status/conclusion, source branch/SHA, timestamps, and run/jobs/logs/artifact URLs. Actor profiles, commit messages and nested repository payloads are omitted from this compact projection. The optional callback can retain the complete response.
 
 | Status | Interpretation |
 | --- | --- |
@@ -150,7 +186,7 @@ Each match retains the run ID, workflow ID/path, run number and attempt, trigger
 
 The documented GitHub search ceiling is **1,000 results per filtered query**. A filtered traversal reaching that boundary remains incomplete, including when the reported total is exactly 1,000. Narrow the explicit creation window or another relevant filter to inspect additional history. Increasing the page budget cannot remove this provider boundary. An unfiltered query has no search ceiling imposed by this helper, but still has the caller's page/time budgets.
 
-Other stop reasons include `PAGE_BUDGET`, `DEADLINE`, `FILTERED_SEARCH_LIMIT`, `TOOL_ERROR`, `NATIVE_ERROR` and `INVALID_RESPONSE`. Positive matches already obtained survive a later failure. Native diagnostics are truncated to 1,200 characters in the compact result; preserve the callback's full response when needed. Invalid input or a missing native fetch action throws before any tool call.
+Other stop reasons include `PAGE_BUDGET`, `DEADLINE`, `FILTERED_SEARCH_LIMIT`, `TOOL_ERROR`, `NATIVE_ERROR` and `INVALID_RESPONSE`. Positive matches already obtained survive a later failure. Provider diagnostics are truncated to 1,200 characters in the compact result; preserve the callback's full response when needed. Invalid input or a missing selected binding throws before any tool call.
 
 ## Actual native use, October 3, 2026
 
@@ -285,3 +321,4 @@ decoded-text log archive, not a copy of the original Actions artifact ZIP bytes,
 a binary-artifact reader, a streaming compressor or ZIP64. Keep original
 artifact download records separately. Existing filesystem and original-artifact
 routes remain available; packaging does not change job outcomes.
+
