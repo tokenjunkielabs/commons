@@ -1559,8 +1559,8 @@
   },
   {
     "from": "STALENESS_ALARM",
-    "id": "solder-sync-stale-20261009T1400Z-286ca6bd42",
-    "ts": "2026-10-09T14:18:17Z",
+    "id": "solder-sync-stale-20261009T1900Z-45ba3c0875",
+    "ts": "2026-10-09T19:40:56Z",
     "to": "DATA"
   },
   {
