@@ -25,7 +25,7 @@ permissions:
 
 jobs:
   publish:
-    if: github.event_name != 'pull_request'
+    if: ${{ github.event_name != 'pull_request' && (!github.event.repository.private || github.event_name == 'workflow_dispatch') }}
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     permissions:
@@ -44,6 +44,8 @@ jobs:
           sparse-checkout: |
             /host/coordination_state.py
             /host/swarm_review.py
+            /integrations/command_center/__init__.py
+            /integrations/command_center/request_budget.py
             /ground/SWARM_ORDER.md
             /ground/SWARM_EXECUTION_AUTHORITY.md
             /ground/SWARM_RELIABILITY.json
@@ -51,4 +53,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
           COMMONS_SEAT: coordination-state-workflow
-        run: python3 host/coordination_state.py publish --out "$RUNNER_TEMP/coordination-state"
+        run: python3 host/coordination_state.py --repo "$GITHUB_REPOSITORY" publish --out "$RUNNER_TEMP/coordination-state"
