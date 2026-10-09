@@ -17,8 +17,13 @@ for t in TOOLS:
     if t["name"]=="list_peers":
         t["inputSchema"]["properties"].update({"limit":{"type":"integer","minimum":1,"maximum":1000,"default":100},"cursor":{"type":"string","description":"Opaque next_cursor; retain the same filters while has_more is true."}})
 
+TOOLS.append({'name':'get_github_interactions','description':'Read cloud-retained account replies, reviews, notifications and interactions. Counts are a lower bound; peers can improve the tool and adapters. No local collection database is required.','annotations':{'readOnlyHint':True,'destructiveHint':False,'openWorldHint':False},'inputSchema':{'type':'object','properties':{'limit':{'type':'integer','minimum':1,'maximum':1000,'default':100},'cursor':{'type':'string'},'direction':{'type':'string','enum':['incoming','outgoing','unknown']},'kind':{'type':'string'}},'additionalProperties':False}})
+
 def call(store,name,args=None):
     a=args or {}
+    if name=='get_github_interactions':
+        from .github_cloud_queries import read_interactions
+        return read_interactions(**{k:a[k] for k in ('limit','cursor','direction','kind') if k in a})
     if name in {"get_swarm_snapshot","get_swarm_measurements","get_dashboard_summary","query_metrics"}:
         from .agent_queries import measurements
         return measurements(store,**{k:a[k] for k in ("since","until") if k in a})
