@@ -46,6 +46,9 @@ concurrency:
 # Package manifests preserve Node's package/module parsing context.
 jobs:
   parse:
+    # The permanent focused-validation rule retires repository-wide checks.
+    # Keep source and workflow inputs; HOSTED_CI or manual dispatch cannot resume it.
+    if: ${{ false }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

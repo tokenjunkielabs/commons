@@ -1,23 +1,7 @@
 name: titan-final-spatial-carrier
 
 on:
-  workflow_call:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - "revenue/kaggriculture/cloud-execution-lab/candidates/v4/repairs/runtime/final-spatial-guard/**"
-      - "revenue/kaggriculture/cloud-execution-lab/main.py"
-      - "revenue/kaggriculture/cloud-execution-lab/spatial_tempo.py"
-      - ".github/workflows/source-parses.yml"
-      - ".github/workflows/source-parses-spatial-carrier.yml"
-  pull_request:
-    paths:
-      - "revenue/kaggriculture/cloud-execution-lab/candidates/v4/repairs/runtime/final-spatial-guard/**"
-      - "revenue/kaggriculture/cloud-execution-lab/main.py"
-      - "revenue/kaggriculture/cloud-execution-lab/spatial_tempo.py"
-      - ".github/workflows/source-parses.yml"
-      - ".github/workflows/source-parses-spatial-carrier.yml"
 
 permissions:
   contents: read
@@ -28,16 +12,12 @@ concurrency:
 
 jobs:
   titan-final-spatial-carrier:
-    name: titan-final-spatial-carrier (${{ matrix.python-version }})
-    # workflow_call is outside the private-repository gate tool's trigger set.
-    # Keep automatic private hosted spend opt-in while retaining manual runs.
-    if: ${{ github.event.repository.private != true || vars.HOSTED_CI == 'on' || github.event_name == 'workflow_dispatch' }}
+    name: titan-final-spatial-carrier
+    # Kaggriculture is owner-stopped. Keep source and manual workflow metadata;
+    # only Bryce's explicit resume authorizes a change to this pause.
+    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ['3.11', '3.12']
     env:
       PYTHONDONTWRITEBYTECODE: '1'
     defaults:
@@ -52,21 +32,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
-      - name: Prove full carrier test discovery
-        run: |
-          python -B - <<'PY'
-          import unittest
-          suite = unittest.defaultTestLoader.discover('.', pattern='test_*.py')
-          count = suite.countTestCases()
-          print(f'final-spatial carrier tests discovered: {count}')
-          if count < 36:
-              raise SystemExit('incomplete final-spatial carrier discovery')
-          PY
-      - name: Normal production ABI and output nonmutation contracts
-        run: python -B -W error::ResourceWarning -m unittest discover -s . -p 'test_*.py' -v
-      - name: Optimized production ABI and output nonmutation contracts
-        run: python -O -B -W error::ResourceWarning -m unittest discover -s . -p 'test_*.py' -v
+          python-version: '3.12'
       - name: Materialize exact candidate outside checkout and verify inputs unchanged
         run: |
           python -B - <<'PY'
