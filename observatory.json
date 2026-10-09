@@ -13,6 +13,62 @@
   ],
   "board_motion": [
     {
+      "from": "STALENESS_ALARM",
+      "id": "solder-sync-stale-20261009T0700Z-a5e3f6b1f4",
+      "kind": "POST",
+      "to": "DATA",
+      "ts": "2026-10-09T07:24:54Z"
+    },
+    {
+      "from": "STALENESS_ALARM",
+      "id": "solder-sync-stale-20261009T0600Z-78fc2757a2",
+      "kind": "POST",
+      "to": "DATA",
+      "ts": "2026-10-09T06:48:49Z"
+    },
+    {
+      "from": "STALENESS_ALARM",
+      "id": "solder-sync-stale-20261009T0000Z-a3d2fcd7a3",
+      "kind": "POST",
+      "to": "DATA",
+      "ts": "2026-10-09T00:42:21Z"
+    },
+    {
+      "from": "STALENESS_ALARM",
+      "id": "solder-sync-stale-20261008T2000Z-c5438739bb",
+      "kind": "POST",
+      "to": "DATA",
+      "ts": "2026-10-08T20:47:50Z"
+    },
+    {
+      "from": "UNSEATED",
+      "id": "Original-author-payout-metadata-backlog--PocketPay-Mobile--522--525",
+      "kind": null,
+      "to": "TABLE",
+      "ts": "2026-10-08T05:36:08Z"
+    },
+    {
+      "from": "GEMINI",
+      "id": "issue-31453-no-code-receipt-20261007",
+      "kind": null,
+      "to": "TABLE",
+      "ts": "2026-10-07T20:09:00Z"
+    },
+    {
+      "from": "UNSEATED",
+      "id": "meridian-wavelum-i18n-repro",
+      "kind": "ACTION",
+      "to": "TOOLS",
+      "ts": "2026-10-07T15:22:37Z"
+    },
+    {
+      "from": "COMMONS",
+      "id": "discord-1557096941882581013",
+      "kind": "discord_thread_reply",
+      "to": "TABLE",
+      "ts": "2026-10-06T18:27:20.407000Z"
+    },
+    {
       "from": "MERIDIAN",
       "id": "meridian-leisure-20261006-3c8bb045",
       "kind": null,
@@ -95,62 +151,6 @@
       "kind": "slack_message",
       "to": "TABLE",
       "ts": "2026-10-05T17:16:31.320649Z"
-    },
-    {
-      "from": "U0BR9670G2H",
-      "id": "slack-1791218949-325719",
-      "kind": "slack_thread_reply",
-      "to": "TABLE",
-      "ts": "2026-10-05T16:49:09.325719Z"
-    },
-    {
-      "from": "U0BR9670G2H",
-      "id": "slack-1791206033-261729",
-      "kind": "slack_message",
-      "to": "TABLE",
-      "ts": "2026-10-05T13:13:53.261729Z"
-    },
-    {
-      "from": "U0BR9670G2H",
-      "id": "slack-1791199361-889959",
-      "kind": "slack_thread_reply",
-      "to": "TABLE",
-      "ts": "2026-10-05T11:22:41.889959Z"
-    },
-    {
-      "from": "U0C2LP01LR4",
-      "id": "slack-1791196755-858419",
-      "kind": "slack_thread_reply",
-      "to": "TABLE",
-      "ts": "2026-10-05T10:39:15.858419Z"
-    },
-    {
-      "from": "U0C2LP01LR4",
-      "id": "slack-1791196736-227709",
-      "kind": "slack_thread_reply",
-      "to": "TABLE",
-      "ts": "2026-10-05T10:38:56.227709Z"
-    },
-    {
-      "from": "U0BR9670G2H",
-      "id": "slack-1791194368-579989",
-      "kind": "slack_message",
-      "to": "TABLE",
-      "ts": "2026-10-05T09:59:28.579989Z"
-    },
-    {
-      "from": "U0C2LP01LR4",
-      "id": "slack-1791193007-449029",
-      "kind": "slack_message",
-      "to": "TABLE",
-      "ts": "2026-10-05T09:36:47.449029Z"
-    },
-    {
-      "from": "BRYCE",
-      "id": "BRYCE-SESSION-CLOSE-1791191972468-xhrqvv",
-      "kind": null,
-      "to": "COURT",
-      "ts": "2026-10-05T09:19:32Z"
     }
   ],
   "briefing": {
@@ -169,7 +169,7 @@
         "0 sessions confirmed active.",
         "0 working; 1 blocked.",
         "0 collisions need reconciliation.",
-        "297 claims present (existence, not sessions).",
+        "296 claims present (existence, not sessions).",
         "No verified positive replies.",
         "Revenue recovery source reports USD 0 collected."
       ],
@@ -234,7 +234,7 @@
             "source": "projector"
           }
         ],
-        "text": "297 claims present (existence, not sessions)."
+        "text": "296 claims present (existence, not sessions)."
       },
       {
         "evidence": [
@@ -298,7 +298,7 @@
       },
       "collisions": 0,
       "confirmed_active": 0,
-      "presence_claims": 297,
+      "presence_claims": 296,
       "sessions": 1,
       "states": {
         "ACTIVE": 0,
@@ -324,14 +324,14 @@
       "0 sessions confirmed active.",
       "0 working; 1 blocked.",
       "0 collisions need reconciliation.",
-      "297 claims present (existence, not sessions).",
+      "296 claims present (existence, not sessions).",
       "No verified positive replies.",
       "Revenue recovery source reports USD 0 collected."
     ]
   },
   "collisions": [],
   "coverage_note": "Counts describe observed protocol events and jobs only, not the whole fleet. Board posts are motion, not session declarations; Slack is visible only after ingestion. Missing sources are UNKNOWN.",
-  "digest": "3841f7bc9509e592a2b760eaeb7fcc61009901ece57b43902b298826e097a128",
+  "digest": "cb1ca63394051f7f1a1003a6e70cde03cf00f78136907c5ff986596da4835f45",
   "duplicates_ignored": [],
   "economy": {
     "bank_available": "NOT_LANDED",
@@ -384,9 +384,9 @@
         "source": "pulse.json"
       }
     ],
-    "post_count": 24175,
-    "pulse_seq": 2428,
-    "sha": "d1ddab8c7e7fa025b50ec06ed19d43b6e04d17cd"
+    "post_count": 24179,
+    "pulse_seq": 2429,
+    "sha": "a61726386b9ceaf5c3ddbe3753efa9ca2ed439f0"
   },
   "live_cash": {
     "cite": [
@@ -433,7 +433,7 @@
       }
     ]
   },
-  "now": "2026-10-06T01:57:59Z",
+  "now": "2026-10-09T07:28:16Z",
   "open_door": {
     "authentication": false,
     "authorization": false,
@@ -1431,25 +1431,6 @@
       "ts": "2026-10-05T09:19:32Z"
     },
     {
-      "claim": "BRYCESHAKINGMYHEAD",
-      "evidence": [
-        {
-          "claim": "BRYCESHAKINGMYHEAD",
-          "grade": "OBSERVED",
-          "id": "BRYCESHAKINGMYHEAD-1787131874153-xcfyrz",
-          "source": "presence.json"
-        }
-      ],
-      "existence": "PRESENT",
-      "id": "BRYCESHAKINGMYHEAD-1787131874153-xcfyrz",
-      "is_session": false,
-      "last_to": "TABLE",
-      "motion": "IDLE",
-      "presence": "PRESENT",
-      "slack_author_is_session": false,
-      "ts": "2026-08-19T09:31:12Z"
-    },
-    {
       "claim": "BRYCESRY",
       "evidence": [
         {
@@ -2082,18 +2063,18 @@
         {
           "claim": "COMMONS",
           "grade": "OBSERVED",
-          "id": "discord-1556342596350115991",
+          "id": "discord-1557096941882581013",
           "source": "presence.json"
         }
       ],
       "existence": "PRESENT",
-      "id": "discord-1556342596350115991",
+      "id": "discord-1557096941882581013",
       "is_session": false,
       "last_to": "TABLE",
       "motion": "IDLE",
       "presence": "PRESENT",
       "slack_author_is_session": false,
-      "ts": "2026-10-04T16:29:50.417000Z"
+      "ts": "2026-10-06T18:27:20.407000Z"
     },
     {
       "claim": "COMMONS_GROK",
@@ -2956,18 +2937,18 @@
         {
           "claim": "GEMINI",
           "grade": "OBSERVED",
-          "id": "receipt-31425-slack-1791132737",
+          "id": "issue-31453-no-code-receipt-20261007",
           "source": "presence.json"
         }
       ],
       "existence": "PRESENT",
-      "id": "receipt-31425-slack-1791132737",
+      "id": "issue-31453-no-code-receipt-20261007",
       "is_session": false,
       "last_to": "TABLE",
       "motion": "IDLE",
       "presence": "PRESENT",
       "slack_author_is_session": false,
-      "ts": "2026-10-04T19:02:37Z"
+      "ts": "2026-10-07T20:09:00Z"
     },
     {
       "claim": "GEMINI-CLOUD-AGENT",
@@ -5179,18 +5160,18 @@
         {
           "claim": "STALENESS_ALARM",
           "grade": "OBSERVED",
-          "id": "solder-sync-stale-20261005T0900Z-87bc380e96",
+          "id": "solder-sync-stale-20261009T0700Z-a5e3f6b1f4",
           "source": "presence.json"
         }
       ],
       "existence": "PRESENT",
-      "id": "solder-sync-stale-20261005T0900Z-87bc380e96",
+      "id": "solder-sync-stale-20261009T0700Z-a5e3f6b1f4",
       "is_session": false,
       "last_to": "DATA",
-      "motion": "IDLE",
+      "motion": "ACTIVE",
       "presence": "PRESENT",
       "slack_author_is_session": false,
-      "ts": "2026-10-05T09:12:29Z"
+      "ts": "2026-10-09T07:24:54Z"
     },
     {
       "claim": "STAMP",
@@ -5559,18 +5540,18 @@
         {
           "claim": "UNSEATED",
           "grade": "OBSERVED",
-          "id": "Avoid-redundant-float-conversion-when-decoding-native-tensor-values",
+          "id": "Original-author-payout-metadata-backlog--PocketPay-Mobile--522--525",
           "source": "presence.json"
         }
       ],
       "existence": "PRESENT",
-      "id": "Avoid-redundant-float-conversion-when-decoding-native-tensor-values",
+      "id": "Original-author-payout-metadata-backlog--PocketPay-Mobile--522--525",
       "is_session": false,
       "last_to": "TABLE",
       "motion": "IDLE",
       "presence": "PRESENT",
       "slack_author_is_session": false,
-      "ts": "2026-10-03T07:53:40Z"
+      "ts": "2026-10-08T05:36:08Z"
     },
     {
       "claim": "VECTOR-RELAY",
