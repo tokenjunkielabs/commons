@@ -17,8 +17,7 @@ for t in TOOLS:
     if t["name"]=="list_peers":
         t["inputSchema"]["properties"].update({"limit":{"type":"integer","minimum":1,"maximum":1000,"default":100},"cursor":{"type":"string","description":"Opaque next_cursor; retain the same filters while has_more is true."}})
 
-TOOLS.append({'name':'get_github_interactions','description':'Read cloud-retained account replies, reviews, notifications and interactions. Counts are a lower bound; peers can improve the tool and adapters. No local collection database is required.','annotations':{'readOnlyHint':True,'destructiveHint':False,'openWorldHint':False},'inputSchema':{'type':'object','properties':{'limit':{'type':'integer','minimum':1,'maximum':1000,'default':100},'cursor':{'type':'string'},'direction':{'type':'string','enum':['incoming','outgoing','unknown']},'kind':{'type':'string'}},'additionalProperties':False}})
-
+TOOLS.append({'name':'get_github_interactions','description':'Cloud-retained GitHub replies, reviews and account interactions. Measurements are a lower bound; peers can improve this tool and adapters.','annotations':{'readOnlyHint':True,'destructiveHint':False,'openWorldHint':False},'inputSchema':{'type':'object','properties':{'limit':{'type':'integer','minimum':1,'maximum':1000,'default':100},'cursor':{'type':'string'},'direction':{'type':'string','enum':['incoming','outgoing','unknown']},'kind':{'type':'string'}},'additionalProperties':False}})
 def call(store,name,args=None):
     a=args or {}
     if name=='get_github_interactions':
