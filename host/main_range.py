@@ -96,17 +96,13 @@ def plan(paths: list[str], *, audit_unchanged: bool = False) -> list[tuple[str, 
     """Batch changed content once; an explicit base can also audit unchanged HEAD."""
     if not paths and not audit_unchanged:
         return []
-    # Importing these modules would execute their top-level code, not merely
-    # inspect source. The syntax pass below already catches unreadable source;
-    # this scheduler must not invoke product entrypoints as an import sweep.
+    # Keep changed-range guards; do not dispatch repository-wide syntax scans
+    # or invoke product entrypoints as an import sweep.
     commands = [
         ("open-door", [sys.executable, "open_door_guard.py", "--diff", "{base}", "{head}"]),
         ("muhlnickel", [sys.executable, "muhlnickel_spec_guard.py", "--base", "{base}", "--worktree"]),
     ]
     only_projection_data = bool(paths) and all(p in DATA_FILES or p.startswith(DATA_PREFIXES) for p in paths)
-    source_changed = any(path.endswith((".py", ".js")) for path in paths)
-    if source_changed:
-        commands.append(("source-parses", [sys.executable, "source_parses.py"]))
     if not only_projection_data:
         # Run the descriptive inventory itself, not its historical unittest
         # wrapper. Unknown/unmapped paths stay observations, not admission gates.

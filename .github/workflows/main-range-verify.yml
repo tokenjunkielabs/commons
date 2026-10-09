@@ -1,10 +1,7 @@
 name: main-range-verify
 
-# Busy main is sampled as a range. One run replaces six per-push observers,
-# including source parsing when Python or JavaScript changed in the range.
+# Preserve range-observer source and manual inputs without scheduled verification.
 on:
-  schedule:
-    - cron: '7,22,37,52 * * * *'
   workflow_dispatch:
     inputs:
       lookback_minutes:
@@ -21,6 +18,9 @@ concurrency:
 
 jobs:
   verify-range:
+    # The permanent focused-validation rule retires default repository sweeps.
+    # A prior manual dispatch or hosted-CI opt-in does not resume this runner.
+    if: ${{ false }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
