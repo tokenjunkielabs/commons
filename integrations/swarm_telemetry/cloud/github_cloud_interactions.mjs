@@ -46,13 +46,20 @@ export async function run(env=process.env){
   async function readJSON(path){const {r,raw}=await request(path);if(!r.ok)throw Error('cloud_custody_read_'+r.status);return JSON.parse(raw);}
   const release=await readJSON('/repos/'+repo+'/releases/tags/telemetry-custody-v1');
   const pointer=JSON.parse(release.body||'{}');
+  const shardTag='telemetry-sources-'+new Date().toISOString().slice(0,13).replace(/[^a-zA-Z0-9-]/g,'-');
+  let shardResponse=await request('/repos/'+repo+'/releases/tags/'+shardTag);
+  if(shardResponse.r.status===404)shardResponse=await request('/repos/'+repo+'/releases',working,'POST',{tag_name:shardTag,target_commitish:'main',name:shardTag,body:'{}',prerelease:true});
+  if(!shardResponse.r.ok)throw Error('cloud_shard_unavailable_'+shardResponse.r.status);
+  const shard=JSON.parse(shardResponse.raw);
   let state={version:1,selectors:{},pending_subjects:[],root_cycle:0,source_coverage_complete:false};
   async function asset(id){const r=await fetch('https://api.github.com/repos/'+repo+'/releases/assets/'+id,{headers:{Authorization:'Bearer '+working,Accept:'application/octet-stream'},signal:AbortSignal.timeout(25000)});if(!r.ok)throw Error('cloud_asset_read_'+r.status);return Buffer.from(await r.arrayBuffer());}
   if(pointer.state_asset_id)state=JSON.parse(unseal(JSON.parse(await asset(pointer.state_asset_id)),key));
   const events=[],reads=[];
   async function blob(path,content){
     const bytes=Buffer.from(content),name=sha(bytes)+'-'+path.replace(/[^a-zA-Z0-9._-]/g,'_');
-    const url=release.upload_url.replace(/\{.*$/,'')+'?'+new URLSearchParams({name});
+    if(bytes.length>=2147483648)throw Error('cloud_asset_capacity_exceeded');
+    const url=shard.upload_url.replace(/\{.*$/,'')+'?'+new URLSearchParams({name});
+    if(new URL(url).origin!=='https://uploads.github.com')throw Error('cloud_upload_origin_rejected');
     const b=await fetch(url,{method:'POST',headers:{Authorization:'Bearer '+working,'Content-Type':'application/octet-stream'},body:bytes,signal:AbortSignal.timeout(25000)});
     if(!b.ok)throw Error('cloud_asset_unacknowledged_'+b.status);
     const v=await b.json();if(v.size!==bytes.length)throw Error('cloud_asset_size_mismatch');
@@ -61,10 +68,10 @@ export async function run(env=process.env){
   async function retain(response,context){
     // The complete provider response is sealed in cloud storage before its cursor or projection changes.
     const packet=Buffer.from(JSON.stringify({context,actual_api_return_at:response.at,status:response.r.status,headers:Object.fromEntries(response.r.headers),body_base64:response.raw.toString('base64')}));
-    const record=seal(packet,key),compressed=gzipSync(Buffer.from(JSON.stringify(record))),parts=[];
-    for(let n=0;n<compressed.length;n+=480000){const path='sources/'+record.sha256+'/'+String(n/480000).padStart(5,'0')+'.gzpart';parts.push({path,sha:await blob(path,compressed.subarray(n,n+480000))});}
-    await blob('sources/'+record.sha256+'/manifest.json',JSON.stringify({ref:record.ref,sha256:record.sha256,byte_length:record.byte_length,parts,encoding:'gzip-json-aes-cbc-hmac',key_reference:record.key_reference}));
-    reads.push({context,actual_api_return_at:response.at,http_status:response.r.status,source_ref:record.ref});return record.ref;
+    const record=seal(packet,key),compressed=gzipSync(Buffer.from(JSON.stringify(record)));
+    const asset_id=await blob('sources/'+record.sha256+'.json.gz',compressed);
+    const source_ref={ref:record.ref,sha256:record.sha256,byte_length:record.byte_length,asset_id,repository:repo,release_id:shard.id,encoding:'gzip-json-aes-cbc-hmac',key_reference:record.key_reference};
+    reads.push({context,actual_api_return_at:response.at,http_status:response.r.status,source_ref});return source_ref;
   }
   const identities=[['github/tokenjunkielabs',311286379],['github/woahwhattheheck',293286387]];
   for(const [account,id] of identities){const response=await request('/user',tokens[account]);await retain(response,{account_ref:account,endpoint:'/user',kind:'identity'});if(!response.r.ok||JSON.parse(response.raw).id!==id)throw Error('provider_actor_mismatch');}
@@ -102,13 +109,13 @@ export async function run(env=process.env){
   }
   state.pending_subjects=[...new Map(state.pending_subjects.map(x=>[JSON.stringify([x.account,x.kind,x.endpoint]),x])).values()];
   const at=new Date().toISOString(),batch=sha(JSON.stringify(reads));
-  await blob('events/'+at.replace(/[:.]/g,'-')+'-'+batch+'.json',JSON.stringify(seal(Buffer.from(JSON.stringify({observed_at:at,events,reads,peer_note:NOTE,counts_are_lower_bounds:true,corpus_complete:false})),key)));
+  const eventsAssetId=await blob('events/'+at.replace(/[:.]/g,'-')+'-'+batch+'.json',JSON.stringify(seal(Buffer.from(JSON.stringify({observed_at:at,events,reads,peer_note:NOTE,counts_are_lower_bounds:true,corpus_complete:false})),key)));
   state.observed_at=at;state.peer_note=NOTE;state.counts_are_lower_bounds=true;state.corpus_complete=false;
   const stateAssetId=await blob('state/current.json',JSON.stringify(seal(Buffer.from(JSON.stringify(state)),key)));
   const summary={observed_at:at,reads:reads.length,interaction_events:events.length,pending_subjects:state.pending_subjects.length,counts_are_lower_bounds:true,corpus_complete:false,peer_note:NOTE,provider_read_watermarks:reads.map(x=>({account_ref:x.context.account_ref,kind:x.context.kind,at:x.actual_api_return_at,status:x.http_status,ref:x.source_ref})),scope:'Account notifications, received events, authored/participated/reviewed subjects and replies; historical coverage incomplete'};
   const statusAssetId=await blob('status/latest.json',JSON.stringify(summary));
   const current=await readJSON('/repos/'+repo+'/releases/'+release.id);if(current.body!==release.body)throw Error('cloud_checkpoint_changed');
-  const nextPointer=JSON.stringify({state_asset_id:stateAssetId,status_asset_id:statusAssetId,batch,observed_at:at});
+  const nextPointer=JSON.stringify({state_asset_id:stateAssetId,status_asset_id:statusAssetId,events_asset_id:eventsAssetId,source_release_id:shard.id,batch,observed_at:at});
   await request('/repos/'+repo+'/releases/'+release.id,working,'PATCH',{body:nextPointer});
   const actual=await readJSON('/repos/'+repo+'/releases/'+release.id);if(actual.body!==nextPointer)throw Error('cloud_cursor_commit_unconfirmed');
   console.log(JSON.stringify({...summary,release_id:release.id,state_asset_id:stateAssetId,cloud_custody_verified:true}));return summary;
