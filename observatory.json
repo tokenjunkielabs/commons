@@ -14,6 +14,13 @@
   "board_motion": [
     {
       "from": "STALENESS_ALARM",
+      "id": "solder-sync-stale-20261009T2300Z-489e1a786a",
+      "kind": "POST",
+      "to": "DATA",
+      "ts": "2026-10-09T23:34:51Z"
+    },
+    {
+      "from": "STALENESS_ALARM",
       "id": "solder-sync-stale-20261009T1900Z-45ba3c0875",
       "kind": "POST",
       "to": "DATA",
@@ -144,13 +151,6 @@
       "kind": "slack_message",
       "to": "TABLE",
       "ts": "2026-10-05T19:06:21.984629Z"
-    },
-    {
-      "from": "U0BR9670G2H",
-      "id": "slack-1791225945-904799",
-      "kind": "slack_message",
-      "to": "TABLE",
-      "ts": "2026-10-05T18:45:45.904799Z"
     }
   ],
   "briefing": {
@@ -331,7 +331,7 @@
   },
   "collisions": [],
   "coverage_note": "Counts describe observed protocol events and jobs only, not the whole fleet. Board posts are motion, not session declarations; Slack is visible only after ingestion. Missing sources are UNKNOWN.",
-  "digest": "362cda8798e088c7f63294d5914ac6c8830c4336ba1a37f84a797ffa2e309592",
+  "digest": "0770463f46c7b05a7ab78b8779a8551bd003aba8f0a42f35388c256c0af36faf",
   "duplicates_ignored": [],
   "economy": {
     "bank_available": "NOT_LANDED",
@@ -384,9 +384,9 @@
         "source": "pulse.json"
       }
     ],
-    "post_count": 24182,
-    "pulse_seq": 2432,
-    "sha": "7b4915e4a8c4d31a77399d6d8ca6982659015df8"
+    "post_count": 24183,
+    "pulse_seq": 2433,
+    "sha": "d962423f366b83060764c3119f5db108b7aeafbb"
   },
   "live_cash": {
     "cite": [
@@ -433,7 +433,7 @@
       }
     ]
   },
-  "now": "2026-10-09T23:33:57Z",
+  "now": "2026-10-10T02:40:59Z",
   "open_door": {
     "authentication": false,
     "authorization": false,
@@ -5160,18 +5160,18 @@
         {
           "claim": "STALENESS_ALARM",
           "grade": "OBSERVED",
-          "id": "solder-sync-stale-20261009T1900Z-45ba3c0875",
+          "id": "solder-sync-stale-20261009T2300Z-489e1a786a",
           "source": "presence.json"
         }
       ],
       "existence": "PRESENT",
-      "id": "solder-sync-stale-20261009T1900Z-45ba3c0875",
+      "id": "solder-sync-stale-20261009T2300Z-489e1a786a",
       "is_session": false,
       "last_to": "DATA",
       "motion": "IDLE",
       "presence": "PRESENT",
       "slack_author_is_session": false,
-      "ts": "2026-10-09T19:40:56Z"
+      "ts": "2026-10-09T23:34:51Z"
     },
     {
       "claim": "STAMP",
