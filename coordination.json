@@ -1,0 +1,15 @@
+{
+ "counts": {"drift":{"contained":0,"current":0,"disjoint":0,"overlap":0,"unknown":0},"hosted":{},"lanes_open":0,"lanes_with_several_open":0,"listed_open":0,"listed_recent_closed":1,"open_prs":0},
+ "degraded": [],
+ "files": {"head":"coordination-head.json","lanes":"coordination-lanes.json","paths":"coordination-paths.json"},
+ "main": {"committed_at":"2026-10-10T03:34:58Z","message":"llms.txt+fresh.md: last 24 from HEAD p/","sha":"eca1ea9f4cf9c6690eb7b5ff10f211ecda83aaa1"},
+ "notes": [],
+ "observed_at": "2026-10-10T06:19:09Z",
+ "producer": {"api_calls":5,"first_draft":true,"road":"git trees + GitHub GraphQL/REST","seat":"coordination-state-workflow"},
+ "prs": [],
+ "queue": {"in_progress":1,"oldest_is_lower_bound":false,"oldest_queued_age_s":"UNKNOWN","oldest_queued_at":"UNKNOWN","queued":0},
+ "repo": "tokenjunkielabs/commons",
+ "schema": "commons-coordination-state/v1",
+ "swarm": {"batches":[],"capacity":null,"capacity_note":"available review batches at observation time; unknown is not unlimited","counts":{},"policy":"ground/SWARM_ORDER.md","schema":"commons-swarm-queue/v1"},
+ "tips": {"main":"eca1ea9f4cf9c6690eb7b5ff10f211ecda83aaa1"}
+}

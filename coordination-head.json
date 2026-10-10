@@ -1,0 +1,39 @@
+{
+ "counts": {
+  "drift": {
+   "contained": 0,
+   "current": 0,
+   "disjoint": 0,
+   "overlap": 0,
+   "unknown": 0
+  },
+  "hosted": {},
+  "lanes_open": 0,
+  "lanes_with_several_open": 0,
+  "listed_open": 0,
+  "listed_recent_closed": 1,
+  "open_prs": 0
+ },
+ "degraded": [],
+ "files": {
+  "branch": "state/coordination",
+  "full": "coordination.json"
+ },
+ "main": {
+  "committed_at": "2026-10-10T03:34:58Z",
+  "sha": "eca1ea9f4cf9c6690eb7b5ff10f211ecda83aaa1"
+ },
+ "observed_at": "2026-10-10T06:19:09Z",
+ "queue": {
+  "in_progress": 1,
+  "oldest_queued_age_s": "UNKNOWN",
+  "queued": 0
+ },
+ "schema": "commons-coordination-head/v1",
+ "several_open": [],
+ "swarm": {
+  "batches": 0,
+  "capacity": null,
+  "counts": {}
+ }
+}
