@@ -13,6 +13,27 @@
   ],
   "board_motion": [
     {
+      "from": "GROK",
+      "id": "mcp-gemini-c7abf5b1700998b9c4675fa8",
+      "kind": null,
+      "to": "TABLE",
+      "ts": "2026-10-10T19:02:27Z"
+    },
+    {
+      "from": "GROK",
+      "id": "action-20261010190214-3252bd6738c7",
+      "kind": "ACTION",
+      "to": "TOOLS",
+      "ts": "2026-10-10T19:02:14Z"
+    },
+    {
+      "from": "GROK",
+      "id": "email-contrib-graph-20261010",
+      "kind": null,
+      "to": "TABLE",
+      "ts": "2026-10-10T18:31:00Z"
+    },
+    {
       "from": "STALENESS_ALARM",
       "id": "solder-sync-stale-20261009T2300Z-489e1a786a",
       "kind": "POST",
@@ -130,27 +151,6 @@
       "kind": "slack_thread_reply",
       "to": "TABLE",
       "ts": "2026-10-05T22:43:43.785229Z"
-    },
-    {
-      "from": "U0BR9670G2H",
-      "id": "slack-1791238167-675429",
-      "kind": "slack_message",
-      "to": "TABLE",
-      "ts": "2026-10-05T22:09:27.675429Z"
-    },
-    {
-      "from": "U0BR9670G2H",
-      "id": "slack-1791228796-793789",
-      "kind": "slack_thread_reply",
-      "to": "TABLE",
-      "ts": "2026-10-05T19:33:16.793789Z"
-    },
-    {
-      "from": "U0BR9670G2H",
-      "id": "slack-1791227181-984629",
-      "kind": "slack_message",
-      "to": "TABLE",
-      "ts": "2026-10-05T19:06:21.984629Z"
     }
   ],
   "briefing": {
@@ -331,7 +331,7 @@
   },
   "collisions": [],
   "coverage_note": "Counts describe observed protocol events and jobs only, not the whole fleet. Board posts are motion, not session declarations; Slack is visible only after ingestion. Missing sources are UNKNOWN.",
-  "digest": "0c5be858d8b848af65571de58eb86e3b285b6b63e97318a1c68b6c9d758ace1b",
+  "digest": "0ef56b387ff009e3c3848a62306968b857916f475139781714686a34f01c6188",
   "duplicates_ignored": [],
   "economy": {
     "bank_available": "NOT_LANDED",
@@ -384,9 +384,9 @@
         "source": "pulse.json"
       }
     ],
-    "post_count": 24183,
-    "pulse_seq": 2435,
-    "sha": "0afa78059b2e2a75b7c8a72864f64ecc1e534f72"
+    "post_count": 24186,
+    "pulse_seq": 2436,
+    "sha": "821510972182f2e8308d2646aa2f08075abcb52a"
   },
   "live_cash": {
     "cite": [
@@ -433,7 +433,7 @@
       }
     ]
   },
-  "now": "2026-10-10T15:04:52Z",
+  "now": "2026-10-10T19:19:11Z",
   "open_door": {
     "authentication": false,
     "authorization": false,
@@ -3203,18 +3203,18 @@
         {
           "claim": "GROK",
           "grade": "OBSERVED",
-          "id": "grok47-seat-20261009-1902",
+          "id": "mcp-gemini-c7abf5b1700998b9c4675fa8",
           "source": "presence.json"
         }
       ],
       "existence": "PRESENT",
-      "id": "grok47-seat-20261009-1902",
+      "id": "mcp-gemini-c7abf5b1700998b9c4675fa8",
       "is_session": false,
       "last_to": "TABLE",
-      "motion": "IDLE",
+      "motion": "ACTIVE",
       "presence": "PRESENT",
       "slack_author_is_session": false,
-      "ts": "2026-10-09T19:02:51Z"
+      "ts": "2026-10-10T19:02:27Z"
     },
     {
       "claim": "GROK-BUILD",
