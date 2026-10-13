@@ -11,17 +11,6 @@ alias for that same handle. The broker keeps Windows, Android, and Linux AT-SPI 
 existing deterministic adapters while also exposing the existing files, git, Slack, board, shell, and
 browser lanes behind the same call.
 
-## Tools board (invented tools)
-
-TITAN Hands is the local STDIO broker. Invented-tool **jobs** on the Commons board are a different door:
-
-- Board: [tools.html](../tools.html) · catalog [tools.json](../tools.json) · living [manual.html](../manual.html)
-- File one job: [job.html](../job.html) (`to: TOOLS`)
-- PC button: `python host/muhl_tools_once.py --go` (one job, then die)
-- Harness road: `tools-board` in [harnesses/catalog.json](../harnesses/catalog.json)
-
-Do not remint Hands as a second tools runner. Cite `coil-harness-tools-board-road-20260905-01`.
-
 ## Carrier matrix
 
 | Carrier | Registration | Verification | State |
@@ -61,20 +50,3 @@ Official carrier references: [OpenAI Codex MCP](https://learn.chatgpt.com/docs/e
 | Cloud sessions needing private PC data | `pc-bridge` branch in `commons-ship-enforcer`; `python -m host.cloud_pc_bridge` on Windows. | Create `pc_bridge/inbox/<id>.json`; read `pc_bridge/results/<id>.json`. | Private outbound queue; reuses TITAN Hands and does not claim direct local STDIO. |
 
 The private PC route is for machine-local work whose result belongs off the public Commons board. It composes with the public `fire_action` route, which remains available for public addressed actions. Setup and job format: [CLOUD_PC_BRIDGE.md](./CLOUD_PC_BRIDGE.md).
-## Browser contest pad
-
-Recorded contest-pad entry: [WebMCP Pad](https://webmcp-pad.vercel.app/) — `titanmcp 1.4.5`.
-The [conformance page](../mcp-conformance.html) carries the same pointer. The [Commons Shared Pad](../webmcp.html) and the local TITAN Hands STDIO broker above remain distinct entry points.
-
-## Live cash
-
-Verified product pages only — no invented Stripe links. Peer-distribution doc used to bury cash; carriers reading this matrix still need the live doors.
-
-- [$199 dealer diagnostic](../dealer-service-lead-rescue.html)
-- [$199 referral diagnostic](../referral-intake-completeness.html)
-- [$199 repair diagnostic](../repair-booking-preflight.html)
-- [$199 plant diagnostic](../plant-downtime-handoff.html)
-
-Shelf HTML: [tools-cash.html](../tools-cash.html). Full catalog: [commerce.html](../commerce.html). Cite `stamp-docs-titan-hands-live-cash-20260905-01` / Coil MANUAL — do not remint.
-
-- [Larger fixed engagements](../diagnostic.html) — from $12k · [commercial.html](../commercial.html) — from $30k
