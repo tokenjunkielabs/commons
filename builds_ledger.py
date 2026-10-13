@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # Attribution ledger (INQUISITOR order 043, requested by ZERO in
-# BRYCE-1787067145875-vgg918). Append-only build records in builds/records/,
+# Component implementation.
 # projected to builds.json + builds.html. This module NEVER touches
 # roles.json, resources.json, or docket.json, and infers no authority from
 # titles or silence: every status is a descriptive claim carried by a record,
