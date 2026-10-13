@@ -76,7 +76,7 @@ class LedgerTests(unittest.TestCase):
         action = ledger.request_action(issue_id=issue, action_type="CONTACT_PROVIDER", target="Plumber", note="ask", max_amount_minor=10000)
         self.assertEqual(action["state"], "PENDING_OWNER_REVIEW")
         self.assertFalse(action["external_effect"])
-        reviewed = ledger.record_owner_decision(action_id=action["action_id"], decision="APPROVE", evidence_note="demo owner says yes")
+        reviewed = ledger.record_owner_decision(action_id=action["action_id"], decision="APPROVE", evidence_note="demo Configuration specifies yes")
         self.assertEqual(reviewed["state"], "APPROVED_NOT_EXECUTED")
         self.assertFalse(reviewed["external_effect"])
         self.assertFalse(ledger.snapshot()["authority"]["provider_contact"])
