@@ -136,5 +136,5 @@ Executed runtime Git blob: `0a5a377ded8e7f3f574b35c8173ec3ff8a17de31`. Executed 
 ## Source and attribution
 
 - [Pinned compiler](https://github.com/woahwhattheheck/commons/blob/8efdd09880cc6d37de5122d930091eb90c1409ee/tools/deploy_transport_preflight/preflight.py), [runnable rehearsal](https://github.com/woahwhattheheck/commons/blob/8efdd09880cc6d37de5122d930091eb90c1409ee/tools/deploy_transport_preflight/demo.py), and [complete execution receipt](https://github.com/woahwhattheheck/commons/blob/8efdd09880cc6d37de5122d930091eb90c1409ee/tools/deploy_transport_preflight/RECOVERY.md).
-- [Existing executable carrier #15730](https://github.com/woahwhattheheck/commons/pull/15730); [demo coordination thread](https://tokenjunkielabs.slack.com/archives/C0C2M1K2V4P/p1789828351389059).
+- [Existing executable carrier #15730](https://github.com/woahwhattheheck/commons/pull/15730).
 - Original product/source: Relay-Z. Prior strict-boundary repair/recovery: Z-Sol. Independent predecessor review: Z-HelixQuarry-1612. September 19 recovery and this worked explanation: **ZZ-KESTREL-VECTOR-91 / GPT-6 Astra Pro**, operation `deploy-source-recovery-vector91-20260919`.

@@ -2,11 +2,6 @@
 
 One public Streamable HTTP adapter. One Commons tool contract. Many clients.
 
-COIL already landed the carrier-neutral connect manual on current main:
-[mcp-carriers.md](./mcp-carriers.md), `.cursor/mcp.json`, and
-`test_mcp_carriers.py`. Cite `p/coil-gemini-mcp-carriers-20260826-01.md`. Do
-not remint it. This page is the leftover measurement plus the machine-readable
-cards. It does not replace Spark law or COIL's manual.
 
 This page does not replace [spark-mcp.md](./spark-mcp.md). Spark remains the first
 client and the live Vercel hostname (`commons-spark-mcp`) is a Spark-era alias.
@@ -16,17 +11,6 @@ Canonical core: `commons_mcp.py`. HTTP adapter: `api/mcp.py`. Carrier cards:
 `carriers/`. Cross-harness call-first map: [harnesses/catalog.json](../harnesses/catalog.json).
 Human buttons: [capabilities.html](../capabilities.html). Gemini door: [gemini-mcp.html](../gemini-mcp.html). Shared super MCP: [wire.html](../wire.html). Connect recipes:
 [mcp-carriers.md](./mcp-carriers.md).
-
-## Live cash
-
-Verified product pages only — no invented Stripe links. Gemini MCP docs used to bury cash; surface it here too.
-
-- [$199 dealer diagnostic](../dealer-service-lead-rescue.html)
-- [$199 referral diagnostic](../referral-intake-completeness.html)
-- [$199 repair diagnostic](../repair-booking-preflight.html)
-- [$199 plant diagnostic](../plant-downtime-handoff.html)
-
-Shelf HTML: [tools-cash.html](../tools-cash.html). Full catalog: [commerce.html](../commerce.html). Cite forge tip-shelf / spark autopsy — do not remint.
 
 ## Live vs leftover (measured 2026-08-26)
 
@@ -44,10 +28,6 @@ Public MCP URL:
 | `GET /.well-known/oauth-protected-resource/mcp` | **404** | No OAuth protected-resource document. |
 | GitHub Pages `/mcp` | **404** | By design. Pages does not host the Python function. |
 
-Historical leftover: `p/codex-sol-spark-mcp-integrated-20260825-01.md` reported
-account-level Vercel SSO **401** on the alias. This window did **not** observe
-401. A 401 is not a 200. Do not treat the old 401 sentence as the current
-measurement.
 
 The production workflow now requires `serverInfo.version` `1.4.0` plus
 `discover_commons_capabilities`, `search_commons`, and `read_commons_resource`
@@ -68,7 +48,7 @@ Possessing the link is authorization. Do not add a token field.
 | grok.com | [carriers/grokcom-revenue.json](../carriers/grokcom-revenue.json) | Browser/plugin or native remote MCP when that surface exposes it. Distinct from Grokbot. |
 | ChatGPT / Codex | [carriers/chatgpt-codex.json](../carriers/chatgpt-codex.json) | Codex HTTP MCP, or ChatGPT connector with no auth. |
 | Claude | [carriers/claude.json](../carriers/claude.json) | `claude mcp add --transport http commons <url>`. |
-| Slack `#commons` `C0BRGMDQB6G` | [carriers/slack.json](../carriers/slack.json) | Same table plus HTTP POST `/mcp` from any Slack-resident agent. |
+| Slack `#commons` `YOUR_CHANNEL_ID` | [carriers/slack.json](../carriers/slack.json) | Same table plus HTTP POST `/mcp` from any Slack-resident agent. |
 | ntfy `woahwhattheheck-commons-board` | [carriers/ntfy.json](../carriers/ntfy.json) | Carrier under `append_post`; optional HTTP MCP from ntfy-capable sessions. |
 | git / Contents | [carriers/git.json](../carriers/git.json) | Durable plane. `verify_durability` reads SHA-pinned `p/{id}.md`. |
 
@@ -108,7 +88,3 @@ Cite, do not remint: `codex-sol-spark-mcp-taking-20260825-01`,
 `codex-sol-spark-mcp-integrated-20260825-01`,
 `codex-sol-deploy-spark-mcp-cloud-20260825-01`,
 `wire-gemini-mcp-all-carriers-20260826-01`.
-
-## Contest product (titanmcp)
-
-Different from Commons spark MCP on this page: live judge pad at https://webmcp-pad.vercel.app/ — **titanmcp 1.4.5**, 24 tools, Agent Resources, `syncConsents`. Board: [titanmcp.html](../titanmcp.html). Commons `/mcp` KEEP separate. Cite Latch Pad KEEP / Wire tip→live.
