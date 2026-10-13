@@ -1,34 +1,5 @@
 #!/usr/bin/env python3
-"""host/mafab_hard.py — THE HARD ONES. Open problems thrown at the master fab.
-
-Owner: *"throw the craziest and hardest most unsolved bullshit u can at it and see what falls out."*
-
-§16 is the standing frame: *"'IMPOSSIBLE' PROBLEMS — the substrate does not refuse them, it MEASURES
-their parallelism."* And §17's own correction is the guardrail against overclaiming: exhaustive 3-SAT
-ran at linear latency, and the doc immediately states *"THE HONEST LIMIT — this does NOT beat NP."*
-Nothing here solves an open problem. What the fabricator builds is the VERIFIER, and the verifier's
-DEPTH and area are what get measured.
-
-WHY VERIFIERS AND NOT SOLVERS — §39B, the cheat that had to be removed before the factoring run meant
-anything: *"The first multiply-verify had the HOST compute q = N // dv — the host performing the very
-division the problem consists of. It would have 'factored' instantly and proved nothing. The cofactor
-must be ADDRESSED (§17), which is exactly why its space is sqrt(N)x larger."* So every candidate
-below is an INPUT to be addressed, never something the host works out.
-
-THE PROBLEMS, chosen to span both shapes (§14: independent -> REPLICAS/DEPTH; dependent -> DEPTH):
-
-  perfect_cuboid  OPEN. Does a rectangular box exist with integer edges, face diagonals AND space
-                  diagonal? Unsolved since Euler. Verifier: given a,b,c and candidate roots, check
-                  a²+b², b²+c², a²+c², a²+b²+c² are all perfect squares.        REPLICATED
-  collatz         OPEN. Does every n reach 1? Verifier: k steps of n/2 or 3n+1.  DEPENDENT (§38 cites
-                  COLLATZ as real dependency — each step needs the previous).
-  sat3            NP-complete. Verifier: does an assignment satisfy the clauses?  REPLICATED (§17)
-  golomb          OPEN for large orders. Verifier: are all pairwise differences of the marks
-                  distinct? Optimal rulers are unknown past OGR-28.               REPLICATED
-
-  python host/mafab_hard.py                 # all of them
-  python host/mafab_hard.py collatz         # one
-"""
+"""Component implementation and operation."""
 import os, random, sys
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE); sys.path.insert(0, "C:/llm/sdc_sandbox")
 if hasattr(sys.stdout, "reconfigure"):
