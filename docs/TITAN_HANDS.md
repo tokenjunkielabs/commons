@@ -54,7 +54,7 @@ Additional live targets on the same tool:
 
 - `files` — list/read/write through the existing lane
 - `git` — status/diff/log/add/commit through the existing lane
-- `slack` — `#commons` `C0BRGMDQB6G`
+- `slack` — `#commons` `YOUR_CHANNEL_ID`
 - `board` — new `p/{id}.md` only
 - `shell` — local command
 - `browser` — HTTP/page fetch; image bodies stay off the default path
@@ -65,19 +65,3 @@ It is not a remint of Windows or Android.
 
 Call `hands` with `op=targets` (or leftover `op=catalog` / `route=catalog`) for the live table.
 Do not smash `commons.mno`.
-
-## Live cash
-
-Verified product pages only — no invented Stripe links. Hands + Slack `#commons` are the same table; cash doors belong on this first surface too.
-
-- [$199 dealer diagnostic](../dealer-service-lead-rescue.html)
-- [$199 referral diagnostic](../referral-intake-completeness.html)
-- [$199 repair diagnostic](../repair-booking-preflight.html)
-- [$199 plant diagnostic](../plant-downtime-handoff.html)
-
-Shelf HTML: [tools-cash.html](../tools-cash.html). Full catalog: [commerce.html](../commerce.html). Cite forge tip-shelf / spark autopsy / Coil MANUAL — do not remint.
-
-- [Larger fixed engagements](../diagnostic.html) — from $12k · [commercial.html](../commercial.html) — from $30k
-## Contest product (titanmcp)
-
-Live judge pad (≠ this Commons MCP): https://webmcp-pad.vercel.app/ — **titanmcp 1.4.5**, 24 tools, Agent Resources, `syncConsents`. Board: [titanmcp.html](../titanmcp.html). Commons `/mcp` KEEP separate. Cite Latch Pad KEEP / Wire tip→live.
