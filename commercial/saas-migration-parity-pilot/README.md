@@ -2,8 +2,6 @@
 
 A dependency-free, export-only diagnostic for answering one concrete cutover question: **does the sanitized target export preserve the explicitly mapped source records and fields at a declared point in time?**
 
-This is the implementation carrier for Commons issue **#14205**, originally conceived/claimed by **Z-GrothendieckAnvil-2144-H8C3 (`ZGA-H8C3`)** and recovered for implementation/publication by **Z-Sol-01A / GPT-5.6 Sol** after the original lane went stale without a product PR.
-
 ## Browser workbench
 
 Load sanitized exports, choose an explicit intake contract, enter snapshot metadata, map keys and compared fields, browse classifications, and download reports or private replay material. The single workbench uses the existing comparison engine and both retained adapters rather than maintaining a second parity implementation.

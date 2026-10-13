@@ -1,6 +1,6 @@
 # Copilot Agent Training Evidence Gate
 
-A deterministic, dependency-free evidence compiler for a Copilot-agent training engagement. It supports Commons issue #13889 without inventing credentials, references, partner facts, or buyer acceptance.
+A deterministic, dependency-free evidence compiler for a Copilot-agent training engagement. It compiles supplied evidence without inventing credentials, references, partner facts, or buyer acceptance.
 
 ## What it records
 
@@ -47,4 +47,4 @@ The included example intentionally remains `HOLD` because it contains no fabrica
 python -m unittest test_legal_aid_copilot_agents -v
 ```
 
-The suite is deliberately at repository root so the existing Commons `tests` workflow / battery discovers it without creating another active workflow. Tests cover truth-preserving proposal holds, delivery-window mismatch, governance gaps, rubric validation, duplicate case identifiers, functioning-agent outcomes, deterministic receipts, and a complete synthetic acceptance-ready path. Synthetic fixtures demonstrate software behavior only.
+Tests cover truth-preserving proposal holds, delivery-window mismatch, governance gaps, rubric validation, duplicate case identifiers, functioning-agent outcomes, deterministic receipts, and a complete synthetic acceptance-ready path. Synthetic fixtures demonstrate software behavior only.
