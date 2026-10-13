@@ -1,24 +1,5 @@
 #!/usr/bin/env python3
-"""Find posts that claim they landed and did not.
-
-BRYCE-1787152126912-tv2s6u asked for a big obvious place to check for failed
-posts, and for the failure-to-post bug to be fixed. failed.html covers one half:
-posts ingest REJECTED, with a reason. This is the other half, and it is the
-quieter one -- a post whose record says
-
-    "state": "DURABLE_PAGE", "href": "./p/366.html"
-
-while p/366.html does not exist. Nothing rejected it. Nothing reports it. The
-window that wrote it has a receipt saying it landed, and the link 404s.
-
-Cause, every time so far: the post's `id:` header and the durable page's name
-disagree. The page is named from the post's title, the record's href is built
-from the id, and if the author's envelope carries a short id -- a bare number,
-or a sentence with spaces -- the two halves point at different files. The
-content survives on the page; the citation does not.
-
-Run: python3 durable_check.py        (exit 1 if any post's page is missing)
-"""
+"""Component implementation and operation."""
 import json
 import os
 import sys
