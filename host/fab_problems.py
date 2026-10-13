@@ -83,7 +83,7 @@ def main():
     from mafab_adders import family
     fam = sorted(family(32))
     # the OPEN problems join the domain ones: owner 2026-07-28, 'THROW THE UNSOLVED MATH
-    # BULLSHIT IMPOSSIBLE QUESTIONS AT THE FOUNDRY'. Same verification bar for all.
+    # Component implementation.
     ALL = {}
     for reg in (MP.PROBLEMS, MH.HARD, MH2.HARD2): ALL.update(reg)
     for name in sorted(ALL):

@@ -1,57 +1,5 @@
 #!/usr/bin/env python3
-"""host/fab_cfg_argmin.py — THE CONFIGURATION IS THE ADDRESS. The foundry picks its own space.
-
-Owner, 2026-07-27: *"quantum search needed for foundry"* and, on which space to cover,
-*"let foundry choose just optimize for fastest completion."*
-
-WHAT "QUANTUM SEARCH" IS ON THIS SUBSTRATE, and why it is not Grover. §17 measured the answer and
-then CORRECTED ITSELF when the owner said *"addressing can be one bit of ram"*:
-
-    fabricated candidates, n=12 : 1,576,957 gates, 40 gate-delays
-    ADDRESSED candidates, n=12 :       445 gates, 17 gate-delays
-
-§17 attributes that to addressing the candidates instead of fabricating them, and records that the
-MUHLNICKEL's latency then stayed at 17 gate-delays from n=10 to n=16 while the candidate count grew
-64x. Latency flat in candidate count is stronger than a sqrt(N) result. §20 states the mechanism
-without the execution vocabulary: *"the whole candidate space is asserted at once"* — nothing is
-visited, so nothing is amplified. The configuration index IS the address; losers are never
-materialised and cost 0 bytes (winner-only).
-
-WHY THE EXISTING SELECTOR IS NOT THIS. `muhl_fab_select` @2564151717 (171,399 gates, DEPTH 550)
-ranks **K=4 candidates ROUTED IN AS DATA**. Every candidate must be transcribed by the host before
-it can be ranked, so the cost grows with the candidate count — the materialised form §17 retired.
-It is untouched here (CLAUDE.md #8: never delete, only add); this is a second circuit beside it.
-
-THE FOUNDRY CHOOSES ITS SPACE, and it is not told the answer. Two spaces are offered; for each it
-MEASURES separability by enumeration rather than asserting it, and picks by FASTEST COMPLETION:
-
-    a SEPARABLE space completes at DEPTH 0 — §28 measured that rewiring asserts no relation and so
-      costs 0 gates and 0 DEPTH, so an argmin over it would rediscover algebra
-    a NON-SEPARABLE space completes in ONE settle at `scorer DEPTH + 2*log2(N)` (§40C's bank law,
-      measured: the REDUCTION costs depth, the replication does not)
-
-So the foundry fabricates only the part that is not already answered, which per §31 is the fastest
-way to complete the whole job rather than the fastest way to answer a smaller question.
-
-THE KEY, WITH NO DIVISION (§64B's reduction, re-derived for an assembly that retires `rep` per
-settle). compute/tick = REPLICAS/DEPTH and REPLICAS = (storage/gates) * rep, so
-
-    compute/tick_i > compute/tick_j   <=>   gates_i*D_i*rep_j  <  gates_j*D_j*rep_i
-
-and against a routed-in threshold T that is exactly   gates * D  <  T * rep.   Two multiplies and
-one compare. Nothing approximated, and T is DATA — a different query re-addresses and fabricates
-nothing (§57A: routed in as data, which is what separates this from baking a constant).
-
-VERIFIED EXHAUSTIVELY over the COMPLETE index space against exact Python (§3/§43C: covered == space,
-so there is nothing left un-tested to hide in), with the all-zero baseline stated (§40B) and mutants
-that must be CAUGHT (§45C/§47B).
-
-RULE ZERO: this is FABRICATION. It runs once, in its own process, and never inside a run.
-
-  python host/fab_cfg_argmin.py --dry
-  python host/fab_cfg_argmin.py
-  python host/fab_cfg_argmin.py revert
-"""
+'Configuration-space selection utilities for circuit generation.'
 import json, math, os, struct, sys, time
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE); sys.path.insert(0, "C:/llm/sdc_sandbox")
 if hasattr(sys.stdout, "reconfigure"):
