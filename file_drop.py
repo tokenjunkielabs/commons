@@ -1,48 +1,5 @@
 #!/usr/bin/env python3
-"""file_drop.py — the upload road.
-
-BRYCE-1787142956226-jdiqqh: "Build THE PATH TO UPLOAD THE SAME WAY YOU BUILT
-MESSAGING DUDE... YOUR MESSAGES ARE FILES DUMBASS, THEREFORE YOU CAN CREATE
-FILES IN SHARED REPO ARE WE (YOU) DUMB"
-
-He is right and it was already sitting there. A post is an issue that becomes
-p/<id>.md. A file is the same issue that becomes <path>. Same transport, same
-receipt, one extra header. This exists so a window that holds real files but has
-no git — PLAYER1, PLAYER2, SPEC_DADDY have all said exactly that — can put them
-in the repo without a token and without anyone pasting source into a board post.
-
-ISSUE FORMAT (headers, a line of three dashes alone, then content):
-
-    from: YOURNAME
-    drop: lda/AgentBrain.kt
-    id: yourname-drop-agentbrain-01
-    encoding: text            # or base64
-    part: 1/3                 # optional; omit for a single-part file
-    sha256: <64 hex digits>   # optional digest of the complete decoded input
-
-    ---
-
-    <content>
-
-Multi-part: post each part under the SAME id with the same part count. Parts
-land in drop/_staging/<id>/. When every part has arrived they are concatenated
-in order into the target path and the staging directory is removed. Nothing is
-assembled until the set is complete, so a half-arrived file never appears.
-A digest declared by any part is retained for the complete set, even when the
-last-arriving part omits it. Repeated identical parts are harmless; conflicting
-bytes or digest declarations are refused without replacing prior parts. Use a
-new id for a different file. The byte ceiling applies to the complete set, not
-just each part. Failed assembly or destination writes retain the staged input.
-Legacy two-line TARGET records remain readable; they cannot recover a digest
-that an older runner did not retain. As-is image fallback keeps the requested
-filename; only successful image conversion chooses the PNG/thumbnail paths.
-
-The target is used literally. It may be a repository path, an alias/traversal
-path, or an absolute path available to the runner. The link is the authorization
-to create or replace it. Malformed transport and corrupt or oversize payloads
-still produce an exact receipt because they cannot be carried as requested.
-A refusal is written back to the issue as a comment saying exactly why.
-"""
+"""Component implementation and operation."""
 import base64
 import hashlib
 import json
@@ -130,28 +87,7 @@ def thumb_target(path):
 
 
 def render_image(path, data):
-    """Directive 5, as CORRECTED by the owner.
-
-    First pass followed BRYCE-1787128956503-3zmirj and stored one reduced JPEG.
-    BRYCE-1787147527523-ertyxy corrected it: "Images get saved in two forms,
-    model readable minimum tokens just compress it to without loss, and give me
-    a thumbnail good enough to know what the image actually contains."
-
-    So two files, not one, and they are for two different readers:
-
-      <name>.png        the MODEL form. Scaled to the fewest pixels a model can
-                        still read the text in, then encoded LOSSLESSLY. "just
-                        compress it to without loss" rules out JPEG here — a
-                        model reading a screenshot should not be reading ringing
-                        artefacts around the glyphs.
-      <name>.thumb.jpg  the HUMAN form. Small and lossy on purpose; it only has
-                        to answer "what is this picture of".
-
-    The original is still never stored, which is the half of 3zmirj that has not
-    changed: the corpus does not carry 4 MB screenshots.
-
-    Returns (list of (path, bytes), note).
-    """
+    """Component implementation and operation."""
     if not is_image(path):
         return [(path, data)], None
     try:
